@@ -13,13 +13,13 @@ serve(async (req) => {
 
   try {
     const NOTION_TOKEN = Deno.env.get('NOTION_API_KEY')
-    const CLIENTS_DB_ID = "18bdb609-4968-8021-bb17-eacb9298e804" // ID da database de clientes no Notion
+    const DB_CONTAS_ID = "18bdb609496880218ca5d71ff12660ab" // ID da DB_Contas no Notion
     
     if (!NOTION_TOKEN) {
       throw new Error('NOTION_API_KEY not configured')
     }
 
-    const response = await fetch(`https://api.notion.com/v1/databases/${CLIENTS_DB_ID}/query`, {
+    const response = await fetch(`https://api.notion.com/v1/databases/${DB_CONTAS_ID}/query`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${NOTION_TOKEN}`,
