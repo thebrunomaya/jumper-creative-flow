@@ -1,0 +1,245 @@
+
+import React from 'react';
+import { FormData, CLIENTS, PARTNERS } from '@/types/creative';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { CheckCircle, AlertCircle, Clock } from 'lucide-react';
+
+interface Step4Props {
+  formData: FormData;
+  isSubmitting: boolean;
+}
+
+const Step4: React.FC<Step4Props> = ({ formData, isSubmitting }) => {
+  const client = CLIENTS.find(c => c.id === formData.client);
+  const partner = PARTNERS.find(p => p.id === formData.partner);
+  
+  const validFiles = formData.validatedFiles.filter(f => f.valid);
+  const invalidFiles = formData.validatedFiles.filter(f => !f.valid);
+  
+  const isAllValid = invalidFiles.length === 0 && validFiles.length > 0;
+
+  const getPlatformIcon = (platform: string) => {
+    return platform === 'meta' ? '📘' : '🔍';
+  };
+
+  const getCreativeTypeIcon = (type: string) => {
+    switch(type) {
+      case 'image': return '🖼️';
+      case 'carousel': return '🎠';
+      case 'video': return '🎬';
+      default: return '📄';
+    }
+  };
+
+  const getObjectiveIcon = (objective: string) => {
+    switch(objective) {
+      case 'sales': return '💰';
+      case 'traffic': return '🚗';
+      case 'awareness': return '👁️';
+      case 'leads': return '📧';
+      case 'engagement': return '❤️';
+      default: return '🎯';
+    }
+  };
+
+  if (isSubmitting) {
+    return (
+      <div className="text-center py-12 animate-fade-in">
+        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-jumper-blue mx-auto mb-4"></div>
+        <h2 className="text-2xl font-bold text-jumper-text mb-2">🚀 Enviando seu criativo...</h2>
+        <p className="text-gray-600">Criando registro no Notion e organizando arquivos</p>
+        <div className="mt-6 space-y-2 text-sm text-gray-500">
+          <div>✅ Validando dados finais</div>
+          <div>📤 Enviando para o Notion</div>
+          <div>📁 Organizando arquivos no Drive</div>
+          <div>📧 Preparando confirmação por email</div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6 animate-fade-in">
+      <div className="text-center mb-8">
+        <h2 className="text-2xl font-bold text-jumper-text mb-2">✅ Revisão Final</h2>
+        <p className="text-gray-600">Confira todos os dados antes do envio</p>
+      </div>
+
+      {/* Summary Card */}
+      <Card className="border-2 border-blue-200 bg-blue-50">
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2">
+            <span>📋</span>
+            <span>Resumo do Criativo</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <p className="text-sm text-gray-600">Cliente</p>
+              <p className="font-semibold text-jumper-text">{client?.name}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600">Enviado por</p>
+              <p className="font-semibold text-jumper-text">{partner?.name}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600">Plataforma</p>
+              <div className="flex items-center space-x-2">
+                <span>{getPlatformIcon(formData.platform)}</span>
+                <span className="font-semibold text-jumper-text">
+                  {formData.platform === 'meta' ? 'Meta Ads' : 'Google Ads'}
+                </span>
+              </div>
+            </div>
+            {formData.creativeType && (
+              <div>
+                <p className="text-sm text-gray-600">Tipo</p>
+                <div className="flex items-center space-x-2">
+                  <span>{getCreativeTypeIcon(formData.creativeType)}</span>
+                  <span className="font-semibold text-jumper-text capitalize">
+                    {formData.creativeType}
+                  </span>
+                </div>
+              </div>
+            )}
+            {formData.objective && (
+              <div className="md:col-span-2">
+                <p className="text-sm text-gray-600">Objetivo</p>
+                <div className="flex items-center space-x-2">
+                  <span>{getObjectiveIcon(formData.objective)}</span>
+                  <span className="font-semibold text-jumper-text capitalize">
+                    {formData.objective}
+                  </span>
+                </div>
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Files Status */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between">
+            <span className="flex items-center space-x-2">
+              <span>📎</span>
+              <span>Arquivos ({formData.validatedFiles.length})</span>
+            </span>
+            {isAllValid ? (
+              <Badge className="bg-green-100 text-green-800">
+                <CheckCircle className="w-3 h-3 mr-1" />
+                Todos válidos
+              </Badge>
+            ) : (
+              <Badge variant="destructive">
+                <AlertCircle className="w-3 h-3 mr-1" />
+                {invalidFiles.length} com erro
+              </Badge>
+            )}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-2">
+            {formData.validatedFiles.map((file, index) => (
+              <div key={index} className="flex items-center justify-between p-2 rounded border">
+                <div className="flex items-center space-x-2">
+                  <span>{file.file.type.startsWith('image/') ? '🖼️' : '🎬'}</span>
+                  <span className="text-sm font-medium">{file.file.name}</span>
+                </div>
+                {file.valid ? (
+                  <CheckCircle className="w-4 h-4 text-green-500" />
+                ) : (
+                  <AlertCircle className="w-4 h-4 text-red-500" />
+                )}
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Content Preview */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2">
+            <span>📝</span>
+            <span>Conteúdo</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <p className="text-sm text-gray-600">Texto Principal</p>
+            <p className="text-sm bg-gray-50 p-2 rounded">{formData.mainText || 'Não informado'}</p>
+          </div>
+          <div>
+            <p className="text-sm text-gray-600">Headline</p>
+            <p className="text-sm bg-gray-50 p-2 rounded">{formData.headline || 'Não informado'}</p>
+          </div>
+          {formData.description && (
+            <div>
+              <p className="text-sm text-gray-600">Descrição</p>
+              <p className="text-sm bg-gray-50 p-2 rounded">{formData.description}</p>
+            </div>
+          )}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <p className="text-sm text-gray-600">URL Destino</p>
+              <p className="text-sm text-blue-600 break-all">{formData.destinationUrl || 'Não informado'}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600">Call-to-Action</p>
+              <p className="text-sm font-medium">{formData.callToAction || 'Não selecionado'}</p>
+            </div>
+          </div>
+          {formData.observations && (
+            <div>
+              <p className="text-sm text-gray-600">Observações</p>
+              <p className="text-sm bg-gray-50 p-2 rounded">{formData.observations}</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* SLA Information */}
+      <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
+        <CardContent className="p-6">
+          <div className="flex items-center space-x-4">
+            <Clock className="w-8 h-8 text-jumper-blue" />
+            <div>
+              <h3 className="font-semibold text-jumper-text">⏰ SLA de Processamento</h3>
+              <p className="text-sm text-gray-600 mt-1">
+                Seu criativo será processado em até 24 horas úteis
+              </p>
+              <div className="flex items-center space-x-4 mt-2 text-sm text-gray-600">
+                <span>📧 Confirmação por email</span>
+                <span>•</span>
+                <span>📱 Notificação para o gestor</span>
+                <span>•</span>
+                <span>📋 Acompanhamento no Notion</span>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {!isAllValid && (
+        <Card className="border-red-200 bg-red-50">
+          <CardContent className="p-4">
+            <div className="flex items-center space-x-2">
+              <AlertCircle className="w-5 h-5 text-red-500" />
+              <div>
+                <p className="text-sm font-medium text-red-800">Atenção!</p>
+                <p className="text-sm text-red-700">
+                  Existem arquivos com problemas. Volte para a etapa de upload e corrija os arquivos inválidos.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
+};
+
+export default Step4;

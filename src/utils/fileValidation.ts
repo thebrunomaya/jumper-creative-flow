@@ -1,0 +1,161 @@
+
+import { META_SPECS, ValidatedFile } from '@/types/creative';
+
+export const validateImage = (file: File): Promise<{ valid: boolean; width: number; height: number; message: string }> => {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      const isValidFeed = img.width === 1080 && img.height === 1080;
+      const isValidStories = img.width === 1080 && img.height === 1920;
+      const isValid = isValidFeed || isValidStories;
+      
+      resolve({
+        valid: isValid,
+        width: img.width,
+        height: img.height,
+        message: isValid 
+          ? `Dimensões corretas (${img.width}x${img.height}px)` 
+          : `Dimensão inválida (${img.width}x${img.height}px). Use 1080x1080 ou 1080x1920`
+      });
+    };
+    img.onerror = () => {
+      resolve({
+        valid: false,
+        width: 0,
+        height: 0,
+        message: 'Erro ao carregar imagem'
+      });
+    };
+    img.src = URL.createObjectURL(file);
+  });
+};
+
+export const validateVideo = (file: File): Promise<{ valid: boolean; duration: number; message: string }> => {
+  return new Promise((resolve) => {
+    const video = document.createElement('video');
+    video.preload = 'metadata';
+    
+    video.onloadedmetadata = () => {
+      const duration = Math.round(video.duration);
+      const isValidDuration = duration >= 15 && duration <= 60;
+      
+      resolve({
+        valid: isValidDuration,
+        duration,
+        message: isValidDuration 
+          ? `Duração válida (${duration}s)` 
+          : `Duração inválida (${duration}s). Use entre 15-60 segundos`
+      });
+    };
+    
+    video.onerror = () => {
+      resolve({
+        valid: false,
+        duration: 0,
+        message: 'Erro ao carregar vídeo'
+      });
+    };
+    
+    video.src = URL.createObjectURL(file);
+  });
+};
+
+export const validateFileSize = (file: File, isVideo: boolean): { valid: boolean; message: string } => {
+  const maxSize = isVideo ? META_SPECS.video.feed.maxSize : META_SPECS.image.feed.maxSize;
+  const sizeInMB = file.size / (1024 * 1024);
+  const maxSizeInMB = maxSize / (1024 * 1024);
+  
+  return {
+    valid: file.size <= maxSize,
+    message: file.size <= maxSize 
+      ? `Tamanho válido (${sizeInMB.toFixed(1)}MB)` 
+      : `Arquivo muito grande (${sizeInMB.toFixed(1)}MB). Máximo: ${maxSizeInMB}MB`
+  };
+};
+
+export const validateFileType = (file: File): { valid: boolean; message: string } => {
+  const imageTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+  const videoTypes = ['video/mp4', 'video/mov', 'video/quicktime'];
+  const allValidTypes = [...imageTypes, ...videoTypes];
+  
+  return {
+    valid: allValidTypes.includes(file.type),
+    message: allValidTypes.includes(file.type) 
+      ? 'Formato válido' 
+      : 'Formato inválido. Use JPG, PNG, MP4 ou MOV'
+  };
+};
+
+export const validateFile = async (file: File): Promise<ValidatedFile> => {
+  const errors: string[] = [];
+  let valid = true;
+  let dimensions: { width: number; height: number } | undefined;
+  let duration: number | undefined;
+
+  // Validate file type
+  const typeValidation = validateFileType(file);
+  if (!typeValidation.valid) {
+    errors.push(typeValidation.message);
+    valid = false;
+  }
+
+  const isVideo = file.type.startsWith('video/');
+  const isImage = file.type.startsWith('image/');
+
+  // Validate file size
+  const sizeValidation = validateFileSize(file, isVideo);
+  if (!sizeValidation.valid) {
+    errors.push(sizeValidation.message);
+    valid = false;
+  }
+
+  // Validate dimensions for images
+  if (isImage && typeValidation.valid) {
+    const imageValidation = await validateImage(file);
+    dimensions = { width: imageValidation.width, height: imageValidation.height };
+    if (!imageValidation.valid) {
+      errors.push(imageValidation.message);
+      valid = false;
+    }
+  }
+
+  // Validate duration for videos
+  if (isVideo && typeValidation.valid) {
+    const videoValidation = await validateVideo(file);
+    duration = videoValidation.duration;
+    if (!videoValidation.valid) {
+      errors.push(videoValidation.message);
+      valid = false;
+    }
+  }
+
+  // Create preview
+  let preview: string | undefined;
+  if (isImage) {
+    preview = URL.createObjectURL(file);
+  }
+
+  return {
+    file,
+    valid,
+    dimensions,
+    duration,
+    errors: errors.length > 0 ? errors : (valid ? ['Arquivo válido'] : ['Erro na validação']),
+    preview
+  };
+};
+
+export const validateText = (text: string, maxLength: number) => {
+  const count = text.length;
+  const percentage = count / maxLength;
+  
+  return {
+    valid: count <= maxLength,
+    count,
+    maxLength,
+    percentage,
+    color: count > maxLength ? 'text-red-500' : 
+           percentage > 0.9 ? 'text-orange-500' : 
+           percentage > 0.7 ? 'text-yellow-500' : 'text-green-500'
+  };
+};
