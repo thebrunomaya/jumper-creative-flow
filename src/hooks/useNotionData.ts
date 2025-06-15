@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Client, Partner } from '@/types/creative';
 import { supabase } from '@/integrations/supabase/client';
@@ -69,29 +68,27 @@ export const useNotionClients = () => {
         }
         
         const formattedClients: Client[] = data.results.map((item: NotionClient) => {
-          // Try to find a name property - check common property names
+          // Look specifically for the "Conta" property first
           let name = 'Sem nome';
           
-          // Check for common property names in order of preference
-          const possibleNameProperties = ['Name', 'Nome', 'Client', 'Cliente', 'Title', 'Título'];
-          
-          for (const propName of possibleNameProperties) {
-            if (item.properties[propName]) {
-              const extractedName = extractTextFromProperty(item.properties[propName]);
-              if (extractedName !== 'Sem nome') {
-                name = extractedName;
-                break;
-              }
+          if (item.properties['Conta']) {
+            const extractedName = extractTextFromProperty(item.properties['Conta']);
+            if (extractedName !== 'Sem nome') {
+              name = extractedName;
             }
           }
           
-          // If no name found, try the first text property
+          // If "Conta" doesn't work, try other common property names as fallback
           if (name === 'Sem nome') {
-            for (const [key, value] of Object.entries(item.properties)) {
-              const extractedName = extractTextFromProperty(value);
-              if (extractedName !== 'Sem nome') {
-                name = extractedName;
-                break;
+            const possibleNameProperties = ['Name', 'Nome', 'Client', 'Cliente', 'Title', 'Título'];
+            
+            for (const propName of possibleNameProperties) {
+              if (item.properties[propName]) {
+                const extractedName = extractTextFromProperty(item.properties[propName]);
+                if (extractedName !== 'Sem nome') {
+                  name = extractedName;
+                  break;
+                }
               }
             }
           }
