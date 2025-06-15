@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { Client, Partner } from '@/types/creative';
+import { supabase } from '@/integrations/supabase/client';
 
 interface NotionClient {
   id: string;
@@ -28,10 +29,10 @@ export const useNotionClients = () => {
   useEffect(() => {
     const fetchClients = async () => {
       try {
-        const response = await fetch('/api/notion/clients');
-        if (!response.ok) throw new Error('Failed to fetch clients');
+        const { data, error } = await supabase.functions.invoke('notion-clients');
         
-        const data = await response.json();
+        if (error) throw error;
+        
         const formattedClients: Client[] = data.results.map((item: NotionClient) => ({
           id: item.id,
           name: item.properties.Name.title[0]?.plain_text || 'Sem nome'
@@ -68,10 +69,10 @@ export const useNotionPartners = () => {
   useEffect(() => {
     const fetchPartners = async () => {
       try {
-        const response = await fetch('/api/notion/partners');
-        if (!response.ok) throw new Error('Failed to fetch partners');
+        const { data, error } = await supabase.functions.invoke('notion-partners');
         
-        const data = await response.json();
+        if (error) throw error;
+        
         const formattedPartners: Partner[] = data.results.map((item: NotionPartner) => ({
           id: item.id,
           name: item.properties.Name.title[0]?.plain_text || 'Sem nome'
