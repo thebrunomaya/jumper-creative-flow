@@ -13,7 +13,7 @@ serve(async (req) => {
 
   try {
     const NOTION_TOKEN = Deno.env.get('NOTION_API_KEY')
-    const DB_CONTAS_ID = "18bdb609-4968-8021-8ca5-d71ff12660ab" // ID da DB_Contas no Notion
+    const DB_CONTAS_ID = "162db609-4968-808b-bcbe-d40fef7370d1" // ID correto da DB_Contas no Notion
     
     console.log('=== NOTION CLIENTS DEBUG ===')
     console.log('NOTION_TOKEN exists:', !!NOTION_TOKEN)
