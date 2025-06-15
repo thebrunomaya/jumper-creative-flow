@@ -13,15 +13,22 @@ serve(async (req) => {
 
   try {
     const NOTION_TOKEN = Deno.env.get('NOTION_API_KEY')
-    const DB_CONTAS_ID = "18bdb609-4968-8021-8ca5-d71ff12660ab" // ID da DB_Contas no Notion (formato com hífens)
+    const DB_CONTAS_ID = "18bdb609-4968-8021-8ca5-d71ff12660ab" // ID da DB_Contas no Notion
+    
+    console.log('=== NOTION CLIENTS DEBUG ===')
+    console.log('NOTION_TOKEN exists:', !!NOTION_TOKEN)
+    console.log('NOTION_TOKEN length:', NOTION_TOKEN?.length || 0)
+    console.log('DB_CONTAS_ID:', DB_CONTAS_ID)
     
     if (!NOTION_TOKEN) {
+      console.error('NOTION_API_KEY not found in environment variables')
       throw new Error('NOTION_API_KEY not configured')
     }
 
-    console.log('Fetching clients from Notion DB:', DB_CONTAS_ID)
+    const notionUrl = `https://api.notion.com/v1/databases/${DB_CONTAS_ID}/query`
+    console.log('Making request to:', notionUrl)
 
-    const response = await fetch(`https://api.notion.com/v1/databases/${DB_CONTAS_ID}/query`, {
+    const response = await fetch(notionUrl, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${NOTION_TOKEN}`,
@@ -38,14 +45,22 @@ serve(async (req) => {
       })
     })
 
+    console.log('Response status:', response.status)
+    console.log('Response headers:', Object.fromEntries(response.headers.entries()))
+
     if (!response.ok) {
       const errorText = await response.text()
-      console.error('Notion API error:', response.status, errorText)
+      console.error('Notion API error details:', {
+        status: response.status,
+        statusText: response.statusText,
+        body: errorText
+      })
       throw new Error(`Notion API error: ${response.status} - ${errorText}`)
     }
 
     const data = await response.json()
-    console.log('Successfully fetched clients:', data.results?.length || 0)
+    console.log('Successfully fetched clients count:', data.results?.length || 0)
+    console.log('Sample client data:', data.results?.[0] || 'No results')
     
     return new Response(
       JSON.stringify(data),
@@ -57,9 +72,12 @@ serve(async (req) => {
       },
     )
   } catch (error) {
-    console.error('Error:', error)
+    console.error('Error in notion-clients function:', error)
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: error.message,
+        details: error.toString()
+      }),
       { 
         status: 500,
         headers: { 
