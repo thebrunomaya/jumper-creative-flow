@@ -29,19 +29,31 @@ export const useNotionClients = () => {
   useEffect(() => {
     const fetchClients = async () => {
       try {
+        console.log('Fetching clients from Notion...');
         const { data, error } = await supabase.functions.invoke('notion-clients');
         
-        if (error) throw error;
+        if (error) {
+          console.error('Supabase function error:', error);
+          throw error;
+        }
+        
+        console.log('Raw Notion clients data:', data);
+        
+        if (!data || !data.results) {
+          throw new Error('Invalid response format from Notion');
+        }
         
         const formattedClients: Client[] = data.results.map((item: NotionClient) => ({
           id: item.id,
-          name: item.properties.Name.title[0]?.plain_text || 'Sem nome'
+          name: item.properties.Name?.title?.[0]?.plain_text || 'Sem nome'
         }));
         
+        console.log('Formatted clients:', formattedClients);
         setClients(formattedClients);
+        setError(null);
       } catch (err) {
         console.error('Error fetching clients:', err);
-        setError('Erro ao carregar clientes');
+        setError('Erro ao carregar clientes do Notion');
         // Fallback para dados hardcoded se a API falhar
         setClients([
           { id: "18bdb609-4968-8021-bb17-eacb9298e804", name: "Almeida Prado B2B" },
@@ -69,19 +81,31 @@ export const useNotionPartners = () => {
   useEffect(() => {
     const fetchPartners = async () => {
       try {
+        console.log('Fetching partners from Notion...');
         const { data, error } = await supabase.functions.invoke('notion-partners');
         
-        if (error) throw error;
+        if (error) {
+          console.error('Supabase function error:', error);
+          throw error;
+        }
+        
+        console.log('Raw Notion partners data:', data);
+        
+        if (!data || !data.results) {
+          throw new Error('Invalid response format from Notion');
+        }
         
         const formattedPartners: Partner[] = data.results.map((item: NotionPartner) => ({
           id: item.id,
-          name: item.properties.Name.title[0]?.plain_text || 'Sem nome'
+          name: item.properties.Name?.title?.[0]?.plain_text || 'Sem nome'
         }));
         
+        console.log('Formatted partners:', formattedPartners);
         setPartners(formattedPartners);
+        setError(null);
       } catch (err) {
         console.error('Error fetching partners:', err);
-        setError('Erro ao carregar parceiros');
+        setError('Erro ao carregar parceiros do Notion');
         // Fallback para dados hardcoded se a API falhar
         setPartners([
           { id: "163db609-4968-80bb-8113-f8381aace362", name: "Roberta - LEAP Lab" },

@@ -13,11 +13,13 @@ serve(async (req) => {
 
   try {
     const NOTION_TOKEN = Deno.env.get('NOTION_API_KEY')
-    const DB_PARCEIROS_ID = "163db609496880bb8113f8381aace362" // ID da DB_Parceiros no Notion
+    const DB_PARCEIROS_ID = "163db609-4968-80bb-8113-f8381aace362" // ID da DB_Parceiros no Notion (formato com hífens)
     
     if (!NOTION_TOKEN) {
       throw new Error('NOTION_API_KEY not configured')
     }
+
+    console.log('Fetching partners from Notion DB:', DB_PARCEIROS_ID)
 
     const response = await fetch(`https://api.notion.com/v1/databases/${DB_PARCEIROS_ID}/query`, {
       method: 'POST',
@@ -37,10 +39,13 @@ serve(async (req) => {
     })
 
     if (!response.ok) {
-      throw new Error(`Notion API error: ${response.status}`)
+      const errorText = await response.text()
+      console.error('Notion API error:', response.status, errorText)
+      throw new Error(`Notion API error: ${response.status} - ${errorText}`)
     }
 
     const data = await response.json()
+    console.log('Successfully fetched partners:', data.results?.length || 0)
     
     return new Response(
       JSON.stringify(data),
