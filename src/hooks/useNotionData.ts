@@ -6,20 +6,38 @@ import { supabase } from '@/integrations/supabase/client';
 interface NotionClient {
   id: string;
   properties: {
-    Name: {
-      title: Array<{ plain_text: string }>;
-    };
+    [key: string]: any;
   };
 }
 
 interface NotionPartner {
   id: string;
   properties: {
-    Name: {
-      title: Array<{ plain_text: string }>;
-    };
+    [key: string]: any;
   };
 }
+
+// Helper function to extract text from Notion property
+const extractTextFromProperty = (property: any): string => {
+  if (!property) return 'Sem nome';
+  
+  // Handle title property
+  if (property.title && Array.isArray(property.title) && property.title.length > 0) {
+    return property.title[0].plain_text || 'Sem nome';
+  }
+  
+  // Handle rich_text property
+  if (property.rich_text && Array.isArray(property.rich_text) && property.rich_text.length > 0) {
+    return property.rich_text[0].plain_text || 'Sem nome';
+  }
+  
+  // Handle plain_text property
+  if (property.plain_text) {
+    return property.plain_text;
+  }
+  
+  return 'Sem nome';
+};
 
 export const useNotionClients = () => {
   const [clients, setClients] = useState<Client[]>([]);
@@ -29,7 +47,7 @@ export const useNotionClients = () => {
   useEffect(() => {
     const fetchClients = async () => {
       try {
-        console.log('Fetching clients from Notion...');
+        console.log('Fetching clients from Notion DB_Contas...');
         const { data, error } = await supabase.functions.invoke('notion-clients');
         
         if (error) {
@@ -39,14 +57,50 @@ export const useNotionClients = () => {
         
         console.log('Raw Notion clients data:', data);
         
-        if (!data || !data.results) {
-          throw new Error('Invalid response format from Notion');
+        if (!data || !data.success) {
+          throw new Error(data?.error || 'Invalid response format from Notion');
         }
         
-        const formattedClients: Client[] = data.results.map((item: NotionClient) => ({
-          id: item.id,
-          name: item.properties.Name?.title?.[0]?.plain_text || 'Sem nome'
-        }));
+        if (!data.results || !Array.isArray(data.results)) {
+          console.warn('No results found in Notion response');
+          setClients([]);
+          setError(null);
+          return;
+        }
+        
+        const formattedClients: Client[] = data.results.map((item: NotionClient) => {
+          // Try to find a name property - check common property names
+          let name = 'Sem nome';
+          
+          // Check for common property names in order of preference
+          const possibleNameProperties = ['Name', 'Nome', 'Client', 'Cliente', 'Title', 'Título'];
+          
+          for (const propName of possibleNameProperties) {
+            if (item.properties[propName]) {
+              const extractedName = extractTextFromProperty(item.properties[propName]);
+              if (extractedName !== 'Sem nome') {
+                name = extractedName;
+                break;
+              }
+            }
+          }
+          
+          // If no name found, try the first text property
+          if (name === 'Sem nome') {
+            for (const [key, value] of Object.entries(item.properties)) {
+              const extractedName = extractTextFromProperty(value);
+              if (extractedName !== 'Sem nome') {
+                name = extractedName;
+                break;
+              }
+            }
+          }
+          
+          return {
+            id: item.id,
+            name: name
+          };
+        });
         
         console.log('Formatted clients:', formattedClients);
         setClients(formattedClients);
@@ -56,11 +110,11 @@ export const useNotionClients = () => {
         setError('Erro ao carregar clientes do Notion');
         // Fallback para dados hardcoded se a API falhar
         setClients([
-          { id: "18bdb609-4968-8021-bb17-eacb9298e804", name: "Almeida Prado B2B" },
-          { id: "162db609-4968-8059-8ca5-d71ff12660ab", name: "Almeida Prado Ecommerce" },
-          { id: "163db609-4968-80bb-8113-f8381aace362", name: "LEAP Lab" },
-          { id: "164db609-4968-80dc-befd-d2cb83532f3b", name: "Koko Educação" },
-          { id: "165db609-4968-80fe-a1c7-e8df90125678", name: "Supermercadistas" }
+          { id: "fallback-1", name: "Almeida Prado B2B" },
+          { id: "fallback-2", name: "Almeida Prado Ecommerce" },
+          { id: "fallback-3", name: "LEAP Lab" },
+          { id: "fallback-4", name: "Koko Educação" },
+          { id: "fallback-5", name: "Supermercadistas" }
         ]);
       } finally {
         setLoading(false);
@@ -81,7 +135,7 @@ export const useNotionPartners = () => {
   useEffect(() => {
     const fetchPartners = async () => {
       try {
-        console.log('Fetching partners from Notion...');
+        console.log('Fetching partners from Notion DB_Parceiros...');
         const { data, error } = await supabase.functions.invoke('notion-partners');
         
         if (error) {
@@ -91,14 +145,50 @@ export const useNotionPartners = () => {
         
         console.log('Raw Notion partners data:', data);
         
-        if (!data || !data.results) {
-          throw new Error('Invalid response format from Notion');
+        if (!data || !data.success) {
+          throw new Error(data?.error || 'Invalid response format from Notion');
         }
         
-        const formattedPartners: Partner[] = data.results.map((item: NotionPartner) => ({
-          id: item.id,
-          name: item.properties.Name?.title?.[0]?.plain_text || 'Sem nome'
-        }));
+        if (!data.results || !Array.isArray(data.results)) {
+          console.warn('No results found in Notion response');
+          setPartners([]);
+          setError(null);
+          return;
+        }
+        
+        const formattedPartners: Partner[] = data.results.map((item: NotionPartner) => {
+          // Try to find a name property - check common property names
+          let name = 'Sem nome';
+          
+          // Check for common property names in order of preference
+          const possibleNameProperties = ['Name', 'Nome', 'Partner', 'Parceiro', 'Title', 'Título'];
+          
+          for (const propName of possibleNameProperties) {
+            if (item.properties[propName]) {
+              const extractedName = extractTextFromProperty(item.properties[propName]);
+              if (extractedName !== 'Sem nome') {
+                name = extractedName;
+                break;
+              }
+            }
+          }
+          
+          // If no name found, try the first text property
+          if (name === 'Sem nome') {
+            for (const [key, value] of Object.entries(item.properties)) {
+              const extractedName = extractTextFromProperty(value);
+              if (extractedName !== 'Sem nome') {
+                name = extractedName;
+                break;
+              }
+            }
+          }
+          
+          return {
+            id: item.id,
+            name: name
+          };
+        });
         
         console.log('Formatted partners:', formattedPartners);
         setPartners(formattedPartners);
@@ -108,10 +198,10 @@ export const useNotionPartners = () => {
         setError('Erro ao carregar parceiros do Notion');
         // Fallback para dados hardcoded se a API falhar
         setPartners([
-          { id: "163db609-4968-80bb-8113-f8381aace362", name: "Roberta - LEAP Lab" },
-          { id: "163db609-4968-80dc-befd-d2cb83532f3b", name: "Murilo - Agência Koko" },
-          { id: "164db609-4968-80fe-a1c7-e8df90123456", name: "Carlos - Almeida Prado" },
-          { id: "165db609-4968-8021-bb17-eacb92987890", name: "Ana - Supermercadistas" }
+          { id: "fallback-1", name: "Roberta - LEAP Lab" },
+          { id: "fallback-2", name: "Murilo - Agência Koko" },
+          { id: "fallback-3", name: "Carlos - Almeida Prado" },
+          { id: "fallback-4", name: "Ana - Supermercadistas" }
         ]);
       } finally {
         setLoading(false);
