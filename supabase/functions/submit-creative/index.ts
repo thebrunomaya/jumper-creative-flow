@@ -66,6 +66,13 @@ serve(async (req) => {
             }
           ]
         },
+        "Conta": {
+          relation: [
+            {
+              id: creativeData.client
+            }
+          ]
+        },
         "Plataforma": {
           select: {
             name: creativeData.platform === 'meta' ? 'Meta Ads' : 'Google Ads'
