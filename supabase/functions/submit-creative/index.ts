@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
@@ -107,6 +106,7 @@ serve(async (req) => {
     const creativeData: CreativeSubmissionData = await req.json()
     console.log('Creative data received:', {
       managerId: creativeData.managerId,
+      destinationUrl: creativeData.destinationUrl, // Log the URL specifically
       filesCount: creativeData.filesInfo?.length || 0,
       fileNames: creativeData.filesInfo?.map(f => f.name) || []
     })
@@ -245,6 +245,12 @@ serve(async (req) => {
         }
       }
     }
+
+    // Log specifically the URL being sent to Notion
+    console.log('🔗 URL being sent to Notion:', {
+      originalUrl: creativeData.destinationUrl,
+      notionUrlProperty: notionPayload.properties["Link de destino"]
+    });
 
     // Add uploaded files to the "Arquivos" property in the correct format
     if (uploadedFiles.length > 0) {
