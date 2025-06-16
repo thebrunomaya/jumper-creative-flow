@@ -3,6 +3,7 @@ import { FormData, TEXT_LIMITS } from '@/types/creative';
 import { useToast } from '@/hooks/use-toast';
 import Header from './Header';
 import ProgressBar from './ProgressBar';
+import Breadcrumbs from './Breadcrumbs';
 import Step1 from './steps/Step1';
 import Step2 from './steps/Step2';
 import Step3 from './steps/Step3';
@@ -131,6 +132,12 @@ const CreativeSystem: React.FC = () => {
     setCurrentStep(prev => Math.max(prev - 1, 1));
   };
 
+  const goToStep = (step: number) => {
+    if (step < currentStep) {
+      setCurrentStep(step);
+    }
+  };
+
   const generateCreativeId = (data: FormData): string => {
     const clientName = data.client.split('-')[0].toUpperCase().replace(/\s+/g, '-');
     const platform = data.platform.toUpperCase();
@@ -214,6 +221,12 @@ const CreativeSystem: React.FC = () => {
       <Header />
       
       <div className="max-w-4xl mx-auto px-4 py-8">
+        <Breadcrumbs 
+          currentStep={currentStep} 
+          stepLabels={STEP_LABELS}
+          onStepClick={goToStep}
+        />
+        
         <ProgressBar 
           currentStep={currentStep} 
           totalSteps={4} 
