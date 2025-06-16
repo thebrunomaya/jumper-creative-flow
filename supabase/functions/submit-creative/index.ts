@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
@@ -37,6 +36,8 @@ const uploadFileToSupabase = async (
   mimeType: string,
   supabase: any
 ): Promise<string> => {
+  console.log(`🔄 Starting upload for file: ${fileName}, type: ${mimeType}, size: ${base64Data.length} chars`);
+  
   // Convert base64 to blob
   const binaryString = atob(base64Data);
   const bytes = new Uint8Array(binaryString.length);
@@ -49,6 +50,8 @@ const uploadFileToSupabase = async (
   const fileExtension = fileName.split('.').pop();
   const uniqueFileName = `${timestamp}-${fileName}`;
 
+  console.log(`📤 Uploading to Supabase with filename: ${uniqueFileName}`);
+
   // Upload to Supabase Storage
   const { data, error } = await supabase.storage
     .from('creative-files')
@@ -58,15 +61,18 @@ const uploadFileToSupabase = async (
     });
 
   if (error) {
-    console.error('Supabase storage error:', error);
+    console.error('❌ Supabase storage error:', error);
     throw new Error(`Failed to upload file to storage: ${error.message}`);
   }
+
+  console.log(`✅ File uploaded successfully:`, data);
 
   // Get public URL
   const { data: urlData } = supabase.storage
     .from('creative-files')
     .getPublicUrl(uniqueFileName);
 
+  console.log(`🔗 Generated public URL: ${urlData.publicUrl}`);
   return urlData.publicUrl;
 };
 
@@ -98,15 +104,21 @@ serve(async (req) => {
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
 
     const creativeData: CreativeSubmissionData = await req.json()
-    console.log('Creative data received:', creativeData)
+    console.log('Creative data received:', {
+      id: creativeData.id,
+      filesCount: creativeData.filesInfo?.length || 0,
+      fileNames: creativeData.filesInfo?.map(f => f.name) || []
+    })
 
     // Upload files to Supabase Storage and get URLs
     const uploadedFiles: Array<{ name: string; url: string; format?: string }> = [];
     
     if (creativeData.filesInfo && creativeData.filesInfo.length > 0) {
-      console.log(`Uploading ${creativeData.filesInfo.length} files to Supabase Storage...`);
+      console.log(`📁 Processing ${creativeData.filesInfo.length} files for upload...`);
       
       for (const fileInfo of creativeData.filesInfo) {
+        console.log(`🔍 Processing file: ${fileInfo.name}, has base64: ${!!fileInfo.base64Data}`);
+        
         if (fileInfo.base64Data) {
           try {
             const fileUrl = await uploadFileToSupabase(
@@ -127,8 +139,14 @@ serve(async (req) => {
             console.error(`❌ Failed to upload ${fileInfo.name}:`, uploadError);
             // Continue with other files, don't fail the entire submission
           }
+        } else {
+          console.log(`⚠️ Skipping ${fileInfo.name} - no base64 data found`);
         }
       }
+      
+      console.log(`📊 Upload summary: ${uploadedFiles.length}/${creativeData.filesInfo.length} files uploaded successfully`);
+    } else {
+      console.log('📁 No files to upload');
     }
 
     // Create the creative record in Notion
@@ -241,6 +259,7 @@ serve(async (req) => {
           }
         ]
       };
+      console.log(`📎 Added ${uploadedFiles.length} file URLs to Notion payload`);
     }
 
     console.log('Sending to Notion:', JSON.stringify(notionPayload, null, 2))
