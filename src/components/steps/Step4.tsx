@@ -67,6 +67,24 @@ const Step4: React.FC<Step4Props> = ({ formData, isSubmitting }) => {
     }
   };
 
+  // Group files by variation for better display
+  const groupFilesByVariation = () => {
+    if (formData.creativeType === 'single' && formData.mediaVariations) {
+      const variations: Record<number, any[]> = {};
+      allFiles.forEach(file => {
+        const variationIndex = (file as any).variationIndex || 1;
+        if (!variations[variationIndex]) {
+          variations[variationIndex] = [];
+        }
+        variations[variationIndex].push(file);
+      });
+      return variations;
+    }
+    return { 1: allFiles };
+  };
+
+  const filesByVariation = groupFilesByVariation();
+
   if (isSubmitting) {
     return (
       <div className="text-center py-12 animate-fade-in">
@@ -165,25 +183,43 @@ const Step4: React.FC<Step4Props> = ({ formData, isSubmitting }) => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-2">
-            {allFiles.map((file, index) => (
-              <div key={index} className="flex items-center justify-between p-2 rounded border">
-                <div className="flex items-center space-x-2">
-                  <span>{file.file.type.startsWith('image/') ? '🖼️' : '🎬'}</span>
-                  <div className="flex flex-col">
-                    <span className="text-sm font-medium">{file.file.name}</span>
-                    {(file as any).variationIndex && (
-                      <span className="text-xs text-gray-500">
-                        {getFormatIcon((file as any).format)} Mídia {(file as any).variationIndex} - {(file as any).format}
-                      </span>
-                    )}
+          <div className="space-y-4">
+            {Object.entries(filesByVariation).map(([variationIndex, files]) => (
+              <div key={variationIndex} className="space-y-2">
+                {Object.keys(filesByVariation).length > 1 && (
+                  <div className="bg-gray-100 px-3 py-2 rounded-md">
+                    <h4 className="text-sm font-semibold text-gray-700 flex items-center space-x-2">
+                      <span>🎭</span>
+                      <span>Variação {variationIndex}</span>
+                      <Badge variant="outline" className="text-xs">
+                        {files.length} arquivo{files.length > 1 ? 's' : ''}
+                      </Badge>
+                    </h4>
                   </div>
-                </div>
-                {file.valid ? (
-                  <CheckCircle className="w-4 h-4 text-green-500" />
-                ) : (
-                  <AlertCircle className="w-4 h-4 text-red-500" />
                 )}
+                <div className="space-y-2 ml-4">
+                  {files.map((file, index) => (
+                    <div key={index} className="flex items-center justify-between p-2 rounded border bg-white">
+                      <div className="flex items-center space-x-2">
+                        <span>{file.file.type.startsWith('image/') ? '🖼️' : '🎬'}</span>
+                        <div className="flex flex-col">
+                          <span className="text-sm font-medium">{file.file.name}</span>
+                          {(file as any).format && (
+                            <span className="text-xs text-gray-500 flex items-center space-x-1">
+                              <span>{getFormatIcon((file as any).format)}</span>
+                              <span>{(file as any).format} ({file.dimensions?.width}x{file.dimensions?.height}px)</span>
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      {file.valid ? (
+                        <CheckCircle className="w-4 h-4 text-green-500" />
+                      ) : (
+                        <AlertCircle className="w-4 h-4 text-red-500" />
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
             ))}
           </div>
