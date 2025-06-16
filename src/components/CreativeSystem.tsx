@@ -45,7 +45,7 @@ const CreativeSystem: React.FC = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [creativeId, setCreativeId] = useState('');
+  const [creativeIds, setCreativeIds] = useState<string[]>([]);
   const { toast } = useToast();
   const { clients } = useNotionClients();
   const { currentUser } = useAuth();
@@ -261,6 +261,7 @@ const CreativeSystem: React.FC = () => {
             name: file.file.name,
             type: file.file.type,
             size: file.file.size,
+            variationIndex: 1, // Single variation for non-single creative types
             base64Data
           });
         }
@@ -302,13 +303,16 @@ const CreativeSystem: React.FC = () => {
 
       console.log('✅ Creative successfully submitted:', data);
 
-      // Use the creative ID returned from Notion
-      setCreativeId(data.creativeId);
+      // Use the creative IDs returned from Notion
+      setCreativeIds(data.creativeIds || []);
       setIsSubmitted(true);
 
+      const creativeCount = data.totalCreatives || 1;
+      const creativeIdsList = data.creativeIds?.join(', ') || '';
+
       toast({
-        title: "Criativo enviado!",
-        description: `ID: ${data.creativeId}. Registro criado no Notion com sucesso!`,
+        title: `${creativeCount} Criativo(s) enviado(s)!`,
+        description: `IDs: ${creativeIdsList}. Registros criados no Notion com sucesso!`,
       });
 
     } catch (error) {
@@ -328,7 +332,7 @@ const CreativeSystem: React.FC = () => {
     setCurrentStep(1);
     setErrors({});
     setIsSubmitted(false);
-    setCreativeId('');
+    setCreativeIds([]);
     setIsSubmitting(false);
   };
 
@@ -337,7 +341,7 @@ const CreativeSystem: React.FC = () => {
       <div className="min-h-screen bg-jumper-background">
         <Header />
         <div className="max-w-4xl mx-auto px-4 py-8">
-          <Success creativeId={creativeId} onNewCreative={resetForm} />
+          <Success creativeIds={creativeIds} onNewCreative={resetForm} />
         </div>
       </div>
     );

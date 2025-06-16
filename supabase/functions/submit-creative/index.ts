@@ -77,6 +77,183 @@ const uploadFileToSupabase = async (
   return urlData.publicUrl;
 };
 
+const createNotionCreative = async (
+  creativeData: CreativeSubmissionData,
+  variationFiles: Array<{ name: string; url: string; format?: string }>,
+  variationIndex: number,
+  NOTION_TOKEN: string,
+  DB_CRIATIVOS_ID: string
+) => {
+  const notionUrl = `https://api.notion.com/v1/pages`;
+  
+  // Validate URL before sending to Notion
+  if (!creativeData.destinationUrl || creativeData.destinationUrl.trim() === '') {
+    console.error('❌ CRITICAL: destinationUrl is empty or missing!');
+    throw new Error('URL de destino é obrigatória');
+  }
+
+  let validatedUrl = creativeData.destinationUrl.trim();
+  
+  // Ensure URL has proper protocol
+  if (!validatedUrl.startsWith('http://') && !validatedUrl.startsWith('https://')) {
+    validatedUrl = 'https://' + validatedUrl;
+    console.log('🔧 Added https:// protocol to URL:', validatedUrl);
+  }
+
+  // Test URL validity
+  try {
+    new URL(validatedUrl);
+    console.log('✅ URL validation passed:', validatedUrl);
+  } catch (urlError) {
+    console.error('❌ Invalid URL format:', validatedUrl, urlError);
+    throw new Error(`URL inválida: ${validatedUrl}`);
+  }
+
+  const notionPayload = {
+    parent: {
+      database_id: DB_CRIATIVOS_ID
+    },
+    properties: {
+      "Conta": {
+        relation: [
+          {
+            id: creativeData.client
+          }
+        ]
+      },
+      "Gerente": {
+        relation: [
+          {
+            id: creativeData.managerId || ""
+          }
+        ]
+      },
+      "Plataforma": {
+        select: {
+          name: creativeData.platform === 'meta' ? 'Meta Ads' : 'Google Ads'
+        }
+      },
+      "Formato do Anúncio": {
+        multi_select: [
+          {
+            name: creativeData.creativeType === 'single' ? 'Imagem' : 
+                 creativeData.creativeType === 'carousel' ? 'Carrossel' : 'Imagem'
+          }
+        ]
+      },
+      "Objetivo do anúncio": {
+        rich_text: [
+          {
+            text: {
+              content: creativeData.campaignObjective || creativeData.objective || ''
+            }
+          }
+        ]
+      },
+      "Texto principal": {
+        rich_text: [
+          {
+            text: {
+              content: creativeData.mainText
+            }
+          }
+        ]
+      },
+      "Título": {
+        rich_text: [
+          {
+            text: {
+              content: creativeData.headline
+            }
+          }
+        ]
+      },
+      "Descrição": {
+        rich_text: [
+          {
+            text: {
+              content: creativeData.description || ''
+            }
+          }
+        ]
+      },
+      "Link de destino": {
+        url: validatedUrl
+      },
+      "Call-to-Action": {
+        select: {
+          name: creativeData.callToAction
+        }
+      },
+      "Observações": {
+        rich_text: [
+          {
+            text: {
+              content: (creativeData.observations || '') + (variationIndex > 1 ? ` (Variação ${variationIndex})` : '')
+            }
+          }
+        ]
+      },
+      "Status": {
+        select: {
+          name: "Pendente"
+        }
+      }
+    }
+  };
+
+  // Add uploaded files to the "Arquivos" property
+  if (variationFiles.length > 0) {
+    notionPayload.properties["Arquivos"] = {
+      files: variationFiles.map(file => ({
+        name: file.name,
+        external: {
+          url: file.url
+        }
+      }))
+    };
+    console.log(`📎 Added ${variationFiles.length} files to Arquivos property for variation ${variationIndex}`);
+  }
+
+  console.log(`📤 Sending variation ${variationIndex} to Notion`);
+
+  const response = await fetch(notionUrl, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${NOTION_TOKEN}`,
+      'Content-Type': 'application/json',
+      'Notion-Version': '2022-06-28'
+    },
+    body: JSON.stringify(notionPayload)
+  });
+
+  console.log(`📨 Notion response status for variation ${variationIndex}:`, response.status);
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error(`❌ Notion API error for variation ${variationIndex}:`, {
+      status: response.status,
+      statusText: response.statusText,
+      body: errorText
+    });
+    throw new Error(`Notion API error for variation ${variationIndex}: ${response.status} - ${errorText}`);
+  }
+
+  const notionResult = await response.json();
+  console.log(`✅ Creative variation ${variationIndex} successfully created in Notion!`);
+  console.log(`📄 Notion page ID for variation ${variationIndex}:`, notionResult.id);
+  
+  // Extract the creative ID from Notion's unique_id property
+  const creativeId = `CRT-${notionResult.properties.ID.unique_id.number}`;
+  console.log(`🆔 Generated creative ID for variation ${variationIndex}:`, creativeId);
+  
+  return {
+    creativeId,
+    notionPageId: notionResult.id,
+    variationIndex
+  };
+};
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
@@ -110,14 +287,39 @@ serve(async (req) => {
     console.log('- destinationUrl:', creativeData.destinationUrl)
     console.log('- observations:', creativeData.observations)
 
-    // Upload files to Supabase Storage and get URLs
-    const uploadedFiles: Array<{ name: string; url: string; format?: string }> = [];
+    // Group files by variation index
+    const filesByVariation = new Map<number, Array<{name: string; type: string; size: number; format?: string; base64Data?: string}>>();
     
     if (creativeData.filesInfo && creativeData.filesInfo.length > 0) {
       console.log(`📁 Processing ${creativeData.filesInfo.length} files for upload...`);
       
-      for (const fileInfo of creativeData.filesInfo) {
-        console.log(`🔍 Processing file: ${fileInfo.name}, has base64: ${!!fileInfo.base64Data}`);
+      creativeData.filesInfo.forEach(fileInfo => {
+        const variationIndex = fileInfo.variationIndex || 1;
+        if (!filesByVariation.has(variationIndex)) {
+          filesByVariation.set(variationIndex, []);
+        }
+        filesByVariation.get(variationIndex)!.push(fileInfo);
+      });
+      
+      console.log(`📊 Files grouped into ${filesByVariation.size} variations`);
+    }
+
+    const createdCreatives: Array<{
+      creativeId: string;
+      notionPageId: string;
+      variationIndex: number;
+      uploadedFiles: Array<{ name: string; url: string; format?: string }>;
+    }> = [];
+
+    // Process each variation
+    for (const [variationIndex, files] of filesByVariation.entries()) {
+      console.log(`🔄 Processing variation ${variationIndex} with ${files.length} files`);
+      
+      const uploadedFiles: Array<{ name: string; url: string; format?: string }> = [];
+      
+      // Upload files for this variation
+      for (const fileInfo of files) {
+        console.log(`🔍 Processing file: ${fileInfo.name} for variation ${variationIndex}, has base64: ${!!fileInfo.base64Data}`);
         
         if (fileInfo.base64Data) {
           try {
@@ -134,199 +336,52 @@ serve(async (req) => {
               format: fileInfo.format
             });
             
-            console.log(`✅ File uploaded to Supabase: ${fileInfo.name} -> ${fileUrl}`);
+            console.log(`✅ File uploaded to Supabase for variation ${variationIndex}: ${fileInfo.name} -> ${fileUrl}`);
           } catch (uploadError) {
-            console.error(`❌ Failed to upload ${fileInfo.name}:`, uploadError);
+            console.error(`❌ Failed to upload ${fileInfo.name} for variation ${variationIndex}:`, uploadError);
             // Continue with other files, don't fail the entire submission
           }
         } else {
-          console.log(`⚠️ Skipping ${fileInfo.name} - no base64 data found`);
+          console.log(`⚠️ Skipping ${fileInfo.name} for variation ${variationIndex} - no base64 data found`);
         }
       }
       
-      console.log(`📊 Upload summary: ${uploadedFiles.length}/${creativeData.filesInfo.length} files uploaded successfully`);
-    } else {
-      console.log('📁 No files to upload');
-    }
-
-    // Create the creative record in Notion
-    const notionUrl = `https://api.notion.com/v1/pages`
-    
-    // Validate URL before sending to Notion
-    if (!creativeData.destinationUrl || creativeData.destinationUrl.trim() === '') {
-      console.error('❌ CRITICAL: destinationUrl is empty or missing!')
-      throw new Error('URL de destino é obrigatória')
-    }
-
-    let validatedUrl = creativeData.destinationUrl.trim()
-    
-    // Ensure URL has proper protocol
-    if (!validatedUrl.startsWith('http://') && !validatedUrl.startsWith('https://')) {
-      validatedUrl = 'https://' + validatedUrl
-      console.log('🔧 Added https:// protocol to URL:', validatedUrl)
-    }
-
-    // Test URL validity
-    try {
-      new URL(validatedUrl)
-      console.log('✅ URL validation passed:', validatedUrl)
-    } catch (urlError) {
-      console.error('❌ Invalid URL format:', validatedUrl, urlError)
-      throw new Error(`URL inválida: ${validatedUrl}`)
-    }
-
-    const notionPayload = {
-      parent: {
-        database_id: DB_CRIATIVOS_ID
-      },
-      properties: {
-        "Conta": {
-          relation: [
-            {
-              id: creativeData.client
-            }
-          ]
-        },
-        "Gerente": {
-          relation: [
-            {
-              id: creativeData.managerId || ""
-            }
-          ]
-        },
-        "Plataforma": {
-          select: {
-            name: creativeData.platform === 'meta' ? 'Meta Ads' : 'Google Ads'
-          }
-        },
-        "Formato do Anúncio": {
-          multi_select: [
-            {
-              name: creativeData.creativeType === 'single' ? 'Imagem' : 
-                   creativeData.creativeType === 'carousel' ? 'Carrossel' : 'Imagem'
-            }
-          ]
-        },
-        "Objetivo do anúncio": {
-          rich_text: [
-            {
-              text: {
-                content: creativeData.campaignObjective || creativeData.objective || ''
-              }
-            }
-          ]
-        },
-        "Texto principal": {
-          rich_text: [
-            {
-              text: {
-                content: creativeData.mainText
-              }
-            }
-          ]
-        },
-        "Título": {
-          rich_text: [
-            {
-              text: {
-                content: creativeData.headline
-              }
-            }
-          ]
-        },
-        "Descrição": {
-          rich_text: [
-            {
-              text: {
-                content: creativeData.description || ''
-              }
-            }
-          ]
-        },
-        "Link de destino": {
-          url: validatedUrl
-        },
-        "Call-to-Action": {
-          select: {
-            name: creativeData.callToAction
-          }
-        },
-        "Observações": {
-          rich_text: [
-            {
-              text: {
-                content: creativeData.observations || ''
-              }
-            }
-          ]
-        },
-        "Status": {
-          select: {
-            name: "Pendente"
-          }
-        }
+      // Create Notion creative for this variation
+      try {
+        const creativeResult = await createNotionCreative(
+          creativeData,
+          uploadedFiles,
+          variationIndex,
+          NOTION_TOKEN,
+          DB_CRIATIVOS_ID
+        );
+        
+        createdCreatives.push({
+          ...creativeResult,
+          uploadedFiles
+        });
+        
+        console.log(`✅ Created creative ${creativeResult.creativeId} for variation ${variationIndex}`);
+      } catch (notionError) {
+        console.error(`❌ Failed to create Notion creative for variation ${variationIndex}:`, notionError);
+        throw notionError; // Fail the entire submission if any variation fails
       }
     }
 
-    console.log('🔗 Final URL being sent to Notion:', validatedUrl)
-    console.log('📝 Observations being sent to Notion:', creativeData.observations)
-
-    // Add uploaded files to the "Arquivos" property in the correct format
-    if (uploadedFiles.length > 0) {
-      notionPayload.properties["Arquivos"] = {
-        files: uploadedFiles.map(file => ({
-          name: file.name,
-          external: {
-            url: file.url
-          }
-        }))
-      };
-      console.log(`📎 Added ${uploadedFiles.length} files to Arquivos property`);
-    }
-
-    console.log('📤 Sending payload to Notion with Observações property')
-
-    const response = await fetch(notionUrl, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${NOTION_TOKEN}`,
-        'Content-Type': 'application/json',
-        'Notion-Version': '2022-06-28'
-      },
-      body: JSON.stringify(notionPayload)
-    })
-
-    console.log('📨 Notion response status:', response.status)
-
-    if (!response.ok) {
-      const errorText = await response.text()
-      console.error('❌ Notion API error:', {
-        status: response.status,
-        statusText: response.statusText,
-        body: errorText
-      })
-      throw new Error(`Notion API error: ${response.status} - ${errorText}`)
-    }
-
-    const notionResult = await response.json()
-    console.log('✅ Creative successfully created in Notion!')
-    console.log('📄 Notion page ID:', notionResult.id)
-    console.log('🔗 Final URL in Notion:', notionResult.properties?.["Link de destino"]?.url)
-    
-    // Extract the creative ID from Notion's unique_id property
-    const creativeId = `CRT-${notionResult.properties.ID.unique_id.number}`;
-    console.log('🆔 Generated creative ID:', creativeId);
+    console.log(`🎉 Successfully created ${createdCreatives.length} creatives!`);
     
     return new Response(
       JSON.stringify({
         success: true,
-        creativeId: creativeId,
-        notionPageId: notionResult.id,
-        uploadedFiles: uploadedFiles.length,
-        fileUrls: uploadedFiles.map(f => f.url),
-        finalUrl: validatedUrl,
-        observations: creativeData.observations,
-        message: 'Criativo enviado com sucesso para o Notion!'
+        createdCreatives: createdCreatives.map(c => ({
+          creativeId: c.creativeId,
+          notionPageId: c.notionPageId,
+          variationIndex: c.variationIndex,
+          uploadedFiles: c.uploadedFiles.length
+        })),
+        totalCreatives: createdCreatives.length,
+        creativeIds: createdCreatives.map(c => c.creativeId),
+        message: `${createdCreatives.length} criativo(s) enviado(s) com sucesso para o Notion!`
       }),
       { 
         headers: { 
