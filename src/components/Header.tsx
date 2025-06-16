@@ -1,5 +1,6 @@
 
 import React from 'react';
+import UserMenu from './UserMenu';
 
 const Header: React.FC = () => {
   return (
@@ -16,12 +17,14 @@ const Header: React.FC = () => {
             </div>
           </div>
           
-          <div className="hidden md:flex items-center space-x-4">
-            <div className="flex items-center space-x-2 text-sm text-gray-600">
+          <div className="flex items-center space-x-6">
+            <div className="hidden md:flex items-center space-x-2 text-sm text-gray-600">
               <span>⏰ SLA: 24h</span>
               <span>•</span>
               <span>📧 Confirmação automática</span>
             </div>
+            
+            <UserMenu />
           </div>
         </div>
       </div>
