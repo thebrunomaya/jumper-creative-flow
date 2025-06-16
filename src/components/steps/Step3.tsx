@@ -6,6 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Separator } from '@/components/ui/separator';
 import { VALID_CTAS } from '@/types/creative';
 import { Plus, X } from 'lucide-react';
 import TextCounterWithRecommendation from '../TextCounterWithRecommendation';
@@ -60,17 +61,22 @@ const Step3: React.FC<Step3Props> = ({ formData, updateFormData, errors }) => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div>
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Conteúdo do Anúncio</h2>
         <p className="text-gray-600">Preencha os textos que aparecerão no seu anúncio.</p>
       </div>
 
-      <div className="grid gap-6">
-        {/* Títulos */}
-        <div className="space-y-4">
+      <div className="space-y-8">
+        {/* Títulos Section */}
+        <div className="bg-gray-50 p-6 rounded-lg border space-y-4">
           <div className="flex items-center justify-between">
-            <Label className="text-base font-semibold">Títulos *</Label>
+            <div>
+              <Label className="text-lg font-semibold text-gray-900">📝 Títulos *</Label>
+              <p className="text-sm text-gray-500 mt-1">
+                Você pode adicionar até {META_TEXT_VARIATIONS.maxTitles} títulos.
+              </p>
+            </div>
             {titles.length < META_TEXT_VARIATIONS.maxTitles && (
               <Button
                 type="button"
@@ -84,10 +90,6 @@ const Step3: React.FC<Step3Props> = ({ formData, updateFormData, errors }) => {
               </Button>
             )}
           </div>
-          
-          <p className="text-sm text-gray-500">
-            Você pode adicionar até {META_TEXT_VARIATIONS.maxTitles} títulos.
-          </p>
 
           {titles.map((title, index) => (
             <div key={index} className="space-y-2">
@@ -136,10 +138,15 @@ const Step3: React.FC<Step3Props> = ({ formData, updateFormData, errors }) => {
           ))}
         </div>
 
-        {/* Textos Principais */}
-        <div className="space-y-4">
+        {/* Textos Principais Section */}
+        <div className="bg-blue-50 p-6 rounded-lg border space-y-4">
           <div className="flex items-center justify-between">
-            <Label className="text-base font-semibold">Textos Principais *</Label>
+            <div>
+              <Label className="text-lg font-semibold text-gray-900">💬 Textos Principais *</Label>
+              <p className="text-sm text-gray-500 mt-1">
+                Você pode adicionar até {META_TEXT_VARIATIONS.maxMainTexts} textos principais.
+              </p>
+            </div>
             {mainTexts.length < META_TEXT_VARIATIONS.maxMainTexts && (
               <Button
                 type="button"
@@ -153,10 +160,6 @@ const Step3: React.FC<Step3Props> = ({ formData, updateFormData, errors }) => {
               </Button>
             )}
           </div>
-          
-          <p className="text-sm text-gray-500">
-            Você pode adicionar até {META_TEXT_VARIATIONS.maxMainTexts} textos principais.
-          </p>
 
           {mainTexts.map((mainText, index) => (
             <div key={index} className="space-y-2">
@@ -205,76 +208,86 @@ const Step3: React.FC<Step3Props> = ({ formData, updateFormData, errors }) => {
           ))}
         </div>
 
-        {/* Descrição */}
-        <div className="space-y-2">
-          <Label htmlFor="description">Descrição</Label>
-          <Textarea
-            id="description"
-            value={formData.description}
-            onChange={(e) => updateFormData({ description: e.target.value })}
-            placeholder="Digite uma descrição adicional (opcional)"
-            className={`min-h-[80px] ${errors.description ? 'border-red-500' : ''}`}
-          />
-          {errors.description && (
-            <p className="text-sm text-red-600">{errors.description}</p>
-          )}
-          
-          <TextCounterWithRecommendation
-            text={formData.description}
-            recommended={TEXT_LIMITS.description.recommended}
-            maximum={TEXT_LIMITS.description.maximum}
-          />
-        </div>
+        {/* Separador */}
+        <Separator className="my-8" />
 
-        {/* URL de Destino */}
-        <div className="space-y-2">
-          <Label htmlFor="destinationUrl">URL de Destino *</Label>
-          <Input
-            id="destinationUrl"
-            type="url"
-            value={formData.destinationUrl}
-            onChange={(e) => {
-              console.log('🔄 URL field changed:', e.target.value);
-              updateFormData({ destinationUrl: e.target.value });
-            }}
-            placeholder="https://exemplo.com"
-            className={errors.destinationUrl ? 'border-red-500' : ''}
-          />
-          {errors.destinationUrl && (
-            <p className="text-sm text-red-600">{errors.destinationUrl}</p>
-          )}
-        </div>
+        {/* Outros Campos Section */}
+        <div className="space-y-6">
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">ℹ️ Informações Adicionais</h3>
+          </div>
 
-        {/* Call to Action */}
-        <div className="space-y-2">
-          <Label htmlFor="callToAction">Call-to-Action *</Label>
-          <Select value={formData.callToAction} onValueChange={(value) => updateFormData({ callToAction: value })}>
-            <SelectTrigger className={errors.callToAction ? 'border-red-500' : ''}>
-              <SelectValue placeholder="Selecione um call-to-action" />
-            </SelectTrigger>
-            <SelectContent>
-              {VALID_CTAS.map((cta) => (
-                <SelectItem key={cta} value={cta}>
-                  {cta}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {errors.callToAction && (
-            <p className="text-sm text-red-600">{errors.callToAction}</p>
-          )}
-        </div>
+          {/* Descrição */}
+          <div className="space-y-2">
+            <Label htmlFor="description">Descrição</Label>
+            <Textarea
+              id="description"
+              value={formData.description}
+              onChange={(e) => updateFormData({ description: e.target.value })}
+              placeholder="Digite uma descrição adicional (opcional)"
+              className={`min-h-[80px] ${errors.description ? 'border-red-500' : ''}`}
+            />
+            {errors.description && (
+              <p className="text-sm text-red-600">{errors.description}</p>
+            )}
+            
+            <TextCounterWithRecommendation
+              text={formData.description}
+              recommended={TEXT_LIMITS.description.recommended}
+              maximum={TEXT_LIMITS.description.maximum}
+            />
+          </div>
 
-        {/* Observações */}
-        <div className="space-y-2">
-          <Label htmlFor="observations">Observações</Label>
-          <Textarea
-            id="observations"
-            value={formData.observations}
-            onChange={(e) => updateFormData({ observations: e.target.value })}
-            placeholder="Adicione observações ou instruções especiais para a equipe de criativos"
-            className="min-h-[80px]"
-          />
+          {/* URL de Destino */}
+          <div className="space-y-2">
+            <Label htmlFor="destinationUrl">URL de Destino *</Label>
+            <Input
+              id="destinationUrl"
+              type="url"
+              value={formData.destinationUrl}
+              onChange={(e) => {
+                console.log('🔄 URL field changed:', e.target.value);
+                updateFormData({ destinationUrl: e.target.value });
+              }}
+              placeholder="https://exemplo.com"
+              className={errors.destinationUrl ? 'border-red-500' : ''}
+            />
+            {errors.destinationUrl && (
+              <p className="text-sm text-red-600">{errors.destinationUrl}</p>
+            )}
+          </div>
+
+          {/* Call to Action */}
+          <div className="space-y-2">
+            <Label htmlFor="callToAction">Call-to-Action *</Label>
+            <Select value={formData.callToAction} onValueChange={(value) => updateFormData({ callToAction: value })}>
+              <SelectTrigger className={errors.callToAction ? 'border-red-500' : ''}>
+                <SelectValue placeholder="Selecione um call-to-action" />
+              </SelectTrigger>
+              <SelectContent>
+                {VALID_CTAS.map((cta) => (
+                  <SelectItem key={cta} value={cta}>
+                    {cta}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {errors.callToAction && (
+              <p className="text-sm text-red-600">{errors.callToAction}</p>
+            )}
+          </div>
+
+          {/* Observações */}
+          <div className="space-y-2">
+            <Label htmlFor="observations">Observações</Label>
+            <Textarea
+              id="observations"
+              value={formData.observations}
+              onChange={(e) => updateFormData({ observations: e.target.value })}
+              placeholder="Adicione observações ou instruções especiais para a equipe da Jumper"
+              className="min-h-[80px]"
+            />
+          </div>
         </div>
       </div>
     </div>
