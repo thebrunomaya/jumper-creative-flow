@@ -110,7 +110,6 @@ serve(async (req) => {
     console.log('- destinationUrl type:', typeof creativeData.destinationUrl)
     console.log('- destinationUrl length:', creativeData.destinationUrl?.length)
     console.log('- All data keys:', Object.keys(creativeData))
-    console.log('- Full creative data:', JSON.stringify(creativeData, null, 2))
 
     // Upload files to Supabase Storage and get URLs
     const uploadedFiles: Array<{ name: string; url: string; format?: string }> = [];
@@ -288,7 +287,8 @@ serve(async (req) => {
       console.log(`📎 Added ${uploadedFiles.length} files to Arquivos property`);
     }
 
-    console.log('Sending to Notion:', JSON.stringify(notionPayload, null, 2))
+    console.log('📤 SENDING TO NOTION - Full payload:')
+    console.log(JSON.stringify(notionPayload, null, 2))
 
     const response = await fetch(notionUrl, {
       method: 'POST',
@@ -300,11 +300,12 @@ serve(async (req) => {
       body: JSON.stringify(notionPayload)
     })
 
-    console.log('Notion response status:', response.status)
+    console.log('📨 Notion response status:', response.status)
+    console.log('📨 Notion response headers:', Object.fromEntries(response.headers.entries()))
 
     if (!response.ok) {
       const errorText = await response.text()
-      console.error('Notion API error:', {
+      console.error('❌ Notion API error:', {
         status: response.status,
         statusText: response.statusText,
         body: errorText
@@ -314,11 +315,12 @@ serve(async (req) => {
 
     const notionResult = await response.json()
     console.log('✅ Creative successfully created in Notion!')
-    console.log('Notion page ID:', notionResult.id)
+    console.log('📄 Notion page ID:', notionResult.id)
+    console.log('🔗 Final URL in Notion:', notionResult.properties?.["Link de destino"]?.url)
     
     // Extract the creative ID from Notion's unique_id property
     const creativeId = `CRT-${notionResult.properties.ID.unique_id.number}`;
-    console.log('Generated creative ID:', creativeId);
+    console.log('🆔 Generated creative ID:', creativeId);
     
     return new Response(
       JSON.stringify({
@@ -327,6 +329,7 @@ serve(async (req) => {
         notionPageId: notionResult.id,
         uploadedFiles: uploadedFiles.length,
         fileUrls: uploadedFiles.map(f => f.url),
+        finalUrl: validatedUrl,
         message: 'Criativo enviado com sucesso para o Notion!'
       }),
       { 
