@@ -87,24 +87,6 @@ export type Database = {
         }
         Relationships: []
       }
-      creative_counter: {
-        Row: {
-          counter: number
-          id: number
-          updated_at: string | null
-        }
-        Insert: {
-          counter?: number
-          id?: number
-          updated_at?: string | null
-        }
-        Update: {
-          counter?: number
-          id?: number
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
       partners: {
         Row: {
           created_at: string

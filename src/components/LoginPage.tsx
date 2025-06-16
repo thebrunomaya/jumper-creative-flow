@@ -7,14 +7,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useToast } from '@/hooks/use-toast';
 import { useManagers } from '@/hooks/useManagers';
 import { useAuth } from '@/contexts/AuthContext';
-import { Loader2, LogIn, RefreshCw } from 'lucide-react';
+import { Loader2, LogIn } from 'lucide-react';
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
-  const { managers, loading: managersLoading, validateLogin, refetch } = useManagers();
+  const { managers, loading: managersLoading, validateLogin } = useManagers();
   const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -60,14 +60,6 @@ const LoginPage: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleSync = async () => {
-    await refetch();
-    toast({
-      title: "Sincronização concluída",
-      description: "Dados dos gerentes atualizados do Notion",
-    });
   };
 
   if (managersLoading) {
@@ -139,23 +131,6 @@ const LoginPage: React.FC = () => {
               )}
             </Button>
           </form>
-
-          <div className="mt-4">
-            <Button
-              variant="outline"
-              onClick={handleSync}
-              className="w-full flex items-center gap-2"
-              disabled={managersLoading}
-            >
-              <RefreshCw className={`h-4 w-4 ${managersLoading ? 'animate-spin' : ''}`} />
-              Sincronizar Gerentes
-            </Button>
-          </div>
-
-          <div className="mt-6 text-center text-sm text-gray-600">
-            <p>Credenciais de teste:</p>
-            <p className="font-mono">E-mail: teste@jumper.com | Senha: 123456</p>
-          </div>
         </CardContent>
       </Card>
     </div>
