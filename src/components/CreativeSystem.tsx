@@ -253,14 +253,10 @@ const CreativeSystem: React.FC = () => {
         });
       }
 
-      // Get client name for display
-      const client = clients.find(c => c.id === formData.client);
-      const clientName = client?.name || formData.client;
-
-      // Prepare submission data
+      // Prepare submission data - Send the client ID directly, not the name
       const submissionData = {
         id,
-        client: clientName,
+        client: formData.client, // Send the ID directly instead of the name
         partner: formData.partner,
         platform: formData.platform,
         campaignObjective: formData.campaignObjective,
