@@ -1,4 +1,5 @@
 
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 
 const corsHeaders = {
@@ -36,7 +37,7 @@ serve(async (req) => {
 
   try {
     const NOTION_TOKEN = Deno.env.get('NOTION_API_KEY')
-    const DB_CRIATIVOS_ID = "162db609-4968-805c-b4b0-c89b61ac2b33" // ID da base de criativos no Notion
+    const DB_CRIATIVOS_ID = "20edb6094968807eac5fe7920c517077" // Updated to new ID
     
     console.log('=== CREATIVE SUBMISSION ===')
     console.log('Submitting creative at:', new Date().toISOString())
@@ -219,3 +220,4 @@ serve(async (req) => {
     )
   }
 })
+
