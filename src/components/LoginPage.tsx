@@ -10,7 +10,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Loader2, LogIn } from 'lucide-react';
 
 const LoginPage: React.FC = () => {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
@@ -20,10 +20,10 @@ const LoginPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!username.trim() || !password.trim()) {
+    if (!email.trim() || !password.trim()) {
       toast({
         title: "Campos obrigatórios",
-        description: "Por favor, preencha usuário e senha",
+        description: "Por favor, preencha e-mail e senha",
         variant: "destructive",
       });
       return;
@@ -35,7 +35,7 @@ const LoginPage: React.FC = () => {
       // Simular delay de autenticação
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      const authenticatedUser = validateLogin(username, password);
+      const authenticatedUser = validateLogin(email, password);
       
       if (authenticatedUser) {
         login(authenticatedUser);
@@ -46,7 +46,7 @@ const LoginPage: React.FC = () => {
       } else {
         toast({
           title: "Credenciais inválidas",
-          description: "Usuário ou senha incorretos",
+          description: "E-mail ou senha incorretos",
           variant: "destructive",
         });
       }
@@ -88,15 +88,15 @@ const LoginPage: React.FC = () => {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="username">Usuário</Label>
+              <Label htmlFor="email">E-mail</Label>
               <Input
-                id="username"
-                type="text"
-                placeholder="Digite seu usuário ou email"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                id="email"
+                type="email"
+                placeholder="Digite seu e-mail"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 disabled={isLoading}
-                autoComplete="username"
+                autoComplete="email"
               />
             </div>
             
@@ -134,7 +134,7 @@ const LoginPage: React.FC = () => {
 
           <div className="mt-6 text-center text-sm text-gray-600">
             <p>Credenciais de teste:</p>
-            <p className="font-mono">Usuário: teste | Senha: 123456</p>
+            <p className="font-mono">E-mail: teste@jumper.com | Senha: 123456</p>
           </div>
         </CardContent>
       </Card>

@@ -68,7 +68,6 @@ export const useManagers = () => {
         const formattedManagers: Manager[] = data.results.map((item: any) => {
           let name = 'Sem nome';
           let email = '';
-          let username = '';
           
           // Try to find name in various properties
           const possibleNameProperties = ['Nome', 'Name', 'Gerente', 'Manager', 'Title', 'Título'];
@@ -82,35 +81,16 @@ export const useManagers = () => {
             }
           }
           
-          // Try to find email
-          const possibleEmailProperties = ['Email', 'E-mail', 'Login'];
-          for (const propName of possibleEmailProperties) {
-            if (item.properties[propName]) {
-              const extractedEmail = extractTextFromProperty(item.properties[propName]);
-              if (extractedEmail) {
-                email = extractedEmail;
-                break;
-              }
-            }
-          }
-          
-          // Try to find username
-          const possibleUsernameProperties = ['Usuario', 'Username', 'User', 'Login'];
-          for (const propName of possibleUsernameProperties) {
-            if (item.properties[propName]) {
-              const extractedUsername = extractTextFromProperty(item.properties[propName]);
-              if (extractedUsername) {
-                username = extractedUsername;
-                break;
-              }
-            }
+          // Focus specifically on E-Mail property from Notion
+          if (item.properties['E-Mail']) {
+            email = extractTextFromProperty(item.properties['E-Mail']);
           }
           
           return {
             id: item.id,
             name,
             email,
-            username: username || email // Use email as username if no specific username field
+            username: email // Use email as username for login validation
           };
         });
         
@@ -122,7 +102,7 @@ export const useManagers = () => {
         setError('Erro ao carregar gerentes do Notion');
         // Fallback para dados de teste
         setManagers([
-          { id: "test-1", name: "Gerente Teste", email: "teste@jumper.com", username: "teste" }
+          { id: "test-1", name: "Gerente Teste", email: "teste@jumper.com", username: "teste@jumper.com" }
         ]);
       } finally {
         setLoading(false);
@@ -132,11 +112,10 @@ export const useManagers = () => {
     fetchManagers();
   }, []);
 
-  const validateLogin = (username: string, password: string): Manager | null => {
-    // Por enquanto, uma validação simples - em produção você deve implementar hash de senhas
+  const validateLogin = (email: string, password: string): Manager | null => {
+    // Validação usando e-mail
     const manager = managers.find(m => 
-      m.username?.toLowerCase() === username.toLowerCase() || 
-      m.email?.toLowerCase() === username.toLowerCase()
+      m.email?.toLowerCase() === email.toLowerCase()
     );
     
     if (manager && password === "123456") { // Senha padrão temporária
