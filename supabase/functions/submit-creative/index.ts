@@ -1,5 +1,6 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -30,11 +31,11 @@ interface CreativeSubmissionData {
   }>;
 }
 
-const uploadFileToNotion = async (
+const uploadFileToSupabase = async (
   fileName: string,
   base64Data: string,
   mimeType: string,
-  notionToken: string
+  supabase: any
 ): Promise<string> => {
   // Convert base64 to blob
   const binaryString = atob(base64Data);
@@ -42,29 +43,31 @@ const uploadFileToNotion = async (
   for (let i = 0; i < binaryString.length; i++) {
     bytes[i] = binaryString.charCodeAt(i);
   }
-  const blob = new Blob([bytes], { type: mimeType });
 
-  // Upload file to Notion
-  const formData = new FormData();
-  formData.append('file', blob, fileName);
+  // Create unique filename with timestamp
+  const timestamp = Date.now();
+  const fileExtension = fileName.split('.').pop();
+  const uniqueFileName = `${timestamp}-${fileName}`;
 
-  const uploadResponse = await fetch('https://api.notion.com/v1/files', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${notionToken}`,
-      'Notion-Version': '2022-06-28'
-    },
-    body: formData
-  });
+  // Upload to Supabase Storage
+  const { data, error } = await supabase.storage
+    .from('creative-files')
+    .upload(uniqueFileName, bytes, {
+      contentType: mimeType,
+      upsert: false
+    });
 
-  if (!uploadResponse.ok) {
-    const errorText = await uploadResponse.text();
-    console.error('File upload error:', errorText);
-    throw new Error(`Failed to upload file: ${uploadResponse.status}`);
+  if (error) {
+    console.error('Supabase storage error:', error);
+    throw new Error(`Failed to upload file to storage: ${error.message}`);
   }
 
-  const uploadResult = await uploadResponse.json();
-  return uploadResult.url;
+  // Get public URL
+  const { data: urlData } = supabase.storage
+    .from('creative-files')
+    .getPublicUrl(uniqueFileName);
+
+  return urlData.publicUrl;
 };
 
 serve(async (req) => {
@@ -74,6 +77,8 @@ serve(async (req) => {
 
   try {
     const NOTION_TOKEN = Deno.env.get('NOTION_API_KEY')
+    const SUPABASE_URL = Deno.env.get('SUPABASE_URL')
+    const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
     const DB_CRIATIVOS_ID = "20edb6094968807eac5fe7920c517077"
     
     console.log('=== CREATIVE SUBMISSION ===')
@@ -84,23 +89,31 @@ serve(async (req) => {
       throw new Error('NOTION_API_KEY not configured')
     }
 
+    if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+      console.error('Supabase configuration missing')
+      throw new Error('Supabase configuration not found')
+    }
+
+    // Initialize Supabase client
+    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
+
     const creativeData: CreativeSubmissionData = await req.json()
     console.log('Creative data received:', creativeData)
 
-    // Upload files to Notion and get URLs
+    // Upload files to Supabase Storage and get URLs
     const uploadedFiles: Array<{ name: string; url: string; format?: string }> = [];
     
     if (creativeData.filesInfo && creativeData.filesInfo.length > 0) {
-      console.log(`Uploading ${creativeData.filesInfo.length} files...`);
+      console.log(`Uploading ${creativeData.filesInfo.length} files to Supabase Storage...`);
       
       for (const fileInfo of creativeData.filesInfo) {
         if (fileInfo.base64Data) {
           try {
-            const fileUrl = await uploadFileToNotion(
+            const fileUrl = await uploadFileToSupabase(
               fileInfo.name,
               fileInfo.base64Data,
               fileInfo.type,
-              NOTION_TOKEN
+              supabase
             );
             
             uploadedFiles.push({
@@ -109,7 +122,7 @@ serve(async (req) => {
               format: fileInfo.format
             });
             
-            console.log(`✅ File uploaded: ${fileInfo.name}`);
+            console.log(`✅ File uploaded to Supabase: ${fileInfo.name} -> ${fileUrl}`);
           } catch (uploadError) {
             console.error(`❌ Failed to upload ${fileInfo.name}:`, uploadError);
             // Continue with other files, don't fail the entire submission
@@ -264,6 +277,7 @@ serve(async (req) => {
         creativeId: creativeData.id,
         notionPageId: notionResult.id,
         uploadedFiles: uploadedFiles.length,
+        fileUrls: uploadedFiles.map(f => f.url),
         message: 'Criativo enviado com sucesso para o Notion!'
       }),
       { 
