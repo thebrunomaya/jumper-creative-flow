@@ -58,7 +58,7 @@ serve(async (req) => {
         database_id: DB_CRIATIVOS_ID
       },
       properties: {
-        "ID": {
+        "ID do Anúncio": {
           title: [
             {
               text: {
@@ -81,17 +81,24 @@ serve(async (req) => {
             name: creativeData.platform === 'meta' ? 'Meta Ads' : 'Google Ads'
           }
         },
-        "Tipo": {
-          select: {
-            name: creativeData.creativeType || 'single'
-          }
+        "Formato do Anúncio": {
+          multi_select: [
+            {
+              name: creativeData.creativeType === 'single' ? 'Imagem' : 
+                   creativeData.creativeType === 'carousel' ? 'Carrossel' : 'Imagem'
+            }
+          ]
         },
-        "Objetivo": {
-          select: {
-            name: creativeData.objective || 'sales'
-          }
+        "Objetivo do anúncio": {
+          rich_text: [
+            {
+              text: {
+                content: creativeData.campaignObjective || creativeData.objective || ''
+              }
+            }
+          ]
         },
-        "Texto Principal": {
+        "Texto principal": {
           rich_text: [
             {
               text: {
@@ -100,7 +107,7 @@ serve(async (req) => {
             }
           ]
         },
-        "Headline": {
+        "Título": {
           rich_text: [
             {
               text: {
@@ -118,7 +125,7 @@ serve(async (req) => {
             }
           ]
         },
-        "URL Destino": {
+        "Link de destino": {
           url: creativeData.destinationUrl
         },
         "Call-to-Action": {
@@ -126,7 +133,7 @@ serve(async (req) => {
             name: creativeData.callToAction
           }
         },
-        "Observações": {
+        "Copy A": {
           rich_text: [
             {
               text: {
@@ -140,12 +147,7 @@ serve(async (req) => {
             name: "Pendente"
           }
         },
-        "Data Envio": {
-          date: {
-            start: new Date().toISOString().split('T')[0]
-          }
-        },
-        "Arquivos": {
+        "Upload do formato feed": {
           rich_text: [
             {
               text: {
@@ -220,4 +222,3 @@ serve(async (req) => {
     )
   }
 })
-
