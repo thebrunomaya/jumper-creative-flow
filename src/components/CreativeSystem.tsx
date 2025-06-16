@@ -179,50 +179,6 @@ const CreativeSystem: React.FC = () => {
     }
   };
 
-  const generateCreativeId = async (clientName: string): Promise<string> => {
-    try {
-      // Get next counter from database
-      const { data: counterData, error } = await supabase.rpc('get_next_creative_counter');
-      
-      if (error) {
-        console.error('Error getting counter:', error);
-        throw error;
-      }
-
-      const globalCounter = counterData || 1;
-
-      // Data atual
-      const now = new Date();
-      const yy = now.getFullYear().toString().slice(-2);
-      const mm = (now.getMonth() + 1).toString().padStart(2, '0');
-      const dd = now.getDate().toString().padStart(2, '0');
-      const dateStr = `${yy}${mm}${dd}`;
-      
-      // Contador sequencial
-      const counter = globalCounter.toString().padStart(3, '0');
-      
-      // Mapeamento das contas
-      const accountCodes: Record<string, string> = {
-        'Boiler': 'BOI',
-        'Almeida Prado B2B': 'ALM',
-        'Almeida Prado Ecommerce': 'ALM',
-        'Koko Educação': 'KOK',
-        'Supermercadistas': 'SUP',
-        'LEAP Lab': 'LEA'
-      };
-      
-      const accountCode = accountCodes[clientName] || clientName.substring(0, 3).toUpperCase();
-      
-      // Formato: YYMMDD-###-ACT-#A (sempre começar com 1A)
-      return `${dateStr}-${counter}-${accountCode}-1A`;
-    } catch (error) {
-      console.error('Error generating creative ID:', error);
-      // Fallback to timestamp-based ID
-      const timestamp = Date.now().toString().slice(-6);
-      return `${timestamp}-FALLBACK`;
-    }
-  };
-
   const convertFileToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -249,13 +205,6 @@ const CreativeSystem: React.FC = () => {
     setIsSubmitting(true);
 
     try {
-      // Find client name for ID generation
-      const selectedClient = clients.find(c => c.id === formData.client);
-      const clientName = selectedClient?.name || 'Unknown';
-      
-      // Generate creative ID with new system
-      const id = await generateCreativeId(clientName);
-      
       // Prepare files info and convert files to base64
       const filesInfo: Array<{
         name: string;
@@ -317,9 +266,8 @@ const CreativeSystem: React.FC = () => {
         }
       }
 
-      // Prepare submission data - Send the client ID directly, not the name, and include manager ID
+      // Prepare submission data - Send the client ID directly and include manager ID
       const submissionData = {
-        id,
         client: formData.client, // Send the client ID directly
         managerId: currentUser?.id, // Add manager ID
         partner: formData.partner,
@@ -354,12 +302,13 @@ const CreativeSystem: React.FC = () => {
 
       console.log('✅ Creative successfully submitted:', data);
 
-      setCreativeId(id);
+      // Use the creative ID returned from Notion
+      setCreativeId(data.creativeId);
       setIsSubmitted(true);
 
       toast({
         title: "Criativo enviado!",
-        description: `ID: ${id}. Registro criado no Notion com sucesso!`,
+        description: `ID: ${data.creativeId}. Registro criado no Notion com sucesso!`,
       });
 
     } catch (error) {

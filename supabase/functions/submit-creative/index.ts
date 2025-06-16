@@ -8,7 +8,6 @@ const corsHeaders = {
 }
 
 interface CreativeSubmissionData {
-  id: string;
   client: string;
   managerId?: string; // Add manager ID
   partner: string;
@@ -107,7 +106,6 @@ serve(async (req) => {
 
     const creativeData: CreativeSubmissionData = await req.json()
     console.log('Creative data received:', {
-      id: creativeData.id,
       managerId: creativeData.managerId,
       filesCount: creativeData.filesInfo?.length || 0,
       fileNames: creativeData.filesInfo?.map(f => f.name) || []
@@ -160,15 +158,6 @@ serve(async (req) => {
         database_id: DB_CRIATIVOS_ID
       },
       properties: {
-        "ID do Anúncio": {
-          title: [
-            {
-              text: {
-                content: creativeData.id
-              }
-            }
-          ]
-        },
         "Conta": {
           relation: [
             {
@@ -257,7 +246,7 @@ serve(async (req) => {
       }
     }
 
-    // Add uploaded files to the new "Arquivos" property in the correct format
+    // Add uploaded files to the "Arquivos" property in the correct format
     if (uploadedFiles.length > 0) {
       notionPayload.properties["Arquivos"] = {
         files: uploadedFiles.map(file => ({
@@ -298,10 +287,14 @@ serve(async (req) => {
     console.log('✅ Creative successfully created in Notion!')
     console.log('Notion page ID:', notionResult.id)
     
+    // Extract the creative ID from Notion's unique_id property
+    const creativeId = `CRT-${notionResult.properties.ID.unique_id.number}`;
+    console.log('Generated creative ID:', creativeId);
+    
     return new Response(
       JSON.stringify({
         success: true,
-        creativeId: creativeData.id,
+        creativeId: creativeId,
         notionPageId: notionResult.id,
         uploadedFiles: uploadedFiles.length,
         fileUrls: uploadedFiles.map(f => f.url),
