@@ -248,24 +248,17 @@ serve(async (req) => {
       }
     }
 
-    // Add file information to observations if files were uploaded
+    // Add uploaded files to the new "Arquivos" property in the correct format
     if (uploadedFiles.length > 0) {
-      const fileLinks = uploadedFiles.map(file => `${file.name}: ${file.url}`).join('\n');
-      const existingObservations = creativeData.observations || '';
-      const updatedObservations = existingObservations + 
-        (existingObservations ? '\n\n--- Arquivos Enviados ---\n' : '--- Arquivos Enviados ---\n') + 
-        fileLinks;
-      
-      notionPayload.properties["Copy A"] = {
-        rich_text: [
-          {
-            text: {
-              content: updatedObservations
-            }
+      notionPayload.properties["Arquivos"] = {
+        files: uploadedFiles.map(file => ({
+          name: file.name,
+          external: {
+            url: file.url
           }
-        ]
+        }))
       };
-      console.log(`📎 Added ${uploadedFiles.length} file URLs to observations`);
+      console.log(`📎 Added ${uploadedFiles.length} files to Arquivos property`);
     }
 
     console.log('Sending to Notion:', JSON.stringify(notionPayload, null, 2))
