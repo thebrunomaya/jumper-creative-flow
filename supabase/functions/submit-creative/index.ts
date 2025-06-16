@@ -251,6 +251,15 @@ serve(async (req) => {
             name: creativeData.callToAction
           }
         },
+        "Observações": {
+          rich_text: [
+            {
+              text: {
+                content: creativeData.observations || ''
+              }
+            }
+          ]
+        },
         "Status": {
           select: {
             name: "Pendente"
@@ -259,14 +268,8 @@ serve(async (req) => {
       }
     }
 
-    // Only add observations if they exist and only to a property that exists in Notion
-    if (creativeData.observations && creativeData.observations.trim()) {
-      // Note: Removed "Copy A" reference as it doesn't exist in the Notion database
-      // The observations will be included in a comment or handled differently
-      console.log('📝 Observations provided:', creativeData.observations)
-    }
-
     console.log('🔗 Final URL being sent to Notion:', validatedUrl)
+    console.log('📝 Observations being sent to Notion:', creativeData.observations)
 
     // Add uploaded files to the "Arquivos" property in the correct format
     if (uploadedFiles.length > 0) {
@@ -281,7 +284,7 @@ serve(async (req) => {
       console.log(`📎 Added ${uploadedFiles.length} files to Arquivos property`);
     }
 
-    console.log('📤 Sending payload to Notion (without Copy A property)')
+    console.log('📤 Sending payload to Notion with Observações property')
 
     const response = await fetch(notionUrl, {
       method: 'POST',
@@ -322,7 +325,7 @@ serve(async (req) => {
         uploadedFiles: uploadedFiles.length,
         fileUrls: uploadedFiles.map(f => f.url),
         finalUrl: validatedUrl,
-        observations: creativeData.observations, // Include observations in response for reference
+        observations: creativeData.observations,
         message: 'Criativo enviado com sucesso para o Notion!'
       }),
       { 
