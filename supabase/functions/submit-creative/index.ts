@@ -15,8 +15,8 @@ interface CreativeSubmissionData {
   campaignObjective?: string;
   creativeType?: string;
   objective?: string;
-  mainText: string;
-  headline: string;
+  mainTexts: string[]; // Changed to array
+  titles: string[]; // Changed to array  
   description: string;
   destinationUrl: string;
   callToAction: string;
@@ -154,7 +154,7 @@ const createNotionCreative = async (
         rich_text: [
           {
             text: {
-              content: creativeData.mainText
+              content: creativeData.mainTexts.join(' | ')  // Join multiple main texts
             }
           }
         ]
@@ -163,7 +163,7 @@ const createNotionCreative = async (
         rich_text: [
           {
             text: {
-              content: creativeData.headline
+              content: creativeData.titles.join(' | ')  // Join multiple titles
             }
           }
         ]

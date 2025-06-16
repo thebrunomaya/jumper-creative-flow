@@ -29,8 +29,8 @@ const INITIAL_FORM_DATA: FormData = {
     verticalEnabled: true, 
     horizontalEnabled: true 
   }], // Initialize with first media variation with all positions enabled
-  mainText: '',
-  headline: '',
+  mainTexts: [''], // Initialize with one empty main text
+  titles: [''], // Initialize with one empty title
   description: '',
   destinationUrl: '',
   callToAction: '',
@@ -121,20 +121,28 @@ const CreativeSystem: React.FC = () => {
         break;
 
       case 3:
-        if (!formData.mainText.trim()) {
-          newErrors.mainText = 'Digite o texto principal';
-        } else if (formData.mainText.length > TEXT_LIMITS.mainText) {
-          newErrors.mainText = `Texto muito longo (${formData.mainText.length}/${TEXT_LIMITS.mainText})`;
-        }
+        // Validate titles
+        const titles = formData.titles || [''];
+        titles.forEach((title, index) => {
+          if (!title.trim()) {
+            newErrors[`title-${index}`] = 'Digite o título';
+          } else if (title.length > TEXT_LIMITS.title.maximum) {
+            newErrors[`title-${index}`] = `Título muito longo (${title.length}/${TEXT_LIMITS.title.maximum})`;
+          }
+        });
 
-        if (!formData.headline.trim()) {
-          newErrors.headline = 'Digite o headline';
-        } else if (formData.headline.length > TEXT_LIMITS.headline) {
-          newErrors.headline = `Headline muito longo (${formData.headline.length}/${TEXT_LIMITS.headline})`;
-        }
+        // Validate main texts
+        const mainTexts = formData.mainTexts || [''];
+        mainTexts.forEach((mainText, index) => {
+          if (!mainText.trim()) {
+            newErrors[`mainText-${index}`] = 'Digite o texto principal';
+          } else if (mainText.length > TEXT_LIMITS.mainText.maximum) {
+            newErrors[`mainText-${index}`] = `Texto muito longo (${mainText.length}/${TEXT_LIMITS.mainText.maximum})`;
+          }
+        });
 
-        if (formData.description.length > TEXT_LIMITS.description) {
-          newErrors.description = `Descrição muito longa (${formData.description.length}/${TEXT_LIMITS.description})`;
+        if (formData.description.length > TEXT_LIMITS.description.maximum) {
+          newErrors.description = `Descrição muito longa (${formData.description.length}/${TEXT_LIMITS.description.maximum})`;
         }
 
         if (!formData.destinationUrl.trim()) {
@@ -276,8 +284,8 @@ const CreativeSystem: React.FC = () => {
         campaignObjective: formData.campaignObjective,
         creativeType: formData.creativeType,
         objective: formData.objective,
-        mainText: formData.mainText,
-        headline: formData.headline,
+        mainTexts: formData.mainTexts || [''], // Send array of main texts
+        titles: formData.titles || [''], // Send array of titles
         description: formData.description,
         destinationUrl: formData.destinationUrl,
         callToAction: formData.callToAction,

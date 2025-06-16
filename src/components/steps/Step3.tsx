@@ -1,12 +1,14 @@
 
 import React from 'react';
-import { FormData, TEXT_LIMITS } from '@/types/creative';
+import { FormData, TEXT_LIMITS, META_TEXT_VARIATIONS } from '@/types/creative';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { VALID_CTAS } from '@/types/creative';
-import TextCounter from '../TextCounter';
+import { Plus, X } from 'lucide-react';
+import TextCounterWithRecommendation from '../TextCounterWithRecommendation';
 
 interface Step3Props {
   formData: FormData;
@@ -15,6 +17,48 @@ interface Step3Props {
 }
 
 const Step3: React.FC<Step3Props> = ({ formData, updateFormData, errors }) => {
+  // Initialize arrays if they don't exist
+  const titles = formData.titles || [''];
+  const mainTexts = formData.mainTexts || [''];
+
+  const addTitle = () => {
+    if (titles.length < META_TEXT_VARIATIONS.maxTitles) {
+      updateFormData({ titles: [...titles, ''] });
+    }
+  };
+
+  const removeTitle = (index: number) => {
+    if (titles.length > 1) {
+      const newTitles = titles.filter((_, i) => i !== index);
+      updateFormData({ titles: newTitles });
+    }
+  };
+
+  const updateTitle = (index: number, value: string) => {
+    const newTitles = [...titles];
+    newTitles[index] = value;
+    updateFormData({ titles: newTitles });
+  };
+
+  const addMainText = () => {
+    if (mainTexts.length < META_TEXT_VARIATIONS.maxMainTexts) {
+      updateFormData({ mainTexts: [...mainTexts, ''] });
+    }
+  };
+
+  const removeMainText = (index: number) => {
+    if (mainTexts.length > 1) {
+      const newMainTexts = mainTexts.filter((_, i) => i !== index);
+      updateFormData({ mainTexts: newMainTexts });
+    }
+  };
+
+  const updateMainText = (index: number, value: string) => {
+    const newMainTexts = [...mainTexts];
+    newMainTexts[index] = value;
+    updateFormData({ mainTexts: newMainTexts });
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -23,48 +67,147 @@ const Step3: React.FC<Step3Props> = ({ formData, updateFormData, errors }) => {
       </div>
 
       <div className="grid gap-6">
-        {/* Headline primeiro */}
-        <div className="space-y-2">
-          <Label htmlFor="headline" className="flex items-center gap-2">
-            Headline *
-            <TextCounter text={formData.headline} maxLength={TEXT_LIMITS.headline} />
-          </Label>
-          <Input
-            id="headline"
-            value={formData.headline}
-            onChange={(e) => updateFormData({ headline: e.target.value })}
-            placeholder="Digite o headline do anúncio"
-            className={errors.headline ? 'border-red-500' : ''}
-          />
-          {errors.headline && (
-            <p className="text-sm text-red-600">{errors.headline}</p>
-          )}
+        {/* Títulos */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <Label className="text-base font-semibold">Títulos *</Label>
+            {titles.length < META_TEXT_VARIATIONS.maxTitles && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={addTitle}
+                className="flex items-center space-x-1"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Adicionar título</span>
+              </Button>
+            )}
+          </div>
+          
+          <p className="text-sm text-gray-500">
+            Você pode adicionar até {META_TEXT_VARIATIONS.maxTitles} títulos.
+          </p>
+
+          {titles.map((title, index) => (
+            <div key={index} className="space-y-2">
+              <div className="flex items-center space-x-2">
+                <div className="flex-1">
+                  <div className="flex items-center space-x-2 mb-2">
+                    <span className="bg-jumper-blue text-white text-xs px-2 py-1 rounded-full font-medium">
+                      {index + 1}
+                    </span>
+                    <Label htmlFor={`title-${index}`} className="text-sm">
+                      Título {index + 1}
+                    </Label>
+                    {titles.length > 1 && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeTitle(index)}
+                        className="text-red-500 hover:text-red-700 p-1"
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    )}
+                  </div>
+                  
+                  <Input
+                    id={`title-${index}`}
+                    value={title}
+                    onChange={(e) => updateTitle(index, e.target.value)}
+                    placeholder={`Digite o título ${index + 1} do anúncio`}
+                    className={errors[`title-${index}`] ? 'border-red-500' : ''}
+                  />
+                  
+                  {errors[`title-${index}`] && (
+                    <p className="text-sm text-red-600 mt-1">{errors[`title-${index}`]}</p>
+                  )}
+                </div>
+              </div>
+              
+              <TextCounterWithRecommendation
+                text={title}
+                recommended={TEXT_LIMITS.title.recommended}
+                maximum={TEXT_LIMITS.title.maximum}
+              />
+            </div>
+          ))}
         </div>
 
-        {/* Texto principal depois */}
-        <div className="space-y-2">
-          <Label htmlFor="mainText" className="flex items-center gap-2">
-            Texto Principal *
-            <TextCounter text={formData.mainText} maxLength={TEXT_LIMITS.mainText} />
-          </Label>
-          <Textarea
-            id="mainText"
-            value={formData.mainText}
-            onChange={(e) => updateFormData({ mainText: e.target.value })}
-            placeholder="Digite o texto principal do anúncio"
-            className={`min-h-[100px] ${errors.mainText ? 'border-red-500' : ''}`}
-          />
-          {errors.mainText && (
-            <p className="text-sm text-red-600">{errors.mainText}</p>
-          )}
+        {/* Textos Principais */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <Label className="text-base font-semibold">Textos Principais *</Label>
+            {mainTexts.length < META_TEXT_VARIATIONS.maxMainTexts && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={addMainText}
+                className="flex items-center space-x-1"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Adicionar texto</span>
+              </Button>
+            )}
+          </div>
+          
+          <p className="text-sm text-gray-500">
+            Você pode adicionar até {META_TEXT_VARIATIONS.maxMainTexts} textos principais.
+          </p>
+
+          {mainTexts.map((mainText, index) => (
+            <div key={index} className="space-y-2">
+              <div className="flex items-center space-x-2">
+                <div className="flex-1">
+                  <div className="flex items-center space-x-2 mb-2">
+                    <span className="bg-jumper-blue text-white text-xs px-2 py-1 rounded-full font-medium">
+                      {index + 1}
+                    </span>
+                    <Label htmlFor={`mainText-${index}`} className="text-sm">
+                      Texto Principal {index + 1}
+                    </Label>
+                    {mainTexts.length > 1 && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeMainText(index)}
+                        className="text-red-500 hover:text-red-700 p-1"
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    )}
+                  </div>
+                  
+                  <Textarea
+                    id={`mainText-${index}`}
+                    value={mainText}
+                    onChange={(e) => updateMainText(index, e.target.value)}
+                    placeholder={`Digite o texto principal ${index + 1} do anúncio`}
+                    className={`min-h-[100px] ${errors[`mainText-${index}`] ? 'border-red-500' : ''}`}
+                  />
+                  
+                  {errors[`mainText-${index}`] && (
+                    <p className="text-sm text-red-600 mt-1">{errors[`mainText-${index}`]}</p>
+                  )}
+                </div>
+              </div>
+              
+              <TextCounterWithRecommendation
+                text={mainText}
+                recommended={TEXT_LIMITS.mainText.recommended}
+                maximum={TEXT_LIMITS.mainText.maximum}
+              />
+            </div>
+          ))}
         </div>
 
         {/* Descrição */}
         <div className="space-y-2">
-          <Label htmlFor="description" className="flex items-center gap-2">
-            Descrição
-            <TextCounter text={formData.description} maxLength={TEXT_LIMITS.description} />
-          </Label>
+          <Label htmlFor="description">Descrição</Label>
           <Textarea
             id="description"
             value={formData.description}
@@ -75,6 +218,12 @@ const Step3: React.FC<Step3Props> = ({ formData, updateFormData, errors }) => {
           {errors.description && (
             <p className="text-sm text-red-600">{errors.description}</p>
           )}
+          
+          <TextCounterWithRecommendation
+            text={formData.description}
+            recommended={TEXT_LIMITS.description.recommended}
+            maximum={TEXT_LIMITS.description.maximum}
+          />
         </div>
 
         {/* URL de Destino */}

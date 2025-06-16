@@ -1,3 +1,4 @@
+
 export interface FormData {
   // Step 1
   client: string;
@@ -12,9 +13,9 @@ export interface FormData {
   validatedFiles: ValidatedFile[];
   mediaVariations?: MediaVariation[]; // New field for multiple media sets
   
-  // Step 3
-  mainText: string;
-  headline: string;
+  // Step 3 - Updated for multiple titles and main texts
+  mainTexts: string[]; // Changed from single mainText to array
+  titles: string[]; // Changed from single headline to array of titles
   description: string;
   destinationUrl: string;
   callToAction: string;
@@ -74,8 +75,24 @@ export const META_SPECS = {
   }
 };
 
+// Updated text limits with recommended and maximum values
 export const TEXT_LIMITS = {
-  mainText: 125,
-  headline: 40,
-  description: 90
+  mainText: {
+    recommended: 125,
+    maximum: 500
+  },
+  title: {
+    recommended: 40,
+    maximum: 255
+  },
+  description: {
+    recommended: 30,
+    maximum: 200
+  }
+};
+
+// Maximum number of variations for Meta Ads
+export const META_TEXT_VARIATIONS = {
+  maxTitles: 5,
+  maxMainTexts: 5
 };
