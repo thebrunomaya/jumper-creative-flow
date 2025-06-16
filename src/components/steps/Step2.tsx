@@ -1,8 +1,10 @@
 
 import React from 'react';
-import { FormData, ValidatedFile } from '@/types/creative';
+import { FormData, ValidatedFile, MediaVariation } from '@/types/creative';
 import FileUpload from '@/components/FileUpload';
-import ImageUploadSection from '@/components/ImageUploadSection';
+import SingleFileUploadSection from '@/components/SingleFileUploadSection';
+import { Button } from '@/components/ui/button';
+import { Plus, Trash2 } from 'lucide-react';
 
 interface Step2Props {
   formData: FormData;
@@ -11,18 +13,39 @@ interface Step2Props {
 }
 
 const Step2: React.FC<Step2Props> = ({ formData, updateFormData, errors }) => {
+  // Initialize media variations if not exists
+  const mediaVariations = formData.mediaVariations || [{ id: 1 }];
+
+  const updateMediaVariations = (variations: MediaVariation[]) => {
+    updateFormData({ mediaVariations: variations });
+  };
+
+  const addVariation = () => {
+    if (mediaVariations.length < 10) {
+      const newVariations = [...mediaVariations, { id: mediaVariations.length + 1 }];
+      updateMediaVariations(newVariations);
+    }
+  };
+
+  const removeVariation = (id: number) => {
+    if (mediaVariations.length > 1) {
+      const newVariations = mediaVariations.filter(v => v.id !== id);
+      updateMediaVariations(newVariations);
+    }
+  };
+
+  const updateVariationFile = (variationId: number, format: 'square' | 'vertical' | 'horizontal', file?: ValidatedFile) => {
+    const newVariations = mediaVariations.map(variation => {
+      if (variation.id === variationId) {
+        return { ...variation, [`${format}File`]: file };
+      }
+      return variation;
+    });
+    updateMediaVariations(newVariations);
+  };
+
   // For single image/video ads, we need separate upload sections for images
   if (formData.creativeType === 'single') {
-    const squareFiles = formData.validatedFiles.filter(f => f.format === 'square');
-    const verticalFiles = formData.validatedFiles.filter(f => f.format === 'vertical');
-    const horizontalFiles = formData.validatedFiles.filter(f => f.format === 'horizontal');
-
-    const updateFilesForFormat = (format: 'square' | 'vertical' | 'horizontal', newFiles: ValidatedFile[]) => {
-      const otherFiles = formData.validatedFiles.filter(f => f.format !== format);
-      const updatedFiles = [...otherFiles, ...newFiles];
-      updateFormData({ validatedFiles: updatedFiles });
-    };
-
     return (
       <div className="space-y-8 animate-fade-in">
         <div className="text-center mb-8">
@@ -30,34 +53,69 @@ const Step2: React.FC<Step2Props> = ({ formData, updateFormData, errors }) => {
           <p className="text-gray-600">Envie suas imagens e vídeos nos diferentes formatos</p>
         </div>
 
-        <div className="grid gap-8">
-          <ImageUploadSection
-            title="📐 Formato Quadrado"
-            format="square"
-            dimensions="1440x1440px ou múltiplos superiores"
-            files={squareFiles}
-            onFilesChange={(files) => updateFilesForFormat('square', files)}
-            placeholder="Ideal para feed do Instagram e Facebook"
-          />
+        {mediaVariations.map((variation, index) => (
+          <div key={variation.id} className="space-y-6 p-6 bg-gray-50 rounded-lg">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xl font-bold text-jumper-text">
+                📎 Mídia {variation.id}
+              </h3>
+              {mediaVariations.length > 1 && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => removeVariation(variation.id)}
+                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                >
+                  <Trash2 className="h-4 w-4 mr-1" />
+                  Remover
+                </Button>
+              )}
+            </div>
 
-          <ImageUploadSection
-            title="📱 Formato Vertical"
-            format="vertical"
-            dimensions="1080x1920px ou múltiplos superiores"
-            files={verticalFiles}
-            onFilesChange={(files) => updateFilesForFormat('vertical', files)}
-            placeholder="Ideal para Stories e feed mobile"
-          />
+            <div className="grid gap-6">
+              <SingleFileUploadSection
+                title="📐 Formato Quadrado"
+                format="square"
+                dimensions="1080x1080px ou múltiplos superiores"
+                file={variation.squareFile}
+                onFileChange={(file) => updateVariationFile(variation.id, 'square', file)}
+                placeholder="Ideal para feed do Instagram e Facebook"
+              />
 
-          <ImageUploadSection
-            title="💻 Formato Horizontal"
-            format="horizontal"
-            dimensions="1200x628px ou múltiplos superiores"
-            files={horizontalFiles}
-            onFilesChange={(files) => updateFilesForFormat('horizontal', files)}
-            placeholder="Ideal para Facebook feed desktop"
-          />
-        </div>
+              <SingleFileUploadSection
+                title="📱 Formato Vertical"
+                format="vertical"
+                dimensions="1080x1920px ou múltiplos superiores"
+                file={variation.verticalFile}
+                onFileChange={(file) => updateVariationFile(variation.id, 'vertical', file)}
+                placeholder="Ideal para Stories e feed mobile"
+              />
+
+              <SingleFileUploadSection
+                title="💻 Formato Horizontal"
+                format="horizontal"
+                dimensions="1200x628px ou múltiplos superiores"
+                file={variation.horizontalFile}
+                onFileChange={(file) => updateVariationFile(variation.id, 'horizontal', file)}
+                placeholder="Ideal para Facebook feed desktop"
+              />
+            </div>
+          </div>
+        ))}
+
+        {/* Add Variation Button */}
+        {mediaVariations.length < 10 && (
+          <div className="text-center">
+            <Button
+              variant="outline"
+              onClick={addVariation}
+              className="bg-white hover:bg-gray-50 border-2 border-dashed border-gray-300 hover:border-jumper-blue transition-colors"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Adicionar Variação ({mediaVariations.length}/10)
+            </Button>
+          </div>
+        )}
 
         {errors.files && (
           <div className="bg-red-50 border border-red-200 rounded-lg p-4">
@@ -65,23 +123,22 @@ const Step2: React.FC<Step2Props> = ({ formData, updateFormData, errors }) => {
           </div>
         )}
 
-        {formData.validatedFiles.length > 0 && (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <div className="flex items-center space-x-2">
-              <div className="flex-shrink-0">
-                <svg className="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <div>
-                <p className="text-sm font-medium text-blue-800">Dica</p>
-                <p className="text-sm text-blue-700">
-                  Envie pelo menos um arquivo em cada formato para ter máxima cobertura nas plataformas.
-                </p>
-              </div>
+        {/* Info box */}
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div className="flex items-center space-x-2">
+            <div className="flex-shrink-0">
+              <svg className="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div>
+              <p className="text-sm font-medium text-blue-800">Dica</p>
+              <p className="text-sm text-blue-700">
+                Você pode enviar um arquivo por formato em cada mídia. Adicione variações para criar diferentes versões do seu anúncio.
+              </p>
             </div>
           </div>
-        )}
+        </div>
       </div>
     );
   }

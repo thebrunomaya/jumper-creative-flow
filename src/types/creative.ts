@@ -1,4 +1,5 @@
 
+
 export interface FormData {
   // Step 1
   client: string;
@@ -11,6 +12,7 @@ export interface FormData {
   // Step 2
   files: File[];
   validatedFiles: ValidatedFile[];
+  mediaVariations?: MediaVariation[]; // New field for multiple media sets
   
   // Step 3
   mainText: string;
@@ -29,6 +31,13 @@ export interface ValidatedFile {
   errors: string[];
   preview?: string;
   format?: 'square' | 'vertical' | 'horizontal'; // Add format for image ads
+}
+
+export interface MediaVariation {
+  id: number;
+  squareFile?: ValidatedFile;
+  verticalFile?: ValidatedFile;
+  horizontalFile?: ValidatedFile;
 }
 
 export interface Client {
@@ -54,7 +63,7 @@ export const VALID_CTAS = [
 
 export const META_SPECS = {
   image: {
-    square: { width: 1440, height: 1440, maxSize: 30 * 1024 * 1024 },
+    square: { width: 1080, height: 1080, maxSize: 30 * 1024 * 1024 },
     vertical: { width: 1080, height: 1920, maxSize: 30 * 1024 * 1024 },
     horizontal: { width: 1200, height: 628, maxSize: 30 * 1024 * 1024 }
   },
@@ -69,3 +78,4 @@ export const TEXT_LIMITS = {
   headline: 40,
   description: 90
 };
+

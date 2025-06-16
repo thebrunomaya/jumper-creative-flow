@@ -21,6 +21,7 @@ const INITIAL_FORM_DATA: FormData = {
   objective: undefined,
   files: [],
   validatedFiles: [],
+  mediaVariations: [{ id: 1 }], // Initialize with first media variation
   mainText: '',
   headline: '',
   description: '',
@@ -71,12 +72,42 @@ const CreativeSystem: React.FC = () => {
         break;
 
       case 2:
-        if (formData.validatedFiles.length === 0) {
-          newErrors.files = 'Envie pelo menos um arquivo';
+        if (formData.creativeType === 'single') {
+          // Validate media variations
+          const mediaVariations = formData.mediaVariations || [];
+          if (mediaVariations.length === 0) {
+            newErrors.files = 'Adicione pelo menos uma mídia';
+          } else {
+            let hasValidFile = false;
+            let hasInvalidFile = false;
+            
+            mediaVariations.forEach(variation => {
+              const files = [variation.squareFile, variation.verticalFile, variation.horizontalFile].filter(Boolean);
+              if (files.length > 0) {
+                hasValidFile = true;
+                files.forEach(file => {
+                  if (file && !file.valid) {
+                    hasInvalidFile = true;
+                  }
+                });
+              }
+            });
+            
+            if (!hasValidFile) {
+              newErrors.files = 'Envie pelo menos um arquivo em uma das mídias';
+            } else if (hasInvalidFile) {
+              newErrors.files = 'Corrija os arquivos com problemas antes de continuar';
+            }
+          }
         } else {
-          const invalidFiles = formData.validatedFiles.filter(f => !f.valid);
-          if (invalidFiles.length > 0) {
-            newErrors.files = `${invalidFiles.length} arquivo(s) com problemas. Corrija antes de continuar.`;
+          // Original validation for other creative types
+          if (formData.validatedFiles.length === 0) {
+            newErrors.files = 'Envie pelo menos um arquivo';
+          } else {
+            const invalidFiles = formData.validatedFiles.filter(f => !f.valid);
+            if (invalidFiles.length > 0) {
+              newErrors.files = `${invalidFiles.length} arquivo(s) com problemas. Corrija antes de continuar.`;
+            }
           }
         }
         break;
@@ -290,7 +321,7 @@ const CreativeSystem: React.FC = () => {
           ) : (
             <Button
               onClick={submitForm}
-              disabled={isSubmitting || formData.validatedFiles.filter(f => !f.valid).length > 0}
+              disabled={isSubmitting}
               className="bg-gradient-success hover:opacity-90 transition-opacity flex items-center space-x-2 px-8"
             >
               <span>🚀</span>

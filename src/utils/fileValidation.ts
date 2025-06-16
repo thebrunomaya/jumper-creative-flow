@@ -1,4 +1,3 @@
-
 import { META_SPECS, ValidatedFile } from '@/types/creative';
 
 export const validateImage = (file: File, format?: 'square' | 'vertical' | 'horizontal'): Promise<{ valid: boolean; width: number; height: number; message: string }> => {
@@ -12,13 +11,13 @@ export const validateImage = (file: File, format?: 'square' | 'vertical' | 'hori
         // Validate specific format with exact dimensions or higher multiples
         switch (format) {
           case 'square':
-            const squareRatio = img.width / 1440;
-            isValid = img.width === 1440 && img.height === 1440 || 
-                     (img.width >= 1440 && img.height >= 1440 && 
+            const squareRatio = img.width / 1080;
+            isValid = img.width === 1080 && img.height === 1080 || 
+                     (img.width >= 1080 && img.height >= 1080 && 
                       img.width === img.height && 
                       squareRatio === Math.floor(squareRatio) && 
-                      img.height / 1440 === squareRatio);
-            expectedDimensions = '1440x1440px ou múltiplos superiores';
+                      img.height / 1080 === squareRatio);
+            expectedDimensions = '1080x1080px ou múltiplos superiores';
             break;
           case 'vertical':
             const verticalRatioW = img.width / 1080;
