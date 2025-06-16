@@ -23,6 +23,9 @@ const Step3: React.FC<Step3Props> = ({ formData, updateFormData, errors }) => {
     }
   };
 
+  // Debug log to see what's in formData
+  console.log('Step3 formData.destinationUrl:', formData.destinationUrl);
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="text-center mb-8">
@@ -91,8 +94,11 @@ const Step3: React.FC<Step3Props> = ({ formData, updateFormData, errors }) => {
               <Input
                 id="destinationUrl"
                 type="url"
-                value={formData.destinationUrl}
-                onChange={(e) => updateFormData({ destinationUrl: e.target.value })}
+                value={formData.destinationUrl || ''} // Ensure it's never undefined
+                onChange={(e) => {
+                  console.log('URL input changed to:', e.target.value);
+                  updateFormData({ destinationUrl: e.target.value });
+                }}
                 placeholder="https://exemplo.com"
                 className={`${errors.destinationUrl ? 'border-red-500' : ''} ${
                   formData.destinationUrl && isValidUrl(formData.destinationUrl) ? 'border-green-500' : ''

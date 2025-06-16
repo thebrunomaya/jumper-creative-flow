@@ -104,12 +104,13 @@ serve(async (req) => {
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
 
     const creativeData: CreativeSubmissionData = await req.json()
-    console.log('Creative data received:', {
-      managerId: creativeData.managerId,
-      destinationUrl: creativeData.destinationUrl, // Log the URL specifically
-      filesCount: creativeData.filesInfo?.length || 0,
-      fileNames: creativeData.filesInfo?.map(f => f.name) || []
-    })
+    console.log('🔍 DEBUGGING URL ISSUE - Creative data received:')
+    console.log('- managerId:', creativeData.managerId)
+    console.log('- destinationUrl:', creativeData.destinationUrl)
+    console.log('- destinationUrl type:', typeof creativeData.destinationUrl)
+    console.log('- destinationUrl length:', creativeData.destinationUrl?.length)
+    console.log('- All data keys:', Object.keys(creativeData))
+    console.log('- Full creative data:', JSON.stringify(creativeData, null, 2))
 
     // Upload files to Supabase Storage and get URLs
     const uploadedFiles: Array<{ name: string; url: string; format?: string }> = [];
@@ -153,6 +154,29 @@ serve(async (req) => {
     // Create the creative record in Notion
     const notionUrl = `https://api.notion.com/v1/pages`
     
+    // Validate URL before sending to Notion
+    if (!creativeData.destinationUrl || creativeData.destinationUrl.trim() === '') {
+      console.error('❌ CRITICAL: destinationUrl is empty or missing!')
+      throw new Error('URL de destino é obrigatória')
+    }
+
+    let validatedUrl = creativeData.destinationUrl.trim()
+    
+    // Ensure URL has proper protocol
+    if (!validatedUrl.startsWith('http://') && !validatedUrl.startsWith('https://')) {
+      validatedUrl = 'https://' + validatedUrl
+      console.log('🔧 Added https:// protocol to URL:', validatedUrl)
+    }
+
+    // Test URL validity
+    try {
+      new URL(validatedUrl)
+      console.log('✅ URL validation passed:', validatedUrl)
+    } catch (urlError) {
+      console.error('❌ Invalid URL format:', validatedUrl, urlError)
+      throw new Error(`URL inválida: ${validatedUrl}`)
+    }
+
     const notionPayload = {
       parent: {
         database_id: DB_CRIATIVOS_ID
@@ -222,7 +246,7 @@ serve(async (req) => {
           ]
         },
         "Link de destino": {
-          url: creativeData.destinationUrl
+          url: validatedUrl
         },
         "Call-to-Action": {
           select: {
@@ -246,11 +270,10 @@ serve(async (req) => {
       }
     }
 
-    // Log specifically the URL being sent to Notion
-    console.log('🔗 URL being sent to Notion:', {
-      originalUrl: creativeData.destinationUrl,
-      notionUrlProperty: notionPayload.properties["Link de destino"]
-    });
+    console.log('🔗 FINAL URL CHECK - URL being sent to Notion:')
+    console.log('- Original URL from frontend:', creativeData.destinationUrl)
+    console.log('- Validated URL for Notion:', validatedUrl)
+    console.log('- Notion property value:', notionPayload.properties["Link de destino"])
 
     // Add uploaded files to the "Arquivos" property in the correct format
     if (uploadedFiles.length > 0) {
