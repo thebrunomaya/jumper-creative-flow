@@ -81,6 +81,7 @@ const createNotionCreative = async (
   creativeData: CreativeSubmissionData,
   variationFiles: Array<{ name: string; url: string; format?: string }>,
   variationIndex: number,
+  totalVariations: number,
   NOTION_TOKEN: string,
   DB_CRIATIVOS_ID: string
 ) => {
@@ -107,6 +108,15 @@ const createNotionCreative = async (
   } catch (urlError) {
     console.error('❌ Invalid URL format:', validatedUrl, urlError);
     throw new Error(`URL inválida: ${validatedUrl}`);
+  }
+
+  // Build observations text with variation indicator
+  let observationsText = creativeData.observations || '';
+  
+  // Add variation indicator if there are multiple variations
+  if (totalVariations > 1) {
+    const variationSuffix = ` (Variação ${variationIndex})`;
+    observationsText = observationsText + variationSuffix;
   }
 
   const notionPayload = {
@@ -189,7 +199,7 @@ const createNotionCreative = async (
         rich_text: [
           {
             text: {
-              content: (creativeData.observations || '') + (variationIndex > 1 ? ` (Variação ${variationIndex})` : '')
+              content: observationsText
             }
           }
         ]
@@ -304,6 +314,7 @@ serve(async (req) => {
       console.log(`📊 Files grouped into ${filesByVariation.size} variations`);
     }
 
+    const totalVariations = filesByVariation.size;
     const createdCreatives: Array<{
       creativeId: string;
       notionPageId: string;
@@ -352,6 +363,7 @@ serve(async (req) => {
           creativeData,
           uploadedFiles,
           variationIndex,
+          totalVariations,
           NOTION_TOKEN,
           DB_CRIATIVOS_ID
         );
