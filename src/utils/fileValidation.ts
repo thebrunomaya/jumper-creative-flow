@@ -1,3 +1,4 @@
+
 import { META_SPECS, ValidatedFile } from '@/types/creative';
 
 export const validateImage = (file: File, format?: 'square' | 'vertical' | 'horizontal'): Promise<{ valid: boolean; width: number; height: number; message: string }> => {
@@ -8,19 +9,36 @@ export const validateImage = (file: File, format?: 'square' | 'vertical' | 'hori
       let expectedDimensions = '';
 
       if (format) {
-        // Validate specific format
+        // Validate specific format with exact dimensions or higher multiples
         switch (format) {
           case 'square':
-            isValid = img.width === 1080 && img.height === 1080;
-            expectedDimensions = '1080x1080px';
+            const squareRatio = img.width / 1440;
+            isValid = img.width === 1440 && img.height === 1440 || 
+                     (img.width >= 1440 && img.height >= 1440 && 
+                      img.width === img.height && 
+                      squareRatio === Math.floor(squareRatio) && 
+                      img.height / 1440 === squareRatio);
+            expectedDimensions = '1440x1440px ou múltiplos superiores';
             break;
           case 'vertical':
-            isValid = img.width === 1080 && img.height === 1350;
-            expectedDimensions = '1080x1350px';
+            const verticalRatioW = img.width / 1080;
+            const verticalRatioH = img.height / 1920;
+            isValid = img.width === 1080 && img.height === 1920 || 
+                     (img.width >= 1080 && img.height >= 1920 && 
+                      verticalRatioW === Math.floor(verticalRatioW) && 
+                      verticalRatioH === Math.floor(verticalRatioH) && 
+                      verticalRatioW === verticalRatioH);
+            expectedDimensions = '1080x1920px ou múltiplos superiores';
             break;
           case 'horizontal':
-            isValid = img.width === 1200 && img.height === 628;
-            expectedDimensions = '1200x628px';
+            const horizontalRatioW = img.width / 1200;
+            const horizontalRatioH = img.height / 628;
+            isValid = img.width === 1200 && img.height === 628 || 
+                     (img.width >= 1200 && img.height >= 628 && 
+                      horizontalRatioW === Math.floor(horizontalRatioW) && 
+                      horizontalRatioH === Math.floor(horizontalRatioH) && 
+                      horizontalRatioW === horizontalRatioH);
+            expectedDimensions = '1200x628px ou múltiplos superiores';
             break;
         }
       } else {

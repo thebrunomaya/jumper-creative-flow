@@ -34,7 +34,7 @@ const Step2: React.FC<Step2Props> = ({ formData, updateFormData, errors }) => {
           <ImageUploadSection
             title="📐 Formato Quadrado"
             format="square"
-            dimensions="1080x1080px"
+            dimensions="1440x1440px ou múltiplos superiores"
             files={squareFiles}
             onFilesChange={(files) => updateFilesForFormat('square', files)}
             placeholder="Ideal para feed do Instagram e Facebook"
@@ -43,7 +43,7 @@ const Step2: React.FC<Step2Props> = ({ formData, updateFormData, errors }) => {
           <ImageUploadSection
             title="📱 Formato Vertical"
             format="vertical"
-            dimensions="1080x1350px"
+            dimensions="1080x1920px ou múltiplos superiores"
             files={verticalFiles}
             onFilesChange={(files) => updateFilesForFormat('vertical', files)}
             placeholder="Ideal para Stories e feed mobile"
@@ -52,7 +52,7 @@ const Step2: React.FC<Step2Props> = ({ formData, updateFormData, errors }) => {
           <ImageUploadSection
             title="💻 Formato Horizontal"
             format="horizontal"
-            dimensions="1200x628px"
+            dimensions="1200x628px ou múltiplos superiores"
             files={horizontalFiles}
             onFilesChange={(files) => updateFilesForFormat('horizontal', files)}
             placeholder="Ideal para Facebook feed desktop"

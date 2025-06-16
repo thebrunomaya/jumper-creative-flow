@@ -1,3 +1,4 @@
+
 export interface FormData {
   // Step 1
   client: string;
@@ -53,8 +54,8 @@ export const VALID_CTAS = [
 
 export const META_SPECS = {
   image: {
-    square: { width: 1080, height: 1080, maxSize: 30 * 1024 * 1024 },
-    vertical: { width: 1080, height: 1350, maxSize: 30 * 1024 * 1024 },
+    square: { width: 1440, height: 1440, maxSize: 30 * 1024 * 1024 },
+    vertical: { width: 1080, height: 1920, maxSize: 30 * 1024 * 1024 },
     horizontal: { width: 1200, height: 628, maxSize: 30 * 1024 * 1024 }
   },
   video: {
