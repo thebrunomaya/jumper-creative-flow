@@ -7,6 +7,7 @@ export interface Manager {
   name: string;
   email?: string;
   username?: string;
+  accounts?: string[]; // IDs das contas que o gerente tem acesso
 }
 
 // Helper function to extract text from Notion property
@@ -34,6 +35,15 @@ const extractTextFromProperty = (property: any): string => {
   }
   
   return '';
+};
+
+// Helper function to extract account IDs from relation property
+const extractAccountIds = (property: any): string[] => {
+  if (!property || !property.relation || !Array.isArray(property.relation)) {
+    return [];
+  }
+  
+  return property.relation.map((item: any) => item.id).filter(Boolean);
 };
 
 export const useManagers = () => {
@@ -70,6 +80,7 @@ export const useManagers = () => {
       const formattedManagers: Manager[] = data.results.map((item: any) => {
         let name = 'Sem nome';
         let email = '';
+        let accounts: string[] = [];
         
         // Try to find name in various properties
         const possibleNameProperties = ['Nome', 'Name', 'Gerente', 'Manager', 'Title', 'Título'];
@@ -88,11 +99,17 @@ export const useManagers = () => {
           email = extractTextFromProperty(item.properties['E-Mail']);
         }
         
+        // Extract accounts from "Contas" property
+        if (item.properties['Contas']) {
+          accounts = extractAccountIds(item.properties['Contas']);
+        }
+        
         return {
           id: item.id,
           name,
           email,
-          username: email // Use email as username for login validation
+          username: email, // Use email as username for login validation
+          accounts
         };
       });
       
@@ -104,7 +121,7 @@ export const useManagers = () => {
       setError('Erro ao carregar gerentes do Notion');
       // Fallback para dados de teste
       setManagers([
-        { id: "test-1", name: "Gerente Teste", email: "teste@jumper.com", username: "teste@jumper.com" }
+        { id: "test-1", name: "Gerente Teste", email: "teste@jumper.com", username: "teste@jumper.com", accounts: [] }
       ]);
     } finally {
       setLoading(false);

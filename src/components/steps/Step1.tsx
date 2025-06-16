@@ -4,7 +4,7 @@ import { FormData } from '@/types/creative';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { useNotionClients, useNotionPartners } from '@/hooks/useNotionData';
+import { useNotionClients } from '@/hooks/useNotionData';
 import { Skeleton } from '@/components/ui/skeleton';
 
 interface Step1Props {
@@ -15,7 +15,6 @@ interface Step1Props {
 
 const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
   const { clients, loading: clientsLoading, error: clientsError } = useNotionClients();
-  const { partners, loading: partnersLoading, error: partnersError } = useNotionPartners();
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -24,56 +23,29 @@ const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
         <p className="text-gray-600">Vamos começar com os dados essenciais do seu criativo</p>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        {/* Cliente */}
-        <div className="space-y-2">
-          <Label htmlFor="client" className="text-sm font-medium text-jumper-text">
-            Cliente *
-          </Label>
-          {clientsLoading ? (
-            <Skeleton className="h-12 w-full" />
-          ) : (
-            <Select value={formData.client} onValueChange={(value) => updateFormData({ client: value })}>
-              <SelectTrigger className={`h-12 ${errors.client ? 'border-red-500' : ''}`}>
-                <SelectValue placeholder="Selecione o cliente" />
-              </SelectTrigger>
-              <SelectContent>
-                {clients.map((client) => (
-                  <SelectItem key={client.id} value={client.id}>
-                    {client.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
-          {errors.client && <p className="text-sm text-red-500">{errors.client}</p>}
-          {clientsError && <p className="text-sm text-yellow-600">⚠️ {clientsError} (usando dados locais)</p>}
-        </div>
-
-        {/* Parceiro */}
-        <div className="space-y-2">
-          <Label htmlFor="partner" className="text-sm font-medium text-jumper-text">
-            Enviado por *
-          </Label>
-          {partnersLoading ? (
-            <Skeleton className="h-12 w-full" />
-          ) : (
-            <Select value={formData.partner} onValueChange={(value) => updateFormData({ partner: value })}>
-              <SelectTrigger className={`h-12 ${errors.partner ? 'border-red-500' : ''}`}>
-                <SelectValue placeholder="Selecione o parceiro" />
-              </SelectTrigger>
-              <SelectContent>
-                {partners.map((partner) => (
-                  <SelectItem key={partner.id} value={partner.id}>
-                    {partner.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
-          {errors.partner && <p className="text-sm text-red-500">{errors.partner}</p>}
-          {partnersError && <p className="text-sm text-yellow-600">⚠️ {partnersError} (usando dados locais)</p>}
-        </div>
+      {/* Cliente - agora ocupando mais espaço */}
+      <div className="space-y-2">
+        <Label htmlFor="client" className="text-sm font-medium text-jumper-text">
+          Cliente *
+        </Label>
+        {clientsLoading ? (
+          <Skeleton className="h-12 w-full" />
+        ) : (
+          <Select value={formData.client} onValueChange={(value) => updateFormData({ client: value })}>
+            <SelectTrigger className={`h-12 ${errors.client ? 'border-red-500' : ''}`}>
+              <SelectValue placeholder="Selecione o cliente" />
+            </SelectTrigger>
+            <SelectContent>
+              {clients.map((client) => (
+                <SelectItem key={client.id} value={client.id}>
+                  {client.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
+        {errors.client && <p className="text-sm text-red-500">{errors.client}</p>}
+        {clientsError && <p className="text-sm text-yellow-600">⚠️ {clientsError} (usando dados locais)</p>}
       </div>
 
       {/* Plataforma */}

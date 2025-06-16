@@ -1,6 +1,8 @@
+
 import { useState, useEffect } from 'react';
 import { Client, Partner } from '@/types/creative';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface NotionClient {
   id: string;
@@ -42,6 +44,7 @@ export const useNotionClients = () => {
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { currentUser } = useAuth();
 
   useEffect(() => {
     const fetchClients = async () => {
@@ -99,8 +102,17 @@ export const useNotionClients = () => {
           };
         });
         
-        console.log('Formatted clients:', formattedClients);
-        setClients(formattedClients);
+        // Filtrar clientes baseado nas contas do gerente logado
+        let filteredClients = formattedClients;
+        if (currentUser?.accounts && currentUser.accounts.length > 0) {
+          filteredClients = formattedClients.filter(client => 
+            currentUser.accounts!.includes(client.id)
+          );
+          console.log('Filtered clients for manager:', filteredClients);
+        }
+        
+        console.log('Formatted clients:', filteredClients);
+        setClients(filteredClients);
         setError(null);
       } catch (err) {
         console.error('Error fetching clients:', err);
@@ -119,7 +131,7 @@ export const useNotionClients = () => {
     };
 
     fetchClients();
-  }, []);
+  }, [currentUser]); // Refetch quando o usuário mudar
 
   return { clients, loading, error };
 };

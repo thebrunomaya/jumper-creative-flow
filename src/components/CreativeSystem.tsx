@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { FormData, TEXT_LIMITS } from '@/types/creative';
 import { useToast } from '@/hooks/use-toast';
@@ -14,7 +13,7 @@ import { ArrowLeft, ArrowRight } from 'lucide-react';
 
 const INITIAL_FORM_DATA: FormData = {
   client: '',
-  partner: '',
+  partner: '', // Mantemos por compatibilidade mas não será usado
   platform: '',
   creativeType: undefined,
   objective: undefined,
@@ -57,7 +56,7 @@ const CreativeSystem: React.FC = () => {
     switch (step) {
       case 1:
         if (!formData.client) newErrors.client = 'Selecione um cliente';
-        if (!formData.partner) newErrors.partner = 'Selecione um parceiro';
+        // Removida validação do partner
         if (!formData.platform) newErrors.platform = 'Selecione uma plataforma';
         
         if (formData.platform === 'meta') {
