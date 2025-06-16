@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
@@ -247,19 +248,24 @@ serve(async (req) => {
       }
     }
 
-    // Add uploaded files URLs to the payload if available
+    // Add file information to observations if files were uploaded
     if (uploadedFiles.length > 0) {
       const fileLinks = uploadedFiles.map(file => `${file.name}: ${file.url}`).join('\n');
-      notionPayload.properties["Arquivos Enviados"] = {
+      const existingObservations = creativeData.observations || '';
+      const updatedObservations = existingObservations + 
+        (existingObservations ? '\n\n--- Arquivos Enviados ---\n' : '--- Arquivos Enviados ---\n') + 
+        fileLinks;
+      
+      notionPayload.properties["Copy A"] = {
         rich_text: [
           {
             text: {
-              content: fileLinks
+              content: updatedObservations
             }
           }
         ]
       };
-      console.log(`📎 Added ${uploadedFiles.length} file URLs to Notion payload`);
+      console.log(`📎 Added ${uploadedFiles.length} file URLs to observations`);
     }
 
     console.log('Sending to Notion:', JSON.stringify(notionPayload, null, 2))
