@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { FormData } from '@/types/creative';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -132,9 +131,8 @@ const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
                   <SelectValue placeholder={!formData.campaignObjective ? "Selecione o objetivo primeiro" : "Selecione o tipo"} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="image">🖼️ Imagem</SelectItem>
+                  <SelectItem value="single">🖼️ Imagem/Vídeo Único</SelectItem>
                   <SelectItem value="carousel">🎠 Carrossel</SelectItem>
-                  <SelectItem value="video">🎬 Vídeo</SelectItem>
                   <SelectItem value="collection">🏪 Coleção</SelectItem>
                 </SelectContent>
               </Select>

@@ -1,4 +1,3 @@
-
 import React, { useCallback, useState } from 'react';
 import { ValidatedFile } from '@/types/creative';
 import { validateFile } from '@/utils/fileValidation';
@@ -42,7 +41,8 @@ const ImageUploadSection: React.FC<ImageUploadSectionProps> = ({
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
-      'image/*': ['.jpeg', '.jpg', '.png']
+      'image/*': ['.jpeg', '.jpg', '.png'],
+      'video/*': ['.mp4', '.mov']
     },
     multiple: true
   });
@@ -81,10 +81,10 @@ const ImageUploadSection: React.FC<ImageUploadSectionProps> = ({
           <Upload className="mx-auto h-8 w-8 text-gray-400" />
           <div>
             <p className="text-sm font-medium text-jumper-text">
-              {isDragActive ? 'Solte as imagens aqui' : 'Clique ou arraste imagens'}
+              {isDragActive ? 'Solte os arquivos aqui' : 'Clique ou arraste imagens e vídeos'}
             </p>
             <p className="text-xs text-gray-600 mt-1">
-              JPG, PNG • {dimensions} • Máx: 30MB
+              JPG, PNG, MP4, MOV • {dimensions} • Máx: 30MB (imagens) / 4GB (vídeos)
             </p>
             {placeholder && (
               <p className="text-xs text-gray-500 mt-1">{placeholder}</p>
@@ -125,6 +125,9 @@ const ImageUploadSection: React.FC<ImageUploadSectionProps> = ({
                         {formatFileSize(validatedFile.file.size)}
                         {validatedFile.dimensions && (
                           <span> • {validatedFile.dimensions.width}x{validatedFile.dimensions.height}px</span>
+                        )}
+                        {validatedFile.duration && (
+                          <span> • {validatedFile.duration}s</span>
                         )}
                       </div>
                       

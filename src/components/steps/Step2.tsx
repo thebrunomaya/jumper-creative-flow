@@ -11,8 +11,8 @@ interface Step2Props {
 }
 
 const Step2: React.FC<Step2Props> = ({ formData, updateFormData, errors }) => {
-  // For image ads, we need separate upload sections
-  if (formData.creativeType === 'image') {
+  // For single image/video ads, we need separate upload sections for images
+  if (formData.creativeType === 'single') {
     const squareFiles = formData.validatedFiles.filter(f => f.format === 'square');
     const verticalFiles = formData.validatedFiles.filter(f => f.format === 'vertical');
     const horizontalFiles = formData.validatedFiles.filter(f => f.format === 'horizontal');
@@ -26,8 +26,8 @@ const Step2: React.FC<Step2Props> = ({ formData, updateFormData, errors }) => {
     return (
       <div className="space-y-8 animate-fade-in">
         <div className="text-center mb-8">
-          <h2 className="text-2xl font-bold text-jumper-text mb-2">🖼️ Upload de Imagens</h2>
-          <p className="text-gray-600">Envie suas imagens nos diferentes formatos</p>
+          <h2 className="text-2xl font-bold text-jumper-text mb-2">🖼️ Upload de Arquivos</h2>
+          <p className="text-gray-600">Envie suas imagens e vídeos nos diferentes formatos</p>
         </div>
 
         <div className="grid gap-8">
@@ -76,7 +76,7 @@ const Step2: React.FC<Step2Props> = ({ formData, updateFormData, errors }) => {
               <div>
                 <p className="text-sm font-medium text-blue-800">Dica</p>
                 <p className="text-sm text-blue-700">
-                  Envie pelo menos uma imagem em cada formato para ter máxima cobertura nas plataformas.
+                  Envie pelo menos um arquivo em cada formato para ter máxima cobertura nas plataformas.
                 </p>
               </div>
             </div>

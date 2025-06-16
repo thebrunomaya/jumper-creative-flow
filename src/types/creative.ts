@@ -1,11 +1,10 @@
-
 export interface FormData {
   // Step 1
   client: string;
   partner: string;
   platform: 'meta' | 'google' | '';
   campaignObjective?: string; // New field for campaign objective from account
-  creativeType?: 'image' | 'carousel' | 'video' | 'collection';
+  creativeType?: 'single' | 'carousel' | 'collection';
   objective?: 'sales' | 'traffic' | 'awareness' | 'leads' | 'engagement';
   
   // Step 2
