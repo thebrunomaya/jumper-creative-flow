@@ -199,14 +199,32 @@ const Step4: React.FC<Step4Props> = ({ formData, isSubmitting }) => {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
+          {/* Títulos */}
           <div>
-            <p className="text-sm text-gray-600">Texto Principal</p>
-            <p className="text-sm bg-gray-50 p-2 rounded">{formData.mainText || 'Não informado'}</p>
+            <p className="text-sm text-gray-600">Títulos ({formData.titles?.length || 0})</p>
+            <div className="space-y-1">
+              {formData.titles?.map((title, index) => (
+                <p key={index} className="text-sm bg-gray-50 p-2 rounded">
+                  <span className="text-xs text-gray-500 mr-2">#{index + 1}</span>
+                  {title || 'Não informado'}
+                </p>
+              )) || <p className="text-sm bg-gray-50 p-2 rounded">Nenhum título informado</p>}
+            </div>
           </div>
+
+          {/* Textos Principais */}
           <div>
-            <p className="text-sm text-gray-600">Headline</p>
-            <p className="text-sm bg-gray-50 p-2 rounded">{formData.headline || 'Não informado'}</p>
+            <p className="text-sm text-gray-600">Textos Principais ({formData.mainTexts?.length || 0})</p>
+            <div className="space-y-1">
+              {formData.mainTexts?.map((mainText, index) => (
+                <p key={index} className="text-sm bg-gray-50 p-2 rounded">
+                  <span className="text-xs text-gray-500 mr-2">#{index + 1}</span>
+                  {mainText || 'Não informado'}
+                </p>
+              )) || <p className="text-sm bg-gray-50 p-2 rounded">Nenhum texto principal informado</p>}
+            </div>
           </div>
+
           {formData.description && (
             <div>
               <p className="text-sm text-gray-600">Descrição</p>
