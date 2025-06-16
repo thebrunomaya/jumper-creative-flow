@@ -26,8 +26,46 @@ interface CreativeSubmissionData {
     size: number;
     format?: string;
     variationIndex?: number;
+    base64Data?: string;
   }>;
 }
+
+const uploadFileToNotion = async (
+  fileName: string,
+  base64Data: string,
+  mimeType: string,
+  notionToken: string
+): Promise<string> => {
+  // Convert base64 to blob
+  const binaryString = atob(base64Data);
+  const bytes = new Uint8Array(binaryString.length);
+  for (let i = 0; i < binaryString.length; i++) {
+    bytes[i] = binaryString.charCodeAt(i);
+  }
+  const blob = new Blob([bytes], { type: mimeType });
+
+  // Upload file to Notion
+  const formData = new FormData();
+  formData.append('file', blob, fileName);
+
+  const uploadResponse = await fetch('https://api.notion.com/v1/files', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${notionToken}`,
+      'Notion-Version': '2022-06-28'
+    },
+    body: formData
+  });
+
+  if (!uploadResponse.ok) {
+    const errorText = await uploadResponse.text();
+    console.error('File upload error:', errorText);
+    throw new Error(`Failed to upload file: ${uploadResponse.status}`);
+  }
+
+  const uploadResult = await uploadResponse.json();
+  return uploadResult.url;
+};
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -48,6 +86,37 @@ serve(async (req) => {
 
     const creativeData: CreativeSubmissionData = await req.json()
     console.log('Creative data received:', creativeData)
+
+    // Upload files to Notion and get URLs
+    const uploadedFiles: Array<{ name: string; url: string; format?: string }> = [];
+    
+    if (creativeData.filesInfo && creativeData.filesInfo.length > 0) {
+      console.log(`Uploading ${creativeData.filesInfo.length} files...`);
+      
+      for (const fileInfo of creativeData.filesInfo) {
+        if (fileInfo.base64Data) {
+          try {
+            const fileUrl = await uploadFileToNotion(
+              fileInfo.name,
+              fileInfo.base64Data,
+              fileInfo.type,
+              NOTION_TOKEN
+            );
+            
+            uploadedFiles.push({
+              name: fileInfo.name,
+              url: fileUrl,
+              format: fileInfo.format
+            });
+            
+            console.log(`✅ File uploaded: ${fileInfo.name}`);
+          } catch (uploadError) {
+            console.error(`❌ Failed to upload ${fileInfo.name}:`, uploadError);
+            // Continue with other files, don't fail the entire submission
+          }
+        }
+      }
+    }
 
     // Create the creative record in Notion
     const notionUrl = `https://api.notion.com/v1/pages`
@@ -147,6 +216,20 @@ serve(async (req) => {
       }
     }
 
+    // Add uploaded files URLs to the payload if available
+    if (uploadedFiles.length > 0) {
+      const fileLinks = uploadedFiles.map(file => `${file.name}: ${file.url}`).join('\n');
+      notionPayload.properties["Arquivos Enviados"] = {
+        rich_text: [
+          {
+            text: {
+              content: fileLinks
+            }
+          }
+        ]
+      };
+    }
+
     console.log('Sending to Notion:', JSON.stringify(notionPayload, null, 2))
 
     const response = await fetch(notionUrl, {
@@ -180,6 +263,7 @@ serve(async (req) => {
         success: true,
         creativeId: creativeData.id,
         notionPageId: notionResult.id,
+        uploadedFiles: uploadedFiles.length,
         message: 'Criativo enviado com sucesso para o Notion!'
       }),
       { 

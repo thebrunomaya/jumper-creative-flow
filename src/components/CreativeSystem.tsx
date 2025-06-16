@@ -187,6 +187,19 @@ const CreativeSystem: React.FC = () => {
     return `${clientName}-${platform}-${type}-${objective}-${timestamp}`;
   };
 
+  const convertFileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => {
+        const base64 = reader.result as string;
+        // Remove the data:image/jpeg;base64, prefix
+        resolve(base64.split(',')[1]);
+      };
+      reader.onerror = error => reject(error);
+    });
+  };
+
   const submitForm = async () => {
     if (!validateStep(3)) {
       toast({
@@ -203,54 +216,65 @@ const CreativeSystem: React.FC = () => {
       // Generate creative ID
       const id = generateCreativeId(formData);
       
-      // Prepare files info for submission
+      // Prepare files info and convert files to base64
       const filesInfo: Array<{
         name: string;
         type: string;
         size: number;
         format?: string;
         variationIndex?: number;
+        base64Data?: string;
       }> = [];
 
       if (formData.creativeType === 'single' && formData.mediaVariations) {
-        formData.mediaVariations.forEach((variation, index) => {
+        for (const variation of formData.mediaVariations) {
+          const index = formData.mediaVariations.indexOf(variation);
+          
           if (variation.squareFile) {
+            const base64Data = await convertFileToBase64(variation.squareFile.file);
             filesInfo.push({
               name: variation.squareFile.file.name,
               type: variation.squareFile.file.type,
               size: variation.squareFile.file.size,
               format: 'square',
-              variationIndex: index + 1
+              variationIndex: index + 1,
+              base64Data
             });
           }
           if (variation.verticalFile) {
+            const base64Data = await convertFileToBase64(variation.verticalFile.file);
             filesInfo.push({
               name: variation.verticalFile.file.name,
               type: variation.verticalFile.file.type,
               size: variation.verticalFile.file.size,
               format: 'vertical',
-              variationIndex: index + 1
+              variationIndex: index + 1,
+              base64Data
             });
           }
           if (variation.horizontalFile) {
+            const base64Data = await convertFileToBase64(variation.horizontalFile.file);
             filesInfo.push({
               name: variation.horizontalFile.file.name,
               type: variation.horizontalFile.file.type,
               size: variation.horizontalFile.file.size,
               format: 'horizontal',
-              variationIndex: index + 1
+              variationIndex: index + 1,
+              base64Data
             });
           }
-        });
+        }
       } else {
         // For other creative types, use validatedFiles
-        formData.validatedFiles.forEach(file => {
+        for (const file of formData.validatedFiles) {
+          const base64Data = await convertFileToBase64(file.file);
           filesInfo.push({
             name: file.file.name,
             type: file.file.type,
-            size: file.file.size
+            size: file.file.size,
+            base64Data
           });
-        });
+        }
       }
 
       // Prepare submission data - Send the client ID directly, not the name
