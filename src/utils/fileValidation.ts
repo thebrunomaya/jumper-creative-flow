@@ -1,4 +1,3 @@
-
 import { META_SPECS, ValidatedFile } from '@/types/creative';
 
 export const validateImage = (file: File, format?: 'square' | 'vertical' | 'horizontal'): Promise<{ valid: boolean; width: number; height: number; message: string }> => {
@@ -174,7 +173,7 @@ export const validateText = (text: string, maxLength: number) => {
   const percentage = count / maxLength;
   
   return {
-    valid: count <=Length,
+    valid: count <= maxLength,
     count,
     maxLength,
     percentage,
