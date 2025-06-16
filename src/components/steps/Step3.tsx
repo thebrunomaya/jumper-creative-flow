@@ -23,29 +23,11 @@ const Step3: React.FC<Step3Props> = ({ formData, updateFormData, errors }) => {
       </div>
 
       <div className="grid gap-6">
-        {/* Headline primeiro */}
-        <div className="space-y-2">
-          <Label htmlFor="headline" className="flex items-center gap-2">
-            Headline *
-            <TextCounter current={formData.headline.length} max={TEXT_LIMITS.headline} />
-          </Label>
-          <Input
-            id="headline"
-            value={formData.headline}
-            onChange={(e) => updateFormData({ headline: e.target.value })}
-            placeholder="Digite o headline do anúncio"
-            className={errors.headline ? 'border-red-500' : ''}
-          />
-          {errors.headline && (
-            <p className="text-sm text-red-600">{errors.headline}</p>
-          )}
-        </div>
-
-        {/* Texto principal depois */}
+        {/* Texto principal primeiro */}
         <div className="space-y-2">
           <Label htmlFor="mainText" className="flex items-center gap-2">
             Texto Principal *
-            <TextCounter current={formData.mainText.length} max={TEXT_LIMITS.mainText} />
+            <TextCounter text={formData.mainText} maxLength={TEXT_LIMITS.mainText} />
           </Label>
           <Textarea
             id="mainText"
@@ -59,11 +41,29 @@ const Step3: React.FC<Step3Props> = ({ formData, updateFormData, errors }) => {
           )}
         </div>
 
+        {/* Headline depois */}
+        <div className="space-y-2">
+          <Label htmlFor="headline" className="flex items-center gap-2">
+            Headline *
+            <TextCounter text={formData.headline} maxLength={TEXT_LIMITS.headline} />
+          </Label>
+          <Input
+            id="headline"
+            value={formData.headline}
+            onChange={(e) => updateFormData({ headline: e.target.value })}
+            placeholder="Digite o headline do anúncio"
+            className={errors.headline ? 'border-red-500' : ''}
+          />
+          {errors.headline && (
+            <p className="text-sm text-red-600">{errors.headline}</p>
+          )}
+        </div>
+
         {/* Descrição */}
         <div className="space-y-2">
           <Label htmlFor="description" className="flex items-center gap-2">
             Descrição
-            <TextCounter current={formData.description.length} max={TEXT_LIMITS.description} />
+            <TextCounter text={formData.description} maxLength={TEXT_LIMITS.description} />
           </Label>
           <Textarea
             id="description"
