@@ -11,32 +11,26 @@ export const validateImage = (file: File, format?: 'square' | 'vertical' | 'hori
         // Validate specific format with exact dimensions or higher multiples
         switch (format) {
           case 'square':
-            const squareRatio = img.width / 1080;
-            isValid = img.width === 1080 && img.height === 1080 || 
-                     (img.width >= 1080 && img.height >= 1080 && 
-                      img.width === img.height && 
-                      squareRatio === Math.floor(squareRatio) && 
-                      img.height / 1080 === squareRatio);
-            expectedDimensions = '1080x1080px ou múltiplos superiores';
+            // For square: accept 1080x1080 or any larger square image that maintains aspect ratio
+            isValid = img.width >= 1080 && img.height >= 1080 && img.width === img.height;
+            expectedDimensions = '1080x1080px ou múltiplos superiores (quadrado)';
             break;
           case 'vertical':
-            const verticalRatioW = img.width / 1080;
-            const verticalRatioH = img.height / 1920;
-            isValid = img.width === 1080 && img.height === 1920 || 
-                     (img.width >= 1080 && img.height >= 1920 && 
-                      verticalRatioW === Math.floor(verticalRatioW) && 
-                      verticalRatioH === Math.floor(verticalRatioH) && 
-                      verticalRatioW === verticalRatioH);
-            expectedDimensions = '1080x1920px ou múltiplos superiores';
+            // For vertical: accept 1080x1920 or proportional larger images (9:16 ratio)
+            const verticalAspectRatio = 1080 / 1920; // 0.5625
+            const imageAspectRatio = img.width / img.height;
+            const aspectRatioTolerance = 0.01; // Small tolerance for floating point precision
+            isValid = img.width >= 1080 && img.height >= 1920 && 
+                     Math.abs(imageAspectRatio - verticalAspectRatio) < aspectRatioTolerance;
+            expectedDimensions = '1080x1920px ou múltiplos superiores (9:16)';
             break;
           case 'horizontal':
-            const horizontalRatioW = img.width / 1200;
-            const horizontalRatioH = img.height / 628;
-            isValid = img.width === 1200 && img.height === 628 || 
-                     (img.width >= 1200 && img.height >= 628 && 
-                      horizontalRatioW === Math.floor(horizontalRatioW) && 
-                      horizontalRatioH === Math.floor(horizontalRatioH) && 
-                      horizontalRatioW === horizontalRatioH);
+            // For horizontal: accept 1200x628 or proportional larger images
+            const horizontalAspectRatio = 1200 / 628; // ~1.91
+            const imageHorizontalRatio = img.width / img.height;
+            const horizontalTolerance = 0.05; // Slightly larger tolerance
+            isValid = img.width >= 1200 && img.height >= 628 && 
+                     Math.abs(imageHorizontalRatio - horizontalAspectRatio) < horizontalTolerance;
             expectedDimensions = '1200x628px ou múltiplos superiores';
             break;
         }
