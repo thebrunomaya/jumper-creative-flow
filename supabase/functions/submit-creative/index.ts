@@ -67,7 +67,7 @@ serve(async (req) => {
             }
           ]
         },
-        "Cliente": {
+        "Conta": {
           rich_text: [
             {
               text: {
