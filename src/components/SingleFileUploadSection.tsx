@@ -4,6 +4,7 @@ import { ValidatedFile } from '@/types/creative';
 import { validateFile } from '@/utils/fileValidation';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
 import { X, Upload, CheckCircle, AlertCircle, Image, Replace } from 'lucide-react';
 import { useDropzone } from 'react-dropzone';
 
@@ -14,6 +15,9 @@ interface SingleFileUploadSectionProps {
   file?: ValidatedFile;
   onFileChange: (file?: ValidatedFile) => void;
   placeholder?: string;
+  enabled: boolean;
+  onEnabledChange: (enabled: boolean) => void;
+  canDisable: boolean;
 }
 
 const SingleFileUploadSection: React.FC<SingleFileUploadSectionProps> = ({
@@ -22,18 +26,21 @@ const SingleFileUploadSection: React.FC<SingleFileUploadSectionProps> = ({
   dimensions,
   file,
   onFileChange,
-  placeholder
+  placeholder,
+  enabled,
+  onEnabledChange,
+  canDisable
 }) => {
   const [isValidating, setIsValidating] = useState(false);
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
-    if (acceptedFiles.length === 0) return;
+    if (acceptedFiles.length === 0 || !enabled) return;
     
     setIsValidating(true);
     const validatedFile = await validateFile(acceptedFiles[0], format);
     onFileChange(validatedFile);
     setIsValidating(false);
-  }, [onFileChange, format]);
+  }, [onFileChange, format, enabled]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -42,7 +49,8 @@ const SingleFileUploadSection: React.FC<SingleFileUploadSectionProps> = ({
       'video/*': ['.mp4', '.mov']
     },
     multiple: false,
-    maxFiles: 1
+    maxFiles: 1,
+    disabled: !enabled
   });
 
   const removeFile = () => {
@@ -60,32 +68,63 @@ const SingleFileUploadSection: React.FC<SingleFileUploadSectionProps> = ({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-jumper-text">{title}</h3>
+        <div className="flex items-center space-x-3">
+          <h3 className="text-lg font-semibold text-jumper-text">{title}</h3>
+          <div className="flex items-center space-x-2">
+            <Switch
+              checked={enabled}
+              onCheckedChange={onEnabledChange}
+              disabled={!canDisable && enabled}
+            />
+            <span className="text-sm text-gray-600">
+              {enabled ? 'Ativo' : 'Inativo'}
+            </span>
+          </div>
+        </div>
         <span className="text-sm text-gray-500">{dimensions}</span>
       </div>
+
+      {!enabled && (
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+          <p className="text-sm text-yellow-800">
+            📍 Posicionamento desativado
+          </p>
+        </div>
+      )}
 
       {/* Upload Zone or File Display */}
       {!file ? (
         <div
           {...getRootProps()}
-          className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-all duration-200 ${
-            isDragActive
-              ? 'border-jumper-blue bg-blue-50'
-              : 'border-gray-300 hover:border-jumper-blue hover:bg-gray-50'
+          className={`border-2 border-dashed rounded-lg p-6 text-center transition-all duration-200 ${
+            !enabled 
+              ? 'border-gray-200 bg-gray-100 cursor-not-allowed opacity-60'
+              : isDragActive
+              ? 'border-jumper-blue bg-blue-50 cursor-pointer'
+              : 'border-gray-300 hover:border-jumper-blue hover:bg-gray-50 cursor-pointer'
           }`}
         >
           <input {...getInputProps()} />
           <div className="space-y-3">
-            <Upload className="mx-auto h-8 w-8 text-gray-400" />
+            <Upload className={`mx-auto h-8 w-8 ${enabled ? 'text-gray-400' : 'text-gray-300'}`} />
             <div>
-              <p className="text-sm font-medium text-jumper-text">
-                {isDragActive ? 'Solte o arquivo aqui' : 'Clique ou arraste uma imagem/vídeo'}
+              <p className={`text-sm font-medium ${enabled ? 'text-jumper-text' : 'text-gray-400'}`}>
+                {!enabled 
+                  ? 'Posicionamento desativado'
+                  : isDragActive 
+                  ? 'Solte o arquivo aqui' 
+                  : 'Clique ou arraste uma imagem/vídeo'
+                }
               </p>
-              <p className="text-xs text-gray-600 mt-1">
-                JPG, PNG, MP4, MOV • {dimensions} • Máx: 30MB (imagens) / 4GB (vídeos)
-              </p>
-              {placeholder && (
-                <p className="text-xs text-gray-500 mt-1">{placeholder}</p>
+              {enabled && (
+                <>
+                  <p className="text-xs text-gray-600 mt-1">
+                    JPG, PNG, MP4, MOV • {dimensions} • Máx: 30MB (imagens) / 4GB (vídeos)
+                  </p>
+                  {placeholder && (
+                    <p className="text-xs text-gray-500 mt-1">{placeholder}</p>
+                  )}
+                </>
               )}
             </div>
             {isValidating && (
@@ -153,6 +192,7 @@ const SingleFileUploadSection: React.FC<SingleFileUploadSectionProps> = ({
                   onClick={() => document.getElementById(`replace-${format}`)?.click()}
                   className="h-6 w-6 p-0 text-gray-400 hover:text-blue-500"
                   title="Substituir arquivo"
+                  disabled={!enabled}
                 >
                   <Replace className="h-3 w-3" />
                 </Button>
@@ -178,7 +218,7 @@ const SingleFileUploadSection: React.FC<SingleFileUploadSectionProps> = ({
         accept="image/*,video/mp4,video/mov,video/quicktime"
         onChange={(e) => {
           const files = e.target.files;
-          if (files && files.length > 0) {
+          if (files && files.length > 0 && enabled) {
             onDrop([files[0]]);
           }
         }}

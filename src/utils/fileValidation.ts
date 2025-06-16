@@ -1,3 +1,4 @@
+
 import { META_SPECS, ValidatedFile } from '@/types/creative';
 
 export const validateImage = (file: File, format?: 'square' | 'vertical' | 'horizontal'): Promise<{ valid: boolean; width: number; height: number; message: string }> => {
@@ -11,13 +12,13 @@ export const validateImage = (file: File, format?: 'square' | 'vertical' | 'hori
         // Validate specific format with exact dimensions or higher multiples
         switch (format) {
           case 'square':
-            // For square: accept 1080x1080 or any larger square image that maintains aspect ratio
+            // For square: accept 1080x1080 or any larger square image with 1:1 aspect ratio
             isValid = img.width >= 1080 && img.height >= 1080 && img.width === img.height;
-            expectedDimensions = '1080x1080px ou múltiplos superiores (quadrado)';
+            expectedDimensions = '1080x1080px ou múltiplos superiores (1:1)';
             break;
           case 'vertical':
             // For vertical: accept 1080x1920 or proportional larger images (9:16 ratio)
-            const verticalAspectRatio = 1080 / 1920; // 0.5625
+            const verticalAspectRatio = 9 / 16; // 0.5625 (width/height)
             const imageAspectRatio = img.width / img.height;
             const aspectRatioTolerance = 0.01; // Small tolerance for floating point precision
             isValid = img.width >= 1080 && img.height >= 1920 && 
@@ -25,13 +26,13 @@ export const validateImage = (file: File, format?: 'square' | 'vertical' | 'hori
             expectedDimensions = '1080x1920px ou múltiplos superiores (9:16)';
             break;
           case 'horizontal':
-            // For horizontal: accept 1200x628 or proportional larger images
-            const horizontalAspectRatio = 1200 / 628; // ~1.91
+            // For horizontal: accept 1200x628 or proportional larger images (1.91:1 ratio)
+            const horizontalAspectRatio = 1.91; // width/height
             const imageHorizontalRatio = img.width / img.height;
             const horizontalTolerance = 0.05; // Slightly larger tolerance
             isValid = img.width >= 1200 && img.height >= 628 && 
                      Math.abs(imageHorizontalRatio - horizontalAspectRatio) < horizontalTolerance;
-            expectedDimensions = '1200x628px ou múltiplos superiores';
+            expectedDimensions = '1200x628px ou múltiplos superiores (1.91:1)';
             break;
         }
       } else {

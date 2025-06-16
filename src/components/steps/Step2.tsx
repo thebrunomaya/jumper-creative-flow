@@ -4,7 +4,8 @@ import { FormData, ValidatedFile, MediaVariation } from '@/types/creative';
 import FileUpload from '@/components/FileUpload';
 import SingleFileUploadSection from '@/components/SingleFileUploadSection';
 import { Button } from '@/components/ui/button';
-import { Plus, Trash2 } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Plus, Trash2, AlertTriangle } from 'lucide-react';
 
 interface Step2Props {
   formData: FormData;
@@ -14,7 +15,12 @@ interface Step2Props {
 
 const Step2: React.FC<Step2Props> = ({ formData, updateFormData, errors }) => {
   // Initialize media variations if not exists
-  const mediaVariations = formData.mediaVariations || [{ id: 1 }];
+  const mediaVariations = formData.mediaVariations || [{ 
+    id: 1, 
+    squareEnabled: true, 
+    verticalEnabled: true, 
+    horizontalEnabled: true 
+  }];
 
   const updateMediaVariations = (variations: MediaVariation[]) => {
     updateFormData({ mediaVariations: variations });
@@ -22,7 +28,12 @@ const Step2: React.FC<Step2Props> = ({ formData, updateFormData, errors }) => {
 
   const addVariation = () => {
     if (mediaVariations.length < 10) {
-      const newVariations = [...mediaVariations, { id: mediaVariations.length + 1 }];
+      const newVariations = [...mediaVariations, { 
+        id: mediaVariations.length + 1,
+        squareEnabled: true,
+        verticalEnabled: true,
+        horizontalEnabled: true
+      }];
       updateMediaVariations(newVariations);
     }
   };
@@ -44,6 +55,45 @@ const Step2: React.FC<Step2Props> = ({ formData, updateFormData, errors }) => {
     updateMediaVariations(newVariations);
   };
 
+  const updateVariationEnabled = (variationId: number, format: 'square' | 'vertical' | 'horizontal', enabled: boolean) => {
+    const newVariations = mediaVariations.map(variation => {
+      if (variation.id === variationId) {
+        const updatedVariation = { ...variation, [`${format}Enabled`]: enabled };
+        
+        // If disabling, also remove the file
+        if (!enabled) {
+          updatedVariation[`${format}File`] = undefined;
+        }
+        
+        return updatedVariation;
+      }
+      return variation;
+    });
+    updateMediaVariations(newVariations);
+  };
+
+  const getDisabledCount = (variation: MediaVariation) => {
+    let count = 0;
+    if (!variation.squareEnabled) count++;
+    if (!variation.verticalEnabled) count++;
+    if (!variation.horizontalEnabled) count++;
+    return count;
+  };
+
+  const canDisablePosition = (variation: MediaVariation, format: 'square' | 'vertical' | 'horizontal') => {
+    const currentlyEnabled = variation[`${format}Enabled`] !== false;
+    const disabledCount = getDisabledCount(variation);
+    
+    // Can disable if currently enabled and we haven't reached the limit of 2 disabled
+    return currentlyEnabled ? disabledCount < 2 : true;
+  };
+
+  const hasAnyDisabledPosition = () => {
+    return mediaVariations.some(variation => 
+      !variation.squareEnabled || !variation.verticalEnabled || !variation.horizontalEnabled
+    );
+  };
+
   // For single image/video ads, we need separate upload sections for images
   if (formData.creativeType === 'single') {
     return (
@@ -52,6 +102,16 @@ const Step2: React.FC<Step2Props> = ({ formData, updateFormData, errors }) => {
           <h2 className="text-2xl font-bold text-jumper-text mb-2">🖼️ Upload de Arquivos</h2>
           <p className="text-gray-600">Envie suas imagens e vídeos nos diferentes formatos</p>
         </div>
+
+        {/* Warning when positions are disabled */}
+        {hasAnyDisabledPosition() && (
+          <Alert className="border-yellow-200 bg-yellow-50">
+            <AlertTriangle className="h-4 w-4 text-yellow-600" />
+            <AlertDescription className="text-yellow-800">
+              <strong>Atenção:</strong> Para impedir que o Meta faça ajustes automáticos no anúncio, é necessário enviar mídias compatíveis para todos os posicionamentos.
+            </AlertDescription>
+          </Alert>
+        )}
 
         {mediaVariations.map((variation, index) => (
           <div key={variation.id} className="space-y-6 p-6 bg-gray-50 rounded-lg">
@@ -76,28 +136,37 @@ const Step2: React.FC<Step2Props> = ({ formData, updateFormData, errors }) => {
               <SingleFileUploadSection
                 title="📐 Formato Quadrado"
                 format="square"
-                dimensions="1080x1080px ou múltiplos superiores"
+                dimensions="1080x1080px ou múltiplos superiores (1:1)"
                 file={variation.squareFile}
                 onFileChange={(file) => updateVariationFile(variation.id, 'square', file)}
                 placeholder="Ideal para feed do Instagram e Facebook"
+                enabled={variation.squareEnabled !== false}
+                onEnabledChange={(enabled) => updateVariationEnabled(variation.id, 'square', enabled)}
+                canDisable={canDisablePosition(variation, 'square')}
               />
 
               <SingleFileUploadSection
                 title="📱 Formato Vertical"
                 format="vertical"
-                dimensions="1080x1920px ou múltiplos superiores"
+                dimensions="1080x1920px ou múltiplos superiores (9:16)"
                 file={variation.verticalFile}
                 onFileChange={(file) => updateVariationFile(variation.id, 'vertical', file)}
                 placeholder="Ideal para Stories e feed mobile"
+                enabled={variation.verticalEnabled !== false}
+                onEnabledChange={(enabled) => updateVariationEnabled(variation.id, 'vertical', enabled)}
+                canDisable={canDisablePosition(variation, 'vertical')}
               />
 
               <SingleFileUploadSection
                 title="💻 Formato Horizontal"
                 format="horizontal"
-                dimensions="1200x628px ou múltiplos superiores"
+                dimensions="1200x628px ou múltiplos superiores (1.91:1)"
                 file={variation.horizontalFile}
                 onFileChange={(file) => updateVariationFile(variation.id, 'horizontal', file)}
                 placeholder="Ideal para Facebook feed desktop"
+                enabled={variation.horizontalEnabled !== false}
+                onEnabledChange={(enabled) => updateVariationEnabled(variation.id, 'horizontal', enabled)}
+                canDisable={canDisablePosition(variation, 'horizontal')}
               />
             </div>
           </div>
@@ -134,7 +203,7 @@ const Step2: React.FC<Step2Props> = ({ formData, updateFormData, errors }) => {
             <div>
               <p className="text-sm font-medium text-blue-800">Dica</p>
               <p className="text-sm text-blue-700">
-                Você pode enviar um arquivo por formato em cada mídia. Adicione variações para criar diferentes versões do seu anúncio.
+                Você pode enviar um arquivo por formato em cada mídia. Use os toggles para ativar/desativar posicionamentos (máximo 2 desativados). Adicione variações para criar diferentes versões do seu anúncio.
               </p>
             </div>
           </div>

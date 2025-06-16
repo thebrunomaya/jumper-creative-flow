@@ -1,5 +1,3 @@
-
-
 export interface FormData {
   // Step 1
   client: string;
@@ -38,6 +36,9 @@ export interface MediaVariation {
   squareFile?: ValidatedFile;
   verticalFile?: ValidatedFile;
   horizontalFile?: ValidatedFile;
+  squareEnabled?: boolean; // New field to control if square position is enabled
+  verticalEnabled?: boolean; // New field to control if vertical position is enabled
+  horizontalEnabled?: boolean; // New field to control if horizontal position is enabled
 }
 
 export interface Client {
@@ -78,4 +79,3 @@ export const TEXT_LIMITS = {
   headline: 40,
   description: 90
 };
-

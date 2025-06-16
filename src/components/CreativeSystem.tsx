@@ -21,7 +21,12 @@ const INITIAL_FORM_DATA: FormData = {
   objective: undefined,
   files: [],
   validatedFiles: [],
-  mediaVariations: [{ id: 1 }], // Initialize with first media variation
+  mediaVariations: [{ 
+    id: 1, 
+    squareEnabled: true, 
+    verticalEnabled: true, 
+    horizontalEnabled: true 
+  }], // Initialize with first media variation with all positions enabled
   mainText: '',
   headline: '',
   description: '',
