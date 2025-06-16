@@ -223,11 +223,6 @@ const CreativeSystem: React.FC = () => {
       <Header />
       
       <div className="max-w-4xl mx-auto px-4 py-8">
-        <Breadcrumbs 
-          formData={formData}
-          clients={clients}
-        />
-        
         <ProgressBar 
           currentStep={currentStep} 
           totalSteps={4} 
@@ -235,6 +230,11 @@ const CreativeSystem: React.FC = () => {
         />
 
         <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
+          <Breadcrumbs 
+            formData={formData}
+            clients={clients}
+          />
+          
           {currentStep === 1 && (
             <Step1 
               formData={formData} 
