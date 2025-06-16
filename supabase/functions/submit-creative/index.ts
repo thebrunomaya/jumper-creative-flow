@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
@@ -8,7 +9,7 @@ const corsHeaders = {
 
 interface CreativeSubmissionData {
   client: string;
-  managerId?: string; // Add manager ID
+  managerId?: string;
   partner: string;
   platform: string;
   campaignObjective?: string;
@@ -104,12 +105,10 @@ serve(async (req) => {
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
 
     const creativeData: CreativeSubmissionData = await req.json()
-    console.log('🔍 DEBUGGING URL ISSUE - Creative data received:')
+    console.log('🔍 Creative data received:')
     console.log('- managerId:', creativeData.managerId)
     console.log('- destinationUrl:', creativeData.destinationUrl)
-    console.log('- destinationUrl type:', typeof creativeData.destinationUrl)
-    console.log('- destinationUrl length:', creativeData.destinationUrl?.length)
-    console.log('- All data keys:', Object.keys(creativeData))
+    console.log('- observations:', creativeData.observations)
 
     // Upload files to Supabase Storage and get URLs
     const uploadedFiles: Array<{ name: string; url: string; format?: string }> = [];
@@ -252,15 +251,6 @@ serve(async (req) => {
             name: creativeData.callToAction
           }
         },
-        "Copy A": {
-          rich_text: [
-            {
-              text: {
-                content: creativeData.observations || ''
-              }
-            }
-          ]
-        },
         "Status": {
           select: {
             name: "Pendente"
@@ -269,10 +259,14 @@ serve(async (req) => {
       }
     }
 
-    console.log('🔗 FINAL URL CHECK - URL being sent to Notion:')
-    console.log('- Original URL from frontend:', creativeData.destinationUrl)
-    console.log('- Validated URL for Notion:', validatedUrl)
-    console.log('- Notion property value:', notionPayload.properties["Link de destino"])
+    // Only add observations if they exist and only to a property that exists in Notion
+    if (creativeData.observations && creativeData.observations.trim()) {
+      // Note: Removed "Copy A" reference as it doesn't exist in the Notion database
+      // The observations will be included in a comment or handled differently
+      console.log('📝 Observations provided:', creativeData.observations)
+    }
+
+    console.log('🔗 Final URL being sent to Notion:', validatedUrl)
 
     // Add uploaded files to the "Arquivos" property in the correct format
     if (uploadedFiles.length > 0) {
@@ -287,8 +281,7 @@ serve(async (req) => {
       console.log(`📎 Added ${uploadedFiles.length} files to Arquivos property`);
     }
 
-    console.log('📤 SENDING TO NOTION - Full payload:')
-    console.log(JSON.stringify(notionPayload, null, 2))
+    console.log('📤 Sending payload to Notion (without Copy A property)')
 
     const response = await fetch(notionUrl, {
       method: 'POST',
@@ -301,7 +294,6 @@ serve(async (req) => {
     })
 
     console.log('📨 Notion response status:', response.status)
-    console.log('📨 Notion response headers:', Object.fromEntries(response.headers.entries()))
 
     if (!response.ok) {
       const errorText = await response.text()
@@ -330,6 +322,7 @@ serve(async (req) => {
         uploadedFiles: uploadedFiles.length,
         fileUrls: uploadedFiles.map(f => f.url),
         finalUrl: validatedUrl,
+        observations: creativeData.observations, // Include observations in response for reference
         message: 'Criativo enviado com sucesso para o Notion!'
       }),
       { 
