@@ -14,8 +14,23 @@ const Step4: React.FC<Step4Props> = ({ formData, isSubmitting }) => {
   const client = CLIENTS.find(c => c.id === formData.client);
   const partner = PARTNERS.find(p => p.id === formData.partner);
   
-  const validFiles = formData.validatedFiles.filter(f => f.valid);
-  const invalidFiles = formData.validatedFiles.filter(f => !f.valid);
+  // Get files based on creative type
+  const getAllFiles = () => {
+    if (formData.creativeType === 'single' && formData.mediaVariations) {
+      const files: any[] = [];
+      formData.mediaVariations.forEach((variation, index) => {
+        if (variation.squareFile) files.push({ ...variation.squareFile, variationIndex: index + 1, format: 'square' });
+        if (variation.verticalFile) files.push({ ...variation.verticalFile, variationIndex: index + 1, format: 'vertical' });
+        if (variation.horizontalFile) files.push({ ...variation.horizontalFile, variationIndex: index + 1, format: 'horizontal' });
+      });
+      return files;
+    }
+    return formData.validatedFiles || [];
+  };
+
+  const allFiles = getAllFiles();
+  const validFiles = allFiles.filter(f => f.valid);
+  const invalidFiles = allFiles.filter(f => !f.valid);
   
   const isAllValid = invalidFiles.length === 0 && validFiles.length > 0;
 
@@ -25,7 +40,7 @@ const Step4: React.FC<Step4Props> = ({ formData, isSubmitting }) => {
 
   const getCreativeTypeIcon = (type: string) => {
     switch(type) {
-      case 'image': return '🖼️';
+      case 'single': return '🖼️';
       case 'carousel': return '🎠';
       case 'video': return '🎬';
       default: return '📄';
@@ -40,6 +55,15 @@ const Step4: React.FC<Step4Props> = ({ formData, isSubmitting }) => {
       case 'leads': return '📧';
       case 'engagement': return '❤️';
       default: return '🎯';
+    }
+  };
+
+  const getFormatIcon = (format: string) => {
+    switch(format) {
+      case 'square': return '📐';
+      case 'vertical': return '📱';
+      case 'horizontal': return '💻';
+      default: return '📄';
     }
   };
 
@@ -125,7 +149,7 @@ const Step4: React.FC<Step4Props> = ({ formData, isSubmitting }) => {
           <CardTitle className="flex items-center justify-between">
             <span className="flex items-center space-x-2">
               <span>📎</span>
-              <span>Arquivos ({formData.validatedFiles.length})</span>
+              <span>Arquivos ({allFiles.length})</span>
             </span>
             {isAllValid ? (
               <Badge className="bg-green-100 text-green-800">
@@ -142,11 +166,18 @@ const Step4: React.FC<Step4Props> = ({ formData, isSubmitting }) => {
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
-            {formData.validatedFiles.map((file, index) => (
+            {allFiles.map((file, index) => (
               <div key={index} className="flex items-center justify-between p-2 rounded border">
                 <div className="flex items-center space-x-2">
                   <span>{file.file.type.startsWith('image/') ? '🖼️' : '🎬'}</span>
-                  <span className="text-sm font-medium">{file.file.name}</span>
+                  <div className="flex flex-col">
+                    <span className="text-sm font-medium">{file.file.name}</span>
+                    {(file as any).variationIndex && (
+                      <span className="text-xs text-gray-500">
+                        {getFormatIcon((file as any).format)} Mídia {(file as any).variationIndex} - {(file as any).format}
+                      </span>
+                    )}
+                  </div>
                 </div>
                 {file.valid ? (
                   <CheckCircle className="w-4 h-4 text-green-500" />
