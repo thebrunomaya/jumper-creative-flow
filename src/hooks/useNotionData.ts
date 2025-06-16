@@ -95,10 +95,20 @@ export const useNotionClients = () => {
               }
             }
           }
+
+          // Extract objectives from "Objetivos" property
+          let objectives: string[] = [];
+          if (item.properties['Objetivos']) {
+            const objectivesProperty = item.properties['Objetivos'];
+            if (objectivesProperty.multi_select && Array.isArray(objectivesProperty.multi_select)) {
+              objectives = objectivesProperty.multi_select.map((option: any) => option.name).filter(Boolean);
+            }
+          }
           
           return {
             id: item.id,
-            name: name
+            name: name,
+            objectives: objectives
           };
         });
         
@@ -119,11 +129,11 @@ export const useNotionClients = () => {
         setError('Erro ao carregar clientes do Notion');
         // Fallback para dados hardcoded se a API falhar
         setClients([
-          { id: "fallback-1", name: "Almeida Prado B2B" },
-          { id: "fallback-2", name: "Almeida Prado Ecommerce" },
-          { id: "fallback-3", name: "LEAP Lab" },
-          { id: "fallback-4", name: "Koko Educação" },
-          { id: "fallback-5", name: "Supermercadistas" }
+          { id: "fallback-1", name: "Almeida Prado B2B", objectives: ["Vendas", "Tráfego"] },
+          { id: "fallback-2", name: "Almeida Prado Ecommerce", objectives: ["Conversões", "Leads"] },
+          { id: "fallback-3", name: "LEAP Lab", objectives: ["Reconhecimento", "Engajamento"] },
+          { id: "fallback-4", name: "Koko Educação", objectives: ["Leads", "Tráfego"] },
+          { id: "fallback-5", name: "Supermercadistas", objectives: ["Vendas", "Tráfego"] }
         ]);
       } finally {
         setLoading(false);

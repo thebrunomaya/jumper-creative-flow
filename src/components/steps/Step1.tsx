@@ -16,6 +16,10 @@ interface Step1Props {
 const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
   const { clients, loading: clientsLoading, error: clientsError } = useNotionClients();
 
+  // Get selected client data to access objectives
+  const selectedClient = clients.find(client => client.id === formData.client);
+  const availableObjectives = selectedClient?.objectives || [];
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="text-center mb-8">
@@ -23,17 +27,17 @@ const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
         <p className="text-gray-600">Vamos começar com os dados essenciais do seu criativo</p>
       </div>
 
-      {/* Cliente - agora ocupando mais espaço */}
+      {/* Conta - agora ocupando mais espaço */}
       <div className="space-y-2">
         <Label htmlFor="client" className="text-sm font-medium text-jumper-text">
-          Cliente *
+          Conta *
         </Label>
         {clientsLoading ? (
           <Skeleton className="h-12 w-full" />
         ) : (
-          <Select value={formData.client} onValueChange={(value) => updateFormData({ client: value })}>
+          <Select value={formData.client} onValueChange={(value) => updateFormData({ client: value, campaignObjective: undefined, creativeType: undefined, objective: undefined })}>
             <SelectTrigger className={`h-12 ${errors.client ? 'border-red-500' : ''}`}>
-              <SelectValue placeholder="Selecione o cliente" />
+              <SelectValue placeholder="Selecione a conta" />
             </SelectTrigger>
             <SelectContent>
               {clients.map((client) => (
@@ -58,7 +62,7 @@ const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
                 ? 'ring-2 ring-jumper-blue bg-blue-50' 
                 : 'hover:shadow-md'
             }`}
-            onClick={() => updateFormData({ platform: 'meta', creativeType: undefined, objective: undefined })}
+            onClick={() => updateFormData({ platform: 'meta', campaignObjective: undefined, creativeType: undefined, objective: undefined })}
           >
             <CardContent className="p-6 text-center">
               <div className="text-4xl mb-3">📘</div>
@@ -73,7 +77,7 @@ const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
                 ? 'ring-2 ring-jumper-blue bg-blue-50' 
                 : 'hover:shadow-md'
             }`}
-            onClick={() => updateFormData({ platform: 'google', creativeType: undefined, objective: undefined })}
+            onClick={() => updateFormData({ platform: 'google', campaignObjective: undefined, creativeType: undefined, objective: undefined })}
           >
             <CardContent className="p-6 text-center">
               <div className="text-4xl mb-3">🔍</div>
@@ -85,42 +89,57 @@ const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
         {errors.platform && <p className="text-sm text-red-500">{errors.platform}</p>}
       </div>
 
-      {/* Meta Ads specific fields */}
-      {formData.platform === 'meta' && (
+      {/* Fields specific to when platform is selected */}
+      {(formData.platform === 'meta' || formData.platform === 'google') && (
         <div className="grid gap-6 md:grid-cols-2 animate-fade-in">
-          {/* Tipo de Criativo */}
+          {/* Objetivo de Campanha */}
           <div className="space-y-2">
-            <Label className="text-sm font-medium text-jumper-text">Tipo de Criativo *</Label>
-            <Select value={formData.creativeType || ''} onValueChange={(value) => updateFormData({ creativeType: value as any })}>
-              <SelectTrigger className={`h-12 ${errors.creativeType ? 'border-red-500' : ''}`}>
-                <SelectValue placeholder="Selecione o tipo" />
+            <Label className="text-sm font-medium text-jumper-text">Objetivo de Campanha *</Label>
+            <Select 
+              value={formData.campaignObjective || ''} 
+              onValueChange={(value) => updateFormData({ campaignObjective: value, creativeType: undefined })}
+              disabled={!formData.client}
+            >
+              <SelectTrigger className={`h-12 ${errors.campaignObjective ? 'border-red-500' : ''}`}>
+                <SelectValue placeholder={!formData.client ? "Selecione uma conta primeiro" : "Selecione o objetivo"} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="image">🖼️ Imagem única</SelectItem>
-                <SelectItem value="carousel">🎠 Carrossel</SelectItem>
-                <SelectItem value="video">🎬 Vídeo</SelectItem>
+                {availableObjectives.map((objective) => (
+                  <SelectItem key={objective} value={objective}>
+                    {objective}
+                  </SelectItem>
+                ))}
+                {availableObjectives.length === 0 && formData.client && (
+                  <SelectItem value="no-objectives" disabled>
+                    Nenhum objetivo disponível
+                  </SelectItem>
+                )}
               </SelectContent>
             </Select>
-            {errors.creativeType && <p className="text-sm text-red-500">{errors.creativeType}</p>}
+            {errors.campaignObjective && <p className="text-sm text-red-500">{errors.campaignObjective}</p>}
           </div>
 
-          {/* Objetivo */}
-          <div className="space-y-2">
-            <Label className="text-sm font-medium text-jumper-text">Objetivo *</Label>
-            <Select value={formData.objective || ''} onValueChange={(value) => updateFormData({ objective: value as any })}>
-              <SelectTrigger className={`h-12 ${errors.objective ? 'border-red-500' : ''}`}>
-                <SelectValue placeholder="Selecione o objetivo" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="sales">💰 Vendas</SelectItem>
-                <SelectItem value="traffic">🚗 Tráfego</SelectItem>
-                <SelectItem value="awareness">👁️ Reconhecimento</SelectItem>
-                <SelectItem value="leads">📧 Leads</SelectItem>
-                <SelectItem value="engagement">❤️ Engajamento</SelectItem>
-              </SelectContent>
-            </Select>
-            {errors.objective && <p className="text-sm text-red-500">{errors.objective}</p>}
-          </div>
+          {/* Tipo de Anúncio - only for Meta Ads and only after campaign objective is selected */}
+          {formData.platform === 'meta' && (
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-jumper-text">Tipo de Anúncio *</Label>
+              <Select 
+                value={formData.creativeType || ''} 
+                onValueChange={(value) => updateFormData({ creativeType: value as any })}
+                disabled={!formData.campaignObjective}
+              >
+                <SelectTrigger className={`h-12 ${errors.creativeType ? 'border-red-500' : ''}`}>
+                  <SelectValue placeholder={!formData.campaignObjective ? "Selecione o objetivo primeiro" : "Selecione o tipo"} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="image">🖼️ Imagem única</SelectItem>
+                  <SelectItem value="carousel">🎠 Carrossel</SelectItem>
+                  <SelectItem value="video">🎬 Vídeo</SelectItem>
+                </SelectContent>
+              </Select>
+              {errors.creativeType && <p className="text-sm text-red-500">{errors.creativeType}</p>}
+            </div>
+          )}
         </div>
       )}
     </div>

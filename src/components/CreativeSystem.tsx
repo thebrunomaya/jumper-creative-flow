@@ -55,13 +55,15 @@ const CreativeSystem: React.FC = () => {
 
     switch (step) {
       case 1:
-        if (!formData.client) newErrors.client = 'Selecione um cliente';
-        // Removida validação do partner
+        if (!formData.client) newErrors.client = 'Selecione uma conta';
         if (!formData.platform) newErrors.platform = 'Selecione uma plataforma';
         
-        if (formData.platform === 'meta') {
-          if (!formData.creativeType) newErrors.creativeType = 'Selecione o tipo de criativo';
-          if (!formData.objective) newErrors.objective = 'Selecione o objetivo';
+        if (formData.platform === 'meta' || formData.platform === 'google') {
+          if (!formData.campaignObjective) newErrors.campaignObjective = 'Selecione o objetivo de campanha';
+          
+          if (formData.platform === 'meta') {
+            if (!formData.creativeType) newErrors.creativeType = 'Selecione o tipo de anúncio';
+          }
         }
         break;
 

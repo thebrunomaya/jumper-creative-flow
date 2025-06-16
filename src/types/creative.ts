@@ -4,6 +4,7 @@ export interface FormData {
   client: string;
   partner: string;
   platform: 'meta' | 'google' | '';
+  campaignObjective?: string; // New field for campaign objective from account
   creativeType?: 'image' | 'carousel' | 'video';
   objective?: 'sales' | 'traffic' | 'awareness' | 'leads' | 'engagement';
   
@@ -32,6 +33,7 @@ export interface ValidatedFile {
 export interface Client {
   id: string;
   name: string;
+  objectives?: string[]; // Add objectives array
 }
 
 export interface Partner {
