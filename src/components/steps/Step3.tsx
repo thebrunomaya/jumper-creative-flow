@@ -139,7 +139,7 @@ const Step3: React.FC<Step3Props> = ({ formData, updateFormData, errors }) => {
         </div>
 
         {/* Textos Principais Section */}
-        <div className="bg-blue-50 p-6 rounded-lg border space-y-4">
+        <div className="bg-gray-50 p-6 rounded-lg border space-y-4">
           <div className="flex items-center justify-between">
             <div>
               <Label className="text-lg font-semibold text-gray-900">💬 Textos Principais *</Label>
