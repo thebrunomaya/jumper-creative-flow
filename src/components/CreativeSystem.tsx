@@ -11,6 +11,7 @@ import Step4 from './steps/Step4';
 import Success from './Success';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { useNotionClients } from '@/hooks/useNotionData';
 
 const INITIAL_FORM_DATA: FormData = {
   client: '',
@@ -38,6 +39,7 @@ const CreativeSystem: React.FC = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [creativeId, setCreativeId] = useState('');
   const { toast } = useToast();
+  const { clients } = useNotionClients();
 
   const updateFormData = (newData: Partial<FormData>) => {
     setFormData(prev => ({ ...prev, ...newData }));
@@ -222,9 +224,8 @@ const CreativeSystem: React.FC = () => {
       
       <div className="max-w-4xl mx-auto px-4 py-8">
         <Breadcrumbs 
-          currentStep={currentStep} 
-          stepLabels={STEP_LABELS}
-          onStepClick={goToStep}
+          formData={formData}
+          clients={clients}
         />
         
         <ProgressBar 
