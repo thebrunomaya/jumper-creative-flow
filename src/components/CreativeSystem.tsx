@@ -12,7 +12,7 @@ import Success from './Success';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { useNotionClients } from '@/hooks/useNotionData';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 
 const INITIAL_FORM_DATA: FormData = {
   client: '',
