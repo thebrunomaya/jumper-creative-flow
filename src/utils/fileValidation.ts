@@ -1,13 +1,36 @@
 
 import { META_SPECS, ValidatedFile } from '@/types/creative';
 
-export const validateImage = (file: File): Promise<{ valid: boolean; width: number; height: number; message: string }> => {
+export const validateImage = (file: File, format?: 'square' | 'vertical' | 'horizontal'): Promise<{ valid: boolean; width: number; height: number; message: string }> => {
   return new Promise((resolve) => {
     const img = new Image();
     img.onload = () => {
-      const isValidFeed = img.width === 1080 && img.height === 1080;
-      const isValidStories = img.width === 1080 && img.height === 1920;
-      const isValid = isValidFeed || isValidStories;
+      let isValid = false;
+      let expectedDimensions = '';
+
+      if (format) {
+        // Validate specific format
+        switch (format) {
+          case 'square':
+            isValid = img.width === 1080 && img.height === 1080;
+            expectedDimensions = '1080x1080px';
+            break;
+          case 'vertical':
+            isValid = img.width === 1080 && img.height === 1350;
+            expectedDimensions = '1080x1350px';
+            break;
+          case 'horizontal':
+            isValid = img.width === 1200 && img.height === 628;
+            expectedDimensions = '1200x628px';
+            break;
+        }
+      } else {
+        // Original validation for backward compatibility
+        const isValidFeed = img.width === 1080 && img.height === 1080;
+        const isValidStories = img.width === 1080 && img.height === 1920;
+        isValid = isValidFeed || isValidStories;
+        expectedDimensions = '1080x1080 ou 1080x1920px';
+      }
       
       resolve({
         valid: isValid,
@@ -15,7 +38,7 @@ export const validateImage = (file: File): Promise<{ valid: boolean; width: numb
         height: img.height,
         message: isValid 
           ? `Dimensões corretas (${img.width}x${img.height}px)` 
-          : `Dimensão inválida (${img.width}x${img.height}px). Use 1080x1080 ou 1080x1920`
+          : `Dimensão inválida (${img.width}x${img.height}px). Use ${expectedDimensions}`
       });
     };
     img.onerror = () => {
@@ -61,7 +84,7 @@ export const validateVideo = (file: File): Promise<{ valid: boolean; duration: n
 };
 
 export const validateFileSize = (file: File, isVideo: boolean): { valid: boolean; message: string } => {
-  const maxSize = isVideo ? META_SPECS.video.feed.maxSize : META_SPECS.image.feed.maxSize;
+  const maxSize = isVideo ? META_SPECS.video.feed.maxSize : META_SPECS.image.square.maxSize;
   const sizeInMB = file.size / (1024 * 1024);
   const maxSizeInMB = maxSize / (1024 * 1024);
   
@@ -86,7 +109,7 @@ export const validateFileType = (file: File): { valid: boolean; message: string 
   };
 };
 
-export const validateFile = async (file: File): Promise<ValidatedFile> => {
+export const validateFile = async (file: File, format?: 'square' | 'vertical' | 'horizontal'): Promise<ValidatedFile> => {
   const errors: string[] = [];
   let valid = true;
   let dimensions: { width: number; height: number } | undefined;
@@ -111,7 +134,7 @@ export const validateFile = async (file: File): Promise<ValidatedFile> => {
 
   // Validate dimensions for images
   if (isImage && typeValidation.valid) {
-    const imageValidation = await validateImage(file);
+    const imageValidation = await validateImage(file, format);
     dimensions = { width: imageValidation.width, height: imageValidation.height };
     if (!imageValidation.valid) {
       errors.push(imageValidation.message);
@@ -141,7 +164,8 @@ export const validateFile = async (file: File): Promise<ValidatedFile> => {
     dimensions,
     duration,
     errors: errors.length > 0 ? errors : (valid ? ['Arquivo válido'] : ['Erro na validação']),
-    preview
+    preview,
+    format
   };
 };
 
@@ -150,7 +174,7 @@ export const validateText = (text: string, maxLength: number) => {
   const percentage = count / maxLength;
   
   return {
-    valid: count <= maxLength,
+    valid: count <=Length,
     count,
     maxLength,
     percentage,

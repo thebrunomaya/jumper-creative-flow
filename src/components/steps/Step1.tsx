@@ -132,9 +132,10 @@ const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
                   <SelectValue placeholder={!formData.campaignObjective ? "Selecione o objetivo primeiro" : "Selecione o tipo"} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="image">🖼️ Imagem única</SelectItem>
+                  <SelectItem value="image">🖼️ Imagem</SelectItem>
                   <SelectItem value="carousel">🎠 Carrossel</SelectItem>
                   <SelectItem value="video">🎬 Vídeo</SelectItem>
+                  <SelectItem value="collection">🏪 Coleção</SelectItem>
                 </SelectContent>
               </Select>
               {errors.creativeType && <p className="text-sm text-red-500">{errors.creativeType}</p>}

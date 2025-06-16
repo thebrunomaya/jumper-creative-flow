@@ -5,7 +5,7 @@ export interface FormData {
   partner: string;
   platform: 'meta' | 'google' | '';
   campaignObjective?: string; // New field for campaign objective from account
-  creativeType?: 'image' | 'carousel' | 'video';
+  creativeType?: 'image' | 'carousel' | 'video' | 'collection';
   objective?: 'sales' | 'traffic' | 'awareness' | 'leads' | 'engagement';
   
   // Step 2
@@ -28,6 +28,7 @@ export interface ValidatedFile {
   duration?: number;
   errors: string[];
   preview?: string;
+  format?: 'square' | 'vertical' | 'horizontal'; // Add format for image ads
 }
 
 export interface Client {
@@ -53,8 +54,9 @@ export const VALID_CTAS = [
 
 export const META_SPECS = {
   image: {
-    feed: { width: 1080, height: 1080, maxSize: 30 * 1024 * 1024 },
-    stories: { width: 1080, height: 1920, maxSize: 30 * 1024 * 1024 }
+    square: { width: 1080, height: 1080, maxSize: 30 * 1024 * 1024 },
+    vertical: { width: 1080, height: 1350, maxSize: 30 * 1024 * 1024 },
+    horizontal: { width: 1200, height: 628, maxSize: 30 * 1024 * 1024 }
   },
   video: {
     feed: { width: 1080, height: 1080, maxSize: 4 * 1024 * 1024 * 1024, duration: [15, 60] },
