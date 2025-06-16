@@ -13,7 +13,7 @@ serve(async (req) => {
 
   try {
     const NOTION_TOKEN = Deno.env.get('NOTION_API_KEY')
-    const DB_GERENTES_ID = "your-db-gerentes-id-here" // Você precisa fornecer o ID da DB_Gerentes
+    const DB_GERENTES_ID = "213db60949688003bd2dec32494bb87c"
     
     console.log('=== NOTION MANAGERS CONNECTION ===')
     console.log('NOTION_TOKEN exists:', !!NOTION_TOKEN)
