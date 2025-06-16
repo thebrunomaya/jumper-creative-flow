@@ -87,6 +87,24 @@ export type Database = {
         }
         Relationships: []
       }
+      creative_counter: {
+        Row: {
+          counter: number
+          id: number
+          updated_at: string | null
+        }
+        Insert: {
+          counter?: number
+          id?: number
+          updated_at?: string | null
+        }
+        Update: {
+          counter?: number
+          id?: number
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       partners: {
         Row: {
           created_at: string
@@ -128,7 +146,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_next_creative_counter: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
     }
     Enums: {
       [_ in never]: never

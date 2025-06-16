@@ -10,6 +10,7 @@ const corsHeaders = {
 interface CreativeSubmissionData {
   id: string;
   client: string;
+  managerId?: string; // Add manager ID
   partner: string;
   platform: string;
   campaignObjective?: string;
@@ -107,6 +108,7 @@ serve(async (req) => {
     const creativeData: CreativeSubmissionData = await req.json()
     console.log('Creative data received:', {
       id: creativeData.id,
+      managerId: creativeData.managerId,
       filesCount: creativeData.filesInfo?.length || 0,
       fileNames: creativeData.filesInfo?.map(f => f.name) || []
     })
@@ -171,6 +173,13 @@ serve(async (req) => {
           relation: [
             {
               id: creativeData.client
+            }
+          ]
+        },
+        "Gerente": {
+          relation: [
+            {
+              id: creativeData.managerId || ""
             }
           ]
         },

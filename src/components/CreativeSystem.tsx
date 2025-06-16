@@ -12,6 +12,7 @@ import Success from './Success';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { useNotionClients } from '@/hooks/useNotionData';
+import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 
 const INITIAL_FORM_DATA: FormData = {
@@ -47,6 +48,7 @@ const CreativeSystem: React.FC = () => {
   const [creativeId, setCreativeId] = useState('');
   const { toast } = useToast();
   const { clients } = useNotionClients();
+  const { currentUser } = useAuth();
 
   const updateFormData = (newData: Partial<FormData>) => {
     setFormData(prev => ({ ...prev, ...newData }));
@@ -177,14 +179,48 @@ const CreativeSystem: React.FC = () => {
     }
   };
 
-  const generateCreativeId = (data: FormData): string => {
-    const clientName = data.client.split('-')[0].toUpperCase().replace(/\s+/g, '-');
-    const platform = data.platform.toUpperCase();
-    const type = data.creativeType ? data.creativeType.toUpperCase().substring(0, 3) : 'GEN';
-    const objective = data.objective ? data.objective.toUpperCase().substring(0, 3) : 'OBJ';
-    const timestamp = Date.now().toString().slice(-6);
-    
-    return `${clientName}-${platform}-${type}-${objective}-${timestamp}`;
+  const generateCreativeId = async (clientName: string): Promise<string> => {
+    try {
+      // Get next counter from database
+      const { data: counterData, error } = await supabase.rpc('get_next_creative_counter');
+      
+      if (error) {
+        console.error('Error getting counter:', error);
+        throw error;
+      }
+
+      const globalCounter = counterData || 1;
+
+      // Data atual
+      const now = new Date();
+      const yy = now.getFullYear().toString().slice(-2);
+      const mm = (now.getMonth() + 1).toString().padStart(2, '0');
+      const dd = now.getDate().toString().padStart(2, '0');
+      const dateStr = `${yy}${mm}${dd}`;
+      
+      // Contador sequencial
+      const counter = globalCounter.toString().padStart(3, '0');
+      
+      // Mapeamento das contas
+      const accountCodes: Record<string, string> = {
+        'Boiler': 'BOI',
+        'Almeida Prado B2B': 'ALM',
+        'Almeida Prado Ecommerce': 'ALM',
+        'Koko Educação': 'KOK',
+        'Supermercadistas': 'SUP',
+        'LEAP Lab': 'LEA'
+      };
+      
+      const accountCode = accountCodes[clientName] || clientName.substring(0, 3).toUpperCase();
+      
+      // Formato: YYMMDD-###-ACT-#A (sempre começar com 1A)
+      return `${dateStr}-${counter}-${accountCode}-1A`;
+    } catch (error) {
+      console.error('Error generating creative ID:', error);
+      // Fallback to timestamp-based ID
+      const timestamp = Date.now().toString().slice(-6);
+      return `${timestamp}-FALLBACK`;
+    }
   };
 
   const convertFileToBase64 = (file: File): Promise<string> => {
@@ -213,8 +249,12 @@ const CreativeSystem: React.FC = () => {
     setIsSubmitting(true);
 
     try {
-      // Generate creative ID
-      const id = generateCreativeId(formData);
+      // Find client name for ID generation
+      const selectedClient = clients.find(c => c.id === formData.client);
+      const clientName = selectedClient?.name || 'Unknown';
+      
+      // Generate creative ID with new system
+      const id = await generateCreativeId(clientName);
       
       // Prepare files info and convert files to base64
       const filesInfo: Array<{
@@ -277,10 +317,11 @@ const CreativeSystem: React.FC = () => {
         }
       }
 
-      // Prepare submission data - Send the client ID directly, not the name
+      // Prepare submission data - Send the client ID directly, not the name, and include manager ID
       const submissionData = {
         id,
-        client: formData.client, // Send the ID directly instead of the name
+        client: formData.client, // Send the client ID directly
+        managerId: currentUser?.id, // Add manager ID
         partner: formData.partner,
         platform: formData.platform,
         campaignObjective: formData.campaignObjective,
