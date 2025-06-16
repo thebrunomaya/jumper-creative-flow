@@ -23,25 +23,7 @@ const Step3: React.FC<Step3Props> = ({ formData, updateFormData, errors }) => {
       </div>
 
       <div className="grid gap-6">
-        {/* Texto principal primeiro */}
-        <div className="space-y-2">
-          <Label htmlFor="mainText" className="flex items-center gap-2">
-            Texto Principal *
-            <TextCounter text={formData.mainText} maxLength={TEXT_LIMITS.mainText} />
-          </Label>
-          <Textarea
-            id="mainText"
-            value={formData.mainText}
-            onChange={(e) => updateFormData({ mainText: e.target.value })}
-            placeholder="Digite o texto principal do anúncio"
-            className={`min-h-[100px] ${errors.mainText ? 'border-red-500' : ''}`}
-          />
-          {errors.mainText && (
-            <p className="text-sm text-red-600">{errors.mainText}</p>
-          )}
-        </div>
-
-        {/* Headline depois */}
+        {/* Headline primeiro */}
         <div className="space-y-2">
           <Label htmlFor="headline" className="flex items-center gap-2">
             Headline *
@@ -56,6 +38,24 @@ const Step3: React.FC<Step3Props> = ({ formData, updateFormData, errors }) => {
           />
           {errors.headline && (
             <p className="text-sm text-red-600">{errors.headline}</p>
+          )}
+        </div>
+
+        {/* Texto principal depois */}
+        <div className="space-y-2">
+          <Label htmlFor="mainText" className="flex items-center gap-2">
+            Texto Principal *
+            <TextCounter text={formData.mainText} maxLength={TEXT_LIMITS.mainText} />
+          </Label>
+          <Textarea
+            id="mainText"
+            value={formData.mainText}
+            onChange={(e) => updateFormData({ mainText: e.target.value })}
+            placeholder="Digite o texto principal do anúncio"
+            className={`min-h-[100px] ${errors.mainText ? 'border-red-500' : ''}`}
+          />
+          {errors.mainText && (
+            <p className="text-sm text-red-600">{errors.mainText}</p>
           )}
         </div>
 

@@ -119,10 +119,7 @@ export const useManagers = () => {
     } catch (err) {
       console.error('Error fetching managers:', err);
       setError('Erro ao carregar gerentes do Notion');
-      // Fallback para dados de teste
-      setManagers([
-        { id: "test-1", name: "Gerente Teste", email: "teste@jumper.com", username: "teste@jumper.com", accounts: [] }
-      ]);
+      setManagers([]);
     } finally {
       setLoading(false);
     }
