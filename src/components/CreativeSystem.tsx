@@ -12,6 +12,7 @@ import Success from './Success';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { useNotionClients } from '@/hooks/useNotionData';
+import { supabase } from '@/lib/supabase';
 
 const INITIAL_FORM_DATA: FormData = {
   client: '',
@@ -202,31 +203,109 @@ const CreativeSystem: React.FC = () => {
       // Generate creative ID
       const id = generateCreativeId(formData);
       
-      // Simulate API calls
-      console.log('Submitting creative:', { id, ...formData });
-      
-      // Simulate delay for realistic UX
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      // Prepare files info for submission
+      const filesInfo: Array<{
+        name: string;
+        type: string;
+        size: number;
+        format?: string;
+        variationIndex?: number;
+      }> = [];
 
-      // In a real app, you would:
-      // 1. Upload files to Google Drive
-      // 2. Create Notion record
-      // 3. Send confirmation email
-      // 4. Create task in project management
+      if (formData.creativeType === 'single' && formData.mediaVariations) {
+        formData.mediaVariations.forEach((variation, index) => {
+          if (variation.squareFile) {
+            filesInfo.push({
+              name: variation.squareFile.file.name,
+              type: variation.squareFile.file.type,
+              size: variation.squareFile.file.size,
+              format: 'square',
+              variationIndex: index + 1
+            });
+          }
+          if (variation.verticalFile) {
+            filesInfo.push({
+              name: variation.verticalFile.file.name,
+              type: variation.verticalFile.file.type,
+              size: variation.verticalFile.file.size,
+              format: 'vertical',
+              variationIndex: index + 1
+            });
+          }
+          if (variation.horizontalFile) {
+            filesInfo.push({
+              name: variation.horizontalFile.file.name,
+              type: variation.horizontalFile.file.type,
+              size: variation.horizontalFile.file.size,
+              format: 'horizontal',
+              variationIndex: index + 1
+            });
+          }
+        });
+      } else {
+        // For other creative types, use validatedFiles
+        formData.validatedFiles.forEach(file => {
+          filesInfo.push({
+            name: file.file.name,
+            type: file.file.type,
+            size: file.file.size
+          });
+        });
+      }
+
+      // Get client name for display
+      const client = clients.find(c => c.id === formData.client);
+      const clientName = client?.name || formData.client;
+
+      // Prepare submission data
+      const submissionData = {
+        id,
+        client: clientName,
+        partner: formData.partner,
+        platform: formData.platform,
+        campaignObjective: formData.campaignObjective,
+        creativeType: formData.creativeType,
+        objective: formData.objective,
+        mainText: formData.mainText,
+        headline: formData.headline,
+        description: formData.description,
+        destinationUrl: formData.destinationUrl,
+        callToAction: formData.callToAction,
+        observations: formData.observations,
+        filesInfo
+      };
+
+      console.log('Submitting creative to Notion:', submissionData);
+      
+      // Submit to Notion via Edge Function
+      const { data, error } = await supabase.functions.invoke('submit-creative', {
+        body: submissionData
+      });
+
+      if (error) {
+        console.error('Supabase function error:', error);
+        throw new Error(error.message || 'Erro ao enviar criativo');
+      }
+
+      if (!data?.success) {
+        throw new Error(data?.error || 'Erro desconhecido ao enviar criativo');
+      }
+
+      console.log('✅ Creative successfully submitted:', data);
 
       setCreativeId(id);
       setIsSubmitted(true);
 
       toast({
         title: "Criativo enviado!",
-        description: `ID: ${id}. Confirmação enviada por email.`,
+        description: `ID: ${id}. Registro criado no Notion com sucesso!`,
       });
 
     } catch (error) {
       console.error('Error submitting creative:', error);
       toast({
         title: "Erro no envio",
-        description: "Tente novamente ou contate o suporte",
+        description: error.message || "Erro ao enviar para o Notion. Tente novamente.",
         variant: "destructive",
       });
     } finally {
