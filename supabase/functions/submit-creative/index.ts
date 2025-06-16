@@ -1,5 +1,4 @@
 
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 
 const corsHeaders = {
@@ -37,7 +36,7 @@ serve(async (req) => {
 
   try {
     const NOTION_TOKEN = Deno.env.get('NOTION_API_KEY')
-    const DB_CRIATIVOS_ID = "20edb6094968807eac5fe7920c517077" // Updated to new ID
+    const DB_CRIATIVOS_ID = "20edb6094968807eac5fe7920c517077"
     
     console.log('=== CREATIVE SUBMISSION ===')
     console.log('Submitting creative at:', new Date().toISOString())
@@ -63,15 +62,6 @@ serve(async (req) => {
             {
               text: {
                 content: creativeData.id
-              }
-            }
-          ]
-        },
-        "Conta": {
-          rich_text: [
-            {
-              text: {
-                content: creativeData.client
               }
             }
           ]
@@ -146,17 +136,6 @@ serve(async (req) => {
           select: {
             name: "Pendente"
           }
-        },
-        "Upload do formato feed": {
-          rich_text: [
-            {
-              text: {
-                content: creativeData.filesInfo.map(file => 
-                  `${file.name} (${file.format || 'unknown'})${file.variationIndex ? ` - Mídia ${file.variationIndex}` : ''}`
-                ).join(', ')
-              }
-            }
-          ]
         }
       }
     }
