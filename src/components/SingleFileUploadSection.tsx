@@ -1,3 +1,4 @@
+
 import React, { useCallback, useState } from 'react';
 import { ValidatedFile } from '@/types/creative';
 import { validateFile } from '@/utils/fileValidation';
@@ -80,9 +81,12 @@ const SingleFileUploadSection: React.FC<SingleFileUploadSectionProps> = ({
 
   const getThumbnailDimensions = (format: 'square' | 'vertical' | 'horizontal') => {
     // Container disponível: aproximadamente 150px de largura e 150px de altura
-    // Deixando margem de 20px total (10px de cada lado)
-    const maxWidth = 130;
-    const maxHeight = 130;
+    // Usando margem padronizada de 16px (8px de cada lado)
+    const containerWidth = 150;
+    const containerHeight = 150;
+    const margin = 16;
+    const maxWidth = containerWidth - margin;
+    const maxHeight = containerHeight - margin;
     
     let aspectRatio: number;
     
@@ -100,18 +104,30 @@ const SingleFileUploadSection: React.FC<SingleFileUploadSectionProps> = ({
         aspectRatio = 1;
     }
     
-    // Calcular dimensões baseado na proporção
+    // Calcular dimensões para usar o máximo do espaço disponível
     let width: number;
     let height: number;
     
     if (aspectRatio >= 1) {
-      // Formato horizontal ou quadrado - limitar pela largura
-      width = Math.min(maxWidth, maxHeight * aspectRatio);
+      // Formato horizontal ou quadrado - limitar pela largura disponível
+      width = maxWidth;
       height = width / aspectRatio;
+      
+      // Se a altura calculada exceder o limite, ajustar pela altura
+      if (height > maxHeight) {
+        height = maxHeight;
+        width = height * aspectRatio;
+      }
     } else {
-      // Formato vertical - limitar pela altura
-      height = Math.min(maxHeight, maxWidth / aspectRatio);
+      // Formato vertical - limitar pela altura disponível
+      height = maxHeight;
       width = height * aspectRatio;
+      
+      // Se a largura calculada exceder o limite, ajustar pela largura
+      if (width > maxWidth) {
+        width = maxWidth;
+        height = width / aspectRatio;
+      }
     }
     
     return { 
