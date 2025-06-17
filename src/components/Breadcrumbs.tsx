@@ -41,13 +41,11 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ formData, clients }) => {
     let typeLabel = '';
     
     if (formData.creativeType === 'single') {
-      typeLabel = 'Imagem única';
+      typeLabel = 'Imagem/Vídeo Único';
     } else if (formData.creativeType === 'carousel') {
       typeLabel = 'Carrossel';
     } else if (formData.creativeType === 'collection') {
       typeLabel = 'Coleção';
-    } else if (formData.creativeType === 'video') {
-      typeLabel = 'Vídeo';
     } else {
       typeLabel = formData.creativeType;
     }
