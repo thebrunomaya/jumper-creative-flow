@@ -16,10 +16,12 @@ const ThumbnailPreview: React.FC<ThumbnailPreviewProps> = ({
   file,
   onPreviewClick
 }) => {
+  const { width, height } = getThumbnailDimensions(format);
+  
   return (
     <div 
-      className="relative border border-gray-300 rounded-lg overflow-hidden bg-white shadow-sm cursor-pointer flex-shrink-0"
-      style={getThumbnailDimensions(format)}
+      className="relative border border-gray-300 rounded-lg overflow-hidden bg-white shadow-sm cursor-pointer flex-shrink-0 m-1"
+      style={{ width, height }}
       onClick={() => file && onPreviewClick()}
     >
       <MetaZoneOverlay
