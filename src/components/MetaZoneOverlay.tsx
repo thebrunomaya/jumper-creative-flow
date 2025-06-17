@@ -1,15 +1,18 @@
 
 import React from 'react';
+import { getZoneConfig } from '@/config/adPlatformZones';
 
 interface MetaZoneOverlayProps {
   imageUrl: string;
   format: 'square' | 'vertical' | 'horizontal';
+  file?: File;
   onImageLoad?: () => void;
 }
 
 const MetaZoneOverlay: React.FC<MetaZoneOverlayProps> = ({ 
   imageUrl, 
   format,
+  file,
   onImageLoad 
 }) => {
   // Only show overlay for vertical format (Stories/Reels)
@@ -24,61 +27,95 @@ const MetaZoneOverlay: React.FC<MetaZoneOverlayProps> = ({
     );
   }
 
+  // Get zone configuration based on file type
+  const zoneConfig = getZoneConfig(file);
+  
+  if (!zoneConfig) {
+    return (
+      <img 
+        src={imageUrl} 
+        alt="Preview" 
+        className="w-full h-full object-cover rounded"
+        onLoad={onImageLoad}
+      />
+    );
+  }
+
+  const { zones } = zoneConfig;
+  const isReels = zoneConfig.contentTypes.includes('video');
+
   return (
     <div className="relative w-full h-full">
       {/* Base Image */}
       <img 
         src={imageUrl} 
-        alt="Preview com overlay de zonas Meta" 
+        alt={`Preview com overlay de zonas ${zoneConfig.name}`}
         className="w-full h-full object-cover rounded"
         onLoad={onImageLoad}
       />
       
       {/* Zone Overlays */}
       <div className="absolute inset-0 pointer-events-none">
-        {/* Top Danger Zone - 8% */}
+        {/* Top Safe Margin */}
         <div 
           className="absolute top-0 left-0 right-0 bg-red-500 bg-opacity-30 flex items-center justify-center"
-          style={{ height: '8%' }}
+          style={{ height: `${zones.topSafeMargin}%` }}
         >
           <span className="text-white text-xs font-semibold bg-red-600 bg-opacity-80 px-2 py-1 rounded">
-            8%
+            {zones.topSafeMargin}%
           </span>
         </div>
 
-        {/* Left Side Danger Zone - 6% */}
+        {/* Left Side Safe Margin */}
         <div 
           className="absolute top-0 left-0 bottom-0 bg-red-500 bg-opacity-30 flex items-center justify-center"
-          style={{ width: '6%' }}
+          style={{ width: `${zones.leftSafeMargin}%` }}
         >
           <span 
             className="text-white text-xs font-semibold bg-red-600 bg-opacity-80 px-1 py-2 rounded transform -rotate-90"
             style={{ fontSize: '10px' }}
           >
-            6%
+            {zones.leftSafeMargin}%
           </span>
         </div>
 
-        {/* Right Side Danger Zone - 6% */}
+        {/* Right Side Safe Margin */}
         <div 
           className="absolute top-0 right-0 bottom-0 bg-red-500 bg-opacity-30 flex items-center justify-center"
-          style={{ width: '6%' }}
+          style={{ width: `${zones.rightSafeMargin}%` }}
         >
           <span 
             className="text-white text-xs font-semibold bg-red-600 bg-opacity-80 px-1 py-2 rounded transform rotate-90"
             style={{ fontSize: '10px' }}
           >
-            6%
+            {zones.rightSafeMargin}%
           </span>
         </div>
 
-        {/* Bottom Danger Zone - 21% */}
+        {/* Reels: Complex Lower Right Zone */}
+        {isReels && zones.lowerRightZone && (
+          <div 
+            className="absolute right-0 bg-red-500 bg-opacity-30 flex items-center justify-center"
+            style={{ 
+              top: `${100 - zones.lowerRightZone.zoneHeight}%`,
+              height: `${zones.lowerRightZone.zoneHeight}%`,
+              width: `${zones.lowerRightZone.safeMargin}%`
+            }}
+          >
+            <span className="text-white text-xs font-semibold bg-red-600 bg-opacity-80 px-1 py-1 rounded transform rotate-90"
+                  style={{ fontSize: '9px' }}>
+              {zones.lowerRightZone.safeMargin}%
+            </span>
+          </div>
+        )}
+
+        {/* Bottom Safe Margin */}
         <div 
           className="absolute bottom-0 left-0 right-0 bg-red-500 bg-opacity-30 flex items-center justify-center"
-          style={{ height: '21%' }}
+          style={{ height: `${zones.bottomSafeMargin}%` }}
         >
           <span className="text-white text-xs font-semibold bg-red-600 bg-opacity-80 px-2 py-1 rounded">
-            21%
+            {zones.bottomSafeMargin}%
           </span>
         </div>
 
@@ -86,10 +123,12 @@ const MetaZoneOverlay: React.FC<MetaZoneOverlayProps> = ({
         <div 
           className="absolute bg-green-500 bg-opacity-10"
           style={{ 
-            top: '8%', 
-            left: '6%', 
-            right: '6%', 
-            bottom: '21%' 
+            top: `${zones.topSafeMargin}%`, 
+            left: `${zones.leftSafeMargin}%`, 
+            right: isReels && zones.lowerRightZone ? 
+              `max(${zones.rightSafeMargin}%, ${zones.lowerRightZone.safeMargin}%)` : 
+              `${zones.rightSafeMargin}%`,
+            bottom: `${zones.bottomSafeMargin}%`
           }}
         />
       </div>

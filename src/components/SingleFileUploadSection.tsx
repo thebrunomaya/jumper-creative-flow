@@ -205,6 +205,7 @@ const SingleFileUploadSection: React.FC<SingleFileUploadSectionProps> = ({
                         <MetaZoneOverlay 
                           imageUrl={file.preview} 
                           format={format}
+                          file={file.file}
                         />
                       </div>
                     </div>
@@ -249,6 +250,7 @@ const SingleFileUploadSection: React.FC<SingleFileUploadSectionProps> = ({
                 <MetaZoneOverlay 
                   imageUrl={file.preview} 
                   format={format}
+                  file={file.file}
                 />
               </div>
 
