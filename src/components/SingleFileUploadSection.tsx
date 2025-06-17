@@ -109,8 +109,8 @@ const SingleFileUploadSection: React.FC<SingleFileUploadSectionProps> = ({
           {/* Upload Zone or File Display - Container com altura flexível */}
           <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm min-h-[200px]">
             <div className="flex min-h-[200px]">
-              {/* Thumbnail Container - largura fixa, altura flexível para centralizar */}
-              <div className="w-[140px] bg-gray-50 border-r border-gray-200 flex items-center justify-center p-4">
+              {/* Thumbnail Container - largura aumentada para 160px */}
+              <div className="w-[160px] bg-gray-50 border-r border-gray-200 flex items-center justify-center p-4">
                 <ThumbnailPreview
                   format={format}
                   file={file}
