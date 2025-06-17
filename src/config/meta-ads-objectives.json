@@ -40,6 +40,12 @@
           "label": "Página do Facebook",
           "ctas": ["Curtir Página", "Saiba mais"],
           "fieldType": "facebook_url"
+        },
+        {
+          "value": "perfil_instagram", 
+          "label": "Perfil do Instagram",
+          "ctas": ["Seguir", "Saiba mais"],
+          "fieldType": "instagram_url"
         }
       ]
     },
@@ -162,6 +168,7 @@
     "url": "URL/Link",
     "phone": "Telefone/WhatsApp", 
     "facebook_url": "URL da Página Facebook",
+    "instagram_url": "URL do Perfil Instagram",
     "text": "ID/Username"
   }
 }
