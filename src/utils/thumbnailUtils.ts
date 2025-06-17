@@ -26,9 +26,9 @@ export const getThumbnailDimensions = (format: 'square' | 'vertical' | 'horizont
   let width: number;
   let height: number;
   
-  // Primeiro, calcular o tamanho máximo disponível (container menos margem)
-  const maxWidth = containerWidth - minMargin;
-  const maxHeight = containerHeight - minMargin;
+  // Tamanho máximo disponível (container menos margem dupla - cada lado)
+  const maxWidth = containerWidth - (minMargin * 2);
+  const maxHeight = containerHeight - (minMargin * 2);
   
   // Calcular dimensões baseadas no aspect ratio
   if (aspectRatio >= 1) {
