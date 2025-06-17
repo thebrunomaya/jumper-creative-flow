@@ -1,3 +1,4 @@
+
 import React, { useCallback, useState } from 'react';
 import { ValidatedFile } from '@/types/creative';
 import { validateFile } from '@/utils/fileValidation';
@@ -108,8 +109,8 @@ const SingleFileUploadSection: React.FC<SingleFileUploadSectionProps> = ({
           {/* Upload Zone or File Display - Container com altura fixa */}
           <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm h-[200px]">
             <div className="flex h-full">
-              {/* Thumbnail Container - posicionamento específico por formato sem centralização */}
-              <div className="w-1/4 bg-gray-50 border-r border-gray-200 relative">
+              {/* Thumbnail Container - altura fixa com flexbox para centralizar e padding consistente */}
+              <div className="w-1/4 bg-gray-50 border-r border-gray-200 flex items-center justify-center p-1">
                 <ThumbnailPreview
                   format={format}
                   file={file}

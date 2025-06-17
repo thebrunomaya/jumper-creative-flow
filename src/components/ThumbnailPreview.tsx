@@ -18,23 +18,9 @@ const ThumbnailPreview: React.FC<ThumbnailPreviewProps> = ({
 }) => {
   const { width, height } = getThumbnailDimensions(format);
   
-  // Definir posicionamento específico por formato para manter 4px de margem exata
-  const getPositionClasses = () => {
-    switch (format) {
-      case 'square':
-        return 'absolute top-1 right-1'; // 4px do topo e direita
-      case 'horizontal':
-        return 'absolute top-1 right-1'; // 4px do topo e direita
-      case 'vertical':
-        return 'absolute bottom-1 left-1/2 transform -translate-x-1/2'; // 4px de baixo, centralizado horizontalmente
-      default:
-        return 'absolute top-1 right-1';
-    }
-  };
-  
   return (
     <div 
-      className={`relative border border-gray-300 rounded-lg overflow-hidden bg-white shadow-sm cursor-pointer flex-shrink-0 ${getPositionClasses()}`}
+      className="relative border border-gray-300 rounded-lg overflow-hidden bg-white shadow-sm cursor-pointer flex-shrink-0 m-1"
       style={{ width, height }}
       onClick={() => file && onPreviewClick()}
     >
