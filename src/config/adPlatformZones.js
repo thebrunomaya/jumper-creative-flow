@@ -36,28 +36,48 @@ export const adPlatformZones = {
 
 // Helper function to detect content type and return appropriate zone config
 export const getZoneConfig = (file) => {
-  console.log('getZoneConfig - Input file:', file);
+  console.log('getZoneConfig - Starting analysis for file:', {
+    fileName: file?.name,
+    fileType: file?.type,
+    fileExists: !!file
+  });
   
   if (!file) {
-    console.log('getZoneConfig - No file provided');
+    console.log('getZoneConfig - No file provided, returning null');
     return null;
   }
   
-  // Check if it's a video by MIME type first
+  // Check if it's a video by MIME type first (most reliable)
   const isVideoByMime = file.type && file.type.startsWith('video/');
-  console.log('getZoneConfig - Is video by MIME:', isVideoByMime, 'MIME type:', file.type);
+  console.log('getZoneConfig - Video check by MIME type:', {
+    isVideo: isVideoByMime,
+    mimeType: file.type
+  });
   
-  // Check if it's a video by file extension
-  const isVideoByExtension = file.name && ['mp4', 'mov', 'avi', 'webm'].some(ext => 
-    file.name.toLowerCase().endsWith(`.${ext}`)
-  );
-  console.log('getZoneConfig - Is video by extension:', isVideoByExtension, 'File name:', file.name);
+  // Check if it's a video by file extension as backup
+  const fileName = file.name ? file.name.toLowerCase() : '';
+  const videoExtensions = ['mp4', 'mov', 'avi', 'webm'];
+  const isVideoByExtension = videoExtensions.some(ext => fileName.endsWith(`.${ext}`));
+  console.log('getZoneConfig - Video check by extension:', {
+    isVideo: isVideoByExtension,
+    fileName: fileName,
+    checkedExtensions: videoExtensions
+  });
   
+  // Final determination
   const isVideo = isVideoByMime || isVideoByExtension;
-  console.log('getZoneConfig - Final is video:', isVideo);
+  console.log('getZoneConfig - Final video determination:', {
+    isVideo: isVideo,
+    byMime: isVideoByMime,
+    byExtension: isVideoByExtension
+  });
   
   const selectedConfig = isVideo ? adPlatformZones.meta.reels : adPlatformZones.meta.stories;
-  console.log('getZoneConfig - Selected config:', selectedConfig.name);
+  console.log('getZoneConfig - Selected configuration:', {
+    configName: selectedConfig.name,
+    configType: isVideo ? 'REELS (Video)' : 'STORIES (Image)',
+    hasZones: !!selectedConfig.zones
+  });
   
   return selectedConfig;
 };
