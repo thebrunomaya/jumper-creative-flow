@@ -81,12 +81,12 @@ const SingleFileUploadSection: React.FC<SingleFileUploadSectionProps> = ({
 
   const getThumbnailDimensions = (format: 'square' | 'vertical' | 'horizontal') => {
     // Container disponível: aproximadamente 150px de largura e 150px de altura
-    // Usando margem padronizada de 16px (8px de cada lado)
+    // Usando margem mínima de 4px para consistência visual
     const containerWidth = 150;
     const containerHeight = 150;
-    const margin = 16;
-    const maxWidth = containerWidth - margin;
-    const maxHeight = containerHeight - margin;
+    const minMargin = 4;
+    const maxWidth = containerWidth - minMargin;
+    const maxHeight = containerHeight - minMargin;
     
     let aspectRatio: number;
     
@@ -104,7 +104,7 @@ const SingleFileUploadSection: React.FC<SingleFileUploadSectionProps> = ({
         aspectRatio = 1;
     }
     
-    // Calcular dimensões para usar o máximo do espaço disponível
+    // Calcular dimensões para usar o máximo do espaço disponível com margem mínima de 4px
     let width: number;
     let height: number;
     
