@@ -1,4 +1,3 @@
-
 export interface FormData {
   // Step 1
   client: string;
@@ -13,12 +12,14 @@ export interface FormData {
   validatedFiles: ValidatedFile[];
   mediaVariations?: MediaVariation[]; // New field for multiple media sets
   
-  // Step 3 - Updated for multiple titles and main texts
+  // Step 3 - Updated for multiple titles and main texts + new conditional fields
   mainTexts: string[]; // Changed from single mainText to array
   titles: string[]; // Changed from single headline to array of titles
   description: string;
+  destination?: string; // New field for destination type
+  cta?: string; // New field for CTA (conditional)
   destinationUrl: string;
-  callToAction: string;
+  callToAction: string; // Keep existing for backward compatibility
   observations: string;
 }
 

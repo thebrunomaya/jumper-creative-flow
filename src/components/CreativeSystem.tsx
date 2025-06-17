@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { FormData, TEXT_LIMITS } from '@/types/creative';
 import { useToast } from '@/hooks/use-toast';
@@ -33,6 +32,8 @@ const INITIAL_FORM_DATA: FormData = {
   mainTexts: [''], // Initialize with one empty main text
   titles: [''], // Initialize with one empty title
   description: '',
+  destination: '', // New field
+  cta: '', // New field
   destinationUrl: '',
   callToAction: '',
   observations: ''
@@ -146,6 +147,22 @@ const CreativeSystem: React.FC = () => {
           newErrors.description = `Descrição muito longa (${formData.description.length}/${TEXT_LIMITS.description.maximum})`;
         }
 
+        // Conditional validation for Meta ads
+        if (formData.platform === 'meta' && formData.campaignObjective) {
+          if (!formData.destination) {
+            newErrors.destination = 'Selecione um destino';
+          }
+          
+          if (formData.destination && !formData.cta) {
+            newErrors.cta = 'Selecione um call-to-action';
+          }
+        } else {
+          // Legacy validation for non-Meta ads
+          if (!formData.callToAction) {
+            newErrors.callToAction = 'Selecione um call-to-action';
+          }
+        }
+
         if (!formData.destinationUrl.trim()) {
           newErrors.destinationUrl = 'Digite a URL de destino';
         } else {
@@ -154,10 +171,6 @@ const CreativeSystem: React.FC = () => {
           } catch {
             newErrors.destinationUrl = 'URL inválida';
           }
-        }
-
-        if (!formData.callToAction) {
-          newErrors.callToAction = 'Selecione um call-to-action';
         }
         break;
     }
@@ -288,6 +301,8 @@ const CreativeSystem: React.FC = () => {
         mainTexts: formData.mainTexts || [''], // Send array of main texts
         titles: formData.titles || [''], // Send array of titles
         description: formData.description,
+        destination: formData.destination, // New field
+        cta: formData.cta, // New field
         destinationUrl: formData.destinationUrl,
         callToAction: formData.callToAction,
         observations: formData.observations,

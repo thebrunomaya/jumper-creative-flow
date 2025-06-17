@@ -1,0 +1,167 @@
+
+{
+  "version": "1.0",
+  "description": "Mapeamento de objetivos Notion → configurações Meta Ads",
+  
+  "objectiveMapping": {
+    "Interações": {
+      "destinations": [
+        {
+          "value": "no_anuncio",
+          "label": "No anúncio",
+          "ctas": ["Salvar", "Ver evento", "Jogar"],
+          "fieldType": null
+        },
+        {
+          "value": "website", 
+          "label": "Website",
+          "ctas": ["Saiba mais", "Obter oferta", "Ver menu", "Jogar"],
+          "fieldType": "url"
+        },
+        {
+          "value": "pagina_facebook",
+          "label": "Página do Facebook", 
+          "ctas": ["Curtir Página", "Saiba mais"],
+          "fieldType": "facebook_url"
+        },
+        {
+          "value": "whatsapp",
+          "label": "WhatsApp",
+          "ctas": ["Enviar mensagem pelo WhatsApp", "Saiba mais"], 
+          "fieldType": "phone"
+        }
+      ]
+    },
+    
+    "Seguidores": {
+      "destinations": [
+        {
+          "value": "pagina_facebook",
+          "label": "Página do Facebook",
+          "ctas": ["Curtir Página", "Saiba mais"],
+          "fieldType": "facebook_url"
+        }
+      ]
+    },
+    
+    "Divulgação": {
+      "destinations": [
+        {
+          "value": "website",
+          "label": "Website", 
+          "ctas": ["Saiba mais", "Obter oferta", "Entre em contato", "Comprar agora", "Cadastre-se"],
+          "fieldType": "url"
+        },
+        {
+          "value": "whatsapp",
+          "label": "WhatsApp",
+          "ctas": ["Saiba mais", "Enviar mensagem pelo WhatsApp", "Entre em contato"],
+          "fieldType": "phone"
+        }
+      ]
+    },
+    
+    "Tráfego": {
+      "destinations": [
+        {
+          "value": "website",
+          "label": "Website",
+          "ctas": ["Saiba mais", "Obter oferta", "Comprar agora", "Cadastre-se", "Ver menu"],
+          "fieldType": "url"
+        },
+        {
+          "value": "whatsapp", 
+          "label": "WhatsApp",
+          "ctas": ["Saiba mais", "Enviar mensagem pelo WhatsApp", "Entre em contato"],
+          "fieldType": "phone"
+        },
+        {
+          "value": "chamadas",
+          "label": "Chamadas",
+          "ctas": ["Ligar agora", "Entre em contato", "Obter cotação"],
+          "fieldType": "phone"
+        }
+      ]
+    },
+    
+    "Conversas": {
+      "destinations": [
+        {
+          "value": "whatsapp",
+          "label": "WhatsApp", 
+          "ctas": ["Enviar mensagem pelo WhatsApp", "Entre em contato", "Saiba mais"],
+          "fieldType": "phone"
+        },
+        {
+          "value": "messenger",
+          "label": "Messenger",
+          "ctas": ["Enviar mensagem", "Saiba mais", "Entre em contato"], 
+          "fieldType": "text"
+        }
+      ]
+    },
+    
+    "Direções": {
+      "destinations": [
+        {
+          "value": "website",
+          "label": "Website",
+          "ctas": ["Obter direções", "Ligar agora", "Entre em contato", "Saiba mais"],
+          "fieldType": "url"
+        }
+      ]
+    },
+    
+    "Cadastros": {
+      "destinations": [
+        {
+          "value": "website",
+          "label": "Website", 
+          "ctas": ["Cadastre-se", "Obter oferta", "Saiba mais", "Entre em contato"],
+          "fieldType": "url"
+        },
+        {
+          "value": "formularios",
+          "label": "Formulários instantâneos",
+          "ctas": ["Cadastre-se", "Aplicar agora", "Obter oferta", "Saiba mais"],
+          "fieldType": "url"
+        }
+      ]
+    },
+    
+    "Aplicativo": {
+      "destinations": [
+        {
+          "value": "aplicativo",
+          "label": "Aplicativo",
+          "ctas": ["Instalar agora", "Baixar", "Usar aplicativo", "Saiba mais", "Jogar"],
+          "fieldType": "url"
+        }
+      ]
+    },
+    
+    "Vendas": {
+      "destinations": [
+        {
+          "value": "website",
+          "label": "Website",
+          "ctas": ["Comprar agora", "Obter oferta", "Cadastre-se", "Saiba mais"],
+          "fieldType": "url"
+        },
+        {
+          "value": "whatsapp",
+          "label": "WhatsApp",
+          "ctas": ["Comprar agora", "Enviar mensagem pelo WhatsApp", "Obter oferta"],
+          "fieldType": "phone"
+        }
+      ]
+    }
+  },
+  
+  "fieldLabels": {
+    "url": "URL/Link",
+    "phone": "Telefone/WhatsApp", 
+    "facebook_url": "URL da Página Facebook",
+    "text": "ID/Username"
+  }
+}
