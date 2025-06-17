@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
@@ -14,9 +15,11 @@ interface CreativeSubmissionData {
   campaignObjective?: string;
   creativeType?: string;
   objective?: string;
-  mainTexts: string[]; // Changed to array
-  titles: string[]; // Changed to array  
+  mainTexts: string[];
+  titles: string[];
   description: string;
+  destination?: string;
+  cta?: string;
   destinationUrl: string;
   callToAction: string;
   observations: string;
@@ -102,6 +105,19 @@ const createNotionCreative = async (
 
   console.log('✅ Destination value prepared:', destinationValue);
 
+  // Determine the correct CTA value - prioritize new cta field over legacy callToAction
+  let ctaValue = '';
+  if (creativeData.cta && creativeData.cta.trim() !== '') {
+    ctaValue = creativeData.cta.trim();
+    console.log('🎯 Using new CTA field:', ctaValue);
+  } else if (creativeData.callToAction && creativeData.callToAction.trim() !== '') {
+    ctaValue = creativeData.callToAction.trim();
+    console.log('🎯 Using legacy callToAction field:', ctaValue);
+  } else {
+    console.error('❌ CRITICAL: No CTA value provided!');
+    throw new Error('Call-to-Action é obrigatório');
+  }
+
   // Build observations text with variation indicator
   let observationsText = creativeData.observations || '';
   
@@ -156,7 +172,7 @@ const createNotionCreative = async (
         rich_text: [
           {
             text: {
-              content: creativeData.mainTexts.join(' | ')  // Join multiple main texts
+              content: creativeData.mainTexts.join(' | ')
             }
           }
         ]
@@ -165,7 +181,7 @@ const createNotionCreative = async (
         rich_text: [
           {
             text: {
-              content: creativeData.titles.join(' | ')  // Join multiple titles
+              content: creativeData.titles.join(' | ')
             }
           }
         ]
@@ -190,7 +206,7 @@ const createNotionCreative = async (
       },
       "Call-to-Action": {
         select: {
-          name: creativeData.callToAction
+          name: ctaValue
         }
       },
       "Observações": {
@@ -223,7 +239,7 @@ const createNotionCreative = async (
     console.log(`📎 Added ${variationFiles.length} files to Arquivos property for variation ${variationIndex}`);
   }
 
-  console.log(`📤 Sending variation ${variationIndex} to Notion`);
+  console.log(`📤 Sending variation ${variationIndex} to Notion with CTA: ${ctaValue}`);
 
   const response = await fetch(notionUrl, {
     method: 'POST',
@@ -293,6 +309,8 @@ serve(async (req) => {
     console.log('🔍 Creative data received:')
     console.log('- managerId:', creativeData.managerId)
     console.log('- destinationUrl:', creativeData.destinationUrl)
+    console.log('- cta:', creativeData.cta)
+    console.log('- callToAction:', creativeData.callToAction)
     console.log('- observations:', creativeData.observations)
 
     // Group files by variation index
