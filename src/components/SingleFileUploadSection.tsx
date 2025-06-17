@@ -81,12 +81,10 @@ const SingleFileUploadSection: React.FC<SingleFileUploadSectionProps> = ({
 
   const getThumbnailDimensions = (format: 'square' | 'vertical' | 'horizontal') => {
     // Container disponível: aproximadamente 150px de largura e 150px de altura
-    // Usando margem mínima de 4px para consistência visual
+    // Garantindo margem mínima exata de 4px para cada formato
     const containerWidth = 150;
     const containerHeight = 150;
     const minMargin = 4;
-    const maxWidth = containerWidth - minMargin;
-    const maxHeight = containerHeight - minMargin;
     
     let aspectRatio: number;
     
@@ -104,29 +102,34 @@ const SingleFileUploadSection: React.FC<SingleFileUploadSectionProps> = ({
         aspectRatio = 1;
     }
     
-    // Calcular dimensões para usar o máximo do espaço disponível com margem mínima de 4px
+    // Calcular dimensões garantindo margem mínima exata de 4px
     let width: number;
     let height: number;
     
-    if (aspectRatio >= 1) {
-      // Formato horizontal ou quadrado - limitar pela largura disponível
-      width = maxWidth;
-      height = width / aspectRatio;
-      
-      // Se a altura calculada exceder o limite, ajustar pela altura
-      if (height > maxHeight) {
-        height = maxHeight;
-        width = height * aspectRatio;
-      }
-    } else {
-      // Formato vertical - limitar pela altura disponível
-      height = maxHeight;
+    if (format === 'square') {
+      // Para quadrado: limitar pela menor dimensão menos margem
+      const maxSize = Math.min(containerWidth, containerHeight) - minMargin;
+      width = maxSize;
+      height = maxSize;
+    } else if (format === 'vertical') {  
+      // Para vertical: garantir margin-bottom de exatos 4px
+      height = containerHeight - minMargin;
       width = height * aspectRatio;
       
-      // Se a largura calculada exceder o limite, ajustar pela largura
-      if (width > maxWidth) {
-        width = maxWidth;
+      // Se a largura exceder o container, ajustar pela largura
+      if (width > containerWidth - minMargin) {
+        width = containerWidth - minMargin;
         height = width / aspectRatio;
+      }
+    } else {
+      // Para horizontal: limitar pela largura
+      width = containerWidth - minMargin;
+      height = width / aspectRatio;
+      
+      // Se a altura exceder o container, ajustar pela altura
+      if (height > containerHeight - minMargin) {
+        height = containerHeight - minMargin;
+        width = height * aspectRatio;
       }
     }
     
