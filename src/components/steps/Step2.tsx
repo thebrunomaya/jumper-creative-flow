@@ -94,21 +94,6 @@ const Step2: React.FC<Step2Props> = ({ formData, updateFormData, errors }) => {
     );
   };
 
-  // Check if all enabled positions have files for all variations
-  const hasAllRequiredFiles = () => {
-    return mediaVariations.every(variation => {
-      const requiredPositions = [];
-      if (variation.squareEnabled !== false) requiredPositions.push('square');
-      if (variation.verticalEnabled !== false) requiredPositions.push('vertical');
-      if (variation.horizontalEnabled !== false) requiredPositions.push('horizontal');
-      
-      return requiredPositions.every(position => {
-        const file = variation[`${position}File`];
-        return file && file.valid;
-      });
-    });
-  };
-
   // For single image/video ads, we need separate upload sections for images
   if (formData.creativeType === 'single') {
     return (
@@ -118,22 +103,12 @@ const Step2: React.FC<Step2Props> = ({ formData, updateFormData, errors }) => {
           <p className="text-gray-600">Envie suas imagens e vídeos nos diferentes formatos</p>
         </div>
 
-        {/* Warning when positions are disabled */}
+        {/* Warning when positions are disabled - apenas informativo */}
         {hasAnyDisabledPosition() && (
           <Alert className="border-yellow-200 bg-yellow-50">
             <AlertTriangle className="h-4 w-4 text-yellow-600" />
             <AlertDescription className="text-yellow-800">
               <strong>Atenção:</strong> Para impedir que o Meta faça ajustes automáticos no anúncio, é necessário enviar mídias compatíveis para todos os posicionamentos.
-            </AlertDescription>
-          </Alert>
-        )}
-
-        {/* Alert when missing required files */}
-        {!hasAllRequiredFiles() && (
-          <Alert className="border-red-200 bg-red-50">
-            <AlertTriangle className="h-4 w-4 text-red-600" />
-            <AlertDescription className="text-red-800">
-              <strong>Arquivos obrigatórios:</strong> Para continuar, você deve enviar arquivos válidos para todos os posicionamentos ativos ou desativar os posicionamentos que não terão arquivos (máximo 2 desativados por variação).
             </AlertDescription>
           </Alert>
         )}
@@ -211,9 +186,13 @@ const Step2: React.FC<Step2Props> = ({ formData, updateFormData, errors }) => {
           </div>
         )}
 
+        {/* Apenas mostrar erro quando há erro de validação do formulário */}
         {errors.files && (
           <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-            <p className="text-sm text-red-600">{errors.files}</p>
+            <div className="flex items-center space-x-2">
+              <AlertTriangle className="h-4 w-4 text-red-600" />
+              <p className="text-sm text-red-600">{errors.files}</p>
+            </div>
           </div>
         )}
 
@@ -251,9 +230,13 @@ const Step2: React.FC<Step2Props> = ({ formData, updateFormData, errors }) => {
         platform={formData.platform}
       />
 
+      {/* Apenas mostrar erro quando há erro de validação do formulário */}
       {errors.files && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <p className="text-sm text-red-600">{errors.files}</p>
+          <div className="flex items-center space-x-2">
+            <AlertTriangle className="h-4 w-4 text-red-600" />
+            <p className="text-sm text-red-600">{errors.files}</p>
+          </div>
         </div>
       )}
 

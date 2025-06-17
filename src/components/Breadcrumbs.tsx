@@ -36,15 +36,24 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ formData, clients }) => {
     });
   }
   
-  // Tipo de Anúncio (só para Meta)
+  // Tipo de Anúncio (só para Meta) - mostra exatamente o que o usuário vê
   if (formData.platform === 'meta' && formData.creativeType) {
-    const typeLabels = {
-      'single': 'Imagem única',
-      'carousel': 'Carrossel',
-      'collection': 'Coleção'
-    };
+    let typeLabel = '';
+    
+    if (formData.creativeType === 'single') {
+      typeLabel = 'Imagem única';
+    } else if (formData.creativeType === 'carousel') {
+      typeLabel = 'Carrossel';
+    } else if (formData.creativeType === 'collection') {
+      typeLabel = 'Coleção';
+    } else if (formData.creativeType === 'video') {
+      typeLabel = 'Vídeo';
+    } else {
+      typeLabel = formData.creativeType;
+    }
+    
     breadcrumbItems.push({
-      label: typeLabels[formData.creativeType] || formData.creativeType,
+      label: typeLabel,
       isActive: true
     });
   }
