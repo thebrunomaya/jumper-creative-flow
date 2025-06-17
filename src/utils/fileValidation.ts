@@ -121,6 +121,13 @@ export const validateFileType = (file: File): { valid: boolean; message: string 
 };
 
 export const validateFile = async (file: File, format?: 'square' | 'vertical' | 'horizontal'): Promise<ValidatedFile> => {
+  console.log('validateFile - Starting validation:', {
+    fileName: file.name,
+    fileType: file.type,
+    fileSize: file.size,
+    format: format
+  });
+
   const errors: string[] = [];
   let valid = true;
   let dimensions: { width: number; height: number } | undefined;
@@ -128,6 +135,7 @@ export const validateFile = async (file: File, format?: 'square' | 'vertical' | 
 
   // Validate file type
   const typeValidation = validateFileType(file);
+  console.log('validateFile - Type validation:', typeValidation);
   if (!typeValidation.valid) {
     errors.push(typeValidation.message);
     valid = false;
@@ -135,9 +143,11 @@ export const validateFile = async (file: File, format?: 'square' | 'vertical' | 
 
   const isVideo = file.type.startsWith('video/');
   const isImage = file.type.startsWith('image/');
+  console.log('validateFile - File type detection:', { isVideo, isImage });
 
   // Validate file size
   const sizeValidation = validateFileSize(file, isVideo);
+  console.log('validateFile - Size validation:', sizeValidation);
   if (!sizeValidation.valid) {
     errors.push(sizeValidation.message);
     valid = false;
@@ -145,8 +155,10 @@ export const validateFile = async (file: File, format?: 'square' | 'vertical' | 
 
   // Validate dimensions for images
   if (isImage && typeValidation.valid) {
+    console.log('validateFile - Validating image dimensions');
     const imageValidation = await validateImage(file, format);
     dimensions = { width: imageValidation.width, height: imageValidation.height };
+    console.log('validateFile - Image validation result:', imageValidation);
     if (!imageValidation.valid) {
       errors.push(imageValidation.message);
       valid = false;
@@ -155,21 +167,24 @@ export const validateFile = async (file: File, format?: 'square' | 'vertical' | 
 
   // Validate duration for videos
   if (isVideo && typeValidation.valid) {
+    console.log('validateFile - Validating video duration');
     const videoValidation = await validateVideo(file);
     duration = videoValidation.duration;
+    console.log('validateFile - Video validation result:', videoValidation);
     if (!videoValidation.valid) {
       errors.push(videoValidation.message);
       valid = false;
     }
   }
 
-  // Create preview
+  // Create preview for both images AND videos
   let preview: string | undefined;
-  if (isImage) {
+  if (isImage || isVideo) {
     preview = URL.createObjectURL(file);
+    console.log('validateFile - Created preview URL:', { preview: !!preview, isVideo, isImage });
   }
 
-  return {
+  const result = {
     file,
     valid,
     dimensions,
@@ -178,6 +193,15 @@ export const validateFile = async (file: File, format?: 'square' | 'vertical' | 
     preview,
     format
   };
+
+  console.log('validateFile - Final result:', {
+    valid: result.valid,
+    hasPreview: !!result.preview,
+    hasErrors: result.errors.length > 0,
+    duration: result.duration
+  });
+
+  return result;
 };
 
 export const validateText = (text: string, maxLength: number) => {

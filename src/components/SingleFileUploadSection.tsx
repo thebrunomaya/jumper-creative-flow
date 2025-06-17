@@ -33,20 +33,25 @@ const SingleFileUploadSection: React.FC<SingleFileUploadSectionProps> = ({
   canDisable
 }) => {
   const [isValidating, setIsValidating] = useState(false);
-  const [showZoneOverlay, setShowZoneOverlay] = useState(false);
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     if (acceptedFiles.length === 0 || !enabled) return;
     
+    console.log('onDrop - Processing file:', {
+      fileName: acceptedFiles[0].name,
+      fileType: acceptedFiles[0].type,
+      format: format
+    });
+    
     setIsValidating(true);
     const validatedFile = await validateFile(acceptedFiles[0], format);
+    console.log('onDrop - Validation complete:', {
+      valid: validatedFile.valid,
+      hasPreview: !!validatedFile.preview,
+      isVideo: validatedFile.file.type.startsWith('video/')
+    });
     onFileChange(validatedFile);
     setIsValidating(false);
-
-    // Auto-show overlay for vertical format images if validation is successful
-    if (format === 'vertical' && validatedFile.valid && validatedFile.preview) {
-      setTimeout(() => setShowZoneOverlay(true), 100);
-    }
   }, [onFileChange, format, enabled]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -62,7 +67,6 @@ const SingleFileUploadSection: React.FC<SingleFileUploadSectionProps> = ({
 
   const removeFile = () => {
     onFileChange(undefined);
-    setShowZoneOverlay(false);
   };
 
   const formatFileSize = (bytes: number) => {
@@ -79,6 +83,11 @@ const SingleFileUploadSection: React.FC<SingleFileUploadSectionProps> = ({
     const aspectRatio = file.dimensions.width / file.dimensions.height;
     const expectedRatio = 9 / 16; // 0.5625
     return Math.abs(aspectRatio - expectedRatio) < 0.01;
+  };
+
+  // Check if file is video
+  const isVideoFile = (file: ValidatedFile) => {
+    return file.file.type.startsWith('video/');
   };
 
   return (
@@ -237,12 +246,14 @@ const SingleFileUploadSection: React.FC<SingleFileUploadSectionProps> = ({
             </CardContent>
           </Card>
 
-          {/* Meta Zone Protection Info for Vertical Format */}
-          {format === 'vertical' && file.valid && file.preview && file.file.type.startsWith('image/') && (
+          {/* Meta Zone Protection Info for Vertical Format - NOW INCLUDES VIDEOS */}
+          {format === 'vertical' && file.valid && file.preview && (
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-3">
               <div className="flex items-center space-x-2">
                 <Info className="h-4 w-4 text-blue-600" />
-                <h4 className="text-sm font-semibold text-blue-800">Proteção de Zonas Meta</h4>
+                <h4 className="text-sm font-semibold text-blue-800">
+                  Proteção de Zonas Meta {isVideoFile(file) ? '(Reels)' : '(Stories)'}
+                </h4>
               </div>
               
               {/* Larger Preview with Overlay */}
@@ -270,7 +281,10 @@ const SingleFileUploadSection: React.FC<SingleFileUploadSectionProps> = ({
                   ⚠️ Evite colocar textos ou logos importantes nas áreas vermelhas
                 </p>
                 <p className="text-xs text-gray-500">
-                  Esta máscara mostra onde a interface do Meta pode cobrir seu conteúdo
+                  {isVideoFile(file) 
+                    ? 'Esta máscara mostra onde a interface do Instagram Reels pode cobrir seu vídeo'
+                    : 'Esta máscara mostra onde a interface do Instagram Stories pode cobrir sua imagem'
+                  }
                 </p>
               </div>
             </div>
