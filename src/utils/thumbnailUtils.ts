@@ -1,10 +1,6 @@
-
 export const getThumbnailDimensions = (format: 'square' | 'vertical' | 'horizontal') => {
-  // Container disponível: 150px de largura e 150px de altura
-  // Garantindo margem mínima exata de 4px para TODOS os formatos
-  const containerWidth = 150;
-  const containerHeight = 150;
-  const minMargin = 4;
+  // Altura fixa para todos os formatos para garantir margens consistentes
+  const fixedHeight = 120;
   
   let aspectRatio: number;
   
@@ -22,40 +18,12 @@ export const getThumbnailDimensions = (format: 'square' | 'vertical' | 'horizont
       aspectRatio = 1;
   }
   
-  // Calcular dimensões garantindo 4px de margem para todos os formatos
-  let width: number;
-  let height: number;
-  
-  // Tamanho máximo disponível (container menos margem dupla - cada lado)
-  const maxWidth = containerWidth - (minMargin * 2);
-  const maxHeight = containerHeight - (minMargin * 2);
-  
-  // Calcular dimensões baseadas no aspect ratio
-  if (aspectRatio >= 1) {
-    // Formato horizontal ou quadrado - limitar pela largura
-    width = maxWidth;
-    height = width / aspectRatio;
-    
-    // Se a altura exceder o limite, ajustar pela altura
-    if (height > maxHeight) {
-      height = maxHeight;
-      width = height * aspectRatio;
-    }
-  } else {
-    // Formato vertical - limitar pela altura
-    height = maxHeight;
-    width = height * aspectRatio;
-    
-    // Se a largura exceder o limite, ajustar pela largura
-    if (width > maxWidth) {
-      width = maxWidth;
-      height = width / aspectRatio;
-    }
-  }
+  // Calcular largura baseada na altura fixa e aspect ratio
+  const width = Math.round(fixedHeight * aspectRatio);
   
   return { 
-    width: Math.round(width), 
-    height: Math.round(height) 
+    width, 
+    height: fixedHeight 
   };
 };
 
