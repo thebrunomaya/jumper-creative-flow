@@ -5,9 +5,9 @@ import { validateFile } from '@/utils/fileValidation';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
-import { X, Upload, CheckCircle, AlertCircle, Image, Replace, Info } from 'lucide-react';
+import { X, Upload, CheckCircle, AlertCircle, Image, Replace, Eye, ExpandIcon } from 'lucide-react';
 import { useDropzone } from 'react-dropzone';
-import MetaZoneOverlay from './MetaZoneOverlay';
+import MediaPreviewLightbox from './MediaPreviewLightbox';
 
 interface SingleFileUploadSectionProps {
   title: string;
@@ -33,6 +33,7 @@ const SingleFileUploadSection: React.FC<SingleFileUploadSectionProps> = ({
   canDisable
 }) => {
   const [isValidating, setIsValidating] = useState(false);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     if (acceptedFiles.length === 0 || !enabled) return;
@@ -77,17 +78,21 @@ const SingleFileUploadSection: React.FC<SingleFileUploadSectionProps> = ({
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
-  // Check if image has correct 9:16 ratio for vertical format
-  const hasCorrectVerticalRatio = (file: ValidatedFile) => {
-    if (format !== 'vertical' || !file.dimensions) return true;
-    const aspectRatio = file.dimensions.width / file.dimensions.height;
-    const expectedRatio = 9 / 16; // 0.5625
-    return Math.abs(aspectRatio - expectedRatio) < 0.01;
-  };
-
-  // Check if file is video
-  const isVideoFile = (file: ValidatedFile) => {
-    return file.file.type.startsWith('video/');
+  const getThumbnailDimensions = (file: ValidatedFile) => {
+    if (!file.dimensions) return { width: 80, height: 80 };
+    
+    const { width, height } = file.dimensions;
+    const aspectRatio = width / height;
+    
+    // Calculate thumbnail size maintaining aspect ratio
+    const maxSize = 100;
+    if (aspectRatio > 1) {
+      // Landscape
+      return { width: maxSize, height: maxSize / aspectRatio };
+    } else {
+      // Portrait or square
+      return { width: maxSize * aspectRatio, height: maxSize };
+    }
   };
 
   return (
@@ -198,24 +203,49 @@ const SingleFileUploadSection: React.FC<SingleFileUploadSectionProps> = ({
                         {error}
                       </div>
                     ))}
-
-                    {/* Warning for incorrect 9:16 ratio on vertical format */}
-                    {format === 'vertical' && file.valid && file.file.type.startsWith('image/') && 
-                     !hasCorrectVerticalRatio(file) && (
-                      <div className="text-xs text-orange-600 mt-1 font-medium">
-                        ⚠️ Imagem deve ter proporção 9:16 para Stories/Reels
-                      </div>
-                    )}
                   </div>
 
+                  {/* Enhanced Thumbnail with Overlay */}
                   {file.preview && (
-                    <div className="flex-shrink-0">
-                      <div className="w-20 h-24 border rounded overflow-hidden">
-                        <MetaZoneOverlay 
-                          imageUrl={file.preview} 
-                          format={format}
-                          file={file.file}
-                        />
+                    <div className="flex-shrink-0 relative">
+                      <div 
+                        className="border rounded overflow-hidden cursor-pointer hover:opacity-90 transition-opacity relative group"
+                        style={getThumbnailDimensions(file)}
+                        onClick={() => setLightboxOpen(true)}
+                      >
+                        {file.file.type.startsWith('video/') ? (
+                          <video 
+                            src={file.preview} 
+                            className="w-full h-full object-cover"
+                            muted
+                          />
+                        ) : (
+                          <img 
+                            src={file.preview} 
+                            alt="Preview" 
+                            className="w-full h-full object-cover"
+                          />
+                        )}
+                        
+                        {/* Hover overlay with expand icon */}
+                        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-200 flex items-center justify-center">
+                          <ExpandIcon className="h-4 w-4 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </div>
+                        
+                        {/* Format indicator */}
+                        <div className="absolute top-1 left-1">
+                          <div className="bg-black bg-opacity-60 text-white text-xs px-1 py-0.5 rounded">
+                            {format === 'square' ? '1:1' : format === 'vertical' ? '9:16' : '1.91:1'}
+                          </div>
+                        </div>
+
+                        {/* Click hint */}
+                        <div className="absolute bottom-1 right-1">
+                          <div className="bg-blue-500 bg-opacity-80 text-white text-xs px-1 py-0.5 rounded flex items-center space-x-1">
+                            <Eye className="h-2 w-2" />
+                            <span>Ver</span>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   )}
@@ -245,50 +275,6 @@ const SingleFileUploadSection: React.FC<SingleFileUploadSectionProps> = ({
               </div>
             </CardContent>
           </Card>
-
-          {/* Meta Zone Protection Info for Vertical Format - NOW INCLUDES VIDEOS */}
-          {format === 'vertical' && file.valid && file.preview && (
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-3">
-              <div className="flex items-center space-x-2">
-                <Info className="h-4 w-4 text-blue-600" />
-                <h4 className="text-sm font-semibold text-blue-800">
-                  Proteção de Zonas Meta {isVideoFile(file) ? '(Reels)' : '(Stories)'}
-                </h4>
-              </div>
-              
-              {/* Larger Preview with Overlay */}
-              <div className="w-48 h-64 mx-auto border rounded overflow-hidden bg-white">
-                <MetaZoneOverlay 
-                  imageUrl={file.preview} 
-                  format={format}
-                  file={file.file}
-                />
-              </div>
-
-              {/* Legend */}
-              <div className="text-center space-y-1">
-                <div className="flex items-center justify-center space-x-4 text-xs">
-                  <div className="flex items-center space-x-1">
-                    <div className="w-3 h-3 bg-red-500 bg-opacity-30 border border-red-400 rounded"></div>
-                    <span className="text-red-700">Zona de Risco (interface Meta)</span>
-                  </div>
-                  <div className="flex items-center space-x-1">
-                    <div className="w-3 h-3 bg-green-500 bg-opacity-10 border border-green-400 rounded"></div>
-                    <span className="text-green-700">Zona Segura</span>
-                  </div>
-                </div>
-                <p className="text-xs text-gray-600 mt-2">
-                  ⚠️ Evite colocar textos ou logos importantes nas áreas vermelhas
-                </p>
-                <p className="text-xs text-gray-500">
-                  {isVideoFile(file) 
-                    ? 'Esta máscara mostra onde a interface do Instagram Reels pode cobrir seu vídeo'
-                    : 'Esta máscara mostra onde a interface do Instagram Stories pode cobrir sua imagem'
-                  }
-                </p>
-              </div>
-            </div>
-          )}
         </div>
       )}
 
@@ -305,6 +291,16 @@ const SingleFileUploadSection: React.FC<SingleFileUploadSectionProps> = ({
         }}
         style={{ display: 'none' }}
       />
+
+      {/* Media Preview Lightbox */}
+      {file && (
+        <MediaPreviewLightbox
+          file={file}
+          format={format}
+          open={lightboxOpen}
+          onOpenChange={setLightboxOpen}
+        />
+      )}
     </div>
   );
 };
