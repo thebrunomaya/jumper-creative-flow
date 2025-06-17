@@ -15,8 +15,11 @@ const MetaZoneOverlay: React.FC<MetaZoneOverlayProps> = ({
   file,
   onImageLoad 
 }) => {
+  console.log('MetaZoneOverlay - Props:', { format, file: file?.name, fileType: file?.type });
+
   // Only show overlay for vertical format (Stories/Reels)
   if (format !== 'vertical') {
+    console.log('MetaZoneOverlay - Not vertical format, showing simple image');
     return (
       <img 
         src={imageUrl} 
@@ -29,8 +32,10 @@ const MetaZoneOverlay: React.FC<MetaZoneOverlayProps> = ({
 
   // Get zone configuration based on file type
   const zoneConfig = getZoneConfig(file);
+  console.log('MetaZoneOverlay - Zone config:', zoneConfig);
   
   if (!zoneConfig) {
+    console.log('MetaZoneOverlay - No zone config found, showing simple image');
     return (
       <img 
         src={imageUrl} 
@@ -43,6 +48,8 @@ const MetaZoneOverlay: React.FC<MetaZoneOverlayProps> = ({
 
   const { zones } = zoneConfig;
   const isReels = zoneConfig.contentTypes.includes('video');
+  
+  console.log('MetaZoneOverlay - Rendering overlay:', { isReels, zones });
 
   return (
     <div className="relative w-full h-full">

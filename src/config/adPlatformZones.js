@@ -36,12 +36,28 @@ export const adPlatformZones = {
 
 // Helper function to detect content type and return appropriate zone config
 export const getZoneConfig = (file) => {
-  if (!file) return null;
+  console.log('getZoneConfig - Input file:', file);
   
-  const isVideo = file.type?.startsWith('video/') || 
-                  ['mp4', 'mov', 'avi', 'webm'].some(ext => 
-                    file.name?.toLowerCase().endsWith(`.${ext}`)
-                  );
+  if (!file) {
+    console.log('getZoneConfig - No file provided');
+    return null;
+  }
   
-  return isVideo ? adPlatformZones.meta.reels : adPlatformZones.meta.stories;
+  // Check if it's a video by MIME type first
+  const isVideoByMime = file.type && file.type.startsWith('video/');
+  console.log('getZoneConfig - Is video by MIME:', isVideoByMime, 'MIME type:', file.type);
+  
+  // Check if it's a video by file extension
+  const isVideoByExtension = file.name && ['mp4', 'mov', 'avi', 'webm'].some(ext => 
+    file.name.toLowerCase().endsWith(`.${ext}`)
+  );
+  console.log('getZoneConfig - Is video by extension:', isVideoByExtension, 'File name:', file.name);
+  
+  const isVideo = isVideoByMime || isVideoByExtension;
+  console.log('getZoneConfig - Final is video:', isVideo);
+  
+  const selectedConfig = isVideo ? adPlatformZones.meta.reels : adPlatformZones.meta.stories;
+  console.log('getZoneConfig - Selected config:', selectedConfig.name);
+  
+  return selectedConfig;
 };
