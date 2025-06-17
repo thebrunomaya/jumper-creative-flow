@@ -39,9 +39,9 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ formData, clients }) => {
   // Tipo de Anúncio (só para Meta)
   if (formData.platform === 'meta' && formData.creativeType) {
     const typeLabels = {
-      'image': 'Imagem única',
+      'single': 'Imagem única',
       'carousel': 'Carrossel',
-      'video': 'Vídeo'
+      'collection': 'Coleção'
     };
     breadcrumbItems.push({
       label: typeLabels[formData.creativeType] || formData.creativeType,

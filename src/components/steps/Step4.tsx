@@ -4,6 +4,8 @@ import { FormData, CLIENTS, PARTNERS } from '@/types/creative';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle, AlertCircle, Clock } from 'lucide-react';
+import { useNotionClients } from '@/hooks/useNotionData';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface Step4Props {
   formData: FormData;
@@ -11,7 +13,10 @@ interface Step4Props {
 }
 
 const Step4: React.FC<Step4Props> = ({ formData, isSubmitting }) => {
-  const client = CLIENTS.find(c => c.id === formData.client);
+  const { clients } = useNotionClients();
+  const { currentUser } = useAuth();
+  
+  const client = clients.find(c => c.id === formData.client);
   const partner = PARTNERS.find(p => p.id === formData.partner);
   
   // Get files based on creative type
@@ -119,12 +124,12 @@ const Step4: React.FC<Step4Props> = ({ formData, isSubmitting }) => {
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <p className="text-sm text-gray-600">Cliente</p>
+              <p className="text-sm text-gray-600">Conta</p>
               <p className="font-semibold text-jumper-text">{client?.name}</p>
             </div>
             <div>
               <p className="text-sm text-gray-600">Enviado por</p>
-              <p className="font-semibold text-jumper-text">{partner?.name}</p>
+              <p className="font-semibold text-jumper-text">{currentUser?.user_metadata?.full_name || currentUser?.email}</p>
             </div>
             <div>
               <p className="text-sm text-gray-600">Plataforma</p>
@@ -140,19 +145,21 @@ const Step4: React.FC<Step4Props> = ({ formData, isSubmitting }) => {
                 <p className="text-sm text-gray-600">Tipo</p>
                 <div className="flex items-center space-x-2">
                   <span>{getCreativeTypeIcon(formData.creativeType)}</span>
-                  <span className="font-semibold text-jumper-text capitalize">
-                    {formData.creativeType}
+                  <span className="font-semibold text-jumper-text">
+                    {formData.creativeType === 'single' ? 'Imagem única' :
+                     formData.creativeType === 'carousel' ? 'Carrossel' :
+                     formData.creativeType === 'collection' ? 'Coleção' : formData.creativeType}
                   </span>
                 </div>
               </div>
             )}
-            {formData.objective && (
+            {formData.campaignObjective && (
               <div className="md:col-span-2">
                 <p className="text-sm text-gray-600">Objetivo</p>
                 <div className="flex items-center space-x-2">
-                  <span>{getObjectiveIcon(formData.objective)}</span>
-                  <span className="font-semibold text-jumper-text capitalize">
-                    {formData.objective}
+                  <span>🎯</span>
+                  <span className="font-semibold text-jumper-text">
+                    {formData.campaignObjective}
                   </span>
                 </div>
               </div>

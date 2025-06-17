@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { FormData, TEXT_LIMITS } from '@/types/creative';
 import { useToast } from '@/hooks/use-toast';
@@ -62,6 +63,25 @@ const CreativeSystem: React.FC = () => {
     setErrors(newErrors);
   };
 
+  // Check if all enabled positions have files for all variations
+  const hasAllRequiredFiles = () => {
+    if (formData.creativeType !== 'single' || !formData.mediaVariations) {
+      return true; // For non-single types, use existing validation
+    }
+    
+    return formData.mediaVariations.every(variation => {
+      const requiredPositions = [];
+      if (variation.squareEnabled !== false) requiredPositions.push('square');
+      if (variation.verticalEnabled !== false) requiredPositions.push('vertical');
+      if (variation.horizontalEnabled !== false) requiredPositions.push('horizontal');
+      
+      return requiredPositions.every(position => {
+        const file = variation[`${position}File`];
+        return file && file.valid;
+      });
+    });
+  };
+
   const validateStep = (step: number): boolean => {
     const newErrors: Record<string, string> = {};
 
@@ -81,31 +101,12 @@ const CreativeSystem: React.FC = () => {
 
       case 2:
         if (formData.creativeType === 'single') {
-          // Validate media variations
+          // Validate media variations with new logic
           const mediaVariations = formData.mediaVariations || [];
           if (mediaVariations.length === 0) {
             newErrors.files = 'Adicione pelo menos uma mídia';
-          } else {
-            let hasValidFile = false;
-            let hasInvalidFile = false;
-            
-            mediaVariations.forEach(variation => {
-              const files = [variation.squareFile, variation.verticalFile, variation.horizontalFile].filter(Boolean);
-              if (files.length > 0) {
-                hasValidFile = true;
-                files.forEach(file => {
-                  if (file && !file.valid) {
-                    hasInvalidFile = true;
-                  }
-                });
-              }
-            });
-            
-            if (!hasValidFile) {
-              newErrors.files = 'Envie pelo menos um arquivo em uma das mídias';
-            } else if (hasInvalidFile) {
-              newErrors.files = 'Corrija os arquivos com problemas antes de continuar';
-            }
+          } else if (!hasAllRequiredFiles()) {
+            newErrors.files = 'Envie arquivos válidos para todos os posicionamentos ativos ou desative os posicionamentos sem arquivo (máximo 2 desativados por variação)';
           }
         } else {
           // Original validation for other creative types
