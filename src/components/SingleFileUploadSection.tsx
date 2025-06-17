@@ -1,4 +1,3 @@
-
 import React, { useCallback, useState } from 'react';
 import { ValidatedFile } from '@/types/creative';
 import { validateFile } from '@/utils/fileValidation';
@@ -80,18 +79,45 @@ const SingleFileUploadSection: React.FC<SingleFileUploadSectionProps> = ({
   };
 
   const getThumbnailDimensions = (format: 'square' | 'vertical' | 'horizontal') => {
-    const baseWidth = 120;
+    // Container disponível: aproximadamente 150px de largura e 150px de altura
+    // Deixando margem de 20px total (10px de cada lado)
+    const maxWidth = 130;
+    const maxHeight = 130;
+    
+    let aspectRatio: number;
     
     switch (format) {
       case 'square':
-        return { width: baseWidth, height: baseWidth };
+        aspectRatio = 1; // 1:1
+        break;
       case 'vertical':
-        return { width: baseWidth, height: Math.round(baseWidth * 16 / 9) };
+        aspectRatio = 9 / 16; // 9:16
+        break;
       case 'horizontal':
-        return { width: baseWidth, height: Math.max(80, Math.round(baseWidth / 1.91)) };
+        aspectRatio = 1.91; // 1.91:1
+        break;
       default:
-        return { width: baseWidth, height: baseWidth };
+        aspectRatio = 1;
     }
+    
+    // Calcular dimensões baseado na proporção
+    let width: number;
+    let height: number;
+    
+    if (aspectRatio >= 1) {
+      // Formato horizontal ou quadrado - limitar pela largura
+      width = Math.min(maxWidth, maxHeight * aspectRatio);
+      height = width / aspectRatio;
+    } else {
+      // Formato vertical - limitar pela altura
+      height = Math.min(maxHeight, maxWidth / aspectRatio);
+      width = height * aspectRatio;
+    }
+    
+    return { 
+      width: Math.round(width), 
+      height: Math.round(height) 
+    };
   };
 
   const createMockupFile = (format: 'square' | 'vertical' | 'horizontal') => {
@@ -174,10 +200,10 @@ const SingleFileUploadSection: React.FC<SingleFileUploadSectionProps> = ({
           {/* Upload Zone or File Display - Container com altura fixa */}
           <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm h-[200px]">
             <div className="flex h-full">
-              {/* Thumbnail Container - altura fixa */}
-              <div className="w-1/4 bg-gray-50 border-r border-gray-200 flex items-center justify-center p-6">
+              {/* Thumbnail Container - altura fixa com flexbox para centralizar */}
+              <div className="w-1/4 bg-gray-50 border-r border-gray-200 flex items-center justify-center p-4">
                 <div 
-                  className="relative border border-gray-300 rounded-lg overflow-hidden bg-white shadow-sm cursor-pointer"
+                  className="relative border border-gray-300 rounded-lg overflow-hidden bg-white shadow-sm cursor-pointer flex-shrink-0"
                   style={getThumbnailDimensions(format)}
                   onClick={() => file && setLightboxOpen(true)}
                 >
