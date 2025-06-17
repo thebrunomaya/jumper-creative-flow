@@ -14,6 +14,7 @@ import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { useNotionClients } from '@/hooks/useNotionData';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
+import metaAdsObjectives from '@/config/meta-ads-objectives.json';
 
 const INITIAL_FORM_DATA: FormData = {
   client: '',
@@ -81,6 +82,35 @@ const CreativeSystem: React.FC = () => {
         return file && file.valid;
       });
     });
+  };
+
+  // Get destination field configuration for validation
+  const getDestinationFieldConfig = () => {
+    if (!formData.destination || formData.platform !== 'meta') {
+      return null;
+    }
+    
+    const objectiveConfig = metaAdsObjectives.objectiveMapping[formData.campaignObjective];
+    if (!objectiveConfig) return null;
+    
+    const selectedDestination = objectiveConfig.destinations.find(dest => dest.value === formData.destination);
+    if (!selectedDestination || !selectedDestination.fieldType) {
+      return null;
+    }
+    
+    return {
+      fieldType: selectedDestination.fieldType,
+      label: metaAdsObjectives.fieldLabels[selectedDestination.fieldType]
+    };
+  };
+
+  // Check if field should be validated as URL
+  const shouldValidateAsUrl = () => {
+    const destinationFieldConfig = getDestinationFieldConfig();
+    if (!destinationFieldConfig) {
+      return true; // Default validation for non-Meta ads
+    }
+    return destinationFieldConfig.fieldType === 'url' || destinationFieldConfig.fieldType === 'facebook_url';
   };
 
   const validateStep = (step: number): boolean => {
@@ -163,15 +193,18 @@ const CreativeSystem: React.FC = () => {
           }
         }
 
+        // Validate destination URL based on field type
         if (!formData.destinationUrl.trim()) {
-          newErrors.destinationUrl = 'Digite a URL de destino';
-        } else {
+          newErrors.destinationUrl = 'Digite o destino';
+        } else if (shouldValidateAsUrl()) {
+          // Only validate as URL if it should be a URL field
           try {
             new URL(formData.destinationUrl);
           } catch {
             newErrors.destinationUrl = 'URL inválida';
           }
         }
+        // For phone/text fields, no URL validation is performed
         break;
     }
 

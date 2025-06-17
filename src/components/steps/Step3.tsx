@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { FormData, TEXT_LIMITS, META_TEXT_VARIATIONS } from '@/types/creative';
 import { Label } from '@/components/ui/label';
@@ -72,6 +71,15 @@ const Step3: React.FC<Step3Props> = ({ formData, updateFormData, errors }) => {
     }
   };
 
+  // Check if field should be validated as URL
+  const shouldValidateAsUrl = () => {
+    const destinationFieldConfig = getDestinationFieldConfig();
+    if (!destinationFieldConfig) {
+      return true; // Default validation for non-Meta ads
+    }
+    return destinationFieldConfig.fieldType === 'url' || destinationFieldConfig.fieldType === 'facebook_url';
+  };
+
   // Handle destination change - reset CTA and destination URL when destination changes
   const handleDestinationChange = (value: string) => {
     updateFormData({ 
@@ -83,40 +91,52 @@ const Step3: React.FC<Step3Props> = ({ formData, updateFormData, errors }) => {
 
   const addTitle = () => {
     if (titles.length < META_TEXT_VARIATIONS.maxTitles) {
-      updateFormData({ titles: [...titles, ''] });
+      updateFormData({ 
+        titles: [...titles, ''] 
+      });
     }
   };
 
   const removeTitle = (index: number) => {
     if (titles.length > 1) {
       const newTitles = titles.filter((_, i) => i !== index);
-      updateFormData({ titles: newTitles });
+      updateFormData({ 
+        titles: newTitles 
+      });
     }
   };
 
   const updateTitle = (index: number, value: string) => {
     const newTitles = [...titles];
     newTitles[index] = value;
-    updateFormData({ titles: newTitles });
+    updateFormData({ 
+      titles: newTitles 
+    });
   };
 
   const addMainText = () => {
     if (mainTexts.length < META_TEXT_VARIATIONS.maxMainTexts) {
-      updateFormData({ mainTexts: [...mainTexts, ''] });
+      updateFormData({ 
+        mainTexts: [...mainTexts, ''] 
+      });
     }
   };
 
   const removeMainText = (index: number) => {
     if (mainTexts.length > 1) {
       const newMainTexts = mainTexts.filter((_, i) => i !== index);
-      updateFormData({ mainTexts: newMainTexts });
+      updateFormData({ 
+        mainTexts: newMainTexts 
+      });
     }
   };
 
   const updateMainText = (index: number, value: string) => {
     const newMainTexts = [...mainTexts];
     newMainTexts[index] = value;
-    updateFormData({ mainTexts: newMainTexts });
+    updateFormData({ 
+      mainTexts: newMainTexts 
+    });
   };
 
   const availableDestinations = getAvailableDestinations();
