@@ -79,53 +79,57 @@ const SingleFileUploadSection: React.FC<SingleFileUploadSectionProps> = ({
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
-  const getFixedWidthThumbnailDimensions = (format: 'square' | 'vertical' | 'horizontal') => {
-    const width = 100; // Largura fixa
+  const getThumbnailDimensions = (format: 'square' | 'vertical' | 'horizontal') => {
+    const baseWidth = 120; // Increased from 100px for better visibility
     
     switch (format) {
       case 'square':
-        return { width, height: width }; // 100x100 (1:1)
+        return { width: baseWidth, height: baseWidth }; // 120x120 (1:1)
       case 'vertical':
-        return { width, height: Math.round(width * 16 / 9) }; // 100x178 (9:16)
+        return { width: baseWidth, height: Math.round(baseWidth * 16 / 9) }; // 120x213 (9:16)
       case 'horizontal':
-        return { width, height: Math.round(width / 1.91) }; // 100x52 (1.91:1)
+        return { width: baseWidth, height: Math.max(80, Math.round(baseWidth / 1.91)) }; // 120x63 min 80px (1.91:1)
       default:
-        return { width, height: width };
+        return { width: baseWidth, height: baseWidth };
     }
   };
 
   const createMockupFile = (format: 'square' | 'vertical' | 'horizontal') => {
-    // Criar um gradiente baseado no formato para o mockup
     const canvas = document.createElement('canvas');
-    const { width, height } = getFixedWidthThumbnailDimensions(format);
-    canvas.width = width * 4; // Maior resolução para qualidade
-    canvas.height = height * 4;
+    const { width, height } = getThumbnailDimensions(format);
+    canvas.width = width * 3; // Higher resolution for quality
+    canvas.height = height * 3;
     const ctx = canvas.getContext('2d');
     
     if (ctx) {
-      // Gradiente baseado no formato
+      // Softer, more harmonious gradients
       const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
       switch (format) {
         case 'square':
-          gradient.addColorStop(0, '#e3f2fd');
-          gradient.addColorStop(1, '#1976d2');
+          gradient.addColorStop(0, '#f8fafc'); // Very light gray-blue
+          gradient.addColorStop(1, '#e2e8f0'); // Light gray-blue
           break;
         case 'vertical':
-          gradient.addColorStop(0, '#f3e5f5');
-          gradient.addColorStop(1, '#7b1fa2');
+          gradient.addColorStop(0, '#faf5ff'); // Very light purple
+          gradient.addColorStop(1, '#e9d5ff'); // Light purple
           break;
         case 'horizontal':
-          gradient.addColorStop(0, '#e8f5e8');
-          gradient.addColorStop(1, '#2e7d32');
+          gradient.addColorStop(0, '#f0fdf4'); // Very light green
+          gradient.addColorStop(1, '#dcfce7'); // Light green
           break;
       }
       
       ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       
-      // Adicionar texto indicativo
-      ctx.fillStyle = 'white';
-      ctx.font = 'bold 24px Arial';
+      // Add subtle border
+      ctx.strokeStyle = '#e2e8f0';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(1, 1, canvas.width - 2, canvas.height - 2);
+      
+      // Add centered text
+      ctx.fillStyle = '#64748b'; // Softer text color
+      ctx.font = 'bold 18px system-ui, -apple-system, sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText(
@@ -158,8 +162,8 @@ const SingleFileUploadSection: React.FC<SingleFileUploadSectionProps> = ({
       </div>
 
       {!enabled && (
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-          <p className="text-sm text-yellow-800">
+        <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+          <p className="text-sm text-amber-800">
             📍 Posicionamento desativado
           </p>
         </div>
@@ -167,85 +171,91 @@ const SingleFileUploadSection: React.FC<SingleFileUploadSectionProps> = ({
 
       {/* Upload Zone or File Display */}
       {!file ? (
-        <div className="flex border-2 border-dashed rounded-lg overflow-hidden transition-all duration-200 bg-white min-h-[140px]">
-          {/* Thumbnail Mockup Container - 1/4 */}
-          <div className="w-1/4 bg-gray-50 flex items-center justify-center p-4">
-            <div 
-              className="relative border border-gray-200 rounded-lg overflow-hidden bg-white shadow-sm"
-              style={getFixedWidthThumbnailDimensions(format)}
-            >
-              <MetaZoneOverlay
-                imageUrl={createMockupFile(format)}
-                format={format}
-                size="thumbnail"
-              />
-              
-              {/* Indicador de formato */}
-              <div className="absolute top-1 left-1">
-                <div className="bg-black bg-opacity-70 text-white text-xs px-1.5 py-0.5 rounded">
-                  {format === 'square' ? '1:1' : format === 'vertical' ? '9:16' : '1.91:1'}
+        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+          <div className="flex min-h-[160px]">
+            {/* Thumbnail Mockup Container */}
+            <div className="w-1/4 bg-gray-50 border-r border-gray-200 flex items-center justify-center p-6">
+              <div 
+                className="relative border border-gray-300 rounded-lg overflow-hidden bg-white shadow-sm"
+                style={getThumbnailDimensions(format)}
+              >
+                <MetaZoneOverlay
+                  imageUrl={createMockupFile(format)}
+                  format={format}
+                  size="thumbnail"
+                />
+                
+                {/* Format indicator */}
+                <div className="absolute top-1.5 left-1.5">
+                  <div className="bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded backdrop-blur-sm">
+                    {format === 'square' ? '1:1' : format === 'vertical' ? '9:16' : '1.91:1'}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* Upload Area Container - 3/4 */}
-          <div 
-            {...getRootProps()}
-            className={`w-3/4 flex items-center justify-center cursor-pointer transition-all duration-200 ${
-              !enabled 
-                ? 'bg-gray-100 cursor-not-allowed opacity-60'
-                : isDragActive
-                ? 'bg-blue-50'
-                : 'hover:bg-gray-50'
-            }`}
-          >
-            <input {...getInputProps()} />
-            <div className="text-center space-y-3 p-6">
-              <Upload className={`mx-auto h-8 w-8 ${enabled ? 'text-gray-400' : 'text-gray-300'}`} />
-              <div>
-                <p className={`text-base font-medium ${enabled ? 'text-jumper-text' : 'text-gray-400'}`}>
-                  {!enabled 
-                    ? 'Posicionamento desativado'
-                    : isDragActive 
-                    ? 'Solte o arquivo aqui' 
-                    : 'Clique ou arraste uma imagem/vídeo'
-                  }
-                </p>
-                {enabled && (
-                  <>
-                    <p className="text-sm text-gray-600 mt-2">
-                      JPG, PNG, MP4, MOV • {dimensions}
-                    </p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      Máx: 30MB (imagens) / 4GB (vídeos)
-                    </p>
-                    {placeholder && (
-                      <p className="text-sm text-gray-500 mt-2">{placeholder}</p>
-                    )}
-                  </>
+            {/* Upload Area Container */}
+            <div 
+              {...getRootProps()}
+              className={`w-3/4 flex items-center justify-center cursor-pointer transition-all duration-200 ${
+                !enabled 
+                  ? 'bg-gray-50 cursor-not-allowed opacity-60'
+                  : isDragActive
+                  ? 'bg-blue-50 border-blue-200'
+                  : 'hover:bg-gray-50'
+              }`}
+            >
+              <input {...getInputProps()} />
+              <div className="text-center space-y-4 p-8">
+                <Upload className={`mx-auto h-10 w-10 ${enabled ? 'text-gray-400' : 'text-gray-300'}`} />
+                <div>
+                  <p className={`text-lg font-medium ${enabled ? 'text-jumper-text' : 'text-gray-400'}`}>
+                    {!enabled 
+                      ? 'Posicionamento desativado'
+                      : isDragActive 
+                      ? 'Solte o arquivo aqui' 
+                      : 'Clique ou arraste uma imagem/vídeo'
+                    }
+                  </p>
+                  {enabled && (
+                    <>
+                      <p className="text-sm text-gray-600 mt-2">
+                        JPG, PNG, MP4, MOV • {dimensions}
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Máx: 30MB (imagens) / 4GB (vídeos)
+                      </p>
+                      {placeholder && (
+                        <p className="text-sm text-gray-500 mt-3 italic">{placeholder}</p>
+                      )}
+                    </>
+                  )}
+                </div>
+                {isValidating && (
+                  <div className="flex items-center justify-center space-x-2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-jumper-blue"></div>
+                    <span className="text-sm text-jumper-blue">Validando...</span>
+                  </div>
                 )}
               </div>
-              {isValidating && (
-                <div className="flex items-center justify-center space-x-2">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-jumper-blue"></div>
-                  <span className="text-sm text-jumper-blue">Validando...</span>
-                </div>
-              )}
             </div>
           </div>
         </div>
       ) : (
         <div className="space-y-4">
-          <Card className={`${file.valid ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}>
-            <CardContent className="p-5">
-              <div className="flex space-x-4">
-                {/* Thumbnail Container - 1/4 */}
-                <div className="w-1/4 flex items-center justify-center">
+          <Card className={`border-2 transition-all duration-200 ${
+            file.valid 
+              ? 'border-emerald-200 bg-emerald-50/50' 
+              : 'border-red-200 bg-red-50/50'
+          }`}>
+            <CardContent className="p-0">
+              <div className="flex">
+                {/* Thumbnail Container */}
+                <div className="w-1/4 bg-gray-50 border-r border-gray-200 flex items-center justify-center p-6">
                   {file.preview && (
                     <div 
-                      className="relative border-2 border-gray-200 rounded-lg overflow-hidden cursor-pointer hover:border-blue-300 transition-all duration-200 group bg-gray-50 shadow-sm"
-                      style={getFixedWidthThumbnailDimensions(format)}
+                      className="relative border-2 border-gray-300 rounded-lg overflow-hidden cursor-pointer hover:border-blue-400 transition-all duration-200 group bg-white shadow-sm"
+                      style={getThumbnailDimensions(format)}
                       onClick={() => setLightboxOpen(true)}
                     >
                       <MetaZoneOverlay
@@ -255,22 +265,22 @@ const SingleFileUploadSection: React.FC<SingleFileUploadSectionProps> = ({
                         size="thumbnail"
                       />
                       
-                      {/* Hover overlay com ícone de expandir */}
-                      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-200 flex items-center justify-center">
-                        <ExpandIcon className="h-4 w-4 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                      {/* Hover overlay */}
+                      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-200 flex items-center justify-center">
+                        <ExpandIcon className="h-5 w-5 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
                       </div>
                       
-                      {/* Indicador de formato */}
-                      <div className="absolute top-1 left-1">
-                        <div className="bg-black bg-opacity-70 text-white text-xs px-1.5 py-0.5 rounded">
+                      {/* Format indicator */}
+                      <div className="absolute top-1.5 left-1.5">
+                        <div className="bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded backdrop-blur-sm">
                           {format === 'square' ? '1:1' : format === 'vertical' ? '9:16' : '1.91:1'}
                         </div>
                       </div>
 
-                      {/* Hint de clique */}
-                      <div className="absolute bottom-1 right-1">
-                        <div className="bg-blue-500 bg-opacity-80 text-white text-xs px-1.5 py-0.5 rounded flex items-center space-x-1">
-                          <Eye className="h-2.5 w-2.5" />
+                      {/* View hint */}
+                      <div className="absolute bottom-1.5 right-1.5">
+                        <div className="bg-blue-500 bg-opacity-80 text-white text-xs px-2 py-1 rounded flex items-center space-x-1 backdrop-blur-sm">
+                          <Eye className="h-3 w-3" />
                           <span>Ver</span>
                         </div>
                       </div>
@@ -278,30 +288,30 @@ const SingleFileUploadSection: React.FC<SingleFileUploadSectionProps> = ({
                   )}
                 </div>
 
-                {/* File Details Container - 3/4 */}
-                <div className="w-3/4 flex flex-col justify-between min-w-0">
-                  <div className="flex-1">
-                    {/* Header com nome e status */}
-                    <div className="flex items-center justify-between mb-3">
+                {/* File Details Container */}
+                <div className="w-3/4 bg-white p-6">
+                  <div className="flex flex-col justify-between h-full min-w-0">
+                    {/* Header with name and status */}
+                    <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center space-x-3 flex-1 min-w-0">
                         <Image className="h-5 w-5 text-blue-500 flex-shrink-0" />
                         <p className="text-lg font-semibold text-jumper-text truncate">
                           {file.file.name}
                         </p>
                         {file.valid ? (
-                          <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
+                          <CheckCircle className="h-5 w-5 text-emerald-500 flex-shrink-0" />
                         ) : (
                           <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0" />
                         )}
                       </div>
 
-                      {/* Botões de ação */}
+                      {/* Action buttons */}
                       <div className="flex items-center space-x-2 ml-4">
                         <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => document.getElementById(`replace-${format}`)?.click()}
-                          className="h-8 w-8 p-0 text-gray-400 hover:text-blue-500"
+                          className="h-8 w-8 p-0 text-gray-400 hover:text-blue-500 hover:bg-blue-50"
                           title="Substituir arquivo"
                           disabled={!enabled}
                         >
@@ -311,7 +321,7 @@ const SingleFileUploadSection: React.FC<SingleFileUploadSectionProps> = ({
                           variant="ghost"
                           size="sm"
                           onClick={removeFile}
-                          className="h-8 w-8 p-0 text-gray-400 hover:text-red-500"
+                          className="h-8 w-8 p-0 text-gray-400 hover:text-red-500 hover:bg-red-50"
                           title="Remover arquivo"
                         >
                           <X className="h-4 w-4" />
@@ -319,8 +329,8 @@ const SingleFileUploadSection: React.FC<SingleFileUploadSectionProps> = ({
                       </div>
                     </div>
                     
-                    {/* Metadados do arquivo */}
-                    <div className="text-sm text-gray-600 mb-3 flex items-center space-x-4">
+                    {/* File metadata */}
+                    <div className="text-sm text-gray-600 mb-4 flex items-center space-x-4">
                       <span className="font-medium">{formatFileSize(file.file.size)}</span>
                       {file.dimensions && (
                         <span>{file.dimensions.width}×{file.dimensions.height}px</span>
@@ -330,14 +340,16 @@ const SingleFileUploadSection: React.FC<SingleFileUploadSectionProps> = ({
                       )}
                     </div>
                     
-                    {/* Mensagens de validação */}
-                    <div className="space-y-1">
+                    {/* Validation messages */}
+                    <div className="space-y-2">
                       {file.errors.map((error, errorIndex) => (
                         <div 
                           key={errorIndex}
-                          className={`text-sm font-medium flex items-center space-x-2 ${file.valid ? 'text-green-600' : 'text-red-600'}`}
+                          className={`text-sm font-medium flex items-center space-x-2 ${
+                            file.valid ? 'text-emerald-600' : 'text-red-600'
+                          }`}
                         >
-                          <span>{file.valid ? '✓' : '✗'}</span>
+                          <span className="flex-shrink-0">{file.valid ? '✓' : '✗'}</span>
                           <span>{error}</span>
                         </div>
                       ))}
