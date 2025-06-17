@@ -89,6 +89,7 @@ const MetaZoneOverlay: React.FC<MetaZoneOverlayProps> = ({
 
   const { zones } = zoneConfig;
   const isReels = zoneConfig.contentTypes.includes('video');
+  const isThumbnail = size === 'thumbnail';
   
   console.log('MetaZoneOverlay - Will render overlay:', { 
     isReels, 
@@ -96,17 +97,11 @@ const MetaZoneOverlay: React.FC<MetaZoneOverlayProps> = ({
     topMargin: zones.topSafeMargin,
     bottomMargin: zones.bottomSafeMargin,
     expanded,
-    size
+    size,
+    isThumbnail
   });
 
-  // Different styles based on size
-  const isThumbnail = size === 'thumbnail';
-  const labelStyle = isThumbnail ? 'text-xs font-medium' : (expanded ? 'text-xs font-semibold' : 'text-xs font-semibold');
-  const labelBg = isThumbnail ? 'bg-red-600 bg-opacity-70' : (expanded ? 'bg-red-600 bg-opacity-90' : 'bg-red-600 bg-opacity-80');
-  const overlayOpacity = isThumbnail ? 'bg-opacity-20' : 'bg-opacity-30';
-  const safeZoneOpacity = isThumbnail ? 'bg-opacity-5' : 'bg-opacity-10';
-
-  // For videos, show video element instead of img
+  // For videos, show video element with overlay
   if (isReels && file?.type.startsWith('video/')) {
     console.log('MetaZoneOverlay - Rendering video with overlay');
     return (
@@ -124,99 +119,102 @@ const MetaZoneOverlay: React.FC<MetaZoneOverlayProps> = ({
         <div className="absolute inset-0 pointer-events-none">
           {/* Top Safe Margin */}
           <div 
-            className={`absolute top-0 left-0 right-0 bg-red-500 ${overlayOpacity} flex items-center justify-center border-b border-red-400`}
+            className="absolute top-0 left-0 right-0 bg-red-500 bg-opacity-30"
             style={{ height: `${zones.topSafeMargin}%` }}
           >
-            {(!isThumbnail || zones.topSafeMargin > 15) && (
-              <span className={`text-white ${labelStyle} ${labelBg} px-1 py-0.5 rounded`}
-                    style={{ fontSize: isThumbnail ? '8px' : undefined }}>
-                Interface Superior
-              </span>
+            {!isThumbnail && (
+              <div className="flex items-center justify-center h-full border-b border-red-400">
+                <span className="text-white text-xs font-semibold bg-red-600 bg-opacity-90 px-1 py-0.5 rounded">
+                  Interface Superior
+                </span>
+              </div>
             )}
           </div>
 
           {/* Left Side Safe Margin */}
           <div 
-            className={`absolute top-0 left-0 bottom-0 bg-red-500 ${overlayOpacity} flex items-center justify-center border-r border-red-400`}
+            className="absolute top-0 left-0 bottom-0 bg-red-500 bg-opacity-30"
             style={{ width: `${zones.leftSafeMargin}%` }}
           >
-            {(!isThumbnail || zones.leftSafeMargin > 10) && (
-              <span 
-                className={`text-white ${labelStyle} ${labelBg} px-1 py-1 rounded transform -rotate-90`}
-                style={{ fontSize: isThumbnail ? '7px' : (expanded ? '11px' : '10px') }}
-              >
-                {zones.leftSafeMargin}%
-              </span>
+            {!isThumbnail && (
+              <div className="flex items-center justify-center h-full border-r border-red-400">
+                <span className="text-white text-xs font-semibold bg-red-600 bg-opacity-90 px-1 py-1 rounded transform -rotate-90">
+                  {zones.leftSafeMargin}%
+                </span>
+              </div>
             )}
           </div>
 
           {/* Right Side Safe Margin */}
           <div 
-            className={`absolute top-0 right-0 bottom-0 bg-red-500 ${overlayOpacity} flex items-center justify-center border-l border-red-400`}
+            className="absolute top-0 right-0 bottom-0 bg-red-500 bg-opacity-30"
             style={{ width: `${zones.rightSafeMargin}%` }}
           >
-            {(!isThumbnail || zones.rightSafeMargin > 10) && (
-              <span 
-                className={`text-white ${labelStyle} ${labelBg} px-1 py-1 rounded transform rotate-90`}
-                style={{ fontSize: isThumbnail ? '7px' : (expanded ? '11px' : '10px') }}
-              >
-                {zones.rightSafeMargin}%
-              </span>
+            {!isThumbnail && (
+              <div className="flex items-center justify-center h-full border-l border-red-400">
+                <span className="text-white text-xs font-semibold bg-red-600 bg-opacity-90 px-1 py-1 rounded transform rotate-90">
+                  {zones.rightSafeMargin}%
+                </span>
+              </div>
             )}
           </div>
 
           {/* Reels: Complex Lower Right Zone */}
           {zones.lowerRightZone && (
             <div 
-              className={`absolute right-0 bg-red-500 ${overlayOpacity} flex items-center justify-center border-l border-t border-red-400`}
+              className="absolute right-0 bg-red-500 bg-opacity-30"
               style={{ 
                 top: `${100 - zones.lowerRightZone.zoneHeight}%`,
                 height: `${zones.lowerRightZone.zoneHeight}%`,
                 width: `${zones.lowerRightZone.safeMargin}%`
               }}
             >
-              {(!isThumbnail || zones.lowerRightZone.safeMargin > 15) && (
-                <span className={`text-white ${labelStyle} ${labelBg} px-1 py-0.5 rounded transform rotate-90`}
-                      style={{ fontSize: isThumbnail ? '7px' : (expanded ? '10px' : '9px') }}>
-                  CTA
-                </span>
+              {!isThumbnail && (
+                <div className="flex items-center justify-center h-full border-l border-t border-red-400">
+                  <span className="text-white text-xs font-semibold bg-red-600 bg-opacity-90 px-1 py-0.5 rounded transform rotate-90">
+                    CTA
+                  </span>
+                </div>
               )}
             </div>
           )}
 
           {/* Bottom Safe Margin */}
           <div 
-            className={`absolute bottom-0 left-0 right-0 bg-red-500 ${overlayOpacity} flex items-center justify-center border-t border-red-400`}
+            className="absolute bottom-0 left-0 right-0 bg-red-500 bg-opacity-30"
             style={{ height: `${zones.bottomSafeMargin}%` }}
           >
-            {(!isThumbnail || zones.bottomSafeMargin > 15) && (
-              <span className={`text-white ${labelStyle} ${labelBg} px-1 py-0.5 rounded`}
-                    style={{ fontSize: isThumbnail ? '8px' : undefined }}>
-                Interface Inferior
-              </span>
-            )}
-          </div>
-
-          {/* Safe Zone - Center area with light green tint */}
-          <div 
-            className={`absolute bg-green-500 ${safeZoneOpacity} border border-green-400 border-dashed`}
-            style={{ 
-              top: `${zones.topSafeMargin}%`, 
-              left: `${zones.leftSafeMargin}%`, 
-              right: zones.lowerRightZone ? 
-                `max(${zones.rightSafeMargin}%, ${zones.lowerRightZone.safeMargin}%)` : 
-                `${zones.rightSafeMargin}%`,
-              bottom: `${zones.bottomSafeMargin}%`
-            }}
-          >
-            {expanded && size === 'lightbox' && (
-              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                <span className="text-green-700 text-xs font-semibold bg-green-100 bg-opacity-90 px-2 py-1 rounded">
-                  Zona Segura
+            {!isThumbnail && (
+              <div className="flex items-center justify-center h-full border-t border-red-400">
+                <span className="text-white text-xs font-semibold bg-red-600 bg-opacity-90 px-1 py-0.5 rounded">
+                  Interface Inferior
                 </span>
               </div>
             )}
           </div>
+
+          {/* Safe Zone - Only show detailed info in lightbox */}
+          {!isThumbnail && (
+            <div 
+              className="absolute bg-green-500 bg-opacity-10 border border-green-400 border-dashed"
+              style={{ 
+                top: `${zones.topSafeMargin}%`, 
+                left: `${zones.leftSafeMargin}%`, 
+                right: zones.lowerRightZone ? 
+                  `max(${zones.rightSafeMargin}%, ${zones.lowerRightZone.safeMargin}%)` : 
+                  `${zones.rightSafeMargin}%`,
+                bottom: `${zones.bottomSafeMargin}%`
+              }}
+            >
+              {expanded && size === 'lightbox' && (
+                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                  <span className="text-green-700 text-xs font-semibold bg-green-100 bg-opacity-90 px-2 py-1 rounded">
+                    Zona Segura
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     );
@@ -234,103 +232,106 @@ const MetaZoneOverlay: React.FC<MetaZoneOverlayProps> = ({
         onLoad={onImageLoad}
       />
       
-      {/* Zone Overlays - Same structure as video */}
+      {/* Zone Overlays - Same structure as video but simplified for thumbnails */}
       <div className="absolute inset-0 pointer-events-none">
         {/* Top Safe Margin */}
         <div 
-          className={`absolute top-0 left-0 right-0 bg-red-500 ${overlayOpacity} flex items-center justify-center border-b border-red-400`}
+          className="absolute top-0 left-0 right-0 bg-red-500 bg-opacity-30"
           style={{ height: `${zones.topSafeMargin}%` }}
         >
-          {(!isThumbnail || zones.topSafeMargin > 15) && (
-            <span className={`text-white ${labelStyle} ${labelBg} px-1 py-0.5 rounded`}
-                  style={{ fontSize: isThumbnail ? '8px' : undefined }}>
-              Interface Superior
-            </span>
+          {!isThumbnail && (
+            <div className="flex items-center justify-center h-full border-b border-red-400">
+              <span className="text-white text-xs font-semibold bg-red-600 bg-opacity-90 px-1 py-0.5 rounded">
+                Interface Superior
+              </span>
+            </div>
           )}
         </div>
 
         {/* Left Side Safe Margin */}
         <div 
-          className={`absolute top-0 left-0 bottom-0 bg-red-500 ${overlayOpacity} flex items-center justify-center border-r border-red-400`}
+          className="absolute top-0 left-0 bottom-0 bg-red-500 bg-opacity-30"
           style={{ width: `${zones.leftSafeMargin}%` }}
         >
-          {(!isThumbnail || zones.leftSafeMargin > 10) && (
-            <span 
-              className={`text-white ${labelStyle} ${labelBg} px-1 py-1 rounded transform -rotate-90`}
-              style={{ fontSize: isThumbnail ? '7px' : (expanded ? '11px' : '10px') }}
-            >
-              {zones.leftSafeMargin}%
-            </span>
+          {!isThumbnail && (
+            <div className="flex items-center justify-center h-full border-r border-red-400">
+              <span className="text-white text-xs font-semibold bg-red-600 bg-opacity-90 px-1 py-1 rounded transform -rotate-90">
+                {zones.leftSafeMargin}%
+              </span>
+            </div>
           )}
         </div>
 
         {/* Right Side Safe Margin */}
         <div 
-          className={`absolute top-0 right-0 bottom-0 bg-red-500 ${overlayOpacity} flex items-center justify-center border-l border-red-400`}
+          className="absolute top-0 right-0 bottom-0 bg-red-500 bg-opacity-30"
           style={{ width: `${zones.rightSafeMargin}%` }}
         >
-          {(!isThumbnail || zones.rightSafeMargin > 10) && (
-            <span 
-              className={`text-white ${labelStyle} ${labelBg} px-1 py-1 rounded transform rotate-90`}
-              style={{ fontSize: isThumbnail ? '7px' : (expanded ? '11px' : '10px') }}
-            >
-              {zones.rightSafeMargin}%
-            </span>
+          {!isThumbnail && (
+            <div className="flex items-center justify-center h-full border-l border-red-400">
+              <span className="text-white text-xs font-semibold bg-red-600 bg-opacity-90 px-1 py-1 rounded transform rotate-90">
+                {zones.rightSafeMargin}%
+              </span>
+            </div>
           )}
         </div>
 
         {/* Stories: Complex Lower Right Zone (for images too if detected as video format) */}
         {isReels && zones.lowerRightZone && (
           <div 
-            className={`absolute right-0 bg-red-500 ${overlayOpacity} flex items-center justify-center border-l border-t border-red-400`}
+            className="absolute right-0 bg-red-500 bg-opacity-30"
             style={{ 
               top: `${100 - zones.lowerRightZone.zoneHeight}%`,
               height: `${zones.lowerRightZone.zoneHeight}%`,
               width: `${zones.lowerRightZone.safeMargin}%`
             }}
           >
-            {(!isThumbnail || zones.lowerRightZone.safeMargin > 15) && (
-              <span className={`text-white ${labelStyle} ${labelBg} px-1 py-0.5 rounded transform rotate-90`}
-                    style={{ fontSize: isThumbnail ? '7px' : (expanded ? '10px' : '9px') }}>
-                CTA
-              </span>
+            {!isThumbnail && (
+              <div className="flex items-center justify-center h-full border-l border-t border-red-400">
+                <span className="text-white text-xs font-semibold bg-red-600 bg-opacity-90 px-1 py-0.5 rounded transform rotate-90">
+                  CTA
+                </span>
+              </div>
             )}
           </div>
         )}
 
         {/* Bottom Safe Margin */}
         <div 
-          className={`absolute bottom-0 left-0 right-0 bg-red-500 ${overlayOpacity} flex items-center justify-center border-t border-red-400`}
+          className="absolute bottom-0 left-0 right-0 bg-red-500 bg-opacity-30"
           style={{ height: `${zones.bottomSafeMargin}%` }}
         >
-          {(!isThumbnail || zones.bottomSafeMargin > 15) && (
-            <span className={`text-white ${labelStyle} ${labelBg} px-1 py-0.5 rounded`}
-                  style={{ fontSize: isThumbnail ? '8px' : undefined }}>
-              Interface Inferior
-            </span>
-          )}
-        </div>
-
-        {/* Safe Zone - Center area with light green tint */}
-        <div 
-          className={`absolute bg-green-500 ${safeZoneOpacity} border border-green-400 border-dashed`}
-          style={{ 
-            top: `${zones.topSafeMargin}%`, 
-            left: `${zones.leftSafeMargin}%`, 
-            right: isReels && zones.lowerRightZone ? 
-              `max(${zones.rightSafeMargin}%, ${zones.lowerRightZone.safeMargin}%)` : 
-              `${zones.rightSafeMargin}%`,
-            bottom: `${zones.bottomSafeMargin}%`
-          }}
-        >
-          {expanded && size === 'lightbox' && (
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-              <span className="text-green-700 text-xs font-semibold bg-green-100 bg-opacity-90 px-2 py-1 rounded">
-                Zona Segura
+          {!isThumbnail && (
+            <div className="flex items-center justify-center h-full border-t border-red-400">
+              <span className="text-white text-xs font-semibold bg-red-600 bg-opacity-90 px-1 py-0.5 rounded">
+                Interface Inferior
               </span>
             </div>
           )}
         </div>
+
+        {/* Safe Zone - Only show detailed info in lightbox */}
+        {!isThumbnail && (
+          <div 
+            className="absolute bg-green-500 bg-opacity-10 border border-green-400 border-dashed"
+            style={{ 
+              top: `${zones.topSafeMargin}%`, 
+              left: `${zones.leftSafeMargin}%`, 
+              right: isReels && zones.lowerRightZone ? 
+                `max(${zones.rightSafeMargin}%, ${zones.lowerRightZone.safeMargin}%)` : 
+                `${zones.rightSafeMargin}%`,
+              bottom: `${zones.bottomSafeMargin}%`
+            }}
+          >
+            {expanded && size === 'lightbox' && (
+              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                <span className="text-green-700 text-xs font-semibold bg-green-100 bg-opacity-90 px-2 py-1 rounded">
+                  Zona Segura
+                </span>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
