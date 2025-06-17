@@ -32,11 +32,14 @@ const MetaZoneOverlay: React.FC<MetaZoneOverlayProps> = ({
   if (format !== 'vertical') {
     console.log('MetaZoneOverlay - Not vertical format, showing simple preview');
     
+    // Determine object-fit based on context
+    const objectFit = size === 'lightbox' ? 'object-contain' : 'object-cover';
+    
     if (file?.type.startsWith('video/')) {
       return (
         <video 
           src={imageUrl} 
-          className="w-full h-full object-cover rounded"
+          className={`w-full h-full ${objectFit} rounded`}
           muted
           controls={expanded}
           onLoadedData={onImageLoad}
@@ -48,7 +51,7 @@ const MetaZoneOverlay: React.FC<MetaZoneOverlayProps> = ({
       <img 
         src={imageUrl} 
         alt="Preview" 
-        className="w-full h-full object-cover rounded"
+        className={`w-full h-full ${objectFit} rounded`}
         onLoad={onImageLoad}
       />
     );
@@ -65,11 +68,14 @@ const MetaZoneOverlay: React.FC<MetaZoneOverlayProps> = ({
   if (!zoneConfig) {
     console.log('MetaZoneOverlay - No zone config found, showing simple preview');
     
+    // Determine object-fit based on context
+    const objectFit = size === 'lightbox' ? 'object-contain' : 'object-cover';
+    
     if (file?.type.startsWith('video/')) {
       return (
         <video 
           src={imageUrl} 
-          className="w-full h-full object-cover rounded"
+          className={`w-full h-full ${objectFit} rounded`}
           muted
           controls={expanded}
           onLoadedData={onImageLoad}
@@ -81,7 +87,7 @@ const MetaZoneOverlay: React.FC<MetaZoneOverlayProps> = ({
       <img 
         src={imageUrl} 
         alt="Preview" 
-        className="w-full h-full object-cover rounded"
+        className={`w-full h-full ${objectFit} rounded`}
         onLoad={onImageLoad}
       />
     );
@@ -91,6 +97,9 @@ const MetaZoneOverlay: React.FC<MetaZoneOverlayProps> = ({
   const isReels = zoneConfig.contentTypes.includes('video');
   const isThumbnail = size === 'thumbnail';
   
+  // Determine object-fit based on context - use contain for lightbox to show full image
+  const objectFit = size === 'lightbox' ? 'object-contain' : 'object-cover';
+  
   console.log('MetaZoneOverlay - Will render overlay:', { 
     isReels, 
     zones,
@@ -98,7 +107,8 @@ const MetaZoneOverlay: React.FC<MetaZoneOverlayProps> = ({
     bottomMargin: zones.bottomSafeMargin,
     expanded,
     size,
-    isThumbnail
+    isThumbnail,
+    objectFit
   });
 
   // For videos, show video element with overlay
@@ -109,7 +119,7 @@ const MetaZoneOverlay: React.FC<MetaZoneOverlayProps> = ({
         {/* Base Video */}
         <video 
           src={imageUrl} 
-          className="w-full h-full object-cover rounded"
+          className={`w-full h-full ${objectFit} rounded`}
           muted
           controls={expanded && size === 'lightbox'}
           onLoadedData={onImageLoad}
@@ -228,7 +238,7 @@ const MetaZoneOverlay: React.FC<MetaZoneOverlayProps> = ({
       <img 
         src={imageUrl} 
         alt={`Preview com overlay de zonas ${zoneConfig.name}`}
-        className="w-full h-full object-cover rounded"
+        className={`w-full h-full ${objectFit} rounded`}
         onLoad={onImageLoad}
       />
       

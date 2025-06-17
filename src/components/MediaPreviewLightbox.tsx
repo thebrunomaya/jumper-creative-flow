@@ -66,6 +66,29 @@ const MediaPreviewLightbox: React.FC<MediaPreviewLightboxProps> = ({
     }
   };
 
+  // Get preview container dimensions based on format
+  const getPreviewContainerStyle = () => {
+    switch (format) {
+      case 'vertical':
+        return {
+          maxWidth: '300px',
+          maxHeight: '80vh', // Increased significantly for vertical content
+          minHeight: '500px' // Ensure minimum height for vertical content
+        };
+      case 'horizontal':
+        return {
+          maxWidth: '500px',
+          maxHeight: '300px'
+        };
+      case 'square':
+      default:
+        return {
+          maxWidth: '400px',
+          maxHeight: '400px'
+        };
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -85,13 +108,18 @@ const MediaPreviewLightbox: React.FC<MediaPreviewLightboxProps> = ({
               </CardHeader>
               <CardContent>
                 <div className="flex justify-center">
-                  <div className="relative" style={{ maxWidth: '300px', maxHeight: '400px' }}>
+                  <div 
+                    className="relative border border-gray-200 rounded-lg overflow-hidden bg-gray-50"
+                    style={getPreviewContainerStyle()}
+                  >
                     {file.preview && (
                       <MetaZoneOverlay
                         imageUrl={file.preview}
                         format={format}
                         file={file.file}
                         onImageLoad={() => {}}
+                        expanded={true}
+                        size="lightbox"
                       />
                     )}
                   </div>
