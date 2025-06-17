@@ -65,7 +65,7 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ formData, clients }) => {
     <Breadcrumb className="mb-6">
       <BreadcrumbList>
         {breadcrumbItems.map((item, index) => (
-          <div key={index}>
+          <React.Fragment key={index}>
             <BreadcrumbItem>
               {index === breadcrumbItems.length - 1 ? (
                 <BreadcrumbPage className="font-semibold text-jumper-blue">
@@ -78,7 +78,7 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ formData, clients }) => {
               )}
             </BreadcrumbItem>
             {index < breadcrumbItems.length - 1 && <BreadcrumbSeparator />}
-          </div>
+          </React.Fragment>
         ))}
       </BreadcrumbList>
     </Breadcrumb>
