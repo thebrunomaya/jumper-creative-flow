@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
@@ -87,28 +86,21 @@ const createNotionCreative = async (
 ) => {
   const notionUrl = `https://api.notion.com/v1/pages`;
   
-  // Validate URL before sending to Notion
+  // Validate destinationUrl before sending to Notion
   if (!creativeData.destinationUrl || creativeData.destinationUrl.trim() === '') {
     console.error('❌ CRITICAL: destinationUrl is empty or missing!');
-    throw new Error('URL de destino é obrigatória');
+    throw new Error('Destino é obrigatório');
   }
 
-  let validatedUrl = creativeData.destinationUrl.trim();
+  let destinationValue = creativeData.destinationUrl.trim();
   
-  // Ensure URL has proper protocol
-  if (!validatedUrl.startsWith('http://') && !validatedUrl.startsWith('https://')) {
-    validatedUrl = 'https://' + validatedUrl;
-    console.log('🔧 Added https:// protocol to URL:', validatedUrl);
+  // For URL fields, ensure proper protocol (but don't validate format since it's now text)
+  if (destinationValue.includes('.') && !destinationValue.startsWith('http://') && !destinationValue.startsWith('https://') && !destinationValue.startsWith('tel:') && !destinationValue.startsWith('mailto:')) {
+    destinationValue = 'https://' + destinationValue;
+    console.log('🔧 Added https:// protocol to URL:', destinationValue);
   }
 
-  // Test URL validity
-  try {
-    new URL(validatedUrl);
-    console.log('✅ URL validation passed:', validatedUrl);
-  } catch (urlError) {
-    console.error('❌ Invalid URL format:', validatedUrl, urlError);
-    throw new Error(`URL inválida: ${validatedUrl}`);
-  }
+  console.log('✅ Destination value prepared:', destinationValue);
 
   // Build observations text with variation indicator
   let observationsText = creativeData.observations || '';
@@ -187,8 +179,14 @@ const createNotionCreative = async (
           }
         ]
       },
-      "Link de destino": {
-        url: validatedUrl
+      "Destino": {
+        rich_text: [
+          {
+            text: {
+              content: destinationValue
+            }
+          }
+        ]
       },
       "Call-to-Action": {
         select: {
