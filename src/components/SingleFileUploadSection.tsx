@@ -106,11 +106,11 @@ const SingleFileUploadSection: React.FC<SingleFileUploadSectionProps> = ({
       {/* Only show upload section when enabled */}
       {enabled && (
         <>
-          {/* Upload Zone or File Display - Container com altura fixa */}
-          <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm h-[200px]">
-            <div className="flex h-full">
-              {/* Thumbnail Container - altura fixa com flexbox para centralizar e padding consistente */}
-              <div className="w-1/4 bg-gray-50 border-r border-gray-200 flex items-center justify-center p-1">
+          {/* Upload Zone or File Display - Container com altura flexível */}
+          <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm min-h-[200px]">
+            <div className="flex min-h-[200px]">
+              {/* Thumbnail Container - largura fixa, altura flexível para centralizar */}
+              <div className="w-[140px] bg-gray-50 border-r border-gray-200 flex items-center justify-center p-2">
                 <ThumbnailPreview
                   format={format}
                   file={file}
@@ -118,8 +118,8 @@ const SingleFileUploadSection: React.FC<SingleFileUploadSectionProps> = ({
                 />
               </div>
 
-              {/* Upload Area ou File Details Container - altura fixa */}
-              <div className="w-3/4 flex flex-col">
+              {/* Upload Area ou File Details Container - altura flexível */}
+              <div className="flex-1 flex flex-col min-h-[200px]">
                 {!file ? (
                   <FileUploadZone
                     getRootProps={getRootProps}

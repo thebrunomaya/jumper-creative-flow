@@ -1,6 +1,7 @@
+
 export const getThumbnailDimensions = (format: 'square' | 'vertical' | 'horizontal') => {
-  // Altura fixa para todos os formatos para garantir margens consistentes
-  const fixedHeight = 120;
+  // Largura fixa para todos os formatos para favorecer o posicionamento vertical
+  const fixedWidth = 120;
   
   let aspectRatio: number;
   
@@ -18,12 +19,12 @@ export const getThumbnailDimensions = (format: 'square' | 'vertical' | 'horizont
       aspectRatio = 1;
   }
   
-  // Calcular largura baseada na altura fixa e aspect ratio
-  const width = Math.round(fixedHeight * aspectRatio);
+  // Calcular altura baseada na largura fixa e aspect ratio
+  const height = Math.round(fixedWidth / aspectRatio);
   
   return { 
-    width, 
-    height: fixedHeight 
+    width: fixedWidth, 
+    height 
   };
 };
 
