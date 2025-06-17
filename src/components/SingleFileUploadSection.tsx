@@ -79,19 +79,63 @@ const SingleFileUploadSection: React.FC<SingleFileUploadSectionProps> = ({
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
-  const getStandardizedThumbnailDimensions = (format: 'square' | 'vertical' | 'horizontal') => {
-    const height = 120; // Padronizar altura para todos
+  const getFixedWidthThumbnailDimensions = (format: 'square' | 'vertical' | 'horizontal') => {
+    const width = 100; // Largura fixa
     
     switch (format) {
       case 'square':
-        return { width: height, height }; // 120x120
+        return { width, height: width }; // 100x100 (1:1)
       case 'vertical':
-        return { width: Math.round(height * 9 / 16), height }; // 67x120 (9:16)
+        return { width, height: Math.round(width * 16 / 9) }; // 100x178 (9:16)
       case 'horizontal':
-        return { width: Math.round(height * 1.91), height }; // 229x120 (1.91:1)
+        return { width, height: Math.round(width / 1.91) }; // 100x52 (1.91:1)
       default:
-        return { width: height, height };
+        return { width, height: width };
     }
+  };
+
+  const createMockupFile = (format: 'square' | 'vertical' | 'horizontal') => {
+    // Criar um gradiente baseado no formato para o mockup
+    const canvas = document.createElement('canvas');
+    const { width, height } = getFixedWidthThumbnailDimensions(format);
+    canvas.width = width * 4; // Maior resolução para qualidade
+    canvas.height = height * 4;
+    const ctx = canvas.getContext('2d');
+    
+    if (ctx) {
+      // Gradiente baseado no formato
+      const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+      switch (format) {
+        case 'square':
+          gradient.addColorStop(0, '#e3f2fd');
+          gradient.addColorStop(1, '#1976d2');
+          break;
+        case 'vertical':
+          gradient.addColorStop(0, '#f3e5f5');
+          gradient.addColorStop(1, '#7b1fa2');
+          break;
+        case 'horizontal':
+          gradient.addColorStop(0, '#e8f5e8');
+          gradient.addColorStop(1, '#2e7d32');
+          break;
+      }
+      
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      // Adicionar texto indicativo
+      ctx.fillStyle = 'white';
+      ctx.font = 'bold 24px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(
+        format === 'square' ? '1:1' : format === 'vertical' ? '9:16' : '1.91:1',
+        canvas.width / 2,
+        canvas.height / 2
+      );
+    }
+    
+    return canvas.toDataURL('image/png');
   };
 
   return (
@@ -123,58 +167,85 @@ const SingleFileUploadSection: React.FC<SingleFileUploadSectionProps> = ({
 
       {/* Upload Zone or File Display */}
       {!file ? (
-        <div
-          {...getRootProps()}
-          className={`border-2 border-dashed rounded-lg p-8 text-center transition-all duration-200 ${
-            !enabled 
-              ? 'border-gray-200 bg-gray-100 cursor-not-allowed opacity-60'
-              : isDragActive
-              ? 'border-jumper-blue bg-blue-50 cursor-pointer'
-              : 'border-gray-300 hover:border-jumper-blue hover:bg-gray-50 cursor-pointer'
-          }`}
-        >
-          <input {...getInputProps()} />
-          <div className="space-y-4">
-            <Upload className={`mx-auto h-10 w-10 ${enabled ? 'text-gray-400' : 'text-gray-300'}`} />
-            <div>
-              <p className={`text-base font-medium ${enabled ? 'text-jumper-text' : 'text-gray-400'}`}>
-                {!enabled 
-                  ? 'Posicionamento desativado'
-                  : isDragActive 
-                  ? 'Solte o arquivo aqui' 
-                  : 'Clique ou arraste uma imagem/vídeo'
-                }
-              </p>
-              {enabled && (
-                <>
-                  <p className="text-sm text-gray-600 mt-2">
-                    JPG, PNG, MP4, MOV • {dimensions} • Máx: 30MB (imagens) / 4GB (vídeos)
-                  </p>
-                  {placeholder && (
-                    <p className="text-sm text-gray-500 mt-1">{placeholder}</p>
-                  )}
-                </>
+        <div className="flex border-2 border-dashed rounded-lg overflow-hidden transition-all duration-200 bg-white min-h-[140px]">
+          {/* Thumbnail Mockup Container - 1/4 */}
+          <div className="w-1/4 bg-gray-50 flex items-center justify-center p-4">
+            <div 
+              className="relative border border-gray-200 rounded-lg overflow-hidden bg-white shadow-sm"
+              style={getFixedWidthThumbnailDimensions(format)}
+            >
+              <MetaZoneOverlay
+                imageUrl={createMockupFile(format)}
+                format={format}
+                size="thumbnail"
+              />
+              
+              {/* Indicador de formato */}
+              <div className="absolute top-1 left-1">
+                <div className="bg-black bg-opacity-70 text-white text-xs px-1.5 py-0.5 rounded">
+                  {format === 'square' ? '1:1' : format === 'vertical' ? '9:16' : '1.91:1'}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Upload Area Container - 3/4 */}
+          <div 
+            {...getRootProps()}
+            className={`w-3/4 flex items-center justify-center cursor-pointer transition-all duration-200 ${
+              !enabled 
+                ? 'bg-gray-100 cursor-not-allowed opacity-60'
+                : isDragActive
+                ? 'bg-blue-50'
+                : 'hover:bg-gray-50'
+            }`}
+          >
+            <input {...getInputProps()} />
+            <div className="text-center space-y-3 p-6">
+              <Upload className={`mx-auto h-8 w-8 ${enabled ? 'text-gray-400' : 'text-gray-300'}`} />
+              <div>
+                <p className={`text-base font-medium ${enabled ? 'text-jumper-text' : 'text-gray-400'}`}>
+                  {!enabled 
+                    ? 'Posicionamento desativado'
+                    : isDragActive 
+                    ? 'Solte o arquivo aqui' 
+                    : 'Clique ou arraste uma imagem/vídeo'
+                  }
+                </p>
+                {enabled && (
+                  <>
+                    <p className="text-sm text-gray-600 mt-2">
+                      JPG, PNG, MP4, MOV • {dimensions}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Máx: 30MB (imagens) / 4GB (vídeos)
+                    </p>
+                    {placeholder && (
+                      <p className="text-sm text-gray-500 mt-2">{placeholder}</p>
+                    )}
+                  </>
+                )}
+              </div>
+              {isValidating && (
+                <div className="flex items-center justify-center space-x-2">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-jumper-blue"></div>
+                  <span className="text-sm text-jumper-blue">Validando...</span>
+                </div>
               )}
             </div>
-            {isValidating && (
-              <div className="flex items-center justify-center space-x-2">
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-jumper-blue"></div>
-                <span className="text-sm text-jumper-blue">Validando...</span>
-              </div>
-            )}
           </div>
         </div>
       ) : (
         <div className="space-y-4">
           <Card className={`${file.valid ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}`}>
             <CardContent className="p-5">
-              <div className="flex items-start space-x-4">
-                {/* Thumbnail com overlay */}
-                {file.preview && (
-                  <div className="flex-shrink-0">
+              <div className="flex space-x-4">
+                {/* Thumbnail Container - 1/4 */}
+                <div className="w-1/4 flex items-center justify-center">
+                  {file.preview && (
                     <div 
-                      className="relative border-2 border-gray-200 rounded-lg overflow-hidden cursor-pointer hover:border-blue-300 transition-all duration-200 group bg-gray-50"
-                      style={getStandardizedThumbnailDimensions(format)}
+                      className="relative border-2 border-gray-200 rounded-lg overflow-hidden cursor-pointer hover:border-blue-300 transition-all duration-200 group bg-gray-50 shadow-sm"
+                      style={getFixedWidthThumbnailDimensions(format)}
                       onClick={() => setLightboxOpen(true)}
                     >
                       <MetaZoneOverlay
@@ -186,35 +257,35 @@ const SingleFileUploadSection: React.FC<SingleFileUploadSectionProps> = ({
                       
                       {/* Hover overlay com ícone de expandir */}
                       <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-200 flex items-center justify-center">
-                        <ExpandIcon className="h-5 w-5 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <ExpandIcon className="h-4 w-4 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
                       </div>
                       
                       {/* Indicador de formato */}
-                      <div className="absolute top-2 left-2">
-                        <div className="bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded">
+                      <div className="absolute top-1 left-1">
+                        <div className="bg-black bg-opacity-70 text-white text-xs px-1.5 py-0.5 rounded">
                           {format === 'square' ? '1:1' : format === 'vertical' ? '9:16' : '1.91:1'}
                         </div>
                       </div>
 
                       {/* Hint de clique */}
-                      <div className="absolute bottom-2 right-2">
-                        <div className="bg-blue-500 bg-opacity-80 text-white text-xs px-2 py-1 rounded flex items-center space-x-1">
-                          <Eye className="h-3 w-3" />
+                      <div className="absolute bottom-1 right-1">
+                        <div className="bg-blue-500 bg-opacity-80 text-white text-xs px-1.5 py-0.5 rounded flex items-center space-x-1">
+                          <Eye className="h-2.5 w-2.5" />
                           <span>Ver</span>
                         </div>
                       </div>
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
 
-                {/* Informações do arquivo */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1 min-w-0">
-                      {/* Nome do arquivo e status */}
-                      <div className="flex items-center space-x-3 mb-2">
+                {/* File Details Container - 3/4 */}
+                <div className="w-3/4 flex flex-col justify-between min-w-0">
+                  <div className="flex-1">
+                    {/* Header com nome e status */}
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center space-x-3 flex-1 min-w-0">
                         <Image className="h-5 w-5 text-blue-500 flex-shrink-0" />
-                        <p className="text-base font-semibold text-jumper-text truncate">
+                        <p className="text-lg font-semibold text-jumper-text truncate">
                           {file.file.name}
                         </p>
                         {file.valid ? (
@@ -223,52 +294,53 @@ const SingleFileUploadSection: React.FC<SingleFileUploadSectionProps> = ({
                           <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0" />
                         )}
                       </div>
-                      
-                      {/* Metadados do arquivo */}
-                      <div className="text-sm text-gray-600 mb-3">
-                        <span className="font-medium">{formatFileSize(file.file.size)}</span>
-                        {file.dimensions && (
-                          <span> • {file.dimensions.width}×{file.dimensions.height}px</span>
-                        )}
-                        {file.duration && (
-                          <span> • {file.duration}s</span>
-                        )}
-                      </div>
-                      
-                      {/* Mensagens de validação */}
-                      <div className="space-y-1">
-                        {file.errors.map((error, errorIndex) => (
-                          <div 
-                            key={errorIndex}
-                            className={`text-sm font-medium ${file.valid ? 'text-green-600' : 'text-red-600'}`}
-                          >
-                            {file.valid ? '✓' : '✗'} {error}
-                          </div>
-                        ))}
+
+                      {/* Botões de ação */}
+                      <div className="flex items-center space-x-2 ml-4">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => document.getElementById(`replace-${format}`)?.click()}
+                          className="h-8 w-8 p-0 text-gray-400 hover:text-blue-500"
+                          title="Substituir arquivo"
+                          disabled={!enabled}
+                        >
+                          <Replace className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={removeFile}
+                          className="h-8 w-8 p-0 text-gray-400 hover:text-red-500"
+                          title="Remover arquivo"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
                       </div>
                     </div>
-
-                    {/* Botões de ação */}
-                    <div className="flex items-center space-x-2 ml-4">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => document.getElementById(`replace-${format}`)?.click()}
-                        className="h-8 w-8 p-0 text-gray-400 hover:text-blue-500"
-                        title="Substituir arquivo"
-                        disabled={!enabled}
-                      >
-                        <Replace className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={removeFile}
-                        className="h-8 w-8 p-0 text-gray-400 hover:text-red-500"
-                        title="Remover arquivo"
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
+                    
+                    {/* Metadados do arquivo */}
+                    <div className="text-sm text-gray-600 mb-3 flex items-center space-x-4">
+                      <span className="font-medium">{formatFileSize(file.file.size)}</span>
+                      {file.dimensions && (
+                        <span>{file.dimensions.width}×{file.dimensions.height}px</span>
+                      )}
+                      {file.duration && (
+                        <span>{file.duration}s</span>
+                      )}
+                    </div>
+                    
+                    {/* Mensagens de validação */}
+                    <div className="space-y-1">
+                      {file.errors.map((error, errorIndex) => (
+                        <div 
+                          key={errorIndex}
+                          className={`text-sm font-medium flex items-center space-x-2 ${file.valid ? 'text-green-600' : 'text-red-600'}`}
+                        >
+                          <span>{file.valid ? '✓' : '✗'}</span>
+                          <span>{error}</span>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </div>
