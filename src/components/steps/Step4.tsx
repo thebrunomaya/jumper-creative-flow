@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { FormData, CLIENTS, PARTNERS } from '@/types/creative';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -129,12 +128,12 @@ const Step4: React.FC<Step4Props> = ({ formData, isSubmitting }) => {
             </div>
             <div>
               <p className="text-sm text-gray-600">Enviado por</p>
-              <p className="font-semibold text-jumper-text">{currentUser?.user_metadata?.full_name || currentUser?.email}</p>
+              <p className="font-semibold text-jumper-text">{currentUser?.name || currentUser?.email}</p>
             </div>
             <div>
               <p className="text-sm text-gray-600">Plataforma</p>
               <div className="flex items-center space-x-2">
-                <span>{getPlatformIcon(formData.platform)}</span>
+                <span>📘</span>
                 <span className="font-semibold text-jumper-text">
                   {formData.platform === 'meta' ? 'Meta Ads' : 'Google Ads'}
                 </span>
@@ -144,7 +143,7 @@ const Step4: React.FC<Step4Props> = ({ formData, isSubmitting }) => {
               <div>
                 <p className="text-sm text-gray-600">Tipo</p>
                 <div className="flex items-center space-x-2">
-                  <span>{getCreativeTypeIcon(formData.creativeType)}</span>
+                  <span>🖼️</span>
                   <span className="font-semibold text-jumper-text">
                     {formData.creativeType === 'single' ? 'Imagem única' :
                      formData.creativeType === 'carousel' ? 'Carrossel' :
@@ -213,7 +212,7 @@ const Step4: React.FC<Step4Props> = ({ formData, isSubmitting }) => {
                           <span className="text-sm font-medium">{file.file.name}</span>
                           {(file as any).format && (
                             <span className="text-xs text-gray-500 flex items-center space-x-1">
-                              <span>{getFormatIcon((file as any).format)}</span>
+                              <span>📐</span>
                               <span>{(file as any).format} ({file.dimensions?.width}x{file.dimensions?.height}px)</span>
                             </span>
                           )}
