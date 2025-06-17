@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { FormData, ValidatedFile, MediaVariation } from '@/types/creative';
 import FileUpload from '@/components/FileUpload';
@@ -139,7 +138,6 @@ const Step2: React.FC<Step2Props> = ({ formData, updateFormData, errors }) => {
                 dimensions="1080x1080px ou múltiplos superiores (1:1)"
                 file={variation.squareFile}
                 onFileChange={(file) => updateVariationFile(variation.id, 'square', file)}
-                placeholder="Ideal para feed do Instagram e Facebook"
                 enabled={variation.squareEnabled !== false}
                 onEnabledChange={(enabled) => updateVariationEnabled(variation.id, 'square', enabled)}
                 canDisable={canDisablePosition(variation, 'square')}
@@ -151,7 +149,6 @@ const Step2: React.FC<Step2Props> = ({ formData, updateFormData, errors }) => {
                 dimensions="1080x1920px ou múltiplos superiores (9:16)"
                 file={variation.verticalFile}
                 onFileChange={(file) => updateVariationFile(variation.id, 'vertical', file)}
-                placeholder="Ideal para Stories e feed mobile"
                 enabled={variation.verticalEnabled !== false}
                 onEnabledChange={(enabled) => updateVariationEnabled(variation.id, 'vertical', enabled)}
                 canDisable={canDisablePosition(variation, 'vertical')}
@@ -163,7 +160,6 @@ const Step2: React.FC<Step2Props> = ({ formData, updateFormData, errors }) => {
                 dimensions="1200x628px ou múltiplos superiores (1.91:1)"
                 file={variation.horizontalFile}
                 onFileChange={(file) => updateVariationFile(variation.id, 'horizontal', file)}
-                placeholder="Ideal para Facebook feed desktop"
                 enabled={variation.horizontalEnabled !== false}
                 onEnabledChange={(enabled) => updateVariationEnabled(variation.id, 'horizontal', enabled)}
                 canDisable={canDisablePosition(variation, 'horizontal')}
