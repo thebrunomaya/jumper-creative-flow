@@ -1,5 +1,4 @@
 
-
 import React, { useState } from 'react';
 import Header from './Header';
 import Step1 from './steps/Step1';
@@ -14,7 +13,32 @@ import { Button } from '@/components/ui/button';
 
 const CreativeSystem = () => {
   const [currentStep, setCurrentStep] = useState(1);
-  const [formData, setFormData] = useState<FormData>({});
+  const [formData, setFormData] = useState<FormData>({
+    // Step 1 defaults
+    client: '',
+    partner: '',
+    platform: '',
+    campaignObjective: '',
+    creativeType: '',
+    objective: '',
+    
+    // Step 2 defaults
+    files: [],
+    validatedFiles: [],
+    mediaVariations: [],
+    carouselAspectRatio: '1:1',
+    carouselCards: [],
+    
+    // Step 3 defaults
+    mainTexts: [''],
+    titles: [''],
+    description: '',
+    destination: '',
+    cta: '',
+    destinationUrl: '',
+    callToAction: '',
+    observations: ''
+  });
   const [showSuccess, setShowSuccess] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [creativeIds, setCreativeIds] = useState<string[]>([]);
@@ -97,7 +121,28 @@ const CreativeSystem = () => {
   const handleNewCreative = () => {
     setShowSuccess(false);
     setCurrentStep(1);
-    setFormData({});
+    setFormData({
+      // Reset to default values
+      client: '',
+      partner: '',
+      platform: '',
+      campaignObjective: '',
+      creativeType: '',
+      objective: '',
+      files: [],
+      validatedFiles: [],
+      mediaVariations: [],
+      carouselAspectRatio: '1:1',
+      carouselCards: [],
+      mainTexts: [''],
+      titles: [''],
+      description: '',
+      destination: '',
+      cta: '',
+      destinationUrl: '',
+      callToAction: '',
+      observations: ''
+    });
     setCreativeIds([]);
     setErrors({});
   };
@@ -238,4 +283,3 @@ const CreativeSystem = () => {
 };
 
 export default CreativeSystem;
-

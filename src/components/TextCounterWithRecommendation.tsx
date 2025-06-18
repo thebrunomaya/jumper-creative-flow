@@ -9,12 +9,12 @@ interface TextCounterWithRecommendationProps {
 }
 
 const TextCounterWithRecommendation: React.FC<TextCounterWithRecommendationProps> = ({ 
-  text, 
+  text = '', // Add default value to prevent undefined
   recommended, 
   maximum, 
   className = '' 
 }) => {
-  const count = text.length;
+  const count = text?.length || 0; // Safe access with fallback
   const percentageMaximum = count / maximum;
   
   const getBarColor = () => {
