@@ -13,8 +13,10 @@ interface MediaCardProps {
   format: 'square' | 'vertical' | 'horizontal';
   dimensions: string;
   file?: ValidatedFile;
-  onFileChange: (file?: ValidatedFile) => void;
   onPreviewClick: () => void;
+  onUploadClick: () => void;
+  onReplaceClick: () => void;
+  onRemoveClick: () => void;
   enabled: boolean;
   carouselMode?: boolean;
   carouselAspectRatio?: '1:1' | '4:5';
@@ -26,8 +28,10 @@ const MediaCard: React.FC<MediaCardProps> = ({
   format,
   dimensions,
   file,
-  onFileChange,
   onPreviewClick,
+  onUploadClick,
+  onReplaceClick,
+  onRemoveClick,
   enabled,
   carouselMode = false,
   carouselAspectRatio = '1:1',
@@ -38,25 +42,11 @@ const MediaCard: React.FC<MediaCardProps> = ({
   const displayRatio = carouselMode ? carouselAspectRatio : 
     (format === 'square' ? '1:1' : format === 'vertical' ? '9:16' : '1.91:1');
 
-  const handleReplace = () => {
-    document.getElementById(`replace-${format}-${carouselMode ? 'carousel' : 'single'}`)?.click();
-  };
-
-  const handleFileInput = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (files && files.length > 0) {
-      // This would need to be connected to the validation logic
-      // For now, just clear the input
-      event.target.value = '';
-    }
-  };
-
   return (
     <Card className={`overflow-hidden ${!enabled ? 'opacity-60' : ''} ${compact ? 'border-gray-200' : ''}`}>
       <CardContent className="p-0">
-        {/* Padronizar altura para h-40 (160px) */}
         <div className="flex h-40">
-          {/* Thumbnail Section - padronizado com w-32 (128px) */}
+          {/* Thumbnail Section */}
           <div className="w-32 bg-gray-50 border-r border-gray-200 flex items-center justify-center p-3">
             <div 
               className="relative border border-gray-200 rounded-lg overflow-hidden bg-white shadow-sm cursor-pointer flex-shrink-0"
@@ -91,7 +81,7 @@ const MediaCard: React.FC<MediaCardProps> = ({
             </div>
           </div>
 
-          {/* Content Section - reduzir padding e reorganizar layout */}
+          {/* Content Section */}
           <div className="flex-1 p-3 flex flex-col overflow-hidden">
             {/* Header */}
             <div className="flex items-start justify-between mb-2 min-h-0">
@@ -149,7 +139,7 @@ const MediaCard: React.FC<MediaCardProps> = ({
               )}
             </div>
 
-            {/* Action Buttons - fixar no final e garantir que fiquem dentro do container */}
+            {/* Action Buttons */}
             {enabled && (
               <div className="flex-shrink-0">
                 <div className="flex items-center justify-end space-x-2">
@@ -158,7 +148,7 @@ const MediaCard: React.FC<MediaCardProps> = ({
                       <Button 
                         size="sm" 
                         variant="outline" 
-                        onClick={handleReplace}
+                        onClick={onReplaceClick}
                         className="h-7 px-2 text-xs"
                       >
                         Substituir
@@ -166,7 +156,7 @@ const MediaCard: React.FC<MediaCardProps> = ({
                       <Button 
                         size="sm" 
                         variant="outline" 
-                        onClick={() => onFileChange(undefined)}
+                        onClick={onRemoveClick}
                         className="h-7 px-2 text-xs text-red-600 hover:text-red-700"
                       >
                         <X className="h-3 w-3" />
@@ -176,7 +166,7 @@ const MediaCard: React.FC<MediaCardProps> = ({
                     <Button 
                       size="sm" 
                       variant="outline" 
-                      onClick={() => document.getElementById(`upload-${format}-${carouselMode ? 'carousel' : 'single'}`)?.click()}
+                      onClick={onUploadClick}
                       className="h-7 px-2 text-xs"
                     >
                       <Upload className="h-3 w-3 mr-1" />
@@ -186,22 +176,6 @@ const MediaCard: React.FC<MediaCardProps> = ({
                 </div>
               </div>
             )}
-
-            {/* Hidden File Inputs */}
-            <input
-              id={`upload-${format}-${carouselMode ? 'carousel' : 'single'}`}
-              type="file"
-              accept="image/*,video/mp4,video/mov,video/quicktime"
-              onChange={handleFileInput}
-              className="hidden"
-            />
-            <input
-              id={`replace-${format}-${carouselMode ? 'carousel' : 'single'}`}
-              type="file"
-              accept="image/*,video/mp4,video/mov,video/quicktime"
-              onChange={handleFileInput}
-              className="hidden"
-            />
           </div>
         </div>
       </CardContent>

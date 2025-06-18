@@ -34,25 +34,29 @@ const SingleFileUploadSection: React.FC<SingleFileUploadSectionProps> = ({
   const [isValidating, setIsValidating] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
 
-  const onDrop = useCallback(async (acceptedFiles: File[]) => {
-    if (acceptedFiles.length === 0 || !enabled) return;
+  const processFile = useCallback(async (selectedFile: File) => {
+    if (!enabled) return;
     
-    console.log('onDrop - Processing file:', {
-      fileName: acceptedFiles[0].name,
-      fileType: acceptedFiles[0].type,
+    console.log('SingleFileUploadSection - Processing file:', {
+      fileName: selectedFile.name,
+      fileType: selectedFile.type,
       format: format
     });
     
     setIsValidating(true);
-    const validatedFile = await validateFile(acceptedFiles[0], format);
-    console.log('onDrop - Validation complete:', {
+    const validatedFile = await validateFile(selectedFile, format);
+    console.log('SingleFileUploadSection - Validation complete:', {
       valid: validatedFile.valid,
-      hasPreview: !!validatedFile.preview,
-      isVideo: validatedFile.file.type.startsWith('video/')
+      hasPreview: !!validatedFile.preview
     });
     onFileChange(validatedFile);
     setIsValidating(false);
   }, [onFileChange, format, enabled]);
+
+  const onDrop = useCallback(async (acceptedFiles: File[]) => {
+    if (acceptedFiles.length === 0 || !enabled) return;
+    await processFile(acceptedFiles[0]);
+  }, [processFile, enabled]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -64,6 +68,27 @@ const SingleFileUploadSection: React.FC<SingleFileUploadSectionProps> = ({
     maxFiles: 1,
     disabled: !enabled
   });
+
+  const handleUploadClick = () => {
+    document.getElementById(`file-input-${format}`)?.click();
+  };
+
+  const handleReplaceClick = () => {
+    document.getElementById(`file-input-${format}`)?.click();
+  };
+
+  const handleRemoveClick = () => {
+    onFileChange(undefined);
+  };
+
+  const handleFileInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (files && files.length > 0) {
+      processFile(files[0]);
+    }
+    // Clear the input so the same file can be selected again
+    event.target.value = '';
+  };
 
   // Generate validation items for the panel
   const validations = [];
@@ -115,7 +140,7 @@ const SingleFileUploadSection: React.FC<SingleFileUploadSectionProps> = ({
 
       {/* Main Content Area */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Media Card */}
+        {/* Media Card with Dropzone */}
         <div className="lg:col-span-2">
           <div {...getRootProps()} className={isDragActive ? 'opacity-75' : ''}>
             <input {...getInputProps()} />
@@ -124,8 +149,10 @@ const SingleFileUploadSection: React.FC<SingleFileUploadSectionProps> = ({
               format={format}
               dimensions={dimensions}
               file={file}
-              onFileChange={onFileChange}
               onPreviewClick={() => setLightboxOpen(true)}
+              onUploadClick={handleUploadClick}
+              onReplaceClick={handleReplaceClick}
+              onRemoveClick={handleRemoveClick}
               enabled={enabled}
               compact={true}
             />
@@ -137,6 +164,15 @@ const SingleFileUploadSection: React.FC<SingleFileUploadSectionProps> = ({
           <ValidationPanel validations={validations} />
         </div>
       </div>
+
+      {/* Hidden File Input */}
+      <input
+        id={`file-input-${format}`}
+        type="file"
+        accept="image/*,video/mp4,video/mov,video/quicktime"
+        onChange={handleFileInputChange}
+        className="hidden"
+      />
 
       {/* Media Preview Lightbox */}
       {file && (
