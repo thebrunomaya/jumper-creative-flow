@@ -8,8 +8,8 @@ interface MetaZoneOverlayProps {
   onImageLoad?: () => void;
   expanded?: boolean;
   size?: 'thumbnail' | 'lightbox';
-  carouselMode?: boolean; // New prop to indicate carousel mode
-  carouselAspectRatio?: '1:1' | '4:5'; // New prop for carousel aspect ratio
+  carouselMode?: boolean;
+  carouselAspectRatio?: '1:1' | '4:5';
 }
 
 const MetaZoneOverlay: React.FC<MetaZoneOverlayProps> = ({ 
@@ -33,27 +33,31 @@ const MetaZoneOverlay: React.FC<MetaZoneOverlayProps> = ({
     carouselAspectRatio
   });
 
-  // For carousel mode, use specific carousel overlays
+  // For carousel mode, use specific carousel overlays with new Feed format support
   if (carouselMode) {
     const objectFit = size === 'lightbox' ? 'object-contain' : 'object-cover';
     const isThumbnail = size === 'thumbnail';
     
-    // Define carousel safe zones
+    // Define carousel safe zones based on Feed format specifications
     const carouselZones = carouselAspectRatio === '1:1' ? {
-      // 1:1 carousel: 80% central safe zone (100px margin from 1080px = ~9.3%)
-      topSafeMargin: 9.3,
-      bottomSafeMargin: 9.3,
-      leftSafeMargin: 9.3,
-      rightSafeMargin: 9.3
+      // Square Feed (1:1): 10% margin on all sides
+      topSafeMargin: 10,
+      bottomSafeMargin: 10,
+      leftSafeMargin: 10,
+      rightSafeMargin: 10,
+      safeZonePercentage: 80,
+      warningMessage: "Zona segura: 80% central"
     } : {
-      // 4:5 carousel: 250px top/bottom margin from 1350px = ~18.5%
+      // Vertical Feed (4:5): 18.5% top/bottom, 6% sides
       topSafeMargin: 18.5,
       bottomSafeMargin: 18.5,
-      leftSafeMargin: 5,
-      rightSafeMargin: 5
+      leftSafeMargin: 6,
+      rightSafeMargin: 6,
+      pixelEquivalent: "~250px",
+      warningMessage: "Mantenha conteúdo importante no centro vertical"
     };
 
-    console.log('MetaZoneOverlay - Carousel mode with zones:', carouselZones);
+    console.log('MetaZoneOverlay - Carousel mode with Feed zones:', carouselZones);
 
     return (
       <div className="relative w-full h-full">
@@ -69,23 +73,23 @@ const MetaZoneOverlay: React.FC<MetaZoneOverlayProps> = ({
         ) : (
           <img 
             src={imageUrl} 
-            alt="Carousel Preview" 
+            alt="Carousel Feed Preview" 
             className={`w-full h-full ${objectFit} rounded`}
             onLoad={onImageLoad}
           />
         )}
         
-        {/* Carousel Zone Overlays - Always show for lightbox, only hide detailed labels for thumbnails */}
+        {/* Feed Zone Overlays - Enhanced visibility for lightbox */}
         <div className="absolute inset-0 pointer-events-none">
           {/* Top Safe Margin */}
           <div 
-            className="absolute top-0 left-0 right-0 bg-red-500 bg-opacity-30 border-b border-red-400"
+            className={`absolute top-0 left-0 right-0 bg-red-500 ${size === 'lightbox' ? 'bg-opacity-40' : 'bg-opacity-30'} border-b-2 border-red-400`}
             style={{ height: `${carouselZones.topSafeMargin}%` }}
           >
             {!isThumbnail && (
               <div className="flex items-center justify-center h-full">
-                <span className="text-white text-xs font-semibold bg-red-600 bg-opacity-90 px-1 py-0.5 rounded">
-                  Margem Superior ({carouselZones.topSafeMargin.toFixed(1)}%)
+                <span className="text-white text-sm font-bold bg-red-600 bg-opacity-90 px-2 py-1 rounded shadow">
+                  {carouselAspectRatio === '1:1' ? '10%' : `${carouselZones.topSafeMargin}% ${carouselZones.pixelEquivalent || ''}`}
                 </span>
               </div>
             )}
@@ -93,12 +97,12 @@ const MetaZoneOverlay: React.FC<MetaZoneOverlayProps> = ({
 
           {/* Left Safe Margin */}
           <div 
-            className="absolute top-0 left-0 bottom-0 bg-red-500 bg-opacity-30 border-r border-red-400"
+            className={`absolute top-0 left-0 bottom-0 bg-red-500 ${size === 'lightbox' ? 'bg-opacity-40' : 'bg-opacity-30'} border-r-2 border-red-400`}
             style={{ width: `${carouselZones.leftSafeMargin}%` }}
           >
             {!isThumbnail && (
               <div className="flex items-center justify-center h-full">
-                <span className="text-white text-xs font-semibold bg-red-600 bg-opacity-90 px-1 py-1 rounded transform -rotate-90">
+                <span className="text-white text-sm font-bold bg-red-600 bg-opacity-90 px-2 py-1 rounded transform -rotate-90 shadow">
                   {carouselZones.leftSafeMargin}%
                 </span>
               </div>
@@ -107,12 +111,12 @@ const MetaZoneOverlay: React.FC<MetaZoneOverlayProps> = ({
 
           {/* Right Safe Margin */}
           <div 
-            className="absolute top-0 right-0 bottom-0 bg-red-500 bg-opacity-30 border-l border-red-400"
+            className={`absolute top-0 right-0 bottom-0 bg-red-500 ${size === 'lightbox' ? 'bg-opacity-40' : 'bg-opacity-30'} border-l-2 border-red-400`}
             style={{ width: `${carouselZones.rightSafeMargin}%` }}
           >
             {!isThumbnail && (
               <div className="flex items-center justify-center h-full">
-                <span className="text-white text-xs font-semibold bg-red-600 bg-opacity-90 px-1 py-1 rounded transform rotate-90">
+                <span className="text-white text-sm font-bold bg-red-600 bg-opacity-90 px-2 py-1 rounded transform rotate-90 shadow">
                   {carouselZones.rightSafeMargin}%
                 </span>
               </div>
@@ -121,21 +125,21 @@ const MetaZoneOverlay: React.FC<MetaZoneOverlayProps> = ({
 
           {/* Bottom Safe Margin */}
           <div 
-            className="absolute bottom-0 left-0 right-0 bg-red-500 bg-opacity-30 border-t border-red-400"
+            className={`absolute bottom-0 left-0 right-0 bg-red-500 ${size === 'lightbox' ? 'bg-opacity-40' : 'bg-opacity-30'} border-t-2 border-red-400`}
             style={{ height: `${carouselZones.bottomSafeMargin}%` }}
           >
             {!isThumbnail && (
               <div className="flex items-center justify-center h-full">
-                <span className="text-white text-xs font-semibold bg-red-600 bg-opacity-90 px-1 py-0.5 rounded">
-                  Margem Inferior ({carouselZones.bottomSafeMargin.toFixed(1)}%)
+                <span className="text-white text-sm font-bold bg-red-600 bg-opacity-90 px-2 py-1 rounded shadow">
+                  {carouselAspectRatio === '1:1' ? '10%' : `${carouselZones.bottomSafeMargin}% ${carouselZones.pixelEquivalent || ''}`}
                 </span>
               </div>
             )}
           </div>
 
-          {/* Safe Zone - Always visible, with more pronounced styling for lightbox */}
+          {/* Safe Zone - Enhanced styling and visibility */}
           <div 
-            className={`absolute ${size === 'lightbox' ? 'bg-green-500 bg-opacity-20 border-2 border-green-400' : 'bg-green-500 bg-opacity-10 border border-green-400'} border-dashed`}
+            className={`absolute ${size === 'lightbox' ? 'bg-green-400 bg-opacity-25 border-4 border-green-500' : 'bg-green-500 bg-opacity-15 border-2 border-green-400'} border-dashed`}
             style={{ 
               top: `${carouselZones.topSafeMargin}%`, 
               left: `${carouselZones.leftSafeMargin}%`, 
@@ -145,9 +149,19 @@ const MetaZoneOverlay: React.FC<MetaZoneOverlayProps> = ({
           >
             {size === 'lightbox' && (
               <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                <span className="text-green-700 text-sm font-semibold bg-green-100 bg-opacity-90 px-3 py-2 rounded shadow">
-                  Zona Segura Carrossel {carouselAspectRatio}
-                </span>
+                <div className="bg-green-600 bg-opacity-95 text-white px-4 py-3 rounded-lg shadow-lg text-center">
+                  <div className="text-lg font-bold mb-1">
+                    Zona Segura Feed {carouselAspectRatio}
+                  </div>
+                  <div className="text-sm">
+                    {carouselZones.warningMessage}
+                  </div>
+                  {carouselAspectRatio === '1:1' && (
+                    <div className="text-xs mt-1 text-green-100">
+                      {carouselZones.safeZonePercentage}% da área total
+                    </div>
+                  )}
+                </div>
               </div>
             )}
           </div>
@@ -185,7 +199,7 @@ const MetaZoneOverlay: React.FC<MetaZoneOverlayProps> = ({
     );
   }
 
-  // Get zone configuration based on file type
+  // Get zone configuration based on file type for Stories/Reels
   const zoneConfig = getZoneConfig(file);
   console.log('MetaZoneOverlay - Zone config result:', {
     configName: zoneConfig?.name,
