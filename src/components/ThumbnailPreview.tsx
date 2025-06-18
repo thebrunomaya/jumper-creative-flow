@@ -9,8 +9,8 @@ interface ThumbnailPreviewProps {
   format: 'square' | 'vertical' | 'horizontal';
   file?: ValidatedFile;
   onPreviewClick: () => void;
-  carouselMode?: boolean; // New prop for carousel mode
-  carouselAspectRatio?: '1:1' | '4:5'; // New prop for carousel aspect ratio
+  carouselMode?: boolean;
+  carouselAspectRatio?: '1:1' | '4:5';
 }
 
 const ThumbnailPreview: React.FC<ThumbnailPreviewProps> = ({
@@ -22,7 +22,6 @@ const ThumbnailPreview: React.FC<ThumbnailPreviewProps> = ({
 }) => {
   const { width, height } = getThumbnailDimensions(format, carouselMode, carouselAspectRatio);
   
-  // For carousel mode, show the aspect ratio instead of format ratio
   const displayRatio = carouselMode ? carouselAspectRatio : 
     (format === 'square' ? '1:1' : format === 'vertical' ? '9:16' : '1.91:1');
   
@@ -47,7 +46,6 @@ const ThumbnailPreview: React.FC<ThumbnailPreviewProps> = ({
         </div>
       </div>
 
-      {/* Botão Ver dentro da imagem, centralizado na parte inferior */}
       {file && (
         <div className="absolute bottom-1.5 left-1/2 transform -translate-x-1/2">
           <div className="bg-blue-500 text-white text-xs px-2 py-1 rounded backdrop-blur-sm hover:bg-blue-600 transition-colors flex items-center space-x-1">

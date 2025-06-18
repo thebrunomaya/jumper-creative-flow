@@ -5,9 +5,8 @@ import { validateFile } from '@/utils/fileValidation';
 import { Switch } from '@/components/ui/switch';
 import { useDropzone } from 'react-dropzone';
 import MediaPreviewLightbox from './MediaPreviewLightbox';
-import ThumbnailPreview from './ThumbnailPreview';
-import FileUploadZone from './FileUploadZone';
-import FileDetails from './FileDetails';
+import MediaCard from './MediaCard';
+import ValidationPanel from './ValidationPanel';
 
 interface SingleFileUploadSectionProps {
   title: string;
@@ -66,17 +65,37 @@ const SingleFileUploadSection: React.FC<SingleFileUploadSectionProps> = ({
     disabled: !enabled
   });
 
-  const removeFile = () => {
-    onFileChange(undefined);
-  };
+  // Generate validation items for the panel
+  const validations = [];
+  if (file) {
+    if (file.valid) {
+      validations.push({
+        id: 'file-valid',
+        type: 'success' as const,
+        message: `Arquivo ${format} válido e pronto para uso`
+      });
+    } else if (file.errors) {
+      file.errors.forEach((error, index) => {
+        validations.push({
+          id: `error-${index}`,
+          type: 'error' as const,
+          message: error
+        });
+      });
+    }
+  }
 
-  const handleReplace = () => {
-    document.getElementById(`replace-${format}`)?.click();
-  };
+  if (isValidating) {
+    validations.push({
+      id: 'validating',
+      type: 'info' as const,
+      message: 'Validando arquivo...'
+    });
+  }
 
   return (
     <div className="space-y-4">
-      {/* Header - always visible */}
+      {/* Header with Switch */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
           <h3 className="text-lg font-semibold text-jumper-text">{title}</h3>
@@ -94,76 +113,39 @@ const SingleFileUploadSection: React.FC<SingleFileUploadSectionProps> = ({
         <span className="text-sm text-gray-500">{dimensions}</span>
       </div>
 
-      {/* Show disabled message when positioning is off */}
-      {!enabled && (
-        <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
-          <p className="text-sm text-amber-800">
-            📍 Posicionamento desativado
-          </p>
-        </div>
-      )}
-
-      {/* Only show upload section when enabled */}
-      {enabled && (
-        <>
-          {/* Upload Zone or File Display - Container com altura flexível */}
-          <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm min-h-[200px]">
-            <div className="flex min-h-[200px]">
-              {/* Thumbnail Container - largura aumentada para 160px */}
-              <div className="w-[160px] bg-gray-50 border-r border-gray-200 flex items-center justify-center p-4">
-                <ThumbnailPreview
-                  format={format}
-                  file={file}
-                  onPreviewClick={() => setLightboxOpen(true)}
-                />
-              </div>
-
-              {/* Upload Area ou File Details Container - altura flexível */}
-              <div className="flex-1 flex flex-col min-h-[200px]">
-                {!file ? (
-                  <FileUploadZone
-                    getRootProps={getRootProps}
-                    getInputProps={getInputProps}
-                    isDragActive={isDragActive}
-                    isValidating={isValidating}
-                    dimensions={dimensions}
-                  />
-                ) : (
-                  <FileDetails
-                    file={file}
-                    format={format}
-                    onRemove={removeFile}
-                    onReplace={handleReplace}
-                  />
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Hidden file input for replacement */}
-          <input
-            id={`replace-${format}`}
-            type="file"
-            accept="image/*,video/mp4,video/mov,video/quicktime"
-            onChange={(e) => {
-              const files = e.target.files;
-              if (files && files.length > 0) {
-                onDrop([files[0]]);
-              }
-            }}
-            style={{ display: 'none' }}
-          />
-
-          {/* Media Preview Lightbox */}
-          {file && (
-            <MediaPreviewLightbox
-              file={file}
+      {/* Main Content Area */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        {/* Media Card */}
+        <div className="lg:col-span-2">
+          <div {...getRootProps()} className={isDragActive ? 'opacity-75' : ''}>
+            <input {...getInputProps()} />
+            <MediaCard
+              title={title}
               format={format}
-              open={lightboxOpen}
-              onOpenChange={setLightboxOpen}
+              dimensions={dimensions}
+              file={file}
+              onFileChange={onFileChange}
+              onPreviewClick={() => setLightboxOpen(true)}
+              enabled={enabled}
+              compact={true}
             />
-          )}
-        </>
+          </div>
+        </div>
+
+        {/* Validation Panel */}
+        <div className="lg:col-span-1">
+          <ValidationPanel validations={validations} />
+        </div>
+      </div>
+
+      {/* Media Preview Lightbox */}
+      {file && (
+        <MediaPreviewLightbox
+          file={file}
+          format={format}
+          open={lightboxOpen}
+          onOpenChange={setLightboxOpen}
+        />
       )}
     </div>
   );
