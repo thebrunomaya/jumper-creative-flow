@@ -99,7 +99,7 @@ const CarouselCardUpload: React.FC<CarouselCardUploadProps> = ({
           {/* Thumbnail Container */}
           <div className="w-[160px] bg-gray-100 border-r border-gray-200 flex items-center justify-center p-4">
             <ThumbnailPreview
-              format={aspectRatio === '1:1' ? 'square' : 'vertical'}
+              format="square" // Use square for both 1:1 and 4:5 to maintain base format
               file={card.file}
               onPreviewClick={() => setLightboxOpen(true)}
               carouselMode={true}
@@ -120,7 +120,7 @@ const CarouselCardUpload: React.FC<CarouselCardUploadProps> = ({
             ) : (
               <FileDetails
                 file={card.file}
-                format={aspectRatio === '1:1' ? 'square' : 'vertical'}
+                format="square" // Use square for consistent display
                 onRemove={removeFile}
                 onReplace={handleReplace}
               />
@@ -147,9 +147,11 @@ const CarouselCardUpload: React.FC<CarouselCardUploadProps> = ({
       {card.file && (
         <MediaPreviewLightbox
           file={card.file}
-          format={aspectRatio === '1:1' ? 'square' : 'vertical'}
+          format="square" // Use square as base format
           open={lightboxOpen}
           onOpenChange={setLightboxOpen}
+          carouselMode={true}
+          carouselAspectRatio={aspectRatio}
         />
       )}
     </div>

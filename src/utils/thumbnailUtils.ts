@@ -8,7 +8,7 @@ export const getThumbnailDimensions = (format: 'square' | 'vertical' | 'horizont
   // Para modo carrossel, usar as proporções específicas
   if (carouselMode) {
     if (carouselAspectRatio === '4:5') {
-      aspectRatio = 4 / 5; // 0.8 - Carrossel 4:5
+      aspectRatio = 4 / 5; // 0.8 - Carrossel 4:5 (mais alto que largo)
     } else {
       aspectRatio = 1; // 1:1 - Carrossel quadrado
     }
@@ -30,6 +30,7 @@ export const getThumbnailDimensions = (format: 'square' | 'vertical' | 'horizont
   }
   
   // Calcular altura baseada na largura fixa e aspect ratio
+  // Para 4:5, altura deve ser maior que largura (120 / 0.8 = 150)
   const height = Math.round(fixedWidth / aspectRatio);
   
   return { 
@@ -41,8 +42,23 @@ export const getThumbnailDimensions = (format: 'square' | 'vertical' | 'horizont
 export const createMockupFile = (format: 'square' | 'vertical' | 'horizontal', carouselMode = false, carouselAspectRatio?: '1:1' | '4:5') => {
   const canvas = document.createElement('canvas');
   const { width, height } = getThumbnailDimensions(format, carouselMode, carouselAspectRatio);
-  canvas.width = width * 3;
-  canvas.height = height * 3;
+  
+  // Usar dimensões reais do carrossel para o canvas
+  if (carouselMode) {
+    if (carouselAspectRatio === '4:5') {
+      // Canvas 4:5 - 1080x1350 scaled down
+      canvas.width = width * 3; // 360px
+      canvas.height = Math.round((width * 3) * (5/4)); // 450px (360 * 1.25)
+    } else {
+      // Canvas 1:1 - 1080x1080 scaled down
+      canvas.width = width * 3; // 360px
+      canvas.height = width * 3; // 360px
+    }
+  } else {
+    canvas.width = width * 3;
+    canvas.height = height * 3;
+  }
+  
   const ctx = canvas.getContext('2d');
   
   if (ctx) {
