@@ -10,7 +10,7 @@ export const getThumbnailDimensions = (format: 'square' | 'vertical' | 'horizont
       aspectRatio = 1; // 1:1
       break;
     case 'vertical':
-      aspectRatio = 9 / 16; // 9:16
+      aspectRatio = 9 / 16; // 9:16 - also used for carousel 4:5 since they're both vertical
       break;
     case 'horizontal':
       aspectRatio = 1.91; // 1.91:1
@@ -63,8 +63,19 @@ export const createMockupFile = (format: 'square' | 'vertical' | 'horizontal') =
     ctx.font = 'bold 18px system-ui, -apple-system, sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
+    
+    // For carousel, show the aspect ratio instead of placement ratio
+    let displayText = '';
+    if (format === 'square') {
+      displayText = '1:1';
+    } else if (format === 'vertical') {
+      displayText = '9:16'; // Keep as 9:16 for now, carousel will use different logic
+    } else {
+      displayText = '1.91:1';
+    }
+    
     ctx.fillText(
-      format === 'square' ? '1:1' : format === 'vertical' ? '9:16' : '1.91:1',
+      displayText,
       canvas.width / 2,
       canvas.height / 2
     );

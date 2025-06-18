@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { getZoneConfig } from '@/config/adPlatformZones';
 
@@ -9,6 +8,8 @@ interface MetaZoneOverlayProps {
   onImageLoad?: () => void;
   expanded?: boolean;
   size?: 'thumbnail' | 'lightbox';
+  carouselMode?: boolean; // New prop to indicate carousel mode
+  carouselAspectRatio?: '1:1' | '4:5'; // New prop for carousel aspect ratio
 }
 
 const MetaZoneOverlay: React.FC<MetaZoneOverlayProps> = ({ 
@@ -17,7 +18,9 @@ const MetaZoneOverlay: React.FC<MetaZoneOverlayProps> = ({
   file,
   onImageLoad,
   expanded = false,
-  size = 'lightbox'
+  size = 'lightbox',
+  carouselMode = false,
+  carouselAspectRatio = '1:1'
 }) => {
   console.log('MetaZoneOverlay - Rendering with props:', { 
     format, 
@@ -25,8 +28,135 @@ const MetaZoneOverlay: React.FC<MetaZoneOverlayProps> = ({
     fileType: file?.type,
     imageUrl: imageUrl ? 'Present' : 'Missing',
     expanded,
-    size
+    size,
+    carouselMode,
+    carouselAspectRatio
   });
+
+  // For carousel mode, use specific carousel overlays
+  if (carouselMode) {
+    const objectFit = size === 'lightbox' ? 'object-contain' : 'object-cover';
+    const isThumbnail = size === 'thumbnail';
+    
+    // Define carousel safe zones
+    const carouselZones = carouselAspectRatio === '1:1' ? {
+      // 1:1 carousel: 80% central safe zone (100px margin from 1080px = ~9.3%)
+      topSafeMargin: 9.3,
+      bottomSafeMargin: 9.3,
+      leftSafeMargin: 9.3,
+      rightSafeMargin: 9.3
+    } : {
+      // 4:5 carousel: 250px top/bottom margin from 1350px = ~18.5%
+      topSafeMargin: 18.5,
+      bottomSafeMargin: 18.5,
+      leftSafeMargin: 5,
+      rightSafeMargin: 5
+    };
+
+    console.log('MetaZoneOverlay - Carousel mode with zones:', carouselZones);
+
+    return (
+      <div className="relative w-full h-full">
+        {/* Base Media */}
+        {file?.type.startsWith('video/') ? (
+          <video 
+            src={imageUrl} 
+            className={`w-full h-full ${objectFit} rounded`}
+            muted
+            controls={expanded && size === 'lightbox'}
+            onLoadedData={onImageLoad}
+          />
+        ) : (
+          <img 
+            src={imageUrl} 
+            alt="Carousel Preview" 
+            className={`w-full h-full ${objectFit} rounded`}
+            onLoad={onImageLoad}
+          />
+        )}
+        
+        {/* Carousel Zone Overlays */}
+        <div className="absolute inset-0 pointer-events-none">
+          {/* Top Safe Margin */}
+          <div 
+            className="absolute top-0 left-0 right-0 bg-red-500 bg-opacity-30"
+            style={{ height: `${carouselZones.topSafeMargin}%` }}
+          >
+            {!isThumbnail && (
+              <div className="flex items-center justify-center h-full border-b border-red-400">
+                <span className="text-white text-xs font-semibold bg-red-600 bg-opacity-90 px-1 py-0.5 rounded">
+                  Margem Superior
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* Left Safe Margin */}
+          <div 
+            className="absolute top-0 left-0 bottom-0 bg-red-500 bg-opacity-30"
+            style={{ width: `${carouselZones.leftSafeMargin}%` }}
+          >
+            {!isThumbnail && (
+              <div className="flex items-center justify-center h-full border-r border-red-400">
+                <span className="text-white text-xs font-semibold bg-red-600 bg-opacity-90 px-1 py-1 rounded transform -rotate-90">
+                  {carouselZones.leftSafeMargin}%
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* Right Safe Margin */}
+          <div 
+            className="absolute top-0 right-0 bottom-0 bg-red-500 bg-opacity-30"
+            style={{ width: `${carouselZones.rightSafeMargin}%` }}
+          >
+            {!isThumbnail && (
+              <div className="flex items-center justify-center h-full border-l border-red-400">
+                <span className="text-white text-xs font-semibold bg-red-600 bg-opacity-90 px-1 py-1 rounded transform rotate-90">
+                  {carouselZones.rightSafeMargin}%
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* Bottom Safe Margin */}
+          <div 
+            className="absolute bottom-0 left-0 right-0 bg-red-500 bg-opacity-30"
+            style={{ height: `${carouselZones.bottomSafeMargin}%` }}
+          >
+            {!isThumbnail && (
+              <div className="flex items-center justify-center h-full border-t border-red-400">
+                <span className="text-white text-xs font-semibold bg-red-600 bg-opacity-90 px-1 py-0.5 rounded">
+                  Margem Inferior
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* Safe Zone */}
+          {!isThumbnail && (
+            <div 
+              className="absolute bg-green-500 bg-opacity-10 border border-green-400 border-dashed"
+              style={{ 
+                top: `${carouselZones.topSafeMargin}%`, 
+                left: `${carouselZones.leftSafeMargin}%`, 
+                right: `${carouselZones.rightSafeMargin}%`,
+                bottom: `${carouselZones.bottomSafeMargin}%`
+              }}
+            >
+              {expanded && size === 'lightbox' && (
+                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                  <span className="text-green-700 text-xs font-semibold bg-green-100 bg-opacity-90 px-2 py-1 rounded">
+                    Zona Segura Carrossel {carouselAspectRatio}
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   // Only show overlay for vertical format (Stories/Reels)
   if (format !== 'vertical') {
@@ -203,7 +333,7 @@ const MetaZoneOverlay: React.FC<MetaZoneOverlayProps> = ({
             )}
           </div>
 
-          {/* Safe Zone - Only show detailed info in lightbox */}
+          {/* Safe Zone */}
           {!isThumbnail && (
             <div 
               className="absolute bg-green-500 bg-opacity-10 border border-green-400 border-dashed"

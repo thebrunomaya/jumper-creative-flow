@@ -1,3 +1,4 @@
+
 export interface FormData {
   // Step 1
   client: string;
@@ -11,6 +12,10 @@ export interface FormData {
   files: File[];
   validatedFiles: ValidatedFile[];
   mediaVariations?: MediaVariation[]; // New field for multiple media sets
+  
+  // Carousel specific fields
+  carouselAspectRatio?: '1:1' | '4:5'; // Toggle de proporção no topo
+  carouselCards?: CarouselCard[]; // Array de cartões do carrossel
   
   // Step 3 - Updated for multiple titles and main texts + new conditional fields
   mainTexts: string[]; // Changed from single mainText to array
@@ -30,7 +35,7 @@ export interface ValidatedFile {
   duration?: number;
   errors: string[];
   preview?: string;
-  format?: 'square' | 'vertical' | 'horizontal'; // Add format for image ads
+  format?: 'square' | 'vertical' | 'horizontal' | 'carousel-1:1' | 'carousel-4:5'; // Add carousel formats
 }
 
 export interface MediaVariation {
@@ -41,6 +46,16 @@ export interface MediaVariation {
   squareEnabled?: boolean; // New field to control if square position is enabled
   verticalEnabled?: boolean; // New field to control if vertical position is enabled
   horizontalEnabled?: boolean; // New field to control if horizontal position is enabled
+}
+
+export interface CarouselCard {
+  id: number;
+  file?: ValidatedFile; // Um arquivo por card na proporção selecionada
+  // Campos individualizáveis (quando toggle ativo)
+  customTitle?: string;
+  customDescription?: string;
+  customDestinationUrl?: string;
+  customCta?: string;
 }
 
 export interface Client {
@@ -73,21 +88,26 @@ export const META_SPECS = {
   video: {
     feed: { width: 1080, height: 1080, maxSize: 4 * 1024 * 1024 * 1024, duration: [15, 60] },
     stories: { width: 1080, height: 1920, maxSize: 4 * 1024 * 1024 * 1024, duration: [15, 60] }
+  },
+  // Carousel specifications
+  carousel: {
+    '1:1': { width: 1080, height: 1080, maxSize: 30 * 1024 * 1024, safeZone: 80 },
+    '4:5': { width: 1080, height: 1350, maxSize: 30 * 1024 * 1024, topMargin: 250, bottomMargin: 250 }
   }
 };
 
 // Updated text limits with recommended and maximum values
 export const TEXT_LIMITS = {
   mainText: {
-    recommended: 125,
+    recommended: 80, // Updated for carousel
     maximum: 500
   },
   title: {
-    recommended: 40,
+    recommended: 45, // Updated for carousel
     maximum: 255
   },
   description: {
-    recommended: 30,
+    recommended: 18, // Updated for carousel
     maximum: 200
   }
 };
@@ -96,4 +116,10 @@ export const TEXT_LIMITS = {
 export const META_TEXT_VARIATIONS = {
   maxTitles: 5,
   maxMainTexts: 5
+};
+
+// Carousel limits
+export const CAROUSEL_LIMITS = {
+  minCards: 2,
+  maxCards: 10
 };
