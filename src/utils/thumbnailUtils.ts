@@ -64,12 +64,13 @@ export const createMockupFile = (format: 'square' | 'vertical' | 'horizontal', c
   if (ctx) {
     const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
     
-    // Cores específicas para carrossel
+    // Cores específicas para carrossel - 4:5 agora com cor laranja/amarelo
     if (carouselMode) {
       if (carouselAspectRatio === '4:5') {
-        gradient.addColorStop(0, '#fef3c7');
-        gradient.addColorStop(1, '#f59e0b');
+        gradient.addColorStop(0, '#fef3c7'); // Amarelo claro
+        gradient.addColorStop(1, '#f59e0b'); // Laranja/amarelo
       } else {
+        // 1:1 mantém cor azul para consistência com formato square
         gradient.addColorStop(0, '#dbeafe');
         gradient.addColorStop(1, '#3b82f6');
       }

@@ -33,10 +33,26 @@ const MetaZoneOverlay: React.FC<MetaZoneOverlayProps> = ({
     carouselAspectRatio
   });
 
-  // For carousel mode, use specific carousel overlays with new Feed format support
+  // For carousel mode, show overlay ONLY if there's a real file uploaded
   if (carouselMode) {
     const objectFit = size === 'lightbox' ? 'object-contain' : 'object-cover';
     const isThumbnail = size === 'thumbnail';
+    
+    // If no file uploaded, show clean preview without overlay
+    if (!file) {
+      console.log('MetaZoneOverlay - Carousel mode without file, showing clean preview');
+      
+      return (
+        <div className="relative w-full h-full">
+          <img 
+            src={imageUrl} 
+            alt="Carousel Preview" 
+            className={`w-full h-full ${objectFit} rounded`}
+            onLoad={onImageLoad}
+          />
+        </div>
+      );
+    }
     
     // Define carousel safe zones based on Feed format specifications
     const carouselZones = carouselAspectRatio === '1:1' ? {
@@ -57,7 +73,7 @@ const MetaZoneOverlay: React.FC<MetaZoneOverlayProps> = ({
       warningMessage: "Mantenha conteúdo importante no centro vertical"
     };
 
-    console.log('MetaZoneOverlay - Carousel mode with Feed zones:', carouselZones);
+    console.log('MetaZoneOverlay - Carousel mode with file and Feed zones:', carouselZones);
 
     return (
       <div className="relative w-full h-full">
