@@ -43,13 +43,13 @@ const MediaCard: React.FC<MediaCardProps> = ({
     (format === 'square' ? '1:1' : format === 'vertical' ? '9:16' : '1.91:1');
 
   return (
-    <Card className={`overflow-hidden ${!enabled ? 'opacity-60' : ''} ${compact ? 'border-gray-200' : ''}`}>
+    <Card className={`overflow-hidden w-full ${!enabled ? 'opacity-60' : ''} ${compact ? 'border-gray-200' : ''}`}>
       <CardContent className="p-0">
-        <div className="flex h-40">
-          {/* Thumbnail Section */}
-          <div className="w-32 bg-gray-50 border-r border-gray-200 flex items-center justify-center p-3">
+        <div className="flex h-40 w-full">
+          {/* Thumbnail Section - Fixed width for consistent layout */}
+          <div className="w-32 bg-gray-50 border-r border-gray-200 flex items-center justify-center p-3 flex-shrink-0">
             <div 
-              className="relative border border-gray-200 rounded-lg overflow-hidden bg-white shadow-sm cursor-pointer flex-shrink-0"
+              className="relative border border-gray-200 rounded-lg overflow-hidden bg-white shadow-sm cursor-pointer"
               style={{ width: width * 0.8, height: height * 0.8 }}
               onClick={() => file && enabled && onPreviewClick()}
             >
@@ -81,8 +81,8 @@ const MediaCard: React.FC<MediaCardProps> = ({
             </div>
           </div>
 
-          {/* Content Section */}
-          <div className="flex-1 p-3 flex flex-col overflow-hidden">
+          {/* Content Section - Takes remaining space */}
+          <div className="flex-1 p-3 flex flex-col overflow-hidden min-w-0">
             {/* Header */}
             <div className="flex items-start justify-between mb-2 min-h-0">
               <div className="min-w-0 flex-1">

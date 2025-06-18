@@ -70,24 +70,24 @@ const SingleFileUploadSection: React.FC<SingleFileUploadSectionProps> = ({
   });
 
   const handleUploadClick = () => {
-    document.getElementById(`file-input-${format}`)?.click();
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*,video/mp4,video/mov,video/quicktime';
+    input.onchange = (event) => {
+      const files = (event.target as HTMLInputElement).files;
+      if (files && files.length > 0) {
+        processFile(files[0]);
+      }
+    };
+    input.click();
   };
 
   const handleReplaceClick = () => {
-    document.getElementById(`file-input-${format}`)?.click();
+    handleUploadClick();
   };
 
   const handleRemoveClick = () => {
     onFileChange(undefined);
-  };
-
-  const handleFileInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (files && files.length > 0) {
-      processFile(files[0]);
-    }
-    // Clear the input so the same file can be selected again
-    event.target.value = '';
   };
 
   // Generate validation items for the panel
@@ -138,10 +138,10 @@ const SingleFileUploadSection: React.FC<SingleFileUploadSectionProps> = ({
         <span className="text-sm text-gray-500">{dimensions}</span>
       </div>
 
-      {/* Main Content Area */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Media Card with Dropzone */}
-        <div className="lg:col-span-2">
+      {/* Main Content Area - Adjusted grid for better space utilization */}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+        {/* Media Card with Dropzone - Takes 3/4 of the space on large screens */}
+        <div className="lg:col-span-3">
           <div {...getRootProps()} className={isDragActive ? 'opacity-75' : ''}>
             <input {...getInputProps()} />
             <MediaCard
@@ -159,20 +159,11 @@ const SingleFileUploadSection: React.FC<SingleFileUploadSectionProps> = ({
           </div>
         </div>
 
-        {/* Validation Panel */}
+        {/* Validation Panel - Takes 1/4 of the space on large screens */}
         <div className="lg:col-span-1">
           <ValidationPanel validations={validations} />
         </div>
       </div>
-
-      {/* Hidden File Input */}
-      <input
-        id={`file-input-${format}`}
-        type="file"
-        accept="image/*,video/mp4,video/mov,video/quicktime"
-        onChange={handleFileInputChange}
-        className="hidden"
-      />
 
       {/* Media Preview Lightbox */}
       {file && (
