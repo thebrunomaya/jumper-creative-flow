@@ -1,7 +1,8 @@
 
 export const getThumbnailDimensions = (format: 'square' | 'vertical' | 'horizontal', carouselMode = false, carouselAspectRatio?: '1:1' | '4:5') => {
-  // Largura fixa para todos os formatos para favorecer o posicionamento vertical
-  const fixedWidth = 120;
+  // Container é 160x160px com padding de 8px (total área disponível: 144x144px)
+  const maxWidth = 144;
+  const maxHeight = 144;
   
   let aspectRatio: number;
   
@@ -13,28 +14,50 @@ export const getThumbnailDimensions = (format: 'square' | 'vertical' | 'horizont
       aspectRatio = 1; // 1:1 - Carrossel quadrado
     }
   } else {
-    // Formatos normais (não carrossel) - ajustar vertical para caber no container
+    // Formatos normais (não carrossel)
     switch (format) {
       case 'square':
         aspectRatio = 1; // 1:1
         break;
       case 'vertical':
-        // Limitar altura para caber no container de 160px - ajustar para proporção mais adequada
-        aspectRatio = 9 / 14; // Aproximadamente 0.64 - mais compacto que 9:16 original
+        aspectRatio = 9 / 16; // 0.5625 - Stories/Reels
         break;
       case 'horizontal':
-        aspectRatio = 1.91; // 1.91:1
+        aspectRatio = 1.91; // 1.91:1 - Feed horizontal
         break;
       default:
         aspectRatio = 1;
     }
   }
   
-  // Calcular altura baseada na largura fixa e aspect ratio
-  const height = Math.round(fixedWidth / aspectRatio);
+  // Calcular dimensões que cabem na área disponível mantendo a proporção
+  let width: number;
+  let height: number;
+  
+  if (aspectRatio >= 1) {
+    // Formato horizontal ou quadrado - limitar pela largura
+    width = maxWidth;
+    height = Math.round(width / aspectRatio);
+    
+    // Se altura exceder o máximo, ajustar pela altura
+    if (height > maxHeight) {
+      height = maxHeight;
+      width = Math.round(height * aspectRatio);
+    }
+  } else {
+    // Formato vertical - limitar pela altura
+    height = maxHeight;
+    width = Math.round(height * aspectRatio);
+    
+    // Se largura exceder o máximo, ajustar pela largura
+    if (width > maxWidth) {
+      width = maxWidth;
+      height = Math.round(width / aspectRatio);
+    }
+  }
   
   return { 
-    width: fixedWidth, 
+    width, 
     height 
   };
 };
@@ -43,21 +66,9 @@ export const createMockupFile = (format: 'square' | 'vertical' | 'horizontal', c
   const canvas = document.createElement('canvas');
   const { width, height } = getThumbnailDimensions(format, carouselMode, carouselAspectRatio);
   
-  // Usar dimensões reais do carrossel para o canvas
-  if (carouselMode) {
-    if (carouselAspectRatio === '4:5') {
-      // Canvas 4:5 - 1080x1350 scaled down
-      canvas.width = width * 3; // 360px
-      canvas.height = Math.round((width * 3) * (5/4)); // 450px (360 * 1.25)
-    } else {
-      // Canvas 1:1 - 1080x1080 scaled down
-      canvas.width = width * 3; // 360px
-      canvas.height = width * 3; // 360px
-    }
-  } else {
-    canvas.width = width * 3;
-    canvas.height = height * 3;
-  }
+  // Usar dimensões calculadas para o canvas com escala 2x para qualidade
+  canvas.width = width * 2;
+  canvas.height = height * 2;
   
   const ctx = canvas.getContext('2d');
   
@@ -100,7 +111,7 @@ export const createMockupFile = (format: 'square' | 'vertical' | 'horizontal', c
     ctx.strokeRect(1, 1, canvas.width - 2, canvas.height - 2);
     
     ctx.fillStyle = '#374151';
-    ctx.font = 'bold 18px system-ui, -apple-system, sans-serif';
+    ctx.font = 'bold 16px system-ui, -apple-system, sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     

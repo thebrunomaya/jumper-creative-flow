@@ -76,8 +76,8 @@ const MediaCard: React.FC<MediaCardProps> = ({
 
       {/* Content Area */}
       <div className="flex min-h-[160px]">
-        {/* Thumbnail Container - padronizado com w-32 (128px) */}
-        <div className="w-32 bg-gray-50 border-r border-gray-200 flex items-center justify-center p-4">
+        {/* Thumbnail Container - quadrado 160x160px */}
+        <div className="w-40 h-40 bg-gray-50 border-r border-gray-200 flex items-center justify-center p-2">
           <ThumbnailPreview
             format={format}
             file={file}
