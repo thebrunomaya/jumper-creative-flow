@@ -1,4 +1,5 @@
 
+
 import React, { useState } from 'react';
 import Header from './Header';
 import Step1 from './steps/Step1';
@@ -8,22 +9,89 @@ import Step4 from './steps/Step4';
 import Success from './Success';
 import ProgressBar from './ProgressBar';
 import DevButton from './DevButton';
+import { FormData } from '@/types/creative';
+import { Button } from '@/components/ui/button';
 
 const CreativeSystem = () => {
   const [currentStep, setCurrentStep] = useState(1);
-  const [formData, setFormData] = useState<any>({});
+  const [formData, setFormData] = useState<FormData>({});
   const [showSuccess, setShowSuccess] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [creativeIds, setCreativeIds] = useState<string[]>([]);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const stepLabels = ['Básico', 'Arquivos', 'Conteúdo', 'Revisão'];
 
   const handleNext = () => {
-    setCurrentStep(currentStep + 1);
+    // Basic validation before moving to next step
+    const newErrors: Record<string, string> = {};
+    
+    if (currentStep === 1) {
+      if (!formData.client) newErrors.client = 'Selecione uma conta';
+      if (!formData.platform) newErrors.platform = 'Selecione uma plataforma';
+      if (formData.platform === 'meta' && !formData.campaignObjective) {
+        newErrors.campaignObjective = 'Selecione um objetivo de campanha';
+      }
+      if (formData.platform === 'meta' && !formData.creativeType) {
+        newErrors.creativeType = 'Selecione um tipo de anúncio';
+      }
+    }
+    
+    if (currentStep === 2) {
+      // File validation logic would go here
+      if (formData.creativeType === 'single' && formData.mediaVariations) {
+        let hasValidFiles = false;
+        formData.mediaVariations.forEach(variation => {
+          if (variation.squareFile?.valid || variation.verticalFile?.valid || variation.horizontalFile?.valid) {
+            hasValidFiles = true;
+          }
+        });
+        if (!hasValidFiles) {
+          newErrors.files = 'Pelo menos um arquivo válido é necessário';
+        }
+      } else if (formData.creativeType === 'carousel' && formData.carouselCards) {
+        let hasValidFiles = false;
+        formData.carouselCards.forEach(card => {
+          if (card.file?.valid) {
+            hasValidFiles = true;
+          }
+        });
+        if (!hasValidFiles) {
+          newErrors.files = 'Pelo menos um cartão com arquivo válido é necessário';
+        }
+      } else if (!formData.validatedFiles || formData.validatedFiles.length === 0) {
+        newErrors.files = 'Pelo menos um arquivo é necessário';
+      }
+    }
+    
+    if (currentStep === 3) {
+      if (!formData.titles || formData.titles.length === 0 || !formData.titles[0]) {
+        newErrors['title-0'] = 'Pelo menos um título é obrigatório';
+      }
+      if (!formData.mainTexts || formData.mainTexts.length === 0 || !formData.mainTexts[0]) {
+        newErrors['mainText-0'] = 'Pelo menos um texto principal é obrigatório';
+      }
+      if (!formData.destinationUrl) {
+        newErrors.destinationUrl = 'URL de destino é obrigatória';
+      }
+      if (formData.platform === 'meta') {
+        if (!formData.destination) newErrors.destination = 'Selecione um destino';
+        if (!formData.cta) newErrors.cta = 'Selecione um call-to-action';
+      } else if (!formData.callToAction) {
+        newErrors.callToAction = 'Selecione um call-to-action';
+      }
+    }
+
+    setErrors(newErrors);
+    
+    if (Object.keys(newErrors).length === 0) {
+      setCurrentStep(currentStep + 1);
+    }
   };
 
   const handleBack = () => {
     setCurrentStep(currentStep - 1);
+    setErrors({});
   };
 
   const handleNewCreative = () => {
@@ -31,6 +99,19 @@ const CreativeSystem = () => {
     setCurrentStep(1);
     setFormData({});
     setCreativeIds([]);
+    setErrors({});
+  };
+
+  const updateFormData = (data: Partial<FormData>) => {
+    setFormData(prev => ({ ...prev, ...data }));
+    // Clear related errors when data is updated
+    setErrors(prev => {
+      const newErrors = { ...prev };
+      Object.keys(data).forEach(key => {
+        delete newErrors[key];
+      });
+      return newErrors;
+    });
   };
 
   const handleSubmit = async () => {
@@ -85,35 +166,68 @@ const CreativeSystem = () => {
               {currentStep === 1 && (
                 <Step1 
                   formData={formData} 
-                  onNext={handleNext} 
-                  onFormDataChange={setFormData}
+                  updateFormData={updateFormData}
+                  errors={errors}
                 />
               )}
               {currentStep === 2 && (
                 <Step2 
                   formData={formData} 
-                  onNext={handleNext} 
-                  onBack={handleBack}
-                  onFormDataChange={setFormData}
+                  updateFormData={updateFormData}
+                  errors={errors}
                 />
               )}
               {currentStep === 3 && (
                 <Step3 
                   formData={formData} 
-                  onNext={handleNext} 
-                  onBack={handleBack}
-                  onFormDataChange={setFormData}
+                  updateFormData={updateFormData}
+                  errors={errors}
                 />
               )}
               {currentStep === 4 && (
                 <Step4 
                   formData={formData} 
-                  onSubmit={handleSubmit}
-                  onBack={handleBack}
                   isSubmitting={isSubmitting}
                 />
               )}
             </div>
+            
+            {/* Navigation */}
+            {currentStep < 4 && (
+              <div className="px-8 py-4 bg-gray-50 border-t flex justify-between">
+                <Button
+                  variant="outline"
+                  onClick={handleBack}
+                  disabled={currentStep === 1}
+                >
+                  Voltar
+                </Button>
+                <Button
+                  onClick={handleNext}
+                  className="bg-jumper-blue hover:bg-jumper-blue/90"
+                >
+                  Próximo
+                </Button>
+              </div>
+            )}
+            
+            {currentStep === 4 && (
+              <div className="px-8 py-4 bg-gray-50 border-t flex justify-between">
+                <Button
+                  variant="outline"
+                  onClick={handleBack}
+                >
+                  Voltar
+                </Button>
+                <Button
+                  onClick={handleSubmit}
+                  disabled={isSubmitting}
+                  className="bg-jumper-blue hover:bg-jumper-blue/90"
+                >
+                  {isSubmitting ? 'Enviando...' : 'Enviar Criativo'}
+                </Button>
+              </div>
+            )}
           </div>
         )}
       </main>
@@ -124,3 +238,4 @@ const CreativeSystem = () => {
 };
 
 export default CreativeSystem;
+
