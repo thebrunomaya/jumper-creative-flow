@@ -13,13 +13,14 @@ export const getThumbnailDimensions = (format: 'square' | 'vertical' | 'horizont
       aspectRatio = 1; // 1:1 - Carrossel quadrado
     }
   } else {
-    // Formatos normais (não carrossel) - ajustar vertical para melhor proporção
+    // Formatos normais (não carrossel) - ajustar vertical para caber no container
     switch (format) {
       case 'square':
         aspectRatio = 1; // 1:1
         break;
       case 'vertical':
-        aspectRatio = 9 / 16; // 9:16 - Stories/Reels - corrigido para melhor visualização
+        // Limitar altura para caber no container de 160px - ajustar para proporção mais adequada
+        aspectRatio = 9 / 14; // Aproximadamente 0.64 - mais compacto que 9:16 original
         break;
       case 'horizontal':
         aspectRatio = 1.91; // 1.91:1

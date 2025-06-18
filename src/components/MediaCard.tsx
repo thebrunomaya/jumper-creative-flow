@@ -54,8 +54,9 @@ const MediaCard: React.FC<MediaCardProps> = ({
   return (
     <Card className={`overflow-hidden ${!enabled ? 'opacity-60' : ''} ${compact ? 'border-gray-200' : ''}`}>
       <CardContent className="p-0">
-        <div className={`flex ${compact ? 'h-32' : 'h-40'}`}>
-          {/* Thumbnail Section - padronizado com bg-gray-50 */}
+        {/* Padronizar altura para h-40 (160px) */}
+        <div className="flex h-40">
+          {/* Thumbnail Section - padronizado com w-32 (128px) */}
           <div className="w-32 bg-gray-50 border-r border-gray-200 flex items-center justify-center p-3">
             <div 
               className="relative border border-gray-200 rounded-lg overflow-hidden bg-white shadow-sm cursor-pointer flex-shrink-0"
@@ -90,17 +91,17 @@ const MediaCard: React.FC<MediaCardProps> = ({
             </div>
           </div>
 
-          {/* Content Section */}
-          <div className="flex-1 p-4 flex flex-col justify-between">
+          {/* Content Section - reduzir padding e reorganizar layout */}
+          <div className="flex-1 p-3 flex flex-col overflow-hidden">
             {/* Header */}
-            <div className="flex items-start justify-between mb-2">
-              <div>
-                <h4 className="font-medium text-gray-900 text-sm">{title}</h4>
+            <div className="flex items-start justify-between mb-2 min-h-0">
+              <div className="min-w-0 flex-1">
+                <h4 className="font-medium text-gray-900 text-sm truncate">{title}</h4>
                 <p className="text-xs text-gray-500">{dimensions}</p>
               </div>
               
               {/* Status Badge */}
-              <div className="flex items-center space-x-2">
+              <div className="flex-shrink-0 ml-2">
                 {file ? (
                   <Badge variant={file.valid ? "default" : "destructive"} className="text-xs">
                     {file.valid ? 'Válido' : 'Erro'}
@@ -114,9 +115,9 @@ const MediaCard: React.FC<MediaCardProps> = ({
             </div>
 
             {/* File Info or Upload Area */}
-            <div className="flex-1 flex items-center">
+            <div className="flex-1 flex items-center min-h-0 mb-2">
               {file ? (
-                <div className="w-full">
+                <div className="w-full min-w-0">
                   <p className="text-sm font-medium text-gray-700 truncate">
                     {file.file.name}
                   </p>
@@ -125,8 +126,8 @@ const MediaCard: React.FC<MediaCardProps> = ({
                   </p>
                   
                   {!file.valid && file.errors && (
-                    <div className="mt-2">
-                      <p className="text-xs text-red-600">
+                    <div className="mt-1">
+                      <p className="text-xs text-red-600 truncate">
                         {file.errors[0]}
                       </p>
                     </div>
@@ -134,7 +135,7 @@ const MediaCard: React.FC<MediaCardProps> = ({
                 </div>
               ) : enabled ? (
                 <div className="w-full text-center">
-                  <Upload className="h-6 w-6 mx-auto text-gray-400 mb-1" />
+                  <Upload className="h-5 w-5 mx-auto text-gray-400 mb-1" />
                   <p className="text-xs text-gray-500">
                     Arraste ou clique para enviar
                   </p>
@@ -148,39 +149,41 @@ const MediaCard: React.FC<MediaCardProps> = ({
               )}
             </div>
 
-            {/* Action Buttons */}
+            {/* Action Buttons - fixar no final e garantir que fiquem dentro do container */}
             {enabled && (
-              <div className="flex items-center justify-end space-x-2 mt-2">
-                {file ? (
-                  <>
+              <div className="flex-shrink-0">
+                <div className="flex items-center justify-end space-x-2">
+                  {file ? (
+                    <>
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        onClick={handleReplace}
+                        className="h-7 px-2 text-xs"
+                      >
+                        Substituir
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        onClick={() => onFileChange(undefined)}
+                        className="h-7 px-2 text-xs text-red-600 hover:text-red-700"
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </>
+                  ) : (
                     <Button 
                       size="sm" 
                       variant="outline" 
-                      onClick={handleReplace}
+                      onClick={() => document.getElementById(`upload-${format}-${carouselMode ? 'carousel' : 'single'}`)?.click()}
                       className="h-7 px-2 text-xs"
                     >
-                      Substituir
+                      <Upload className="h-3 w-3 mr-1" />
+                      Enviar
                     </Button>
-                    <Button 
-                      size="sm" 
-                      variant="outline" 
-                      onClick={() => onFileChange(undefined)}
-                      className="h-7 px-2 text-xs text-red-600 hover:text-red-700"
-                    >
-                      <X className="h-3 w-3" />
-                    </Button>
-                  </>
-                ) : (
-                  <Button 
-                    size="sm" 
-                    variant="outline" 
-                    onClick={() => document.getElementById(`upload-${format}-${carouselMode ? 'carousel' : 'single'}`)?.click()}
-                    className="h-7 px-2 text-xs"
-                  >
-                    <Upload className="h-3 w-3 mr-1" />
-                    Enviar
-                  </Button>
-                )}
+                  )}
+                </div>
               </div>
             )}
 

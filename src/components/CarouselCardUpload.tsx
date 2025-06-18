@@ -94,10 +94,10 @@ const CarouselCardUpload: React.FC<CarouselCardUploadProps> = ({
       </div>
 
       {/* Upload Area */}
-      <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm min-h-[200px]">
-        <div className="flex min-h-[200px]">
-          {/* Thumbnail Container - padronizado com bg-gray-50 */}
-          <div className="w-[160px] bg-gray-50 border-r border-gray-200 flex items-center justify-center p-4">
+      <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm min-h-[160px]">
+        <div className="flex min-h-[160px]">
+          {/* Thumbnail Container - padronizado com w-32 (128px) */}
+          <div className="w-32 bg-gray-50 border-r border-gray-200 flex items-center justify-center p-4">
             <ThumbnailPreview
               format="square" // Use square for both 1:1 and 4:5 to maintain base format
               file={card.file}
@@ -108,7 +108,7 @@ const CarouselCardUpload: React.FC<CarouselCardUploadProps> = ({
           </div>
 
           {/* Upload Area ou File Details Container */}
-          <div className="flex-1 flex flex-col min-h-[200px]">
+          <div className="flex-1 flex flex-col min-h-[160px]">
             {!card.file ? (
               <FileUploadZone
                 getRootProps={getRootProps}
