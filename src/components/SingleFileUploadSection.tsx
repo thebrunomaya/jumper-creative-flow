@@ -6,7 +6,6 @@ import { Switch } from '@/components/ui/switch';
 import { useDropzone } from 'react-dropzone';
 import MediaPreviewLightbox from './MediaPreviewLightbox';
 import MediaCard from './MediaCard';
-import ValidationPanel from './ValidationPanel';
 
 interface SingleFileUploadSectionProps {
   title: string;
@@ -90,34 +89,6 @@ const SingleFileUploadSection: React.FC<SingleFileUploadSectionProps> = ({
     onFileChange(undefined);
   };
 
-  // Generate validation items for the panel
-  const validations = [];
-  if (file) {
-    if (file.valid) {
-      validations.push({
-        id: 'file-valid',
-        type: 'success' as const,
-        message: `Arquivo ${format} válido e pronto para uso`
-      });
-    } else if (file.errors) {
-      file.errors.forEach((error, index) => {
-        validations.push({
-          id: `error-${index}`,
-          type: 'error' as const,
-          message: error
-        });
-      });
-    }
-  }
-
-  if (isValidating) {
-    validations.push({
-      id: 'validating',
-      type: 'info' as const,
-      message: 'Validando arquivo...'
-    });
-  }
-
   return (
     <div className="space-y-4">
       {/* Header with Switch */}
@@ -138,33 +109,22 @@ const SingleFileUploadSection: React.FC<SingleFileUploadSectionProps> = ({
         <span className="text-sm text-gray-500">{dimensions}</span>
       </div>
 
-      {/* Main Content Area - Usando o padrão padronizado */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-        {/* Media Card - Takes 3/4 of the space on large screens */}
-        <div className="lg:col-span-3">
-          <MediaCard
-            title={title}
-            format={format}
-            dimensions={dimensions}
-            file={file}
-            onPreviewClick={() => setLightboxOpen(true)}
-            onUploadClick={handleUploadClick}
-            onReplaceClick={handleReplaceClick}
-            onRemoveClick={handleRemoveClick}
-            enabled={enabled}
-            getRootProps={getRootProps}
-            getInputProps={getInputProps}
-            isDragActive={isDragActive}
-            isValidating={isValidating}
-            compact={true}
-          />
-        </div>
-
-        {/* Validation Panel - Takes 1/4 of the space on large screens */}
-        <div className="lg:col-span-1">
-          <ValidationPanel validations={validations} />
-        </div>
-      </div>
+      {/* Main Content Area - MediaCard ocupa toda a largura */}
+      <MediaCard
+        title={title}
+        format={format}
+        dimensions={dimensions}
+        file={file}
+        onPreviewClick={() => setLightboxOpen(true)}
+        onUploadClick={handleUploadClick}
+        onReplaceClick={handleReplaceClick}
+        onRemoveClick={handleRemoveClick}
+        enabled={enabled}
+        getRootProps={getRootProps}
+        getInputProps={getInputProps}
+        isDragActive={isDragActive}
+        isValidating={isValidating}
+      />
 
       {/* Media Preview Lightbox */}
       {file && (
