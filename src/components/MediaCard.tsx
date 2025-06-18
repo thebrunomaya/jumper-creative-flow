@@ -55,10 +55,10 @@ const MediaCard: React.FC<MediaCardProps> = ({
     <Card className={`overflow-hidden ${!enabled ? 'opacity-60' : ''} ${compact ? 'border-gray-200' : ''}`}>
       <CardContent className="p-0">
         <div className={`flex ${compact ? 'h-32' : 'h-40'}`}>
-          {/* Thumbnail Section */}
+          {/* Thumbnail Section - padronizado com bg-gray-50 */}
           <div className="w-32 bg-gray-50 border-r border-gray-200 flex items-center justify-center p-3">
             <div 
-              className="relative border border-gray-300 rounded-lg overflow-hidden bg-white shadow-sm cursor-pointer flex-shrink-0"
+              className="relative border border-gray-200 rounded-lg overflow-hidden bg-white shadow-sm cursor-pointer flex-shrink-0"
               style={{ width: width * 0.8, height: height * 0.8 }}
               onClick={() => file && enabled && onPreviewClick()}
             >

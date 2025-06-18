@@ -27,7 +27,7 @@ const ThumbnailPreview: React.FC<ThumbnailPreviewProps> = ({
   
   return (
     <div 
-      className="relative border border-gray-300 rounded-lg overflow-hidden bg-white shadow-sm cursor-pointer flex-shrink-0"
+      className="relative border border-gray-200 rounded-lg overflow-hidden bg-white shadow-sm cursor-pointer flex-shrink-0"
       style={{ width, height }}
       onClick={() => file && onPreviewClick()}
     >

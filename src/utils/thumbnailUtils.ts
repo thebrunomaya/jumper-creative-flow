@@ -13,13 +13,13 @@ export const getThumbnailDimensions = (format: 'square' | 'vertical' | 'horizont
       aspectRatio = 1; // 1:1 - Carrossel quadrado
     }
   } else {
-    // Formatos normais (não carrossel)
+    // Formatos normais (não carrossel) - ajustar vertical para melhor proporção
     switch (format) {
       case 'square':
         aspectRatio = 1; // 1:1
         break;
       case 'vertical':
-        aspectRatio = 9 / 16; // 9:16 - Stories/Reels
+        aspectRatio = 9 / 16; // 9:16 - Stories/Reels - corrigido para melhor visualização
         break;
       case 'horizontal':
         aspectRatio = 1.91; // 1.91:1
@@ -30,7 +30,6 @@ export const getThumbnailDimensions = (format: 'square' | 'vertical' | 'horizont
   }
   
   // Calcular altura baseada na largura fixa e aspect ratio
-  // Para 4:5, altura deve ser maior que largura (120 / 0.8 = 150)
   const height = Math.round(fixedWidth / aspectRatio);
   
   return { 
@@ -64,13 +63,13 @@ export const createMockupFile = (format: 'square' | 'vertical' | 'horizontal', c
   if (ctx) {
     const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
     
-    // Cores específicas para carrossel - 4:5 agora com cor laranja/amarelo
+    // Cores específicas para carrossel e formatos normais
     if (carouselMode) {
       if (carouselAspectRatio === '4:5') {
         gradient.addColorStop(0, '#fef3c7'); // Amarelo claro
         gradient.addColorStop(1, '#f59e0b'); // Laranja/amarelo
       } else {
-        // 1:1 mantém cor azul para consistência com formato square
+        // 1:1 mantém cor azul
         gradient.addColorStop(0, '#dbeafe');
         gradient.addColorStop(1, '#3b82f6');
       }
@@ -78,16 +77,16 @@ export const createMockupFile = (format: 'square' | 'vertical' | 'horizontal', c
       // Cores originais para formatos normais
       switch (format) {
         case 'square':
-          gradient.addColorStop(0, '#f8fafc');
-          gradient.addColorStop(1, '#e2e8f0');
+          gradient.addColorStop(0, '#dbeafe'); // Azul claro
+          gradient.addColorStop(1, '#3b82f6'); // Azul
           break;
         case 'vertical':
-          gradient.addColorStop(0, '#faf5ff');
-          gradient.addColorStop(1, '#e9d5ff');
+          gradient.addColorStop(0, '#faf5ff'); // Roxo claro
+          gradient.addColorStop(1, '#8b5cf6'); // Roxo
           break;
         case 'horizontal':
-          gradient.addColorStop(0, '#f0fdf4');
-          gradient.addColorStop(1, '#dcfce7');
+          gradient.addColorStop(0, '#f0fdf4'); // Verde claro
+          gradient.addColorStop(1, '#22c55e'); // Verde
           break;
       }
     }
@@ -95,11 +94,11 @@ export const createMockupFile = (format: 'square' | 'vertical' | 'horizontal', c
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     
-    ctx.strokeStyle = '#e2e8f0';
+    ctx.strokeStyle = '#e5e7eb';
     ctx.lineWidth = 2;
     ctx.strokeRect(1, 1, canvas.width - 2, canvas.height - 2);
     
-    ctx.fillStyle = '#64748b';
+    ctx.fillStyle = '#374151';
     ctx.font = 'bold 18px system-ui, -apple-system, sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
