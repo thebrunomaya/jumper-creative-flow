@@ -19,8 +19,8 @@ const CreativeSystem = () => {
     partner: '',
     platform: '',
     campaignObjective: '',
-    creativeType: '',
-    objective: '',
+    creativeType: undefined, // Changed to undefined to match type
+    objective: undefined, // Changed to undefined to match type
     
     // Step 2 defaults
     files: [],
@@ -127,8 +127,8 @@ const CreativeSystem = () => {
       partner: '',
       platform: '',
       campaignObjective: '',
-      creativeType: '',
-      objective: '',
+      creativeType: undefined, // Changed to undefined to match type
+      objective: undefined, // Changed to undefined to match type
       files: [],
       validatedFiles: [],
       mediaVariations: [],
