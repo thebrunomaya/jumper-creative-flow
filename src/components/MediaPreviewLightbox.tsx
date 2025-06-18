@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { ValidatedFile } from '@/types/creative';
 import { analyzeMedia, MediaAnalysis } from '@/utils/mediaAnalysis';
@@ -24,6 +23,8 @@ interface MediaPreviewLightboxProps {
   format: 'square' | 'vertical' | 'horizontal';
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  carouselMode?: boolean; // New prop for carousel mode
+  carouselAspectRatio?: '1:1' | '4:5'; // New prop for carousel aspect ratio
 }
 
 const MediaPreviewLightbox: React.FC<MediaPreviewLightboxProps> = ({
@@ -31,6 +32,8 @@ const MediaPreviewLightbox: React.FC<MediaPreviewLightboxProps> = ({
   format,
   open,
   onOpenChange,
+  carouselMode = false,
+  carouselAspectRatio = '1:1'
 }) => {
   const [analysis, setAnalysis] = useState<MediaAnalysis | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -66,8 +69,18 @@ const MediaPreviewLightbox: React.FC<MediaPreviewLightboxProps> = ({
     }
   };
 
-  // Get preview container dimensions based on format
+  // Get preview container dimensions based on format and carousel mode
   const getPreviewContainerStyle = () => {
+    if (carouselMode) {
+      return carouselAspectRatio === '4:5' ? {
+        maxWidth: '300px',
+        maxHeight: '375px' // 300 * (5/4) = 375
+      } : {
+        maxWidth: '350px',
+        maxHeight: '350px'
+      };
+    }
+    
     switch (format) {
       case 'vertical':
         return {
@@ -89,13 +102,20 @@ const MediaPreviewLightbox: React.FC<MediaPreviewLightboxProps> = ({
     }
   };
 
+  const getTitle = () => {
+    if (carouselMode) {
+      return `Preview Carrossel ${carouselAspectRatio} - ${file.file.name}`;
+    }
+    return `Preview - ${file.file.name}`;
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center space-x-2">
             {isVideo ? <FileVideo className="h-5 w-5" /> : <FileImage className="h-5 w-5" />}
-            <span>Preview - {file.file.name}</span>
+            <span>{getTitle()}</span>
           </DialogTitle>
         </DialogHeader>
 
@@ -104,7 +124,9 @@ const MediaPreviewLightbox: React.FC<MediaPreviewLightboxProps> = ({
           <div className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">Preview</CardTitle>
+                <CardTitle className="text-lg">
+                  {carouselMode ? `Preview Carrossel ${carouselAspectRatio}` : 'Preview'}
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="flex justify-center">
@@ -120,6 +142,8 @@ const MediaPreviewLightbox: React.FC<MediaPreviewLightboxProps> = ({
                         onImageLoad={() => {}}
                         expanded={true}
                         size="lightbox"
+                        carouselMode={carouselMode}
+                        carouselAspectRatio={carouselAspectRatio}
                       />
                     )}
                   </div>
@@ -149,6 +173,12 @@ const MediaPreviewLightbox: React.FC<MediaPreviewLightboxProps> = ({
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-600">Proporção:</span>
                       <span className="font-medium">{analysis.aspectRatio}</span>
+                    </div>
+                  )}
+                  {carouselMode && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-600">Formato:</span>
+                      <span className="font-medium">Carrossel {carouselAspectRatio}</span>
                     </div>
                   )}
                 </div>
@@ -183,40 +213,63 @@ const MediaPreviewLightbox: React.FC<MediaPreviewLightboxProps> = ({
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-3">
-                      <div className="grid grid-cols-2 gap-3">
-                        <div className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                          <span className="text-sm">Instagram Feed</span>
-                          {analysis.compatibility.instagramFeed ? (
-                            <CheckCircle className="h-4 w-4 text-green-500" />
-                          ) : (
-                            <XCircle className="h-4 w-4 text-red-500" />
+                      {carouselMode ? (
+                        <div className="space-y-2">
+                          <p className="text-sm text-blue-600 font-medium">
+                            Formato Carrossel {carouselAspectRatio}
+                          </p>
+                          <div className="grid grid-cols-2 gap-3">
+                            <div className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                              <span className="text-sm">Instagram Feed</span>
+                              <CheckCircle className="h-4 w-4 text-green-500" />
+                            </div>
+                            <div className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                              <span className="text-sm">Facebook Feed</span>
+                              <CheckCircle className="h-4 w-4 text-green-500" />
+                            </div>
+                          </div>
+                          {carouselAspectRatio === '4:5' && (
+                            <p className="text-xs text-yellow-600">
+                              ⚠️ Formato 4:5 pode ter limitações em alguns posicionamentos
+                            </p>
                           )}
                         </div>
-                        <div className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                          <span className="text-sm">Instagram Stories</span>
-                          {analysis.compatibility.instagramStories ? (
-                            <CheckCircle className="h-4 w-4 text-green-500" />
-                          ) : (
-                            <XCircle className="h-4 w-4 text-red-500" />
-                          )}
+                      ) : (
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                            <span className="text-sm">Instagram Feed</span>
+                            {analysis.compatibility.instagramFeed ? (
+                              <CheckCircle className="h-4 w-4 text-green-500" />
+                            ) : (
+                              <XCircle className="h-4 w-4 text-red-500" />
+                            )}
+                          </div>
+                          <div className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                            <span className="text-sm">Instagram Stories</span>
+                            {analysis.compatibility.instagramStories ? (
+                              <CheckCircle className="h-4 w-4 text-green-500" />
+                            ) : (
+                              <XCircle className="h-4 w-4 text-red-500" />
+                            )}
+                          </div>
+                          <div className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                            <span className="text-sm">Facebook Feed</span>
+                            {analysis.compatibility.facebookFeed ? (
+                              <CheckCircle className="h-4 w-4 text-green-500" />
+                            ) : (
+                              <XCircle className="h-4 w-4 text-red-500" />
+                            )}
+                          </div>
+                          <div className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                            <span className="text-sm">Facebook Stories</span>
+                            {analysis.compatibility.facebookStories ? (
+                              <CheckCircle className="h-4 w-4 text-green-500" />
+                            ) : (
+                              <XCircle className="h-4 w-4 text-red-500" />
+                            )}
+                          </div>
                         </div>
-                        <div className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                          <span className="text-sm">Facebook Feed</span>
-                          {analysis.compatibility.facebookFeed ? (
-                            <CheckCircle className="h-4 w-4 text-green-500" />
-                          ) : (
-                            <XCircle className="h-4 w-4 text-red-500" />
-                          )}
-                        </div>
-                        <div className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                          <span className="text-sm">Facebook Stories</span>
-                          {analysis.compatibility.facebookStories ? (
-                            <CheckCircle className="h-4 w-4 text-green-500" />
-                          ) : (
-                            <XCircle className="h-4 w-4 text-red-500" />
-                          )}
-                        </div>
-                      </div>
+                      )}
                     </CardContent>
                   </Card>
                 </TabsContent>

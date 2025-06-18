@@ -75,17 +75,17 @@ const MetaZoneOverlay: React.FC<MetaZoneOverlayProps> = ({
           />
         )}
         
-        {/* Carousel Zone Overlays */}
+        {/* Carousel Zone Overlays - Always show for lightbox, only hide detailed labels for thumbnails */}
         <div className="absolute inset-0 pointer-events-none">
           {/* Top Safe Margin */}
           <div 
-            className="absolute top-0 left-0 right-0 bg-red-500 bg-opacity-30"
+            className="absolute top-0 left-0 right-0 bg-red-500 bg-opacity-30 border-b border-red-400"
             style={{ height: `${carouselZones.topSafeMargin}%` }}
           >
             {!isThumbnail && (
-              <div className="flex items-center justify-center h-full border-b border-red-400">
+              <div className="flex items-center justify-center h-full">
                 <span className="text-white text-xs font-semibold bg-red-600 bg-opacity-90 px-1 py-0.5 rounded">
-                  Margem Superior
+                  Margem Superior ({carouselZones.topSafeMargin.toFixed(1)}%)
                 </span>
               </div>
             )}
@@ -93,11 +93,11 @@ const MetaZoneOverlay: React.FC<MetaZoneOverlayProps> = ({
 
           {/* Left Safe Margin */}
           <div 
-            className="absolute top-0 left-0 bottom-0 bg-red-500 bg-opacity-30"
+            className="absolute top-0 left-0 bottom-0 bg-red-500 bg-opacity-30 border-r border-red-400"
             style={{ width: `${carouselZones.leftSafeMargin}%` }}
           >
             {!isThumbnail && (
-              <div className="flex items-center justify-center h-full border-r border-red-400">
+              <div className="flex items-center justify-center h-full">
                 <span className="text-white text-xs font-semibold bg-red-600 bg-opacity-90 px-1 py-1 rounded transform -rotate-90">
                   {carouselZones.leftSafeMargin}%
                 </span>
@@ -107,11 +107,11 @@ const MetaZoneOverlay: React.FC<MetaZoneOverlayProps> = ({
 
           {/* Right Safe Margin */}
           <div 
-            className="absolute top-0 right-0 bottom-0 bg-red-500 bg-opacity-30"
+            className="absolute top-0 right-0 bottom-0 bg-red-500 bg-opacity-30 border-l border-red-400"
             style={{ width: `${carouselZones.rightSafeMargin}%` }}
           >
             {!isThumbnail && (
-              <div className="flex items-center justify-center h-full border-l border-red-400">
+              <div className="flex items-center justify-center h-full">
                 <span className="text-white text-xs font-semibold bg-red-600 bg-opacity-90 px-1 py-1 rounded transform rotate-90">
                   {carouselZones.rightSafeMargin}%
                 </span>
@@ -121,38 +121,36 @@ const MetaZoneOverlay: React.FC<MetaZoneOverlayProps> = ({
 
           {/* Bottom Safe Margin */}
           <div 
-            className="absolute bottom-0 left-0 right-0 bg-red-500 bg-opacity-30"
+            className="absolute bottom-0 left-0 right-0 bg-red-500 bg-opacity-30 border-t border-red-400"
             style={{ height: `${carouselZones.bottomSafeMargin}%` }}
           >
             {!isThumbnail && (
-              <div className="flex items-center justify-center h-full border-t border-red-400">
+              <div className="flex items-center justify-center h-full">
                 <span className="text-white text-xs font-semibold bg-red-600 bg-opacity-90 px-1 py-0.5 rounded">
-                  Margem Inferior
+                  Margem Inferior ({carouselZones.bottomSafeMargin.toFixed(1)}%)
                 </span>
               </div>
             )}
           </div>
 
-          {/* Safe Zone */}
-          {!isThumbnail && (
-            <div 
-              className="absolute bg-green-500 bg-opacity-10 border border-green-400 border-dashed"
-              style={{ 
-                top: `${carouselZones.topSafeMargin}%`, 
-                left: `${carouselZones.leftSafeMargin}%`, 
-                right: `${carouselZones.rightSafeMargin}%`,
-                bottom: `${carouselZones.bottomSafeMargin}%`
-              }}
-            >
-              {expanded && size === 'lightbox' && (
-                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                  <span className="text-green-700 text-xs font-semibold bg-green-100 bg-opacity-90 px-2 py-1 rounded">
-                    Zona Segura Carrossel {carouselAspectRatio}
-                  </span>
-                </div>
-              )}
-            </div>
-          )}
+          {/* Safe Zone - Always visible, with more pronounced styling for lightbox */}
+          <div 
+            className={`absolute ${size === 'lightbox' ? 'bg-green-500 bg-opacity-20 border-2 border-green-400' : 'bg-green-500 bg-opacity-10 border border-green-400'} border-dashed`}
+            style={{ 
+              top: `${carouselZones.topSafeMargin}%`, 
+              left: `${carouselZones.leftSafeMargin}%`, 
+              right: `${carouselZones.rightSafeMargin}%`,
+              bottom: `${carouselZones.bottomSafeMargin}%`
+            }}
+          >
+            {size === 'lightbox' && (
+              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                <span className="text-green-700 text-sm font-semibold bg-green-100 bg-opacity-90 px-3 py-2 rounded shadow">
+                  Zona Segura Carrossel {carouselAspectRatio}
+                </span>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     );

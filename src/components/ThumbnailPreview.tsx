@@ -20,7 +20,7 @@ const ThumbnailPreview: React.FC<ThumbnailPreviewProps> = ({
   carouselMode = false,
   carouselAspectRatio = '1:1'
 }) => {
-  const { width, height } = getThumbnailDimensions(format);
+  const { width, height } = getThumbnailDimensions(format, carouselMode, carouselAspectRatio);
   
   // For carousel mode, show the aspect ratio instead of format ratio
   const displayRatio = carouselMode ? carouselAspectRatio : 
@@ -33,7 +33,7 @@ const ThumbnailPreview: React.FC<ThumbnailPreviewProps> = ({
       onClick={() => file && onPreviewClick()}
     >
       <MetaZoneOverlay
-        imageUrl={file?.preview || createMockupFile(format)}
+        imageUrl={file?.preview || createMockupFile(format, carouselMode, carouselAspectRatio)}
         format={format}
         file={file?.file}
         size="thumbnail"
