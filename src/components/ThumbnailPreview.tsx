@@ -11,6 +11,7 @@ interface ThumbnailPreviewProps {
   onPreviewClick: () => void;
   carouselMode?: boolean;
   carouselAspectRatio?: '1:1' | '4:5';
+  enabled?: boolean;
 }
 
 const ThumbnailPreview: React.FC<ThumbnailPreviewProps> = ({
@@ -18,7 +19,8 @@ const ThumbnailPreview: React.FC<ThumbnailPreviewProps> = ({
   file,
   onPreviewClick,
   carouselMode = false,
-  carouselAspectRatio = '1:1'
+  carouselAspectRatio = '1:1',
+  enabled = true
 }) => {
   const { width, height } = getThumbnailDimensions(format, carouselMode, carouselAspectRatio);
   
@@ -27,9 +29,11 @@ const ThumbnailPreview: React.FC<ThumbnailPreviewProps> = ({
   
   return (
     <div 
-      className="relative border border-gray-200 rounded-lg overflow-hidden bg-white shadow-sm cursor-pointer flex-shrink-0"
+      className={`relative border border-gray-200 rounded-lg overflow-hidden bg-white shadow-sm flex-shrink-0 ${
+        file && enabled ? 'cursor-pointer' : ''
+      } ${!enabled ? 'opacity-60' : ''}`}
       style={{ width, height }}
-      onClick={() => file && onPreviewClick()}
+      onClick={() => file && enabled && onPreviewClick()}
     >
       <MetaZoneOverlay
         imageUrl={file?.preview || createMockupFile(format, carouselMode, carouselAspectRatio)}
@@ -46,12 +50,18 @@ const ThumbnailPreview: React.FC<ThumbnailPreviewProps> = ({
         </div>
       </div>
 
-      {file && (
+      {file && enabled && (
         <div className="absolute bottom-1.5 left-1/2 transform -translate-x-1/2">
           <div className="bg-blue-500 text-white text-xs px-2 py-1 rounded backdrop-blur-sm hover:bg-blue-600 transition-colors flex items-center space-x-1">
             <Eye className="h-3 w-3" />
             <span>Ver</span>
           </div>
+        </div>
+      )}
+
+      {!enabled && (
+        <div className="absolute inset-0 bg-gray-200 bg-opacity-50 flex items-center justify-center">
+          <span className="text-xs text-gray-500 font-medium">Inativo</span>
         </div>
       )}
     </div>

@@ -138,25 +138,26 @@ const SingleFileUploadSection: React.FC<SingleFileUploadSectionProps> = ({
         <span className="text-sm text-gray-500">{dimensions}</span>
       </div>
 
-      {/* Main Content Area - Adjusted grid for better space utilization */}
+      {/* Main Content Area - Usando o padrão padronizado */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-        {/* Media Card with Dropzone - Takes 3/4 of the space on large screens */}
+        {/* Media Card - Takes 3/4 of the space on large screens */}
         <div className="lg:col-span-3">
-          <div {...getRootProps()} className={isDragActive ? 'opacity-75' : ''}>
-            <input {...getInputProps()} />
-            <MediaCard
-              title={title}
-              format={format}
-              dimensions={dimensions}
-              file={file}
-              onPreviewClick={() => setLightboxOpen(true)}
-              onUploadClick={handleUploadClick}
-              onReplaceClick={handleReplaceClick}
-              onRemoveClick={handleRemoveClick}
-              enabled={enabled}
-              compact={true}
-            />
-          </div>
+          <MediaCard
+            title={title}
+            format={format}
+            dimensions={dimensions}
+            file={file}
+            onPreviewClick={() => setLightboxOpen(true)}
+            onUploadClick={handleUploadClick}
+            onReplaceClick={handleReplaceClick}
+            onRemoveClick={handleRemoveClick}
+            enabled={enabled}
+            getRootProps={getRootProps}
+            getInputProps={getInputProps}
+            isDragActive={isDragActive}
+            isValidating={isValidating}
+            compact={true}
+          />
         </div>
 
         {/* Validation Panel - Takes 1/4 of the space on large screens */}

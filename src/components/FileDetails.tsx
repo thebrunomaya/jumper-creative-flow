@@ -9,13 +9,15 @@ interface FileDetailsProps {
   format: 'square' | 'vertical' | 'horizontal';
   onRemove: () => void;
   onReplace: () => void;
+  enabled?: boolean;
 }
 
 const FileDetails: React.FC<FileDetailsProps> = ({
   file,
   format,
   onRemove,
-  onReplace
+  onReplace,
+  enabled = true
 }) => {
   const formatFileSize = (bytes: number) => {
     if (bytes === 0) return '0 Bytes';
@@ -26,40 +28,42 @@ const FileDetails: React.FC<FileDetailsProps> = ({
   };
 
   return (
-    <div className="flex-1 bg-white p-6 flex flex-col justify-between">
+    <div className={`flex-1 bg-white p-6 flex flex-col justify-between ${!enabled ? 'opacity-60' : ''}`}>
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-3 flex-1 min-w-0">
-          <Image className="h-5 w-5 text-blue-500 flex-shrink-0" />
+          <Image className={`h-5 w-5 flex-shrink-0 ${enabled ? 'text-blue-500' : 'text-gray-400'}`} />
           <p className="text-lg font-semibold text-jumper-text truncate">
             {file.file.name}
           </p>
           {file.valid ? (
-            <CheckCircle className="h-5 w-5 text-emerald-500 flex-shrink-0" />
+            <CheckCircle className={`h-5 w-5 flex-shrink-0 ${enabled ? 'text-emerald-500' : 'text-gray-400'}`} />
           ) : (
-            <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0" />
+            <AlertCircle className={`h-5 w-5 flex-shrink-0 ${enabled ? 'text-red-500' : 'text-gray-400'}`} />
           )}
         </div>
 
-        <div className="flex items-center space-x-2 ml-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onReplace}
-            className="h-8 w-8 p-0 text-gray-400 hover:text-blue-500 hover:bg-blue-50"
-            title="Substituir arquivo"
-          >
-            <Replace className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onRemove}
-            className="h-8 w-8 p-0 text-gray-400 hover:text-red-500 hover:bg-red-50"
-            title="Remover arquivo"
-          >
-            <X className="h-4 w-4" />
-          </Button>
-        </div>
+        {enabled && (
+          <div className="flex items-center space-x-2 ml-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onReplace}
+              className="h-8 w-8 p-0 text-gray-400 hover:text-blue-500 hover:bg-blue-50"
+              title="Substituir arquivo"
+            >
+              <Replace className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onRemove}
+              className="h-8 w-8 p-0 text-gray-400 hover:text-red-500 hover:bg-red-50"
+              title="Remover arquivo"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
       </div>
       
       <div className="text-sm text-gray-600 mb-4 flex items-center space-x-4 text-left">
@@ -77,7 +81,7 @@ const FileDetails: React.FC<FileDetailsProps> = ({
           <div 
             key={errorIndex}
             className={`text-sm font-medium flex items-center space-x-2 ${
-              file.valid ? 'text-emerald-600' : 'text-red-600'
+              !enabled ? 'text-gray-400' : file.valid ? 'text-emerald-600' : 'text-red-600'
             }`}
           >
             <span className="flex-shrink-0">{file.valid ? '✓' : '✗'}</span>

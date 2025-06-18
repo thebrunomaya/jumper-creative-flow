@@ -2,10 +2,9 @@
 import React from 'react';
 import { ValidatedFile } from '@/types/creative';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Eye, Upload, X } from 'lucide-react';
-import MetaZoneOverlay from './MetaZoneOverlay';
-import { getThumbnailDimensions, createMockupFile } from '@/utils/thumbnailUtils';
+import ThumbnailPreview from './ThumbnailPreview';
+import FileUploadZone from './FileUploadZone';
+import FileDetails from './FileDetails';
 import BaseMediaUploadCard from './BaseMediaUploadCard';
 
 interface MediaCardProps {
@@ -21,6 +20,10 @@ interface MediaCardProps {
   carouselMode?: boolean;
   carouselAspectRatio?: '1:1' | '4:5';
   compact?: boolean;
+  getRootProps?: () => any;
+  getInputProps?: () => any;
+  isDragActive?: boolean;
+  isValidating?: boolean;
 }
 
 const MediaCard: React.FC<MediaCardProps> = ({
@@ -35,15 +38,17 @@ const MediaCard: React.FC<MediaCardProps> = ({
   enabled,
   carouselMode = false,
   carouselAspectRatio = '1:1',
-  compact = false
+  getRootProps,
+  getInputProps,
+  isDragActive,
+  isValidating = false
 }) => {
-  const { width, height } = getThumbnailDimensions(format, carouselMode, carouselAspectRatio);
-  
-  const displayRatio = carouselMode ? carouselAspectRatio : 
-    (format === 'square' ? '1:1' : format === 'vertical' ? '9:16' : '1.91:1');
-
   // Status Badge Component
-  const statusBadge = file ? (
+  const statusBadge = !enabled ? (
+    <Badge variant="outline" className="text-xs">
+      Desativado
+    </Badge>
+  ) : file ? (
     <Badge variant={file.valid ? "default" : "destructive"} className="text-xs">
       {file.valid ? 'Válido' : 'Erro'}
     </Badge>
@@ -59,114 +64,38 @@ const MediaCard: React.FC<MediaCardProps> = ({
       dimensions={dimensions}
       headerActions={statusBadge}
     >
-      {/* Thumbnail Section - Fixed width for consistent layout */}
-      <div className="w-32 bg-gray-50 border-r border-gray-200 flex items-center justify-center p-3 flex-shrink-0">
-        <div 
-          className={`relative border border-gray-200 rounded-lg overflow-hidden bg-white shadow-sm cursor-pointer ${!enabled ? 'opacity-60' : ''}`}
-          style={{ width: width * 0.8, height: height * 0.8 }}
-          onClick={() => file && enabled && onPreviewClick()}
-        >
-          <MetaZoneOverlay
-            imageUrl={file?.preview || createMockupFile(format, carouselMode, carouselAspectRatio)}
-            format={format}
-            file={file?.file}
-            size="thumbnail"
-            carouselMode={carouselMode}
-            carouselAspectRatio={carouselAspectRatio}
-          />
-          
-          {/* Format Badge */}
-          <div className="absolute top-1 left-1">
-            <Badge variant="secondary" className="text-xs px-1.5 py-0.5 bg-black bg-opacity-60 text-white border-0">
-              {displayRatio}
-            </Badge>
-          </div>
-
-          {/* View Button */}
-          {file && enabled && (
-            <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2">
-              <Button size="sm" variant="secondary" className="h-6 px-2 text-xs">
-                <Eye className="h-3 w-3 mr-1" />
-                Ver
-              </Button>
-            </div>
-          )}
-        </div>
+      {/* Thumbnail Container - padronizado com w-32 (128px) */}
+      <div className="w-32 bg-gray-50 border-r border-gray-200 flex items-center justify-center p-4">
+        <ThumbnailPreview
+          format={format}
+          file={file}
+          onPreviewClick={onPreviewClick}
+          carouselMode={carouselMode}
+          carouselAspectRatio={carouselAspectRatio}
+          enabled={enabled}
+        />
       </div>
 
-      {/* Content Section - Takes remaining space */}
-      <div className="flex-1 p-3 flex flex-col overflow-hidden min-w-0">
-        {/* File Info or Upload Area */}
-        <div className="flex-1 flex items-center min-h-0 mb-2">
-          {file ? (
-            <div className="w-full min-w-0">
-              <p className="text-sm font-medium text-gray-700 truncate">
-                {file.file.name}
-              </p>
-              <p className="text-xs text-gray-500">
-                {(file.file.size / 1024 / 1024).toFixed(1)} MB
-              </p>
-              
-              {!file.valid && file.errors && (
-                <div className="mt-1">
-                  <p className="text-xs text-red-600 truncate">
-                    {file.errors[0]}
-                  </p>
-                </div>
-              )}
-            </div>
-          ) : enabled ? (
-            <div className="w-full text-center">
-              <Upload className="h-5 w-5 mx-auto text-gray-400 mb-1" />
-              <p className="text-xs text-gray-500">
-                Arraste ou clique para enviar
-              </p>
-            </div>
-          ) : (
-            <div className="w-full text-center">
-              <p className="text-xs text-gray-400">
-                Posicionamento desativado
-              </p>
-            </div>
-          )}
-        </div>
-
-        {/* Action Buttons */}
-        {enabled && (
-          <div className="flex-shrink-0">
-            <div className="flex items-center justify-end space-x-2">
-              {file ? (
-                <>
-                  <Button 
-                    size="sm" 
-                    variant="outline" 
-                    onClick={onReplaceClick}
-                    className="h-7 px-2 text-xs"
-                  >
-                    Substituir
-                  </Button>
-                  <Button 
-                    size="sm" 
-                    variant="outline" 
-                    onClick={onRemoveClick}
-                    className="h-7 px-2 text-xs text-red-600 hover:text-red-700"
-                  >
-                    <X className="h-3 w-3" />
-                  </Button>
-                </>
-              ) : (
-                <Button 
-                  size="sm" 
-                  variant="outline" 
-                  onClick={onUploadClick}
-                  className="h-7 px-2 text-xs"
-                >
-                  <Upload className="h-3 w-3 mr-1" />
-                  Enviar
-                </Button>
-              )}
-            </div>
-          </div>
+      {/* Upload Area ou File Details Container */}
+      <div className="flex-1 flex flex-col min-h-[160px]">
+        {!file ? (
+          <FileUploadZone
+            getRootProps={getRootProps || (() => ({}))}
+            getInputProps={getInputProps || (() => ({}))}
+            isDragActive={isDragActive || false}
+            isValidating={isValidating}
+            dimensions={dimensions}
+            enabled={enabled}
+            onUploadClick={onUploadClick}
+          />
+        ) : (
+          <FileDetails
+            file={file}
+            format={format}
+            onRemove={onRemoveClick}
+            onReplace={onReplaceClick}
+            enabled={enabled}
+          />
         )}
       </div>
     </BaseMediaUploadCard>
