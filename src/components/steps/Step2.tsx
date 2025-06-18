@@ -7,7 +7,7 @@ import CarouselAspectRatioToggle from '@/components/CarouselAspectRatioToggle';
 import CarouselCardUpload from '@/components/CarouselCardUpload';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Plus, Trash2, AlertTriangle, ArrowLeft } from 'lucide-react';
+import { Plus, Trash2, AlertTriangle } from 'lucide-react';
 
 interface Step2Props {
   formData: FormData;
@@ -16,32 +16,6 @@ interface Step2Props {
 }
 
 const Step2: React.FC<Step2Props> = ({ formData, updateFormData, errors }) => {
-  // Show message if creative type is not selected
-  if (!formData.creativeType) {
-    return (
-      <div className="space-y-6 animate-fade-in">
-        <div className="text-center mb-8">
-          <h2 className="text-2xl font-bold text-jumper-text mb-2">📎 Upload de Arquivos</h2>
-          <p className="text-gray-600">Selecione um tipo de anúncio na etapa anterior para continuar</p>
-        </div>
-
-        <div className="bg-amber-50 border border-amber-200 rounded-lg p-8 text-center">
-          <div className="flex flex-col items-center space-y-4">
-            <ArrowLeft className="h-12 w-12 text-amber-600" />
-            <div>
-              <h3 className="text-lg font-semibold text-amber-800 mb-2">
-                Tipo de anúncio não selecionado
-              </h3>
-              <p className="text-amber-700">
-                Volte para a etapa anterior e selecione o tipo de anúncio para poder enviar seus arquivos.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   // For carousel creative type
   if (formData.creativeType === 'carousel') {
     // Initialize carousel data if not exists
@@ -394,7 +368,7 @@ const Step2: React.FC<Step2Props> = ({ formData, updateFormData, errors }) => {
           <div className="flex items-center space-x-2">
             <div className="flex-shrink-0">
               <svg className="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
               </svg>
             </div>
             <div>

@@ -1,283 +1,490 @@
-
 import React, { useState } from 'react';
+import { FormData, TEXT_LIMITS } from '@/types/creative';
+import { useToast } from '@/hooks/use-toast';
 import Header from './Header';
+import ProgressBar from './ProgressBar';
+import Breadcrumbs from './Breadcrumbs';
 import Step1 from './steps/Step1';
 import Step2 from './steps/Step2';
 import Step3 from './steps/Step3';
 import Step4 from './steps/Step4';
 import Success from './Success';
-import ProgressBar from './ProgressBar';
-import DevButton from './DevButton';
-import { FormData } from '@/types/creative';
 import { Button } from '@/components/ui/button';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { useNotionClients } from '@/hooks/useNotionData';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import metaAdsObjectives from '@/config/meta-ads-objectives.json';
 
-const CreativeSystem = () => {
+const INITIAL_FORM_DATA: FormData = {
+  client: '',
+  partner: '', // Mantemos por compatibilidade mas não será usado
+  platform: '',
+  creativeType: undefined,
+  objective: undefined,
+  files: [],
+  validatedFiles: [],
+  mediaVariations: [{ 
+    id: 1, 
+    squareEnabled: true, 
+    verticalEnabled: true, 
+    horizontalEnabled: true 
+  }], // Initialize with first media variation with all positions enabled
+  mainTexts: [''], // Initialize with one empty main text
+  titles: [''], // Initialize with one empty title
+  description: '',
+  destination: '', // New field
+  cta: '', // New field
+  destinationUrl: '',
+  callToAction: '',
+  observations: ''
+};
+
+const STEP_LABELS = ['Básico', 'Arquivos', 'Conteúdo', 'Revisão'];
+
+const CreativeSystem: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(1);
-  const [formData, setFormData] = useState<FormData>({
-    // Step 1 defaults
-    client: '',
-    partner: '',
-    platform: '',
-    campaignObjective: '',
-    creativeType: undefined, // Changed to undefined to match type
-    objective: undefined, // Changed to undefined to match type
-    
-    // Step 2 defaults
-    files: [],
-    validatedFiles: [],
-    mediaVariations: [],
-    carouselAspectRatio: '1:1',
-    carouselCards: [],
-    
-    // Step 3 defaults
-    mainTexts: [''],
-    titles: [''],
-    description: '',
-    destination: '',
-    cta: '',
-    destinationUrl: '',
-    callToAction: '',
-    observations: ''
-  });
-  const [showSuccess, setShowSuccess] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [creativeIds, setCreativeIds] = useState<string[]>([]);
+  const [formData, setFormData] = useState<FormData>(INITIAL_FORM_DATA);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [creativeIds, setCreativeIds] = useState<string[]>([]);
+  const { toast } = useToast();
+  const { clients } = useNotionClients();
+  const { currentUser } = useAuth();
 
-  const stepLabels = ['Básico', 'Arquivos', 'Conteúdo', 'Revisão'];
+  const updateFormData = (newData: Partial<FormData>) => {
+    setFormData(prev => ({ ...prev, ...newData }));
+    // Clear related errors when user updates the field
+    const newErrors = { ...errors };
+    Object.keys(newData).forEach(key => {
+      if (newErrors[key]) {
+        delete newErrors[key];
+      }
+    });
+    setErrors(newErrors);
+  };
 
-  const handleNext = () => {
-    // Basic validation before moving to next step
+  // Check if all enabled positions have files for all variations
+  const hasAllRequiredFiles = () => {
+    if (formData.creativeType !== 'single' || !formData.mediaVariations) {
+      return true; // For non-single types, use existing validation
+    }
+    
+    return formData.mediaVariations.every(variation => {
+      const requiredPositions = [];
+      if (variation.squareEnabled !== false) requiredPositions.push('square');
+      if (variation.verticalEnabled !== false) requiredPositions.push('vertical');
+      if (variation.horizontalEnabled !== false) requiredPositions.push('horizontal');
+      
+      return requiredPositions.every(position => {
+        const file = variation[`${position}File`];
+        return file && file.valid;
+      });
+    });
+  };
+
+  // Get destination field configuration for validation
+  const getDestinationFieldConfig = () => {
+    if (!formData.destination || formData.platform !== 'meta') {
+      return null;
+    }
+    
+    const objectiveConfig = metaAdsObjectives.objectiveMapping[formData.campaignObjective];
+    if (!objectiveConfig) return null;
+    
+    const selectedDestination = objectiveConfig.destinations.find(dest => dest.value === formData.destination);
+    if (!selectedDestination || !selectedDestination.fieldType) {
+      return null;
+    }
+    
+    return {
+      fieldType: selectedDestination.fieldType,
+      label: metaAdsObjectives.fieldLabels[selectedDestination.fieldType]
+    };
+  };
+
+  // Check if field should be validated as URL
+  const shouldValidateAsUrl = () => {
+    const destinationFieldConfig = getDestinationFieldConfig();
+    if (!destinationFieldConfig) {
+      return true; // Default validation for non-Meta ads
+    }
+    return destinationFieldConfig.fieldType === 'url' || destinationFieldConfig.fieldType === 'facebook_url';
+  };
+
+  const validateStep = (step: number): boolean => {
     const newErrors: Record<string, string> = {};
-    
-    if (currentStep === 1) {
-      if (!formData.client) newErrors.client = 'Selecione uma conta';
-      if (!formData.platform) newErrors.platform = 'Selecione uma plataforma';
-      if (formData.platform === 'meta' && !formData.campaignObjective) {
-        newErrors.campaignObjective = 'Selecione um objetivo de campanha';
-      }
-      if (formData.platform === 'meta' && !formData.creativeType) {
-        newErrors.creativeType = 'Selecione um tipo de anúncio';
-      }
-    }
-    
-    if (currentStep === 2) {
-      // File validation logic would go here
-      if (formData.creativeType === 'single' && formData.mediaVariations) {
-        let hasValidFiles = false;
-        formData.mediaVariations.forEach(variation => {
-          if (variation.squareFile?.valid || variation.verticalFile?.valid || variation.horizontalFile?.valid) {
-            hasValidFiles = true;
+
+    switch (step) {
+      case 1:
+        if (!formData.client) newErrors.client = 'Selecione uma conta';
+        if (!formData.platform) newErrors.platform = 'Selecione uma plataforma';
+        
+        if (formData.platform === 'meta' || formData.platform === 'google') {
+          if (!formData.campaignObjective) newErrors.campaignObjective = 'Selecione o objetivo de campanha';
+          
+          if (formData.platform === 'meta') {
+            if (!formData.creativeType) newErrors.creativeType = 'Selecione o tipo de anúncio';
+          }
+        }
+        break;
+
+      case 2:
+        if (formData.creativeType === 'single') {
+          // Validate media variations with new logic
+          const mediaVariations = formData.mediaVariations || [];
+          if (mediaVariations.length === 0) {
+            newErrors.files = 'Adicione pelo menos uma mídia';
+          } else if (!hasAllRequiredFiles()) {
+            newErrors.files = 'Envie arquivos válidos para todos os posicionamentos ativos ou desative os posicionamentos sem arquivo (máximo 2 desativados por variação)';
+          }
+        } else {
+          // Original validation for other creative types
+          if (formData.validatedFiles.length === 0) {
+            newErrors.files = 'Envie pelo menos um arquivo';
+          } else {
+            const invalidFiles = formData.validatedFiles.filter(f => !f.valid);
+            if (invalidFiles.length > 0) {
+              newErrors.files = `${invalidFiles.length} arquivo(s) com problemas. Corrija antes de continuar.`;
+            }
+          }
+        }
+        break;
+
+      case 3:
+        // Validate titles
+        const titles = formData.titles || [''];
+        titles.forEach((title, index) => {
+          if (!title.trim()) {
+            newErrors[`title-${index}`] = 'Digite o título';
+          } else if (title.length > TEXT_LIMITS.title.maximum) {
+            newErrors[`title-${index}`] = `Título muito longo (${title.length}/${TEXT_LIMITS.title.maximum})`;
           }
         });
-        if (!hasValidFiles) {
-          newErrors.files = 'Pelo menos um arquivo válido é necessário';
-        }
-      } else if (formData.creativeType === 'carousel' && formData.carouselCards) {
-        let hasValidFiles = false;
-        formData.carouselCards.forEach(card => {
-          if (card.file?.valid) {
-            hasValidFiles = true;
+
+        // Validate main texts
+        const mainTexts = formData.mainTexts || [''];
+        mainTexts.forEach((mainText, index) => {
+          if (!mainText.trim()) {
+            newErrors[`mainText-${index}`] = 'Digite o texto principal';
+          } else if (mainText.length > TEXT_LIMITS.mainText.maximum) {
+            newErrors[`mainText-${index}`] = `Texto muito longo (${mainText.length}/${TEXT_LIMITS.mainText.maximum})`;
           }
         });
-        if (!hasValidFiles) {
-          newErrors.files = 'Pelo menos um cartão com arquivo válido é necessário';
+
+        if (formData.description.length > TEXT_LIMITS.description.maximum) {
+          newErrors.description = `Descrição muito longa (${formData.description.length}/${TEXT_LIMITS.description.maximum})`;
         }
-      } else if (!formData.validatedFiles || formData.validatedFiles.length === 0) {
-        newErrors.files = 'Pelo menos um arquivo é necessário';
-      }
-    }
-    
-    if (currentStep === 3) {
-      if (!formData.titles || formData.titles.length === 0 || !formData.titles[0]) {
-        newErrors['title-0'] = 'Pelo menos um título é obrigatório';
-      }
-      if (!formData.mainTexts || formData.mainTexts.length === 0 || !formData.mainTexts[0]) {
-        newErrors['mainText-0'] = 'Pelo menos um texto principal é obrigatório';
-      }
-      if (!formData.destinationUrl) {
-        newErrors.destinationUrl = 'URL de destino é obrigatória';
-      }
-      if (formData.platform === 'meta') {
-        if (!formData.destination) newErrors.destination = 'Selecione um destino';
-        if (!formData.cta) newErrors.cta = 'Selecione um call-to-action';
-      } else if (!formData.callToAction) {
-        newErrors.callToAction = 'Selecione um call-to-action';
-      }
+
+        // Conditional validation for Meta ads
+        if (formData.platform === 'meta' && formData.campaignObjective) {
+          if (!formData.destination) {
+            newErrors.destination = 'Selecione um destino';
+          }
+          
+          if (formData.destination && !formData.cta) {
+            newErrors.cta = 'Selecione um call-to-action';
+          }
+        } else {
+          // Legacy validation for non-Meta ads
+          if (!formData.callToAction) {
+            newErrors.callToAction = 'Selecione um call-to-action';
+          }
+        }
+
+        // Validate destination URL based on field type
+        if (!formData.destinationUrl.trim()) {
+          newErrors.destinationUrl = 'Digite o destino';
+        } else if (shouldValidateAsUrl()) {
+          // Only validate as URL if it should be a URL field
+          try {
+            new URL(formData.destinationUrl);
+          } catch {
+            newErrors.destinationUrl = 'URL inválida';
+          }
+        }
+        // For phone/text fields, no URL validation is performed
+        break;
     }
 
     setErrors(newErrors);
-    
-    if (Object.keys(newErrors).length === 0) {
-      setCurrentStep(currentStep + 1);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const nextStep = () => {
+    if (validateStep(currentStep)) {
+      setCurrentStep(prev => Math.min(prev + 1, 4));
+    } else {
+      toast({
+        title: "Campos obrigatórios",
+        description: "Preencha todos os campos obrigatórios para continuar",
+        variant: "destructive",
+      });
     }
   };
 
-  const handleBack = () => {
-    setCurrentStep(currentStep - 1);
-    setErrors({});
+  const prevStep = () => {
+    setCurrentStep(prev => Math.max(prev - 1, 1));
   };
 
-  const handleNewCreative = () => {
-    setShowSuccess(false);
-    setCurrentStep(1);
-    setFormData({
-      // Reset to default values
-      client: '',
-      partner: '',
-      platform: '',
-      campaignObjective: '',
-      creativeType: undefined, // Changed to undefined to match type
-      objective: undefined, // Changed to undefined to match type
-      files: [],
-      validatedFiles: [],
-      mediaVariations: [],
-      carouselAspectRatio: '1:1',
-      carouselCards: [],
-      mainTexts: [''],
-      titles: [''],
-      description: '',
-      destination: '',
-      cta: '',
-      destinationUrl: '',
-      callToAction: '',
-      observations: ''
+  const goToStep = (step: number) => {
+    if (step < currentStep) {
+      setCurrentStep(step);
+    }
+  };
+
+  const convertFileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => {
+        const base64 = reader.result as string;
+        // Remove the data:image/jpeg;base64, prefix
+        resolve(base64.split(',')[1]);
+      };
+      reader.onerror = error => reject(error);
     });
-    setCreativeIds([]);
-    setErrors({});
   };
 
-  const updateFormData = (data: Partial<FormData>) => {
-    setFormData(prev => ({ ...prev, ...data }));
-    // Clear related errors when data is updated
-    setErrors(prev => {
-      const newErrors = { ...prev };
-      Object.keys(data).forEach(key => {
-        delete newErrors[key];
+  const submitForm = async () => {
+    if (!validateStep(3)) {
+      toast({
+        title: "Erro na validação",
+        description: "Corrija os erros antes de enviar",
+        variant: "destructive",
       });
-      return newErrors;
-    });
-  };
+      return;
+    }
 
-  const handleSubmit = async () => {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch('/api/submit-creative', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
+      // Prepare files info and convert files to base64
+      const filesInfo: Array<{
+        name: string;
+        type: string;
+        size: number;
+        format?: string;
+        variationIndex?: number;
+        base64Data?: string;
+      }> = [];
+
+      if (formData.creativeType === 'single' && formData.mediaVariations) {
+        for (const variation of formData.mediaVariations) {
+          const index = formData.mediaVariations.indexOf(variation);
+          
+          if (variation.squareFile) {
+            const base64Data = await convertFileToBase64(variation.squareFile.file);
+            filesInfo.push({
+              name: variation.squareFile.file.name,
+              type: variation.squareFile.file.type,
+              size: variation.squareFile.file.size,
+              format: 'square',
+              variationIndex: index + 1,
+              base64Data
+            });
+          }
+          if (variation.verticalFile) {
+            const base64Data = await convertFileToBase64(variation.verticalFile.file);
+            filesInfo.push({
+              name: variation.verticalFile.file.name,
+              type: variation.verticalFile.file.type,
+              size: variation.verticalFile.file.size,
+              format: 'vertical',
+              variationIndex: index + 1,
+              base64Data
+            });
+          }
+          if (variation.horizontalFile) {
+            const base64Data = await convertFileToBase64(variation.horizontalFile.file);
+            filesInfo.push({
+              name: variation.horizontalFile.file.name,
+              type: variation.horizontalFile.file.type,
+              size: variation.horizontalFile.file.size,
+              format: 'horizontal',
+              variationIndex: index + 1,
+              base64Data
+            });
+          }
+        }
+      } else {
+        // For other creative types, use validatedFiles
+        for (const file of formData.validatedFiles) {
+          const base64Data = await convertFileToBase64(file.file);
+          filesInfo.push({
+            name: file.file.name,
+            type: file.file.type,
+            size: file.file.size,
+            variationIndex: 1, // Single variation for non-single creative types
+            base64Data
+          });
+        }
+      }
+
+      // Prepare submission data - Send the client ID directly and include manager ID
+      const submissionData = {
+        client: formData.client, // Send the client ID directly
+        managerId: currentUser?.id, // Add manager ID
+        partner: formData.partner,
+        platform: formData.platform,
+        campaignObjective: formData.campaignObjective,
+        creativeType: formData.creativeType,
+        objective: formData.objective,
+        mainTexts: formData.mainTexts || [''], // Send array of main texts
+        titles: formData.titles || [''], // Send array of titles
+        description: formData.description,
+        destination: formData.destination, // New field
+        cta: formData.cta, // New field
+        destinationUrl: formData.destinationUrl,
+        callToAction: formData.callToAction,
+        observations: formData.observations,
+        filesInfo
+      };
+
+      console.log('Submitting creative to Notion:', submissionData);
+      
+      // Submit to Notion via Edge Function
+      const { data, error } = await supabase.functions.invoke('submit-creative', {
+        body: submissionData
       });
 
-      if (response.ok) {
-        const result = await response.json();
-        // Assuming the API returns creative IDs
-        setCreativeIds(result.creativeIds || ['CREATIVE_001']);
-        setShowSuccess(true);
-        console.log('Creative submitted successfully!');
-      } else {
-        console.error('Failed to submit creative');
+      if (error) {
+        console.error('Supabase function error:', error);
+        throw new Error(error.message || 'Erro ao enviar criativo');
       }
+
+      if (!data?.success) {
+        throw new Error(data?.error || 'Erro desconhecido ao enviar criativo');
+      }
+
+      console.log('✅ Creative successfully submitted:', data);
+
+      // Use the creative IDs returned from Notion
+      setCreativeIds(data.creativeIds || []);
+      setIsSubmitted(true);
+
+      const creativeCount = data.totalCreatives || 1;
+      const creativeIdsList = data.creativeIds?.join(', ') || '';
+
+      toast({
+        title: `${creativeCount} Criativo(s) enviado(s)!`,
+        description: `IDs: ${creativeIdsList}. Registros criados no Notion com sucesso!`,
+      });
+
     } catch (error) {
       console.error('Error submitting creative:', error);
+      toast({
+        title: "Erro no envio",
+        description: error.message || "Erro ao enviar para o Notion. Tente novamente.",
+        variant: "destructive",
+      });
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  const resetForm = () => {
+    setFormData(INITIAL_FORM_DATA);
+    setCurrentStep(1);
+    setErrors({});
+    setIsSubmitted(false);
+    setCreativeIds([]);
+    setIsSubmitting(false);
+  };
+
+  if (isSubmitted) {
+    return (
+      <div className="min-h-screen bg-jumper-background">
+        <Header />
+        <div className="max-w-4xl mx-auto px-4 py-8">
+          <Success creativeIds={creativeIds} onNewCreative={resetForm} />
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+    <div className="min-h-screen bg-jumper-background">
       <Header />
       
-      <main className="max-w-4xl mx-auto px-4 py-8">
-        {showSuccess ? (
-          <Success 
-            creativeIds={creativeIds}
-            onNewCreative={handleNewCreative}
+      <div className="max-w-4xl mx-auto px-4 py-8">
+        <ProgressBar 
+          currentStep={currentStep} 
+          totalSteps={4} 
+          stepLabels={STEP_LABELS} 
+        />
+
+        <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
+          <Breadcrumbs 
+            formData={formData}
+            clients={clients}
           />
-        ) : (
-          <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
-            {/* Progress Bar */}
-            <ProgressBar 
-              currentStep={currentStep} 
-              totalSteps={4} 
-              stepLabels={stepLabels}
+          
+          {currentStep === 1 && (
+            <Step1 
+              formData={formData} 
+              updateFormData={updateFormData} 
+              errors={errors} 
             />
-            
-            {/* Content */}
-            <div className="p-8">
-              {currentStep === 1 && (
-                <Step1 
-                  formData={formData} 
-                  updateFormData={updateFormData}
-                  errors={errors}
-                />
-              )}
-              {currentStep === 2 && (
-                <Step2 
-                  formData={formData} 
-                  updateFormData={updateFormData}
-                  errors={errors}
-                />
-              )}
-              {currentStep === 3 && (
-                <Step3 
-                  formData={formData} 
-                  updateFormData={updateFormData}
-                  errors={errors}
-                />
-              )}
-              {currentStep === 4 && (
-                <Step4 
-                  formData={formData} 
-                  isSubmitting={isSubmitting}
-                />
-              )}
-            </div>
-            
-            {/* Navigation */}
-            {currentStep < 4 && (
-              <div className="px-8 py-4 bg-gray-50 border-t flex justify-between">
-                <Button
-                  variant="outline"
-                  onClick={handleBack}
-                  disabled={currentStep === 1}
-                >
-                  Voltar
-                </Button>
-                <Button
-                  onClick={handleNext}
-                  className="bg-jumper-blue hover:bg-jumper-blue/90"
-                >
-                  Próximo
-                </Button>
-              </div>
-            )}
-            
-            {currentStep === 4 && (
-              <div className="px-8 py-4 bg-gray-50 border-t flex justify-between">
-                <Button
-                  variant="outline"
-                  onClick={handleBack}
-                >
-                  Voltar
-                </Button>
-                <Button
-                  onClick={handleSubmit}
-                  disabled={isSubmitting}
-                  className="bg-jumper-blue hover:bg-jumper-blue/90"
-                >
-                  {isSubmitting ? 'Enviando...' : 'Enviar Criativo'}
-                </Button>
-              </div>
-            )}
-          </div>
-        )}
-      </main>
-      
-      <DevButton />
+          )}
+          
+          {currentStep === 2 && (
+            <Step2 
+              formData={formData} 
+              updateFormData={updateFormData} 
+              errors={errors} 
+            />
+          )}
+          
+          {currentStep === 3 && (
+            <Step3 
+              formData={formData} 
+              updateFormData={updateFormData} 
+              errors={errors} 
+            />
+          )}
+          
+          {currentStep === 4 && (
+            <Step4 
+              formData={formData} 
+              isSubmitting={isSubmitting} 
+            />
+          )}
+        </div>
+
+        {/* Navigation Buttons */}
+        <div className="flex justify-between items-center">
+          <Button
+            variant="outline"
+            onClick={prevStep}
+            disabled={currentStep === 1}
+            className="flex items-center space-x-2"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Voltar</span>
+          </Button>
+
+          {currentStep < 4 ? (
+            <Button
+              onClick={nextStep}
+              className="bg-gradient-jumper hover:opacity-90 transition-opacity flex items-center space-x-2"
+            >
+              <span>Continuar</span>
+              <ArrowRight className="w-4 h-4" />
+            </Button>
+          ) : (
+            <Button
+              onClick={submitForm}
+              disabled={isSubmitting}
+              className="bg-gradient-success hover:opacity-90 transition-opacity flex items-center space-x-2 px-8"
+            >
+              <span>🚀</span>
+              <span>{isSubmitting ? 'Enviando...' : 'Enviar Criativo'}</span>
+            </Button>
+          )}
+        </div>
+      </div>
     </div>
   );
 };
