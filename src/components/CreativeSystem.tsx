@@ -1,9 +1,10 @@
+
 import React, { useState } from 'react';
 import Header from './Header';
-import Step1 from './Step1';
-import Step2 from './Step2';
-import Step3 from './Step3';
-import Step4 from './Step4';
+import Step1 from './steps/Step1';
+import Step2 from './steps/Step2';
+import Step3 from './steps/Step3';
+import Step4 from './steps/Step4';
 import Success from './Success';
 import ProgressBar from './ProgressBar';
 import DevButton from './DevButton';
@@ -13,6 +14,9 @@ const CreativeSystem = () => {
   const [formData, setFormData] = useState<any>({});
   const [showSuccess, setShowSuccess] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [creativeIds, setCreativeIds] = useState<string[]>([]);
+
+  const stepLabels = ['Básico', 'Arquivos', 'Conteúdo', 'Revisão'];
 
   const handleNext = () => {
     setCurrentStep(currentStep + 1);
@@ -20,6 +24,13 @@ const CreativeSystem = () => {
 
   const handleBack = () => {
     setCurrentStep(currentStep - 1);
+  };
+
+  const handleNewCreative = () => {
+    setShowSuccess(false);
+    setCurrentStep(1);
+    setFormData({});
+    setCreativeIds([]);
   };
 
   const handleSubmit = async () => {
@@ -35,6 +46,9 @@ const CreativeSystem = () => {
       });
 
       if (response.ok) {
+        const result = await response.json();
+        // Assuming the API returns creative IDs
+        setCreativeIds(result.creativeIds || ['CREATIVE_001']);
         setShowSuccess(true);
         console.log('Creative submitted successfully!');
       } else {
@@ -53,11 +67,18 @@ const CreativeSystem = () => {
       
       <main className="max-w-4xl mx-auto px-4 py-8">
         {showSuccess ? (
-          <Success />
+          <Success 
+            creativeIds={creativeIds}
+            onNewCreative={handleNewCreative}
+          />
         ) : (
           <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
             {/* Progress Bar */}
-            <ProgressBar currentStep={currentStep} totalSteps={4} />
+            <ProgressBar 
+              currentStep={currentStep} 
+              totalSteps={4} 
+              stepLabels={stepLabels}
+            />
             
             {/* Content */}
             <div className="p-8">
