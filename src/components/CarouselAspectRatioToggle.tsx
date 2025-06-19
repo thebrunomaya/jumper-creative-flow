@@ -47,15 +47,6 @@ const CarouselAspectRatioToggle: React.FC<CarouselAspectRatioToggleProps> = ({
           </AlertDescription>
         </Alert>
       )}
-
-      <div className="text-sm text-gray-600">
-        <p>
-          <strong>1:1 (1080x1080px):</strong> Melhor para feeds. Zona segura: 80% central (100px de margem).
-        </p>
-        <p>
-          <strong>4:5 (1080x1350px):</strong> Ótimo para feeds móveis. Margem de 250px superior e inferior.
-        </p>
-      </div>
     </div>
   );
 };

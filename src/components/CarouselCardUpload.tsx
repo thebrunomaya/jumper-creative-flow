@@ -3,11 +3,8 @@ import React, { useCallback, useState } from 'react';
 import { CarouselCard, ValidatedFile } from '@/types/creative';
 import { validateFile } from '@/utils/fileValidation';
 import { useDropzone } from 'react-dropzone';
-import ThumbnailPreview from './ThumbnailPreview';
-import FileUploadZone from './FileUploadZone';
-import FileDetails from './FileDetails';
 import MediaPreviewLightbox from './MediaPreviewLightbox';
-import BaseMediaUploadCard from './BaseMediaUploadCard';
+import MediaCard from './MediaCard';
 
 interface CarouselCardUploadProps {
   card: CarouselCard;
@@ -70,45 +67,32 @@ const CarouselCardUpload: React.FC<CarouselCardUploadProps> = ({
     document.getElementById(`replace-carousel-${card.id}`)?.click();
   };
 
+  const handleUploadClick = () => {
+    document.getElementById(`replace-carousel-${card.id}`)?.click();
+  };
+
   return (
     <>
-      <BaseMediaUploadCard
+      <MediaCard
         title={`🎴 Cartão ${cardNumber}`}
+        format="square" // Use square for both 1:1 and 4:5 to maintain base format
         dimensions={dimensions}
+        file={card.file}
+        onPreviewClick={() => setLightboxOpen(true)}
+        onUploadClick={handleUploadClick}
+        onReplaceClick={handleReplace}
+        onRemoveClick={removeFile}
+        enabled={true}
+        carouselMode={true}
+        carouselAspectRatio={aspectRatio}
+        getRootProps={getRootProps}
+        getInputProps={getInputProps}
+        isDragActive={isDragActive}
+        isValidating={isValidating}
+        showHeader={true}
         onRemove={onRemove}
         canRemove={canRemove}
-      >
-        {/* Thumbnail Container - padronizado com w-32 (128px) */}
-        <div className="w-32 bg-gray-50 border-r border-gray-200 flex items-center justify-center p-4">
-          <ThumbnailPreview
-            format="square" // Use square for both 1:1 and 4:5 to maintain base format
-            file={card.file}
-            onPreviewClick={() => setLightboxOpen(true)}
-            carouselMode={true}
-            carouselAspectRatio={aspectRatio}
-          />
-        </div>
-
-        {/* Upload Area ou File Details Container */}
-        <div className="flex-1 flex flex-col min-h-[160px]">
-          {!card.file ? (
-            <FileUploadZone
-              getRootProps={getRootProps}
-              getInputProps={getInputProps}
-              isDragActive={isDragActive}
-              isValidating={isValidating}
-              dimensions={dimensions}
-            />
-          ) : (
-            <FileDetails
-              file={card.file}
-              format="square" // Use square for consistent display
-              onRemove={removeFile}
-              onReplace={handleReplace}
-            />
-          )}
-        </div>
-      </BaseMediaUploadCard>
+      />
 
       {/* Hidden file input for replacement */}
       <input

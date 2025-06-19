@@ -2,6 +2,8 @@
 import React from 'react';
 import { ValidatedFile } from '@/types/creative';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Trash2 } from 'lucide-react';
 import ThumbnailPreview from './ThumbnailPreview';
 import FileUploadZone from './FileUploadZone';
 import FileDetails from './FileDetails';
@@ -24,6 +26,8 @@ interface MediaCardProps {
   isDragActive?: boolean;
   isValidating?: boolean;
   showHeader?: boolean;
+  onRemove?: () => void;
+  canRemove?: boolean;
 }
 
 const MediaCard: React.FC<MediaCardProps> = ({
@@ -42,7 +46,9 @@ const MediaCard: React.FC<MediaCardProps> = ({
   getInputProps,
   isDragActive,
   isValidating = false,
-  showHeader = false
+  showHeader = false,
+  onRemove,
+  canRemove = false
 }) => {
   // Status Badge Component
   const statusBadge = !enabled ? (
@@ -70,6 +76,16 @@ const MediaCard: React.FC<MediaCardProps> = ({
           <div className="flex items-center space-x-2">
             <span className="text-sm text-gray-500">{dimensions}</span>
             {statusBadge}
+            {canRemove && onRemove && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onRemove}
+                className="text-red-600 hover:text-red-700 hover:bg-red-50"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            )}
           </div>
         </div>
       )}
