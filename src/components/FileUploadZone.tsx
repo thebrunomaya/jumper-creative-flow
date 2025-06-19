@@ -25,7 +25,7 @@ const FileUploadZone: React.FC<FileUploadZoneProps> = ({
   if (!enabled) {
     return (
       <div className="flex-1 flex items-center justify-center">
-        <div className="text-center space-y-4 p-8 w-full opacity-60">
+        <div className="text-center space-y-4 p-4 w-full opacity-60">
           <div className="flex items-center space-x-3 justify-center">
             <Upload className="h-8 w-8 text-gray-400 flex-shrink-0" />
             <div className="text-center">
@@ -52,7 +52,7 @@ const FileUploadZone: React.FC<FileUploadZoneProps> = ({
       }`}
     >
       <input {...getInputProps()} />
-      <div className="text-center space-y-4 p-8 w-full">
+      <div className="text-center space-y-4 p-4 w-full">
         <div className="flex items-center space-x-3 justify-center">
           <Upload className="h-8 w-8 text-gray-400 flex-shrink-0" />
           <div className="text-center">

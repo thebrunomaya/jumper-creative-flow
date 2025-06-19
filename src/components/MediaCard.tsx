@@ -111,16 +111,6 @@ const MediaCard: React.FC<MediaCardProps> = ({
           )}
         </div>
       </div>
-
-      {/* Status Badge no rodapé se não há header */}
-      {!showHeader && (
-        <div className="p-3 border-t border-gray-200 bg-gray-50">
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-gray-500">{dimensions}</span>
-            {statusBadge}
-          </div>
-        </div>
-      )}
     </div>
   );
 };
