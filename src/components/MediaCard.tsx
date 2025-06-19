@@ -75,7 +75,7 @@ const MediaCard: React.FC<MediaCardProps> = ({
       )}
 
       {/* Content Area */}
-      <div className="flex min-h-[160px]">
+      <div className="flex h-40">
         {/* Thumbnail Container - quadrado 160x160px */}
         <div className="w-40 h-40 bg-gray-50 border-r border-gray-200 flex items-center justify-center p-2">
           <ThumbnailPreview
@@ -89,7 +89,7 @@ const MediaCard: React.FC<MediaCardProps> = ({
         </div>
 
         {/* Upload Area ou File Details Container */}
-        <div className="flex-1 flex flex-col min-h-[160px]">
+        <div className="flex-1 flex flex-col h-40">
           {!file ? (
             <FileUploadZone
               getRootProps={getRootProps || (() => ({}))}
