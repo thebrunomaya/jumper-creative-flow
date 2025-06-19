@@ -1,8 +1,7 @@
-
 export const getThumbnailDimensions = (format: 'square' | 'vertical' | 'horizontal', carouselMode = false, carouselAspectRatio?: '1:1' | '4:5') => {
-  // Container é 160x160px com padding de 8px (total área disponível: 144x144px)
-  const maxWidth = 144;
-  const maxHeight = 144;
+  // Container é 160x160px com margem de 16px (total área disponível: 128x128px)
+  const maxWidth = 128;
+  const maxHeight = 128;
   
   let aspectRatio: number;
   
