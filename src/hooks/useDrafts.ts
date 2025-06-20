@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -30,11 +29,6 @@ export const useDrafts = () => {
     try {
       setLoading(true);
       setError(null);
-
-      const url = new URL(`${supabase.supabaseUrl}/functions/v1/get-user-drafts`);
-      if (status) {
-        url.searchParams.set('status', status);
-      }
 
       const { data, error } = await supabase.functions.invoke('get-user-drafts', {
         body: { status }
