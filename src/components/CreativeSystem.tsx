@@ -84,6 +84,18 @@ const CreativeSystem: React.FC = () => {
     });
   };
 
+  // Check if carousel has valid files
+  const hasValidCarouselFiles = () => {
+    if (!formData.carouselCards || formData.carouselCards.length < 2) {
+      return false;
+    }
+    
+    // Check if at least the minimum required cards have valid files
+    return formData.carouselCards.every(card => {
+      return card.file && card.file.valid;
+    });
+  };
+
   // Get destination field configuration for validation
   const getDestinationFieldConfig = () => {
     if (!formData.destination || formData.platform !== 'meta') {
@@ -131,7 +143,12 @@ const CreativeSystem: React.FC = () => {
         break;
 
       case 2:
-        if (formData.creativeType === 'single') {
+        if (formData.creativeType === 'carousel') {
+          // Specific validation for carousel
+          if (!hasValidCarouselFiles()) {
+            newErrors.files = 'Envie arquivos válidos para todos os cartões do carrossel';
+          }
+        } else if (formData.creativeType === 'single') {
           // Validate media variations with new logic
           const mediaVariations = formData.mediaVariations || [];
           if (mediaVariations.length === 0) {
@@ -270,7 +287,23 @@ const CreativeSystem: React.FC = () => {
         base64Data?: string;
       }> = [];
 
-      if (formData.creativeType === 'single' && formData.mediaVariations) {
+      if (formData.creativeType === 'carousel' && formData.carouselCards) {
+        for (const card of formData.carouselCards) {
+          const index = formData.carouselCards.indexOf(card);
+          
+          if (card.file) {
+            const base64Data = await convertFileToBase64(card.file.file);
+            filesInfo.push({
+              name: card.file.file.name,
+              type: card.file.file.type,
+              size: card.file.file.size,
+              format: `carousel-${formData.carouselAspectRatio}`,
+              variationIndex: index + 1,
+              base64Data
+            });
+          }
+        }
+      } else if (formData.creativeType === 'single' && formData.mediaVariations) {
         for (const variation of formData.mediaVariations) {
           const index = formData.mediaVariations.indexOf(variation);
           
