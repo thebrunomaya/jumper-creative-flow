@@ -87,6 +87,51 @@ export type Database = {
         }
         Relationships: []
       }
+      creative_drafts: {
+        Row: {
+          campaign_objective: string | null
+          client_id: string
+          created_at: string
+          creative_id: string
+          creative_type: string | null
+          form_data: Json
+          id: string
+          last_accessed: string
+          manager_id: string
+          platform: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          campaign_objective?: string | null
+          client_id: string
+          created_at?: string
+          creative_id: string
+          creative_type?: string | null
+          form_data?: Json
+          id?: string
+          last_accessed?: string
+          manager_id: string
+          platform?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          campaign_objective?: string | null
+          client_id?: string
+          created_at?: string
+          creative_id?: string
+          creative_type?: string | null
+          form_data?: Json
+          id?: string
+          last_accessed?: string
+          manager_id?: string
+          platform?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       partners: {
         Row: {
           created_at: string
@@ -128,6 +173,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      generate_creative_id: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       get_next_creative_counter: {
         Args: Record<PropertyKey, never>
         Returns: number
