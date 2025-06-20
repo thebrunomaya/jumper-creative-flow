@@ -2,11 +2,7 @@
 import React from 'react';
 import UserMenu from './UserMenu';
 
-interface HeaderProps {
-  creativeId?: string;
-}
-
-const Header: React.FC<HeaderProps> = ({ creativeId }) => {
+const Header: React.FC = () => {
   return (
     <header className="bg-white shadow-sm border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -16,19 +12,8 @@ const Header: React.FC<HeaderProps> = ({ creativeId }) => {
               <span className="text-white font-bold text-lg">🚀</span>
             </div>
             <div>
-              <div className="flex items-center space-x-4">
-                <div>
-                  <h1 className="text-xl font-bold text-jumper-text">Sistema de Criativos</h1>
-                  <p className="text-sm text-gray-500">Jumper Studio</p>
-                </div>
-                {creativeId && (
-                  <div className="bg-gradient-jumper text-white px-4 py-2 rounded-lg">
-                    <span className="text-sm font-medium">
-                      Editando: {creativeId}
-                    </span>
-                  </div>
-                )}
-              </div>
+              <h1 className="text-xl font-bold text-jumper-text">Sistema de Criativos</h1>
+              <p className="text-sm text-gray-500">Jumper Studio</p>
             </div>
           </div>
           

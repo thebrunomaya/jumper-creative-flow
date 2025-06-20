@@ -1,8 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { useLocation, useParams, useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
 import { FormData, TEXT_LIMITS } from '@/types/creative';
 import { useToast } from '@/hooks/use-toast';
-import { useDrafts } from '@/hooks/useDrafts';
 import Header from './Header';
 import ProgressBar from './ProgressBar';
 import Breadcrumbs from './Breadcrumbs';
@@ -20,7 +18,7 @@ import metaAdsObjectives from '@/config/meta-ads-objectives.json';
 
 const INITIAL_FORM_DATA: FormData = {
   client: '',
-  partner: '',
+  partner: '', // Mantemos por compatibilidade mas não será usado
   platform: '',
   creativeType: undefined,
   objective: undefined,
@@ -31,12 +29,12 @@ const INITIAL_FORM_DATA: FormData = {
     squareEnabled: true, 
     verticalEnabled: true, 
     horizontalEnabled: true 
-  }],
-  mainTexts: [''],
-  titles: [''],
+  }], // Initialize with first media variation with all positions enabled
+  mainTexts: [''], // Initialize with one empty main text
+  titles: [''], // Initialize with one empty title
   description: '',
-  destination: '',
-  cta: '',
+  destination: '', // New field
+  cta: '', // New field
   destinationUrl: '',
   callToAction: '',
   observations: ''
@@ -51,54 +49,12 @@ const CreativeSystem: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [creativeIds, setCreativeIds] = useState<string[]>([]);
-  const [currentCreativeId, setCurrentCreativeId] = useState<string>('');
-  
   const { toast } = useToast();
   const { clients } = useNotionClients();
   const { currentUser } = useAuth();
-  const { createDraft, updateDraft } = useDrafts();
-  const location = useLocation();
-  const params = useParams();
-  const navigate = useNavigate();
-
-  // Check if we're editing an existing creative or duplicating
-  useEffect(() => {
-    const state = location.state as any;
-    
-    if (state?.draftData) {
-      // Editing existing draft
-      const draft = state.draftData;
-      setCurrentCreativeId(draft.creative_id);
-      setFormData(draft.form_data);
-      
-      // Determine current step based on form completeness
-      if (draft.form_data.validatedFiles?.length > 0 || 
-          draft.form_data.mediaVariations?.some((v: any) => v.squareFile || v.verticalFile || v.horizontalFile) ||
-          draft.form_data.carouselCards?.some((c: any) => c.file)) {
-        if (draft.form_data.titles?.some((t: string) => t.trim()) || 
-            draft.form_data.mainTexts?.some((t: string) => t.trim())) {
-          setCurrentStep(4); // Review step if content is filled
-        } else {
-          setCurrentStep(3); // Content step if files are uploaded
-        }
-      } else if (draft.form_data.platform) {
-        setCurrentStep(2); // Files step if basic info is filled
-      }
-    } else if (state?.duplicateData) {
-      // Duplicating existing creative
-      setFormData(state.duplicateData);
-    }
-  }, [location.state]);
 
   const updateFormData = (newData: Partial<FormData>) => {
-    const updatedFormData = { ...formData, ...newData };
-    setFormData(updatedFormData);
-    
-    // Auto-save draft if we have a creative ID
-    if (currentCreativeId) {
-      autoSaveDraft(updatedFormData);
-    }
-    
+    setFormData(prev => ({ ...prev, ...newData }));
     // Clear related errors when user updates the field
     const newErrors = { ...errors };
     Object.keys(newData).forEach(key => {
@@ -107,14 +63,6 @@ const CreativeSystem: React.FC = () => {
       }
     });
     setErrors(newErrors);
-  };
-
-  const autoSaveDraft = async (data: FormData) => {
-    try {
-      await updateDraft(currentCreativeId, data, 'IN_PROGRESS');
-    } catch (error) {
-      console.error('Error auto-saving draft:', error);
-    }
   };
 
   // Check if all enabled positions have files for all variations
@@ -196,10 +144,12 @@ const CreativeSystem: React.FC = () => {
 
       case 2:
         if (formData.creativeType === 'carousel') {
+          // Specific validation for carousel
           if (!hasValidCarouselFiles()) {
             newErrors.files = 'Envie arquivos válidos para todos os cartões do carrossel';
           }
         } else if (formData.creativeType === 'single') {
+          // Validate media variations with new logic
           const mediaVariations = formData.mediaVariations || [];
           if (mediaVariations.length === 0) {
             newErrors.files = 'Adicione pelo menos uma mídia';
@@ -207,6 +157,7 @@ const CreativeSystem: React.FC = () => {
             newErrors.files = 'Envie arquivos válidos para todos os posicionamentos ativos ou desative os posicionamentos sem arquivo (máximo 2 desativados por variação)';
           }
         } else {
+          // Original validation for other creative types
           if (formData.validatedFiles.length === 0) {
             newErrors.files = 'Envie pelo menos um arquivo';
           } else {
@@ -219,6 +170,7 @@ const CreativeSystem: React.FC = () => {
         break;
 
       case 3:
+        // Validate titles
         const titles = formData.titles || [''];
         titles.forEach((title, index) => {
           if (!title.trim()) {
@@ -228,6 +180,7 @@ const CreativeSystem: React.FC = () => {
           }
         });
 
+        // Validate main texts
         const mainTexts = formData.mainTexts || [''];
         mainTexts.forEach((mainText, index) => {
           if (!mainText.trim()) {
@@ -241,6 +194,7 @@ const CreativeSystem: React.FC = () => {
           newErrors.description = `Descrição muito longa (${formData.description.length}/${TEXT_LIMITS.description.maximum})`;
         }
 
+        // Conditional validation for Meta ads
         if (formData.platform === 'meta' && formData.campaignObjective) {
           if (!formData.destination) {
             newErrors.destination = 'Selecione um destino';
@@ -250,20 +204,24 @@ const CreativeSystem: React.FC = () => {
             newErrors.cta = 'Selecione um call-to-action';
           }
         } else {
+          // Legacy validation for non-Meta ads
           if (!formData.callToAction) {
             newErrors.callToAction = 'Selecione um call-to-action';
           }
         }
 
+        // Validate destination URL based on field type
         if (!formData.destinationUrl.trim()) {
           newErrors.destinationUrl = 'Digite o destino';
         } else if (shouldValidateAsUrl()) {
+          // Only validate as URL if it should be a URL field
           try {
             new URL(formData.destinationUrl);
           } catch {
             newErrors.destinationUrl = 'URL inválida';
           }
         }
+        // For phone/text fields, no URL validation is performed
         break;
     }
 
@@ -271,27 +229,8 @@ const CreativeSystem: React.FC = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const nextStep = async () => {
+  const nextStep = () => {
     if (validateStep(currentStep)) {
-      // Create draft after Step 1 if we don't have a creative ID yet
-      if (currentStep === 1 && !currentCreativeId) {
-        try {
-          const { creativeId } = await createDraft(formData);
-          setCurrentCreativeId(creativeId);
-          toast({
-            title: "Rascunho criado",
-            description: `Criativo ${creativeId} criado com sucesso!`,
-          });
-        } catch (error) {
-          toast({
-            title: "Erro",
-            description: "Erro ao criar rascunho. Tente novamente.",
-            variant: "destructive",
-          });
-          return;
-        }
-      }
-      
       setCurrentStep(prev => Math.min(prev + 1, 4));
     } else {
       toast({
@@ -312,13 +251,13 @@ const CreativeSystem: React.FC = () => {
     }
   };
 
-  // Convert file to base64
   const convertFileToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onload = () => {
         const base64 = reader.result as string;
+        // Remove the data:image/jpeg;base64, prefix
         resolve(base64.split(',')[1]);
       };
       reader.onerror = error => reject(error);
@@ -338,7 +277,7 @@ const CreativeSystem: React.FC = () => {
     setIsSubmitting(true);
 
     try {
-      // Rename files with creative ID before submission
+      // Prepare files info and convert files to base64
       const filesInfo: Array<{
         name: string;
         type: string;
@@ -354,9 +293,8 @@ const CreativeSystem: React.FC = () => {
           
           if (card.file) {
             const base64Data = await convertFileToBase64(card.file.file);
-            const newFileName = `${currentCreativeId}-Card${String(index + 1).padStart(2, '0')}.${card.file.file.name.split('.').pop()}`;
             filesInfo.push({
-              name: newFileName,
+              name: card.file.file.name,
               type: card.file.file.type,
               size: card.file.file.size,
               format: `carousel-${formData.carouselAspectRatio}`,
@@ -371,9 +309,8 @@ const CreativeSystem: React.FC = () => {
           
           if (variation.squareFile) {
             const base64Data = await convertFileToBase64(variation.squareFile.file);
-            const newFileName = `${currentCreativeId}-square.${variation.squareFile.file.name.split('.').pop()}`;
             filesInfo.push({
-              name: newFileName,
+              name: variation.squareFile.file.name,
               type: variation.squareFile.file.type,
               size: variation.squareFile.file.size,
               format: 'square',
@@ -383,9 +320,8 @@ const CreativeSystem: React.FC = () => {
           }
           if (variation.verticalFile) {
             const base64Data = await convertFileToBase64(variation.verticalFile.file);
-            const newFileName = `${currentCreativeId}-vertical.${variation.verticalFile.file.name.split('.').pop()}`;
             filesInfo.push({
-              name: newFileName,
+              name: variation.verticalFile.file.name,
               type: variation.verticalFile.file.type,
               size: variation.verticalFile.file.size,
               format: 'vertical',
@@ -395,9 +331,8 @@ const CreativeSystem: React.FC = () => {
           }
           if (variation.horizontalFile) {
             const base64Data = await convertFileToBase64(variation.horizontalFile.file);
-            const newFileName = `${currentCreativeId}-horizontal.${variation.horizontalFile.file.name.split('.').pop()}`;
             filesInfo.push({
-              name: newFileName,
+              name: variation.horizontalFile.file.name,
               type: variation.horizontalFile.file.type,
               size: variation.horizontalFile.file.size,
               format: 'horizontal',
@@ -407,33 +342,33 @@ const CreativeSystem: React.FC = () => {
           }
         }
       } else {
+        // For other creative types, use validatedFiles
         for (const file of formData.validatedFiles) {
           const base64Data = await convertFileToBase64(file.file);
-          const newFileName = `${currentCreativeId}.${file.file.name.split('.').pop()}`;
           filesInfo.push({
-            name: newFileName,
+            name: file.file.name,
             type: file.file.type,
             size: file.file.size,
-            variationIndex: 1,
+            variationIndex: 1, // Single variation for non-single creative types
             base64Data
           });
         }
       }
 
+      // Prepare submission data - Send the client ID directly and include manager ID
       const submissionData = {
-        creativeId: currentCreativeId, // Include the creative ID for updating
-        client: formData.client,
-        managerId: currentUser?.id,
+        client: formData.client, // Send the client ID directly
+        managerId: currentUser?.id, // Add manager ID
         partner: formData.partner,
         platform: formData.platform,
         campaignObjective: formData.campaignObjective,
         creativeType: formData.creativeType,
         objective: formData.objective,
-        mainTexts: formData.mainTexts || [''],
-        titles: formData.titles || [''],
+        mainTexts: formData.mainTexts || [''], // Send array of main texts
+        titles: formData.titles || [''], // Send array of titles
         description: formData.description,
-        destination: formData.destination,
-        cta: formData.cta,
+        destination: formData.destination, // New field
+        cta: formData.cta, // New field
         destinationUrl: formData.destinationUrl,
         callToAction: formData.callToAction,
         observations: formData.observations,
@@ -442,6 +377,7 @@ const CreativeSystem: React.FC = () => {
 
       console.log('Submitting creative to Notion:', submissionData);
       
+      // Submit to Notion via Edge Function
       const { data, error } = await supabase.functions.invoke('submit-creative', {
         body: submissionData
       });
@@ -457,15 +393,16 @@ const CreativeSystem: React.FC = () => {
 
       console.log('✅ Creative successfully submitted:', data);
 
-      // Update draft status to completed
-      await updateDraft(currentCreativeId, formData, 'COMPLETED');
-
-      setCreativeIds([currentCreativeId]);
+      // Use the creative IDs returned from Notion
+      setCreativeIds(data.creativeIds || []);
       setIsSubmitted(true);
 
+      const creativeCount = data.totalCreatives || 1;
+      const creativeIdsList = data.creativeIds?.join(', ') || '';
+
       toast({
-        title: "Criativo enviado!",
-        description: `Criativo ${currentCreativeId} enviado com sucesso!`,
+        title: `${creativeCount} Criativo(s) enviado(s)!`,
+        description: `IDs: ${creativeIdsList}. Registros criados no Notion com sucesso!`,
       });
 
     } catch (error) {
@@ -486,15 +423,13 @@ const CreativeSystem: React.FC = () => {
     setErrors({});
     setIsSubmitted(false);
     setCreativeIds([]);
-    setCurrentCreativeId('');
     setIsSubmitting(false);
-    navigate('/dashboard');
   };
 
   if (isSubmitted) {
     return (
       <div className="min-h-screen bg-jumper-background">
-        <Header creativeId={currentCreativeId} />
+        <Header />
         <div className="max-w-4xl mx-auto px-4 py-8">
           <Success creativeIds={creativeIds} onNewCreative={resetForm} />
         </div>
@@ -504,7 +439,7 @@ const CreativeSystem: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-jumper-background">
-      <Header creativeId={currentCreativeId} />
+      <Header />
       
       <div className="max-w-4xl mx-auto px-4 py-8">
         <ProgressBar 
