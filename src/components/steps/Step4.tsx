@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { FormData } from '@/types/creative';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -133,13 +132,13 @@ const Step4: React.FC<Step4Props> = ({ formData, isSubmitting }) => {
             <h3 className="font-semibold text-gray-900">Informações Básicas</h3>
           </div>
           <div className="space-y-2 text-sm">
-            <div><span className="font-medium">Cliente:</span> {clientName}</div>
-            <div><span className="font-medium">Plataforma:</span> {formData.platform === 'meta' ? 'Meta Ads' : 'Google Ads'}</div>
+            <div className="break-words"><span className="font-medium">Cliente:</span> <span className="break-all">{clientName}</span></div>
+            <div className="break-words"><span className="font-medium">Plataforma:</span> {formData.platform === 'meta' ? 'Meta Ads' : 'Google Ads'}</div>
             {formData.campaignObjective && (
-              <div><span className="font-medium">Objetivo:</span> {formData.campaignObjective}</div>
+              <div className="break-words"><span className="font-medium">Objetivo:</span> <span className="break-all">{formData.campaignObjective}</span></div>
             )}
             {formData.creativeType && (
-              <div><span className="font-medium">Tipo:</span> {
+              <div className="break-words"><span className="font-medium">Tipo:</span> {
                 formData.creativeType === 'single' ? 'Anúncio Único' :
                 formData.creativeType === 'carousel' ? 'Carrossel' : 'Coleção'
               }</div>
@@ -154,9 +153,9 @@ const Step4: React.FC<Step4Props> = ({ formData, isSubmitting }) => {
             <h3 className="font-semibold text-gray-900">Gerente Responsável</h3>
           </div>
           <div className="space-y-2 text-sm">
-            <div><span className="font-medium">Nome:</span> {currentUser?.name || 'Não identificado'}</div>
+            <div className="break-words"><span className="font-medium">Nome:</span> <span className="break-all">{currentUser?.name || 'Não identificado'}</span></div>
             {currentUser?.email && (
-              <div><span className="font-medium">E-mail:</span> {currentUser.email}</div>
+              <div className="break-words"><span className="font-medium">E-mail:</span> <span className="break-all">{currentUser.email}</span></div>
             )}
           </div>
         </div>
@@ -178,8 +177,8 @@ const Step4: React.FC<Step4Props> = ({ formData, isSubmitting }) => {
               <span className="font-medium">Total de arquivos:</span> {totalFiles}
             </div>
             {formData.creativeType === 'carousel' && formData.carouselAspectRatio && (
-              <div>
-                <span className="font-medium">Proporção:</span> {formData.carouselAspectRatio}
+              <div className="break-words">
+                <span className="font-medium">Proporção:</span> <span className="break-all">{formData.carouselAspectRatio}</span>
               </div>
             )}
             {formData.creativeType === 'single' && formData.mediaVariations && (
@@ -200,7 +199,12 @@ const Step4: React.FC<Step4Props> = ({ formData, isSubmitting }) => {
             <div><span className="font-medium">Títulos:</span> {formData.titles?.length || 0}</div>
             <div><span className="font-medium">Textos principais:</span> {formData.mainTexts?.length || 0}</div>
             {formData.description && (
-              <div><span className="font-medium">Descrição:</span> {formData.description.substring(0, 50)}{formData.description.length > 50 ? '...' : ''}</div>
+              <div className="break-words">
+                <span className="font-medium">Descrição:</span> 
+                <span className="break-all ml-1">
+                  {formData.description.substring(0, 50)}{formData.description.length > 50 ? '...' : ''}
+                </span>
+              </div>
             )}
           </div>
         </div>
@@ -212,17 +216,22 @@ const Step4: React.FC<Step4Props> = ({ formData, isSubmitting }) => {
             <h3 className="font-semibold text-gray-900">Call-to-Action & Destino</h3>
           </div>
           <div className="grid md:grid-cols-2 gap-4 text-sm">
-            <div>
+            <div className="break-words">
               {formData.cta && (
-                <div><span className="font-medium">CTA:</span> {formData.cta}</div>
+                <div><span className="font-medium">CTA:</span> <span className="break-all ml-1">{formData.cta}</span></div>
               )}
               {formData.callToAction && !formData.cta && (
-                <div><span className="font-medium">CTA:</span> {formData.callToAction}</div>
+                <div><span className="font-medium">CTA:</span> <span className="break-all ml-1">{formData.callToAction}</span></div>
               )}
             </div>
-            <div>
+            <div className="break-words">
               {formData.destinationUrl && (
-                <div><span className="font-medium">Destino:</span> {formData.destinationUrl.substring(0, 40)}{formData.destinationUrl.length > 40 ? '...' : ''}</div>
+                <div>
+                  <span className="font-medium">Destino:</span> 
+                  <span className="break-all ml-1">
+                    {formData.destinationUrl.substring(0, 40)}{formData.destinationUrl.length > 40 ? '...' : ''}
+                  </span>
+                </div>
               )}
             </div>
           </div>
@@ -233,7 +242,7 @@ const Step4: React.FC<Step4Props> = ({ formData, isSubmitting }) => {
       {formData.observations && (
         <div className="bg-white border rounded-lg p-6 shadow-sm">
           <h3 className="font-semibold text-gray-900 mb-3">Observações</h3>
-          <p className="text-sm text-gray-600">{formData.observations}</p>
+          <p className="text-sm text-gray-600 break-words whitespace-pre-wrap">{formData.observations}</p>
         </div>
       )}
 
