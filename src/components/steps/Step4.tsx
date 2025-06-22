@@ -2,8 +2,9 @@
 import React from 'react';
 import { FormData } from '@/types/creative';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertTriangle, CheckCircle, FileText, Image, Video, Users } from 'lucide-react';
+import { AlertTriangle, CheckCircle, FileText, Image, Video, Users, User } from 'lucide-react';
 import { useNotionClients } from '@/hooks/useNotionData';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface Step4Props {
   formData: FormData;
@@ -12,6 +13,7 @@ interface Step4Props {
 
 const Step4: React.FC<Step4Props> = ({ formData, isSubmitting }) => {
   const { clients } = useNotionClients();
+  const { currentUser } = useAuth();
 
   // Get client name
   const selectedClient = clients.find(c => c.id === formData.client);
@@ -145,6 +147,20 @@ const Step4: React.FC<Step4Props> = ({ formData, isSubmitting }) => {
           </div>
         </div>
 
+        {/* Manager Info Card */}
+        <div className="bg-white border rounded-lg p-6 shadow-sm">
+          <div className="flex items-center space-x-3 mb-4">
+            <User className="h-5 w-5 text-jumper-blue" />
+            <h3 className="font-semibold text-gray-900">Gerente Responsável</h3>
+          </div>
+          <div className="space-y-2 text-sm">
+            <div><span className="font-medium">Nome:</span> {currentUser?.name || 'Não identificado'}</div>
+            {currentUser?.email && (
+              <div><span className="font-medium">E-mail:</span> {currentUser.email}</div>
+            )}
+          </div>
+        </div>
+
         {/* Files Card */}
         <div className="bg-white border rounded-lg p-6 shadow-sm">
           <div className="flex items-center space-x-3 mb-4">
@@ -190,21 +206,25 @@ const Step4: React.FC<Step4Props> = ({ formData, isSubmitting }) => {
         </div>
 
         {/* CTA & Destination Card */}
-        <div className="bg-white border rounded-lg p-6 shadow-sm">
+        <div className="bg-white border rounded-lg p-6 shadow-sm col-span-full">
           <div className="flex items-center space-x-3 mb-4">
             <CheckCircle className="h-5 w-5 text-jumper-blue" />
             <h3 className="font-semibold text-gray-900">Call-to-Action & Destino</h3>
           </div>
-          <div className="space-y-2 text-sm">
-            {formData.cta && (
-              <div><span className="font-medium">CTA:</span> {formData.cta}</div>
-            )}
-            {formData.callToAction && !formData.cta && (
-              <div><span className="font-medium">CTA:</span> {formData.callToAction}</div>
-            )}
-            {formData.destinationUrl && (
-              <div><span className="font-medium">Destino:</span> {formData.destinationUrl.substring(0, 40)}{formData.destinationUrl.length > 40 ? '...' : ''}</div>
-            )}
+          <div className="grid md:grid-cols-2 gap-4 text-sm">
+            <div>
+              {formData.cta && (
+                <div><span className="font-medium">CTA:</span> {formData.cta}</div>
+              )}
+              {formData.callToAction && !formData.cta && (
+                <div><span className="font-medium">CTA:</span> {formData.callToAction}</div>
+              )}
+            </div>
+            <div>
+              {formData.destinationUrl && (
+                <div><span className="font-medium">Destino:</span> {formData.destinationUrl.substring(0, 40)}{formData.destinationUrl.length > 40 ? '...' : ''}</div>
+              )}
+            </div>
           </div>
         </div>
       </div>
