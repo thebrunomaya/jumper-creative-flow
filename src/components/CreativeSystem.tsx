@@ -96,6 +96,11 @@ const CreativeSystem: React.FC = () => {
     });
   };
 
+  // Check if existing post has valid URL
+  const hasValidExistingPost = () => {
+    return formData.existingPost && formData.existingPost.valid;
+  };
+
   // Get destination field configuration for validation
   const getDestinationFieldConfig = () => {
     if (!formData.destination || formData.platform !== 'meta') {
@@ -155,6 +160,11 @@ const CreativeSystem: React.FC = () => {
             newErrors.files = 'Adicione pelo menos uma mídia';
           } else if (!hasAllRequiredFiles()) {
             newErrors.files = 'Envie arquivos válidos para todos os posicionamentos ativos ou desative os posicionamentos sem arquivo (máximo 2 desativados por variação)';
+          }
+        } else if (formData.creativeType === 'existing-post') {
+          // Validate existing post URL
+          if (!hasValidExistingPost()) {
+            newErrors.existingPost = 'Cole uma URL válida da publicação do Instagram';
           }
         } else {
           // Original validation for other creative types
@@ -285,9 +295,19 @@ const CreativeSystem: React.FC = () => {
         format?: string;
         variationIndex?: number;
         base64Data?: string;
+        instagramUrl?: string; // New field for existing posts
       }> = [];
 
-      if (formData.creativeType === 'carousel' && formData.carouselCards) {
+      if (formData.creativeType === 'existing-post' && formData.existingPost) {
+        // For existing post, add URL info instead of file data
+        filesInfo.push({
+          name: 'Instagram Post',
+          type: 'existing-post',
+          size: 0,
+          instagramUrl: formData.existingPost.instagramUrl,
+          variationIndex: 1
+        });
+      } else if (formData.creativeType === 'carousel' && formData.carouselCards) {
         for (const card of formData.carouselCards) {
           const index = formData.carouselCards.indexOf(card);
           
@@ -372,6 +392,7 @@ const CreativeSystem: React.FC = () => {
         destinationUrl: formData.destinationUrl,
         callToAction: formData.callToAction,
         observations: formData.observations,
+        existingPost: formData.existingPost, // Add existing post data
         filesInfo
       };
 

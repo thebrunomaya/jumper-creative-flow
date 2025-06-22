@@ -5,13 +5,14 @@ export interface FormData {
   partner: string;
   platform: 'meta' | 'google' | '';
   campaignObjective?: string; // New field for campaign objective from account
-  creativeType?: 'single' | 'carousel' | 'collection';
+  creativeType?: 'single' | 'carousel' | 'collection' | 'existing-post'; // Add existing-post
   objective?: 'sales' | 'traffic' | 'awareness' | 'leads' | 'engagement';
   
   // Step 2
   files: File[];
   validatedFiles: ValidatedFile[];
   mediaVariations?: MediaVariation[]; // New field for multiple media sets
+  existingPost?: ExistingPostData; // New field for existing post
   
   // Carousel specific fields
   carouselAspectRatio?: '1:1' | '4:5'; // Toggle de proporção no topo
@@ -56,6 +57,15 @@ export interface CarouselCard {
   customDescription?: string;
   customDestinationUrl?: string;
   customCta?: string;
+}
+
+// New interface for existing post data
+export interface ExistingPostData {
+  instagramUrl: string;
+  postId?: string;
+  valid: boolean;
+  preview?: string;
+  errors: string[];
 }
 
 export interface Client {

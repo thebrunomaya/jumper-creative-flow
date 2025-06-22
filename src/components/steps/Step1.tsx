@@ -134,6 +134,7 @@ const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
                   <SelectItem value="single">🖼️ Imagem/Vídeo Único</SelectItem>
                   <SelectItem value="carousel">🎠 Carrossel</SelectItem>
                   <SelectItem value="collection">🏪 Coleção</SelectItem>
+                  <SelectItem value="existing-post">📱 Publicação Existente</SelectItem>
                 </SelectContent>
               </Select>
               {errors.creativeType && <p className="text-sm text-red-500">{errors.creativeType}</p>}

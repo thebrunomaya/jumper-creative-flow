@@ -56,6 +56,12 @@ const Step4: React.FC<Step4Props> = ({ formData, isSubmitting }) => {
       });
       
       return issues;
+    } else if (formData.creativeType === 'existing-post') {
+      // For existing post, check URL validation
+      if (!formData.existingPost || !formData.existingPost.valid) {
+        return ['URL da publicação do Instagram inválida ou não fornecida'];
+      }
+      return [];
     } else {
       // For other types, check validatedFiles
       const invalidFiles = formData.validatedFiles.filter(f => !f.valid);
@@ -82,6 +88,8 @@ const Step4: React.FC<Step4Props> = ({ formData, isSubmitting }) => {
         if (variation.horizontalFile) totalFiles++;
       });
       return totalFiles;
+    } else if (formData.creativeType === 'existing-post') {
+      return formData.existingPost && formData.existingPost.valid ? 1 : 0;
     } else {
       return formData.validatedFiles.length;
     }
@@ -103,7 +111,10 @@ const Step4: React.FC<Step4Props> = ({ formData, isSubmitting }) => {
           <AlertDescription>
             <strong>Atenção!</strong>
             <br />
-            Existem arquivos com problemas. Volte para a etapa de upload e corrija os arquivos inválidos.
+            {formData.creativeType === 'existing-post' 
+              ? 'Existe um problema com a URL da publicação. Volte para a etapa anterior e corrija.'
+              : 'Existem arquivos com problemas. Volte para a etapa de upload e corrija os arquivos inválidos.'
+            }
             <ul className="mt-2 ml-4 list-disc">
               {validationIssues.map((issue, index) => (
                 <li key={index}>{issue}</li>
@@ -140,7 +151,8 @@ const Step4: React.FC<Step4Props> = ({ formData, isSubmitting }) => {
             {formData.creativeType && (
               <div className="break-words"><span className="font-medium">Tipo:</span> {
                 formData.creativeType === 'single' ? 'Anúncio Único' :
-                formData.creativeType === 'carousel' ? 'Carrossel' : 'Coleção'
+                formData.creativeType === 'carousel' ? 'Carrossel' : 
+                formData.creativeType === 'existing-post' ? 'Publicação Existente' : 'Coleção'
               }</div>
             )}
           </div>
@@ -160,21 +172,26 @@ const Step4: React.FC<Step4Props> = ({ formData, isSubmitting }) => {
           </div>
         </div>
 
-        {/* Files Card */}
+        {/* Files/Content Card */}
         <div className="bg-white border rounded-lg p-6 shadow-sm">
           <div className="flex items-center space-x-3 mb-4">
             {formData.creativeType === 'carousel' ? (
               <Image className="h-5 w-5 text-jumper-blue" />
+            ) : formData.creativeType === 'existing-post' ? (
+              <Instagram className="h-5 w-5 text-pink-500" />
             ) : (
               <FileText className="h-5 w-5 text-jumper-blue" />
             )}
             <h3 className="font-semibold text-gray-900">
-              {formData.creativeType === 'carousel' ? 'Cartões do Carrossel' : 'Arquivos'}
+              {formData.creativeType === 'carousel' ? 'Cartões do Carrossel' : 
+               formData.creativeType === 'existing-post' ? 'Publicação do Instagram' : 'Arquivos'}
             </h3>
           </div>
           <div className="text-sm">
             <div className="mb-2">
-              <span className="font-medium">Total de arquivos:</span> {totalFiles}
+              <span className="font-medium">
+                {formData.creativeType === 'existing-post' ? 'Publicação:' : 'Total de arquivos:'}
+              </span> {formData.creativeType === 'existing-post' ? '1 post do Instagram' : totalFiles}
             </div>
             {formData.creativeType === 'carousel' && formData.carouselAspectRatio && (
               <div className="break-words">
@@ -184,6 +201,15 @@ const Step4: React.FC<Step4Props> = ({ formData, isSubmitting }) => {
             {formData.creativeType === 'single' && formData.mediaVariations && (
               <div>
                 <span className="font-medium">Variações:</span> {formData.mediaVariations.length}
+              </div>
+            )}
+            {formData.creativeType === 'existing-post' && formData.existingPost && (
+              <div className="break-words">
+                <span className="font-medium">URL:</span> 
+                <span className="break-all ml-1">
+                  {formData.existingPost.instagramUrl.substring(0, 40)}
+                  {formData.existingPost.instagramUrl.length > 40 ? '...' : ''}
+                </span>
               </div>
             )}
           </div>

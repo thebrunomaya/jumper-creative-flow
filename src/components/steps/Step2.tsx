@@ -4,6 +4,7 @@ import { FormData } from '@/types/creative';
 import FileUpload from '@/components/FileUpload';
 import CarouselMediaSection from '@/components/sections/CarouselMediaSection';
 import SingleMediaSection from '@/components/sections/SingleMediaSection';
+import ExistingPostSection from '@/components/sections/ExistingPostSection';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertTriangle } from 'lucide-react';
 
@@ -33,6 +34,17 @@ const Step2: React.FC<Step2Props> = ({
   if (formData.creativeType === 'single') {
     return (
       <SingleMediaSection 
+        formData={formData}
+        updateFormData={updateFormData}
+        errors={errors}
+      />
+    );
+  }
+
+  // For existing post type
+  if (formData.creativeType === 'existing-post') {
+    return (
+      <ExistingPostSection 
         formData={formData}
         updateFormData={updateFormData}
         errors={errors}

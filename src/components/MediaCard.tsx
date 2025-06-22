@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Trash2 } from 'lucide-react';
 import ThumbnailPreview from './ThumbnailPreview';
 import FileUploadZone from './FileUploadZone';
+import UrlInputZone from './UrlInputZone';
 import FileDetails from './FileDetails';
 
 interface MediaCardProps {
@@ -28,6 +29,9 @@ interface MediaCardProps {
   showHeader?: boolean;
   onRemove?: () => void;
   canRemove?: boolean;
+  // New props for URL mode
+  urlMode?: boolean;
+  existingPostData?: any;
 }
 
 const MediaCard: React.FC<MediaCardProps> = ({
@@ -48,13 +52,25 @@ const MediaCard: React.FC<MediaCardProps> = ({
   isValidating = false,
   showHeader = false,
   onRemove,
-  canRemove = false
+  canRemove = false,
+  urlMode = false,
+  existingPostData
 }) => {
   // Status Badge Component
   const statusBadge = !enabled ? (
     <Badge variant="outline" className="text-xs">
       Desativado
     </Badge>
+  ) : urlMode ? (
+    existingPostData ? (
+      <Badge variant={existingPostData.valid ? "default" : "destructive"} className="text-xs">
+        {existingPostData.valid ? 'URL Válida' : 'URL Inválida'}
+      </Badge>
+    ) : (
+      <Badge variant="outline" className="text-xs">
+        Sem URL
+      </Badge>
+    )
   ) : file ? (
     <Badge variant={file.valid ? "default" : "destructive"} className="text-xs">
       {file.valid ? 'Válido' : 'Erro'}
@@ -101,12 +117,20 @@ const MediaCard: React.FC<MediaCardProps> = ({
             carouselMode={carouselMode}
             carouselAspectRatio={carouselAspectRatio}
             enabled={enabled}
+            urlMode={urlMode}
+            existingPostData={existingPostData}
           />
         </div>
 
-        {/* Upload Area ou File Details Container */}
+        {/* Upload Area, URL Input Zone ou File Details Container */}
         <div className="flex-1 flex flex-col h-40">
-          {!file ? (
+          {urlMode ? (
+            <UrlInputZone
+              isValidating={isValidating}
+              enabled={enabled}
+              onUrlInputClick={onUploadClick}
+            />
+          ) : !file ? (
             <FileUploadZone
               getRootProps={getRootProps || (() => ({}))}
               getInputProps={getInputProps || (() => ({}))}
