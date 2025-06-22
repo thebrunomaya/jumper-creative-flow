@@ -1,7 +1,8 @@
+
 import React from 'react';
 import { FormData } from '@/types/creative';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertTriangle, CheckCircle, FileText, Image, Video, Users, User } from 'lucide-react';
+import { AlertTriangle, CheckCircle, FileText, Image, Video, Users, User, Instagram } from 'lucide-react';
 import { useNotionClients } from '@/hooks/useNotionData';
 import { useAuth } from '@/contexts/AuthContext';
 
