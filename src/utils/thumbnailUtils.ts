@@ -1,4 +1,3 @@
-
 export const getThumbnailDimensions = (format: 'square' | 'vertical' | 'horizontal', carouselMode = false, carouselAspectRatio?: '1:1' | '4:5') => {
   // Container é 160x160px com margem de 16px (total área disponível: 128x128px)
   const maxWidth = 128;
@@ -112,15 +111,8 @@ export const createMockupFile = (format: 'square' | 'vertical' | 'horizontal', c
     ctx.lineWidth = 2;
     ctx.strokeRect(1, 1, canvas.width - 2, canvas.height - 2);
     
-    // Adicionar área de proteção (margem interna) - linha tracejada branca mais visível
-    const margin = Math.min(canvas.width, canvas.height) * 0.12; // 12% de margem fixa baseada na menor dimensão
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)'; // Aumentar opacidade para melhor visibilidade
-    ctx.lineWidth = 2; // Aumentar espessura da linha
-    ctx.setLineDash([10, 5]); // Tracejado mais visível
-    ctx.strokeRect(margin, margin, canvas.width - margin * 2, canvas.height - margin * 2);
-    
-    // Resetar linha tracejada
-    ctx.setLineDash([]);
+    // REMOVIDO: Área de proteção com linha tracejada pontilhada
+    // A linha tracejada foi completamente removida
     
     // Texto central
     ctx.fillStyle = '#374151';
