@@ -112,11 +112,11 @@ export const createMockupFile = (format: 'square' | 'vertical' | 'horizontal', c
     ctx.lineWidth = 2;
     ctx.strokeRect(1, 1, canvas.width - 2, canvas.height - 2);
     
-    // Adicionar área de proteção (margem interna) - linha tracejada branca semi-transparente
-    const margin = Math.min(canvas.width, canvas.height) * 0.15; // 15% de margem baseada na menor dimensão
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
-    ctx.lineWidth = 1;
-    ctx.setLineDash([6, 3]); // Tracejado menor e mais sutil
+    // Adicionar área de proteção (margem interna) - linha tracejada branca mais visível
+    const margin = Math.min(canvas.width, canvas.height) * 0.12; // 12% de margem fixa baseada na menor dimensão
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)'; // Aumentar opacidade para melhor visibilidade
+    ctx.lineWidth = 2; // Aumentar espessura da linha
+    ctx.setLineDash([10, 5]); // Tracejado mais visível
     ctx.strokeRect(margin, margin, canvas.width - margin * 2, canvas.height - margin * 2);
     
     // Resetar linha tracejada

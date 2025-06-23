@@ -50,7 +50,7 @@ const ThumbnailPreview: React.FC<ThumbnailPreviewProps> = ({
       <div className="relative" style={{ width: `${width}px`, height: `${height}px` }}>
         <Button
           variant="ghost"
-          className="w-full h-full p-0 rounded border hover:opacity-80 transition-opacity cursor-pointer"
+          className="w-full h-full p-0 rounded hover:opacity-80 transition-opacity cursor-pointer"
           onClick={onPreviewClick}
         >
           <div className="w-full h-full relative overflow-hidden rounded bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 flex items-center justify-center">
@@ -95,7 +95,7 @@ const ThumbnailPreview: React.FC<ThumbnailPreviewProps> = ({
       <div className="relative" style={{ width: `${width}px`, height: `${height}px` }}>
         <Button
           variant="ghost"
-          className="w-full h-full p-0 rounded border hover:opacity-80 transition-opacity"
+          className="w-full h-full p-0 rounded hover:opacity-80 transition-opacity"
           onClick={onPreviewClick}
         >
           <div className="w-full h-full relative overflow-hidden rounded">
@@ -131,7 +131,7 @@ const ThumbnailPreview: React.FC<ThumbnailPreviewProps> = ({
     <div className="relative" style={{ width: `${width}px`, height: `${height}px` }}>
       <Button
         variant="ghost"
-        className="w-full h-full p-0 rounded border hover:opacity-80 transition-opacity"
+        className="w-full h-full p-0 rounded hover:opacity-80 transition-opacity"
         onClick={onPreviewClick}
         disabled={!isValid}
       >
