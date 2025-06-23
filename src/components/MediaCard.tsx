@@ -129,6 +129,7 @@ const MediaCard: React.FC<MediaCardProps> = ({
               isValidating={isValidating}
               enabled={enabled}
               onUrlInputClick={onUploadClick}
+              existingPostData={existingPostData}
             />
           ) : !file ? (
             <FileUploadZone
