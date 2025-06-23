@@ -29,7 +29,7 @@ interface MediaCardProps {
   showHeader?: boolean;
   onRemove?: () => void;
   canRemove?: boolean;
-  // New props for URL mode
+  // URL mode props - kept but not used by ThumbnailPreview
   urlMode?: boolean;
   existingPostData?: any;
 }
@@ -117,8 +117,6 @@ const MediaCard: React.FC<MediaCardProps> = ({
             carouselMode={carouselMode}
             carouselAspectRatio={carouselAspectRatio}
             enabled={enabled}
-            urlMode={urlMode}
-            existingPostData={existingPostData}
           />
         </div>
 

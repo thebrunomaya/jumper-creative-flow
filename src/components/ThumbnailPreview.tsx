@@ -2,7 +2,7 @@
 import React from 'react';
 import { ValidatedFile } from '@/types/creative';
 import { Button } from '@/components/ui/button';
-import { Play, Image, FileText, Instagram } from 'lucide-react';
+import { Play, FileText } from 'lucide-react';
 import { getThumbnailDimensions, createMockupFile } from '@/utils/thumbnailUtils';
 
 interface ThumbnailPreviewProps {
@@ -12,8 +12,6 @@ interface ThumbnailPreviewProps {
   carouselMode?: boolean;
   carouselAspectRatio?: '1:1' | '4:5';
   enabled: boolean;
-  urlMode?: boolean;
-  existingPostData?: any;
 }
 
 const ThumbnailPreview: React.FC<ThumbnailPreviewProps> = ({
@@ -22,55 +20,10 @@ const ThumbnailPreview: React.FC<ThumbnailPreviewProps> = ({
   onPreviewClick,
   carouselMode = false,
   carouselAspectRatio = '1:1',
-  enabled,
-  urlMode = false,
-  existingPostData
+  enabled
 }) => {
   // Get thumbnail dimensions for proper sizing
   const { width, height } = getThumbnailDimensions(format, carouselMode, carouselAspectRatio);
-
-  // Handle URL mode with simple Instagram thumbnail
-  if (urlMode) {
-    if (!existingPostData || !existingPostData.valid) {
-      return (
-        <div 
-          className="flex items-center justify-center bg-gray-100 rounded border-2 border-dashed border-gray-300"
-          style={{ width: `${width}px`, height: `${height}px` }}
-        >
-          <div className="text-center">
-            <Instagram className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-            <span className="text-xs text-gray-500">Instagram Post</span>
-          </div>
-        </div>
-      );
-    }
-
-    // Simple Instagram thumbnail with click functionality
-    return (
-      <div className="relative" style={{ width: `${width}px`, height: `${height}px` }}>
-        <Button
-          variant="ghost"
-          className="w-full h-full p-0 rounded hover:opacity-80 transition-opacity cursor-pointer"
-          onClick={onPreviewClick}
-        >
-          <div className="w-full h-full relative overflow-hidden rounded bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 flex items-center justify-center">
-            <div className="text-center text-white p-2">
-              <Instagram className="h-6 w-6 mx-auto mb-1" />
-              <div className="text-xs font-medium">Instagram</div>
-              <div className="text-xs opacity-90">Post</div>
-            </div>
-          </div>
-        </Button>
-        
-        {/* Valid indicator */}
-        <div className="absolute top-1 right-1">
-          <div className="bg-green-500 text-white rounded-full p-1">
-            <Instagram className="h-3 w-3" />
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   // Handle disabled state
   if (!enabled) {

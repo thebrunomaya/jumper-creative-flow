@@ -104,7 +104,6 @@ const CarouselCardUpload: React.FC<CarouselCardUploadProps> = ({
         showHeader={true}
         onRemove={onRemove}
         canRemove={canRemove}
-        urlMode={false}
       />
 
       {/* Media Preview Lightbox */}

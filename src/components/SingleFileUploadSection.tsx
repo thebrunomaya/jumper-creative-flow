@@ -126,7 +126,6 @@ const SingleFileUploadSection: React.FC<SingleFileUploadSectionProps> = ({
         getInputProps={getInputProps}
         isDragActive={isDragActive}
         isValidating={isValidating}
-        urlMode={false}
       />
 
       {/* Media Preview Lightbox */}
