@@ -5,8 +5,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertTriangle, Info } from 'lucide-react';
 import MediaCard from '@/components/MediaCard';
 import InstagramUrlInput from '@/components/InstagramUrlInput';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 interface ExistingPostSectionProps {
   formData: FormData;
@@ -49,9 +48,13 @@ const ExistingPostSection: React.FC<ExistingPostSectionProps> = ({
       <MediaCard
         title="Publicação do Instagram"
         format="square"
-        dimensions="URL da publicação"
+        dimensions="Publicação do Instagram"
         file={undefined}
-        onPreviewClick={() => {}}
+        onPreviewClick={() => {
+          if (formData.existingPost?.instagramUrl) {
+            window.open(formData.existingPost.instagramUrl, '_blank');
+          }
+        }}
         onUploadClick={handleUrlInputClick}
         onReplaceClick={handleUrlInputClick}
         onRemoveClick={() => handleUrlChange(undefined)}
@@ -61,6 +64,8 @@ const ExistingPostSection: React.FC<ExistingPostSectionProps> = ({
         getInputProps={() => ({})}
         isDragActive={false}
         isValidating={false}
+        urlMode={true}
+        existingPostData={formData.existingPost}
       />
 
       {/* URL Input Dialog */}
@@ -89,16 +94,6 @@ const ExistingPostSection: React.FC<ExistingPostSectionProps> = ({
           <AlertTriangle className="h-4 w-4" />
           <AlertDescription>{errors.existingPost}</AlertDescription>
         </Alert>
-      )}
-
-      {/* Current URL Display */}
-      {formData.existingPost && (
-        <div className="bg-white border rounded-lg p-4">
-          <InstagramUrlInput
-            value={formData.existingPost}
-            onChange={handleUrlChange}
-          />
-        </div>
       )}
 
       {/* Instructions */}

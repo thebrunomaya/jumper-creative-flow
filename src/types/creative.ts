@@ -1,4 +1,3 @@
-
 export interface FormData {
   // Step 1
   client: string;
@@ -59,10 +58,12 @@ export interface CarouselCard {
   customCta?: string;
 }
 
-// New interface for existing post data
+// Enhanced interface for existing post data
 export interface ExistingPostData {
   instagramUrl: string;
   postId?: string;
+  postType?: 'post' | 'reel' | 'igtv';
+  detectedAspectRatio?: '1:1' | '4:5' | '9:16' | '16:9';
   valid: boolean;
   preview?: string;
   errors: string[];

@@ -2,7 +2,7 @@
 import React from 'react';
 import { ValidatedFile } from '@/types/creative';
 import { Button } from '@/components/ui/button';
-import { Play, Image, FileText, Instagram, Link, ExternalLink } from 'lucide-react';
+import { Play, Image, FileText, Instagram, ExternalLink, Video } from 'lucide-react';
 
 interface ThumbnailPreviewProps {
   format: 'square' | 'vertical' | 'horizontal';
@@ -25,7 +25,7 @@ const ThumbnailPreview: React.FC<ThumbnailPreviewProps> = ({
   urlMode = false,
   existingPostData
 }) => {
-  // Handle URL mode
+  // Handle URL mode with enhanced Instagram preview
   if (urlMode) {
     if (!existingPostData || !existingPostData.valid) {
       return (
@@ -38,16 +38,75 @@ const ThumbnailPreview: React.FC<ThumbnailPreviewProps> = ({
       );
     }
 
-    // Valid Instagram URL
+    // Get aspect ratio for container styling
+    const aspectRatio = existingPostData.detectedAspectRatio || '1:1';
+    let containerClass = 'w-full h-full';
+    let aspectClass = '';
+    
+    // Apply aspect ratio styling within the fixed 160x160 container
+    switch (aspectRatio) {
+      case '1:1':
+        aspectClass = 'aspect-square max-w-full max-h-full';
+        break;
+      case '4:5':
+        aspectClass = 'aspect-[4/5] max-w-full max-h-full';
+        break;
+      case '9:16':
+        aspectClass = 'aspect-[9/16] max-w-full max-h-full';
+        break;
+      case '16:9':
+        aspectClass = 'aspect-[16/9] max-w-full max-h-full';
+        break;
+    }
+
+    // Get post type for styling and icons
+    const postType = existingPostData.postType || 'post';
+    let bgGradient = 'from-purple-400 via-pink-500 to-red-500';
+    let icon = Instagram;
+    let typeLabel = 'Post';
+
+    switch (postType) {
+      case 'reel':
+        bgGradient = 'from-purple-600 via-pink-600 to-orange-500';
+        icon = Video;
+        typeLabel = 'Reel';
+        break;
+      case 'igtv':
+        bgGradient = 'from-indigo-500 via-purple-500 to-pink-500';
+        icon = Play;
+        typeLabel = 'IGTV';
+        break;
+      default:
+        bgGradient = 'from-purple-400 via-pink-500 to-red-500';
+        icon = Instagram;
+        typeLabel = 'Post';
+    }
+
+    const IconComponent = icon;
+
     return (
-      <div className="w-full h-full relative">
-        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-purple-400 via-pink-500 to-red-500 rounded border">
-          <div className="text-center text-white">
-            <Instagram className="h-12 w-12 mx-auto mb-2" />
-            <div className="text-xs font-medium">Instagram</div>
-            <div className="text-xs opacity-90">Post</div>
+      <div className="w-full h-full relative flex items-center justify-center">
+        <Button
+          variant="ghost"
+          className="p-0 h-auto w-auto rounded border hover:opacity-80 transition-opacity"
+          onClick={onPreviewClick}
+        >
+          <div className={`${aspectClass} relative overflow-hidden rounded bg-gradient-to-br ${bgGradient} flex items-center justify-center min-w-[80px] min-h-[80px]`}>
+            <div className="text-center text-white p-2">
+              <IconComponent className="h-8 w-8 mx-auto mb-1" />
+              <div className="text-xs font-medium">Instagram</div>
+              <div className="text-xs opacity-90">{typeLabel}</div>
+              <div className="text-xs opacity-75 mt-1">{aspectRatio}</div>
+            </div>
+            
+            {/* Post type indicator */}
+            <div className="absolute top-1 left-1">
+              <div className="bg-white bg-opacity-20 rounded-full p-1">
+                <IconComponent className="h-3 w-3" />
+              </div>
+            </div>
           </div>
-        </div>
+        </Button>
         
         {/* Valid indicator */}
         <div className="absolute top-1 right-1">
@@ -72,11 +131,7 @@ const ThumbnailPreview: React.FC<ThumbnailPreviewProps> = ({
   }
 
   if (!file) {
-    const aspectRatioClass = format === 'square' ? 'aspect-square' :
-                            format === 'vertical' ? 'aspect-[9/16]' : 'aspect-[16/9]';
-    
     if (carouselMode) {
-      const carouselAspectClass = carouselAspectRatio === '1:1' ? 'aspect-square' : 'aspect-[4/5]';
       return (
         <div className={`w-full h-full flex items-center justify-center bg-gray-100 rounded border-2 border-dashed border-gray-300`}>
           <div className="text-center">

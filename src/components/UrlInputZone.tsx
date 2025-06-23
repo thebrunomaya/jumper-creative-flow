@@ -19,7 +19,7 @@ const UrlInputZone: React.FC<UrlInputZoneProps> = ({
       <div className="flex-1 flex items-center justify-center p-4 bg-gray-50">
         <div className="text-center">
           <div className="text-gray-400 mb-2">
-            <Link className="h-8 w-8 mx-auto" />
+            <Instagram className="h-8 w-8 mx-auto" />
           </div>
           <p className="text-sm text-gray-500">Posicionamento desativado</p>
         </div>
@@ -49,8 +49,8 @@ const UrlInputZone: React.FC<UrlInputZoneProps> = ({
           onClick={onUrlInputClick}
           className="mb-2"
         >
-          <Link className="h-4 w-4 mr-2" />
-          Adicionar URL
+          <Instagram className="h-4 w-4 mr-2" />
+          Selecionar Publicação
         </Button>
         <p className="text-xs text-gray-500">
           Cole o link da publicação do Instagram
