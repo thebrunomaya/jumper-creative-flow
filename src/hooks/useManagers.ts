@@ -7,6 +7,7 @@ export interface Manager {
   name: string;
   email?: string;
   username?: string;
+  password?: string; // Add password field
   accounts?: string[]; // IDs das contas que o gerente tem acesso
 }
 
@@ -80,6 +81,7 @@ export const useManagers = () => {
       const formattedManagers: Manager[] = data.results.map((item: any) => {
         let name = 'Sem nome';
         let email = '';
+        let password = '';
         let accounts: string[] = [];
         
         // Try to find name in various properties
@@ -99,6 +101,11 @@ export const useManagers = () => {
           email = extractTextFromProperty(item.properties['E-Mail']);
         }
         
+        // Extract password from "Senha" property
+        if (item.properties['Senha']) {
+          password = extractTextFromProperty(item.properties['Senha']);
+        }
+        
         // Extract accounts from "Contas" property
         if (item.properties['Contas']) {
           accounts = extractAccountIds(item.properties['Contas']);
@@ -109,6 +116,7 @@ export const useManagers = () => {
           name,
           email,
           username: email, // Use email as username for login validation
+          password,
           accounts
         };
       });
@@ -130,12 +138,12 @@ export const useManagers = () => {
   }, [fetchManagers]);
 
   const validateLogin = (email: string, password: string): Manager | null => {
-    // Validação usando e-mail
+    // Validação usando e-mail e senha específica do gerente
     const manager = managers.find(m => 
       m.email?.toLowerCase() === email.toLowerCase()
     );
     
-    if (manager && password === "123456") { // Senha padrão temporária
+    if (manager && manager.password && manager.password === password) {
       return manager;
     }
     

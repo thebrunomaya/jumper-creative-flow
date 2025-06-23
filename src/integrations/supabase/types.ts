@@ -128,14 +128,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      generate_creative_id: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
-      get_next_creative_counter: {
-        Args: Record<PropertyKey, never>
-        Returns: number
-      }
+      [_ in never]: never
     }
     Enums: {
       [_ in never]: never
