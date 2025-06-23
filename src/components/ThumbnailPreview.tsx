@@ -48,19 +48,17 @@ const ThumbnailPreview: React.FC<ThumbnailPreviewProps> = ({
       <div className="relative" style={{ width: `${width}px`, height: `${height}px` }}>
         <Button
           variant="ghost"
-          className="w-full h-full p-0 rounded hover:opacity-80 transition-opacity"
+          className="w-full h-full p-0 hover:opacity-80 transition-opacity border-0"
           onClick={onPreviewClick}
         >
-          <div className="w-full h-full relative overflow-hidden rounded">
-            <img
-              src={mockupSrc}
-              alt={`Preview ${carouselMode 
-                ? (carouselAspectRatio === '1:1' ? '1:1' : '4:5')
-                : format
-              }`}
-              className="w-full h-full object-cover"
-            />
-          </div>
+          <img
+            src={mockupSrc}
+            alt={`Preview ${carouselMode 
+              ? (carouselAspectRatio === '1:1' ? '1:1' : '4:5')
+              : format
+            }`}
+            className="w-full h-full object-cover rounded"
+          />
         </Button>
         
         {/* Format indicator - moved to top-left */}
@@ -84,7 +82,7 @@ const ThumbnailPreview: React.FC<ThumbnailPreviewProps> = ({
     <div className="relative" style={{ width: `${width}px`, height: `${height}px` }}>
       <Button
         variant="ghost"
-        className="w-full h-full p-0 rounded hover:opacity-80 transition-opacity"
+        className="w-full h-full p-0 hover:opacity-80 transition-opacity border-0"
         onClick={onPreviewClick}
         disabled={!isValid}
       >
