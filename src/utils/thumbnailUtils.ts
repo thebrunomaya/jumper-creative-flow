@@ -107,20 +107,20 @@ export const createMockupFile = (format: 'square' | 'vertical' | 'horizontal', c
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     
-    // Adicionar área de proteção (margem interna)
-    const margin = canvas.width * 0.1; // 10% de margem
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-    ctx.lineWidth = 2;
-    ctx.setLineDash([8, 4]);
-    ctx.strokeRect(margin, margin, canvas.width - margin * 2, canvas.height - margin * 2);
-    
-    // Resetar linha tracejada
-    ctx.setLineDash([]);
-    
     // Borda externa sólida
     ctx.strokeStyle = '#e5e7eb';
     ctx.lineWidth = 2;
     ctx.strokeRect(1, 1, canvas.width - 2, canvas.height - 2);
+    
+    // Adicionar área de proteção (margem interna) - linha tracejada branca semi-transparente
+    const margin = Math.min(canvas.width, canvas.height) * 0.15; // 15% de margem baseada na menor dimensão
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([6, 3]); // Tracejado menor e mais sutil
+    ctx.strokeRect(margin, margin, canvas.width - margin * 2, canvas.height - margin * 2);
+    
+    // Resetar linha tracejada
+    ctx.setLineDash([]);
     
     // Texto central
     ctx.fillStyle = '#374151';
