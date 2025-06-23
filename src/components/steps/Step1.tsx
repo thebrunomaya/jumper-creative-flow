@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { useNotionClients } from '@/hooks/useNotionData';
 import { Skeleton } from '@/components/ui/skeleton';
-import { validateCreativeName, previewCreativeName } from '@/utils/creativeName';
+import { validateCreativeName, previewCreativeNameDetailed } from '@/utils/creativeName';
 
 interface Step1Props {
   formData: FormData;
@@ -22,26 +22,33 @@ const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
   const selectedClient = clients.find(client => client.id === formData.client);
   const availableObjectives = selectedClient?.objectives || [];
 
+  // Check if all prerequisites for creative name are filled
+  const canShowCreativeName = !!(
+    formData.client && 
+    formData.platform && 
+    formData.campaignObjective && 
+    (formData.platform === 'google' || formData.creativeType) // For Google, creativeType is not required
+  );
+
   // Handle creative name change with automatic space removal
   const handleCreativeNameChange = (value: string) => {
     const cleanValue = value.replace(/\s/g, ''); // Remove espaços automaticamente
     updateFormData({ creativeName: cleanValue });
   };
 
-  // Generate preview name if all required fields are filled
-  const previewName = React.useMemo(() => {
+  // Generate detailed preview name if all required fields are filled
+  const detailedPreviewName = React.useMemo(() => {
     if (
       formData.creativeName && 
       formData.campaignObjective && 
       formData.creativeType && 
       selectedClient
     ) {
-      return previewCreativeName(
+      return previewCreativeNameDetailed(
         formData.creativeName,
         formData.campaignObjective,
         formData.creativeType,
-        selectedClient.name,
-        selectedClient.id
+        selectedClient.name
       );
     }
     return null;
@@ -54,40 +61,6 @@ const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
         <p className="text-gray-600">Vamos começar com os dados essenciais do seu criativo</p>
       </div>
 
-      {/* Nome do Criativo - Novo campo */}
-      <div className="space-y-2">
-        <Label htmlFor="creativeName" className="text-sm font-medium text-jumper-text">
-          Nome do Criativo *
-        </Label>
-        <Input
-          id="creativeName"
-          value={formData.creativeName || ''}
-          onChange={(e) => handleCreativeNameChange(e.target.value)}
-          placeholder="Ex: BlackFridayDesc50"
-          maxLength={20}
-          className={`h-12 ${errors.creativeName ? 'border-red-500' : ''}`}
-        />
-        <div className="flex justify-between items-center">
-          <div className="text-xs text-gray-500">
-            Máximo 20 caracteres • Sem espaços • Apenas letras, números e _
-          </div>
-          <div className="text-xs text-blue-600">
-            {formData.creativeName?.length || 0}/20 caracteres
-          </div>
-        </div>
-        {errors.creativeName && (
-          <p className="text-sm text-red-500">{errors.creativeName}</p>
-        )}
-        
-        {/* Preview do nome final */}
-        {previewName && (
-          <div className="bg-blue-50 border border-blue-200 p-3 rounded-lg">
-            <p className="text-sm font-medium text-blue-800 mb-1">Preview do Nome Final:</p>
-            <p className="text-xs text-blue-600 font-mono break-all">{previewName}</p>
-          </div>
-        )}
-      </div>
-
       {/* Conta - agora ocupando mais espaço */}
       <div className="space-y-2">
         <Label htmlFor="client" className="text-sm font-medium text-jumper-text">
@@ -96,7 +69,7 @@ const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
         {clientsLoading ? (
           <Skeleton className="h-12 w-full" />
         ) : (
-          <Select value={formData.client} onValueChange={(value) => updateFormData({ client: value, campaignObjective: undefined, creativeType: undefined, objective: undefined })}>
+          <Select value={formData.client} onValueChange={(value) => updateFormData({ client: value, campaignObjective: undefined, creativeType: undefined, objective: undefined, creativeName: '' })}>
             <SelectTrigger className={`h-12 ${errors.client ? 'border-red-500' : ''}`}>
               <SelectValue placeholder="Selecione a conta" />
             </SelectTrigger>
@@ -123,7 +96,7 @@ const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
                 ? 'ring-2 ring-jumper-blue bg-blue-50' 
                 : 'hover:shadow-md'
             }`}
-            onClick={() => updateFormData({ platform: 'meta', campaignObjective: undefined, creativeType: undefined, objective: undefined })}
+            onClick={() => updateFormData({ platform: 'meta', campaignObjective: undefined, creativeType: undefined, objective: undefined, creativeName: '' })}
           >
             <CardContent className="p-6 text-center">
               <div className="text-4xl mb-3">📘</div>
@@ -138,7 +111,7 @@ const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
                 ? 'ring-2 ring-jumper-blue bg-blue-50' 
                 : 'hover:shadow-md'
             }`}
-            onClick={() => updateFormData({ platform: 'google', campaignObjective: undefined, creativeType: undefined, objective: undefined })}
+            onClick={() => updateFormData({ platform: 'google', campaignObjective: undefined, creativeType: undefined, objective: undefined, creativeName: '' })}
           >
             <CardContent className="p-6 text-center">
               <div className="text-4xl mb-3">🔍</div>
@@ -158,7 +131,7 @@ const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
             <Label className="text-sm font-medium text-jumper-text">Objetivo de Campanha *</Label>
             <Select 
               value={formData.campaignObjective || ''} 
-              onValueChange={(value) => updateFormData({ campaignObjective: value, creativeType: undefined })}
+              onValueChange={(value) => updateFormData({ campaignObjective: value, creativeType: undefined, creativeName: '' })}
               disabled={!formData.client}
             >
               <SelectTrigger className={`h-12 ${errors.campaignObjective ? 'border-red-500' : ''}`}>
@@ -186,7 +159,7 @@ const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
               <Label className="text-sm font-medium text-jumper-text">Tipo de Anúncio *</Label>
               <Select 
                 value={formData.creativeType || ''} 
-                onValueChange={(value) => updateFormData({ creativeType: value as any })}
+                onValueChange={(value) => updateFormData({ creativeType: value as any, creativeName: '' })}
                 disabled={!formData.campaignObjective}
               >
                 <SelectTrigger className={`h-12 ${errors.creativeType ? 'border-red-500' : ''}`}>
@@ -200,6 +173,47 @@ const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
                 </SelectContent>
               </Select>
               {errors.creativeType && <p className="text-sm text-red-500">{errors.creativeType}</p>}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Nome do Criativo - só aparece quando todos os pré-requisitos estão preenchidos */}
+      {canShowCreativeName && (
+        <div className="space-y-2 animate-fade-in">
+          <Label htmlFor="creativeName" className="text-sm font-medium text-jumper-text">
+            Nome do Criativo *
+          </Label>
+          <Input
+            id="creativeName"
+            value={formData.creativeName || ''}
+            onChange={(e) => handleCreativeNameChange(e.target.value)}
+            placeholder="Ex: Ronaldo, BlackFridayDesc50"
+            maxLength={20}
+            className={`h-12 ${errors.creativeName ? 'border-red-500' : ''}`}
+          />
+          <div className="flex justify-between items-center">
+            <div className="text-xs text-gray-500">
+              Máximo 20 caracteres • Sem espaços • Apenas letras, números e _
+            </div>
+            <div className="text-xs text-blue-600">
+              {formData.creativeName?.length || 0}/20 caracteres
+            </div>
+          </div>
+          {errors.creativeName && (
+            <p className="text-sm text-red-500">{errors.creativeName}</p>
+          )}
+          
+          {/* Preview detalhado do nome final */}
+          {detailedPreviewName && (
+            <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-4">
+              <p className="text-sm font-medium text-green-800 mb-2">🎯 Preview do Nome Final:</p>
+              <p className="text-sm font-mono text-green-700 break-all bg-white px-3 py-2 rounded border border-green-200">
+                {detailedPreviewName}
+              </p>
+              <p className="text-xs text-green-600 mt-2">
+                Este será o nome usado no Facebook Ads Manager e no Notion
+              </p>
             </div>
           )}
         </div>

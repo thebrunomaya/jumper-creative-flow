@@ -29,7 +29,31 @@ export function generateAccountCode(accountName: string, accountId: string): str
 }
 
 export function getObjectiveCode(objective: string): string {
-  const codes: Record<string, string> = {
+  // Mapeamento de objetivos em português para códigos
+  const codesPortuguese: Record<string, string> = {
+    "Vendas": "CONV",
+    "Conversões": "CONV", 
+    "Tráfego": "TRAF",
+    "Interações": "ENGA",
+    "Engajamento": "ENGA",
+    "Conversas": "MSGS",
+    "Mensagens": "MSGS",
+    "Cadastros": "LEAD",
+    "Geração de leads": "LEAD",
+    "Seguidores": "BRAN",
+    "Reconhecimento da marca": "BRAN",
+    "Divulgação": "RECH",
+    "Alcance": "RECH",
+    "Direções": "STOR",
+    "Tráfego na loja": "STOR",
+    "Aplicativo": "APPS",
+    "Instalações do app": "APPS",
+    "Visualizações de vídeo": "VIDE",
+    "Vendas do catálogo": "CATA"
+  };
+  
+  // Mapeamento de objetivos em inglês (mantido para compatibilidade)
+  const codesEnglish: Record<string, string> = {
     "Conversions": "CONV",
     "Traffic": "TRAF",
     "Engagement": "ENGA",
@@ -42,7 +66,8 @@ export function getObjectiveCode(objective: string): string {
     "Store Traffic": "STOR",
     "Catalog Sales": "CATA"
   };
-  return codes[objective] || "UNKN";
+  
+  return codesPortuguese[objective] || codesEnglish[objective] || "UNKN";
 }
 
 export function getTypeCode(type: string): string {
@@ -56,7 +81,7 @@ export function getTypeCode(type: string): string {
 }
 
 export function generateCreativeName(
-  crtId: string,
+  jscId: string,
   managerInput: string,
   campaignObjective: string,
   creativeType: string,
@@ -67,7 +92,7 @@ export function generateCreativeName(
   const objCode = getObjectiveCode(campaignObjective);
   const typeCode = getTypeCode(creativeType);
   
-  return `${crtId}_${managerInput}_${objCode}_${typeCode}_${accountCode}`;
+  return `${jscId}_${managerInput}_${objCode}_${typeCode}_${accountCode}`;
 }
 
 export function validateCreativeName(input: string): { valid: boolean; errors: string[] } {
@@ -103,11 +128,36 @@ export function previewCreativeName(
   accountId: string
 ): string {
   return generateCreativeName(
-    "CRT-XXXX", // Placeholder para preview
+    "JSC-XXX", // Mudado de CRT para JSC
     managerInput,
     campaignObjective,
     creativeType,
     accountName,
     accountId.substring(0, 3) + "..." // Mostra só os primeiros caracteres do ID
   );
+}
+
+// Nova função para preview detalhado sem número da conta
+export function previewCreativeNameDetailed(
+  managerInput: string,
+  campaignObjective: string,
+  creativeType: string,
+  accountName: string
+): string {
+  const cleanName = accountName.toUpperCase().replace(/[\s\-\_\.\,]/g, '');
+  const firstLetter = cleanName[0] || 'X';
+  const remainingChars = cleanName.slice(1);
+  
+  let consonants = remainingChars.replace(/[AEIOU]/g, '');
+  if (consonants.length < 3) {
+    consonants = remainingChars;
+  }
+  
+  const finalChars = consonants.slice(0, 3).padEnd(3, 'X');
+  const accountCodeWithoutNumber = `${firstLetter}${finalChars}`;
+  
+  const objCode = getObjectiveCode(campaignObjective);
+  const typeCode = getTypeCode(creativeType);
+  
+  return `JSC-XXX_${managerInput}_${objCode}_${typeCode}_${accountCodeWithoutNumber}#XXX`;
 }

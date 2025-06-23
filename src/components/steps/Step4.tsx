@@ -5,7 +5,7 @@ import { AlertTriangle, CheckCircle, FileText, Image, Video, Users, User, Instag
 import { useNotionClients } from '@/hooks/useNotionData';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { previewCreativeName } from '@/utils/creativeName';
+import { previewCreativeNameDetailed } from '@/utils/creativeName';
 
 interface Step4Props {
   formData: FormData;
@@ -23,7 +23,7 @@ const Step4: React.FC<Step4Props> = ({ formData, isSubmitting }) => {
   const selectedClient = clients.find(c => c.id === formData.client);
   const clientName = selectedClient?.name || 'Cliente não encontrado';
 
-  // Generate preview of final creative name
+  // Generate preview of final creative name using the detailed function
   const finalCreativeName = React.useMemo(() => {
     if (
       formData.creativeName && 
@@ -31,12 +31,11 @@ const Step4: React.FC<Step4Props> = ({ formData, isSubmitting }) => {
       formData.creativeType && 
       selectedClient
     ) {
-      return previewCreativeName(
+      return previewCreativeNameDetailed(
         formData.creativeName,
         formData.campaignObjective,
         formData.creativeType,
-        selectedClient.name,
-        selectedClient.id
+        selectedClient.name
       );
     }
     return null;

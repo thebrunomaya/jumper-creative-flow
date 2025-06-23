@@ -52,7 +52,31 @@ function generateAccountCode(accountName: string, accountId: string): string {
 }
 
 function getObjectiveCode(objective: string): string {
-  const codes: Record<string, string> = {
+  // Mapeamento de objetivos em português para códigos
+  const codesPortuguese: Record<string, string> = {
+    "Vendas": "CONV",
+    "Conversões": "CONV", 
+    "Tráfego": "TRAF",
+    "Interações": "ENGA",
+    "Engajamento": "ENGA",
+    "Conversas": "MSGS",
+    "Mensagens": "MSGS",
+    "Cadastros": "LEAD",
+    "Geração de leads": "LEAD",
+    "Seguidores": "BRAN",
+    "Reconhecimento da marca": "BRAN",
+    "Divulgação": "RECH",
+    "Alcance": "RECH",
+    "Direções": "STOR",
+    "Tráfego na loja": "STOR",
+    "Aplicativo": "APPS",
+    "Instalações do app": "APPS",
+    "Visualizações de vídeo": "VIDE",
+    "Vendas do catálogo": "CATA"
+  };
+  
+  // Mapeamento de objetivos em inglês (mantido para compatibilidade)
+  const codesEnglish: Record<string, string> = {
     "Conversions": "CONV",
     "Traffic": "TRAF",
     "Engagement": "ENGA",
@@ -65,7 +89,8 @@ function getObjectiveCode(objective: string): string {
     "Store Traffic": "STOR",
     "Catalog Sales": "CATA"
   };
-  return codes[objective] || "UNKN";
+  
+  return codesPortuguese[objective] || codesEnglish[objective] || "UNKN";
 }
 
 function getTypeCode(type: string): string {
@@ -79,7 +104,7 @@ function getTypeCode(type: string): string {
 }
 
 function generateCreativeName(
-  crtId: string,
+  jscId: string,
   managerInput: string,
   campaignObjective: string,
   creativeType: string,
@@ -90,7 +115,7 @@ function generateCreativeName(
   const objCode = getObjectiveCode(campaignObjective);
   const typeCode = getTypeCode(creativeType);
   
-  return `${crtId}_${managerInput}_${objCode}_${typeCode}_${accountCode}`;
+  return `${jscId}_${managerInput}_${objCode}_${typeCode}_${accountCode}`;
 }
 
 const uploadFileToSupabase = async (
@@ -329,8 +354,8 @@ const createNotionCreative = async (
   console.log(`✅ Creative variation ${variationIndex} successfully created in Notion!`);
   console.log(`📄 Notion page ID for variation ${variationIndex}:`, notionResult.id);
   
-  // Extract the creative ID from Notion's unique_id property
-  const creativeId = `CRT-${notionResult.properties.ID.unique_id.number}`;
+  // Extract the creative ID from Notion's unique_id property - CHANGED FROM CRT TO JSC
+  const creativeId = `JSC-${notionResult.properties.ID.unique_id.number}`;
   console.log(`🆔 Generated creative ID for variation ${variationIndex}:`, creativeId);
   
   // Generate full creative name using the formula
