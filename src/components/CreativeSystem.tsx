@@ -180,28 +180,37 @@ const CreativeSystem: React.FC = () => {
         break;
 
       case 3:
-        // Validate titles
-        const titles = formData.titles || [''];
-        titles.forEach((title, index) => {
-          if (!title.trim()) {
-            newErrors[`title-${index}`] = 'Digite o título';
-          } else if (title.length > TEXT_LIMITS.title.maximum) {
-            newErrors[`title-${index}`] = `Título muito longo (${title.length}/${TEXT_LIMITS.title.maximum})`;
+        // For existing-post type, skip text field validation
+        if (formData.creativeType === 'existing-post') {
+          // Skip title and main text validation for existing posts
+          // Only validate description if provided
+          if (formData.description && formData.description.length > TEXT_LIMITS.description.maximum) {
+            newErrors.description = `Descrição muito longa (${formData.description.length}/${TEXT_LIMITS.description.maximum})`;
           }
-        });
+        } else {
+          // Validate titles for other types
+          const titles = formData.titles || [''];
+          titles.forEach((title, index) => {
+            if (!title.trim()) {
+              newErrors[`title-${index}`] = 'Digite o título';
+            } else if (title.length > TEXT_LIMITS.title.maximum) {
+              newErrors[`title-${index}`] = `Título muito longo (${title.length}/${TEXT_LIMITS.title.maximum})`;
+            }
+          });
 
-        // Validate main texts
-        const mainTexts = formData.mainTexts || [''];
-        mainTexts.forEach((mainText, index) => {
-          if (!mainText.trim()) {
-            newErrors[`mainText-${index}`] = 'Digite o texto principal';
-          } else if (mainText.length > TEXT_LIMITS.mainText.maximum) {
-            newErrors[`mainText-${index}`] = `Texto muito longo (${mainText.length}/${TEXT_LIMITS.mainText.maximum})`;
+          // Validate main texts for other types
+          const mainTexts = formData.mainTexts || [''];
+          mainTexts.forEach((mainText, index) => {
+            if (!mainText.trim()) {
+              newErrors[`mainText-${index}`] = 'Digite o texto principal';
+            } else if (mainText.length > TEXT_LIMITS.mainText.maximum) {
+              newErrors[`mainText-${index}`] = `Texto muito longo (${mainText.length}/${TEXT_LIMITS.mainText.maximum})`;
+            }
+          });
+
+          if (formData.description.length > TEXT_LIMITS.description.maximum) {
+            newErrors.description = `Descrição muito longa (${formData.description.length}/${TEXT_LIMITS.description.maximum})`;
           }
-        });
-
-        if (formData.description.length > TEXT_LIMITS.description.maximum) {
-          newErrors.description = `Descrição muito longa (${formData.description.length}/${TEXT_LIMITS.description.maximum})`;
         }
 
         // Conditional validation for Meta ads
@@ -375,7 +384,7 @@ const CreativeSystem: React.FC = () => {
         }
       }
 
-      // Prepare submission data - Send the client ID directly and include manager ID
+      // Prepare submission data - Send empty arrays for text fields if existing-post
       const submissionData = {
         client: formData.client, // Send the client ID directly
         managerId: currentUser?.id, // Add manager ID
@@ -384,9 +393,10 @@ const CreativeSystem: React.FC = () => {
         campaignObjective: formData.campaignObjective,
         creativeType: formData.creativeType,
         objective: formData.objective,
-        mainTexts: formData.mainTexts || [''], // Send array of main texts
-        titles: formData.titles || [''], // Send array of titles
-        description: formData.description,
+        // For existing-post, send empty arrays for text fields
+        mainTexts: formData.creativeType === 'existing-post' ? [''] : (formData.mainTexts || ['']),
+        titles: formData.creativeType === 'existing-post' ? [''] : (formData.titles || ['']),
+        description: formData.creativeType === 'existing-post' ? '' : formData.description,
         destination: formData.destination, // New field
         cta: formData.cta, // New field
         destinationUrl: formData.destinationUrl,

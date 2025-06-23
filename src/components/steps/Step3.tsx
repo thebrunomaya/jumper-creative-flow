@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { FormData, TEXT_LIMITS, META_TEXT_VARIATIONS } from '@/types/creative';
 import { Label } from '@/components/ui/label';
@@ -7,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { VALID_CTAS } from '@/types/creative';
-import { Plus, X } from 'lucide-react';
+import { Plus, X, Instagram } from 'lucide-react';
 import TextCounterWithRecommendation from '../TextCounterWithRecommendation';
 import metaAdsObjectives from '@/config/meta-ads-objectives.json';
 
@@ -18,9 +19,12 @@ interface Step3Props {
 }
 
 const Step3: React.FC<Step3Props> = ({ formData, updateFormData, errors }) => {
-  // Initialize arrays if they don't exist
-  const titles = formData.titles || [''];
-  const mainTexts = formData.mainTexts || [''];
+  // Check if this is an existing post creative type
+  const isExistingPost = formData.creativeType === 'existing-post';
+
+  // Initialize arrays if they don't exist (but empty for existing posts)
+  const titles = formData.titles || (isExistingPost ? [''] : ['']);
+  const mainTexts = formData.mainTexts || (isExistingPost ? [''] : ['']);
 
   // Get available destinations based on selected objective
   const getAvailableDestinations = () => {
@@ -147,179 +151,237 @@ const Step3: React.FC<Step3Props> = ({ formData, updateFormData, errors }) => {
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Conteúdo do Anúncio</h2>
-        <p className="text-gray-600">Preencha os textos que aparecerão no seu anúncio.</p>
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">
+          {isExistingPost ? 'Configurações do Anúncio' : 'Conteúdo do Anúncio'}
+        </h2>
+        <p className="text-gray-600">
+          {isExistingPost 
+            ? 'Configure o destino e as opções do seu anúncio de publicação existente.' 
+            : 'Preencha os textos que aparecerão no seu anúncio.'
+          }
+        </p>
       </div>
 
       <div className="space-y-8">
-        {/* Títulos Section */}
-        <div className="bg-gray-50 p-6 rounded-lg border space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <Label className="text-lg font-semibold text-gray-900">📝 Títulos *</Label>
-              <p className="text-sm text-gray-500 mt-1">
-                Você pode adicionar até {META_TEXT_VARIATIONS.maxTitles} títulos.
-              </p>
-            </div>
-            {titles.length < META_TEXT_VARIATIONS.maxTitles && (
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={addTitle}
-                className="flex items-center space-x-1"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Adicionar título</span>
-              </Button>
-            )}
-          </div>
+        {/* Only show text fields for non-existing-post types */}
+        {!isExistingPost && (
+          <>
+            {/* Títulos Section */}
+            <div className="bg-gray-50 p-6 rounded-lg border space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label className="text-lg font-semibold text-gray-900">📝 Títulos *</Label>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Você pode adicionar até {META_TEXT_VARIATIONS.maxTitles} títulos.
+                  </p>
+                </div>
+                {titles.length < META_TEXT_VARIATIONS.maxTitles && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={addTitle}
+                    className="flex items-center space-x-1"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Adicionar título</span>
+                  </Button>
+                )}
+              </div>
 
-          {titles.map((title, index) => (
-            <div key={index} className="space-y-2">
-              <div className="flex items-center space-x-2">
-                <div className="flex-1">
-                  <div className="flex items-center space-x-2 mb-2">
-                    <span className="bg-jumper-blue text-white text-xs px-2 py-1 rounded-full font-medium">
-                      {index + 1}
-                    </span>
-                    <Label htmlFor={`title-${index}`} className="text-sm">
-                      Título {index + 1}
-                    </Label>
-                    {titles.length > 1 && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removeTitle(index)}
-                        className="text-red-500 hover:text-red-700 p-1"
-                      >
-                        <X className="w-4 h-4" />
-                      </Button>
-                    )}
+              {titles.map((title, index) => (
+                <div key={index} className="space-y-2">
+                  <div className="flex items-center space-x-2">
+                    <div className="flex-1">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <span className="bg-jumper-blue text-white text-xs px-2 py-1 rounded-full font-medium">
+                          {index + 1}
+                        </span>
+                        <Label htmlFor={`title-${index}`} className="text-sm">
+                          Título {index + 1}
+                        </Label>
+                        {titles.length > 1 && (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeTitle(index)}
+                            className="text-red-500 hover:text-red-700 p-1"
+                          >
+                            <X className="w-4 h-4" />
+                          </Button>
+                        )}
+                      </div>
+                      
+                      <Input
+                        id={`title-${index}`}
+                        value={title}
+                        onChange={(e) => updateTitle(index, e.target.value)}
+                        placeholder={`Digite o título ${index + 1} do anúncio`}
+                        className={errors[`title-${index}`] ? 'border-red-500' : ''}
+                      />
+                      
+                      {errors[`title-${index}`] && (
+                        <p className="text-sm text-red-600 mt-1">{errors[`title-${index}`]}</p>
+                      )}
+                    </div>
                   </div>
                   
-                  <Input
-                    id={`title-${index}`}
-                    value={title}
-                    onChange={(e) => updateTitle(index, e.target.value)}
-                    placeholder={`Digite o título ${index + 1} do anúncio`}
-                    className={errors[`title-${index}`] ? 'border-red-500' : ''}
+                  <TextCounterWithRecommendation
+                    text={title}
+                    recommended={TEXT_LIMITS.title.recommended}
+                    maximum={TEXT_LIMITS.title.maximum}
                   />
-                  
-                  {errors[`title-${index}`] && (
-                    <p className="text-sm text-red-600 mt-1">{errors[`title-${index}`]}</p>
-                  )}
                 </div>
+              ))}
+            </div>
+
+            {/* Textos Principais Section */}
+            <div className="bg-gray-50 p-6 rounded-lg border space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label className="text-lg font-semibold text-gray-900">💬 Textos Principais *</Label>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Você pode adicionar até {META_TEXT_VARIATIONS.maxMainTexts} textos principais.
+                  </p>
+                </div>
+                {mainTexts.length < META_TEXT_VARIATIONS.maxMainTexts && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={addMainText}
+                    className="flex items-center space-x-1"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Adicionar texto</span>
+                  </Button>
+                )}
               </div>
-              
-              <TextCounterWithRecommendation
-                text={title}
-                recommended={TEXT_LIMITS.title.recommended}
-                maximum={TEXT_LIMITS.title.maximum}
-              />
-            </div>
-          ))}
-        </div>
 
-        {/* Textos Principais Section */}
-        <div className="bg-gray-50 p-6 rounded-lg border space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <Label className="text-lg font-semibold text-gray-900">💬 Textos Principais *</Label>
-              <p className="text-sm text-gray-500 mt-1">
-                Você pode adicionar até {META_TEXT_VARIATIONS.maxMainTexts} textos principais.
-              </p>
-            </div>
-            {mainTexts.length < META_TEXT_VARIATIONS.maxMainTexts && (
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={addMainText}
-                className="flex items-center space-x-1"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Adicionar texto</span>
-              </Button>
-            )}
-          </div>
-
-          {mainTexts.map((mainText, index) => (
-            <div key={index} className="space-y-2">
-              <div className="flex items-center space-x-2">
-                <div className="flex-1">
-                  <div className="flex items-center space-x-2 mb-2">
-                    <span className="bg-jumper-blue text-white text-xs px-2 py-1 rounded-full font-medium">
-                      {index + 1}
-                    </span>
-                    <Label htmlFor={`mainText-${index}`} className="text-sm">
-                      Texto Principal {index + 1}
-                    </Label>
-                    {mainTexts.length > 1 && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removeMainText(index)}
-                        className="text-red-500 hover:text-red-700 p-1"
-                      >
-                        <X className="w-4 h-4" />
-                      </Button>
-                    )}
+              {mainTexts.map((mainText, index) => (
+                <div key={index} className="space-y-2">
+                  <div className="flex items-center space-x-2">
+                    <div className="flex-1">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <span className="bg-jumper-blue text-white text-xs px-2 py-1 rounded-full font-medium">
+                          {index + 1}
+                        </span>
+                        <Label htmlFor={`mainText-${index}`} className="text-sm">
+                          Texto Principal {index + 1}
+                        </Label>
+                        {mainTexts.length > 1 && (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeMainText(index)}
+                            className="text-red-500 hover:text-red-700 p-1"
+                          >
+                            <X className="w-4 h-4" />
+                          </Button>
+                        )}
+                      </div>
+                      
+                      <Textarea
+                        id={`mainText-${index}`}
+                        value={mainText}
+                        onChange={(e) => updateMainText(index, e.target.value)}
+                        placeholder={`Digite o texto principal ${index + 1} do anúncio`}
+                        className={`min-h-[100px] ${errors[`mainText-${index}`] ? 'border-red-500' : ''}`}
+                      />
+                      
+                      {errors[`mainText-${index}`] && (
+                        <p className="text-sm text-red-600 mt-1">{errors[`mainText-${index}`]}</p>
+                      )}
+                    </div>
                   </div>
                   
-                  <Textarea
-                    id={`mainText-${index}`}
-                    value={mainText}
-                    onChange={(e) => updateMainText(index, e.target.value)}
-                    placeholder={`Digite o texto principal ${index + 1} do anúncio`}
-                    className={`min-h-[100px] ${errors[`mainText-${index}`] ? 'border-red-500' : ''}`}
+                  <TextCounterWithRecommendation
+                    text={mainText}
+                    recommended={TEXT_LIMITS.mainText.recommended}
+                    maximum={TEXT_LIMITS.mainText.maximum}
                   />
-                  
-                  {errors[`mainText-${index}`] && (
-                    <p className="text-sm text-red-600 mt-1">{errors[`mainText-${index}`]}</p>
-                  )}
                 </div>
-              </div>
+              ))}
+            </div>
+
+            {/* Separador */}
+            <Separator className="my-8" />
+
+            {/* Descrição - only for non-existing-post */}
+            <div className="space-y-2">
+              <Label htmlFor="description">Descrição</Label>
+              <Textarea
+                id="description"
+                value={formData.description}
+                onChange={(e) => updateFormData({ description: e.target.value })}
+                placeholder="Digite uma descrição adicional (opcional)"
+                className={`min-h-[80px] ${errors.description ? 'border-red-500' : ''}`}
+              />
+              {errors.description && (
+                <p className="text-sm text-red-600">{errors.description}</p>
+              )}
               
               <TextCounterWithRecommendation
-                text={mainText}
-                recommended={TEXT_LIMITS.mainText.recommended}
-                maximum={TEXT_LIMITS.mainText.maximum}
+                text={formData.description}
+                recommended={TEXT_LIMITS.description.recommended}
+                maximum={TEXT_LIMITS.description.maximum}
               />
             </div>
-          ))}
-        </div>
+          </>
+        )}
 
-        {/* Separador */}
-        <Separator className="my-8" />
+        {/* Show Instagram post info for existing-post type */}
+        {isExistingPost && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+            <div className="flex items-start space-x-3">
+              <Instagram className="h-6 w-6 text-pink-500 flex-shrink-0 mt-1" />
+              <div className="flex-1">
+                <h3 className="font-semibold text-gray-900 mb-2">📱 Publicação Selecionada</h3>
+                {formData.existingPost && formData.existingPost.valid ? (
+                  <div className="space-y-2">
+                    <p className="text-sm text-gray-700">
+                      <strong>Tipo:</strong> {formData.existingPost.contentType === 'post' ? 'Post' : 
+                                             formData.existingPost.contentType === 'reel' ? 'Reel' : 'IGTV'}
+                    </p>
+                    {formData.existingPost.username && (
+                      <p className="text-sm text-gray-700">
+                        <strong>Perfil:</strong> @{formData.existingPost.username}
+                      </p>
+                    )}
+                    {formData.existingPost.postId && (
+                      <p className="text-sm text-gray-500">
+                        <strong>ID:</strong> {formData.existingPost.postId}
+                      </p>
+                    )}
+                    <div className="pt-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => window.open(formData.existingPost.instagramUrl, '_blank')}
+                        className="text-pink-600 border-pink-300 hover:bg-pink-50"
+                      >
+                        <Instagram className="h-4 w-4 mr-1" />
+                        Ver Post
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-sm text-gray-600">Nenhuma publicação válida selecionada.</p>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Outros Campos Section */}
         <div className="space-y-6">
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">ℹ️ Informações Adicionais</h3>
-          </div>
-
-          {/* Descrição */}
-          <div className="space-y-2">
-            <Label htmlFor="description">Descrição</Label>
-            <Textarea
-              id="description"
-              value={formData.description}
-              onChange={(e) => updateFormData({ description: e.target.value })}
-              placeholder="Digite uma descrição adicional (opcional)"
-              className={`min-h-[80px] ${errors.description ? 'border-red-500' : ''}`}
-            />
-            {errors.description && (
-              <p className="text-sm text-red-600">{errors.description}</p>
-            )}
-            
-            <TextCounterWithRecommendation
-              text={formData.description}
-              recommended={TEXT_LIMITS.description.recommended}
-              maximum={TEXT_LIMITS.description.maximum}
-            />
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              {isExistingPost ? '🎯 Configurações do Anúncio' : 'ℹ️ Informações Adicionais'}
+            </h3>
           </div>
 
           {/* Conditional Fields for Meta Ads */}

@@ -2,9 +2,10 @@
 import React from 'react';
 import { FormData } from '@/types/creative';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertTriangle, CheckCircle, FileText, Image, Video, Users, User, Instagram } from 'lucide-react';
+import { AlertTriangle, CheckCircle, FileText, Image, Video, Users, User, Instagram, ExternalLink } from 'lucide-react';
 import { useNotionClients } from '@/hooks/useNotionData';
 import { useAuth } from '@/contexts/AuthContext';
+import { Button } from '@/components/ui/button';
 
 interface Step4Props {
   formData: FormData;
@@ -14,6 +15,9 @@ interface Step4Props {
 const Step4: React.FC<Step4Props> = ({ formData, isSubmitting }) => {
   const { clients } = useNotionClients();
   const { currentUser } = useAuth();
+
+  // Check if this is an existing post
+  const isExistingPost = formData.creativeType === 'existing-post';
 
   // Get client name
   const selectedClient = clients.find(c => c.id === formData.client);
@@ -188,12 +192,48 @@ const Step4: React.FC<Step4Props> = ({ formData, isSubmitting }) => {
                formData.creativeType === 'existing-post' ? 'Publicação do Instagram' : 'Arquivos'}
             </h3>
           </div>
-          <div className="text-sm">
+          <div className="text-sm space-y-2">
             <div className="mb-2">
               <span className="font-medium">
                 {formData.creativeType === 'existing-post' ? 'Publicação:' : 'Total de arquivos:'}
               </span> {formData.creativeType === 'existing-post' ? '1 post do Instagram' : totalFiles}
             </div>
+            
+            {/* Show Instagram post details for existing-post */}
+            {formData.creativeType === 'existing-post' && formData.existingPost && formData.existingPost.valid && (
+              <div className="bg-pink-50 border border-pink-200 rounded-lg p-3 mt-3">
+                <div className="space-y-1">
+                  <div className="flex items-center space-x-2 mb-2">
+                    <Instagram className="h-4 w-4 text-pink-500" />
+                    <span className="font-medium text-pink-800">Detalhes da Publicação</span>
+                  </div>
+                  <div className="text-xs space-y-1">
+                    <div><span className="font-medium">Tipo:</span> {
+                      formData.existingPost.contentType === 'post' ? 'Post' :
+                      formData.existingPost.contentType === 'reel' ? 'Reel' : 'IGTV'
+                    }</div>
+                    {formData.existingPost.username && (
+                      <div><span className="font-medium">Perfil:</span> @{formData.existingPost.username}</div>
+                    )}
+                    {formData.existingPost.postId && (
+                      <div><span className="font-medium">ID:</span> {formData.existingPost.postId}</div>
+                    )}
+                  </div>
+                  <div className="pt-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => window.open(formData.existingPost.instagramUrl, '_blank')}
+                      className="text-pink-600 border-pink-300 hover:bg-pink-100 text-xs h-7 px-2"
+                    >
+                      <ExternalLink className="h-3 w-3 mr-1" />
+                      Ver Post
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
+            
             {formData.creativeType === 'carousel' && formData.carouselAspectRatio && (
               <div className="break-words">
                 <span className="font-medium">Proporção:</span> <span className="break-all">{formData.carouselAspectRatio}</span>
@@ -216,28 +256,30 @@ const Step4: React.FC<Step4Props> = ({ formData, isSubmitting }) => {
           </div>
         </div>
 
-        {/* Content Card */}
-        <div className="bg-white border rounded-lg p-6 shadow-sm">
-          <div className="flex items-center space-x-3 mb-4">
-            <FileText className="h-5 w-5 text-jumper-blue" />
-            <h3 className="font-semibold text-gray-900">Conteúdo</h3>
+        {/* Content Card - Hide for existing-post */}
+        {!isExistingPost && (
+          <div className="bg-white border rounded-lg p-6 shadow-sm">
+            <div className="flex items-center space-x-3 mb-4">
+              <FileText className="h-5 w-5 text-jumper-blue" />
+              <h3 className="font-semibold text-gray-900">Conteúdo</h3>
+            </div>
+            <div className="space-y-2 text-sm">
+              <div><span className="font-medium">Títulos:</span> {formData.titles?.length || 0}</div>
+              <div><span className="font-medium">Textos principais:</span> {formData.mainTexts?.length || 0}</div>
+              {formData.description && (
+                <div className="break-words">
+                  <span className="font-medium">Descrição:</span> 
+                  <span className="break-all ml-1">
+                    {formData.description.substring(0, 50)}{formData.description.length > 50 ? '...' : ''}
+                  </span>
+                </div>
+              )}
+            </div>
           </div>
-          <div className="space-y-2 text-sm">
-            <div><span className="font-medium">Títulos:</span> {formData.titles?.length || 0}</div>
-            <div><span className="font-medium">Textos principais:</span> {formData.mainTexts?.length || 0}</div>
-            {formData.description && (
-              <div className="break-words">
-                <span className="font-medium">Descrição:</span> 
-                <span className="break-all ml-1">
-                  {formData.description.substring(0, 50)}{formData.description.length > 50 ? '...' : ''}
-                </span>
-              </div>
-            )}
-          </div>
-        </div>
+        )}
 
         {/* CTA & Destination Card */}
-        <div className="bg-white border rounded-lg p-6 shadow-sm col-span-full">
+        <div className={`bg-white border rounded-lg p-6 shadow-sm ${isExistingPost ? 'col-span-full md:col-span-1' : 'col-span-full'}`}>
           <div className="flex items-center space-x-3 mb-4">
             <CheckCircle className="h-5 w-5 text-jumper-blue" />
             <h3 className="font-semibold text-gray-900">Call-to-Action & Destino</h3>

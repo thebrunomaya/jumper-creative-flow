@@ -39,16 +39,30 @@ export const validateInstagramUrl = (url: string): ExistingPostData => {
     if (match) {
       if (pattern.hasUsername) {
         username = match[2];
-        contentType = match[3] as 'post' | 'reel' | 'tv';
+        const rawContentType = match[3];
         postId = match[4];
+        
+        // Convert raw content type to our interface type
+        if (rawContentType === 'p') {
+          contentType = 'post';
+        } else if (rawContentType === 'reel') {
+          contentType = 'reel';
+        } else if (rawContentType === 'tv') {
+          contentType = 'igtv';
+        }
       } else {
-        contentType = match[2] as 'post' | 'reel' | 'tv';
+        const rawContentType = match[2];
         postId = match[3];
+        
+        // Convert raw content type to our interface type
+        if (rawContentType === 'p') {
+          contentType = 'post';
+        } else if (rawContentType === 'reel') {
+          contentType = 'reel';
+        } else if (rawContentType === 'tv') {
+          contentType = 'igtv';
+        }
       }
-      
-      // Convert 'p' to 'post' and 'tv' to 'igtv' for better display
-      if (contentType === 'p') contentType = 'post';
-      if (contentType === 'tv') contentType = 'igtv';
       
       matchFound = true;
       valid = true;
