@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
@@ -358,19 +359,30 @@ const createNotionCreative = async (
   const creativeId = `JSC-${notionResult.properties.ID.unique_id.number}`;
   console.log(`🆔 Generated creative ID for variation ${variationIndex}:`, creativeId);
   
+  // Extract the real account ID from client data
+  let accountId = creativeData.client; // fallback to page ID
+  let accountName = clientData.name;
+  
+  if (clientData.properties && clientData.properties.ID && clientData.properties.ID.unique_id) {
+    accountId = clientData.properties.ID.unique_id.number.toString();
+    console.log(`📊 Extracted real account ID: ${accountId}`);
+  } else {
+    console.warn('⚠️ Could not extract real account ID, using page ID as fallback');
+  }
+  
   // Generate full creative name using the formula
   const fullCreativeName = generateCreativeName(
     creativeId,
     creativeData.creativeName,
     creativeData.campaignObjective || '',
     creativeData.creativeType || '',
-    clientData.name,
-    clientData.id
+    accountName,
+    accountId
   );
   
   console.log(`📝 Generated full creative name: ${fullCreativeName}`);
   
-  // Update the page with the generated name as title
+  // Update the page with the generated name as title - CORRECTED PROPERTY NAME
   const updateResponse = await fetch(`https://api.notion.com/v1/pages/${notionResult.id}`, {
     method: 'PATCH',
     headers: {
@@ -380,7 +392,7 @@ const createNotionCreative = async (
     },
     body: JSON.stringify({
       properties: {
-        "Nome": {
+        "Nome do Criativo": {
           title: [
             {
               text: {
@@ -394,7 +406,25 @@ const createNotionCreative = async (
   });
 
   if (!updateResponse.ok) {
-    console.error('❌ Failed to update creative name in Notion');
+    const updateErrorText = await updateResponse.text();
+    console.error('❌ Failed to update creative name in Notion:', {
+      status: updateResponse.status,
+      statusText: updateResponse.statusText,
+      body: updateErrorText
+    });
+    console.error('❌ Update payload was:', JSON.stringify({
+      properties: {
+        "Nome do Criativo": {
+          title: [
+            {
+              text: {
+                content: fullCreativeName
+              }
+            }
+          ]
+        }
+      }
+    }, null, 2));
   } else {
     console.log('✅ Creative name updated successfully in Notion');
   }
@@ -462,6 +492,7 @@ serve(async (req) => {
     const clientData = await clientResponse.json();
     const clientName = clientData.properties.Conta?.title?.[0]?.plain_text || 'Unknown Client';
     console.log('✅ Client data fetched:', clientName);
+    console.log('🔍 Client data structure:', JSON.stringify(clientData.properties, null, 2));
 
     // Group files by variation index
     const filesByVariation = new Map<number, Array<{name: string; type: string; size: number; format?: string; base64Data?: string}>>();
@@ -533,7 +564,7 @@ serve(async (req) => {
           totalVariations,
           NOTION_TOKEN,
           DB_CRIATIVOS_ID,
-          { name: clientName, id: creativeData.client }
+          clientData
         );
         
         createdCreatives.push({
