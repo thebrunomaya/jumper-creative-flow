@@ -1,12 +1,14 @@
 export interface FormData {
-  // Step 1
+  // Step 1 - Basic Info
   client: string;
+  managerId?: string;
   partner: string;
-  platform: 'meta' | 'google' | '';
+  platform: 'meta' | 'google';
   campaignObjective?: string; // New field for campaign objective from account
   creativeType?: 'single' | 'carousel' | 'collection' | 'existing-post'; // Add existing-post
   objective?: 'sales' | 'traffic' | 'awareness' | 'leads' | 'engagement';
-  
+  creativeName: string; // New field for creative name
+
   // Step 2
   files: File[];
   validatedFiles: ValidatedFile[];

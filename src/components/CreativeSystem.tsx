@@ -15,6 +15,7 @@ import { useNotionClients } from '@/hooks/useNotionData';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import metaAdsObjectives from '@/config/meta-ads-objectives.json';
+import { validateCreativeName } from '@/utils/creativeName';
 
 const INITIAL_FORM_DATA: FormData = {
   client: '',
@@ -135,15 +136,17 @@ const CreativeSystem: React.FC = () => {
 
     switch (step) {
       case 1:
-        if (!formData.client) newErrors.client = 'Selecione uma conta';
-        if (!formData.platform) newErrors.platform = 'Selecione uma plataforma';
+        if (!formData.client) newErrors.client = 'Cliente é obrigatório';
+        if (!formData.platform) newErrors.platform = 'Plataforma é obrigatória';
+        if (!formData.campaignObjective) newErrors.campaignObjective = 'Objetivo é obrigatório';
+        if (formData.platform === 'meta' && !formData.creativeType) {
+          newErrors.creativeType = 'Tipo de anúncio é obrigatório';
+        }
         
-        if (formData.platform === 'meta' || formData.platform === 'google') {
-          if (!formData.campaignObjective) newErrors.campaignObjective = 'Selecione o objetivo de campanha';
-          
-          if (formData.platform === 'meta') {
-            if (!formData.creativeType) newErrors.creativeType = 'Selecione o tipo de anúncio';
-          }
+        // Validação do nome do criativo
+        const nameValidation = validateCreativeName(formData.creativeName || '');
+        if (!nameValidation.valid) {
+          newErrors.creativeName = nameValidation.errors[0];
         }
         break;
 

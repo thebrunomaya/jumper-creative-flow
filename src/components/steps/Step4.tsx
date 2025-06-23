@@ -1,11 +1,11 @@
-
 import React from 'react';
 import { FormData } from '@/types/creative';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertTriangle, CheckCircle, FileText, Image, Video, Users, User, Instagram, ExternalLink } from 'lucide-react';
+import { AlertTriangle, CheckCircle, FileText, Image, Video, Users, User, Instagram, ExternalLink, Hash } from 'lucide-react';
 import { useNotionClients } from '@/hooks/useNotionData';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
+import { previewCreativeName } from '@/utils/creativeName';
 
 interface Step4Props {
   formData: FormData;
@@ -22,6 +22,25 @@ const Step4: React.FC<Step4Props> = ({ formData, isSubmitting }) => {
   // Get client name
   const selectedClient = clients.find(c => c.id === formData.client);
   const clientName = selectedClient?.name || 'Cliente não encontrado';
+
+  // Generate preview of final creative name
+  const finalCreativeName = React.useMemo(() => {
+    if (
+      formData.creativeName && 
+      formData.campaignObjective && 
+      formData.creativeType && 
+      selectedClient
+    ) {
+      return previewCreativeName(
+        formData.creativeName,
+        formData.campaignObjective,
+        formData.creativeType,
+        selectedClient.name,
+        selectedClient.id
+      );
+    }
+    return null;
+  }, [formData.creativeName, formData.campaignObjective, formData.creativeType, selectedClient]);
 
   // Check for validation issues based on creative type
   const getValidationIssues = () => {
@@ -109,6 +128,22 @@ const Step4: React.FC<Step4Props> = ({ formData, isSubmitting }) => {
         <p className="text-gray-600">Confira todas as informações antes de enviar</p>
       </div>
 
+      {/* Creative Name Preview */}
+      {finalCreativeName && (
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4 mb-6">
+          <div className="flex items-center space-x-3 mb-3">
+            <Hash className="h-5 w-5 text-blue-600" />
+            <h3 className="font-semibold text-blue-900">Nome Final do Criativo</h3>
+          </div>
+          <div className="bg-white border border-blue-200 rounded-md p-3">
+            <p className="text-sm font-mono text-blue-800 break-all">{finalCreativeName}</p>
+          </div>
+          <p className="text-xs text-blue-600 mt-2">
+            Este será o nome usado no Facebook Ads Manager e no Notion
+          </p>
+        </div>
+      )}
+
       {/* Validation Issues Alert */}
       {hasValidationIssues && (
         <Alert variant="destructive" className="mb-6">
@@ -149,6 +184,7 @@ const Step4: React.FC<Step4Props> = ({ formData, isSubmitting }) => {
           </div>
           <div className="space-y-2 text-sm">
             <div className="break-words"><span className="font-medium">Cliente:</span> <span className="break-all">{clientName}</span></div>
+            <div className="break-words"><span className="font-medium">Nome:</span> <span className="break-all">{formData.creativeName}</span></div>
             <div className="break-words"><span className="font-medium">Plataforma:</span> {formData.platform === 'meta' ? 'Meta Ads' : 'Google Ads'}</div>
             {formData.campaignObjective && (
               <div className="break-words"><span className="font-medium">Objetivo:</span> <span className="break-all">{formData.campaignObjective}</span></div>

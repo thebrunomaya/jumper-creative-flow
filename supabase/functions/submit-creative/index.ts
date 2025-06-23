@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
@@ -15,6 +14,7 @@ interface CreativeSubmissionData {
   campaignObjective?: string;
   creativeType?: string;
   objective?: string;
+  creativeName: string; // New field
   mainTexts: string[];
   titles: string[];
   description: string;
@@ -31,6 +31,66 @@ interface CreativeSubmissionData {
     variationIndex?: number;
     base64Data?: string;
   }>;
+}
+
+// Creative name generation functions
+function generateAccountCode(accountName: string, accountId: string): string {
+  const cleanName = accountName.toUpperCase().replace(/[\s\-\_\.\,]/g, '');
+  
+  const firstLetter = cleanName[0] || 'X';
+  const remainingChars = cleanName.slice(1);
+  
+  let consonants = remainingChars.replace(/[AEIOU]/g, '');
+  
+  if (consonants.length < 3) {
+    consonants = remainingChars;
+  }
+  
+  const finalChars = consonants.slice(0, 3).padEnd(3, 'X');
+  
+  return `${firstLetter}${finalChars}#${accountId.slice(-3)}`;
+}
+
+function getObjectiveCode(objective: string): string {
+  const codes: Record<string, string> = {
+    "Conversions": "CONV",
+    "Traffic": "TRAF",
+    "Engagement": "ENGA",
+    "Lead Generation": "LEAD",
+    "Brand Awareness": "BRAN",
+    "App Installs": "APPS",
+    "Reach": "RECH",
+    "Video Views": "VIDE",
+    "Messages": "MSGS",
+    "Store Traffic": "STOR",
+    "Catalog Sales": "CATA"
+  };
+  return codes[objective] || "UNKN";
+}
+
+function getTypeCode(type: string): string {
+  const codes: Record<string, string> = {
+    "single": "SING",
+    "carousel": "CARR",
+    "collection": "COLL",
+    "existing-post": "POST"
+  };
+  return codes[type] || "UNKN";
+}
+
+function generateCreativeName(
+  crtId: string,
+  managerInput: string,
+  campaignObjective: string,
+  creativeType: string,
+  accountName: string,
+  accountId: string
+): string {
+  const accountCode = generateAccountCode(accountName, accountId);
+  const objCode = getObjectiveCode(campaignObjective);
+  const typeCode = getTypeCode(creativeType);
+  
+  return `${crtId}_${managerInput}_${objCode}_${typeCode}_${accountCode}`;
 }
 
 const uploadFileToSupabase = async (
@@ -85,7 +145,8 @@ const createNotionCreative = async (
   variationIndex: number,
   totalVariations: number,
   NOTION_TOKEN: string,
-  DB_CRIATIVOS_ID: string
+  DB_CRIATIVOS_ID: string,
+  clientData: any // Add client data parameter
 ) => {
   const notionUrl = `https://api.notion.com/v1/pages`;
   
@@ -155,7 +216,8 @@ const createNotionCreative = async (
         multi_select: [
           {
             name: creativeData.creativeType === 'single' ? 'Imagem' : 
-                 creativeData.creativeType === 'carousel' ? 'Carrossel' : 'Imagem'
+                 creativeData.creativeType === 'carousel' ? 'Carrossel' : 
+                 creativeData.creativeType === 'existing-post' ? 'Publicação Existente' : 'Imagem'
           }
         ]
       },
@@ -271,10 +333,52 @@ const createNotionCreative = async (
   const creativeId = `CRT-${notionResult.properties.ID.unique_id.number}`;
   console.log(`🆔 Generated creative ID for variation ${variationIndex}:`, creativeId);
   
+  // Generate full creative name using the formula
+  const fullCreativeName = generateCreativeName(
+    creativeId,
+    creativeData.creativeName,
+    creativeData.campaignObjective || '',
+    creativeData.creativeType || '',
+    clientData.name,
+    clientData.id
+  );
+  
+  console.log(`📝 Generated full creative name: ${fullCreativeName}`);
+  
+  // Update the page with the generated name as title
+  const updateResponse = await fetch(`https://api.notion.com/v1/pages/${notionResult.id}`, {
+    method: 'PATCH',
+    headers: {
+      'Authorization': `Bearer ${NOTION_TOKEN}`,
+      'Content-Type': 'application/json',
+      'Notion-Version': '2022-06-28'
+    },
+    body: JSON.stringify({
+      properties: {
+        "Nome": {
+          title: [
+            {
+              text: {
+                content: fullCreativeName
+              }
+            }
+          ]
+        }
+      }
+    })
+  });
+
+  if (!updateResponse.ok) {
+    console.error('❌ Failed to update creative name in Notion');
+  } else {
+    console.log('✅ Creative name updated successfully in Notion');
+  }
+  
   return {
     creativeId,
     notionPageId: notionResult.id,
-    variationIndex
+    variationIndex,
+    fullCreativeName
   };
 };
 
@@ -288,6 +392,7 @@ serve(async (req) => {
     const SUPABASE_URL = Deno.env.get('SUPABASE_URL')
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
     const DB_CRIATIVOS_ID = "20edb6094968807eac5fe7920c517077"
+    const DB_CONTAS_ID = "162db6094968808bbcbed40fef7370d1"
     
     console.log('=== CREATIVE SUBMISSION ===')
     console.log('Submitting creative at:', new Date().toISOString())
@@ -307,11 +412,31 @@ serve(async (req) => {
 
     const creativeData: CreativeSubmissionData = await req.json()
     console.log('🔍 Creative data received:')
+    console.log('- creativeName:', creativeData.creativeName)
     console.log('- managerId:', creativeData.managerId)
     console.log('- destinationUrl:', creativeData.destinationUrl)
     console.log('- cta:', creativeData.cta)
     console.log('- callToAction:', creativeData.callToAction)
     console.log('- observations:', creativeData.observations)
+
+    // Fetch client data from Notion to get account name and ID
+    console.log('🔍 Fetching client data from Notion...');
+    const clientResponse = await fetch(`https://api.notion.com/v1/pages/${creativeData.client}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${NOTION_TOKEN}`,
+        'Content-Type': 'application/json',
+        'Notion-Version': '2022-06-28'
+      }
+    });
+
+    if (!clientResponse.ok) {
+      throw new Error(`Failed to fetch client data: ${clientResponse.status}`);
+    }
+
+    const clientData = await clientResponse.json();
+    const clientName = clientData.properties.Conta?.title?.[0]?.plain_text || 'Unknown Client';
+    console.log('✅ Client data fetched:', clientName);
 
     // Group files by variation index
     const filesByVariation = new Map<number, Array<{name: string; type: string; size: number; format?: string; base64Data?: string}>>();
@@ -336,6 +461,7 @@ serve(async (req) => {
       notionPageId: string;
       variationIndex: number;
       uploadedFiles: Array<{ name: string; url: string; format?: string }>;
+      fullCreativeName: string;
     }> = [];
 
     // Process each variation
@@ -381,7 +507,8 @@ serve(async (req) => {
           variationIndex,
           totalVariations,
           NOTION_TOKEN,
-          DB_CRIATIVOS_ID
+          DB_CRIATIVOS_ID,
+          { name: clientName, id: creativeData.client }
         );
         
         createdCreatives.push({
@@ -390,6 +517,7 @@ serve(async (req) => {
         });
         
         console.log(`✅ Created creative ${creativeResult.creativeId} for variation ${variationIndex}`);
+        console.log(`📝 Full creative name: ${creativeResult.fullCreativeName}`);
       } catch (notionError) {
         console.error(`❌ Failed to create Notion creative for variation ${variationIndex}:`, notionError);
         throw notionError; // Fail the entire submission if any variation fails
@@ -405,10 +533,12 @@ serve(async (req) => {
           creativeId: c.creativeId,
           notionPageId: c.notionPageId,
           variationIndex: c.variationIndex,
-          uploadedFiles: c.uploadedFiles.length
+          uploadedFiles: c.uploadedFiles.length,
+          fullCreativeName: c.fullCreativeName
         })),
         totalCreatives: createdCreatives.length,
         creativeIds: createdCreatives.map(c => c.creativeId),
+        creativeNames: createdCreatives.map(c => c.fullCreativeName),
         message: `${createdCreatives.length} criativo(s) enviado(s) com sucesso para o Notion!`
       }),
       { 

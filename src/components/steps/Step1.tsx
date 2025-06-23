@@ -1,10 +1,13 @@
+
 import React from 'react';
 import { FormData } from '@/types/creative';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 import { useNotionClients } from '@/hooks/useNotionData';
 import { Skeleton } from '@/components/ui/skeleton';
+import { validateCreativeName, previewCreativeName } from '@/utils/creativeName';
 
 interface Step1Props {
   formData: FormData;
@@ -19,11 +22,70 @@ const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
   const selectedClient = clients.find(client => client.id === formData.client);
   const availableObjectives = selectedClient?.objectives || [];
 
+  // Handle creative name change with automatic space removal
+  const handleCreativeNameChange = (value: string) => {
+    const cleanValue = value.replace(/\s/g, ''); // Remove espaços automaticamente
+    updateFormData({ creativeName: cleanValue });
+  };
+
+  // Generate preview name if all required fields are filled
+  const previewName = React.useMemo(() => {
+    if (
+      formData.creativeName && 
+      formData.campaignObjective && 
+      formData.creativeType && 
+      selectedClient
+    ) {
+      return previewCreativeName(
+        formData.creativeName,
+        formData.campaignObjective,
+        formData.creativeType,
+        selectedClient.name,
+        selectedClient.id
+      );
+    }
+    return null;
+  }, [formData.creativeName, formData.campaignObjective, formData.creativeType, selectedClient]);
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="text-center mb-8">
         <h2 className="text-2xl font-bold text-jumper-text mb-2">📋 Informações Básicas</h2>
         <p className="text-gray-600">Vamos começar com os dados essenciais do seu criativo</p>
+      </div>
+
+      {/* Nome do Criativo - Novo campo */}
+      <div className="space-y-2">
+        <Label htmlFor="creativeName" className="text-sm font-medium text-jumper-text">
+          Nome do Criativo *
+        </Label>
+        <Input
+          id="creativeName"
+          value={formData.creativeName || ''}
+          onChange={(e) => handleCreativeNameChange(e.target.value)}
+          placeholder="Ex: BlackFridayDesc50"
+          maxLength={20}
+          className={`h-12 ${errors.creativeName ? 'border-red-500' : ''}`}
+        />
+        <div className="flex justify-between items-center">
+          <div className="text-xs text-gray-500">
+            Máximo 20 caracteres • Sem espaços • Apenas letras, números e _
+          </div>
+          <div className="text-xs text-blue-600">
+            {formData.creativeName?.length || 0}/20 caracteres
+          </div>
+        </div>
+        {errors.creativeName && (
+          <p className="text-sm text-red-500">{errors.creativeName}</p>
+        )}
+        
+        {/* Preview do nome final */}
+        {previewName && (
+          <div className="bg-blue-50 border border-blue-200 p-3 rounded-lg">
+            <p className="text-sm font-medium text-blue-800 mb-1">Preview do Nome Final:</p>
+            <p className="text-xs text-blue-600 font-mono break-all">{previewName}</p>
+          </div>
+        )}
       </div>
 
       {/* Conta - agora ocupando mais espaço */}
