@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { getZoneConfig } from '@/config/adPlatformZones';
 
@@ -95,11 +96,11 @@ const MetaZoneOverlay: React.FC<MetaZoneOverlayProps> = ({
           />
         )}
         
-        {/* Feed Zone Overlays - Enhanced visibility for lightbox */}
+        {/* Feed Zone Overlays - Show for both thumbnail and lightbox */}
         <div className="absolute inset-0 pointer-events-none">
           {/* Top Safe Margin */}
           <div 
-            className={`absolute top-0 left-0 right-0 bg-red-500 ${size === 'lightbox' ? 'bg-opacity-40' : 'bg-opacity-30'} border-b-2 border-red-400`}
+            className={`absolute top-0 left-0 right-0 bg-red-500 ${size === 'lightbox' ? 'bg-opacity-40' : 'bg-opacity-20'} border-b-2 border-red-400`}
             style={{ height: `${carouselZones.topSafeMargin}%` }}
           >
             {!isThumbnail && (
@@ -113,7 +114,7 @@ const MetaZoneOverlay: React.FC<MetaZoneOverlayProps> = ({
 
           {/* Left Safe Margin */}
           <div 
-            className={`absolute top-0 left-0 bottom-0 bg-red-500 ${size === 'lightbox' ? 'bg-opacity-40' : 'bg-opacity-30'} border-r-2 border-red-400`}
+            className={`absolute top-0 left-0 bottom-0 bg-red-500 ${size === 'lightbox' ? 'bg-opacity-40' : 'bg-opacity-20'} border-r-2 border-red-400`}
             style={{ width: `${carouselZones.leftSafeMargin}%` }}
           >
             {!isThumbnail && (
@@ -127,7 +128,7 @@ const MetaZoneOverlay: React.FC<MetaZoneOverlayProps> = ({
 
           {/* Right Safe Margin */}
           <div 
-            className={`absolute top-0 right-0 bottom-0 bg-red-500 ${size === 'lightbox' ? 'bg-opacity-40' : 'bg-opacity-30'} border-l-2 border-red-400`}
+            className={`absolute top-0 right-0 bottom-0 bg-red-500 ${size === 'lightbox' ? 'bg-opacity-40' : 'bg-opacity-20'} border-l-2 border-red-400`}
             style={{ width: `${carouselZones.rightSafeMargin}%` }}
           >
             {!isThumbnail && (
@@ -141,7 +142,7 @@ const MetaZoneOverlay: React.FC<MetaZoneOverlayProps> = ({
 
           {/* Bottom Safe Margin */}
           <div 
-            className={`absolute bottom-0 left-0 right-0 bg-red-500 ${size === 'lightbox' ? 'bg-opacity-40' : 'bg-opacity-30'} border-t-2 border-red-400`}
+            className={`absolute bottom-0 left-0 right-0 bg-red-500 ${size === 'lightbox' ? 'bg-opacity-40' : 'bg-opacity-20'} border-t-2 border-red-400`}
             style={{ height: `${carouselZones.bottomSafeMargin}%` }}
           >
             {!isThumbnail && (
@@ -155,7 +156,7 @@ const MetaZoneOverlay: React.FC<MetaZoneOverlayProps> = ({
 
           {/* Safe Zone - Enhanced styling and visibility */}
           <div 
-            className={`absolute ${size === 'lightbox' ? 'bg-green-400 bg-opacity-25 border-4 border-green-500' : 'bg-green-500 bg-opacity-15 border-2 border-green-400'} border-dashed`}
+            className={`absolute ${size === 'lightbox' ? 'bg-green-400 bg-opacity-25 border-4 border-green-500' : 'bg-green-500 bg-opacity-10 border-2 border-green-400'} border-dashed`}
             style={{ 
               top: `${carouselZones.topSafeMargin}%`, 
               left: `${carouselZones.leftSafeMargin}%`, 
@@ -186,7 +187,7 @@ const MetaZoneOverlay: React.FC<MetaZoneOverlayProps> = ({
     );
   }
 
-  // Only show overlay for vertical format (Stories/Reels)
+  // Only show overlay for vertical format (Stories/Reels) - ALWAYS show overlay when file exists
   if (format !== 'vertical') {
     console.log('MetaZoneOverlay - Not vertical format, showing simple preview');
     
@@ -215,39 +216,130 @@ const MetaZoneOverlay: React.FC<MetaZoneOverlayProps> = ({
     );
   }
 
-  // Get zone configuration based on file type for Stories/Reels
+  // Get zone configuration based on file type for Stories/Reels - ALWAYS show overlay when file exists
   const zoneConfig = getZoneConfig(file);
   console.log('MetaZoneOverlay - Zone config result:', {
     configName: zoneConfig?.name,
     isVideo: zoneConfig?.contentTypes.includes('video'),
-    hasZones: !!zoneConfig?.zones
+    hasZones: !!zoneConfig?.zones,
+    fileExists: !!file
   });
   
+  // FOR VERTICAL FORMAT: ALWAYS show overlay when there's a file, even if no zone config
   if (!zoneConfig) {
-    console.log('MetaZoneOverlay - No zone config found, showing simple preview');
+    console.log('MetaZoneOverlay - No zone config found for vertical, but showing overlay anyway');
     
-    // Determine object-fit based on context
+    // Use default Stories zones when no config is found but file exists
+    const defaultZones = {
+      topSafeMargin: 14,
+      bottomSafeMargin: 20,
+      leftSafeMargin: 8,
+      rightSafeMargin: 8
+    };
+    
     const objectFit = size === 'lightbox' ? 'object-contain' : 'object-cover';
-    
-    if (file?.type.startsWith('video/')) {
-      return (
-        <video 
-          src={imageUrl} 
-          className={`w-full h-full ${objectFit} rounded`}
-          muted
-          controls={expanded}
-          onLoadedData={onImageLoad}
-        />
-      );
-    }
+    const isThumbnail = size === 'thumbnail';
     
     return (
-      <img 
-        src={imageUrl} 
-        alt="Preview" 
-        className={`w-full h-full ${objectFit} rounded`}
-        onLoad={onImageLoad}
-      />
+      <div className="relative w-full h-full">
+        {/* Base Media */}
+        {file?.type.startsWith('video/') ? (
+          <video 
+            src={imageUrl} 
+            className={`w-full h-full ${objectFit} rounded`}
+            muted
+            controls={expanded && size === 'lightbox'}
+            onLoadedData={onImageLoad}
+          />
+        ) : (
+          <img 
+            src={imageUrl} 
+            alt="Stories Preview" 
+            className={`w-full h-full ${objectFit} rounded`}
+            onLoad={onImageLoad}
+          />
+        )}
+        
+        {/* Default Zone Overlays for vertical format */}
+        <div className="absolute inset-0 pointer-events-none">
+          {/* Top Safe Margin */}
+          <div 
+            className={`absolute top-0 left-0 right-0 bg-red-500 ${size === 'lightbox' ? 'bg-opacity-40' : 'bg-opacity-20'}`}
+            style={{ height: `${defaultZones.topSafeMargin}%` }}
+          >
+            {!isThumbnail && (
+              <div className="flex items-center justify-center h-full border-b border-red-400">
+                <span className="text-white text-xs font-semibold bg-red-600 bg-opacity-90 px-1 py-0.5 rounded">
+                  Interface Superior
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* Left Side Safe Margin */}
+          <div 
+            className={`absolute top-0 left-0 bottom-0 bg-red-500 ${size === 'lightbox' ? 'bg-opacity-40' : 'bg-opacity-20'}`}
+            style={{ width: `${defaultZones.leftSafeMargin}%` }}
+          >
+            {!isThumbnail && (
+              <div className="flex items-center justify-center h-full border-r border-red-400">
+                <span className="text-white text-xs font-semibold bg-red-600 bg-opacity-90 px-1 py-1 rounded transform -rotate-90">
+                  {defaultZones.leftSafeMargin}%
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* Right Side Safe Margin */}
+          <div 
+            className={`absolute top-0 right-0 bottom-0 bg-red-500 ${size === 'lightbox' ? 'bg-opacity-40' : 'bg-opacity-20'}`}
+            style={{ width: `${defaultZones.rightSafeMargin}%` }}
+          >
+            {!isThumbnail && (
+              <div className="flex items-center justify-center h-full border-l border-red-400">
+                <span className="text-white text-xs font-semibold bg-red-600 bg-opacity-90 px-1 py-1 rounded transform rotate-90">
+                  {defaultZones.rightSafeMargin}%
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* Bottom Safe Margin */}
+          <div 
+            className={`absolute bottom-0 left-0 right-0 bg-red-500 ${size === 'lightbox' ? 'bg-opacity-40' : 'bg-opacity-20'}`}
+            style={{ height: `${defaultZones.bottomSafeMargin}%` }}
+          >
+            {!isThumbnail && (
+              <div className="flex items-center justify-center h-full border-t border-red-400">
+                <span className="text-white text-xs font-semibold bg-red-600 bg-opacity-90 px-1 py-0.5 rounded">
+                  Interface Inferior
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* Safe Zone */}
+          {!isThumbnail && (
+            <div 
+              className={`absolute ${size === 'lightbox' ? 'bg-green-500 bg-opacity-25 border-4 border-green-500' : 'bg-green-500 bg-opacity-10 border border-green-400'} border-dashed`}
+              style={{ 
+                top: `${defaultZones.topSafeMargin}%`, 
+                left: `${defaultZones.leftSafeMargin}%`, 
+                right: `${defaultZones.rightSafeMargin}%`,
+                bottom: `${defaultZones.bottomSafeMargin}%`
+              }}
+            >
+              {expanded && size === 'lightbox' && (
+                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                  <span className="text-green-700 text-xs font-semibold bg-green-100 bg-opacity-90 px-2 py-1 rounded">
+                    Zona Segura Stories
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
     );
   }
 
@@ -283,11 +375,11 @@ const MetaZoneOverlay: React.FC<MetaZoneOverlayProps> = ({
           onLoadedData={onImageLoad}
         />
         
-        {/* Zone Overlays */}
+        {/* Zone Overlays - Show for both thumbnail and lightbox */}
         <div className="absolute inset-0 pointer-events-none">
           {/* Top Safe Margin */}
           <div 
-            className="absolute top-0 left-0 right-0 bg-red-500 bg-opacity-30"
+            className={`absolute top-0 left-0 right-0 bg-red-500 ${size === 'lightbox' ? 'bg-opacity-40' : 'bg-opacity-20'}`}
             style={{ height: `${zones.topSafeMargin}%` }}
           >
             {!isThumbnail && (
@@ -301,7 +393,7 @@ const MetaZoneOverlay: React.FC<MetaZoneOverlayProps> = ({
 
           {/* Left Side Safe Margin */}
           <div 
-            className="absolute top-0 left-0 bottom-0 bg-red-500 bg-opacity-30"
+            className={`absolute top-0 left-0 bottom-0 bg-red-500 ${size === 'lightbox' ? 'bg-opacity-40' : 'bg-opacity-20'}`}
             style={{ width: `${zones.leftSafeMargin}%` }}
           >
             {!isThumbnail && (
@@ -315,7 +407,7 @@ const MetaZoneOverlay: React.FC<MetaZoneOverlayProps> = ({
 
           {/* Right Side Safe Margin */}
           <div 
-            className="absolute top-0 right-0 bottom-0 bg-red-500 bg-opacity-30"
+            className={`absolute top-0 right-0 bottom-0 bg-red-500 ${size === 'lightbox' ? 'bg-opacity-40' : 'bg-opacity-20'}`}
             style={{ width: `${zones.rightSafeMargin}%` }}
           >
             {!isThumbnail && (
@@ -330,7 +422,7 @@ const MetaZoneOverlay: React.FC<MetaZoneOverlayProps> = ({
           {/* Reels: Complex Lower Right Zone */}
           {zones.lowerRightZone && (
             <div 
-              className="absolute right-0 bg-red-500 bg-opacity-30"
+              className={`absolute right-0 bg-red-500 ${size === 'lightbox' ? 'bg-opacity-40' : 'bg-opacity-20'}`}
               style={{ 
                 top: `${100 - zones.lowerRightZone.zoneHeight}%`,
                 height: `${zones.lowerRightZone.zoneHeight}%`,
@@ -349,7 +441,7 @@ const MetaZoneOverlay: React.FC<MetaZoneOverlayProps> = ({
 
           {/* Bottom Safe Margin */}
           <div 
-            className="absolute bottom-0 left-0 right-0 bg-red-500 bg-opacity-30"
+            className={`absolute bottom-0 left-0 right-0 bg-red-500 ${size === 'lightbox' ? 'bg-opacity-40' : 'bg-opacity-20'}`}
             style={{ height: `${zones.bottomSafeMargin}%` }}
           >
             {!isThumbnail && (
@@ -364,7 +456,7 @@ const MetaZoneOverlay: React.FC<MetaZoneOverlayProps> = ({
           {/* Safe Zone */}
           {!isThumbnail && (
             <div 
-              className="absolute bg-green-500 bg-opacity-10 border border-green-400 border-dashed"
+              className={`absolute ${size === 'lightbox' ? 'bg-green-500 bg-opacity-25 border-4 border-green-500' : 'bg-green-500 bg-opacity-10 border border-green-400'} border-dashed`}
               style={{ 
                 top: `${zones.topSafeMargin}%`, 
                 left: `${zones.leftSafeMargin}%`, 
@@ -400,11 +492,11 @@ const MetaZoneOverlay: React.FC<MetaZoneOverlayProps> = ({
         onLoad={onImageLoad}
       />
       
-      {/* Zone Overlays - Same structure as video but simplified for thumbnails */}
+      {/* Zone Overlays - Show for both thumbnail and lightbox */}
       <div className="absolute inset-0 pointer-events-none">
         {/* Top Safe Margin */}
         <div 
-          className="absolute top-0 left-0 right-0 bg-red-500 bg-opacity-30"
+          className={`absolute top-0 left-0 right-0 bg-red-500 ${size === 'lightbox' ? 'bg-opacity-40' : 'bg-opacity-20'}`}
           style={{ height: `${zones.topSafeMargin}%` }}
         >
           {!isThumbnail && (
@@ -418,7 +510,7 @@ const MetaZoneOverlay: React.FC<MetaZoneOverlayProps> = ({
 
         {/* Left Side Safe Margin */}
         <div 
-          className="absolute top-0 left-0 bottom-0 bg-red-500 bg-opacity-30"
+          className={`absolute top-0 left-0 bottom-0 bg-red-500 ${size === 'lightbox' ? 'bg-opacity-40' : 'bg-opacity-20'}`}
           style={{ width: `${zones.leftSafeMargin}%` }}
         >
           {!isThumbnail && (
@@ -432,7 +524,7 @@ const MetaZoneOverlay: React.FC<MetaZoneOverlayProps> = ({
 
         {/* Right Side Safe Margin */}
         <div 
-          className="absolute top-0 right-0 bottom-0 bg-red-500 bg-opacity-30"
+          className={`absolute top-0 right-0 bottom-0 bg-red-500 ${size === 'lightbox' ? 'bg-opacity-40' : 'bg-opacity-20'}`}
           style={{ width: `${zones.rightSafeMargin}%` }}
         >
           {!isThumbnail && (
@@ -447,7 +539,7 @@ const MetaZoneOverlay: React.FC<MetaZoneOverlayProps> = ({
         {/* Stories: Complex Lower Right Zone (for images too if detected as video format) */}
         {isReels && zones.lowerRightZone && (
           <div 
-            className="absolute right-0 bg-red-500 bg-opacity-30"
+            className={`absolute right-0 bg-red-500 ${size === 'lightbox' ? 'bg-opacity-40' : 'bg-opacity-20'}`}
             style={{ 
               top: `${100 - zones.lowerRightZone.zoneHeight}%`,
               height: `${zones.lowerRightZone.zoneHeight}%`,
@@ -466,7 +558,7 @@ const MetaZoneOverlay: React.FC<MetaZoneOverlayProps> = ({
 
         {/* Bottom Safe Margin */}
         <div 
-          className="absolute bottom-0 left-0 right-0 bg-red-500 bg-opacity-30"
+          className={`absolute bottom-0 left-0 right-0 bg-red-500 ${size === 'lightbox' ? 'bg-opacity-40' : 'bg-opacity-20'}`}
           style={{ height: `${zones.bottomSafeMargin}%` }}
         >
           {!isThumbnail && (
@@ -478,10 +570,10 @@ const MetaZoneOverlay: React.FC<MetaZoneOverlayProps> = ({
           )}
         </div>
 
-        {/* Safe Zone - Only show detailed info in lightbox */}
+        {/* Safe Zone - Show for both thumbnail and lightbox */}
         {!isThumbnail && (
           <div 
-            className="absolute bg-green-500 bg-opacity-10 border border-green-400 border-dashed"
+            className={`absolute ${size === 'lightbox' ? 'bg-green-500 bg-opacity-25 border-4 border-green-500' : 'bg-green-500 bg-opacity-10 border border-green-400'} border-dashed`}
             style={{ 
               top: `${zones.topSafeMargin}%`, 
               left: `${zones.leftSafeMargin}%`, 

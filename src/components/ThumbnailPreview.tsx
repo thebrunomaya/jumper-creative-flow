@@ -4,6 +4,7 @@ import { ValidatedFile } from '@/types/creative';
 import { Button } from '@/components/ui/button';
 import { Play, FileText } from 'lucide-react';
 import { getThumbnailDimensions, createMockupFile } from '@/utils/thumbnailUtils';
+import MetaZoneOverlay from './MetaZoneOverlay';
 
 interface ThumbnailPreviewProps {
   format: 'square' | 'vertical' | 'horizontal';
@@ -74,7 +75,7 @@ const ThumbnailPreview: React.FC<ThumbnailPreviewProps> = ({
     );
   }
 
-  // Handle file preview
+  // Handle file preview with overlay
   const isVideo = file.file.type.startsWith('video/');
   const isValid = file.valid;
 
@@ -88,32 +89,25 @@ const ThumbnailPreview: React.FC<ThumbnailPreviewProps> = ({
       >
         <div className="w-full h-full relative overflow-hidden rounded">
           {file.preview ? (
-            <>
-              {isVideo ? (
-                <video
-                  src={file.preview}
-                  className="w-full h-full object-cover"
-                  muted
-                  playsInline
-                />
-              ) : (
-                <img
-                  src={file.preview}
-                  alt="Preview"
-                  className="w-full h-full object-cover"
-                />
-              )}
-              {isVideo && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30">
-                  <div className="bg-white bg-opacity-90 rounded-full p-2">
-                    <Play className="h-4 w-4 text-gray-800 fill-current" />
-                  </div>
-                </div>
-              )}
-            </>
+            <MetaZoneOverlay
+              imageUrl={file.preview}
+              format={format}
+              file={file.file}
+              size="thumbnail"
+              carouselMode={carouselMode}
+              carouselAspectRatio={carouselAspectRatio}
+            />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-gray-200">
               <FileText className="h-6 w-6 text-gray-400" />
+            </div>
+          )}
+          
+          {isVideo && file.preview && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30">
+              <div className="bg-white bg-opacity-90 rounded-full p-2">
+                <Play className="h-4 w-4 text-gray-800 fill-current" />
+              </div>
             </div>
           )}
         </div>
