@@ -95,7 +95,7 @@ const ThumbnailPreview: React.FC<ThumbnailPreviewProps> = ({
       <div className="relative" style={{ width: `${width}px`, height: `${height}px` }}>
         <Button
           variant="ghost"
-          className="w-full h-full p-0 rounded border-2 border-dashed border-gray-300 hover:border-gray-400 transition-colors"
+          className="w-full h-full p-0 rounded border hover:opacity-80 transition-opacity"
           onClick={onPreviewClick}
         >
           <div className="w-full h-full relative overflow-hidden rounded">
@@ -110,8 +110,8 @@ const ThumbnailPreview: React.FC<ThumbnailPreviewProps> = ({
           </div>
         </Button>
         
-        {/* Format indicator */}
-        <div className="absolute bottom-1 right-1">
+        {/* Format indicator - moved to top-left */}
+        <div className="absolute top-1 left-1">
           <div className="bg-gray-600 bg-opacity-90 text-white text-xs px-1.5 py-0.5 rounded">
             {carouselMode 
               ? (carouselAspectRatio === '1:1' ? '1:1' : '4:5')

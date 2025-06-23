@@ -1,3 +1,4 @@
+
 export const getThumbnailDimensions = (format: 'square' | 'vertical' | 'horizontal', carouselMode = false, carouselAspectRatio?: '1:1' | '4:5') => {
   // Container é 160x160px com margem de 16px (total área disponível: 128x128px)
   const maxWidth = 128;
@@ -102,13 +103,26 @@ export const createMockupFile = (format: 'square' | 'vertical' | 'horizontal', c
       }
     }
     
+    // Preencher o fundo com gradiente
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     
+    // Adicionar área de proteção (margem interna)
+    const margin = canvas.width * 0.1; // 10% de margem
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([8, 4]);
+    ctx.strokeRect(margin, margin, canvas.width - margin * 2, canvas.height - margin * 2);
+    
+    // Resetar linha tracejada
+    ctx.setLineDash([]);
+    
+    // Borda externa sólida
     ctx.strokeStyle = '#e5e7eb';
     ctx.lineWidth = 2;
     ctx.strokeRect(1, 1, canvas.width - 2, canvas.height - 2);
     
+    // Texto central
     ctx.fillStyle = '#374151';
     ctx.font = 'bold 16px system-ui, -apple-system, sans-serif';
     ctx.textAlign = 'center';
