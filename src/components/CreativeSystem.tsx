@@ -20,7 +20,9 @@ import { validateCreativeName } from '@/utils/creativeName';
 const INITIAL_FORM_DATA: FormData = {
   client: '',
   partner: '', // Mantemos por compatibilidade mas não será usado
-  platform: '',
+  platform: undefined, // Changed from '' to undefined to match the type
+  campaignObjective: undefined,
+  creativeName: '', // Add the new creativeName field
   creativeType: undefined,
   objective: undefined,
   files: [],
@@ -41,6 +43,8 @@ const INITIAL_FORM_DATA: FormData = {
   observations: ''
 };
 
+// ... keep existing code (STEP_LABELS constant and CreativeSystem component definition)
+
 const STEP_LABELS = ['Básico', 'Arquivos', 'Conteúdo', 'Revisão'];
 
 const CreativeSystem: React.FC = () => {
@@ -54,6 +58,7 @@ const CreativeSystem: React.FC = () => {
   const { clients } = useNotionClients();
   const { currentUser } = useAuth();
 
+  // ... keep existing code (all methods and logic remain the same)
   const updateFormData = (newData: Partial<FormData>) => {
     setFormData(prev => ({ ...prev, ...newData }));
     // Clear related errors when user updates the field
@@ -394,6 +399,7 @@ const CreativeSystem: React.FC = () => {
         partner: formData.partner,
         platform: formData.platform,
         campaignObjective: formData.campaignObjective,
+        creativeName: formData.creativeName, // Add the creative name
         creativeType: formData.creativeType,
         objective: formData.objective,
         // For existing-post, send empty arrays for text fields
