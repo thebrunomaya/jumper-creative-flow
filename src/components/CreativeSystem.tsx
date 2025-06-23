@@ -325,9 +325,8 @@ const CreativeSystem: React.FC = () => {
           variationIndex: 1
         });
       } else if (formData.creativeType === 'carousel' && formData.carouselCards) {
+        // CORREÇÃO: Todos os cards do carrossel usam variationIndex: 1 para criar um único criativo
         for (const card of formData.carouselCards) {
-          const index = formData.carouselCards.indexOf(card);
-          
           if (card.file) {
             const base64Data = await convertFileToBase64(card.file.file);
             filesInfo.push({
@@ -335,7 +334,7 @@ const CreativeSystem: React.FC = () => {
               type: card.file.file.type,
               size: card.file.file.size,
               format: `carousel-${formData.carouselAspectRatio}`,
-              variationIndex: index + 1,
+              variationIndex: 1, // Todos os cards usam variationIndex: 1 para um único criativo
               base64Data
             });
           }
