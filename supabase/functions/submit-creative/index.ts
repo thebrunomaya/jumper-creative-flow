@@ -14,7 +14,7 @@ interface CreativeSubmissionData {
   campaignObjective?: string;
   creativeType?: string;
   objective?: string;
-  creativeName: string; // New field
+  creativeName: string;
   mainTexts: string[];
   titles: string[];
   description: string;
@@ -23,6 +23,10 @@ interface CreativeSubmissionData {
   destinationUrl: string;
   callToAction: string;
   observations: string;
+  existingPost?: {
+    instagramUrl: string;
+    valid: boolean;
+  };
   filesInfo: Array<{
     name: string;
     type: string;
@@ -30,6 +34,7 @@ interface CreativeSubmissionData {
     format?: string;
     variationIndex?: number;
     base64Data?: string;
+    instagramUrl?: string;
   }>;
 }
 
@@ -171,7 +176,7 @@ const createNotionCreative = async (
   totalVariations: number,
   NOTION_TOKEN: string,
   DB_CRIATIVOS_ID: string,
-  clientData: any // Add client data parameter
+  clientData: any
 ) => {
   const notionUrl = `https://api.notion.com/v1/pages`;
   
@@ -312,6 +317,14 @@ const createNotionCreative = async (
       }
     }
   };
+
+  // Add Instagram post URL to "Publicação" property for existing-post type
+  if (creativeData.creativeType === 'existing-post' && creativeData.existingPost?.instagramUrl) {
+    notionPayload.properties["Publicação"] = {
+      url: creativeData.existingPost.instagramUrl
+    };
+    console.log(`📱 Added Instagram post URL to Publicação property: ${creativeData.existingPost.instagramUrl}`);
+  }
 
   // Add uploaded files to the "Arquivos" property
   if (variationFiles.length > 0) {
@@ -481,6 +494,7 @@ serve(async (req) => {
     console.log('- cta:', creativeData.cta)
     console.log('- callToAction:', creativeData.callToAction)
     console.log('- observations:', creativeData.observations)
+    console.log('- existingPost:', creativeData.existingPost)
 
     // Fetch client data from Notion to get account name and ID
     console.log('🔍 Fetching client data from Notion...');

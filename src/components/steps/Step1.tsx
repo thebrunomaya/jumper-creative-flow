@@ -5,6 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
 import { useNotionClients } from '@/hooks/useNotionData';
 import { Skeleton } from '@/components/ui/skeleton';
 import { validateCreativeName, previewCreativeNameDetailed } from '@/utils/creativeName';
@@ -106,17 +107,18 @@ const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
           </Card>
           
           <Card 
-            className={`cursor-pointer transition-all duration-200 hover:shadow-lg ${
-              formData.platform === 'google' 
-                ? 'ring-2 ring-jumper-blue bg-blue-50' 
-                : 'hover:shadow-md'
-            }`}
-            onClick={() => updateFormData({ platform: 'google', campaignObjective: undefined, creativeType: undefined, objective: undefined, creativeName: '' })}
+            className="cursor-not-allowed transition-all duration-200 opacity-50 relative"
           >
             <CardContent className="p-6 text-center">
               <div className="text-4xl mb-3">🔍</div>
-              <h3 className="font-semibold text-jumper-text">Google Ads</h3>
-              <p className="text-sm text-gray-600 mt-1">Search & Display</p>
+              <h3 className="font-semibold text-gray-500">Google Ads</h3>
+              <p className="text-sm text-gray-400 mt-1">Search & Display</p>
+              <Badge 
+                variant="secondary" 
+                className="absolute -top-2 -right-2 bg-gradient-to-r from-orange-400 to-yellow-500 text-white text-xs px-2 py-1 shadow-lg"
+              >
+                Em Breve
+              </Badge>
             </CardContent>
           </Card>
         </div>
@@ -168,7 +170,17 @@ const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
                 <SelectContent>
                   <SelectItem value="single">🖼️ Imagem/Vídeo Único</SelectItem>
                   <SelectItem value="carousel">🎠 Carrossel</SelectItem>
-                  <SelectItem value="collection">🏪 Coleção</SelectItem>
+                  <SelectItem value="collection" disabled className="opacity-50 cursor-not-allowed">
+                    <div className="flex items-center justify-between w-full">
+                      <span className="text-gray-400">🏪 Coleção</span>
+                      <Badge 
+                        variant="outline" 
+                        className="ml-2 text-xs border-orange-300 text-orange-600 bg-orange-50"
+                      >
+                        Em Breve
+                      </Badge>
+                    </div>
+                  </SelectItem>
                   <SelectItem value="existing-post">📱 Publicação Existente</SelectItem>
                 </SelectContent>
               </Select>
