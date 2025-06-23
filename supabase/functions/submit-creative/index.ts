@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
@@ -359,10 +358,19 @@ const createNotionCreative = async (
   const creativeId = `JSC-${notionResult.properties.ID.unique_id.number}`;
   console.log(`🆔 Generated creative ID for variation ${variationIndex}:`, creativeId);
   
-  // Extract the real account ID from client data
+  // Extract the real account ID and name from client data with proper fallbacks
   let accountId = creativeData.client; // fallback to page ID
-  let accountName = clientData.name;
+  let accountName = 'Unknown Account'; // default fallback
   
+  // Extract account name from Notion properties
+  if (clientData.properties && clientData.properties.Conta && clientData.properties.Conta.title && clientData.properties.Conta.title[0]) {
+    accountName = clientData.properties.Conta.title[0].plain_text || 'Unknown Account';
+    console.log(`📊 Extracted account name: ${accountName}`);
+  } else {
+    console.warn('⚠️ Could not extract account name from Notion properties, using fallback');
+  }
+  
+  // Extract account ID from Notion properties
   if (clientData.properties && clientData.properties.ID && clientData.properties.ID.unique_id) {
     accountId = clientData.properties.ID.unique_id.number.toString();
     console.log(`📊 Extracted real account ID: ${accountId}`);
