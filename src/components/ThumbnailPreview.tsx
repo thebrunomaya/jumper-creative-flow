@@ -3,7 +3,7 @@ import React from 'react';
 import { ValidatedFile } from '@/types/creative';
 import { Button } from '@/components/ui/button';
 import { Play, Image, FileText, Instagram } from 'lucide-react';
-import { getThumbnailDimensions } from '@/utils/thumbnailUtils';
+import { getThumbnailDimensions, createMockupFile } from '@/utils/thumbnailUtils';
 
 interface ThumbnailPreviewProps {
   format: 'square' | 'vertical' | 'horizontal';
@@ -87,21 +87,37 @@ const ThumbnailPreview: React.FC<ThumbnailPreviewProps> = ({
     );
   }
 
-  // Handle empty state (no file)
+  // Handle empty state (no file) - Show beautiful mockup
   if (!file) {
+    const mockupSrc = createMockupFile(format, carouselMode, carouselAspectRatio);
+    
     return (
-      <div 
-        className="flex items-center justify-center bg-gray-100 rounded border-2 border-dashed border-gray-300"
-        style={{ width: `${width}px`, height: `${height}px` }}
-      >
-        <div className="text-center">
-          <Image className="h-6 w-6 text-gray-400 mx-auto mb-1" />
-          <span className="text-xs text-gray-500">
+      <div className="relative" style={{ width: `${width}px`, height: `${height}px` }}>
+        <Button
+          variant="ghost"
+          className="w-full h-full p-0 rounded border-2 border-dashed border-gray-300 hover:border-gray-400 transition-colors"
+          onClick={onPreviewClick}
+        >
+          <div className="w-full h-full relative overflow-hidden rounded">
+            <img
+              src={mockupSrc}
+              alt={`Preview ${carouselMode 
+                ? (carouselAspectRatio === '1:1' ? '1:1' : '4:5')
+                : format
+              }`}
+              className="w-full h-full object-cover"
+            />
+          </div>
+        </Button>
+        
+        {/* Format indicator */}
+        <div className="absolute bottom-1 right-1">
+          <div className="bg-gray-600 bg-opacity-90 text-white text-xs px-1.5 py-0.5 rounded">
             {carouselMode 
               ? (carouselAspectRatio === '1:1' ? '1:1' : '4:5')
-              : format
+              : (format === 'square' ? '1:1' : format === 'vertical' ? '9:16' : '1.91:1')
             }
-          </span>
+          </div>
         </div>
       </div>
     );
