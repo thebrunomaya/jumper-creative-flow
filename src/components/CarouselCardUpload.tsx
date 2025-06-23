@@ -29,25 +29,28 @@ const CarouselCardUpload: React.FC<CarouselCardUploadProps> = ({
   const format = aspectRatio === '1:1' ? 'carousel-1:1' : 'carousel-4:5';
   const dimensions = aspectRatio === '1:1' ? '1080x1080px (1:1)' : '1080x1350px (4:5)';
 
-  const onDrop = useCallback(async (acceptedFiles: File[]) => {
-    if (acceptedFiles.length === 0) return;
-    
-    console.log('CarouselCardUpload onDrop - Processing file:', {
-      fileName: acceptedFiles[0].name,
-      fileType: acceptedFiles[0].type,
+  const processFile = useCallback(async (selectedFile: File) => {
+    console.log('CarouselCardUpload - Processing file:', {
+      fileName: selectedFile.name,
+      fileType: selectedFile.type,
       format: format,
       aspectRatio: aspectRatio
     });
     
     setIsValidating(true);
-    const validatedFile = await validateFile(acceptedFiles[0], format);
-    console.log('CarouselCardUpload onDrop - Validation complete:', {
+    const validatedFile = await validateFile(selectedFile, format);
+    console.log('CarouselCardUpload - Validation complete:', {
       valid: validatedFile.valid,
       hasPreview: !!validatedFile.preview
     });
     onFileChange(validatedFile);
     setIsValidating(false);
   }, [onFileChange, format, aspectRatio]);
+
+  const onDrop = useCallback(async (acceptedFiles: File[]) => {
+    if (acceptedFiles.length === 0) return;
+    await processFile(acceptedFiles[0]);
+  }, [processFile]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -59,16 +62,25 @@ const CarouselCardUpload: React.FC<CarouselCardUploadProps> = ({
     maxFiles: 1
   });
 
-  const removeFile = () => {
-    onFileChange(undefined);
-  };
-
-  const handleReplace = () => {
-    document.getElementById(`replace-carousel-${card.id}`)?.click();
-  };
-
   const handleUploadClick = () => {
-    document.getElementById(`replace-carousel-${card.id}`)?.click();
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*,video/mp4,video/mov,video/quicktime';
+    input.onchange = (event) => {
+      const files = (event.target as HTMLInputElement).files;
+      if (files && files.length > 0) {
+        processFile(files[0]);
+      }
+    };
+    input.click();
+  };
+
+  const handleReplaceClick = () => {
+    handleUploadClick();
+  };
+
+  const handleRemoveClick = () => {
+    onFileChange(undefined);
   };
 
   return (
@@ -78,10 +90,10 @@ const CarouselCardUpload: React.FC<CarouselCardUploadProps> = ({
         format="square" // Use square for both 1:1 and 4:5 to maintain base format
         dimensions={dimensions}
         file={card.file}
-        onPreviewClick={() => setLightboxOpen(true)}
+        onPreviewClick={() => card.file && setLightboxOpen(true)}
         onUploadClick={handleUploadClick}
-        onReplaceClick={handleReplace}
-        onRemoveClick={removeFile}
+        onReplaceClick={handleReplaceClick}
+        onRemoveClick={handleRemoveClick}
         enabled={true}
         carouselMode={true}
         carouselAspectRatio={aspectRatio}
@@ -92,20 +104,7 @@ const CarouselCardUpload: React.FC<CarouselCardUploadProps> = ({
         showHeader={true}
         onRemove={onRemove}
         canRemove={canRemove}
-      />
-
-      {/* Hidden file input for replacement */}
-      <input
-        id={`replace-carousel-${card.id}`}
-        type="file"
-        accept="image/*,video/mp4,video/mov,video/quicktime"
-        onChange={(e) => {
-          const files = e.target.files;
-          if (files && files.length > 0) {
-            onDrop([files[0]]);
-          }
-        }}
-        style={{ display: 'none' }}
+        urlMode={false}
       />
 
       {/* Media Preview Lightbox */}

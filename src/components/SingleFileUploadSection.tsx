@@ -69,6 +69,8 @@ const SingleFileUploadSection: React.FC<SingleFileUploadSectionProps> = ({
   });
 
   const handleUploadClick = () => {
+    if (!enabled) return;
+    
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'image/*,video/mp4,video/mov,video/quicktime';
@@ -115,7 +117,7 @@ const SingleFileUploadSection: React.FC<SingleFileUploadSectionProps> = ({
         format={format}
         dimensions={dimensions}
         file={file}
-        onPreviewClick={() => setLightboxOpen(true)}
+        onPreviewClick={() => file && setLightboxOpen(true)}
         onUploadClick={handleUploadClick}
         onReplaceClick={handleReplaceClick}
         onRemoveClick={handleRemoveClick}
@@ -124,6 +126,7 @@ const SingleFileUploadSection: React.FC<SingleFileUploadSectionProps> = ({
         getInputProps={getInputProps}
         isDragActive={isDragActive}
         isValidating={isValidating}
+        urlMode={false}
       />
 
       {/* Media Preview Lightbox */}

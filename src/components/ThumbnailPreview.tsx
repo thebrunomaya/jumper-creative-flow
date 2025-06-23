@@ -3,6 +3,7 @@ import React from 'react';
 import { ValidatedFile } from '@/types/creative';
 import { Button } from '@/components/ui/button';
 import { Play, Image, FileText, Instagram } from 'lucide-react';
+import { getThumbnailDimensions } from '@/utils/thumbnailUtils';
 
 interface ThumbnailPreviewProps {
   format: 'square' | 'vertical' | 'horizontal';
@@ -25,11 +26,17 @@ const ThumbnailPreview: React.FC<ThumbnailPreviewProps> = ({
   urlMode = false,
   existingPostData
 }) => {
+  // Get thumbnail dimensions for proper sizing
+  const { width, height } = getThumbnailDimensions(format, carouselMode, carouselAspectRatio);
+
   // Handle URL mode with simple Instagram thumbnail
   if (urlMode) {
     if (!existingPostData || !existingPostData.valid) {
       return (
-        <div className="w-full h-full flex items-center justify-center bg-gray-100 rounded border-2 border-dashed border-gray-300">
+        <div 
+          className="flex items-center justify-center bg-gray-100 rounded border-2 border-dashed border-gray-300"
+          style={{ width: `${width}px`, height: `${height}px` }}
+        >
           <div className="text-center">
             <Instagram className="h-8 w-8 text-gray-400 mx-auto mb-2" />
             <span className="text-xs text-gray-500">Instagram Post</span>
@@ -40,7 +47,7 @@ const ThumbnailPreview: React.FC<ThumbnailPreviewProps> = ({
 
     // Simple Instagram thumbnail with click functionality
     return (
-      <div className="w-full h-full relative flex items-center justify-center">
+      <div className="relative" style={{ width: `${width}px`, height: `${height}px` }}>
         <Button
           variant="ghost"
           className="w-full h-full p-0 rounded border hover:opacity-80 transition-opacity cursor-pointer"
@@ -48,7 +55,7 @@ const ThumbnailPreview: React.FC<ThumbnailPreviewProps> = ({
         >
           <div className="w-full h-full relative overflow-hidden rounded bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 flex items-center justify-center">
             <div className="text-center text-white p-2">
-              <Instagram className="h-8 w-8 mx-auto mb-2" />
+              <Instagram className="h-6 w-6 mx-auto mb-1" />
               <div className="text-xs font-medium">Instagram</div>
               <div className="text-xs opacity-90">Post</div>
             </div>
@@ -65,47 +72,47 @@ const ThumbnailPreview: React.FC<ThumbnailPreviewProps> = ({
     );
   }
 
-  // Handle file mode (existing logic)
+  // Handle disabled state
   if (!enabled) {
     return (
-      <div className="w-full h-full flex items-center justify-center bg-gray-100 rounded opacity-50">
+      <div 
+        className="flex items-center justify-center bg-gray-100 rounded opacity-50"
+        style={{ width: `${width}px`, height: `${height}px` }}
+      >
         <div className="text-center">
-          <FileText className="h-8 w-8 text-gray-400 mx-auto mb-1" />
+          <FileText className="h-6 w-6 text-gray-400 mx-auto mb-1" />
           <span className="text-xs text-gray-500">Desativado</span>
         </div>
       </div>
     );
   }
 
+  // Handle empty state (no file)
   if (!file) {
-    if (carouselMode) {
-      return (
-        <div className={`w-full h-full flex items-center justify-center bg-gray-100 rounded border-2 border-dashed border-gray-300`}>
-          <div className="text-center">
-            <Image className="h-8 w-8 text-gray-400 mx-auto mb-1" />
-            <span className="text-xs text-gray-500">
-              {carouselAspectRatio === '1:1' ? '1:1' : '4:5'}
-            </span>
-          </div>
-        </div>
-      );
-    }
-
     return (
-      <div className={`w-full h-full flex items-center justify-center bg-gray-100 rounded border-2 border-dashed border-gray-300`}>
+      <div 
+        className="flex items-center justify-center bg-gray-100 rounded border-2 border-dashed border-gray-300"
+        style={{ width: `${width}px`, height: `${height}px` }}
+      >
         <div className="text-center">
-          <Image className="h-8 w-8 text-gray-400 mx-auto mb-1" />
-          <span className="text-xs text-gray-500">{format}</span>
+          <Image className="h-6 w-6 text-gray-400 mx-auto mb-1" />
+          <span className="text-xs text-gray-500">
+            {carouselMode 
+              ? (carouselAspectRatio === '1:1' ? '1:1' : '4:5')
+              : format
+            }
+          </span>
         </div>
       </div>
     );
   }
 
+  // Handle file preview
   const isVideo = file.file.type.startsWith('video/');
   const isValid = file.valid;
 
   return (
-    <div className="w-full h-full relative">
+    <div className="relative" style={{ width: `${width}px`, height: `${height}px` }}>
       <Button
         variant="ghost"
         className="w-full h-full p-0 rounded border hover:opacity-80 transition-opacity"
@@ -115,11 +122,20 @@ const ThumbnailPreview: React.FC<ThumbnailPreviewProps> = ({
         <div className="w-full h-full relative overflow-hidden rounded">
           {file.preview ? (
             <>
-              <img
-                src={file.preview}
-                alt="Preview"
-                className="w-full h-full object-cover"
-              />
+              {isVideo ? (
+                <video
+                  src={file.preview}
+                  className="w-full h-full object-cover"
+                  muted
+                  playsInline
+                />
+              ) : (
+                <img
+                  src={file.preview}
+                  alt="Preview"
+                  className="w-full h-full object-cover"
+                />
+              )}
               {isVideo && (
                 <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30">
                   <div className="bg-white bg-opacity-90 rounded-full p-2">
@@ -130,7 +146,7 @@ const ThumbnailPreview: React.FC<ThumbnailPreviewProps> = ({
             </>
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-gray-200">
-              <FileText className="h-8 w-8 text-gray-400" />
+              <FileText className="h-6 w-6 text-gray-400" />
             </div>
           )}
         </div>
