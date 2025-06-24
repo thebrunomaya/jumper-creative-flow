@@ -2,7 +2,7 @@
 import React from 'react';
 import { ValidatedFile } from '@/types/creative';
 import { Button } from '@/components/ui/button';
-import { Play, FileText } from 'lucide-react';
+import { Play, FileText, Instagram } from 'lucide-react';
 import { getThumbnailDimensions, createMockupFile } from '@/utils/thumbnailUtils';
 import MetaZoneOverlay from './MetaZoneOverlay';
 
@@ -13,6 +13,8 @@ interface ThumbnailPreviewProps {
   carouselMode?: boolean;
   carouselAspectRatio?: '1:1' | '4:5';
   enabled: boolean;
+  urlMode?: boolean;
+  existingPostData?: any;
 }
 
 const ThumbnailPreview: React.FC<ThumbnailPreviewProps> = ({
@@ -21,7 +23,9 @@ const ThumbnailPreview: React.FC<ThumbnailPreviewProps> = ({
   onPreviewClick,
   carouselMode = false,
   carouselAspectRatio = '1:1',
-  enabled
+  enabled,
+  urlMode = false,
+  existingPostData
 }) => {
   // Get thumbnail dimensions for proper sizing
   const { width, height } = getThumbnailDimensions(format, carouselMode, carouselAspectRatio);
@@ -41,7 +45,76 @@ const ThumbnailPreview: React.FC<ThumbnailPreviewProps> = ({
     );
   }
 
-  // Handle empty state (no file) - Show beautiful mockup
+  // Handle URL mode (existing post) - Create Instagram-style thumbnail
+  if (urlMode) {
+    const createInstagramMockup = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = width * 2;
+      canvas.height = height * 2;
+      
+      const ctx = canvas.getContext('2d');
+      
+      if (ctx) {
+        // Instagram gradient background
+        const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+        gradient.addColorStop(0, '#405DE6');
+        gradient.addColorStop(0.25, '#5851DB');
+        gradient.addColorStop(0.5, '#833AB4');
+        gradient.addColorStop(0.75, '#C13584');
+        gradient.addColorStop(1, '#E1306C');
+        
+        // Fill background
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // Add Instagram icon placeholder
+        ctx.fillStyle = 'white';
+        ctx.font = 'bold 32px system-ui, -apple-system, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('📱', canvas.width / 2, canvas.height / 2 - 20);
+        
+        // Add text
+        ctx.font = 'bold 12px system-ui, -apple-system, sans-serif';
+        ctx.fillText('Instagram', canvas.width / 2, canvas.height / 2 + 15);
+      }
+      
+      return canvas.toDataURL('image/png');
+    };
+
+    return (
+      <div className="relative" style={{ width: `${width}px`, height: `${height}px` }}>
+        <Button
+          variant="ghost"
+          className="w-full h-full p-0 hover:opacity-80 transition-opacity border-0"
+          onClick={onPreviewClick}
+        >
+          <img
+            src={createInstagramMockup()}
+            alt="Instagram Post Preview"
+            className="w-full h-full object-cover rounded"
+          />
+        </Button>
+        
+        {/* Status indicator */}
+        <div className="absolute top-1 right-1">
+          <div className={`w-3 h-3 rounded-full ${
+            existingPostData?.valid ? 'bg-green-500' : 'bg-gray-400'
+          }`}></div>
+        </div>
+
+        {/* Instagram indicator */}
+        <div className="absolute top-1 left-1">
+          <div className="bg-white bg-opacity-90 text-pink-600 text-xs px-1.5 py-0.5 rounded flex items-center gap-1">
+            <Instagram className="h-3 w-3" />
+            <span>Post</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Handle empty state (no file) - Show beautiful mockup for regular media
   if (!file) {
     const mockupSrc = createMockupFile(format, carouselMode, carouselAspectRatio);
     

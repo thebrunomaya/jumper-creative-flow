@@ -36,7 +36,7 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ formData, clients }) => {
     });
   }
   
-  // Tipo de Anúncio (só para Meta) - mostra exatamente o que o usuário vê
+  // Tipo de Anúncio - mostra o nome correto baseado no tipo
   if (formData.platform === 'meta' && formData.creativeType) {
     let typeLabel = '';
     
@@ -46,6 +46,8 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ formData, clients }) => {
       typeLabel = 'Carrossel';
     } else if (formData.creativeType === 'collection') {
       typeLabel = 'Coleção';
+    } else if (formData.creativeType === 'existing-post') {
+      typeLabel = 'Publicação Existente';
     } else {
       typeLabel = formData.creativeType;
     }
