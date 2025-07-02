@@ -11,45 +11,45 @@
   font-display: swap;
 }
 
-/* Jumper Studio Design System */
+/* Jumper Studio Design System - Lo-Fi Black */
 @layer base {
   :root {
-    /* Jumper Brand Colors - Orange to Red Gradient */
+    /* Jumper Brand Colors - Lo-Fi Black Theme */
     --jumper-orange: 25 100% 61%;     /* #FF8A3D */
     --jumper-red: 11 83% 51%;         /* #DC2626 */
     --jumper-dark: 0 0% 7%;           /* #1A1A1A */
     --jumper-black: 0 0% 0%;          /* #000000 */
     
-    /* Semantic Color System */
-    --background: 0 0% 100%;
-    --foreground: var(--jumper-dark);
+    /* Lo-Fi Black Color System */
+    --background: var(--jumper-black);
+    --foreground: 0 0% 95%;           /* Almost white */
 
-    --card: 0 0% 100%;
-    --card-foreground: var(--jumper-dark);
+    --card: var(--jumper-dark);
+    --card-foreground: 0 0% 95%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: var(--jumper-dark);
+    --popover: var(--jumper-dark);
+    --popover-foreground: 0 0% 95%;
 
-    --primary: var(--jumper-red);
-    --primary-foreground: 0 0% 100%;
+    --primary: var(--jumper-orange);
+    --primary-foreground: var(--jumper-black);
 
-    --secondary: var(--jumper-orange);
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 0 0% 15%;            /* Dark gray */
+    --secondary-foreground: 0 0% 95%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 0 0% 10%;                /* Very dark gray */
+    --muted-foreground: 0 0% 65%;     /* Medium gray */
 
     --accent: var(--jumper-orange);
-    --accent-foreground: 0 0% 100%;
+    --accent-foreground: var(--jumper-black);
 
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 0 0% 95%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: var(--jumper-red);
+    --border: 0 0% 20%;               /* Dark border */
+    --input: 0 0% 15%;                /* Dark input bg */
+    --ring: var(--jumper-orange);
 
-    --radius: 0.75rem;
+    --radius: 0.25rem;                /* More squared */
 
     /* Jumper Gradients */
     --gradient-jumper: linear-gradient(135deg, hsl(var(--jumper-orange)), hsl(var(--jumper-red)));
@@ -57,17 +57,18 @@
     --gradient-jumper-subtle: linear-gradient(135deg, hsl(var(--jumper-orange) / 0.1), hsl(var(--jumper-red) / 0.1));
 
     /* Sidebar */
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: var(--jumper-dark);
-    --sidebar-primary: var(--jumper-red);
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: var(--jumper-dark);
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: var(--jumper-red);
+    --sidebar-background: var(--jumper-dark);
+    --sidebar-foreground: 0 0% 95%;
+    --sidebar-primary: var(--jumper-orange);
+    --sidebar-primary-foreground: var(--jumper-black);
+    --sidebar-accent: 0 0% 15%;
+    --sidebar-accent-foreground: 0 0% 95%;
+    --sidebar-border: 0 0% 20%;
+    --sidebar-ring: var(--jumper-orange);
   }
 
   .dark {
+    /* Keep dark mode same as default for lo-fi black theme */
     --background: var(--jumper-black);
     --foreground: 0 0% 95%;
 
@@ -80,29 +81,29 @@
     --primary: var(--jumper-orange);
     --primary-foreground: var(--jumper-black);
 
-    --secondary: var(--jumper-red);
+    --secondary: 0 0% 15%;
     --secondary-foreground: 0 0% 95%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 0 0% 10%;
+    --muted-foreground: 0 0% 65%;
 
     --accent: var(--jumper-orange);
     --accent-foreground: var(--jumper-black);
 
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 0 0% 95%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
+    --border: 0 0% 20%;
+    --input: 0 0% 15%;
     --ring: var(--jumper-orange);
 
     --sidebar-background: var(--jumper-dark);
-    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-foreground: 0 0% 95%;
     --sidebar-primary: var(--jumper-orange);
     --sidebar-primary-foreground: var(--jumper-black);
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-accent: 0 0% 15%;
+    --sidebar-accent-foreground: 0 0% 95%;
+    --sidebar-border: 0 0% 20%;
     --sidebar-ring: var(--jumper-orange);
   }
 }
