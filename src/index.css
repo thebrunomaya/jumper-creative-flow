@@ -2,93 +2,108 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. */
+/* Jumper Studio Brand Font */
+@font-face {
+  font-family: 'Haffer';
+  src: url('https://eu-central.storage.cloudconvert.com/tasks/39a9d560-157d-4231-8d34-6d7bea763456/HafferXHUprightVF.woff2?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=cloudconvert-production%2F20250702%2Ffra%2Fs3%2Faws4_request&X-Amz-Date=20250702T095558Z&X-Amz-Expires=86400&X-Amz-Signature=e17d2cb01648a660e7c08a724acb47571466bc35fdfb2b9c71e1d4f764adbe6f&X-Amz-SignedHeaders=host&response-content-disposition=attachment%3B%20filename%3D%22HafferXHUprightVF.woff2%22&response-content-type=font%2Fwoff2&x-id=GetObject') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
 
+/* Jumper Studio Design System */
 @layer base {
   :root {
+    /* Jumper Brand Colors - Orange to Red Gradient */
+    --jumper-orange: 25 100% 61%;     /* #FF8A3D */
+    --jumper-red: 11 83% 51%;         /* #DC2626 */
+    --jumper-dark: 0 0% 7%;           /* #1A1A1A */
+    --jumper-black: 0 0% 0%;          /* #000000 */
+    
+    /* Semantic Color System */
     --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --foreground: var(--jumper-dark);
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: var(--jumper-dark);
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: var(--jumper-dark);
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --primary: var(--jumper-red);
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: var(--jumper-orange);
+    --secondary-foreground: 0 0% 100%;
 
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: var(--jumper-orange);
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --ring: var(--jumper-red);
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
+    /* Jumper Gradients */
+    --gradient-jumper: linear-gradient(135deg, hsl(var(--jumper-orange)), hsl(var(--jumper-red)));
+    --gradient-jumper-dark: linear-gradient(135deg, hsl(var(--jumper-red)), hsl(var(--jumper-black)));
+    --gradient-jumper-subtle: linear-gradient(135deg, hsl(var(--jumper-orange) / 0.1), hsl(var(--jumper-red) / 0.1));
+
+    /* Sidebar */
     --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
+    --sidebar-foreground: var(--jumper-dark);
+    --sidebar-primary: var(--jumper-red);
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
+    --sidebar-accent-foreground: var(--jumper-dark);
     --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-ring: var(--jumper-red);
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    --background: var(--jumper-black);
+    --foreground: 0 0% 95%;
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: var(--jumper-dark);
+    --card-foreground: 0 0% 95%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: var(--jumper-dark);
+    --popover-foreground: 0 0% 95%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: var(--jumper-orange);
+    --primary-foreground: var(--jumper-black);
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: var(--jumper-red);
+    --secondary-foreground: 0 0% 95%;
 
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --accent: var(--jumper-orange);
+    --accent-foreground: var(--jumper-black);
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
 
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
+    --ring: var(--jumper-orange);
+
+    --sidebar-background: var(--jumper-dark);
     --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-primary: var(--jumper-orange);
+    --sidebar-primary-foreground: var(--jumper-black);
     --sidebar-accent: 240 3.7% 15.9%;
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-ring: var(--jumper-orange);
   }
 }
 
@@ -98,6 +113,10 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-haffer;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-haffer font-bold;
   }
 }

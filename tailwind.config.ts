@@ -19,6 +19,10 @@ export default {
 			}
 		},
 		extend: {
+			fontFamily: {
+				'haffer': ['Haffer', 'Inter', 'system-ui', 'sans-serif'],
+				'sans': ['Haffer', 'Inter', 'system-ui', 'sans-serif'],
+			},
 			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
@@ -26,24 +30,18 @@ export default {
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
 				primary: {
-					DEFAULT: '#667eea',
-					foreground: '#ffffff'
+					DEFAULT: 'hsl(var(--primary))',
+					foreground: 'hsl(var(--primary-foreground))'
 				},
 				secondary: {
-					DEFAULT: '#764ba2',
-					foreground: '#ffffff'
+					DEFAULT: 'hsl(var(--secondary))',
+					foreground: 'hsl(var(--secondary-foreground))'
 				},
-				success: '#48bb78',
-				warning: '#ed8936',
-				error: '#f56565',
 				jumper: {
-					blue: '#667eea',
-					purple: '#764ba2',
-					success: '#48bb78',
-					warning: '#ed8936',
-					error: '#f56565',
-					background: '#f7fafc',
-					text: '#2d3748'
+					orange: 'hsl(var(--jumper-orange))',
+					red: 'hsl(var(--jumper-red))',
+					dark: 'hsl(var(--jumper-dark))',
+					black: 'hsl(var(--jumper-black))',
 				},
 				destructive: {
 					DEFAULT: 'hsl(var(--destructive))',
@@ -85,7 +83,7 @@ export default {
 						height: 'var(--radix-accordion-content-height)'
 					},
 					to: {
-						height: '0'
+						height: 'var(--radix-accordion-content-height)'
 					}
 				},
 				'fade-in': {
@@ -115,6 +113,17 @@ export default {
 					'50%': {
 						opacity: '0.5'
 					}
+				},
+				'gradient-shift': {
+					'0%': {
+						backgroundPosition: '0% 50%'
+					},
+					'50%': {
+						backgroundPosition: '100% 50%'
+					},
+					'100%': {
+						backgroundPosition: '0% 50%'
+					}
 				}
 			},
 			animation: {
@@ -122,12 +131,13 @@ export default {
 				'accordion-up': 'accordion-up 0.2s ease-out',
 				'fade-in': 'fade-in 0.3s ease-out',
 				'scale-in': 'scale-in 0.2s ease-out',
-				'pulse-success': 'pulse-success 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+				'pulse-success': 'pulse-success 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+				'gradient-shift': 'gradient-shift 3s ease infinite'
 			},
 			backgroundImage: {
-				'gradient-jumper': 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-				'gradient-success': 'linear-gradient(135deg, #48bb78 0%, #38a169 100%)',
-				'gradient-warning': 'linear-gradient(135deg, #ed8936 0%, #dd6b20 100%)',
+				'gradient-jumper': 'var(--gradient-jumper)',
+				'gradient-jumper-dark': 'var(--gradient-jumper-dark)',
+				'gradient-jumper-subtle': 'var(--gradient-jumper-subtle)',
 			}
 		}
 	},
