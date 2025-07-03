@@ -66,12 +66,21 @@ export const buildNotionPayload = (
         rich_text: [{ type: "text", text: { content: "📝 Texto Principal Completo" } }]
       }
     });
-    pageBlocks.push({
-      object: "block",
-      type: "paragraph",
-      paragraph: {
-        rich_text: [{ type: "text", text: { content: mainTextContent } }]
-      }
+    
+    // Split long text into chunks of 2000 characters
+    const chunks = [];
+    for (let i = 0; i < mainTextContent.length; i += 2000) {
+      chunks.push(mainTextContent.substring(i, i + 2000));
+    }
+    
+    chunks.forEach(chunk => {
+      pageBlocks.push({
+        object: "block",
+        type: "paragraph",
+        paragraph: {
+          rich_text: [{ type: "text", text: { content: chunk } }]
+        }
+      });
     });
   }
   
@@ -85,12 +94,21 @@ export const buildNotionPayload = (
         rich_text: [{ type: "text", text: { content: "🏷️ Título Completo" } }]
       }
     });
-    pageBlocks.push({
-      object: "block",
-      type: "paragraph",
-      paragraph: {
-        rich_text: [{ type: "text", text: { content: titleContent } }]
-      }
+    
+    // Split long text into chunks of 2000 characters
+    const chunks = [];
+    for (let i = 0; i < titleContent.length; i += 2000) {
+      chunks.push(titleContent.substring(i, i + 2000));
+    }
+    
+    chunks.forEach(chunk => {
+      pageBlocks.push({
+        object: "block",
+        type: "paragraph",
+        paragraph: {
+          rich_text: [{ type: "text", text: { content: chunk } }]
+        }
+      });
     });
   }
   
@@ -104,12 +122,21 @@ export const buildNotionPayload = (
         rich_text: [{ type: "text", text: { content: "📄 Descrição Completa" } }]
       }
     });
-    pageBlocks.push({
-      object: "block",
-      type: "paragraph",
-      paragraph: {
-        rich_text: [{ type: "text", text: { content: descriptionContent } }]
-      }
+    
+    // Split long text into chunks of 2000 characters
+    const chunks = [];
+    for (let i = 0; i < descriptionContent.length; i += 2000) {
+      chunks.push(descriptionContent.substring(i, i + 2000));
+    }
+    
+    chunks.forEach(chunk => {
+      pageBlocks.push({
+        object: "block",
+        type: "paragraph",
+        paragraph: {
+          rich_text: [{ type: "text", text: { content: chunk } }]
+        }
+      });
     });
   }
 
