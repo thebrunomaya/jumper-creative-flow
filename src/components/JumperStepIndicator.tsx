@@ -17,12 +17,21 @@ export const JumperStepIndicator: React.FC<JumperStepIndicatorProps> = ({
   }));
 
   return (
-    <div className="bg-gray-950 py-4 px-6 border-b border-gray-800">
+    <div 
+      className="py-4 px-6"
+      style={{ 
+        backgroundColor: 'hsl(var(--jumper-gray-dark))', 
+        borderBottom: '1px solid hsl(var(--jumper-gray-medium))' 
+      }}
+    >
       <div className="max-w-2xl mx-auto">
         <div className="flex items-center justify-between relative">
           
           {/* Linha de progresso com gradiente estratégico */}
-          <div className="absolute top-2 left-0 w-full h-px bg-gray-700">
+          <div 
+            className="absolute top-2 left-0 w-full h-px"
+            style={{ backgroundColor: 'hsl(var(--jumper-gray-medium))' }}
+          >
             <div 
               className="h-full bg-gradient-to-r from-orange-400 to-purple-500 transition-all duration-700"
               style={{ width: `${((currentStep - 1) / (totalSteps - 1)) * 100}%` }}
@@ -34,23 +43,32 @@ export const JumperStepIndicator: React.FC<JumperStepIndicatorProps> = ({
               
               {/* Círculo com gradiente apenas no ativo */}
               <div className={`
-                w-4 h-4 rounded-full transition-all duration-300 flex items-center justify-center
+                w-4 h-4 rounded-full transition-all duration-300 flex items-center justify-center border
                 ${currentStep >= step.number 
                   ? 'bg-gradient-to-br from-orange-400 to-purple-500' 
                   : currentStep === step.number
                   ? 'bg-orange-400'
-                  : 'bg-gray-700 border border-gray-600'
+                  : ''
                 }
-              `}>
+              `}
+              style={currentStep < step.number ? { 
+                backgroundColor: 'hsl(var(--jumper-gray-medium))', 
+                borderColor: 'hsl(var(--jumper-gray-light))' 
+              } : {}}
+              >
                 {currentStep > step.number && (
                   <span className="text-white text-xs">✓</span>
                 )}
               </div>
 
-              {/* Label em branco limpo */}
+              {/* Label em branco neutro */}
               <p className={`mt-2 text-xs font-medium ${
-                currentStep >= step.number ? 'text-white' : 'text-gray-500'
-              }`}>
+                currentStep >= step.number ? 'text-white' : ''
+              }`}
+              style={currentStep < step.number ? { 
+                color: 'hsl(var(--jumper-gray-light))' 
+              } : {}}
+              >
                 {step.title}
               </p>
             </div>

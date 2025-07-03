@@ -3,7 +3,7 @@ import UserMenu from './UserMenu';
 
 export const JumperHeader: React.FC = () => {
   return (
-    <header className="bg-black border-b border-gray-800 px-6 py-4">
+    <header style={{ backgroundColor: 'hsl(var(--jumper-black))', borderBottom: '1px solid hsl(var(--jumper-gray-medium))' }} className="px-6 py-4">
       <div className="flex items-center justify-between max-w-6xl mx-auto">
         
         {/* Logo com gradiente estratégico */}
@@ -21,27 +21,45 @@ export const JumperHeader: React.FC = () => {
           
           <div>
             <h1 className="text-white font-semibold text-lg">Sistema de Criativos</h1>
-            <p className="text-gray-400 text-xs uppercase tracking-wide">Jumper Studio</p>
+            <p style={{ color: 'hsl(var(--jumper-gray-light))' }} className="text-xs uppercase tracking-wide">Jumper Studio</p>
           </div>
         </div>
 
-        {/* Status em fundo preto */}
+        {/* Status em fundo neutro */}
         <div className="flex items-center space-x-3">
-          <div className="flex items-center space-x-2 bg-gray-900 border border-gray-700 rounded-lg px-3 py-1.5">
+          <div 
+            className="flex items-center space-x-2 rounded-lg px-3 py-1.5 border"
+            style={{ 
+              backgroundColor: 'hsl(var(--jumper-gray-dark))', 
+              borderColor: 'hsl(var(--jumper-gray-medium))' 
+            }}
+          >
             <div className="w-1.5 h-1.5 bg-orange-400 rounded-full"></div>
             <span className="text-white text-xs font-medium">SLA 24h</span>
           </div>
           
-          <div className="flex items-center space-x-2 bg-gray-900 border border-gray-700 rounded-lg px-3 py-1.5">
+          <div 
+            className="flex items-center space-x-2 rounded-lg px-3 py-1.5 border"
+            style={{ 
+              backgroundColor: 'hsl(var(--jumper-gray-dark))', 
+              borderColor: 'hsl(var(--jumper-gray-medium))' 
+            }}
+          >
             <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full"></div>
             <span className="text-white text-xs font-medium">Auto confirmação</span>
           </div>
         </div>
 
-        {/* User profile preto */}
+        {/* User profile neutro */}
         <div className="flex items-center space-x-2">
           <span className="text-white text-sm font-medium">Mariana Estrela</span>
-          <div className="w-8 h-8 bg-gray-800 border border-gray-600 rounded-full flex items-center justify-center">
+          <div 
+            className="w-8 h-8 rounded-full flex items-center justify-center border"
+            style={{ 
+              backgroundColor: 'hsl(var(--jumper-gray-dark))', 
+              borderColor: 'hsl(var(--jumper-gray-medium))' 
+            }}
+          >
             <span className="text-white text-xs font-bold">ME</span>
           </div>
         </div>

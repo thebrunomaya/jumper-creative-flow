@@ -19,28 +19,33 @@ export const PlatformCard: React.FC<PlatformCardProps> = ({ platform, isSelected
     <button
       onClick={onClick}
       disabled={!platform.available}
-      className={`
-        relative p-6 rounded-xl text-left transition-all duration-200 w-full group
-        ${!platform.available 
-          ? 'opacity-50 cursor-not-allowed border' 
-          : isSelected
-          ? 'hover:opacity-90'
-          : 'border hover:opacity-90'
-        }
-      `}
+      className="relative p-6 rounded-xl text-left transition-all duration-200 w-full group"
       style={{
         backgroundColor: !platform.available 
           ? 'hsl(var(--jumper-gray-dark) / 0.5)' 
           : 'hsl(var(--jumper-gray-dark))',
+        borderWidth: '1px',
+        borderStyle: 'solid',
         borderColor: !platform.available 
           ? 'hsl(var(--jumper-gray-medium))' 
           : isSelected 
           ? 'transparent'
-          : 'hsl(var(--jumper-gray-medium))'
+          : 'hsl(var(--jumper-gray-medium))',
+        opacity: !platform.available ? 0.5 : 1,
+        cursor: !platform.available ? 'not-allowed' : 'pointer'
       }}
     >
+      {/* Gradiente apenas na borda do selecionado */}
+      {isSelected && (
+        <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-orange-400 to-purple-500 p-0.5">
+          <div 
+            className="rounded-lg h-full w-full" 
+            style={{ backgroundColor: 'hsl(var(--jumper-gray-dark))' }}
+          ></div>
+        </div>
+      )}
+
       <div className="relative z-10">
-        
         {/* Badge com gradiente */}
         {!platform.available && (
           <div className="absolute -top-3 -right-3 bg-gradient-to-r from-orange-400 to-orange-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
@@ -68,23 +73,33 @@ export const PlatformCard: React.FC<PlatformCardProps> = ({ platform, isSelected
         >
           <span className={`text-2xl ${
             platform.name === 'Meta Ads' ? 'text-blue-300' : 'text-yellow-400'
-          } ${!platform.available ? 'opacity-70' : ''}`}>
+          }`}
+          style={{
+            opacity: !platform.available ? 0.7 : 1
+          }}
+          >
             {platform.icon}
           </span>
         </div>
 
         {/* Conteúdo em cores neutras */}
-        <h3 className={`
-          font-semibold text-lg mb-1 transition-colors duration-300
-          ${platform.available ? 'text-white' : 'text-white opacity-60'}
-        `}>
+        <h3 
+          className="font-semibold text-lg mb-1 transition-colors duration-300"
+          style={{
+            color: platform.available ? 'white' : 'hsl(var(--jumper-gray-light))',
+            opacity: platform.available ? 1 : 0.6
+          }}
+        >
           {platform.name}
         </h3>
         
-        <p className={`
-          text-sm transition-colors duration-300
-          ${platform.available ? 'text-white opacity-70' : 'text-white opacity-50'}
-        `}>
+        <p 
+          className="text-sm transition-colors duration-300"
+          style={{
+            color: 'hsl(var(--jumper-gray-light))',
+            opacity: platform.available ? 0.8 : 0.5
+          }}
+        >
           {platform.subtitle}
         </p>
       </div>

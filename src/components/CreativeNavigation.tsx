@@ -25,7 +25,11 @@ const CreativeNavigation: React.FC<CreativeNavigationProps> = ({
         variant="outline"
         onClick={onPrevStep}
         disabled={currentStep === 1}
-        className="bg-transparent border border-gray-700/50 text-gray-300 hover:bg-gray-900/50 hover:text-white transition-all duration-200 flex items-center space-x-2"
+        className="text-white hover:text-white transition-all duration-200 flex items-center space-x-2"
+        style={{ 
+          backgroundColor: 'transparent', 
+          borderColor: 'hsl(var(--jumper-gray-medium))'
+        }}
       >
         <ArrowLeft className="w-4 h-4" />
         <span>Voltar</span>
