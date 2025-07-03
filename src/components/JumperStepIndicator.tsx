@@ -46,12 +46,17 @@ export const JumperStepIndicator: React.FC<JumperStepIndicatorProps> = ({
               <div className={`
                 w-6 h-6 rounded-full border-2 transition-all duration-300 flex items-center justify-center backdrop-blur-sm shadow-lg
                 ${currentStep >= step.number 
-                  ? 'bg-gradient-to-br from-orange-400 to-purple-500 border-orange-400 shadow-orange-400/30' 
+                  ? 'border-orange-400 shadow-orange-400/30' 
                   : currentStep === step.number
                   ? 'bg-orange-400 border-orange-400 shadow-orange-400/25'
                   : 'bg-white/10 border-white/30'
                 }
-              `}>
+              `}
+              style={currentStep >= step.number ? {
+                backgroundImage: "url('https://jumper.studio/wp-content/uploads/2025/07/Gradiente-1.png')",
+                backgroundSize: 'cover',
+                backgroundPosition: 'center'
+              } : {}}>
                 {currentStep > step.number ? (
                   <span className="text-white text-xs font-bold">✓</span>
                 ) : (
