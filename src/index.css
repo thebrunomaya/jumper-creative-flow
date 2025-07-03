@@ -45,8 +45,8 @@
     
     /* Tons de Cinza */
     --jumper-gray-dark: 0 0% 9%;       /* #181818 */
-    --jumper-gray-medium: 258 4% 25%;  /* #3E3D40 */
-    --jumper-gray-light: 216 17% 78%;  /* #C6CBD4 */
+    --jumper-gray-medium: 0 0% 25%;    /* #404040 - CINZA NEUTRO */
+    --jumper-gray-light: 0 0% 78%;     /* #C7C7C7 - CINZA NEUTRO */
     
     /* === MAPEAMENTO PARA SHADCN === */
     
