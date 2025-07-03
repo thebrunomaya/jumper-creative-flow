@@ -18,16 +18,20 @@ const TextCounterWithRecommendation: React.FC<TextCounterWithRecommendationProps
   const percentageMaximum = count / maximum;
   
   const getBarColor = () => {
-    if (count > 500) {
-      return 'bg-red-500';
-    } else if (count >= 240 && count <= 500) {
-      return 'bg-yellow-500';
-    } else if (count >= 80 && count <= 240) {
-      return 'bg-green-500';
-    } else if (count <= 79) {
-      return 'bg-yellow-500';
+    const percentage = (count / recommended) * 100;
+    
+    if (percentage < 20) {
+      return 'bg-yellow-500'; // Menos de 20% do recomendado
+    } else if (percentage >= 20 && percentage <= 50) {
+      return 'bg-blue-500'; // 21-50% do recomendado
+    } else if (percentage >= 51 && percentage <= 120) {
+      return 'bg-green-500'; // 51-120% do recomendado (ideal)
+    } else if (percentage >= 121 && percentage <= 200) {
+      return 'bg-blue-500'; // 120-200% do recomendado
+    } else if (percentage >= 201 && percentage <= 500) {
+      return 'bg-yellow-500'; // 200-500% do recomendado
     } else {
-      return 'bg-blue-500';
+      return 'bg-red-500'; // Acima de 500% do recomendado
     }
   };
 
