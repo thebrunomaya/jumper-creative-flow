@@ -27,13 +27,13 @@ export const JumperStepIndicator: React.FC<JumperStepIndicatorProps> = ({
       <div className="max-w-2xl mx-auto px-6 py-6">
         <div className="flex items-center justify-between relative">
           
-          {/* Linha de progresso com gradiente estratégico */}
+          {/* Linha de progresso centralizada no círculo */}
           <div 
-            className="absolute top-2 left-0 w-full h-px"
+            className="absolute top-1/2 left-0 w-full h-px transform -translate-y-1/2"
             style={{ backgroundColor: 'hsl(var(--jumper-gray-medium))' }}
           >
             <div 
-              className="h-full bg-gradient-to-r from-orange-400 to-purple-500 transition-all duration-700"
+              className="h-full bg-gradient-jumper-primary transition-all duration-700"
               style={{ width: `${((currentStep - 1) / (totalSteps - 1)) * 100}%` }}
             />
           </div>
