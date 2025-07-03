@@ -19,9 +19,16 @@ export const JumperHeroSection: React.FC<JumperHeroSectionProps> = ({
     <div className="text-center mb-12">
       
       {/* Badge com gradiente estratégico */}
-      <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-orange-500/20 to-purple-600/20 border border-orange-400/30 rounded-full px-4 py-2 mb-8">
+      <div 
+        className="inline-flex items-center space-x-2 rounded-full px-4 py-2 mb-8 border border-white/20"
+        style={{
+          backgroundImage: "url('https://jumper.studio/wp-content/uploads/2025/07/Gradiente-1.png')",
+          backgroundSize: 'cover',
+          backgroundPosition: 'center'
+        }}
+      >
         <div className="w-1.5 h-1.5 bg-orange-400 rounded-full"></div>
-        <span className="text-orange-300 text-sm font-medium">Etapa {currentStep} de {totalSteps}</span>
+        <span className="text-white text-sm font-medium">Etapa {currentStep} de {totalSteps}</span>
       </div>
       
       {/* Título em fundo preto limpo */}
