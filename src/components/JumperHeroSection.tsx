@@ -26,10 +26,9 @@ export const JumperHeroSection: React.FC<JumperHeroSectionProps> = ({
       
       {/* Título em fundo preto limpo */}
       <h2 className="text-3xl font-light text-white mb-4 tracking-tight">
-        {stepTitle} 
-        <span className="font-semibold bg-gradient-to-r from-orange-400 to-purple-500 bg-clip-text text-transparent">
-          essenciais
-        </span> do criativo
+        {stepTitle}{' '}
+        <span className="font-bold text-white">essenciais</span>
+        {' '}do criativo
       </h2>
       
       {/* Subtítulo em branco limpo */}
