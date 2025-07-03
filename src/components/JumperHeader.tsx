@@ -8,7 +8,14 @@ export const JumperHeader: React.FC = () => {
         
         {/* Logo com gradiente estratégico */}
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg">
+          <div 
+            className="w-10 h-10 rounded-lg flex items-center justify-center shadow-lg"
+            style={{
+              backgroundImage: "url('https://jumper.studio/wp-content/uploads/2025/07/Gradiente-1.png')",
+              backgroundSize: 'cover',
+              backgroundPosition: 'center'
+            }}
+          >
             <img src="/lovable-uploads/79a4b82f-0de4-4b80-a55e-5e7e283eab07.png" alt="Jumper Logo" className="w-5 h-5" />
           </div>
           
