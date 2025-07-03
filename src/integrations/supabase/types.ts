@@ -87,51 +87,6 @@ export type Database = {
         }
         Relationships: []
       }
-      n8n_fila_mensagens: {
-        Row: {
-          id: number
-          id_mensagem: string
-          mensagem: string
-          telefone: string
-          timestamp: string
-        }
-        Insert: {
-          id?: number
-          id_mensagem: string
-          mensagem: string
-          telefone: string
-          timestamp: string
-        }
-        Update: {
-          id?: number
-          id_mensagem?: string
-          mensagem?: string
-          telefone?: string
-          timestamp?: string
-        }
-        Relationships: []
-      }
-      n8n_historico_mensagens: {
-        Row: {
-          created_at: string
-          id: number
-          message: Json
-          session_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: number
-          message: Json
-          session_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: number
-          message?: Json
-          session_id?: string
-        }
-        Relationships: []
-      }
       partners: {
         Row: {
           created_at: string

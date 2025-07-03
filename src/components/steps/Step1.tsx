@@ -2,14 +2,13 @@
 import React from 'react';
 import { FormData } from '@/types/creative';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { useNotionClients } from '@/hooks/useNotionData';
 import { Skeleton } from '@/components/ui/skeleton';
 import { validateCreativeName, previewCreativeNameDetailed } from '@/utils/creativeName';
-import { JumperHeroSection } from '../JumperHeroSection';
-import { PlatformCard } from '../PlatformCard';
 
 interface Step1Props {
   formData: FormData;
@@ -57,25 +56,22 @@ const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
   }, [formData.creativeName, formData.campaignObjective, formData.creativeType, selectedClient]);
 
   return (
-    <div className="space-y-8 animate-fade-in">
-      <JumperHeroSection 
-        currentStep={1}
-        totalSteps={4}
-        stepTitle="Vamos começar com os dados"
-        stepDescription="Escolha a plataforma e configure as informações básicas para criar criativos de alta performance."
-        icon="📋"
-      />
+    <div className="space-y-6 animate-fade-in">
+      <div className="text-center mb-8">
+        <h2 className="text-2xl font-bold text-jumper-text mb-2">📋 Informações Básicas</h2>
+        <p className="text-gray-600">Vamos começar com os dados essenciais do seu criativo</p>
+      </div>
 
-      {/* Seleção de Conta */}
-      <div className="mb-10">
-        <Label htmlFor="client" className="block text-white font-light text-base mb-4 tracking-wide">
-          Conta
+      {/* Conta - agora ocupando mais espaço */}
+      <div className="space-y-2">
+        <Label htmlFor="client" className="text-sm font-medium text-jumper-text">
+          Conta *
         </Label>
         {clientsLoading ? (
           <Skeleton className="h-12 w-full" />
         ) : (
           <Select value={formData.client} onValueChange={(value) => updateFormData({ client: value, campaignObjective: undefined, creativeType: undefined, objective: undefined, creativeName: '' })}>
-            <SelectTrigger className={`w-full bg-gray-900/50 border border-gray-700/50 text-white rounded-lg px-4 py-3 text-base font-light focus:border-orange-400/50 focus:ring-1 focus:ring-orange-400/30 transition-all duration-200 ${errors.client ? 'border-destructive' : ''}`}>
+            <SelectTrigger className={`h-12 ${errors.client ? 'border-red-500' : ''}`}>
               <SelectValue placeholder="Selecione a conta" />
             </SelectTrigger>
             <SelectContent>
@@ -87,56 +83,60 @@ const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
             </SelectContent>
           </Select>
         )}
-        {errors.client && <p className="text-sm text-destructive">{errors.client}</p>}
+        {errors.client && <p className="text-sm text-red-500">{errors.client}</p>}
         {clientsError && <p className="text-sm text-yellow-600">⚠️ {clientsError} (usando dados locais)</p>}
       </div>
 
-      {/* Cards de Plataforma */}
-      <div className="mb-10">
-        <Label className="block text-white font-light text-base mb-6 tracking-wide">
-          Plataforma
-        </Label>
-        
-        <div className="grid md:grid-cols-2 gap-6">
-          <PlatformCard 
-            platform={{
-              name: "Meta Ads",
-              subtitle: "Facebook & Instagram", 
-              icon: "📘",
-              color: "blue",
-              available: true
-            }}
-            isSelected={formData.platform === 'meta'}
+      {/* Plataforma */}
+      <div className="space-y-4">
+        <Label className="text-sm font-medium text-jumper-text">Plataforma *</Label>
+        <div className="grid grid-cols-2 gap-4">
+          <Card 
+            className={`cursor-pointer transition-all duration-200 hover:shadow-lg ${
+              formData.platform === 'meta' 
+                ? 'ring-2 ring-jumper-blue bg-blue-50' 
+                : 'hover:shadow-md'
+            }`}
             onClick={() => updateFormData({ platform: 'meta', campaignObjective: undefined, creativeType: undefined, objective: undefined, creativeName: '' })}
-          />
+          >
+            <CardContent className="p-6 text-center">
+              <div className="text-4xl mb-3">📘</div>
+              <h3 className="font-semibold text-jumper-text">Meta Ads</h3>
+              <p className="text-sm text-gray-600 mt-1">Facebook & Instagram</p>
+            </CardContent>
+          </Card>
           
-          <PlatformCard 
-            platform={{
-              name: "Google Ads",
-              subtitle: "Search & Display",
-              icon: "🔍", 
-              color: "yellow",
-              available: false
-            }}
-            isSelected={false}
-            onClick={() => {}}
-          />
+          <Card 
+            className="cursor-not-allowed transition-all duration-200 opacity-50 relative"
+          >
+            <CardContent className="p-6 text-center">
+              <div className="text-4xl mb-3">🔍</div>
+              <h3 className="font-semibold text-gray-500">Google Ads</h3>
+              <p className="text-sm text-gray-400 mt-1">Search & Display</p>
+              <Badge 
+                variant="secondary" 
+                className="absolute -top-2 -right-2 bg-gradient-to-r from-orange-400 to-yellow-500 text-white text-xs px-2 py-1 shadow-lg"
+              >
+                Em Breve
+              </Badge>
+            </CardContent>
+          </Card>
         </div>
-        {errors.platform && <p className="text-sm text-destructive">{errors.platform}</p>}
+        {errors.platform && <p className="text-sm text-red-500">{errors.platform}</p>}
       </div>
 
       {/* Fields specific to when platform is selected */}
       {(formData.platform === 'meta' || formData.platform === 'google') && (
-        <div className="grid gap-6 md:grid-cols-2 animate-fade-in mb-10">
+        <div className="grid gap-6 md:grid-cols-2 animate-fade-in">
           {/* Objetivo de Campanha */}
-          <div className="space-y-3">
-            <Label className="text-white font-light text-base tracking-wide">Objetivo de Campanha *</Label>
+          <div className="space-y-2">
+            <Label className="text-sm font-medium text-jumper-text">Objetivo de Campanha *</Label>
             <Select 
               value={formData.campaignObjective || ''} 
               onValueChange={(value) => updateFormData({ campaignObjective: value, creativeType: undefined, creativeName: '' })}
               disabled={!formData.client}
             >
-              <SelectTrigger className={`w-full bg-gray-900/50 border border-gray-700/50 text-white rounded-lg px-4 py-3 text-base font-light focus:border-orange-400/50 focus:ring-1 focus:ring-orange-400/30 transition-all duration-200 ${errors.campaignObjective ? 'border-destructive' : ''}`}>
+              <SelectTrigger className={`h-12 ${errors.campaignObjective ? 'border-red-500' : ''}`}>
                 <SelectValue placeholder={!formData.client ? "Selecione uma conta primeiro" : "Selecione o objetivo"} />
               </SelectTrigger>
               <SelectContent>
@@ -152,19 +152,19 @@ const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
                 )}
               </SelectContent>
             </Select>
-            {errors.campaignObjective && <p className="text-sm text-destructive">{errors.campaignObjective}</p>}
+            {errors.campaignObjective && <p className="text-sm text-red-500">{errors.campaignObjective}</p>}
           </div>
 
           {/* Tipo de Anúncio - only for Meta Ads and only after campaign objective is selected */}
           {formData.platform === 'meta' && (
-            <div className="space-y-3">
-              <Label className="text-white font-light text-base tracking-wide">Tipo de Anúncio *</Label>
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-jumper-text">Tipo de Anúncio *</Label>
               <Select 
                 value={formData.creativeType || ''} 
                 onValueChange={(value) => updateFormData({ creativeType: value as any, creativeName: '' })}
                 disabled={!formData.campaignObjective}
               >
-                <SelectTrigger className={`w-full bg-gray-900/50 border border-gray-700/50 text-white rounded-lg px-4 py-3 text-base font-light focus:border-orange-400/50 focus:ring-1 focus:ring-orange-400/30 transition-all duration-200 ${errors.creativeType ? 'border-destructive' : ''}`}>
+                <SelectTrigger className={`h-12 ${errors.creativeType ? 'border-red-500' : ''}`}>
                   <SelectValue placeholder={!formData.campaignObjective ? "Selecione o objetivo primeiro" : "Selecione o tipo"} />
                 </SelectTrigger>
                 <SelectContent>
@@ -172,10 +172,10 @@ const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
                   <SelectItem value="carousel">🎠 Carrossel</SelectItem>
                   <SelectItem value="collection" disabled className="opacity-50 cursor-not-allowed">
                     <div className="flex items-center justify-between w-full">
-                      <span className="text-muted-foreground">🏪 Coleção</span>
+                      <span className="text-gray-400">🏪 Coleção</span>
                       <Badge 
                         variant="outline" 
-                        className="ml-2 text-xs border-primary/30 text-primary bg-primary/10"
+                        className="ml-2 text-xs border-orange-300 text-orange-600 bg-orange-50"
                       >
                         Em Breve
                       </Badge>
@@ -184,7 +184,7 @@ const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
                   <SelectItem value="existing-post">📱 Publicação Existente</SelectItem>
                 </SelectContent>
               </Select>
-              {errors.creativeType && <p className="text-sm text-destructive">{errors.creativeType}</p>}
+              {errors.creativeType && <p className="text-sm text-red-500">{errors.creativeType}</p>}
             </div>
           )}
         </div>
@@ -192,8 +192,8 @@ const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
 
       {/* Nome do Criativo - só aparece quando todos os pré-requisitos estão preenchidos */}
       {canShowCreativeName && (
-        <div className="space-y-3 animate-fade-in mb-10">
-          <Label htmlFor="creativeName" className="text-white font-light text-base tracking-wide">
+        <div className="space-y-2 animate-fade-in">
+          <Label htmlFor="creativeName" className="text-sm font-medium text-jumper-text">
             Nome do Criativo *
           </Label>
           <Input
@@ -202,41 +202,32 @@ const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
             onChange={(e) => handleCreativeNameChange(e.target.value)}
             placeholder="Ex: Ronaldo, BlackFridayDesc50"
             maxLength={20}
-            className={`w-full bg-gray-900/50 border border-gray-700/50 text-white rounded-lg px-4 py-3 text-base font-light focus:border-orange-400/50 focus:ring-1 focus:ring-orange-400/30 transition-all duration-200 ${errors.creativeName ? 'border-destructive' : ''}`}
+            className={`h-12 ${errors.creativeName ? 'border-red-500' : ''}`}
           />
           <div className="flex justify-between items-center">
-            <div className="text-xs text-gray-500 font-light">
+            <div className="text-xs text-gray-500">
               Máximo 20 caracteres • Sem espaços • Apenas letras, números e _
             </div>
-            <div className="text-xs text-orange-400">
+            <div className="text-xs text-blue-600">
               {formData.creativeName?.length || 0}/20 caracteres
             </div>
           </div>
           {errors.creativeName && (
-            <p className="text-sm text-destructive">{errors.creativeName}</p>
+            <p className="text-sm text-red-500">{errors.creativeName}</p>
           )}
           
           {/* Preview detalhado do nome final */}
           {detailedPreviewName && (
-            <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-4 backdrop-blur-sm">
-              <p className="text-sm font-medium text-emerald-300 mb-2">🎯 Preview do Nome Final:</p>
-              <p className="text-sm font-mono text-emerald-200 break-all bg-gray-900/50 px-3 py-2 rounded border border-emerald-500/30">
+            <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-4">
+              <p className="text-sm font-medium text-green-800 mb-2">🎯 Preview do Nome Final:</p>
+              <p className="text-sm font-mono text-green-700 break-all bg-white px-3 py-2 rounded border border-green-200">
                 {detailedPreviewName}
               </p>
-              <p className="text-xs text-emerald-400 mt-2 font-light">
+              <p className="text-xs text-green-600 mt-2">
                 Este será o nome usado no Facebook Ads Manager e no Notion
               </p>
             </div>
           )}
-        </div>
-      )}
-
-      {/* Botão de Continuar */}
-      {formData.platform && (
-        <div className="flex justify-end">
-          <button className="btn-jumper-primary">
-            Continuar
-          </button>
         </div>
       )}
     </div>
