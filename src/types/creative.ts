@@ -112,7 +112,7 @@ export const META_SPECS = {
 export const TEXT_LIMITS = {
   mainText: {
     recommended: 80, // Updated for carousel
-    maximum: 500
+    maximum: 2500
   },
   title: {
     recommended: 45, // Updated for carousel
