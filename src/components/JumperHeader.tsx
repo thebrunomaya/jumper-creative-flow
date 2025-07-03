@@ -11,7 +11,7 @@ export const JumperHeader: React.FC = () => {
           {/* Símbolo X mais discreto */}
           <div className="relative">
             <div className="w-8 h-8 bg-gradient-to-br from-orange-500/80 to-purple-600/80 rounded-md flex items-center justify-center backdrop-blur-sm">
-              <span className="text-white font-medium text-base">✕</span>
+              <img src="/lovable-uploads/b6b05e33-b479-4d61-834b-75cec82c1eec.png" alt="Jumper Logo" className="w-5 h-5" />
             </div>
           </div>
           
