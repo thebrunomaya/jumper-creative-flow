@@ -11,18 +11,21 @@
   font-display: swap;
 }
 
-/* Jumper Studio Design System - Lo-Fi Black */
+/* Jumper Studio Complete Design System */
 @layer base {
   :root {
-    /* Jumper Brand Colors - Lo-Fi Black Theme */
+    /* Jumper Brand Colors */
     --jumper-orange: 25 100% 61%;     /* #FF8A3D */
     --jumper-red: 11 83% 51%;         /* #DC2626 */
     --jumper-dark: 0 0% 7%;           /* #1A1A1A */
     --jumper-black: 0 0% 0%;          /* #000000 */
+    --jumper-white: 0 0% 100%;        /* #FFFFFF */
+    --jumper-light: 0 0% 98%;         /* #FAFAFA */
+    --jumper-gray: 0 0% 50%;          /* #808080 */
     
-    /* Lo-Fi Black Color System */
+    /* Dark Mode (Default) - Lo-Fi Black Theme */
     --background: var(--jumper-black);
-    --foreground: 0 0% 95%;           /* Almost white */
+    --foreground: 0 0% 95%;
 
     --card: var(--jumper-dark);
     --card-foreground: 0 0% 95%;
@@ -33,11 +36,11 @@
     --primary: var(--jumper-orange);
     --primary-foreground: var(--jumper-black);
 
-    --secondary: 0 0% 15%;            /* Dark gray */
+    --secondary: 0 0% 15%;
     --secondary-foreground: 0 0% 95%;
 
-    --muted: 0 0% 10%;                /* Very dark gray */
-    --muted-foreground: 0 0% 65%;     /* Medium gray */
+    --muted: 0 0% 10%;
+    --muted-foreground: 0 0% 65%;
 
     --accent: var(--jumper-orange);
     --accent-foreground: var(--jumper-black);
@@ -45,18 +48,18 @@
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 95%;
 
-    --border: 0 0% 20%;               /* Dark border */
-    --input: 0 0% 15%;                /* Dark input bg */
+    --border: 0 0% 20%;
+    --input: 0 0% 15%;
     --ring: var(--jumper-orange);
 
-    --radius: 0.25rem;                /* More squared */
+    --radius: 0.25rem;
 
-    /* Jumper Gradients */
+    /* Jumper Gradients - Dark */
     --gradient-jumper: linear-gradient(135deg, hsl(var(--jumper-orange)), hsl(var(--jumper-red)));
     --gradient-jumper-dark: linear-gradient(135deg, hsl(var(--jumper-red)), hsl(var(--jumper-black)));
     --gradient-jumper-subtle: linear-gradient(135deg, hsl(var(--jumper-orange) / 0.1), hsl(var(--jumper-red) / 0.1));
 
-    /* Sidebar */
+    /* Sidebar - Dark */
     --sidebar-background: var(--jumper-dark);
     --sidebar-foreground: 0 0% 95%;
     --sidebar-primary: var(--jumper-orange);
@@ -67,8 +70,54 @@
     --sidebar-ring: var(--jumper-orange);
   }
 
+  .light {
+    /* Light Mode - Elegant White Theme */
+    --background: var(--jumper-white);
+    --foreground: 0 0% 5%;
+
+    --card: var(--jumper-light);
+    --card-foreground: 0 0% 5%;
+
+    --popover: var(--jumper-white);
+    --popover-foreground: 0 0% 5%;
+
+    --primary: var(--jumper-orange);
+    --primary-foreground: var(--jumper-white);
+
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 5%;
+
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
+
+    --accent: var(--jumper-orange);
+    --accent-foreground: var(--jumper-white);
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: var(--jumper-white);
+
+    --border: 0 0% 90%;
+    --input: 0 0% 96%;
+    --ring: var(--jumper-orange);
+
+    /* Jumper Gradients - Light */
+    --gradient-jumper: linear-gradient(135deg, hsl(var(--jumper-orange)), hsl(var(--jumper-red)));
+    --gradient-jumper-light: linear-gradient(135deg, hsl(var(--jumper-white)), hsl(var(--jumper-light)));
+    --gradient-jumper-subtle: linear-gradient(135deg, hsl(var(--jumper-orange) / 0.05), hsl(var(--jumper-red) / 0.05));
+
+    /* Sidebar - Light */
+    --sidebar-background: var(--jumper-light);
+    --sidebar-foreground: 0 0% 5%;
+    --sidebar-primary: var(--jumper-orange);
+    --sidebar-primary-foreground: var(--jumper-white);
+    --sidebar-accent: 0 0% 96%;
+    --sidebar-accent-foreground: 0 0% 5%;
+    --sidebar-border: 0 0% 90%;
+    --sidebar-ring: var(--jumper-orange);
+  }
+
   .dark {
-    /* Keep dark mode same as default for lo-fi black theme */
+    /* Dark Mode - Same as root */
     --background: var(--jumper-black);
     --foreground: 0 0% 95%;
 
@@ -114,10 +163,38 @@
   }
 
   body {
-    @apply bg-background text-foreground font-haffer;
+    @apply bg-background text-foreground font-haffer transition-colors duration-300;
   }
 
   h1, h2, h3, h4, h5, h6 {
     @apply font-haffer font-bold;
+  }
+
+  /* Theme Toggle Styles */
+  .theme-toggle {
+    @apply relative inline-flex items-center justify-center w-12 h-6 rounded-full;
+    @apply bg-muted border border-border transition-all duration-300;
+    @apply hover:bg-muted/80 focus:outline-none focus:ring-2 focus:ring-ring;
+  }
+
+  .toggle-thumb {
+    @apply absolute left-1 top-1 w-4 h-4 rounded-full;
+    @apply bg-background border border-border transition-all duration-300;
+    @apply flex items-center justify-center shadow-sm;
+  }
+
+  .light .toggle-thumb {
+    @apply translate-x-6;
+  }
+
+  /* Custom animations for theme switching */
+  @keyframes theme-switch {
+    0% { opacity: 0.8; }
+    50% { opacity: 0.6; }
+    100% { opacity: 1; }
+  }
+
+  .theme-switching {
+    animation: theme-switch 0.3s ease-in-out;
   }
 }
