@@ -18,15 +18,15 @@ export const JumperStepIndicator: React.FC<JumperStepIndicatorProps> = ({
 
   return (
     <div 
-      className="relative py-8 px-8 border-b border-white/10"
+      className="relative py-4 px-8 border-b border-white/10"
       style={{
         backgroundImage: "url('https://jumper.studio/wp-content/uploads/2025/07/Gradiente-1.png')",
         backgroundSize: 'cover',
         backgroundPosition: 'center center'
       }}
     >
-      {/* Overlay sutil */}
-      <div className="absolute inset-0 bg-black/20 backdrop-blur-sm"></div>
+      {/* Overlay preto */}
+      <div className="absolute inset-0 bg-black backdrop-blur-sm"></div>
       
       <div className="relative z-10 max-w-2xl mx-auto">
         <div className="flex items-center justify-between relative">
