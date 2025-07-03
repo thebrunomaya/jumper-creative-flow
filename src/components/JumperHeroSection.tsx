@@ -23,8 +23,8 @@ export const JumperHeroSection: React.FC<JumperHeroSectionProps> = ({
         className="inline-flex items-center space-x-2 rounded-full px-4 py-2 mb-8 border border-white/20"
         style={{
           backgroundImage: "url('https://jumper.studio/wp-content/uploads/2025/07/Gradiente-1.png')",
-          backgroundSize: 'cover',
-          backgroundPosition: 'center'
+          backgroundSize: '300% 300%',
+          backgroundPosition: '30% 20%'
         }}
       >
         <div className="w-1.5 h-1.5 bg-orange-400 rounded-full"></div>
