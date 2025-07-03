@@ -39,7 +39,7 @@ export const JumperStepIndicator: React.FC<JumperStepIndicatorProps> = ({
           </div>
 
           {steps.map((step) => (
-            <div key={step.number} className="relative z-10 flex flex-col items-center">
+            <div key={step.number} className="relative z-10 flex flex-col items-center py-2">
               
               {/* Círculo com gradiente apenas no ativo */}
               <div className={`
