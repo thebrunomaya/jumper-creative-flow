@@ -234,7 +234,7 @@ const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
       {/* Botão de Continuar */}
       {formData.platform && (
         <div className="flex justify-end">
-          <button className="bg-gradient-to-r from-orange-400 to-orange-500 hover:from-orange-500 hover:to-orange-600 text-white px-8 py-3 rounded-lg font-medium transition-all duration-200 shadow-lg shadow-orange-400/20 hover:shadow-orange-400/30">
+          <button className="btn-jumper-primary">
             Continuar
           </button>
         </div>
