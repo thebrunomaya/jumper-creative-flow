@@ -49,20 +49,33 @@ export const JumperStepIndicator: React.FC<JumperStepIndicatorProps> = ({
           {steps.map((step) => (
             <div key={step.number} className="relative z-10 flex flex-col items-center py-2">
               
-              {/* Círculo com gradiente apenas no ativo */}
+              {/* Círculo com gradiente orgânico no ativo */}
               <div className={`
-                w-4 h-4 rounded-full transition-all duration-300 flex items-center justify-center border
+                w-4 h-4 rounded-full transition-all duration-300 flex items-center justify-center
                 ${currentStep >= step.number 
-                  ? 'bg-gradient-jumper-primary' 
+                  ? '' 
                   : currentStep === step.number
-                  ? 'bg-gradient-jumper-primary'
+                  ? ''
                   : ''
                 }
               `}
-              style={currentStep < step.number ? { 
-                backgroundColor: 'hsl(var(--jumper-gray-medium))', 
-                borderColor: 'hsl(var(--jumper-gray-light))' 
-              } : {}}
+              style={
+                currentStep === step.number ? {
+                  backgroundImage: "url('https://jumper.studio/wp-content/uploads/2025/07/Gradiente-1.png')",
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  border: '2px solid rgba(255,255,255,0.3)'
+                } : currentStep > step.number ? {
+                  backgroundImage: "url('https://jumper.studio/wp-content/uploads/2025/07/Gradiente-1.png')",
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  border: '2px solid rgba(255,255,255,0.3)'
+                } : { 
+                  backgroundColor: 'hsl(var(--jumper-gray-medium))', 
+                  borderColor: 'hsl(var(--jumper-gray-light))',
+                  border: '2px solid hsl(var(--jumper-gray-light))'
+                }
+              }
               >
                 {currentStep > step.number && (
                   <span className="text-white text-xs">✓</span>
