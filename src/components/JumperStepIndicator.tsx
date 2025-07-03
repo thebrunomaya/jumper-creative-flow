@@ -29,8 +29,16 @@ export const JumperStepIndicator: React.FC<JumperStepIndicatorProps> = ({
           
           {/* Linha de progresso centralizada no círculo */}
           <div 
-            className="absolute top-1/2 left-0 w-full h-px transform -translate-y-1/2"
-            style={{ backgroundColor: 'hsl(var(--jumper-gray-medium))' }}
+            className="absolute left-0 w-full"
+            style={{ 
+              position: 'absolute',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              left: '0',
+              width: '100%',
+              height: '2px',
+              backgroundColor: 'hsl(var(--jumper-gray-medium))'
+            }}
           >
             <div 
               className="h-full bg-gradient-jumper-primary transition-all duration-700"
