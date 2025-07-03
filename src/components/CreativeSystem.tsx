@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
-import Header from './Header';
-import ProgressBar from './ProgressBar';
+import { JumperHeader } from './JumperHeader';
+import { JumperStepIndicator } from './JumperStepIndicator';
 import Breadcrumbs from './Breadcrumbs';
 import Step1 from './steps/Step1';
 import Step2 from './steps/Step2';
@@ -64,8 +64,8 @@ const CreativeSystem: React.FC = () => {
 
   if (isSubmitted) {
     return (
-      <div className="min-h-screen bg-jumper-background">
-        <Header />
+      <div className="min-h-screen bg-background">
+        <JumperHeader />
         <div className="max-w-4xl mx-auto px-4 py-8">
           <Success creativeIds={creativeIds} onNewCreative={handleReset} />
         </div>
@@ -74,17 +74,16 @@ const CreativeSystem: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-jumper-background">
-      <Header />
+    <div className="min-h-screen bg-background">
+      <JumperHeader />
+      <JumperStepIndicator 
+        currentStep={currentStep} 
+        totalSteps={4} 
+        stepLabels={STEP_LABELS} 
+      />
       
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        <ProgressBar 
-          currentStep={currentStep} 
-          totalSteps={4} 
-          stepLabels={STEP_LABELS} 
-        />
-
-        <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
+      <main className="max-w-6xl mx-auto px-6 py-12">
+        <div className="bg-card rounded-2xl border border-border p-8 shadow-2xl mb-8">
           <Breadcrumbs 
             formData={formData}
             clients={clients}
@@ -129,7 +128,7 @@ const CreativeSystem: React.FC = () => {
           onSubmit={handleSubmit}
           isSubmitting={isSubmitting}
         />
-      </div>
+      </main>
     </div>
   );
 };
