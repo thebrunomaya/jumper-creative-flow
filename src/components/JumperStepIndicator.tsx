@@ -17,14 +17,14 @@ export const JumperStepIndicator: React.FC<JumperStepIndicatorProps> = ({
   }));
 
   return (
-    <div className="bg-black/15 backdrop-blur-sm py-4 px-6 border-b border-white/10">
+    <div className="bg-gray-950 py-4 px-6 border-b border-gray-800">
       <div className="max-w-2xl mx-auto">
         <div className="flex items-center justify-between relative">
           
-          {/* Linha de progresso elegante */}
-          <div className="absolute top-2 left-0 w-full h-px bg-white/20">
+          {/* Linha de progresso com gradiente estratégico */}
+          <div className="absolute top-2 left-0 w-full h-px bg-gray-700">
             <div 
-              className="h-full bg-gradient-to-r from-orange-400 to-purple-500 transition-all duration-700 ease-out"
+              className="h-full bg-gradient-to-r from-orange-400 to-purple-500 transition-all duration-700"
               style={{ width: `${((currentStep - 1) / (totalSteps - 1)) * 100}%` }}
             />
           </div>
@@ -32,14 +32,14 @@ export const JumperStepIndicator: React.FC<JumperStepIndicatorProps> = ({
           {steps.map((step) => (
             <div key={step.number} className="relative z-10 flex flex-col items-center">
               
-              {/* Círculo proporcional */}
+              {/* Círculo com gradiente apenas no ativo */}
               <div className={`
                 w-4 h-4 rounded-full transition-all duration-300 flex items-center justify-center
                 ${currentStep >= step.number 
-                  ? 'bg-gradient-to-br from-orange-400 to-purple-500 shadow-sm' 
+                  ? 'bg-gradient-to-br from-orange-400 to-purple-500' 
                   : currentStep === step.number
-                  ? 'bg-orange-400 shadow-sm'
-                  : 'bg-white/20'
+                  ? 'bg-orange-400'
+                  : 'bg-gray-700 border border-gray-600'
                 }
               `}>
                 {currentStep > step.number && (
@@ -47,9 +47,9 @@ export const JumperStepIndicator: React.FC<JumperStepIndicatorProps> = ({
                 )}
               </div>
 
-              {/* Label discreto */}
+              {/* Label em branco limpo */}
               <p className={`mt-2 text-xs font-medium ${
-                currentStep >= step.number ? 'text-white' : 'text-white/60'
+                currentStep >= step.number ? 'text-white' : 'text-gray-500'
               }`}>
                 {step.title}
               </p>

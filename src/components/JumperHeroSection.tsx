@@ -16,24 +16,24 @@ export const JumperHeroSection: React.FC<JumperHeroSectionProps> = ({
   icon = '📋'
 }) => {
   return (
-    <div className="text-center mb-20">
-      {/* Badge mais contrastado */}
-      <div className="inline-flex items-center space-x-3 bg-black/40 backdrop-blur-md border-2 border-white/30 rounded-full px-6 py-3 mb-10 shadow-xl">
-        <div className="w-2 h-2 bg-orange-400 rounded-full animate-pulse shadow-sm"></div>
-        <span className="text-white font-bold text-base">Etapa {currentStep} de {totalSteps}</span>
+    <div className="text-center mb-12">
+      
+      {/* Badge com gradiente estratégico */}
+      <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-orange-500/20 to-purple-600/20 border border-orange-400/30 rounded-full px-4 py-2 mb-8">
+        <div className="w-1.5 h-1.5 bg-orange-400 rounded-full"></div>
+        <span className="text-orange-300 text-sm font-medium">Etapa {currentStep} de {totalSteps}</span>
       </div>
       
-      {/* Título mais impactante */}
-      <h2 className="text-5xl font-light text-white mb-8 tracking-tight leading-tight drop-shadow-2xl">
-        {stepTitle}{' '}
-        <span className="font-semibold bg-gradient-to-r from-orange-400 via-orange-500 to-purple-500 bg-clip-text text-transparent">
+      {/* Título em fundo preto limpo */}
+      <h2 className="text-3xl font-light text-white mb-4 tracking-tight">
+        {stepTitle} 
+        <span className="font-semibold bg-gradient-to-r from-orange-400 to-purple-500 bg-clip-text text-transparent">
           essenciais
-        </span>{' '}
-        do criativo
+        </span> do criativo
       </h2>
       
-      {/* Subtítulo mais legível */}
-      <p className="text-white text-xl font-medium max-w-3xl mx-auto leading-relaxed drop-shadow-lg">
+      {/* Subtítulo em branco limpo */}
+      <p className="text-gray-300 text-lg max-w-2xl mx-auto">
         {stepDescription}
       </p>
     </div>
