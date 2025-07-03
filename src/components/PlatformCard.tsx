@@ -35,9 +35,16 @@ export const PlatformCard: React.FC<PlatformCardProps> = ({ platform, isSelected
         cursor: !platform.available ? 'not-allowed' : 'pointer'
       }}
     >
-      {/* Gradiente apenas na borda do selecionado */}
+      {/* Gradiente orgânico na borda do selecionado */}
       {isSelected && (
-        <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-orange-400 to-purple-500 p-0.5">
+        <div 
+          className="absolute inset-0 rounded-xl p-0.5"
+          style={{
+            backgroundImage: "url('https://jumper.studio/wp-content/uploads/2025/07/Gradiente-1.png')",
+            backgroundSize: '300% 300%',
+            backgroundPosition: platform.name === 'Meta Ads' ? '25% 25%' : '75% 75%'
+          }}
+        >
           <div 
             className="rounded-lg h-full w-full" 
             style={{ backgroundColor: 'hsl(var(--jumper-gray-dark))' }}
