@@ -3,40 +3,54 @@ import UserMenu from './UserMenu';
 
 export const JumperHeader: React.FC = () => {
   return (
-    <header className="bg-gray-950/95 backdrop-blur-sm border-b border-gray-800/50 px-8 py-5">
-      <div className="flex items-center justify-between max-w-7xl mx-auto">
+    <header 
+      className="relative border-b border-white/10 px-8 py-5"
+      style={{
+        backgroundImage: "url('https://jumper.studio/wp-content/uploads/2025/07/Gradiente-1.png')",
+        backgroundSize: 'cover',
+        backgroundPosition: 'center top'
+      }}
+    >
+      {/* Glass morphism effect */}
+      <div className="absolute inset-0 bg-black/30 backdrop-blur-md"></div>
+      
+      <div className="relative z-10 flex items-center justify-between max-w-7xl mx-auto">
         
-        {/* Logo mais visível */}
+        {/* Logo com glass effect */}
         <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-purple-600 rounded-md flex items-center justify-center shadow-lg">
-            <img src="/lovable-uploads/b6b05e33-b479-4d61-834b-75cec82c1eec.png" alt="Jumper Logo" className="w-5 h-5" />
+          <div className="w-8 h-8 bg-white/15 backdrop-blur-sm rounded-md flex items-center justify-center border border-white/20 shadow-lg">
+            <img src="/lovable-uploads/79a4b82f-0de4-4b80-a55e-5e7e283eab07.png" alt="Jumper Logo" className="w-5 h-5" />
           </div>
           
           <div>
-            <h1 className="text-gray-100 font-medium text-lg tracking-tight">
+            <h1 className="text-white font-medium text-lg tracking-tight drop-shadow-sm">
               Sistema de Criativos
             </h1>
-            <p className="text-gray-400 text-xs font-light tracking-wide uppercase">Jumper Studio</p>
+            <p className="text-white/80 text-xs font-light tracking-wide uppercase">Jumper Studio</p>
           </div>
         </div>
 
-        {/* Status badges mais visíveis */}
+        {/* Status com glass containers */}
         <div className="flex items-center space-x-4">
-          <div className="flex items-center space-x-2 bg-gray-900/60 border border-gray-700/50 rounded-lg px-3 py-1.5 backdrop-blur-sm">
-            <div className="w-1.5 h-1.5 bg-orange-400 rounded-full animate-pulse"></div>
-            <span className="text-gray-300 text-xs font-medium">SLA 24h</span>
+          <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg px-3 py-1.5 shadow-lg">
+            <div className="flex items-center space-x-2 text-xs">
+              <div className="w-1.5 h-1.5 bg-orange-400 rounded-full shadow-sm animate-pulse"></div>
+              <span className="text-white font-medium">SLA 24h</span>
+            </div>
           </div>
           
-          <div className="flex items-center space-x-2 bg-gray-900/60 border border-gray-700/50 rounded-lg px-3 py-1.5 backdrop-blur-sm">
-            <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full"></div>
-            <span className="text-gray-300 text-xs font-medium">Auto confirmação</span>
+          <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg px-3 py-1.5 shadow-lg">
+            <div className="flex items-center space-x-2 text-xs">
+              <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full shadow-sm"></div>
+              <span className="text-white font-medium">Auto confirmação</span>
+            </div>
           </div>
         </div>
 
-        {/* User profile mais legível */}
+        {/* User Profile com glass */}
         <div className="flex items-center space-x-3">
-          <span className="text-gray-200 text-sm font-normal">Mariana Estrela</span>
-          <div className="w-7 h-7 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-md">
+          <span className="text-white font-medium text-sm drop-shadow-sm">Mariana Estrela</span>
+          <div className="w-7 h-7 bg-white/15 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/20 shadow-lg">
             <span className="text-white text-xs font-semibold">ME</span>
           </div>
         </div>

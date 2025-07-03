@@ -74,61 +74,75 @@ const CreativeSystem: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-950 via-gray-950 to-gray-900/95">
-      <JumperHeader />
-      <JumperStepIndicator 
-        currentStep={currentStep} 
-        totalSteps={4} 
-        stepLabels={STEP_LABELS} 
-      />
+    <div 
+      className="min-h-screen relative"
+      style={{
+        backgroundImage: "url('https://jumper.studio/wp-content/uploads/2025/07/Gradiente-1.png')",
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        backgroundAttachment: 'fixed'
+      }}
+    >
+      {/* Overlay gradient para melhor legibilidade */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/40 to-black/50"></div>
       
-      <main className="max-w-4xl mx-auto px-8 py-16">
-        <div className="bg-gray-900/60 backdrop-blur-sm rounded-xl border border-gray-800/50 p-10 shadow-2xl mb-8">
-          <Breadcrumbs 
-            formData={formData}
-            clients={clients}
-          />
-          
-          {currentStep === 1 && (
-            <Step1 
-              formData={formData} 
-              updateFormData={updateFormData} 
-              errors={errors} 
-            />
-          )}
-          
-          {currentStep === 2 && (
-            <Step2 
-              formData={formData} 
-              updateFormData={updateFormData} 
-              errors={errors} 
-            />
-          )}
-          
-          {currentStep === 3 && (
-            <Step3 
-              formData={formData} 
-              updateFormData={updateFormData} 
-              errors={errors} 
-            />
-          )}
-          
-          {currentStep === 4 && (
-            <Step4 
-              formData={formData} 
-              isSubmitting={isSubmitting} 
-            />
-          )}
-        </div>
-
-        <CreativeNavigation
-          currentStep={currentStep}
-          onPrevStep={prevStep}
-          onNextStep={nextStep}
-          onSubmit={handleSubmit}
-          isSubmitting={isSubmitting}
+      <div className="relative z-10">
+        <JumperHeader />
+        <JumperStepIndicator 
+          currentStep={currentStep} 
+          totalSteps={4} 
+          stepLabels={STEP_LABELS} 
         />
-      </main>
+        
+        <main className="max-w-4xl mx-auto px-8 py-16">
+          <div className="bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 p-10 shadow-2xl mb-8">
+            <Breadcrumbs 
+              formData={formData}
+              clients={clients}
+            />
+            
+            {currentStep === 1 && (
+              <Step1 
+                formData={formData} 
+                updateFormData={updateFormData} 
+                errors={errors} 
+              />
+            )}
+            
+            {currentStep === 2 && (
+              <Step2 
+                formData={formData} 
+                updateFormData={updateFormData} 
+                errors={errors} 
+              />
+            )}
+            
+            {currentStep === 3 && (
+              <Step3 
+                formData={formData} 
+                updateFormData={updateFormData} 
+                errors={errors} 
+              />
+            )}
+            
+            {currentStep === 4 && (
+              <Step4 
+                formData={formData} 
+                isSubmitting={isSubmitting} 
+              />
+            )}
+          </div>
+
+          <CreativeNavigation
+            currentStep={currentStep}
+            onPrevStep={prevStep}
+            onNextStep={nextStep}
+            onSubmit={handleSubmit}
+            isSubmitting={isSubmitting}
+          />
+        </main>
+      </div>
     </div>
   );
 };
