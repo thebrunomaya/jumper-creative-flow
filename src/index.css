@@ -115,12 +115,12 @@
     --primary-foreground: var(--jumper-white);
     
     /* Secundário mais sutil no light */
-    --secondary: 220 13% 96%;          /* #F8F9FA - Cinza claríssimo */
+    --secondary: 0 0% 96%;             /* #F5F5F5 - Cinza claríssimo NEUTRO */
     --secondary-foreground: 0 0% 10%;  /* #1A1A1A */
     
     /* Muted areas */
-    --muted: 220 13% 95%;              /* #F1F3F4 - Cinza muito claro */
-    --muted-foreground: 215 14% 34%;   /* #4A5568 - Cinza médio */
+    --muted: 0 0% 95%;                 /* #F2F2F2 - Cinza muito claro NEUTRO */
+    --muted-foreground: 0 0% 34%;      /* #575757 - Cinza médio NEUTRO */
     
     /* Accent mantém roxo */
     --accent: var(--jumper-purple);    /* #8143A7 - Mesmo roxo! */
@@ -131,14 +131,14 @@
     --destructive-foreground: var(--jumper-white);
     
     /* Bordas e Inputs sutis */
-    --border: 220 13% 91%;             /* #E2E8F0 - Bordas claras */
-    --input: 220 13% 91%;              /* #E2E8F0 - Input backgrounds */
+    --border: 0 0% 91%;                /* #E8E8E8 - Bordas claras NEUTRAS */
+    --input: 0 0% 91%;                 /* #E8E8E8 - Input backgrounds NEUTROS */
     --ring: var(--jumper-orange);      /* #FA4721 - Focus laranja */
     
     /* === GRADIENTES LIGHT MODE === */
     --jumper-gradient-primary: linear-gradient(135deg, hsl(var(--jumper-orange)) 0%, hsl(277 46% 56%) 100%);
     --jumper-gradient-secondary: linear-gradient(135deg, hsl(14 100% 97%) 0%, hsl(277 46% 98%) 100%);
-    --jumper-gradient-accent: linear-gradient(135deg, hsl(var(--jumper-purple)) 0%, hsl(220 13% 95%) 100%);
+    --jumper-gradient-accent: linear-gradient(135deg, hsl(var(--jumper-purple)) 0%, hsl(0 0% 95%) 100%);
   }
 }
 
