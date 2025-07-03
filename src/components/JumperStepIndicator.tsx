@@ -49,26 +49,24 @@ export const JumperStepIndicator: React.FC<JumperStepIndicatorProps> = ({
           {steps.map((step) => (
             <div key={step.number} className="relative z-10 flex flex-col items-center py-2">
               
-              {/* Círculo com gradiente orgânico no ativo */}
+              {/* Círculo com gradiente orgânico - cada step usa parte diferente */}
               <div className={`
                 w-4 h-4 rounded-full transition-all duration-300 flex items-center justify-center
-                ${currentStep >= step.number 
-                  ? '' 
-                  : currentStep === step.number
-                  ? ''
-                  : ''
-                }
               `}
               style={
                 currentStep === step.number ? {
                   backgroundImage: "url('https://jumper.studio/wp-content/uploads/2025/07/Gradiente-1.png')",
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
+                  backgroundSize: '400% 400%',
+                  backgroundPosition: step.number === 1 ? '20% 20%' : 
+                                    step.number === 2 ? '80% 30%' : 
+                                    step.number === 3 ? '60% 80%' : '90% 90%',
                   border: '2px solid rgba(255,255,255,0.3)'
                 } : currentStep > step.number ? {
                   backgroundImage: "url('https://jumper.studio/wp-content/uploads/2025/07/Gradiente-1.png')",
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
+                  backgroundSize: '400% 400%',
+                  backgroundPosition: step.number === 1 ? '20% 20%' : 
+                                    step.number === 2 ? '80% 30%' : 
+                                    step.number === 3 ? '60% 80%' : '90% 90%',
                   border: '2px solid rgba(255,255,255,0.3)'
                 } : { 
                   backgroundColor: 'hsl(var(--jumper-gray-medium))', 
