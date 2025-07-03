@@ -27,7 +27,7 @@ export const PlatformCard: React.FC<PlatformCardProps> = ({ platform, isSelected
           ? 'bg-gray-800/50 border-2 border-orange-400/50 shadow-lg shadow-orange-400/10'
           : 'bg-gray-800/40 border border-gray-700/50 hover:border-orange-400/50 hover:bg-gray-800/60'
         }
-      `>
+      `}
     >
       
       {/* Badge "Em Breve" */}
