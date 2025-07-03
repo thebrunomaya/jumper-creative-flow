@@ -16,21 +16,24 @@ export const JumperHeroSection: React.FC<JumperHeroSectionProps> = ({
   icon = '📋'
 }) => {
   return (
-    <div className="text-center mb-12">
-      <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/20 rounded-full px-6 py-2 mb-6">
-        <span className="text-2xl">{icon}</span>
-        <span className="text-primary font-semibold">Etapa {currentStep} de {totalSteps}</span>
+    <div className="text-center mb-16">
+      {/* Badge Sutil */}
+      <div className="inline-flex items-center space-x-2 bg-gray-900/40 border border-gray-800/50 rounded-full px-4 py-2 mb-8 backdrop-blur-sm">
+        <div className="w-1.5 h-1.5 bg-orange-400 rounded-full"></div>
+        <span className="text-gray-400 text-sm font-light">Etapa {currentStep} de {totalSteps}</span>
       </div>
       
-      <h2 className="text-4xl font-bold text-foreground mb-4">
+      {/* Título Elegante */}
+      <h2 className="text-4xl font-light text-white mb-6 tracking-tight leading-tight">
         {stepTitle}{' '}
-        <span className="text-gradient-jumper">
+        <span className="font-normal bg-gradient-to-r from-orange-400 via-orange-500 to-purple-500 bg-clip-text text-transparent">
           essenciais
         </span>{' '}
-        do seu criativo
+        do criativo
       </h2>
       
-      <p className="text-muted-foreground text-lg font-medium max-w-2xl mx-auto">
+      {/* Subtítulo Sutil */}
+      <p className="text-gray-500 text-lg font-light max-w-2xl mx-auto leading-relaxed">
         {stepDescription}
       </p>
     </div>

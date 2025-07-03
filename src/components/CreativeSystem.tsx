@@ -74,7 +74,7 @@ const CreativeSystem: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gray-950">
       <JumperHeader />
       <JumperStepIndicator 
         currentStep={currentStep} 
@@ -82,8 +82,8 @@ const CreativeSystem: React.FC = () => {
         stepLabels={STEP_LABELS} 
       />
       
-      <main className="max-w-6xl mx-auto px-6 py-12">
-        <div className="bg-card rounded-2xl border border-border p-8 shadow-2xl mb-8">
+      <main className="max-w-4xl mx-auto px-8 py-16">
+        <div className="bg-gray-900/30 backdrop-blur-sm rounded-xl border border-gray-800/30 p-10 shadow-2xl mb-8">
           <Breadcrumbs 
             formData={formData}
             clients={clients}

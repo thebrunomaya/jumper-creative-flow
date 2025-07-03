@@ -25,7 +25,7 @@ const CreativeNavigation: React.FC<CreativeNavigationProps> = ({
         variant="outline"
         onClick={onPrevStep}
         disabled={currentStep === 1}
-        className="btn-jumper-ghost flex items-center space-x-2"
+        className="bg-transparent border border-gray-700/50 text-gray-300 hover:bg-gray-900/50 hover:text-white transition-all duration-200 flex items-center space-x-2"
       >
         <ArrowLeft className="w-4 h-4" />
         <span>Voltar</span>
@@ -38,7 +38,7 @@ const CreativeNavigation: React.FC<CreativeNavigationProps> = ({
       {currentStep < 4 ? (
         <Button
           onClick={onNextStep}
-          className="btn-jumper-primary flex items-center space-x-2"
+          className="bg-gradient-to-r from-orange-400 to-orange-500 hover:from-orange-500 hover:to-orange-600 text-white shadow-lg shadow-orange-400/20 hover:shadow-orange-400/30 transition-all duration-200 flex items-center space-x-2"
         >
           <span>Continuar</span>
           <ArrowRight className="w-4 h-4" />
@@ -47,7 +47,7 @@ const CreativeNavigation: React.FC<CreativeNavigationProps> = ({
         <Button
           onClick={onSubmit}
           disabled={isSubmitting}
-          className="btn-jumper-primary flex items-center space-x-2 px-8"
+          className="bg-gradient-to-r from-orange-400 to-orange-500 hover:from-orange-500 hover:to-orange-600 text-white shadow-lg shadow-orange-400/20 hover:shadow-orange-400/30 transition-all duration-200 flex items-center space-x-2 px-8"
         >
           <span>🚀</span>
           <span>{isSubmitting ? 'Enviando...' : 'Enviar Criativo'}</span>
