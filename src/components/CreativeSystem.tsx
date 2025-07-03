@@ -98,7 +98,7 @@ const CreativeSystem: React.FC = () => {
         
         <div className="relative z-10">
           <main className="max-w-4xl mx-auto px-6 py-12">
-            <div className="bg-gray-900 rounded-xl border border-gray-700 p-8 shadow-2xl mb-8">
+            <div className="rounded-xl border p-8 shadow-2xl mb-8" style={{ backgroundColor: 'hsl(var(--jumper-gray-dark))', borderColor: 'hsl(var(--jumper-gray-medium))' }}>
             <Breadcrumbs 
               formData={formData}
               clients={clients}
