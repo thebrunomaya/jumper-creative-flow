@@ -24,7 +24,7 @@ export const JumperStepIndicator: React.FC<JumperStepIndicatorProps> = ({
         borderBottom: '1px solid hsl(var(--jumper-gray-medium))' 
       }}
     >
-      <div className="max-w-2xl mx-auto">
+      <div className="max-w-2xl mx-auto px-6 py-6">
         <div className="flex items-center justify-between relative">
           
           {/* Linha de progresso com gradiente estratégico */}
