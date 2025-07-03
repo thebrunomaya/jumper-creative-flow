@@ -84,8 +84,8 @@ const CreativeSystem: React.FC = () => {
         backgroundAttachment: 'fixed'
       }}
     >
-      {/* Overlay gradient para melhor legibilidade */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/40 to-black/50"></div>
+      {/* Overlay otimizado para UX */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/50"></div>
       
       <div className="relative z-10">
         <JumperHeader />
@@ -95,8 +95,9 @@ const CreativeSystem: React.FC = () => {
           stepLabels={STEP_LABELS} 
         />
         
-        <main className="max-w-4xl mx-auto px-8 py-16">
-          <div className="bg-white/5 backdrop-blur-xl rounded-xl border border-white/10 p-10 shadow-2xl mb-8">
+        {/* Main Content com melhor contraste */}
+        <main className="max-w-5xl mx-auto px-8 py-20">
+          <div className="bg-black/30 backdrop-blur-xl rounded-2xl border-2 border-white/20 p-12 shadow-2xl mb-8">
             <Breadcrumbs 
               formData={formData}
               clients={clients}

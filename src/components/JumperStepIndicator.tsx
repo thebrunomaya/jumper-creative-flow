@@ -17,24 +17,14 @@ export const JumperStepIndicator: React.FC<JumperStepIndicatorProps> = ({
   }));
 
   return (
-    <div 
-      className="relative py-4 px-8 border-b border-white/10"
-      style={{
-        backgroundImage: "url('https://jumper.studio/wp-content/uploads/2025/07/Gradiente-1.png')",
-        backgroundSize: 'cover',
-        backgroundPosition: 'center center'
-      }}
-    >
-      {/* Overlay preto */}
-      <div className="absolute inset-0 bg-black backdrop-blur-sm"></div>
-      
-      <div className="relative z-10 max-w-2xl mx-auto">
+    <div className="bg-black/40 backdrop-blur-sm py-10 px-8 border-b border-white/10">
+      <div className="max-w-3xl mx-auto">
         <div className="flex items-center justify-between relative">
           
-          {/* Linha de progresso glass */}
-          <div className="absolute top-3 left-0 w-full h-0.5 bg-white/20 rounded-full backdrop-blur-sm">
+          {/* Linha de progresso mais visível */}
+          <div className="absolute top-4 left-0 w-full h-1 bg-white/20 rounded-full backdrop-blur-sm">
             <div 
-              className="h-full bg-gradient-to-r from-orange-400 to-purple-500 rounded-full transition-all duration-700 ease-out shadow-lg"
+              className="h-full bg-gradient-to-r from-orange-400 to-purple-500 rounded-full transition-all duration-1000 ease-out shadow-lg"
               style={{ width: `${((currentStep - 1) / (totalSteps - 1)) * 100}%` }}
             />
           </div>
@@ -42,14 +32,14 @@ export const JumperStepIndicator: React.FC<JumperStepIndicatorProps> = ({
           {steps.map((step) => (
             <div key={step.number} className="relative z-10 flex flex-col items-center">
               
-              {/* Círculo com glass effect */}
+              {/* Círculo maior e mais contrastado */}
               <div className={`
-                w-6 h-6 rounded-full border-2 transition-all duration-300 flex items-center justify-center backdrop-blur-sm shadow-lg
+                w-8 h-8 rounded-full border-3 transition-all duration-300 flex items-center justify-center backdrop-blur-md shadow-lg
                 ${currentStep >= step.number 
-                  ? 'border-white/30 shadow-orange-400/30' 
+                  ? 'border-white/30 shadow-orange-400/40' 
                   : currentStep === step.number
-                  ? 'bg-orange-400 border-white/30 shadow-orange-400/25'
-                  : 'bg-white/10 border-white/30'
+                  ? 'bg-orange-400 border-white/30 shadow-orange-400/30'
+                  : 'bg-white/10 border-white/40'
                 }
               `}
               style={currentStep >= step.number ? {
@@ -58,21 +48,19 @@ export const JumperStepIndicator: React.FC<JumperStepIndicatorProps> = ({
                 backgroundPosition: 'center'
               } : {}}>
                 {currentStep > step.number ? (
-                  <span className="text-white text-xs font-bold">✓</span>
+                  <span className="text-white text-sm font-bold">✓</span>
                 ) : (
-                  <span className={`text-xs ${
-                    currentStep === step.number ? 'font-bold' : 'font-semibold'
-                  } ${
-                    currentStep >= step.number ? 'text-white' : 'text-white/80'
+                  <span className={`text-sm font-bold ${
+                    currentStep >= step.number ? 'text-white' : 'text-white/90'
                   }`}>
                     {step.number}
                   </span>
                 )}
               </div>
 
-              {/* Label com sombra */}
-              <p className={`mt-2 text-xs font-medium drop-shadow-sm ${
-                currentStep >= step.number ? 'text-white' : 'text-white/70'
+              {/* Label mais legível */}
+              <p className={`mt-3 text-sm font-semibold drop-shadow-lg ${
+                currentStep >= step.number ? 'text-white' : 'text-white/80'
               }`}>
                 {step.title}
               </p>

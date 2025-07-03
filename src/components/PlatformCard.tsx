@@ -20,59 +20,65 @@ export const PlatformCard: React.FC<PlatformCardProps> = ({ platform, isSelected
       onClick={onClick}
       disabled={!platform.available}
       className={`
-        group relative p-6 rounded-xl text-left transition-all duration-300 w-full backdrop-blur-md shadow-xl
+        relative p-8 rounded-2xl border-3 text-left transition-all duration-300 backdrop-blur-md shadow-2xl group
         ${!platform.available 
-          ? 'bg-white/5 border border-white/20 opacity-60 cursor-not-allowed' 
+          ? 'bg-black/20 border-white/20 opacity-50 cursor-not-allowed' 
           : isSelected
-          ? 'bg-white/10 border-2 border-orange-400/50 shadow-2xl hover:bg-white/15'
-          : 'bg-white/8 border border-white/20 hover:border-orange-400/50 hover:bg-white/12'
+          ? 'bg-black/30 border-orange-400 shadow-orange-400/30 hover:shadow-orange-400/50'
+          : 'bg-black/20 border-white/30 hover:bg-black/30 hover:border-white/50 hover:scale-105'
         }
       `}
     >
       
-      {/* Badge "Em Breve" */}
+      {/* Badge mais visível */}
       {!platform.available && (
-        <div className="absolute -top-2 -right-2 bg-gradient-to-r from-orange-400 to-orange-500 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg">
+        <div className="absolute -top-3 -right-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg">
           Em breve
         </div>
       )}
 
-      {/* Indicador de Seleção */}
+      {/* Indicador de seleção melhorado */}
       {isSelected && (
         <div className="absolute top-4 right-4">
-          <div className="w-5 h-5 bg-orange-400 rounded-full flex items-center justify-center shadow-lg">
-            <span className="text-white text-xs font-bold">✓</span>
+          <div className="w-6 h-6 bg-orange-400 rounded-full flex items-center justify-center shadow-lg">
+            <span className="text-white text-sm font-bold">✓</span>
           </div>
         </div>
       )}
 
       <div className="relative z-10">
-        {/* Ícone */}
+        {/* Ícone mais contrastado */}
         <div className={`
-          w-12 h-12 rounded-lg flex items-center justify-center mb-4 transition-all duration-300 backdrop-blur-sm shadow-lg
-          ${platform.name === 'Meta Ads' 
-            ? 'bg-blue-500/30 border border-blue-400/30' 
-            : 'bg-yellow-500/20 border border-yellow-400/20'
+          w-16 h-16 rounded-2xl flex items-center justify-center mb-6 transition-all duration-300 shadow-lg
+          ${isSelected 
+            ? 'bg-orange-400/30 border-2 border-orange-400/50' 
+            : 'bg-white/10 border-2 border-white/20 group-hover:bg-white/20'
           }
         `}>
-          <span className={`text-2xl ${
-            platform.name === 'Meta Ads' ? 'text-blue-200' : 'text-yellow-300'
-          }`}>
-            {platform.icon}
-          </span>
+          <span className="text-3xl">{platform.icon}</span>
         </div>
 
-        {/* Conteúdo */}
+        {/* Conteúdo mais legível */}
         <h3 className={`
-          font-semibold text-lg mb-1 transition-colors duration-300 drop-shadow-sm
-          ${platform.available ? 'text-white' : 'text-white/80'}
+          font-bold text-2xl mb-2 drop-shadow-lg transition-colors duration-300
+          ${isSelected 
+            ? 'text-white' 
+            : platform.available 
+            ? 'text-white/90 group-hover:text-white' 
+            : 'text-white/60'
+          }
         `}>
           {platform.name}
         </h3>
         
         <p className={`
-          text-sm font-normal transition-colors duration-300
-          ${platform.available ? 'text-white/80' : 'text-white/60'}
+          text-lg font-medium drop-shadow-sm transition-colors duration-300
+          ${isSelected 
+            ? 'text-white/90' 
+            : platform.available 
+            ? 'text-white/70 group-hover:text-white/80' 
+            : 'text-white/40'
+          }
         `}>
           {platform.subtitle}
         </p>
