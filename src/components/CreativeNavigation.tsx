@@ -2,6 +2,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { ThemeToggle } from './ThemeToggle';
 
 interface CreativeNavigationProps {
   currentStep: number;
@@ -30,6 +31,10 @@ const CreativeNavigation: React.FC<CreativeNavigationProps> = ({
         <span>Voltar</span>
       </Button>
 
+      <div className="flex items-center">
+        <ThemeToggle className="mx-4" />
+      </div>
+
       {currentStep < 4 ? (
         <Button
           onClick={onNextStep}
@@ -42,7 +47,7 @@ const CreativeNavigation: React.FC<CreativeNavigationProps> = ({
         <Button
           onClick={onSubmit}
           disabled={isSubmitting}
-          className="bg-gradient-success hover:opacity-90 transition-opacity flex items-center space-x-2 px-8"
+          className="bg-gradient-jumper hover:opacity-90 transition-opacity flex items-center space-x-2 px-8"
         >
           <span>🚀</span>
           <span>{isSubmitting ? 'Enviando...' : 'Enviar Criativo'}</span>
