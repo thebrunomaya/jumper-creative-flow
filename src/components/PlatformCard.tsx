@@ -20,19 +20,19 @@ export const PlatformCard: React.FC<PlatformCardProps> = ({ platform, isSelected
       onClick={onClick}
       disabled={!platform.available}
       className={`
-        group relative p-6 rounded-xl text-left transition-all duration-300 w-full
+        group relative p-6 rounded-xl text-left transition-all duration-300 w-full shadow-sm
         ${!platform.available 
-          ? 'bg-gray-900/20 border border-gray-800/20 opacity-50 cursor-not-allowed' 
+          ? 'bg-gray-800/30 border border-gray-700/40 opacity-60 cursor-not-allowed' 
           : isSelected
-          ? 'bg-gray-900/40 border border-orange-400/30 shadow-lg shadow-orange-400/10'
-          : 'bg-gray-900/40 border border-gray-700/30 hover:border-orange-400/30 hover:bg-gray-900/60'
+          ? 'bg-gray-800/50 border-2 border-orange-400/50 shadow-lg shadow-orange-400/10'
+          : 'bg-gray-800/40 border border-gray-700/50 hover:border-orange-400/50 hover:bg-gray-800/60'
         }
-      `}
+      `>
     >
       
       {/* Badge "Em Breve" */}
       {!platform.available && (
-        <div className="absolute -top-2 -right-2 bg-gradient-to-r from-orange-400 to-orange-500 text-white px-3 py-1 rounded-full text-xs font-medium">
+        <div className="absolute -top-2 -right-2 bg-gradient-to-r from-orange-400 to-orange-500 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-md">
           Em breve
         </div>
       )}
@@ -40,8 +40,8 @@ export const PlatformCard: React.FC<PlatformCardProps> = ({ platform, isSelected
       {/* Indicador de Seleção */}
       {isSelected && (
         <div className="absolute top-4 right-4">
-          <div className="w-4 h-4 bg-orange-400 rounded-full flex items-center justify-center">
-            <span className="text-white text-xs">✓</span>
+          <div className="w-5 h-5 bg-orange-400 rounded-full flex items-center justify-center shadow-md">
+            <span className="text-white text-xs font-bold">✓</span>
           </div>
         </div>
       )}
@@ -64,15 +64,15 @@ export const PlatformCard: React.FC<PlatformCardProps> = ({ platform, isSelected
 
         {/* Conteúdo */}
         <h3 className={`
-          font-medium text-lg mb-1 transition-colors duration-300
-          ${platform.available ? 'text-white' : 'text-gray-500'}
+          font-semibold text-lg mb-1 transition-colors duration-300
+          ${platform.available ? 'text-gray-100' : 'text-gray-300'}
         `}>
           {platform.name}
         </h3>
         
         <p className={`
-          text-sm font-light transition-colors duration-300
-          ${platform.available ? 'text-gray-500' : 'text-gray-600'}
+          text-sm font-normal transition-colors duration-300
+          ${platform.available ? 'text-gray-400' : 'text-gray-500'}
         `}>
           {platform.subtitle}
         </p>

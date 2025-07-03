@@ -74,7 +74,7 @@ const CreativeSystem: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-950">
+    <div className="min-h-screen bg-gradient-to-b from-gray-950 via-gray-950 to-gray-900/95">
       <JumperHeader />
       <JumperStepIndicator 
         currentStep={currentStep} 
@@ -83,7 +83,7 @@ const CreativeSystem: React.FC = () => {
       />
       
       <main className="max-w-4xl mx-auto px-8 py-16">
-        <div className="bg-gray-900/30 backdrop-blur-sm rounded-xl border border-gray-800/30 p-10 shadow-2xl mb-8">
+        <div className="bg-gray-900/60 backdrop-blur-sm rounded-xl border border-gray-800/50 p-10 shadow-2xl mb-8">
           <Breadcrumbs 
             formData={formData}
             clients={clients}
