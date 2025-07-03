@@ -46,6 +46,28 @@ export const buildNotionPayload = (
     observationsText = observationsText + variationSuffix;
   }
 
+  // Check if any content will be truncated and add warning to observations
+  const mainTextContent = creativeData.mainTexts.join(' | ');
+  const titleContent = creativeData.titles.join(' | ');
+  const descriptionContent = creativeData.description || '';
+  
+  let truncationWarnings = [];
+  if (mainTextContent.length > 2000) {
+    truncationWarnings.push(`Texto principal truncado de ${mainTextContent.length} para 2000 caracteres`);
+  }
+  if (titleContent.length > 2000) {
+    truncationWarnings.push(`Título truncado de ${titleContent.length} para 2000 caracteres`);
+  }
+  if (descriptionContent.length > 2000) {
+    truncationWarnings.push(`Descrição truncada de ${descriptionContent.length} para 2000 caracteres`);
+  }
+  
+  if (truncationWarnings.length > 0) {
+    const warningText = `\n\n⚠️ ATENÇÃO - Limites da API Notion: ${truncationWarnings.join(', ')}`;
+    observationsText = (observationsText + warningText).substring(0, 2000);
+    console.log('⚠️ Content truncated due to Notion API limits:', truncationWarnings);
+  }
+
   const notionPayload = {
     parent: {
       database_id: DB_CRIATIVOS_ID
@@ -92,7 +114,7 @@ export const buildNotionPayload = (
         rich_text: [
           {
             text: {
-              content: creativeData.mainTexts.join(' | ')
+              content: creativeData.mainTexts.join(' | ').substring(0, 2000)
             }
           }
         ]
@@ -101,7 +123,7 @@ export const buildNotionPayload = (
         rich_text: [
           {
             text: {
-              content: creativeData.titles.join(' | ')
+              content: creativeData.titles.join(' | ').substring(0, 2000)
             }
           }
         ]
@@ -110,7 +132,7 @@ export const buildNotionPayload = (
         rich_text: [
           {
             text: {
-              content: creativeData.description || ''
+              content: (creativeData.description || '').substring(0, 2000)
             }
           }
         ]
@@ -133,7 +155,7 @@ export const buildNotionPayload = (
         rich_text: [
           {
             text: {
-              content: observationsText
+              content: observationsText.substring(0, 2000)
             }
           }
         ]
