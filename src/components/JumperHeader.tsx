@@ -19,7 +19,7 @@ export const JumperHeader: React.FC = () => {
         {/* Logo com glass effect */}
         <div className="flex items-center space-x-3">
           <div className="w-10 h-10 bg-black backdrop-blur-sm rounded-md flex items-center justify-center border border-white/20 shadow-lg">
-            <img src="/lovable-uploads/79a4b82f-0de4-4b80-a55e-5e7e283eab07.png" alt="Jumper Logo" className="w-4 h-4" />
+            <img src="/lovable-uploads/79a4b82f-0de4-4b80-a55e-5e7e283eab07.png" alt="Jumper Logo" className="w-5 h-5" />
           </div>
           
           <div>
