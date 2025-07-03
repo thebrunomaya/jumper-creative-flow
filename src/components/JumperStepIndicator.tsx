@@ -46,9 +46,9 @@ export const JumperStepIndicator: React.FC<JumperStepIndicatorProps> = ({
               <div className={`
                 w-6 h-6 rounded-full border-2 transition-all duration-300 flex items-center justify-center backdrop-blur-sm shadow-lg
                 ${currentStep >= step.number 
-                  ? 'border-black shadow-orange-400/30' 
+                  ? 'border-white/30 shadow-orange-400/30' 
                   : currentStep === step.number
-                  ? 'bg-orange-400 border-black shadow-orange-400/25'
+                  ? 'bg-orange-400 border-white/30 shadow-orange-400/25'
                   : 'bg-white/10 border-white/30'
                 }
               `}
