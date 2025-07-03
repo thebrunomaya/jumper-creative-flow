@@ -109,3 +109,42 @@ export const updateNotionPageTitle = async (
     console.log('✅ Creative name updated successfully in Notion');
   }
 };
+
+export const addBlocksToNotionPage = async (
+  pageId: string,
+  blocks: any[],
+  NOTION_TOKEN: string
+) => {
+  try {
+    console.log(`📝 Adding ${blocks.length} blocks to Notion page ${pageId}`);
+    
+    const response = await fetch(`https://api.notion.com/v1/blocks/${pageId}/children`, {
+      method: 'PATCH',
+      headers: {
+        'Authorization': `Bearer ${NOTION_TOKEN}`,
+        'Content-Type': 'application/json',
+        'Notion-Version': '2022-06-28'
+      },
+      body: JSON.stringify({
+        children: blocks
+      })
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('❌ Failed to add blocks to Notion page:', {
+        status: response.status,
+        statusText: response.statusText,
+        body: errorText
+      });
+      throw new Error(`Failed to add blocks to Notion page: ${response.status} - ${errorText}`);
+    }
+
+    const result = await response.json();
+    console.log('✅ Blocks successfully added to Notion page');
+    return result;
+  } catch (error) {
+    console.error('❌ Error adding blocks to Notion page:', error);
+    throw error;
+  }
+};

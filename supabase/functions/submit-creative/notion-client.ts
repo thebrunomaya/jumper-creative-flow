@@ -1,6 +1,6 @@
 
 import { CreativeSubmissionData } from './types.ts';
-import { fetchNotionPage, createNotionPage, updateNotionPageTitle } from './notion-api.ts';
+import { fetchNotionPage, createNotionPage, updateNotionPageTitle, addBlocksToNotionPage } from './notion-api.ts';
 import { buildNotionPayload } from './notion-payload-builder.ts';
 import { extractAccountData, generateFullCreativeName, generateCreativeId } from './notion-properties-handler.ts';
 
@@ -14,7 +14,7 @@ export const createNotionCreative = async (
   clientData: any
 ) => {
   // Build the Notion payload
-  const { notionPayload, ctaValue } = buildNotionPayload(
+  const { notionPayload, ctaValue, pageBlocks } = buildNotionPayload(
     creativeData,
     variationFiles,
     variationIndex,
@@ -43,6 +43,12 @@ export const createNotionCreative = async (
   
   // Update the page with the generated name as title
   await updateNotionPageTitle(notionResult.id, fullCreativeName, NOTION_TOKEN);
+  
+  // Add content blocks to the page if we have any
+  if (pageBlocks && pageBlocks.length > 0) {
+    console.log(`📝 Adding ${pageBlocks.length} content blocks to page for variation ${variationIndex}`);
+    await addBlocksToNotionPage(notionResult.id, pageBlocks, NOTION_TOKEN);
+  }
   
   return {
     creativeId,

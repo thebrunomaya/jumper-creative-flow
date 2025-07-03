@@ -46,26 +46,71 @@ export const buildNotionPayload = (
     observationsText = observationsText + variationSuffix;
   }
 
-  // Check if any content will be truncated and add warning to observations
+  // Check which fields exceed Notion property limits and prepare page content
   const mainTextContent = creativeData.mainTexts.join(' | ');
   const titleContent = creativeData.titles.join(' | ');
   const descriptionContent = creativeData.description || '';
   
-  let truncationWarnings = [];
+  let pageBlocks = [];
+  let mainTextForProperty = mainTextContent;
+  let titleForProperty = titleContent;
+  let descriptionForProperty = descriptionContent;
+  
+  // Handle main text
   if (mainTextContent.length > 2000) {
-    truncationWarnings.push(`Texto principal truncado de ${mainTextContent.length} para 2000 caracteres`);
-  }
-  if (titleContent.length > 2000) {
-    truncationWarnings.push(`Título truncado de ${titleContent.length} para 2000 caracteres`);
-  }
-  if (descriptionContent.length > 2000) {
-    truncationWarnings.push(`Descrição truncada de ${descriptionContent.length} para 2000 caracteres`);
+    mainTextForProperty = "⚠️ ATENÇÃO: Texto completo disponível no corpo desta página";
+    pageBlocks.push({
+      object: "block",
+      type: "heading_2",
+      heading_2: {
+        rich_text: [{ type: "text", text: { content: "📝 Texto Principal Completo" } }]
+      }
+    });
+    pageBlocks.push({
+      object: "block",
+      type: "paragraph",
+      paragraph: {
+        rich_text: [{ type: "text", text: { content: mainTextContent } }]
+      }
+    });
   }
   
-  if (truncationWarnings.length > 0) {
-    const warningText = `\n\n⚠️ ATENÇÃO - Limites da API Notion: ${truncationWarnings.join(', ')}`;
-    observationsText = (observationsText + warningText).substring(0, 2000);
-    console.log('⚠️ Content truncated due to Notion API limits:', truncationWarnings);
+  // Handle title
+  if (titleContent.length > 2000) {
+    titleForProperty = "⚠️ ATENÇÃO: Título completo disponível no corpo desta página";
+    pageBlocks.push({
+      object: "block",
+      type: "heading_2", 
+      heading_2: {
+        rich_text: [{ type: "text", text: { content: "🏷️ Título Completo" } }]
+      }
+    });
+    pageBlocks.push({
+      object: "block",
+      type: "paragraph",
+      paragraph: {
+        rich_text: [{ type: "text", text: { content: titleContent } }]
+      }
+    });
+  }
+  
+  // Handle description
+  if (descriptionContent.length > 2000) {
+    descriptionForProperty = "⚠️ ATENÇÃO: Descrição completa disponível no corpo desta página";
+    pageBlocks.push({
+      object: "block",
+      type: "heading_2",
+      heading_2: {
+        rich_text: [{ type: "text", text: { content: "📄 Descrição Completa" } }]
+      }
+    });
+    pageBlocks.push({
+      object: "block",
+      type: "paragraph",
+      paragraph: {
+        rich_text: [{ type: "text", text: { content: descriptionContent } }]
+      }
+    });
   }
 
   const notionPayload = {
@@ -114,7 +159,7 @@ export const buildNotionPayload = (
         rich_text: [
           {
             text: {
-              content: creativeData.mainTexts.join(' | ').substring(0, 2000)
+              content: mainTextForProperty
             }
           }
         ]
@@ -123,7 +168,7 @@ export const buildNotionPayload = (
         rich_text: [
           {
             text: {
-              content: creativeData.titles.join(' | ').substring(0, 2000)
+              content: titleForProperty
             }
           }
         ]
@@ -132,7 +177,7 @@ export const buildNotionPayload = (
         rich_text: [
           {
             text: {
-              content: (creativeData.description || '').substring(0, 2000)
+              content: descriptionForProperty
             }
           }
         ]
@@ -189,5 +234,5 @@ export const buildNotionPayload = (
     console.log(`📎 Added ${variationFiles.length} files to Arquivos property for variation ${variationIndex}`);
   }
 
-  return { notionPayload, ctaValue };
+  return { notionPayload, ctaValue, pageBlocks };
 };
