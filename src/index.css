@@ -1,159 +1,144 @@
+/* ===========================
+   JUMPER STUDIO DESIGN SYSTEM 
+   Design customizado baseado na identidade visual oficial
+   =========================== */
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Jumper Studio Brand Font */
+/* FONTES OFICIAIS JUMPER STUDIO - SELF-HOSTED OTIMIZADAS */
+
+/* PRELOAD Critical Fonts - Adicionar no <head> do HTML */
+/*
+<link rel="preload" href="https://jumper.studio/wp-content/uploads/2025/07/HafferVF.ttf" as="font" type="font/ttf" crossorigin>
+<link rel="preload" href="https://jumper.studio/wp-content/uploads/2025/07/HafferItalicVF.ttf" as="font" type="font/ttf" crossorigin>
+*/
+
 @font-face {
   font-family: 'Haffer';
-  src: url('https://eu-central.storage.cloudconvert.com/tasks/39a9d560-157d-4231-8d34-6d7bea763456/HafferXHUprightVF.woff2?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=cloudconvert-production%2F20250702%2Ffra%2Fs3%2Faws4_request&X-Amz-Date=20250702T095558Z&X-Amz-Expires=86400&X-Amz-Signature=e17d2cb01648a660e7c08a724acb47571466bc35fdfb2b9c71e1d4f764adbe6f&X-Amz-SignedHeaders=host&response-content-disposition=attachment%3B%20filename%3D%22HafferXHUprightVF.woff2%22&response-content-type=font%2Fwoff2&x-id=GetObject') format('woff2');
+  src: url('https://jumper.studio/wp-content/uploads/2025/07/HafferVF.ttf') format('truetype-variations');
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
+  unicode-range: U+0020-007E, U+00A0-00FF, U+2010-2027;
 }
 
-/* Jumper Studio Complete Design System */
+@font-face {
+  font-family: 'Haffer';
+  src: url('https://jumper.studio/wp-content/uploads/2025/07/HafferItalicVF.ttf') format('truetype-variations');
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
+  unicode-range: U+0020-007E, U+00A0-00FF, U+2010-2027;
+}
+
 @layer base {
   :root {
-    /* Jumper Brand Colors */
-    --jumper-orange: 25 100% 61%;     /* #FF8A3D */
-    --jumper-red: 11 83% 51%;         /* #DC2626 */
-    --jumper-dark: 0 0% 7%;           /* #1A1A1A */
-    --jumper-black: 0 0% 0%;          /* #000000 */
-    --jumper-white: 0 0% 100%;        /* #FFFFFF */
-    --jumper-light: 0 0% 98%;         /* #FAFAFA */
-    --jumper-gray: 0 0% 50%;          /* #808080 */
+    /* === CORES OFICIAIS JUMPER STUDIO === */
     
-    /* Dark Mode (Default) - Lo-Fi Black Theme */
+    /* Cores Primárias */
+    --jumper-black: 0 0% 0%;           /* #000000 */
+    --jumper-white: 0 0% 100%;         /* #FFFFFF */
+    --jumper-orange: 14 95% 55%;       /* #FA4721 */
+    --jumper-purple: 277 46% 46%;      /* #8143A7 */
+    
+    /* Tons de Cinza */
+    --jumper-gray-dark: 0 0% 9%;       /* #181818 */
+    --jumper-gray-medium: 258 4% 25%;  /* #3E3D40 */
+    --jumper-gray-light: 216 17% 78%;  /* #C6CBD4 */
+    
+    /* === MAPEAMENTO PARA SHADCN === */
+    
+    /* Backgrounds - Dark Mode Default */
     --background: var(--jumper-black);
-    --foreground: 0 0% 95%;
-
-    --card: var(--jumper-dark);
-    --card-foreground: 0 0% 95%;
-
-    --popover: var(--jumper-dark);
-    --popover-foreground: 0 0% 95%;
-
-    --primary: var(--jumper-orange);
-    --primary-foreground: var(--jumper-black);
-
-    --secondary: 0 0% 15%;
-    --secondary-foreground: 0 0% 95%;
-
-    --muted: 0 0% 10%;
-    --muted-foreground: 0 0% 65%;
-
-    --accent: var(--jumper-orange);
-    --accent-foreground: var(--jumper-black);
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 95%;
-
-    --border: 0 0% 20%;
-    --input: 0 0% 15%;
-    --ring: var(--jumper-orange);
-
-    --radius: 0.25rem;
-
-    /* Jumper Gradients - Dark */
-    --gradient-jumper: linear-gradient(135deg, hsl(var(--jumper-orange)), hsl(var(--jumper-red)));
-    --gradient-jumper-dark: linear-gradient(135deg, hsl(var(--jumper-red)), hsl(var(--jumper-black)));
-    --gradient-jumper-subtle: linear-gradient(135deg, hsl(var(--jumper-orange) / 0.1), hsl(var(--jumper-red) / 0.1));
-
-    /* Sidebar - Dark */
-    --sidebar-background: var(--jumper-dark);
-    --sidebar-foreground: 0 0% 95%;
-    --sidebar-primary: var(--jumper-orange);
-    --sidebar-primary-foreground: var(--jumper-black);
-    --sidebar-accent: 0 0% 15%;
-    --sidebar-accent-foreground: 0 0% 95%;
-    --sidebar-border: 0 0% 20%;
-    --sidebar-ring: var(--jumper-orange);
-  }
-
-  .light {
-    /* Light Mode - Elegant White Theme */
-    --background: var(--jumper-white);
-    --foreground: 0 0% 5%;
-
-    --card: var(--jumper-light);
-    --card-foreground: 0 0% 5%;
-
-    --popover: var(--jumper-white);
-    --popover-foreground: 0 0% 5%;
-
+    --foreground: var(--jumper-white);
+    
+    /* Cards e Containers */
+    --card: var(--jumper-gray-dark);
+    --card-foreground: var(--jumper-white);
+    
+    /* Popovers e Dropdowns */
+    --popover: var(--jumper-gray-dark);
+    --popover-foreground: var(--jumper-white);
+    
+    /* Elementos Primários (CTAs) */
     --primary: var(--jumper-orange);
     --primary-foreground: var(--jumper-white);
-
-    --secondary: 0 0% 96%;
-    --secondary-foreground: 0 0% 5%;
-
-    --muted: 0 0% 96%;
-    --muted-foreground: 0 0% 45%;
-
-    --accent: var(--jumper-orange);
+    
+    /* Elementos Secundários */
+    --secondary: var(--jumper-gray-medium);
+    --secondary-foreground: var(--jumper-white);
+    
+    /* Texto Muted/Subtítulos */
+    --muted: var(--jumper-gray-medium);
+    --muted-foreground: var(--jumper-gray-light);
+    
+    /* Acentos e Links */
+    --accent: var(--jumper-purple);
     --accent-foreground: var(--jumper-white);
-
-    --destructive: 0 84.2% 60.2%;
+    
+    /* Estados Destrutivos/Erro */
+    --destructive: var(--jumper-orange);
     --destructive-foreground: var(--jumper-white);
-
-    --border: 0 0% 90%;
-    --input: 0 0% 96%;
+    
+    /* Bordas e Inputs */
+    --border: var(--jumper-gray-medium);
+    --input: var(--jumper-gray-medium);
     --ring: var(--jumper-orange);
-
-    /* Jumper Gradients - Light */
-    --gradient-jumper: linear-gradient(135deg, hsl(var(--jumper-orange)), hsl(var(--jumper-red)));
-    --gradient-jumper-light: linear-gradient(135deg, hsl(var(--jumper-white)), hsl(var(--jumper-light)));
-    --gradient-jumper-subtle: linear-gradient(135deg, hsl(var(--jumper-orange) / 0.05), hsl(var(--jumper-red) / 0.05));
-
-    /* Sidebar - Light */
-    --sidebar-background: var(--jumper-light);
-    --sidebar-foreground: 0 0% 5%;
-    --sidebar-primary: var(--jumper-orange);
-    --sidebar-primary-foreground: var(--jumper-white);
-    --sidebar-accent: 0 0% 96%;
-    --sidebar-accent-foreground: 0 0% 5%;
-    --sidebar-border: 0 0% 90%;
-    --sidebar-ring: var(--jumper-orange);
+    
+    /* Radius padrão */
+    --radius: 0.75rem; /* 12px - mais arredondado */
+    
+    /* === CORES CUSTOMIZADAS JUMPER === */
+    --jumper-gradient-primary: linear-gradient(135deg, hsl(var(--jumper-orange)) 0%, hsl(var(--jumper-purple)) 100%);
+    --jumper-gradient-secondary: linear-gradient(135deg, hsl(var(--jumper-orange)) 0%, hsl(var(--jumper-gray-dark)) 100%);
+    --jumper-gradient-accent: linear-gradient(135deg, hsl(var(--jumper-purple)) 0%, hsl(var(--jumper-gray-dark)) 100%);
   }
 
-  .dark {
-    /* Dark Mode - Same as root */
-    --background: var(--jumper-black);
-    --foreground: 0 0% 95%;
-
-    --card: var(--jumper-dark);
-    --card-foreground: 0 0% 95%;
-
-    --popover: var(--jumper-dark);
-    --popover-foreground: 0 0% 95%;
-
-    --primary: var(--jumper-orange);
-    --primary-foreground: var(--jumper-black);
-
-    --secondary: 0 0% 15%;
-    --secondary-foreground: 0 0% 95%;
-
-    --muted: 0 0% 10%;
-    --muted-foreground: 0 0% 65%;
-
-    --accent: var(--jumper-orange);
-    --accent-foreground: var(--jumper-black);
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 95%;
-
-    --border: 0 0% 20%;
-    --input: 0 0% 15%;
-    --ring: var(--jumper-orange);
-
-    --sidebar-background: var(--jumper-dark);
-    --sidebar-foreground: 0 0% 95%;
-    --sidebar-primary: var(--jumper-orange);
-    --sidebar-primary-foreground: var(--jumper-black);
-    --sidebar-accent: 0 0% 15%;
-    --sidebar-accent-foreground: 0 0% 95%;
-    --sidebar-border: 0 0% 20%;
-    --sidebar-ring: var(--jumper-orange);
+  /* === LIGHT MODE - ELEGANTE E SOFISTICADO === */
+  .light {
+    /* Backgrounds Principais */
+    --background: 0 0% 100%;           /* #FFFFFF - Branco puro */
+    --foreground: 0 0% 10%;            /* #1A1A1A - Quase preto */
+    
+    /* Cards e Containers */
+    --card: 0 0% 100%;                 /* #FFFFFF - Cards brancos */
+    --card-foreground: 0 0% 10%;       /* #1A1A1A - Texto escuro */
+    
+    /* Popovers e Dropdowns */
+    --popover: 0 0% 100%;              /* #FFFFFF */
+    --popover-foreground: 0 0% 10%;    /* #1A1A1A */
+    
+    /* Primário mantém laranja vibrante */
+    --primary: var(--jumper-orange);   /* #FA4721 - Mesmo CTA! */
+    --primary-foreground: var(--jumper-white);
+    
+    /* Secundário mais sutil no light */
+    --secondary: 220 13% 96%;          /* #F8F9FA - Cinza claríssimo */
+    --secondary-foreground: 0 0% 10%;  /* #1A1A1A */
+    
+    /* Muted areas */
+    --muted: 220 13% 95%;              /* #F1F3F4 - Cinza muito claro */
+    --muted-foreground: 215 14% 34%;   /* #4A5568 - Cinza médio */
+    
+    /* Accent mantém roxo */
+    --accent: var(--jumper-purple);    /* #8143A7 - Mesmo roxo! */
+    --accent-foreground: var(--jumper-white);
+    
+    /* Destrutivo mantém laranja */
+    --destructive: var(--jumper-orange);
+    --destructive-foreground: var(--jumper-white);
+    
+    /* Bordas e Inputs sutis */
+    --border: 220 13% 91%;             /* #E2E8F0 - Bordas claras */
+    --input: 220 13% 91%;              /* #E2E8F0 - Input backgrounds */
+    --ring: var(--jumper-orange);      /* #FA4721 - Focus laranja */
+    
+    /* === GRADIENTES LIGHT MODE === */
+    --jumper-gradient-primary: linear-gradient(135deg, hsl(var(--jumper-orange)) 0%, hsl(277 46% 56%) 100%);
+    --jumper-gradient-secondary: linear-gradient(135deg, hsl(14 100% 97%) 0%, hsl(277 46% 98%) 100%);
+    --jumper-gradient-accent: linear-gradient(135deg, hsl(var(--jumper-purple)) 0%, hsl(220 13% 95%) 100%);
   }
 }
 
@@ -161,40 +146,360 @@
   * {
     @apply border-border;
   }
-
+  
+  /* TIPOGRAFIA OFICIAL HAFFER - VARIABLE FONTS */
   body {
-    @apply bg-background text-foreground font-haffer transition-colors duration-300;
+    @apply bg-background text-foreground;
+    font-family: 'Haffer', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-weight: 400;
+    font-variation-settings: 'wght' 400;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
-
+  
+  /* Hierarquia Tipográfica com Variable Font */
   h1, h2, h3, h4, h5, h6 {
-    @apply font-haffer font-bold;
+    font-family: 'Haffer', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    line-height: 1.2;
   }
+  
+  h1 { 
+    font-size: 2.5rem; 
+    font-weight: 700; 
+    font-variation-settings: 'wght' 700;
+  }
+  h2 { 
+    font-size: 2rem; 
+    font-weight: 600; 
+    font-variation-settings: 'wght' 600;
+  }
+  h3 { 
+    font-size: 1.5rem; 
+    font-weight: 600; 
+    font-variation-settings: 'wght' 600;
+  }
+  h4 { 
+    font-size: 1.25rem; 
+    font-weight: 500; 
+    font-variation-settings: 'wght' 500;
+  }
+  h5 { 
+    font-size: 1.125rem; 
+    font-weight: 500; 
+    font-variation-settings: 'wght' 500;
+  }
+  h6 { 
+    font-size: 1rem; 
+    font-weight: 500; 
+    font-variation-settings: 'wght' 500;
+  }
+}
 
-  /* Theme Toggle Styles */
+@layer components {
+  /* === COMPONENTES CUSTOMIZADOS JUMPER === */
+  
+  /* Botão Principal com Gradiente */
+  .btn-jumper-primary {
+    @apply bg-gradient-to-r from-orange-500 to-purple-600 text-white font-medium px-6 py-3 rounded-xl;
+    @apply hover:from-orange-600 hover:to-purple-700 transition-all duration-300;
+    @apply shadow-lg hover:shadow-xl;
+    background: var(--jumper-gradient-primary);
+  }
+  
+  /* Botão Secundário */
+  .btn-jumper-secondary {
+    @apply bg-gray-800 text-white border border-gray-600 font-medium px-6 py-3 rounded-xl;
+    @apply hover:bg-gray-700 hover:border-gray-500 transition-all duration-300;
+  }
+  
+  /* Botão Ghost */
+  .btn-jumper-ghost {
+    @apply bg-transparent text-gray-300 border border-gray-600 font-medium px-6 py-3 rounded-xl;
+    @apply hover:bg-gray-800 hover:text-white transition-all duration-300;
+  }
+  
+  /* Card Jumper */
+  .card-jumper {
+    @apply bg-gray-900 border border-gray-700 rounded-xl p-6 shadow-lg;
+    @apply hover:border-gray-600 transition-all duration-300;
+  }
+  
+  /* Card com Gradiente de Borda */
+  .card-jumper-gradient {
+    @apply relative bg-gray-900 rounded-xl p-6 shadow-lg;
+    background: linear-gradient(var(--jumper-gray-dark), var(--jumper-gray-dark)) padding-box,
+                var(--jumper-gradient-primary) border-box;
+    border: 2px solid transparent;
+  }
+  
+  /* Input Jumper */
+  .input-jumper {
+    @apply bg-gray-800 border border-gray-600 text-white placeholder-gray-400 rounded-lg px-4 py-3;
+    @apply focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 transition-all duration-300;
+  }
+  
+  /* Upload Zone */
+  .upload-zone-jumper {
+    @apply border-2 border-dashed border-gray-600 rounded-xl p-8 text-center;
+    @apply hover:border-orange-500 hover:bg-gray-900/50 transition-all duration-300;
+    @apply cursor-pointer relative overflow-hidden;
+  }
+  
+  .upload-zone-jumper::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(250, 71, 33, 0.1), transparent);
+    transition: left 0.6s;
+  }
+  
+  .upload-zone-jumper:hover::before {
+    left: 100%;
+  }
+  
+  /* Badge Jumper */
+  .badge-jumper {
+    @apply bg-orange-500/20 text-orange-400 border border-orange-500/30 px-3 py-1 rounded-full text-sm font-medium;
+  }
+  
+  /* Progress Bar */
+  .progress-jumper {
+    @apply w-full bg-gray-800 rounded-full h-2 overflow-hidden;
+  }
+  
+  .progress-jumper .progress-fill {
+    @apply h-full rounded-full transition-all duration-500;
+    background: var(--jumper-gradient-primary);
+  }
+  
+  /* Checkbox Customizado */
+  .checkbox-jumper {
+    @apply w-5 h-5 border-2 border-gray-600 rounded bg-transparent;
+    @apply checked:bg-orange-500 checked:border-orange-500;
+    @apply focus:ring-2 focus:ring-orange-500/20;
+  }
+  
+  /* Toggle Switch */
+  .toggle-jumper {
+    @apply relative w-12 h-6 bg-gray-700 rounded-full cursor-pointer transition-colors duration-300;
+    @apply data-[state=checked]:bg-orange-500;
+  }
+  
+  /* Texto com Gradiente */
+  .text-gradient-jumper {
+    background: var(--jumper-gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  /* Shadow Jumper */
+  .shadow-jumper {
+    box-shadow: 0 10px 40px rgba(250, 71, 33, 0.1);
+  }
+  
+  /* Upload Zone Light Mode */
+  .light .upload-zone-jumper {
+    @apply border-gray-300 bg-white;
+    @apply hover:border-orange-500 hover:bg-orange-50 transition-all duration-300;
+  }
+  
+  /* Card Light Mode - Sombras Elegantes */
+  .light .card-jumper {
+    @apply bg-white border-gray-200 shadow-sm;
+    @apply hover:border-gray-300 hover:shadow-md;
+    box-shadow: 0 2px 10px rgba(250, 71, 33, 0.05);
+  }
+  
+  .light .card-jumper:hover {
+    box-shadow: 0 8px 25px rgba(250, 71, 33, 0.1);
+  }
+  
+  /* Input Light Mode */
+  .light .input-jumper {
+    @apply bg-white border-gray-300 text-gray-900 placeholder-gray-500;
+    @apply focus:border-orange-500 focus:ring-orange-500/20;
+  }
+  
+  /* Buttons Light Mode - Mantém cores vibrantes */
+  .light .btn-jumper-secondary {
+    @apply bg-gray-100 text-gray-900 border-gray-300;
+    @apply hover:bg-gray-200 hover:border-gray-400;
+  }
+  
+  .light .btn-jumper-ghost {
+    @apply bg-transparent text-gray-700 border-gray-300;
+    @apply hover:bg-gray-100 hover:text-gray-900;
+  }
+  
+  /* Badge Light Mode */
+  .light .badge-jumper {
+    @apply bg-orange-100 text-orange-700 border-orange-200;
+  }
+  
+  /* Progress Light Mode */
+  .light .progress-jumper {
+    @apply bg-gray-200;
+  }
+  
+  /* Toggle Theme Button */
   .theme-toggle {
-    @apply relative inline-flex items-center justify-center w-12 h-6 rounded-full;
-    @apply bg-muted border border-border transition-all duration-300;
-    @apply hover:bg-muted/80 focus:outline-none focus:ring-2 focus:ring-ring;
+    @apply relative w-12 h-6 rounded-full cursor-pointer transition-all duration-300;
+    background: var(--jumper-gradient-primary);
   }
-
-  .toggle-thumb {
-    @apply absolute left-1 top-1 w-4 h-4 rounded-full;
-    @apply bg-background border border-border transition-all duration-300;
-    @apply flex items-center justify-center shadow-sm;
+  
+  .theme-toggle .toggle-thumb {
+    @apply absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-md transition-transform duration-300;
+    @apply flex items-center justify-center text-xs;
   }
-
-  .light .toggle-thumb {
-    @apply translate-x-6;
+  
+  .light .theme-toggle .toggle-thumb {
+    transform: translateX(24px);
   }
-
-  /* Custom animations for theme switching */
-  @keyframes theme-switch {
-    0% { opacity: 0.8; }
-    50% { opacity: 0.6; }
-    100% { opacity: 1; }
+  
+  /* Scrollbar Light Mode */
+  .light .scrollbar-jumper::-webkit-scrollbar-track {
+    @apply bg-gray-100;
   }
+  
+  .light .scrollbar-jumper::-webkit-scrollbar-thumb {
+    @apply bg-gray-400;
+  }
+  
+  .light .scrollbar-jumper::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-500;
+  }
+}
 
-  .theme-switching {
-    animation: theme-switch 0.3s ease-in-out;
+@layer utilities {
+  /* === UTILITIES CUSTOMIZADAS === */
+  
+  /* Backgrounds com Gradiente */
+  .bg-gradient-jumper-primary {
+    background: var(--jumper-gradient-primary);
+  }
+  
+  .bg-gradient-jumper-secondary {
+    background: var(--jumper-gradient-secondary);
+  }
+  
+  .bg-gradient-jumper-accent {
+    background: var(--jumper-gradient-accent);
+  }
+  
+  /* Texto com Cores Oficiais */
+  .text-jumper-orange {
+    color: hsl(var(--jumper-orange));
+  }
+  
+  .text-jumper-purple {
+    color: hsl(var(--jumper-purple));
+  }
+  
+  .text-jumper-gray {
+    color: hsl(var(--jumper-gray-light));
+  }
+  
+  /* Borders com Cores Oficiais */
+  .border-jumper-orange {
+    border-color: hsl(var(--jumper-orange));
+  }
+  
+  .border-jumper-purple {
+    border-color: hsl(var(--jumper-purple));
+  }
+  
+  /* Backgrounds com Cores Oficiais */
+  .bg-jumper-black {
+    background-color: hsl(var(--jumper-black));
+  }
+  
+  .bg-jumper-gray-dark {
+    background-color: hsl(var(--jumper-gray-dark));
+  }
+  
+  .bg-jumper-gray-medium {
+    background-color: hsl(var(--jumper-gray-medium));
+  }
+  
+  .bg-jumper-orange {
+    background-color: hsl(var(--jumper-orange));
+  }
+  
+  .bg-jumper-purple {
+    background-color: hsl(var(--jumper-purple));
+  }
+  
+  /* Hover Effects */
+  .hover-lift {
+    @apply transition-transform duration-300 hover:-translate-y-1;
+  }
+  
+  .hover-glow {
+    @apply transition-shadow duration-300;
+  }
+  
+  .hover-glow:hover {
+    box-shadow: 0 0 30px rgba(250, 71, 33, 0.3);
+  }
+  
+  /* Animations */
+  .fade-in {
+    animation: fadeIn 0.5s ease-out;
+  }
+  
+  .slide-up {
+    animation: slideUp 0.6s ease-out;
+  }
+  
+  .pulse-orange {
+    animation: pulseOrange 2s infinite;
+  }
+}
+
+/* === KEYFRAMES === */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { 
+    opacity: 0; 
+    transform: translateY(20px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+}
+
+@keyframes pulseOrange {
+  0%, 100% { 
+    box-shadow: 0 0 0 0 rgba(250, 71, 33, 0.4); 
+  }
+  50% { 
+    box-shadow: 0 0 0 10px rgba(250, 71, 33, 0); 
+  }
+}
+
+/* === RESPONSIVIDADE === */
+@media (max-width: 768px) {
+  h1 { font-size: 2rem; }
+  h2 { font-size: 1.75rem; }
+  h3 { font-size: 1.25rem; }
+  
+  .btn-jumper-primary,
+  .btn-jumper-secondary,
+  .btn-jumper-ghost {
+    @apply px-4 py-2 text-sm;
+  }
+  
+  .card-jumper {
+    @apply p-4;
   }
 }
