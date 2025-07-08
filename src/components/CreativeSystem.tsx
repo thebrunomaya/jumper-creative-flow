@@ -64,7 +64,7 @@ const CreativeSystem: React.FC = () => {
 
   if (isSubmitted) {
     return (
-      <div className="min-h-screen bg-jumper-background">
+      <div className="min-h-screen bg-background">
         <Header />
         <div className="max-w-4xl mx-auto px-4 py-8">
           <Success creativeIds={creativeIds} onNewCreative={handleReset} />
@@ -74,7 +74,7 @@ const CreativeSystem: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-jumper-background">
+    <div className="min-h-screen bg-background">
       <Header />
       
       <div className="max-w-4xl mx-auto px-4 py-8">
@@ -84,7 +84,7 @@ const CreativeSystem: React.FC = () => {
           stepLabels={STEP_LABELS} 
         />
 
-        <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
+        <div className="bg-card rounded-lg shadow-lg p-8 mb-8">
           <Breadcrumbs 
             formData={formData}
             clients={clients}
