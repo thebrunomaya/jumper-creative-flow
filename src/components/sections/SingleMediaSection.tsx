@@ -107,24 +107,24 @@ const SingleMediaSection: React.FC<SingleMediaSectionProps> = ({
   return (
     <div className="space-y-8 animate-fade-in">
       <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold text-jumper-text mb-2">🖼️ Upload de Arquivos</h2>
-        <p className="text-gray-600">Envie suas imagens e vídeos nos diferentes formatos</p>
+        <h2 className="text-2xl font-bold text-foreground mb-2">🖼️ Upload de Arquivos</h2>
+        <p className="text-muted-foreground">Envie suas imagens e vídeos nos diferentes formatos</p>
       </div>
 
       {/* Warning when positions are disabled - apenas informativo */}
       {hasAnyDisabledPosition() && (
-        <Alert className="border-yellow-200 bg-yellow-50">
-          <AlertTriangle className="h-4 w-4 text-yellow-600" />
-          <AlertDescription className="text-yellow-800">
+        <Alert className="border-warning/30 bg-warning/10">
+          <AlertTriangle className="h-4 w-4 text-warning" />
+          <AlertDescription className="text-warning-foreground">
             <strong>Atenção:</strong> Para impedir que o Meta faça ajustes automáticos no anúncio, é necessário enviar mídias compatíveis para todos os posicionamentos.
           </AlertDescription>
         </Alert>
       )}
 
       {mediaVariations.map((variation, index) => (
-        <div key={variation.id} className="space-y-6 p-6 rounded-lg bg-white">
+        <div key={variation.id} className="space-y-6 p-6 rounded-lg bg-card border border-border">
           <div className="flex items-center justify-between">
-            <h3 className="text-xl font-bold text-jumper-text">
+            <h3 className="text-xl font-bold text-foreground">
               📎 Mídia {variation.id}
             </h3>
             {mediaVariations.length > 1 && (
@@ -132,7 +132,7 @@ const SingleMediaSection: React.FC<SingleMediaSectionProps> = ({
                 variant="outline"
                 size="sm"
                 onClick={() => removeVariation(variation.id)}
-                className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                className="text-destructive hover:text-destructive hover:bg-destructive/10"
               >
                 <Trash2 className="h-4 w-4 mr-1" />
                 Remover
@@ -183,7 +183,7 @@ const SingleMediaSection: React.FC<SingleMediaSectionProps> = ({
           <Button
             variant="outline"
             onClick={addVariation}
-            className="bg-white hover:bg-gray-50 border-2 border-dashed border-gray-300 hover:border-jumper-blue transition-colors"
+            className="bg-card hover:bg-accent border-2 border-dashed border-muted hover:border-primary transition-colors"
           >
             <Plus className="h-4 w-4 mr-2" />
             Adicionar Variação ({mediaVariations.length}/10)
@@ -193,25 +193,25 @@ const SingleMediaSection: React.FC<SingleMediaSectionProps> = ({
 
       {/* Apenas mostrar erro quando há erro de validação do formulário */}
       {errors.files && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+        <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-4">
           <div className="flex items-center space-x-2">
-            <AlertTriangle className="h-4 w-4 text-red-600" />
-            <p className="text-sm text-red-600">{errors.files}</p>
+            <AlertTriangle className="h-4 w-4 text-destructive" />
+            <p className="text-sm text-destructive">{errors.files}</p>
           </div>
         </div>
       )}
 
       {/* Info box */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+      <div className="bg-muted/50 border border-border rounded-lg p-4">
         <div className="flex items-center space-x-2">
           <div className="flex-shrink-0">
-            <svg className="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+            <svg className="h-5 w-5 text-primary" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
             </svg>
           </div>
           <div>
-            <p className="text-sm font-medium text-blue-800">Dica</p>
-            <p className="text-sm text-blue-700">
+            <p className="text-sm font-medium text-foreground">Dica</p>
+            <p className="text-sm text-muted-foreground">
               Você pode enviar um arquivo por formato em cada mídia. Use os toggles para ativar/desativar posicionamentos (máximo 2 desativados). Adicione variações para criar diferentes versões do seu anúncio.
             </p>
           </div>

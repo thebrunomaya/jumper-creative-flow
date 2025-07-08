@@ -27,12 +27,12 @@ const FileUploadZone: React.FC<FileUploadZoneProps> = ({
       <div className="flex-1 flex items-center justify-center">
         <div className="text-center space-y-4 p-4 w-full opacity-60">
           <div className="flex items-center space-x-3 justify-center">
-            <Upload className="h-8 w-8 text-gray-400 flex-shrink-0" />
+            <Upload className="h-8 w-8 text-disabled-text flex-shrink-0" />
             <div className="text-center">
-              <p className="text-base font-medium text-gray-400">
+              <p className="text-base font-medium text-disabled-text">
                 Posicionamento desativado
               </p>
-              <p className="text-sm text-gray-400 mt-1">
+              <p className="text-sm text-disabled-text mt-1">
                 {dimensions}
               </p>
             </div>
@@ -47,25 +47,25 @@ const FileUploadZone: React.FC<FileUploadZoneProps> = ({
       {...getRootProps()}
       className={`flex-1 flex items-center justify-center cursor-pointer transition-all duration-200 ${
         isDragActive
-        ? 'bg-blue-50 border-blue-200'
-        : 'hover:bg-gray-50'
+        ? 'bg-upload-zone-hover border-accent'
+        : 'hover:bg-upload-zone-hover'
       }`}
     >
       <input {...getInputProps()} />
       <div className="text-center space-y-4 p-4 w-full">
         <div className="flex items-center space-x-3 justify-center">
-          <Upload className="h-8 w-8 text-gray-400 flex-shrink-0" />
+          <Upload className="h-8 w-8 text-muted-foreground flex-shrink-0" />
           <div className="text-center">
-            <p className="text-base font-medium text-jumper-text">
+            <p className="text-base font-medium text-foreground">
               {isDragActive 
               ? 'Solte o arquivo aqui' 
               : 'Clique ou arraste uma imagem/vídeo'
               }
             </p>
-            <p className="text-sm text-gray-600 mt-1">
+            <p className="text-sm text-muted-foreground mt-1">
               JPG, PNG, MP4, MOV • {dimensions}
             </p>
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-muted-foreground mt-1">
               Máx: 30MB (imagens) / 4GB (vídeos)
             </p>
           </div>

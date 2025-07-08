@@ -34,12 +34,12 @@ const ThumbnailPreview: React.FC<ThumbnailPreviewProps> = ({
   if (!enabled) {
     return (
       <div 
-        className="flex items-center justify-center bg-gray-100 rounded opacity-50"
+        className="flex items-center justify-center bg-disabled-bg rounded opacity-50"
         style={{ width: `${width}px`, height: `${height}px` }}
       >
         <div className="text-center">
-          <FileText className="h-6 w-6 text-gray-400 mx-auto mb-1" />
-          <span className="text-xs text-gray-500">Desativado</span>
+          <FileText className="h-6 w-6 text-disabled-text mx-auto mb-1" />
+          <span className="text-xs text-disabled-text">Desativado</span>
         </div>
       </div>
     );
@@ -137,7 +137,7 @@ const ThumbnailPreview: React.FC<ThumbnailPreviewProps> = ({
         
         {/* Format indicator - moved to top-left */}
         <div className="absolute top-1 left-1">
-          <div className="bg-gray-600 bg-opacity-90 text-white text-xs px-1.5 py-0.5 rounded">
+          <div className="bg-primary bg-opacity-90 text-primary-foreground text-xs px-1.5 py-0.5 rounded">
             {carouselMode 
               ? (carouselAspectRatio === '1:1' ? '1:1' : '4:5')
               : (format === 'square' ? '1:1' : format === 'vertical' ? '9:16' : '1.91:1')
@@ -171,8 +171,8 @@ const ThumbnailPreview: React.FC<ThumbnailPreviewProps> = ({
               carouselAspectRatio={carouselAspectRatio}
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center bg-gray-200">
-              <FileText className="h-6 w-6 text-gray-400" />
+            <div className="w-full h-full flex items-center justify-center bg-thumbnail-bg">
+              <FileText className="h-6 w-6 text-muted-foreground" />
             </div>
           )}
           
