@@ -2,6 +2,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
+import DarkModeToggle from './DarkModeToggle';
 
 interface CreativeNavigationProps {
   currentStep: number;
@@ -29,6 +30,8 @@ const CreativeNavigation: React.FC<CreativeNavigationProps> = ({
         <ArrowLeft className="w-4 h-4" />
         <span>Voltar</span>
       </Button>
+
+      <DarkModeToggle />
 
       {currentStep < 4 ? (
         <Button
