@@ -9,7 +9,7 @@ import Step3 from './steps/Step3';
 import Step4 from './steps/Step4';
 import Success from './Success';
 import CreativeNavigation from './CreativeNavigation';
-import { useAccounts } from '@/hooks/useAccounts';
+import { useNotionClients } from '@/hooks/useNotionData';
 import { useCreativeForm } from '@/hooks/useCreativeForm';
 import { useCreativeSubmission } from '@/hooks/useCreativeSubmission';
 
@@ -17,7 +17,7 @@ const STEP_LABELS = ['Básico', 'Arquivos', 'Conteúdo', 'Revisão'];
 
 const CreativeSystem: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(1);
-  const { accounts } = useAccounts();
+  const { clients } = useNotionClients();
   
   const {
     formData,
@@ -87,7 +87,7 @@ const CreativeSystem: React.FC = () => {
         <div className="bg-card rounded-lg shadow-lg p-8 mb-8">
           <Breadcrumbs 
             formData={formData}
-            clients={accounts}
+            clients={clients}
           />
           
           {currentStep === 1 && (

@@ -7,10 +7,8 @@ export interface Manager {
   name: string;
   email?: string;
   username?: string;
-  password?: string;
+  password?: string; // Add password field
   accounts?: string[]; // IDs das contas que o gerente tem acesso
-  funcao?: string; // "Gerente", "Supervisor", "Gestor"
-  organizacao?: string; // Para Supervisores acessarem contas da organização
 }
 
 // Helper function to extract text from Notion property
@@ -85,8 +83,6 @@ export const useManagers = () => {
         let email = '';
         let password = '';
         let accounts: string[] = [];
-        let funcao = '';
-        let organizacao = '';
         
         // Try to find name in various properties
         const possibleNameProperties = ['Nome', 'Name', 'Gerente', 'Manager', 'Title', 'Título'];
@@ -115,25 +111,13 @@ export const useManagers = () => {
           accounts = extractAccountIds(item.properties['Contas']);
         }
         
-        // Extract função from "Função" property
-        if (item.properties['Função']) {
-          funcao = extractTextFromProperty(item.properties['Função']);
-        }
-        
-        // Extract organização from "Organização" property
-        if (item.properties['Organização']) {
-          organizacao = extractTextFromProperty(item.properties['Organização']);
-        }
-        
         return {
           id: item.id,
           name,
           email,
           username: email, // Use email as username for login validation
           password,
-          accounts,
-          funcao,
-          organizacao
+          accounts
         };
       });
       
@@ -154,24 +138,15 @@ export const useManagers = () => {
   }, [fetchManagers]);
 
   const validateLogin = (email: string, password: string): Manager | null => {
-    console.log('=== VALIDATING LOGIN ===');
-    console.log('Email entered:', email);
-    console.log('Password entered:', password);
-    console.log('Available managers:', managers);
-    
     // Validação usando e-mail e senha específica do gerente
     const manager = managers.find(m => 
       m.email?.toLowerCase() === email.toLowerCase()
     );
     
-    console.log('Found manager:', manager);
-    
     if (manager && manager.password && manager.password === password) {
-      console.log('Login successful for manager:', manager);
       return manager;
     }
     
-    console.log('Login failed - no matching credentials');
     return null;
   };
 

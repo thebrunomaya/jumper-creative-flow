@@ -25,12 +25,7 @@ const UserMenu: React.FC = () => {
     <div className="flex items-center space-x-4">
       <div className="flex items-center space-x-2 text-sm">
         <User className="h-4 w-4" />
-        <div className="flex flex-col">
-          <span className="font-medium">{currentUser.name}</span>
-          {currentUser.funcao && (
-            <span className="text-xs text-muted-foreground">{currentUser.funcao}</span>
-          )}
-        </div>
+        <span className="font-medium">{currentUser.name}</span>
       </div>
       
       <Button

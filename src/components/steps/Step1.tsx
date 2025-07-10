@@ -6,7 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { useAccounts } from '@/hooks/useAccounts';
+import { useNotionClients } from '@/hooks/useNotionData';
 import { Skeleton } from '@/components/ui/skeleton';
 import { validateCreativeName, previewCreativeNameDetailed } from '@/utils/creativeName';
 
@@ -17,11 +17,11 @@ interface Step1Props {
 }
 
 const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
-  const { accounts, loading: accountsLoading, error: accountsError } = useAccounts();
+  const { clients, loading: clientsLoading, error: clientsError } = useNotionClients();
 
-  // Get selected account data to access objectives
-  const selectedAccount = accounts.find(account => account.id === formData.client);
-  const availableObjectives = selectedAccount?.objectives || [];
+  // Get selected client data to access objectives
+  const selectedClient = clients.find(client => client.id === formData.client);
+  const availableObjectives = selectedClient?.objectives || [];
 
   // Check if all prerequisites for creative name are filled
   const canShowCreativeName = !!(
@@ -43,17 +43,17 @@ const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
       formData.creativeName && 
       formData.campaignObjective && 
       formData.creativeType && 
-      selectedAccount
+      selectedClient
     ) {
       return previewCreativeNameDetailed(
         formData.creativeName,
         formData.campaignObjective,
         formData.creativeType,
-        selectedAccount.name
+        selectedClient.name
       );
     }
     return null;
-  }, [formData.creativeName, formData.campaignObjective, formData.creativeType, selectedAccount]);
+  }, [formData.creativeName, formData.campaignObjective, formData.creativeType, selectedClient]);
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -67,7 +67,7 @@ const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
         <Label htmlFor="client" className="text-sm font-medium text-jumper-text">
           Conta *
         </Label>
-        {accountsLoading ? (
+        {clientsLoading ? (
           <Skeleton className="h-12 w-full" />
         ) : (
           <Select value={formData.client} onValueChange={(value) => updateFormData({ client: value, campaignObjective: undefined, creativeType: undefined, objective: undefined, creativeName: '' })}>
@@ -75,16 +75,16 @@ const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
               <SelectValue placeholder="Selecione a conta" />
             </SelectTrigger>
             <SelectContent>
-              {accounts.map((account) => (
-                <SelectItem key={account.id} value={account.id}>
-                  {account.name}
+              {clients.map((client) => (
+                <SelectItem key={client.id} value={client.id}>
+                  {client.name}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
         )}
         {errors.client && <p className="text-sm text-red-500">{errors.client}</p>}
-        {accountsError && <p className="text-sm text-yellow-600">⚠️ {accountsError} (usando dados locais)</p>}
+        {clientsError && <p className="text-sm text-yellow-600">⚠️ {clientsError} (usando dados locais)</p>}
       </div>
 
       {/* Plataforma */}
