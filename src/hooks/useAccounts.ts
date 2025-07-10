@@ -69,19 +69,26 @@ export const useAccounts = () => {
       // Filter accounts based on user role
       let filteredAccounts: Account[] = [];
 
+      console.log('User function:', currentUser.funcao);
+      console.log('User organization:', currentUser.organizacao);
+      console.log('All formatted accounts:', formattedAccounts);
+      console.log('Account organizations:', formattedAccounts.map(acc => ({ name: acc.name, organizacao: acc.organizacao })));
+
       if (currentUser.funcao === 'Supervisor') {
         // Supervisors see all accounts from their organization
         filteredAccounts = formattedAccounts.filter(account => 
           account.organizacao === currentUser.organizacao
         );
+        console.log('Supervisor filter result:', filteredAccounts);
       } else if (currentUser.funcao === 'Gerente') {
         // Gerentes see only their linked accounts
         filteredAccounts = formattedAccounts.filter(account => 
           currentUser.accounts?.includes(account.notion_id)
         );
+        console.log('Gerente filter result:', filteredAccounts);
       }
 
-      console.log('Filtered accounts for user:', filteredAccounts);
+      console.log('Final filtered accounts for user:', filteredAccounts);
       setAccounts(filteredAccounts);
       setError(null);
     } catch (err) {
