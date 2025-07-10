@@ -74,7 +74,17 @@ const LoginPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-jumper-background flex items-center justify-center p-4">
+    <div className="min-h-screen bg-jumper-background flex items-center justify-center p-4 relative">
+      <Button 
+        variant="outline" 
+        className="absolute top-4 right-4"
+        onClick={() => {
+          // TODO: Implementar funcionalidade do Login de Gestor
+          console.log('Login de Gestor clicado');
+        }}
+      >
+        Login de Gestor
+      </Button>
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="mx-auto mb-4 w-20 h-20 bg-gradient-jumper rounded-full flex items-center justify-center">
