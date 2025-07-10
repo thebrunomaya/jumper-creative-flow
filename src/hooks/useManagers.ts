@@ -7,8 +7,10 @@ export interface Manager {
   name: string;
   email?: string;
   username?: string;
-  password?: string; // Add password field
+  password?: string;
   accounts?: string[]; // IDs das contas que o gerente tem acesso
+  funcao?: string; // "Gerente", "Supervisor", "Gestor"
+  organizacao?: string; // Para Supervisores acessarem contas da organização
 }
 
 // Helper function to extract text from Notion property
@@ -83,6 +85,8 @@ export const useManagers = () => {
         let email = '';
         let password = '';
         let accounts: string[] = [];
+        let funcao = '';
+        let organizacao = '';
         
         // Try to find name in various properties
         const possibleNameProperties = ['Nome', 'Name', 'Gerente', 'Manager', 'Title', 'Título'];
@@ -111,13 +115,25 @@ export const useManagers = () => {
           accounts = extractAccountIds(item.properties['Contas']);
         }
         
+        // Extract função from "Função" property
+        if (item.properties['Função']) {
+          funcao = extractTextFromProperty(item.properties['Função']);
+        }
+        
+        // Extract organização from "Organização" property
+        if (item.properties['Organização']) {
+          organizacao = extractTextFromProperty(item.properties['Organização']);
+        }
+        
         return {
           id: item.id,
           name,
           email,
           username: email, // Use email as username for login validation
           password,
-          accounts
+          accounts,
+          funcao,
+          organizacao
         };
       });
       
