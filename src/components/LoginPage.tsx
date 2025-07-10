@@ -8,11 +8,13 @@ import { useToast } from '@/hooks/use-toast';
 import { useManagers } from '@/hooks/useManagers';
 import { useAuth } from '@/contexts/AuthContext';
 import { Loader2, LogIn } from 'lucide-react';
+import ManagerLoginModal from './ManagerLoginModal';
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isManagerModalOpen, setIsManagerModalOpen] = useState(false);
   const { toast } = useToast();
   const { managers, loading: managersLoading, validateLogin } = useManagers();
   const { login } = useAuth();
@@ -78,13 +80,16 @@ const LoginPage: React.FC = () => {
       <Button 
         variant="outline" 
         className="absolute top-4 right-4"
-        onClick={() => {
-          // TODO: Implementar funcionalidade do Login de Gestor
-          console.log('Login de Gestor clicado');
-        }}
+        onClick={() => setIsManagerModalOpen(true)}
       >
         Login de Gestor
       </Button>
+      
+      <ManagerLoginModal 
+        isOpen={isManagerModalOpen} 
+        onClose={() => setIsManagerModalOpen(false)} 
+      />
+      
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="mx-auto mb-4 w-20 h-20 bg-gradient-jumper rounded-full flex items-center justify-center">
