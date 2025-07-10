@@ -154,15 +154,24 @@ export const useManagers = () => {
   }, [fetchManagers]);
 
   const validateLogin = (email: string, password: string): Manager | null => {
+    console.log('=== VALIDATING LOGIN ===');
+    console.log('Email entered:', email);
+    console.log('Password entered:', password);
+    console.log('Available managers:', managers);
+    
     // Validação usando e-mail e senha específica do gerente
     const manager = managers.find(m => 
       m.email?.toLowerCase() === email.toLowerCase()
     );
     
+    console.log('Found manager:', manager);
+    
     if (manager && manager.password && manager.password === password) {
+      console.log('Login successful for manager:', manager);
       return manager;
     }
     
+    console.log('Login failed - no matching credentials');
     return null;
   };
 

@@ -20,7 +20,11 @@ export const useAccounts = () => {
   const { currentUser } = useAuth();
 
   const fetchAccounts = useCallback(async () => {
+    console.log('=== FETCHING ACCOUNTS ===');
+    console.log('Current user:', currentUser);
+    
     if (!currentUser) {
+      console.log('No current user, setting empty accounts');
       setAccounts([]);
       setLoading(false);
       return;
@@ -32,11 +36,13 @@ export const useAccounts = () => {
 
       // For Gestores, don't fetch accounts
       if (currentUser.funcao === 'Gestor') {
+        console.log('User is Gestor, skipping account fetch');
         setAccounts([]);
         setLoading(false);
         return;
       }
 
+      console.log('Invoking notion-clients function...');
       const { data, error } = await supabase.functions.invoke('notion-clients');
       
       if (error) {
