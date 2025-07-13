@@ -71,7 +71,7 @@ const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
           <Skeleton className="h-12 w-full" />
         ) : (
           <Select value={formData.client} onValueChange={(value) => updateFormData({ client: value, campaignObjective: undefined, creativeType: undefined, objective: undefined, creativeName: '' })}>
-            <SelectTrigger className={`h-12 ${errors.client ? 'border-red-500' : ''}`}>
+            <SelectTrigger className={`h-12 ${errors.client ? 'border-red-500 bg-red-50' : ''}`}>
               <SelectValue placeholder="Selecione a conta" />
             </SelectTrigger>
             <SelectContent>
@@ -136,7 +136,7 @@ const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
               onValueChange={(value) => updateFormData({ campaignObjective: value, creativeType: undefined, creativeName: '' })}
               disabled={!formData.client}
             >
-              <SelectTrigger className={`h-12 ${errors.campaignObjective ? 'border-red-500' : ''}`}>
+              <SelectTrigger className={`h-12 ${errors.campaignObjective ? 'border-red-500 bg-red-50' : ''}`}>
                 <SelectValue placeholder={!formData.client ? "Selecione uma conta primeiro" : "Selecione o objetivo"} />
               </SelectTrigger>
               <SelectContent>
@@ -164,7 +164,7 @@ const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
                 onValueChange={(value) => updateFormData({ creativeType: value as any, creativeName: '' })}
                 disabled={!formData.campaignObjective}
               >
-                <SelectTrigger className={`h-12 ${errors.creativeType ? 'border-red-500' : ''}`}>
+                <SelectTrigger className={`h-12 ${errors.creativeType ? 'border-red-500 bg-red-50' : ''}`}>
                   <SelectValue placeholder={!formData.campaignObjective ? "Selecione o objetivo primeiro" : "Selecione o tipo"} />
                 </SelectTrigger>
                 <SelectContent>
@@ -202,7 +202,7 @@ const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
             onChange={(e) => handleCreativeNameChange(e.target.value)}
             placeholder="Ex: Ronaldo, BlackFridayDesc50"
             maxLength={20}
-            className={`h-12 ${errors.creativeName ? 'border-red-500' : ''}`}
+            className={`h-12 ${errors.creativeName ? 'border-red-500 bg-red-50' : ''}`}
           />
           <div className="flex justify-between items-center">
             <div className="text-xs text-gray-500">

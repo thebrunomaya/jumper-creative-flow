@@ -42,10 +42,18 @@ const CreativeNavigation: React.FC<CreativeNavigationProps> = ({
       {currentStep < 4 ? (
         <Button
           onClick={onNextStep}
-          className="bg-gradient-jumper hover:opacity-90 transition-opacity flex items-center space-x-2"
+          disabled={Object.keys(errors).length > 0}
+          className={`bg-gradient-jumper hover:opacity-90 transition-opacity flex items-center space-x-2 ${
+            Object.keys(errors).length > 0 ? 'opacity-50 cursor-not-allowed' : ''
+          }`}
         >
-          <span>Continuar</span>
-          <ArrowRight className="w-4 h-4" />
+          <span>
+            {Object.keys(errors).length > 0 
+              ? `Corrija ${Object.keys(errors).length} problema(s) para continuar`
+              : 'Continuar'
+            }
+          </span>
+          {Object.keys(errors).length === 0 && <ArrowRight className="w-4 h-4" />}
         </Button>
       ) : (
         <Button

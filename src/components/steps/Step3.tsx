@@ -218,7 +218,7 @@ const Step3: React.FC<Step3Props> = ({ formData, updateFormData, errors }) => {
                         value={title}
                         onChange={(e) => updateTitle(index, e.target.value)}
                         placeholder={`Digite o título ${index + 1} do anúncio`}
-                        className={errors[`title-${index}`] ? 'border-red-500' : ''}
+                        className={errors[`title-${index}`] ? 'border-red-500 bg-red-50' : ''}
                       />
                       
                       {errors[`title-${index}`] && (
@@ -288,7 +288,7 @@ const Step3: React.FC<Step3Props> = ({ formData, updateFormData, errors }) => {
                         value={mainText}
                         onChange={(e) => updateMainText(index, e.target.value)}
                         placeholder={`Digite o texto principal ${index + 1} do anúncio`}
-                        className={`min-h-[100px] ${errors[`mainText-${index}`] ? 'border-red-500' : ''}`}
+                        className={`min-h-[100px] ${errors[`mainText-${index}`] ? 'border-red-500 bg-red-50' : ''}`}
                       />
                       
                       {errors[`mainText-${index}`] && (
@@ -317,7 +317,7 @@ const Step3: React.FC<Step3Props> = ({ formData, updateFormData, errors }) => {
                 value={formData.description}
                 onChange={(e) => updateFormData({ description: e.target.value })}
                 placeholder="Digite uma descrição adicional (opcional)"
-                className={`min-h-[80px] ${errors.description ? 'border-red-500' : ''}`}
+                className={`min-h-[80px] ${errors.description ? 'border-red-500 bg-red-50' : ''}`}
               />
               {errors.description && (
                 <p className="text-sm text-red-600">{errors.description}</p>
@@ -391,7 +391,7 @@ const Step3: React.FC<Step3Props> = ({ formData, updateFormData, errors }) => {
               <div className="space-y-2">
                 <Label htmlFor="destination">Destino *</Label>
                 <Select value={formData.destination || ''} onValueChange={handleDestinationChange}>
-                  <SelectTrigger className={errors.destination ? 'border-red-500' : ''}>
+                  <SelectTrigger className={errors.destination ? 'border-red-500 bg-red-50' : ''}>
                     <SelectValue placeholder="Selecione o destino do anúncio" />
                   </SelectTrigger>
                   <SelectContent>
@@ -412,7 +412,7 @@ const Step3: React.FC<Step3Props> = ({ formData, updateFormData, errors }) => {
                 <div className="space-y-2">
                   <Label htmlFor="cta">Call-to-Action *</Label>
                   <Select value={formData.cta || ''} onValueChange={(value) => updateFormData({ cta: value })}>
-                    <SelectTrigger className={errors.cta ? 'border-red-500' : ''}>
+                    <SelectTrigger className={errors.cta ? 'border-red-500 bg-red-50' : ''}>
                       <SelectValue placeholder="Selecione um call-to-action" />
                     </SelectTrigger>
                     <SelectContent>
@@ -447,7 +447,7 @@ const Step3: React.FC<Step3Props> = ({ formData, updateFormData, errors }) => {
                       destinationFieldConfig.fieldType === 'phone' ? '(11) 99999-9999' :
                       'Digite aqui...'
                     }
-                    className={errors.destinationUrl ? 'border-red-500' : ''}
+                    className={errors.destinationUrl ? 'border-red-500 bg-red-50' : ''}
                   />
                   {errors.destinationUrl && (
                     <p className="text-sm text-red-600">{errors.destinationUrl}</p>
@@ -470,7 +470,7 @@ const Step3: React.FC<Step3Props> = ({ formData, updateFormData, errors }) => {
                   updateFormData({ destinationUrl: e.target.value });
                 }}
                 placeholder="https://exemplo.com"
-                className={errors.destinationUrl ? 'border-red-500' : ''}
+                className={errors.destinationUrl ? 'border-red-500 bg-red-50' : ''}
               />
               {errors.destinationUrl && (
                 <p className="text-sm text-red-600">{errors.destinationUrl}</p>
@@ -483,7 +483,7 @@ const Step3: React.FC<Step3Props> = ({ formData, updateFormData, errors }) => {
             <div className="space-y-2">
               <Label htmlFor="callToAction">Call-to-Action *</Label>
               <Select value={formData.callToAction} onValueChange={(value) => updateFormData({ callToAction: value })}>
-                <SelectTrigger className={errors.callToAction ? 'border-red-500' : ''}>
+                <SelectTrigger className={errors.callToAction ? 'border-red-500 bg-red-50' : ''}>
                   <SelectValue placeholder="Selecione um call-to-action" />
                 </SelectTrigger>
                 <SelectContent>
@@ -508,7 +508,7 @@ const Step3: React.FC<Step3Props> = ({ formData, updateFormData, errors }) => {
               value={formData.observations}
               onChange={(e) => updateFormData({ observations: e.target.value })}
               placeholder="Adicione observações ou instruções especiais para a equipe da Jumper"
-              className="min-h-[80px]"
+              className={`min-h-[80px] ${errors.observations ? 'border-red-500 bg-red-50' : ''}`}
             />
           </div>
         </div>
