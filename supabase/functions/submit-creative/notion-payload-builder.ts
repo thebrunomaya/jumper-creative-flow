@@ -1,6 +1,13 @@
 
 import { CreativeSubmissionData } from './types.ts';
 
+// Função para formatar variações com numeração
+const formatTextVariations = (textArray: string[]): string => {
+  return textArray
+    .map((text, index) => `${index + 1}. ${text}`)
+    .join('\n');
+};
+
 export const buildNotionPayload = (
   creativeData: CreativeSubmissionData,
   variationFiles: Array<{ name: string; url: string; format?: string }>,
@@ -47,8 +54,8 @@ export const buildNotionPayload = (
   }
 
   // Check which fields exceed Notion property limits and prepare page content
-  const mainTextContent = creativeData.mainTexts.join(' | ');
-  const titleContent = creativeData.titles.join(' | ');
+  const mainTextContent = formatTextVariations(creativeData.mainTexts);
+  const titleContent = formatTextVariations(creativeData.titles);
   const descriptionContent = creativeData.description || '';
   
   let pageBlocks = [];
