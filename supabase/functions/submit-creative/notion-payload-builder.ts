@@ -1,11 +1,11 @@
 
 import { CreativeSubmissionData } from './types.ts';
 
-// Função para formatar variações com numeração
+// Função para formatar variações com Headers Markdown
 const formatTextVariations = (textArray: string[]): string => {
   return textArray
-    .map((text, index) => `${index + 1}. ${text}`)
-    .join('\n');
+    .map((text, index) => `### #${String(index + 1).padStart(2, '0')}:\n${text}`)
+    .join('\n\n');
 };
 
 export const buildNotionPayload = (
