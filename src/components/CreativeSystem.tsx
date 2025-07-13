@@ -128,6 +128,7 @@ const CreativeSystem: React.FC = () => {
           onNextStep={nextStep}
           onSubmit={handleSubmit}
           isSubmitting={isSubmitting}
+          errors={errors}
         />
       </div>
     </div>

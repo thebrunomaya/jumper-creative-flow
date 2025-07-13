@@ -1,6 +1,20 @@
 
 import { CreativeSubmissionData } from './types.ts';
 
+// Função para títulos com losango azul pequeno (SEM ###)
+const formatTitleVariations = (textArray: string[]): string => {
+  return textArray
+    .map((text, index) => `🔹 #${String(index + 1).padStart(2, '0')}:\n${text}`)
+    .join('\n\n');
+};
+
+// Função para textos principais com losango laranja pequeno (SEM ###)
+const formatMainTextVariations = (textArray: string[]): string => {
+  return textArray
+    .map((text, index) => `🔸 #${String(index + 1).padStart(2, '0')}:\n${text}`)
+    .join('\n\n');
+};
+
 export const buildNotionPayload = (
   creativeData: CreativeSubmissionData,
   variationFiles: Array<{ name: string; url: string; format?: string }>,
@@ -47,8 +61,8 @@ export const buildNotionPayload = (
   }
 
   // Check which fields exceed Notion property limits and prepare page content
-  const mainTextContent = creativeData.mainTexts.join(' | ');
-  const titleContent = creativeData.titles.join(' | ');
+  const mainTextContent = formatMainTextVariations(creativeData.mainTexts);
+  const titleContent = formatTitleVariations(creativeData.titles);
   const descriptionContent = creativeData.description || '';
   
   let pageBlocks = [];
