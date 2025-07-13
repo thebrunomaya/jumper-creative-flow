@@ -15,23 +15,21 @@ const TextCounterWithRecommendation: React.FC<TextCounterWithRecommendationProps
   className = '' 
 }) => {
   const count = text.length;
-  const percentageMaximum = count / maximum;
+  const percentageRecommended = count / recommended;
   
   const getBarColor = () => {
-    const percentage = (count / recommended) * 100;
-    
-    if (percentage < 20) {
-      return 'bg-yellow-500'; // Menos de 20% do recomendado
-    } else if (percentage >= 20 && percentage <= 50) {
-      return 'bg-blue-500'; // 21-50% do recomendado
-    } else if (percentage >= 51 && percentage <= 120) {
-      return 'bg-green-500'; // 51-120% do recomendado (ideal)
-    } else if (percentage >= 121 && percentage <= 200) {
-      return 'bg-blue-500'; // 120-200% do recomendado
-    } else if (percentage >= 201 && percentage <= 500) {
+    if (percentageRecommended > 5) {
+      return 'bg-red-500'; // > 500% do recomendado
+    } else if (percentageRecommended > 2) {
       return 'bg-yellow-500'; // 200-500% do recomendado
+    } else if (percentageRecommended > 1.2) {
+      return 'bg-blue-500'; // 120-200% do recomendado
+    } else if (percentageRecommended >= 0.51) {
+      return 'bg-green-500'; // 51-120% do recomendado (ZONA IDEAL)
+    } else if (percentageRecommended >= 0.21) {
+      return 'bg-blue-500'; // 21-50% do recomendado
     } else {
-      return 'bg-red-500'; // Acima de 500% do recomendado
+      return 'bg-yellow-500'; // < 20% do recomendado
     }
   };
 
@@ -53,7 +51,7 @@ const TextCounterWithRecommendation: React.FC<TextCounterWithRecommendationProps
         <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
           <div
             className={`h-full transition-all duration-300 ${barColor}`}
-            style={{ width: `${Math.min(percentageMaximum * 100, 100)}%` }}
+            style={{ width: `${Math.min(percentageRecommended * 100, 100)}%` }}
           />
         </div>
         <div className="flex justify-between text-xs text-gray-500">

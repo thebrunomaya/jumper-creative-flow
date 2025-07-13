@@ -96,19 +96,19 @@ const SingleFileUploadSection: React.FC<SingleFileUploadSectionProps> = ({
       {/* Header with Switch */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
-          <h3 className="text-lg font-semibold text-jumper-text">{title}</h3>
+          <h3 className="text-lg font-semibold text-foreground">{title}</h3>
           <div className="flex items-center space-x-2">
             <Switch
               checked={enabled}
               onCheckedChange={onEnabledChange}
               disabled={!canDisable && enabled}
             />
-            <span className="text-sm text-gray-600">
+            <span className="text-sm text-muted-foreground">
               {enabled ? 'Ativo' : 'Inativo'}
             </span>
           </div>
         </div>
-        <span className="text-sm text-gray-500">{dimensions}</span>
+        <span className="text-sm text-muted-foreground">{dimensions}</span>
       </div>
 
       {/* Main Content Area - MediaCard ocupa toda a largura */}

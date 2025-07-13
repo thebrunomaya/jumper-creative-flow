@@ -26,24 +26,29 @@ export default {
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
 				primary: {
-					DEFAULT: '#667eea',
-					foreground: '#ffffff'
+					DEFAULT: 'hsl(var(--primary))',
+					foreground: 'hsl(var(--primary-foreground))'
 				},
 				secondary: {
-					DEFAULT: '#764ba2',
-					foreground: '#ffffff'
+					DEFAULT: 'hsl(var(--secondary))',
+					foreground: 'hsl(var(--secondary-foreground))'
 				},
-				success: '#48bb78',
-				warning: '#ed8936',
-				error: '#f56565',
+				success: {
+					DEFAULT: 'hsl(var(--success))',
+					foreground: 'hsl(var(--success-foreground))'
+				},
+				warning: {
+					DEFAULT: 'hsl(var(--warning))',
+					foreground: 'hsl(var(--warning-foreground))'
+				},
 				jumper: {
 					blue: '#667eea',
 					purple: '#764ba2',
-					success: '#48bb78',
-					warning: '#ed8936',
-					error: '#f56565',
-					background: '#f7fafc',
-					text: '#2d3748'
+					success: 'hsl(var(--success))',
+					warning: 'hsl(var(--warning))',
+					error: 'hsl(var(--destructive))',
+					background: 'hsl(var(--background))',
+					text: 'hsl(var(--foreground))'
 				},
 				destructive: {
 					DEFAULT: 'hsl(var(--destructive))',
@@ -64,7 +69,19 @@ export default {
 				card: {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
-				}
+				},
+				'upload-zone': {
+					DEFAULT: 'hsl(var(--upload-zone))',
+					border: 'hsl(var(--upload-zone-border))',
+					hover: 'hsl(var(--upload-zone-hover))'
+				},
+				'media-card': {
+					DEFAULT: 'hsl(var(--media-card))',
+					border: 'hsl(var(--media-card-border))'
+				},
+				'thumbnail-bg': 'hsl(var(--thumbnail-bg))',
+				'disabled-bg': 'hsl(var(--disabled-bg))',
+				'disabled-text': 'hsl(var(--disabled-text))'
 			},
 			borderRadius: {
 				lg: 'var(--radius)',

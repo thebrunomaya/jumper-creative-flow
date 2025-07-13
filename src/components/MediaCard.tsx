@@ -81,22 +81,22 @@ const MediaCard: React.FC<MediaCardProps> = ({
   );
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+    <div className="bg-media-card border border-media-card-border rounded-lg overflow-hidden shadow-sm">
       {/* Header - apenas se showHeader for true */}
       {showHeader && (
-        <div className="flex items-center justify-between p-4 border-b border-gray-200">
-          <h4 className="text-lg font-semibold text-jumper-text">
+        <div className="flex items-center justify-between p-4 border-b border-media-card-border">
+          <h4 className="text-lg font-semibold text-foreground">
             {title}
           </h4>
           <div className="flex items-center space-x-2">
-            <span className="text-sm text-gray-500">{dimensions}</span>
+            <span className="text-sm text-muted-foreground">{dimensions}</span>
             {statusBadge}
             {canRemove && onRemove && (
               <Button
                 variant="outline"
                 size="sm"
                 onClick={onRemove}
-                className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                className="text-destructive hover:text-destructive hover:bg-destructive/10"
               >
                 <Trash2 className="h-4 w-4" />
               </Button>
@@ -108,7 +108,7 @@ const MediaCard: React.FC<MediaCardProps> = ({
       {/* Content Area */}
       <div className="flex h-40">
         {/* Thumbnail Container - quadrado 160x160px */}
-        <div className="w-40 h-40 bg-gray-50 border-r border-gray-200 flex items-center justify-center p-2">
+        <div className="w-40 h-40 bg-thumbnail-bg border-r border-media-card-border flex items-center justify-center p-2">
           <ThumbnailPreview
             format={format}
             file={file}
