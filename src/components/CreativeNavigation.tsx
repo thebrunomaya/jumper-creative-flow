@@ -3,6 +3,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import DarkModeToggle from './DarkModeToggle';
+import ValidationPanel from './ValidationPanel';
 
 interface CreativeNavigationProps {
   currentStep: number;
@@ -10,6 +11,7 @@ interface CreativeNavigationProps {
   onNextStep: () => void;
   onSubmit: () => void;
   isSubmitting: boolean;
+  errors?: Record<string, string>;
 }
 
 const CreativeNavigation: React.FC<CreativeNavigationProps> = ({
@@ -17,10 +19,14 @@ const CreativeNavigation: React.FC<CreativeNavigationProps> = ({
   onPrevStep,
   onNextStep,
   onSubmit,
-  isSubmitting
+  isSubmitting,
+  errors = {}
 }) => {
   return (
-    <div className="flex justify-between items-center">
+    <div>
+      <ValidationPanel errors={errors} />
+      
+      <div className="flex justify-between items-center">
       <Button
         variant="outline"
         onClick={onPrevStep}
@@ -51,6 +57,7 @@ const CreativeNavigation: React.FC<CreativeNavigationProps> = ({
           <span>{isSubmitting ? 'Enviando...' : 'Enviar Criativo'}</span>
         </Button>
       )}
+      </div>
     </div>
   );
 };
