@@ -1,10 +1,17 @@
 
 import { CreativeSubmissionData } from './types.ts';
 
-// Função para formatar variações com Headers Markdown
-const formatTextVariations = (textArray: string[]): string => {
+// Função para títulos com losango azul pequeno (SEM ###)
+const formatTitleVariations = (textArray: string[]): string => {
   return textArray
-    .map((text, index) => `### #${String(index + 1).padStart(2, '0')}:\n${text}`)
+    .map((text, index) => `🔹 #${String(index + 1).padStart(2, '0')}:\n${text}`)
+    .join('\n\n');
+};
+
+// Função para textos principais com losango laranja pequeno (SEM ###)
+const formatMainTextVariations = (textArray: string[]): string => {
+  return textArray
+    .map((text, index) => `🔸 #${String(index + 1).padStart(2, '0')}:\n${text}`)
     .join('\n\n');
 };
 
@@ -54,8 +61,8 @@ export const buildNotionPayload = (
   }
 
   // Check which fields exceed Notion property limits and prepare page content
-  const mainTextContent = formatTextVariations(creativeData.mainTexts);
-  const titleContent = formatTextVariations(creativeData.titles);
+  const mainTextContent = formatMainTextVariations(creativeData.mainTexts);
+  const titleContent = formatTitleVariations(creativeData.titles);
   const descriptionContent = creativeData.description || '';
   
   let pageBlocks = [];
