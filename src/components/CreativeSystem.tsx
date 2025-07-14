@@ -67,80 +67,76 @@ const CreativeSystem: React.FC = () => {
 
   if (isSubmitted) {
     return (
-      <div className="min-h-screen flex flex-col">
-        <JumperBackground variant={2} className="flex-1">
-          <Header />
-          <div className="max-w-4xl mx-auto px-4 py-8 flex-1">
-            <Success creativeIds={creativeIds} onNewCreative={handleReset} />
-          </div>
-        </JumperBackground>
+      <div className="min-h-screen flex flex-col bg-background">
+        <Header />
+        <div className="max-w-4xl mx-auto px-4 py-8 flex-1">
+          <Success creativeIds={creativeIds} onNewCreative={handleReset} />
+        </div>
         <Footer />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <JumperBackground variant={1} className="flex-1">
-        <Header />
-        
-        <div className="max-w-4xl mx-auto px-4 py-8">
-          <ProgressBar 
-            currentStep={currentStep} 
-            totalSteps={4} 
-            stepLabels={STEP_LABELS} 
-          />
+    <div className="min-h-screen flex flex-col bg-background">
+      <Header />
+      
+      <div className="max-w-4xl mx-auto px-4 py-8 flex-1">
+        <ProgressBar 
+          currentStep={currentStep} 
+          totalSteps={4} 
+          stepLabels={STEP_LABELS} 
+        />
 
-          <JumperCard className="shadow-lg mb-8">
-            <JumperCardContent className="p-8">
-              <Breadcrumbs 
-                formData={formData}
-                clients={clients}
+        <JumperCard className="shadow-lg mb-8">
+          <JumperCardContent className="p-8">
+            <Breadcrumbs 
+              formData={formData}
+              clients={clients}
+            />
+            
+            {currentStep === 1 && (
+              <Step1 
+                formData={formData} 
+                updateFormData={updateFormData} 
+                errors={errors} 
               />
-              
-              {currentStep === 1 && (
-                <Step1 
-                  formData={formData} 
-                  updateFormData={updateFormData} 
-                  errors={errors} 
-                />
-              )}
-              
-              {currentStep === 2 && (
-                <Step2 
-                  formData={formData} 
-                  updateFormData={updateFormData} 
-                  errors={errors} 
-                />
-              )}
-              
-              {currentStep === 3 && (
-                <Step3 
-                  formData={formData} 
-                  updateFormData={updateFormData} 
-                  errors={errors} 
-                />
-              )}
-              
-              {currentStep === 4 && (
-                <Step4 
-                  formData={formData} 
-                  isSubmitting={isSubmitting} 
-                />
-              )}
-            </JumperCardContent>
-          </JumperCard>
+            )}
+            
+            {currentStep === 2 && (
+              <Step2 
+                formData={formData} 
+                updateFormData={updateFormData} 
+                errors={errors} 
+              />
+            )}
+            
+            {currentStep === 3 && (
+              <Step3 
+                formData={formData} 
+                updateFormData={updateFormData} 
+                errors={errors} 
+              />
+            )}
+            
+            {currentStep === 4 && (
+              <Step4 
+                formData={formData} 
+                isSubmitting={isSubmitting} 
+              />
+            )}
+          </JumperCardContent>
+        </JumperCard>
 
-          <CreativeNavigation
-            currentStep={currentStep}
-            onPrevStep={prevStep}
-            onNextStep={nextStep}
-            onSubmit={handleSubmit}
-            isSubmitting={isSubmitting}
-            errors={errors}
-          />
-        </div>
-      </JumperBackground>
+        <CreativeNavigation
+          currentStep={currentStep}
+          onPrevStep={prevStep}
+          onNextStep={nextStep}
+          onSubmit={handleSubmit}
+          isSubmitting={isSubmitting}
+          errors={errors}
+        />
+      </div>
       <Footer />
     </div>
   );
