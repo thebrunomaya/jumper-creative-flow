@@ -10,31 +10,27 @@ const Header: React.FC = () => {
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
             <div className="flex items-center">
-              <img 
-                src="/src/assets/jumper-full-logo-white.png"
-                alt="Jumper Studio"
-                className="h-8 dark:block hidden"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.style.display = 'none';
-                  const fallback = target.nextElementSibling as HTMLElement;
-                  if (fallback) fallback.style.display = 'block';
-                }}
-              />
-              <img 
-                src="/src/assets/jumper-full-logo-black.png"
-                alt="Jumper Studio"
-                className="h-8 dark:hidden block"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.style.display = 'none';
-                  const fallback = target.nextElementSibling as HTMLElement;
-                  if (fallback) fallback.style.display = 'block';
-                }}
-              />
-              <span className="text-xl font-haffer-bold hidden">
-                Jumper Studio
-              </span>
+              {/* Logo quadrado com gradiente */}
+              <div className="relative w-10 h-10 rounded-lg bg-gradient-to-br from-jumper-orange to-jumper-purple flex items-center justify-center shadow-md">
+                <img 
+                  src="/src/assets/jumper-white.png"
+                  alt="Jumper Studio"
+                  className="w-6 h-6 dark:block hidden"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = 'none';
+                  }}
+                />
+                <img 
+                  src="/src/assets/jumper-black.png"
+                  alt="Jumper Studio"
+                  className="w-6 h-6 dark:hidden block"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = 'none';
+                  }}
+                />
+              </div>
             </div>
           </div>
           
