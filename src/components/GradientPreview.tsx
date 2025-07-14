@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { generateThumbnailPreview, getDisplayText } from '@/utils/thumbnailUtils';
+import React from 'react';
+import { useLazyThumbnail } from '@/hooks/useLazyThumbnail';
+import { getDisplayText } from '@/utils/thumbnailUtils';
 
 interface GradientPreviewProps {
   format: 'square' | 'vertical' | 'horizontal';
@@ -16,24 +17,35 @@ export const GradientPreview = ({
   className = '',
   onClick
 }: GradientPreviewProps) => {
-  const [thumbnailSrc, setThumbnailSrc] = useState<string>('');
   const displayText = getDisplayText(format, carouselMode, carouselAspectRatio);
-
-  useEffect(() => {
-    generateThumbnailPreview(format, carouselMode, carouselAspectRatio)
-      .then(setThumbnailSrc)
-      .catch(() => {
-        // Fallback - usar createMockupFile se necessário
-        console.warn('Failed to generate gradient thumbnail, using fallback');
-      });
-  }, [format, carouselMode, carouselAspectRatio]);
+  
+  // Use lazy loading hook with caching
+  const { ref, thumbnailSrc, isLoading, error } = useLazyThumbnail({
+    format,
+    carouselMode,
+    carouselAspectRatio: carouselAspectRatio || '1:1',
+    enabled: true
+  });
 
   return (
     <div 
+      ref={ref}
       className={`relative w-full h-full overflow-hidden rounded border border-border ${className}`}
       onClick={onClick}
     >
-      {thumbnailSrc ? (
+      {isLoading ? (
+        <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/40 flex items-center justify-center">
+          <div className="bg-white/90 px-2 py-1 rounded text-sm font-bold text-gray-700">
+            {displayText}
+          </div>
+        </div>
+      ) : error ? (
+        <div className="w-full h-full bg-gradient-to-br from-red-100 to-red-200 flex items-center justify-center">
+          <div className="bg-white/90 px-2 py-1 rounded text-sm font-bold text-red-700">
+            Erro
+          </div>
+        </div>
+      ) : thumbnailSrc ? (
         <img
           src={thumbnailSrc}
           alt={`${format} preview`}
@@ -41,7 +53,6 @@ export const GradientPreview = ({
           style={{ imageRendering: 'crisp-edges' }}
         />
       ) : (
-        // Loading state com gradiente CSS como fallback
         <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/40 flex items-center justify-center">
           <div className="bg-white/90 px-2 py-1 rounded text-sm font-bold text-gray-700">
             {displayText}

@@ -66,6 +66,7 @@ import gradientSquare from '../assets/gradients/organic-01.png';
 import gradientVertical from '../assets/gradients/organic-02.png';
 import gradientHorizontal from '../assets/gradients/organic-03.png';
 import { createGradientThumbnail } from './gradientCropper';
+import { getCachedThumbnail, setCachedThumbnail } from './thumbnailCache';
 
 const GRADIENT_MAPPING = {
   square: gradientSquare,
@@ -102,6 +103,12 @@ export const generateThumbnailPreview = async (
   carouselMode: boolean = false,
   carouselAspectRatio: '1:1' | '4:5' = '1:1'
 ): Promise<string> => {
+  // Verificar cache primeiro
+  const cached = getCachedThumbnail(format, carouselMode, carouselAspectRatio);
+  if (cached) {
+    return cached;
+  }
+  
   const { width, height } = getThumbnailDimensions(format, carouselMode, carouselAspectRatio);
   
   // Determinar qual gradiente usar baseado no formato e modo carrossel
@@ -114,7 +121,12 @@ export const generateThumbnailPreview = async (
   // Usar gradientes orgânicos locais com crop inteligente
   const gradientPath = GRADIENT_MAPPING[gradientFormat];
   
-  return await createGradientThumbnail(gradientPath, gradientFormat, { width, height });
+  const result = await createGradientThumbnail(gradientPath, gradientFormat, { width, height });
+  
+  // Salvar no cache
+  setCachedThumbnail(format, carouselMode, carouselAspectRatio, result);
+  
+  return result;
 };
 
 export const createMockupFile = (format: 'square' | 'vertical' | 'horizontal', carouselMode = false, carouselAspectRatio?: '1:1' | '4:5') => {

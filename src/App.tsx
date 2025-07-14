@@ -1,4 +1,5 @@
 
+import { useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -10,32 +11,40 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import DesignSystem from "./pages/DesignSystem";
 import NotFound from "./pages/NotFound";
+import { preloadCommonThumbnails } from "@/utils/thumbnailCache";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <ThemeProvider>
-        <AuthProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={
-                <ProtectedRoute>
-                  <Index />
-                </ProtectedRoute>
-              } />
-              <Route path="/design-system" element={<DesignSystem />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </AuthProvider>
-      </ThemeProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+const App = () => {
+  // Pré-carregar thumbnails comuns para melhor performance
+  useEffect(() => {
+    preloadCommonThumbnails();
+  }, []);
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <Routes>
+                <Route path="/" element={
+                  <ProtectedRoute>
+                    <Index />
+                  </ProtectedRoute>
+                } />
+                <Route path="/design-system" element={<DesignSystem />} />
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
+          </AuthProvider>
+        </ThemeProvider>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;
