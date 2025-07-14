@@ -48,6 +48,7 @@ export const setCachedThumbnail = (
 
 export const clearThumbnailCache = (): void => {
   THUMBNAIL_CACHE.clear();
+  console.log('🧹 CACHE LIMPO - Forçando regeneração de thumbnails');
 };
 
 // Limpeza automática do cache

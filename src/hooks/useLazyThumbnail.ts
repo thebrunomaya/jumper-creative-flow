@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { generateThumbnailPreview } from '@/utils/thumbnailUtils';
+import { clearThumbnailCache } from '@/utils/thumbnailCache';
 
 interface UseLazyThumbnailProps {
   format: 'square' | 'vertical' | 'horizontal';
@@ -44,6 +45,9 @@ export const useLazyThumbnail = ({
     if (isVisible && enabled && !thumbnailSrc && !isLoading) {
       setIsLoading(true);
       setError(null);
+      
+      // Limpar cache na primeira tentativa para forçar regeneração
+      clearThumbnailCache();
       
       generateThumbnailPreview(format, carouselMode, carouselAspectRatio)
         .then(setThumbnailSrc)

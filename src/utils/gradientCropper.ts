@@ -76,36 +76,8 @@ export const createGradientThumbnail = async (
       ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       
-      // Badge discreto no canto superior direito
-      const badgeSize = Math.min(canvas.width, canvas.height) * 0.15;
-      const padding = badgeSize * 0.1;
-      
-      // Background sutil do badge
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
-      ctx.beginPath();
-      ctx.roundRect(
-        canvas.width - badgeSize - padding,
-        padding,
-        badgeSize,
-        badgeSize * 0.4,
-        4
-      );
-      ctx.fill();
-      
-      // Texto da proporção - menor e mais discreto
-      ctx.fillStyle = '#C6CBD4';
-      ctx.font = 'bold 12px system-ui';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      
-      const text = format === 'square' ? '1:1' : 
-                   format === 'vertical' ? '9:16' : '1.91:1';
-      
-      ctx.fillText(
-        text,
-        canvas.width - badgeSize/2 - padding,
-        padding + badgeSize * 0.2
-      );
+      // DEBUG: Confirmação de remoção do texto
+      console.log('🎨 THUMBNAIL LIMPO - Sem texto central, sem badge interno');
       
       resolve(canvas.toDataURL('image/png', 0.9));
     };
