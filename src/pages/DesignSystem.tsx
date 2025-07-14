@@ -47,7 +47,109 @@ const DesignSystem = () => {
           <p className="text-white/80 text-lg max-w-2xl mx-auto">
             Documentação visual dos componentes oficiais da Jumper Studio
           </p>
+          <div className="inline-flex items-center px-3 py-1 rounded-full bg-accent-critical/20 text-accent-critical text-sm font-medium">
+            Versão 1.1 • Atualizado com Decisões Recentes
+          </div>
         </div>
+
+        {/* Consolidação das Decisões Recentes */}
+        <JumperCard>
+          <JumperCardHeader>
+            <JumperCardTitle>📋 Decisões de Design v1.1</JumperCardTitle>
+            <JumperCardDescription>
+              Consolidação das melhorias implementadas recentemente
+            </JumperCardDescription>
+          </JumperCardHeader>
+          <JumperCardContent>
+            <div className="space-y-6">
+              {/* Principais Mudanças */}
+              <div>
+                <h4 className="font-semibold mb-3 text-accent-critical">🚀 Principais Mudanças</h4>
+                <div className="grid gap-4">
+                  <div className="flex items-start space-x-3 p-3 rounded-lg bg-success/10 border border-success/30">
+                    <div className="w-2 h-2 rounded-full bg-success mt-2 flex-shrink-0"></div>
+                    <div>
+                      <p className="font-medium text-success">Remoção Completa de Gradientes</p>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Todos os gradientes foram substituídos por cores sólidas para maior consistência visual
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start space-x-3 p-3 rounded-lg bg-accent-subtle/10 border border-accent-border">
+                    <div className="w-2 h-2 rounded-full bg-accent-subtle mt-2 flex-shrink-0"></div>
+                    <div>
+                      <p className="font-medium text-accent-subtle">Nova Hierarquia de Cores</p>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Laranja (#FA4721) restrito a ações críticas • Cinzas como acentos principais
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start space-x-3 p-3 rounded-lg bg-muted/30 border">
+                    <div className="w-2 h-2 rounded-full bg-foreground mt-2 flex-shrink-0"></div>
+                    <div>
+                      <p className="font-medium">Logotipos PNG Oficiais</p>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Substituição de símbolos/gradientes pelos arquivos PNG oficiais da Jumper Studio
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Regras de Uso */}
+              <div>
+                <h4 className="font-semibold mb-3">📖 Regras de Uso</h4>
+                <div className="space-y-3">
+                  <div className="bg-accent-critical/10 border border-accent-critical/30 rounded-lg p-3">
+                    <p className="text-sm">
+                      <span className="font-semibold text-accent-critical">🔥 Laranja (#FA4721):</span> 
+                      <span className="text-muted-foreground ml-2">Apenas para botões primários, links importantes, estados de sucesso e indicadores de progresso ativos</span>
+                    </p>
+                  </div>
+                  
+                  <div className="bg-accent-subtle/10 border border-accent-border rounded-lg p-3">
+                    <p className="text-sm">
+                      <span className="font-semibold text-accent-subtle">✨ Cinzas (#6B7280, #9CA3AF, #D1D5DB):</span> 
+                      <span className="text-muted-foreground ml-2">Acentos principais, bordas ativas, hover states e destaques gerais</span>
+                    </p>
+                  </div>
+                  
+                  <div className="bg-muted/30 border rounded-lg p-3">
+                    <p className="text-sm">
+                      <span className="font-semibold">🖤 Preto/Branco:</span> 
+                      <span className="text-muted-foreground ml-2">Backgrounds principais, textos e elementos base</span>
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Melhorias Técnicas */}
+              <div>
+                <h4 className="font-semibold mb-3">⚙️ Melhorias Técnicas</h4>
+                <div className="grid gap-2 text-sm">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-success"></div>
+                    <span className="text-muted-foreground">Tema responsivo com alternância automática claro/escuro</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-success"></div>
+                    <span className="text-muted-foreground">Sistema de tokens CSS centralizado no index.css</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-success"></div>
+                    <span className="text-muted-foreground">Componentes com variantes consistentes</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-success"></div>
+                    <span className="text-muted-foreground">Uso exclusivo de cores sólidas em toda aplicação</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </JumperCardContent>
+        </JumperCard>
 
         {/* Paleta de Cores */}
         <JumperCard>
@@ -339,11 +441,15 @@ const DesignSystem = () => {
 
         {/* Footer da página */}
         <div className="text-center text-white/60 text-sm">
-          <p>Design System oficial da Jumper Studio v2.0</p>
+          <p>Design System oficial da Jumper Studio v1.1</p>
           <p className="mt-2">
-            Nova hierarquia: <span className="text-accent-subtle ml-1">Acentos sutis como padrão</span> • 
-            <span className="text-accent-critical ml-1">Laranja apenas para ações críticas</span>
+            ✨ <span className="text-accent-subtle">Acentos sutis como padrão</span> • 
+            🔥 <span className="text-accent-critical">Laranja apenas para ações críticas</span> • 
+            🎨 <span className="text-white/80">Cores sólidas exclusivamente</span>
           </p>
+          <div className="mt-4 text-xs text-white/40">
+            Última atualização: Consolidação das decisões de design recentes
+          </div>
         </div>
       </div>
     </JumperBackground>
