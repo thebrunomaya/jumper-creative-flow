@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { X } from 'lucide-react';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 import UserMenu from './UserMenu';
 
@@ -10,26 +11,14 @@ const Header: React.FC = () => {
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
             <div className="flex items-center">
-              {/* Logo quadrado com gradiente */}
-              <div className="relative w-10 h-10 rounded-lg bg-gradient-to-br from-jumper-orange to-jumper-purple flex items-center justify-center shadow-md">
-                <img 
-                  src="/src/assets/jumper-white.png"
-                  alt="Jumper Studio"
-                  className="w-6 h-6 dark:block hidden"
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    target.style.display = 'none';
-                  }}
-                />
-                <img 
-                  src="/src/assets/jumper-black.png"
-                  alt="Jumper Studio"
-                  className="w-6 h-6 dark:hidden block"
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    target.style.display = 'none';
-                  }}
-                />
+              {/* Logo quadrado com imagem de fundo */}
+              <div 
+                className="relative w-10 h-10 rounded-lg flex items-center justify-center shadow-md bg-cover bg-center"
+                style={{
+                  backgroundImage: 'url(https://jumper.studio/wp-content/uploads/2025/07/JMP-GR07.png)'
+                }}
+              >
+                <X className="w-5 h-5 text-white dark:text-white" />
               </div>
             </div>
           </div>
