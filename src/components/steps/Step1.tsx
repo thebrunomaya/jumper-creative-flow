@@ -96,7 +96,7 @@ const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
           <JumperCard 
             className={`cursor-pointer transition-all duration-200 hover:shadow-lg ${
               formData.platform === 'meta' 
-                ? 'ring-2 ring-jumper-orange bg-jumper-orange/10' 
+                ? 'border-2 border-accent-subtle bg-accent-subtle/5' 
                 : 'hover:shadow-md'
             }`}
             onClick={() => updateFormData({ platform: 'meta', campaignObjective: undefined, creativeType: undefined, objective: undefined, creativeName: '' })}
@@ -121,7 +121,7 @@ const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
               <p className="text-sm text-muted-foreground mt-1">Search & Display</p>
               <Badge
                 variant="secondary" 
-                className="absolute -top-2 -right-2 bg-primary text-white text-xs px-2 py-1 shadow-lg"
+                className="absolute -top-2 -right-2 bg-gray-100 text-gray-600 text-xs px-2 py-1 shadow-sm border border-gray-200"
               >
                 Em Breve
               </Badge>
@@ -181,7 +181,7 @@ const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
                       <span className="text-gray-400">🏪 Coleção</span>
                       <Badge 
                         variant="outline" 
-                        className="ml-2 text-xs border-accent-border text-accent-subtle bg-accent-subtle/10"
+                        className="ml-2 text-xs border-gray-200 text-gray-500 bg-gray-50"
                       >
                         Em Breve
                       </Badge>

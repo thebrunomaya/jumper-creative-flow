@@ -57,7 +57,7 @@ const CreativeNavigation: React.FC<CreativeNavigationProps> = ({
           </JumperButton>
         ) : (
           <JumperButton
-            variant="primary"
+            variant="critical"
             onClick={onSubmit}
             disabled={isSubmitting}
             className="flex items-center space-x-2 px-8"
