@@ -3,7 +3,7 @@ import React from 'react';
 import { ValidatedFile } from '@/types/creative';
 import { Button } from '@/components/ui/button';
 import { Play, FileText, Instagram } from 'lucide-react';
-import { getThumbnailDimensions, createMockupFile } from '@/utils/thumbnailUtils';
+import { getThumbnailDimensions, createMockupFile, getGradientImage } from '@/utils/thumbnailUtils';
 import MetaZoneOverlay from './MetaZoneOverlay';
 
 interface ThumbnailPreviewProps {
