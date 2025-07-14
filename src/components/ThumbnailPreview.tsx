@@ -1,9 +1,9 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { ValidatedFile } from '@/types/creative';
 import { Button } from '@/components/ui/button';
 import { Play, FileText, Instagram } from 'lucide-react';
-import { getThumbnailDimensions, createMockupFile, getGradientImage } from '@/utils/thumbnailUtils';
+import { getThumbnailDimensions, generateThumbnailPreview } from '@/utils/thumbnailUtils';
 import MetaZoneOverlay from './MetaZoneOverlay';
 
 interface ThumbnailPreviewProps {
@@ -107,9 +107,19 @@ const ThumbnailPreview: React.FC<ThumbnailPreviewProps> = ({
   }
 
   // Handle empty state (no file) - Show beautiful mockup for regular media
+  const [thumbnailSrc, setThumbnailSrc] = useState<string>('');
+  
+  useEffect(() => {
+    if (!file && enabled) {
+      generateThumbnailPreview(format, carouselMode, carouselAspectRatio)
+        .then(setThumbnailSrc)
+        .catch(() => {
+          console.warn('Failed to generate thumbnail preview');
+        });
+    }
+  }, [format, carouselMode, carouselAspectRatio, enabled, file]);
+  
   if (!file) {
-    const mockupSrc = getGradientImage(format, carouselMode, carouselAspectRatio);
-    
     return (
       <div className="relative" style={{ width: `${width}px`, height: `${height}px` }}>
         <Button
@@ -117,14 +127,26 @@ const ThumbnailPreview: React.FC<ThumbnailPreviewProps> = ({
           className="w-full h-full p-0 hover:opacity-80 transition-opacity border-0"
           onClick={onPreviewClick}
         >
-          <img
-            src={mockupSrc}
-            alt={`Preview ${carouselMode 
-              ? (carouselAspectRatio === '1:1' ? '1:1' : '4:5')
-              : format
-            }`}
-            className="w-full h-full object-cover rounded"
-          />
+          {thumbnailSrc ? (
+            <img
+              src={thumbnailSrc}
+              alt={`Preview ${carouselMode 
+                ? (carouselAspectRatio === '1:1' ? '1:1' : '4:5')
+                : format
+              }`}
+              className="w-full h-full object-cover rounded"
+              style={{ imageRendering: 'crisp-edges' }}
+            />
+          ) : (
+            <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/40 flex items-center justify-center rounded">
+              <div className="bg-white/90 px-2 py-1 rounded text-sm font-bold text-gray-700">
+                {carouselMode 
+                  ? (carouselAspectRatio === '1:1' ? '1:1' : '4:5')
+                  : (format === 'square' ? '1:1' : format === 'vertical' ? '9:16' : '1.91:1')
+                }
+              </div>
+            </div>
+          )}
         </Button>
         
         {/* Format indicator - moved to top-left */}
