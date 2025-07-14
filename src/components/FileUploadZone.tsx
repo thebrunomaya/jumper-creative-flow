@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Upload } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { JumperButton } from '@/components/ui/jumper-button';
 
 interface FileUploadZoneProps {
   getRootProps: () => any;
@@ -73,15 +73,15 @@ const FileUploadZone: React.FC<FileUploadZoneProps> = ({
         
         {isValidating && (
           <div className="flex items-center space-x-2 justify-center">
-            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-jumper-blue"></div>
-            <span className="text-sm text-jumper-blue">Validando...</span>
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-jumper-orange"></div>
+            <span className="text-sm text-jumper-orange">Validando...</span>
           </div>
         )}
         
         {onUploadClick && !isDragActive && !isValidating && (
           <div className="mt-4">
-            <Button 
-              variant="outline" 
+            <JumperButton 
+              variant="ghost" 
               size="sm"
               onClick={(e) => {
                 e.stopPropagation();
@@ -91,7 +91,7 @@ const FileUploadZone: React.FC<FileUploadZoneProps> = ({
             >
               <Upload className="h-3 w-3 mr-1" />
               Escolher arquivo
-            </Button>
+            </JumperButton>
           </div>
         )}
       </div>

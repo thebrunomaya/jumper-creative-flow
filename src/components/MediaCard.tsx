@@ -2,7 +2,8 @@
 import React from 'react';
 import { ValidatedFile } from '@/types/creative';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { JumperButton } from '@/components/ui/jumper-button';
+import { JumperCard, JumperCardContent, JumperCardHeader, JumperCardTitle } from '@/components/ui/jumper-card';
 import { Trash2 } from 'lucide-react';
 import ThumbnailPreview from './ThumbnailPreview';
 import FileUploadZone from './FileUploadZone';
@@ -81,77 +82,81 @@ const MediaCard: React.FC<MediaCardProps> = ({
   );
 
   return (
-    <div className="bg-media-card border border-media-card-border rounded-lg overflow-hidden shadow-sm">
+    <JumperCard className="overflow-hidden shadow-sm">
       {/* Header - apenas se showHeader for true */}
       {showHeader && (
-        <div className="flex items-center justify-between p-4 border-b border-media-card-border">
-          <h4 className="text-lg font-semibold text-foreground">
-            {title}
-          </h4>
-          <div className="flex items-center space-x-2">
-            <span className="text-sm text-muted-foreground">{dimensions}</span>
-            {statusBadge}
-            {canRemove && onRemove && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onRemove}
-                className="text-destructive hover:text-destructive hover:bg-destructive/10"
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            )}
+        <JumperCardHeader className="border-b border-border">
+          <div className="flex items-center justify-between">
+            <JumperCardTitle className="text-lg">
+              {title}
+            </JumperCardTitle>
+            <div className="flex items-center space-x-2">
+              <span className="text-sm text-muted-foreground">{dimensions}</span>
+              {statusBadge}
+              {canRemove && onRemove && (
+                <JumperButton
+                  variant="ghost"
+                  size="sm"
+                  onClick={onRemove}
+                  className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </JumperButton>
+              )}
+            </div>
           </div>
-        </div>
+        </JumperCardHeader>
       )}
 
       {/* Content Area */}
-      <div className="flex h-40">
-        {/* Thumbnail Container - quadrado 160x160px */}
-        <div className="w-40 h-40 bg-thumbnail-bg border-r border-media-card-border flex items-center justify-center p-2">
-          <ThumbnailPreview
-            format={format}
-            file={file}
-            onPreviewClick={onPreviewClick}
-            carouselMode={carouselMode}
-            carouselAspectRatio={carouselAspectRatio}
-            enabled={enabled}
-            urlMode={urlMode}
-            existingPostData={existingPostData}
-          />
-        </div>
-
-        {/* Upload Area, URL Input Zone ou File Details Container */}
-        <div className="flex-1 flex flex-col h-40">
-          {urlMode ? (
-            <UrlInputZone
-              isValidating={isValidating}
+      <JumperCardContent className="p-0">
+        <div className="flex h-40">
+          {/* Thumbnail Container - quadrado 160x160px */}
+          <div className="w-40 h-40 bg-thumbnail-bg border-r border-border flex items-center justify-center p-2">
+            <ThumbnailPreview
+              format={format}
+              file={file}
+              onPreviewClick={onPreviewClick}
+              carouselMode={carouselMode}
+              carouselAspectRatio={carouselAspectRatio}
               enabled={enabled}
-              onUrlInputClick={onUploadClick}
+              urlMode={urlMode}
               existingPostData={existingPostData}
             />
-          ) : !file ? (
-            <FileUploadZone
-              getRootProps={getRootProps || (() => ({}))}
-              getInputProps={getInputProps || (() => ({}))}
-              isDragActive={isDragActive || false}
-              isValidating={isValidating}
-              dimensions={dimensions}
-              enabled={enabled}
-              onUploadClick={onUploadClick}
-            />
-          ) : (
-            <FileDetails
-              file={file}
-              format={format}
-              onRemove={onRemoveClick}
-              onReplace={onReplaceClick}
-              enabled={enabled}
-            />
-          )}
+          </div>
+
+          {/* Upload Area, URL Input Zone ou File Details Container */}
+          <div className="flex-1 flex flex-col h-40">
+            {urlMode ? (
+              <UrlInputZone
+                isValidating={isValidating}
+                enabled={enabled}
+                onUrlInputClick={onUploadClick}
+                existingPostData={existingPostData}
+              />
+            ) : !file ? (
+              <FileUploadZone
+                getRootProps={getRootProps || (() => ({}))}
+                getInputProps={getInputProps || (() => ({}))}
+                isDragActive={isDragActive || false}
+                isValidating={isValidating}
+                dimensions={dimensions}
+                enabled={enabled}
+                onUploadClick={onUploadClick}
+              />
+            ) : (
+              <FileDetails
+                file={file}
+                format={format}
+                onRemove={onRemoveClick}
+                onReplace={onReplaceClick}
+                enabled={enabled}
+              />
+            )}
+          </div>
         </div>
-      </div>
-    </div>
+      </JumperCardContent>
+    </JumperCard>
   );
 };
 
