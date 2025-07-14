@@ -5,11 +5,11 @@ import { cn } from "@/lib/utils"
 // Import official Jumper Studio assets
 import xWhite from "@/assets/x-white.png"
 import xBlack from "@/assets/x-black.png"
-import jumperWhite from "@/assets/jumper-white.png"
-import jumperBlack from "@/assets/jumper-black.png"
+import jumperFullLogoWhite from "@/assets/jumper-full-logo-white.png"
+import jumperFullLogoBlack from "@/assets/jumper-full-logo-black.png"
 
 const jumperLogoVariants = cva(
-  "flex items-center gap-2",
+  "flex items-center",
   {
     variants: {
       size: {
@@ -46,13 +46,13 @@ const logoSymbolVariants = cva(
   }
 )
 
-const logoTextVariants = cva(
-  "object-contain h-auto flex-shrink-0",
+const logoCompleteVariants = cva(
+  "object-contain h-auto",
   {
     variants: {
       size: {
         sm: "h-6",
-        md: "h-8", 
+        md: "h-8",
         lg: "h-10",
       },
     },
@@ -83,9 +83,9 @@ const JumperLogo = React.forwardRef<HTMLDivElement, JumperLogoProps>(
 
     const effectiveTheme = getEffectiveTheme()
     
-    // Select correct assets based on theme
+    // Select correct assets based on theme and showText
     const symbolSrc = effectiveTheme === 'dark' ? xWhite : xBlack
-    const textSrc = effectiveTheme === 'dark' ? jumperWhite : jumperBlack
+    const fullLogoSrc = effectiveTheme === 'dark' ? jumperFullLogoWhite : jumperFullLogoBlack
 
     const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
       // Fallback: hide image and show text
@@ -98,21 +98,12 @@ const JumperLogo = React.forwardRef<HTMLDivElement, JumperLogoProps>(
         ref={ref}
         {...props}
       >
-        {/* Official X Symbol */}
-        <img 
-          src={symbolSrc}
-          alt="Jumper Studio"
-          className={cn(logoSymbolVariants({ size }))}
-          onError={handleImageError}
-          loading="lazy"
-        />
-
-        {/* Official Jumper Typography */}
-        {showText && (
+        {showText ? (
+          /* Use complete logo when text is needed */
           <img
-            src={textSrc}
+            src={fullLogoSrc}
             alt="Jumper Studio"
-            className={cn(logoTextVariants({ size }))}
+            className={cn(logoCompleteVariants({ size }))}
             onError={(e) => {
               // Fallback to text if image fails
               const parent = e.currentTarget.parentElement
@@ -124,6 +115,15 @@ const JumperLogo = React.forwardRef<HTMLDivElement, JumperLogoProps>(
                 parent.appendChild(fallbackText)
               }
             }}
+            loading="lazy"
+          />
+        ) : (
+          /* Use only symbol when text is not needed */
+          <img 
+            src={symbolSrc}
+            alt="Jumper Studio"
+            className={cn(logoSymbolVariants({ size }))}
+            onError={handleImageError}
             loading="lazy"
           />
         )}
