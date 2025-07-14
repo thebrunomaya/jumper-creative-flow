@@ -72,72 +72,138 @@ export const createMockupFile = (format: 'square' | 'vertical' | 'horizontal', c
   const ctx = canvas.getContext('2d');
   
   if (ctx) {
-    // Different solid colors based on type  
-    let solidColor: string;
+    // Gradientes oficiais da Jumper Studio
+    let gradientUrl: string;
     
-    // Cores específicas para carrossel e formatos normais
+    // Gradientes específicos para carrossel e formatos normais
     if (carouselMode) {
       if (carouselAspectRatio === '4:5') {
-        solidColor = '#f59e0b'; // Laranja/amarelo sólido
+        gradientUrl = 'https://jumper.studio/wp-content/uploads/2025/07/JMP-GR02.png'; // Vertical para 4:5
       } else {
-        // 1:1 mantém cor azul
-        solidColor = '#3b82f6';
+        // 1:1 usa gradiente quadrado
+        gradientUrl = 'https://jumper.studio/wp-content/uploads/2025/07/JMP-GR01.png';
       }
     } else {
-      // Cores originais para formatos normais
+      // Gradientes oficiais para formatos normais
       switch (format) {
         case 'square':
-          solidColor = '#3b82f6'; // Azul
+          gradientUrl = 'https://jumper.studio/wp-content/uploads/2025/07/JMP-GR01.png';
           break;
         case 'vertical':
-          solidColor = '#8b5cf6'; // Roxo
+          gradientUrl = 'https://jumper.studio/wp-content/uploads/2025/07/JMP-GR02.png';
           break;
         case 'horizontal':
-          solidColor = '#22c55e'; // Verde
+          gradientUrl = 'https://jumper.studio/wp-content/uploads/2025/07/JMP-GR03.png';
           break;
         default:
-          solidColor = '#3b82f6';
+          gradientUrl = 'https://jumper.studio/wp-content/uploads/2025/07/JMP-GR01.png';
       }
     }
     
-    // Preencher o fundo com cor sólida
-    ctx.fillStyle = solidColor;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    // Carregar e desenhar imagem de gradiente
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      
+      // Borda externa sutil
+      ctx.strokeStyle = '#e5e7eb';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(1, 1, canvas.width - 2, canvas.height - 2);
+      
+      // Texto central com fundo semi-transparente
+      const textBackgroundAlpha = 0.8;
+      ctx.fillStyle = `rgba(255, 255, 255, ${textBackgroundAlpha})`;
+      
+      // Calcular tamanho do fundo do texto
+      ctx.font = 'bold 16px system-ui, -apple-system, sans-serif';
+      const textToShow = getDisplayText(format, carouselMode, carouselAspectRatio);
+      const textMetrics = ctx.measureText(textToShow);
+      const textWidth = textMetrics.width;
+      const textHeight = 20;
+      
+      // Desenhar fundo do texto
+      const bgPadding = 8;
+      const bgX = (canvas.width - textWidth) / 2 - bgPadding;
+      const bgY = (canvas.height - textHeight) / 2 - bgPadding;
+      const bgWidth = textWidth + (bgPadding * 2);
+      const bgHeight = textHeight + (bgPadding * 2);
+      
+      ctx.fillRect(bgX, bgY, bgWidth, bgHeight);
+      
+      // Texto central
+      ctx.fillStyle = '#374151';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      
+      ctx.fillText(
+        textToShow,
+        canvas.width / 2,
+        canvas.height / 2
+      );
+    };
     
-    // Borda externa sólida
-    ctx.strokeStyle = '#e5e7eb';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(1, 1, canvas.width - 2, canvas.height - 2);
-    
-    // REMOVIDO: Área de proteção com linha tracejada pontilhada
-    // A linha tracejada foi completamente removida
-    
-    // Texto central
-    ctx.fillStyle = '#374151';
-    ctx.font = 'bold 16px system-ui, -apple-system, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    
-    // Texto correto baseado no modo
-    let displayText = '';
-    if (carouselMode) {
-      displayText = carouselAspectRatio === '4:5' ? '4:5' : '1:1';
-    } else {
-      if (format === 'square') {
-        displayText = '1:1';
-      } else if (format === 'vertical') {
-        displayText = '9:16';
+    img.onerror = () => {
+      // Fallback para cor sólida se imagem não carregar
+      let fallbackColor: string;
+      if (carouselMode) {
+        fallbackColor = carouselAspectRatio === '4:5' ? '#6B7280' : '#6B7280';
       } else {
-        displayText = '1.91:1';
+        fallbackColor = '#6B7280'; // Cinza neutro
       }
-    }
+      
+      ctx.fillStyle = fallbackColor;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      // Continuar com borda e texto
+      drawBorderAndText(ctx, canvas, format, carouselMode, carouselAspectRatio);
+    };
     
-    ctx.fillText(
-      displayText,
-      canvas.width / 2,
-      canvas.height / 2
-    );
+    img.src = gradientUrl;
+    
+    // Se a imagem já estiver em cache, o onload pode ser chamado sincronamente
+    if (img.complete && img.naturalWidth > 0) {
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      drawBorderAndText(ctx, canvas, format, carouselMode, carouselAspectRatio);
+    }
   }
   
   return canvas.toDataURL('image/png');
+};
+
+// Função auxiliar para obter texto de exibição
+const getDisplayText = (format: 'square' | 'vertical' | 'horizontal', carouselMode: boolean, carouselAspectRatio?: '1:1' | '4:5'): string => {
+  if (carouselMode) {
+    return carouselAspectRatio === '4:5' ? '4:5' : '1:1';
+  } else {
+    if (format === 'square') {
+      return '1:1';
+    } else if (format === 'vertical') {
+      return '9:16';
+    } else {
+      return '1.91:1';
+    }
+  }
+};
+
+// Função auxiliar para desenhar borda e texto (fallback)
+const drawBorderAndText = (ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, format: 'square' | 'vertical' | 'horizontal', carouselMode: boolean, carouselAspectRatio?: '1:1' | '4:5') => {
+  // Borda externa sólida
+  ctx.strokeStyle = '#e5e7eb';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(1, 1, canvas.width - 2, canvas.height - 2);
+  
+  // Texto central
+  ctx.fillStyle = '#374151';
+  ctx.font = 'bold 16px system-ui, -apple-system, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  
+  const displayText = getDisplayText(format, carouselMode, carouselAspectRatio);
+  
+  ctx.fillText(
+    displayText,
+    canvas.width / 2,
+    canvas.height / 2
+  );
 };
