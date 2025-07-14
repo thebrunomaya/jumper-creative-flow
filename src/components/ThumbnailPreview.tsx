@@ -108,7 +108,7 @@ const ThumbnailPreview: React.FC<ThumbnailPreviewProps> = ({
 
   // Handle empty state (no file) - Show beautiful mockup for regular media
   if (!file) {
-    const mockupSrc = createMockupFile(format, carouselMode, carouselAspectRatio);
+    const mockupSrc = getGradientImage(format, carouselMode, carouselAspectRatio);
     
     return (
       <div className="relative" style={{ width: `${width}px`, height: `${height}px` }}>

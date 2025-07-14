@@ -61,6 +61,35 @@ export const getThumbnailDimensions = (format: 'square' | 'vertical' | 'horizont
   };
 };
 
+// Importar imagens de gradiente
+import gradientSquare from '../assets/gradient-square.png';
+import gradientVertical from '../assets/gradient-vertical.png';
+import gradientHorizontal from '../assets/gradient-horizontal.png';
+
+export const getGradientImage = (format: 'square' | 'vertical' | 'horizontal', carouselMode = false, carouselAspectRatio?: '1:1' | '4:5'): string => {
+  // Gradientes específicos para carrossel e formatos normais
+  if (carouselMode) {
+    if (carouselAspectRatio === '4:5') {
+      return gradientVertical; // Vertical para 4:5
+    } else {
+      // 1:1 usa gradiente quadrado
+      return gradientSquare;
+    }
+  } else {
+    // Gradientes oficiais para formatos normais
+    switch (format) {
+      case 'square':
+        return gradientSquare;
+      case 'vertical':
+        return gradientVertical;
+      case 'horizontal':
+        return gradientHorizontal;
+      default:
+        return gradientSquare;
+    }
+  }
+};
+
 export const createMockupFile = (format: 'square' | 'vertical' | 'horizontal', carouselMode = false, carouselAspectRatio?: '1:1' | '4:5') => {
   const canvas = document.createElement('canvas');
   const { width, height } = getThumbnailDimensions(format, carouselMode, carouselAspectRatio);
@@ -72,107 +101,50 @@ export const createMockupFile = (format: 'square' | 'vertical' | 'horizontal', c
   const ctx = canvas.getContext('2d');
   
   if (ctx) {
-    // Gradientes oficiais da Jumper Studio
-    let gradientUrl: string;
+    // Usar gradiente CSS como fallback para compatibilidade
+    const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
     
-    // Gradientes específicos para carrossel e formatos normais
+    // Gradientes baseados no formato
     if (carouselMode) {
       if (carouselAspectRatio === '4:5') {
-        gradientUrl = 'https://jumper.studio/wp-content/uploads/2025/07/JMP-GR02.png'; // Vertical para 4:5
+        gradient.addColorStop(0, '#6366f1');
+        gradient.addColorStop(1, '#8b5cf6');
       } else {
-        // 1:1 usa gradiente quadrado
-        gradientUrl = 'https://jumper.studio/wp-content/uploads/2025/07/JMP-GR01.png';
+        gradient.addColorStop(0, '#3b82f6');
+        gradient.addColorStop(1, '#1d4ed8');
       }
     } else {
-      // Gradientes oficiais para formatos normais
       switch (format) {
         case 'square':
-          gradientUrl = 'https://jumper.studio/wp-content/uploads/2025/07/JMP-GR01.png';
+          gradient.addColorStop(0, '#3b82f6');
+          gradient.addColorStop(1, '#1d4ed8');
           break;
         case 'vertical':
-          gradientUrl = 'https://jumper.studio/wp-content/uploads/2025/07/JMP-GR02.png';
+          gradient.addColorStop(0, '#6366f1');
+          gradient.addColorStop(1, '#8b5cf6');
           break;
         case 'horizontal':
-          gradientUrl = 'https://jumper.studio/wp-content/uploads/2025/07/JMP-GR03.png';
+          gradient.addColorStop(0, '#059669');
+          gradient.addColorStop(1, '#047857');
           break;
         default:
-          gradientUrl = 'https://jumper.studio/wp-content/uploads/2025/07/JMP-GR01.png';
+          gradient.addColorStop(0, '#6B7280');
+          gradient.addColorStop(1, '#4B5563');
       }
     }
     
-    // Carregar e desenhar imagem de gradiente
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.onload = () => {
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-      
-      // Borda externa sutil
-      ctx.strokeStyle = '#e5e7eb';
-      ctx.lineWidth = 2;
-      ctx.strokeRect(1, 1, canvas.width - 2, canvas.height - 2);
-      
-      // Texto central com fundo semi-transparente
-      const textBackgroundAlpha = 0.8;
-      ctx.fillStyle = `rgba(255, 255, 255, ${textBackgroundAlpha})`;
-      
-      // Calcular tamanho do fundo do texto
-      ctx.font = 'bold 16px system-ui, -apple-system, sans-serif';
-      const textToShow = getDisplayText(format, carouselMode, carouselAspectRatio);
-      const textMetrics = ctx.measureText(textToShow);
-      const textWidth = textMetrics.width;
-      const textHeight = 20;
-      
-      // Desenhar fundo do texto
-      const bgPadding = 8;
-      const bgX = (canvas.width - textWidth) / 2 - bgPadding;
-      const bgY = (canvas.height - textHeight) / 2 - bgPadding;
-      const bgWidth = textWidth + (bgPadding * 2);
-      const bgHeight = textHeight + (bgPadding * 2);
-      
-      ctx.fillRect(bgX, bgY, bgWidth, bgHeight);
-      
-      // Texto central
-      ctx.fillStyle = '#374151';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      
-      ctx.fillText(
-        textToShow,
-        canvas.width / 2,
-        canvas.height / 2
-      );
-    };
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
     
-    img.onerror = () => {
-      // Fallback para cor sólida se imagem não carregar
-      let fallbackColor: string;
-      if (carouselMode) {
-        fallbackColor = carouselAspectRatio === '4:5' ? '#6B7280' : '#6B7280';
-      } else {
-        fallbackColor = '#6B7280'; // Cinza neutro
-      }
-      
-      ctx.fillStyle = fallbackColor;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      
-      // Continuar com borda e texto
-      drawBorderAndText(ctx, canvas, format, carouselMode, carouselAspectRatio);
-    };
-    
-    img.src = gradientUrl;
-    
-    // Se a imagem já estiver em cache, o onload pode ser chamado sincronamente
-    if (img.complete && img.naturalWidth > 0) {
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-      drawBorderAndText(ctx, canvas, format, carouselMode, carouselAspectRatio);
-    }
+    // Continuar com borda e texto
+    drawBorderAndText(ctx, canvas, format, carouselMode, carouselAspectRatio);
   }
   
   return canvas.toDataURL('image/png');
 };
 
 // Função auxiliar para obter texto de exibição
-const getDisplayText = (format: 'square' | 'vertical' | 'horizontal', carouselMode: boolean, carouselAspectRatio?: '1:1' | '4:5'): string => {
+export const getDisplayText = (format: 'square' | 'vertical' | 'horizontal', carouselMode: boolean, carouselAspectRatio?: '1:1' | '4:5'): string => {
   if (carouselMode) {
     return carouselAspectRatio === '4:5' ? '4:5' : '1:1';
   } else {
