@@ -88,7 +88,7 @@ const CreativeSystem: React.FC = () => {
           stepLabels={STEP_LABELS} 
         />
 
-        <JumperCard className="shadow-xl border-0 bg-card/50 backdrop-blur-sm mb-6">
+        <JumperCard className="shadow-lg border border-border/20 bg-card/80 backdrop-blur-sm mb-6">
           <JumperCardContent className="p-6 md:p-8">
             <Breadcrumbs 
               formData={formData}
