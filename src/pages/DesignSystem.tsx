@@ -89,9 +89,9 @@ const DesignSystem = () => {
                   <div className="flex items-start space-x-3 p-3 rounded-lg bg-muted/30 border">
                     <div className="w-2 h-2 rounded-full bg-foreground mt-2 flex-shrink-0"></div>
                     <div>
-                      <p className="font-medium">Logotipos PNG Oficiais</p>
+                      <p className="font-medium">Ícones Monocromáticos</p>
                       <p className="text-sm text-muted-foreground mt-1">
-                        Substituição de símbolos/gradientes pelos arquivos PNG oficiais da Jumper Studio
+                        Substituição de emojis por ícones monocromáticos consistentes (Sun/Moon, Facebook/Google logos)
                       </p>
                     </div>
                   </div>
@@ -143,7 +143,7 @@ const DesignSystem = () => {
                   </div>
                   <div className="flex items-center space-x-2">
                     <div className="w-1.5 h-1.5 rounded-full bg-success"></div>
-                    <span className="text-muted-foreground">Uso exclusivo de cores sólidas em toda aplicação</span>
+                    <span className="text-muted-foreground">Ícones monocromáticos consistentes (Sun/Moon, Facebook/Google)</span>
                   </div>
                 </div>
               </div>
@@ -424,7 +424,7 @@ const DesignSystem = () => {
           <JumperCardHeader>
             <JumperCardTitle>🌙 ThemeToggle</JumperCardTitle>
             <JumperCardDescription>
-              Toggle entre modo claro e escuro
+              Toggle entre modo claro e escuro com ícones monocromáticos
             </JumperCardDescription>
           </JumperCardHeader>
           <JumperCardContent>
@@ -434,7 +434,8 @@ const DesignSystem = () => {
               <ThemeToggle variant="full" />
             </div>
             <p className="text-sm text-muted-foreground mt-4">
-              Modo atual: <span className="font-semibold">{isDark ? 'Escuro' : 'Claro'}</span>
+              Modo atual: <span className="font-semibold">{isDark ? 'Escuro' : 'Claro'}</span> • 
+              Ícones: <span className="text-accent-subtle">Sun/Moon (lucide-react)</span>
             </p>
           </JumperCardContent>
         </JumperCard>

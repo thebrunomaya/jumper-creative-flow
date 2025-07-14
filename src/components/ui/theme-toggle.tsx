@@ -2,6 +2,7 @@ import React from 'react'
 import { JumperButton } from '@/components/ui/jumper-button'
 import { useJumperTheme } from '@/hooks/use-jumper-theme'
 import { cn } from '@/lib/utils'
+import { Sun, Moon } from 'lucide-react'
 
 interface ThemeToggleProps {
   className?: string
@@ -24,9 +25,11 @@ const ThemeToggle: React.FC<ThemeToggleProps> = ({
       case 'full':
         return (
           <span className="flex items-center gap-2">
-            <span className="text-lg">
-              {isDark ? '☀️' : '🌙'}
-            </span>
+            {isDark ? (
+              <Sun className="w-4 h-4" />
+            ) : (
+              <Moon className="w-4 h-4" />
+            )}
             <span>
               {isDark ? 'Modo Claro' : 'Modo Escuro'}
             </span>
@@ -35,10 +38,10 @@ const ThemeToggle: React.FC<ThemeToggleProps> = ({
       
       case 'icon':
       default:
-        return (
-          <span className="text-lg" role="img" aria-label={isDark ? 'Sol' : 'Lua'}>
-            {isDark ? '☀️' : '🌙'}
-          </span>
+        return isDark ? (
+          <Sun className="w-4 h-4" aria-label="Sol" />
+        ) : (
+          <Moon className="w-4 h-4" aria-label="Lua" />
         )
     }
   }
