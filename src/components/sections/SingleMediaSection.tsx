@@ -84,14 +84,14 @@ const SingleMediaSection: React.FC<SingleMediaSectionProps> = ({
 
   const getDisabledCount = (variation: MediaVariation) => {
     let count = 0;
-    if (!variation.squareEnabled) count++;
-    if (!variation.verticalEnabled) count++;
-    if (!variation.horizontalEnabled) count++;
+    if (variation.squareEnabled !== true) count++;
+    if (variation.verticalEnabled !== true) count++;
+    if (variation.horizontalEnabled !== true) count++;
     return count;
   };
 
   const canDisablePosition = (variation: MediaVariation, format: 'square' | 'vertical' | 'horizontal') => {
-    const currentlyEnabled = variation[`${format}Enabled`] !== false;
+    const currentlyEnabled = variation[`${format}Enabled`] === true;
     const disabledCount = getDisabledCount(variation);
 
     // Can disable if currently enabled and we haven't reached the limit of 2 disabled
@@ -100,7 +100,7 @@ const SingleMediaSection: React.FC<SingleMediaSectionProps> = ({
 
   const hasAnyDisabledPosition = () => {
     return mediaVariations.some(variation => 
-      !variation.squareEnabled || !variation.verticalEnabled || !variation.horizontalEnabled
+      variation.squareEnabled !== true || variation.verticalEnabled !== true || variation.horizontalEnabled !== true
     );
   };
 
@@ -147,7 +147,7 @@ const SingleMediaSection: React.FC<SingleMediaSectionProps> = ({
               dimensions="1080x1080px ou múltiplos superiores (1:1)"
               file={variation.squareFile}
               onFileChange={(file) => updateVariationFile(variation.id, 'square', file)}
-              enabled={variation.squareEnabled !== false}
+              enabled={variation.squareEnabled === true}
               onEnabledChange={(enabled) => updateVariationEnabled(variation.id, 'square', enabled)}
               canDisable={canDisablePosition(variation, 'square')}
             />
@@ -158,7 +158,7 @@ const SingleMediaSection: React.FC<SingleMediaSectionProps> = ({
               dimensions="1080x1920px ou múltiplos superiores (9:16)"
               file={variation.verticalFile}
               onFileChange={(file) => updateVariationFile(variation.id, 'vertical', file)}
-              enabled={variation.verticalEnabled !== false}
+              enabled={variation.verticalEnabled === true}
               onEnabledChange={(enabled) => updateVariationEnabled(variation.id, 'vertical', enabled)}
               canDisable={canDisablePosition(variation, 'vertical')}
             />
@@ -169,7 +169,7 @@ const SingleMediaSection: React.FC<SingleMediaSectionProps> = ({
               dimensions="1200x628px ou múltiplos superiores (1.91:1)"
               file={variation.horizontalFile}
               onFileChange={(file) => updateVariationFile(variation.id, 'horizontal', file)}
-              enabled={variation.horizontalEnabled !== false}
+              enabled={variation.horizontalEnabled === true}
               onEnabledChange={(enabled) => updateVariationEnabled(variation.id, 'horizontal', enabled)}
               canDisable={canDisablePosition(variation, 'horizontal')}
             />

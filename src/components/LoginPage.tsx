@@ -8,6 +8,8 @@ import { useToast } from '@/hooks/use-toast';
 import { useManagers } from '@/hooks/useManagers';
 import { useAuth } from '@/contexts/AuthContext';
 import { Loader2, LogIn } from 'lucide-react';
+import { JumperLogo } from '@/components/ui/jumper-logo';
+import gradientImage from '@/assets/gradients/organic-02.png';
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -64,8 +66,8 @@ const LoginPage: React.FC = () => {
 
   if (managersLoading) {
     return (
-      <div className="min-h-screen bg-jumper-background flex items-center justify-center">
-        <div className="flex items-center space-x-2">
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="flex items-center space-x-2 text-foreground">
           <Loader2 className="h-6 w-6 animate-spin" />
           <span>Carregando sistema...</span>
         </div>
@@ -74,65 +76,109 @@ const LoginPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-jumper-background flex items-center justify-center p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <div className="mx-auto mb-4 w-20 h-20 bg-primary rounded-full flex items-center justify-center">
-            <LogIn className="h-10 w-10 text-white" />
-          </div>
-          <CardTitle className="text-2xl font-bold">Sistema de Criativos</CardTitle>
-          <CardDescription>
-            Faça login para acessar o sistema
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">E-mail</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="Digite seu e-mail"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                disabled={isLoading}
-                autoComplete="email"
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="password">Senha</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="Digite sua senha"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                disabled={isLoading}
-                autoComplete="current-password"
+    <div className="min-h-screen flex">
+      {/* Lado Esquerdo - Gradiente Puro */}
+      <div 
+        className="hidden lg:flex lg:w-1/2"
+        style={{
+          backgroundImage: `url(${gradientImage})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
+        }}
+      />
+
+      {/* Lado Direito - Formulário de Login */}
+      <div className="flex-1 lg:w-1/2 flex flex-col min-h-screen bg-black text-white">
+        {/* Header - Logo no topo */}
+        <div className="p-6 lg:p-8">
+          <JumperLogo 
+            size="sm" 
+            theme="dark" 
+            showText={true}
+          />
+        </div>
+
+        {/* Centro - Formulário */}
+        <div className="flex-1 flex items-center justify-center px-6 lg:px-12">
+          <div className="w-full max-w-sm space-y-8">
+            {/* Logo para mobile */}
+            <div className="lg:hidden text-center mb-8">
+              <JumperLogo 
+                size="lg" 
+                theme="dark" 
+                showText={true}
+                className="mx-auto mb-4"
               />
             </div>
 
-            <Button
-              type="submit"
-              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground transition-colors"
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Entrando...
-                </>
-              ) : (
-                <>
-                  <LogIn className="mr-2 h-4 w-4" />
-                  Entrar
-                </>
-              )}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
+            {/* Título Ad Uploader */}
+            <div className="text-center">
+              <h1 className="text-2xl lg:text-3xl font-bold text-white">
+                Ad Uploader
+              </h1>
+            </div>
+
+            {/* Formulário sem card */}
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-white font-medium">
+                  Login
+                </Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="Digite seu e-mail"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  disabled={isLoading}
+                  autoComplete="email"
+                  className="h-12 bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:border-[#FA4721] transition-colors"
+                  autoFocus
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="password" className="text-white font-medium">
+                  Senha
+                </Label>
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="Digite sua senha"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  disabled={isLoading}
+                  autoComplete="current-password"
+                  className="h-12 bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:border-[#FA4721] transition-colors"
+                />
+              </div>
+
+              <Button
+                type="submit"
+                className="w-full h-12 bg-[#FA4721] hover:bg-[#FA4721]/90 text-white font-semibold transition-all duration-200"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    Entrando...
+                  </>
+                ) : (
+                  "Entrar"
+                )}
+              </Button>
+            </form>
+          </div>
+        </div>
+
+        {/* Rodapé - Tagline */}
+        <div className="p-6 lg:p-8 text-center">
+          <p className="text-white/60 text-sm">
+            A sua agência de tráfego digital
+          </p>
+        </div>
+      </div>
     </div>
   );
 };

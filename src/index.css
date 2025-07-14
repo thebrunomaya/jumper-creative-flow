@@ -1,7 +1,7 @@
 /* Jumper Studio Official Fonts */
 @font-face {
   font-family: 'Haffer';
-  src: url('https://jumper.studio/wp-content/uploads/2025/07/HafferVF.ttf') format('truetype-variations');
+  src: url('./assets/fonts/haffer-variable.ttf') format('truetype-variations');
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
@@ -9,7 +9,7 @@
 
 @font-face {
   font-family: 'Haffer';
-  src: url('https://jumper.studio/wp-content/uploads/2025/07/HafferItalicVF.ttf') format('truetype-variations');
+  src: url('./assets/fonts/haffer-italic.ttf') format('truetype-variations');
   font-weight: 100 900;
   font-style: italic;
   font-display: swap;
@@ -18,6 +18,17 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Gradientes Orgânicos Jumper Studio */
+:root {
+  --gradient-01: url('./assets/gradients/organic-01.png');
+  --gradient-02: url('./assets/gradients/organic-02.png');
+  --gradient-03: url('./assets/gradients/organic-03.png');
+  --gradient-04: url('./assets/gradients/organic-04.png');
+  --gradient-05: url('./assets/gradients/organic-05.png');
+  --gradient-06: url('./assets/gradients/organic-06.png');
+  --gradient-07: url('./assets/gradients/organic-07.png');
+}
 
 /* Definition of the design system. All colors, fonts, etc should be defined here. */
 

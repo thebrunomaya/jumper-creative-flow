@@ -10,11 +10,13 @@ const jumperButtonVariants = cva(
     variants: {
       variant: {
         primary: 
-          "bg-jumper-orange text-white hover:bg-jumper-orange/90 active:bg-jumper-orange/95",
+          "bg-slate-700 text-white hover:bg-jumper-orange hover:shadow-md transition-all duration-200",
         secondary:
           "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: 
           "border border-input bg-transparent hover:bg-accent hover:text-accent-foreground",
+        critical:
+          "bg-jumper-orange text-white hover:bg-jumper-orange/90 active:bg-jumper-orange/95",
       },
       size: {
         default: "h-10 px-4 py-2",

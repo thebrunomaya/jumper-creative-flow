@@ -69,7 +69,7 @@ const CreativeSystem: React.FC = () => {
     return (
       <div className="min-h-screen flex flex-col bg-background">
         <Header />
-        <div className="max-w-4xl mx-auto px-4 py-8 flex-1">
+        <div className="w-full max-w-4xl mx-auto px-4 md:px-6 py-6 flex-1">
           <Success creativeIds={creativeIds} onNewCreative={handleReset} />
         </div>
         <Footer />
@@ -81,15 +81,15 @@ const CreativeSystem: React.FC = () => {
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
       
-      <div className="max-w-4xl mx-auto px-4 py-8 flex-1">
+      <div className="w-full max-w-4xl mx-auto px-4 md:px-6 py-6 flex-1">
         <ProgressBar 
           currentStep={currentStep} 
           totalSteps={4} 
           stepLabels={STEP_LABELS} 
         />
 
-        <JumperCard className="shadow-lg mb-8">
-          <JumperCardContent className="p-8">
+        <JumperCard className="shadow-lg border border-border/20 bg-card/80 backdrop-blur-sm mb-6">
+          <JumperCardContent className="p-6 md:p-8">
             <Breadcrumbs 
               formData={formData}
               clients={clients}

@@ -44,15 +44,10 @@ const Footer: React.FC = () => {
         </div>
 
         {/* Linha inferior */}
-        <div className="border-t border-border mt-8 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div className="border-t border-border mt-8 pt-6">
           <p className="text-sm text-muted-foreground">
             © {new Date().getFullYear()} Jumper Studio. Todos os direitos reservados.
           </p>
-          <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-            <span>Design System v1.0</span>
-            <span>•</span>
-            <span>Cores oficiais aplicadas</span>
-          </div>
         </div>
       </div>
     </footer>

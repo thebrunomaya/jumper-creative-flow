@@ -1,9 +1,10 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { ValidatedFile } from '@/types/creative';
 import { Button } from '@/components/ui/button';
-import { Play, FileText, Instagram } from 'lucide-react';
-import { getThumbnailDimensions, createMockupFile } from '@/utils/thumbnailUtils';
+import { Play, FileText, Instagram, Loader2 } from 'lucide-react';
+import { getThumbnailDimensions } from '@/utils/thumbnailUtils';
+import { useLazyThumbnail } from '@/hooks/useLazyThumbnail';
 import MetaZoneOverlay from './MetaZoneOverlay';
 
 interface ThumbnailPreviewProps {
@@ -106,36 +107,54 @@ const ThumbnailPreview: React.FC<ThumbnailPreviewProps> = ({
     );
   }
 
+  // Use lazy loading hook for thumbnail generation
+  const { ref, thumbnailSrc, isLoading, error } = useLazyThumbnail({
+    format,
+    carouselMode,
+    carouselAspectRatio,
+    enabled: enabled && !file // Only generate for empty state
+  });
+  
   // Handle empty state (no file) - Show beautiful mockup for regular media
   if (!file) {
-    const mockupSrc = createMockupFile(format, carouselMode, carouselAspectRatio);
-    
     return (
-      <div className="relative" style={{ width: `${width}px`, height: `${height}px` }}>
+      <div ref={ref} className="relative" style={{ width: `${width}px`, height: `${height}px` }}>
         <Button
           variant="ghost"
           className="w-full h-full p-0 hover:opacity-80 transition-opacity border-0"
           onClick={onPreviewClick}
         >
-          <img
-            src={mockupSrc}
-            alt={`Preview ${carouselMode 
-              ? (carouselAspectRatio === '1:1' ? '1:1' : '4:5')
-              : format
-            }`}
-            className="w-full h-full object-cover rounded"
-          />
+          {isLoading ? (
+            <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/40 flex items-center justify-center rounded">
+              <Loader2 className="h-4 w-4 animate-spin text-primary" />
+            </div>
+          ) : error ? (
+            <div className="w-full h-full bg-gradient-to-br from-red-100 to-red-200 flex items-center justify-center rounded">
+              <div className="bg-white/90 px-2 py-1 rounded text-xs font-bold text-red-700">
+                Erro
+              </div>
+            </div>
+          ) : thumbnailSrc ? (
+            <img
+              src={thumbnailSrc}
+              alt={`Preview ${carouselMode 
+                ? (carouselAspectRatio === '1:1' ? '1:1' : '4:5')
+                : format
+              }`}
+              className="w-full h-full object-cover rounded"
+              style={{ imageRendering: 'crisp-edges' }}
+            />
+          ) : (
+            <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/40 flex items-center justify-center rounded">
+              <div className="bg-white/90 px-2 py-1 rounded text-sm font-bold text-gray-700">
+                {carouselMode 
+                  ? (carouselAspectRatio === '1:1' ? '1:1' : '4:5')
+                  : (format === 'square' ? '1:1' : format === 'vertical' ? '9:16' : '1.91:1')
+                }
+              </div>
+            </div>
+          )}
         </Button>
-        
-        {/* Format indicator - moved to top-left */}
-        <div className="absolute top-1 left-1">
-          <div className="bg-primary bg-opacity-90 text-primary-foreground text-xs px-1.5 py-0.5 rounded">
-            {carouselMode 
-              ? (carouselAspectRatio === '1:1' ? '1:1' : '4:5')
-              : (format === 'square' ? '1:1' : format === 'vertical' ? '9:16' : '1.91:1')
-            }
-          </div>
-        </div>
       </div>
     );
   }
