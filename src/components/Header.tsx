@@ -2,6 +2,8 @@
 import React from 'react';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 import UserMenu from './UserMenu';
+import xWhiteLogo from '../assets/logos/x-white.png';
+import logoBackground from '../assets/gradients/organic-07.png';
 
 const Header: React.FC = () => {
   return (
@@ -15,11 +17,11 @@ const Header: React.FC = () => {
                 <div 
                   className="relative w-10 h-10 rounded-lg flex items-center justify-center shadow-md bg-cover bg-center"
                   style={{
-                    backgroundImage: 'url(https://jumper.studio/wp-content/uploads/2025/07/JMP-GR07.png)'
+                    backgroundImage: `url(${logoBackground})`
                   }}
                 >
                   <img 
-                    src="https://jumper.studio/wp-content/uploads/2025/07/X-White.png"
+                    src={xWhiteLogo}
                     alt="Jumper X"
                     className="w-5 h-5"
                   />

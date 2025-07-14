@@ -61,10 +61,10 @@ export const getThumbnailDimensions = (format: 'square' | 'vertical' | 'horizont
   };
 };
 
-// Importar imagens de gradiente
-import gradientSquare from '../assets/gradient-square.png';
-import gradientVertical from '../assets/gradient-vertical.png';
-import gradientHorizontal from '../assets/gradient-horizontal.png';
+// Import gradient images - Gradientes Orgânicos Jumper Studio
+import gradientSquare from '../assets/gradients/organic-01.png';
+import gradientVertical from '../assets/gradients/organic-02.png';
+import gradientHorizontal from '../assets/gradients/organic-03.png';
 
 export const getGradientImage = (format: 'square' | 'vertical' | 'horizontal', carouselMode = false, carouselAspectRatio?: '1:1' | '4:5'): string => {
   // Gradientes específicos para carrossel e formatos normais
