@@ -55,6 +55,17 @@ export const getThumbnailDimensions = (format: 'square' | 'vertical' | 'horizont
     }
   }
   
+  // DEBUG: Mostrar cálculos das dimensões
+  console.log('📐 Dimension calc:', {
+    format,
+    carouselMode,
+    carouselAspectRatio,
+    aspectRatio,
+    finalDimensions: { width, height },
+    isVertical: aspectRatio < 1,
+    isHorizontal: aspectRatio > 1
+  });
+  
   return { 
     width, 
     height 
@@ -65,23 +76,27 @@ export const getThumbnailDimensions = (format: 'square' | 'vertical' | 'horizont
 import gradientSquare from '../assets/gradients/organic-01.png';
 import gradientVertical from '../assets/gradients/organic-02.png';
 import gradientHorizontal from '../assets/gradients/organic-03.png';
+import gradientCarousel11 from '../assets/gradients/organic-01.png';
+import gradientCarousel45 from '../assets/gradients/organic-05.png';
 import { createGradientThumbnail } from './gradientCropper';
 import { getCachedThumbnail, setCachedThumbnail } from './thumbnailCache';
 
 const GRADIENT_MAPPING = {
   square: gradientSquare,
   vertical: gradientVertical, 
-  horizontal: gradientHorizontal
+  horizontal: gradientHorizontal,
+  'carousel-1:1': gradientCarousel11,
+  'carousel-4:5': gradientCarousel45
 };
 
 export const getGradientImage = (format: 'square' | 'vertical' | 'horizontal', carouselMode = false, carouselAspectRatio?: '1:1' | '4:5'): string => {
   // Gradientes específicos para carrossel e formatos normais
   if (carouselMode) {
     if (carouselAspectRatio === '4:5') {
-      return gradientVertical; // Vertical para 4:5
+      return gradientCarousel45; // Gradiente específico para 4:5
     } else {
-      // 1:1 usa gradiente quadrado
-      return gradientSquare;
+      // 1:1 usa gradiente específico para carrossel
+      return gradientCarousel11;
     }
   } else {
     // Gradientes oficiais para formatos normais
@@ -110,18 +125,26 @@ export const generateThumbnailPreview = async (
   }
   
   const { width, height } = getThumbnailDimensions(format, carouselMode, carouselAspectRatio);
+  console.log('🎨 Dimensions:', { format, carouselMode, carouselAspectRatio, width, height });
   
   // Determinar qual gradiente usar baseado no formato e modo carrossel
-  let gradientFormat: 'square' | 'vertical' | 'horizontal' = format;
+  let gradientKey: string;
+  let gradientFormat: 'square' | 'vertical' | 'horizontal' | 'carousel-1:1' | 'carousel-4:5';
   
   if (carouselMode) {
-    gradientFormat = carouselAspectRatio === '4:5' ? 'vertical' : 'square';
+    gradientKey = carouselAspectRatio === '4:5' ? 'carousel-4:5' : 'carousel-1:1';
+    gradientFormat = carouselAspectRatio === '4:5' ? 'carousel-4:5' : 'carousel-1:1';
+  } else {
+    gradientKey = format;
+    gradientFormat = format;
   }
   
   // Usar gradientes orgânicos locais com crop inteligente
-  const gradientPath = GRADIENT_MAPPING[gradientFormat];
+  const gradientPath = GRADIENT_MAPPING[gradientKey as keyof typeof GRADIENT_MAPPING];
   
-  const result = await createGradientThumbnail(gradientPath, gradientFormat, { width, height });
+  console.log('🎨 Gradient info:', { gradientKey, gradientFormat, gradientPath });
+  
+  const result = await createGradientThumbnail(gradientPath, gradientFormat as 'square' | 'vertical' | 'horizontal' | 'carousel-1:1' | 'carousel-4:5', { width, height });
   
   // Salvar no cache
   setCachedThumbnail(format, carouselMode, carouselAspectRatio, result);

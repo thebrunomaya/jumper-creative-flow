@@ -51,6 +51,9 @@ export const clearThumbnailCache = (): void => {
   console.log('🧹 CACHE LIMPO - Forçando regeneração de thumbnails');
 };
 
+// Limpar cache imediatamente para forçar regeneração
+clearThumbnailCache();
+
 // Limpeza automática do cache
 setInterval(() => {
   const now = Date.now();

@@ -49,6 +49,8 @@ export const useLazyThumbnail = ({
       // Limpar cache na primeira tentativa para forçar regeneração
       clearThumbnailCache();
       
+      console.log('🔄 Regenerando thumbnail:', { format, carouselMode, carouselAspectRatio });
+      
       generateThumbnailPreview(format, carouselMode, carouselAspectRatio)
         .then(setThumbnailSrc)
         .catch((err) => {

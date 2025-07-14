@@ -10,7 +10,7 @@ interface ThumbnailSize {
   height: number;
 }
 
-const CROP_REGIONS: Record<'square' | 'vertical' | 'horizontal', CropRegion> = {
+const CROP_REGIONS: Record<'square' | 'vertical' | 'horizontal' | 'carousel-1:1' | 'carousel-4:5', CropRegion> = {
   // Formato quadrado - região central interessante
   square: { 
     x: 0.25,      // 25% da esquerda
@@ -33,12 +33,28 @@ const CROP_REGIONS: Record<'square' | 'vertical' | 'horizontal', CropRegion> = {
     y: 0.3,       // 30% do topo
     width: 0.8,   // 80% da largura
     height: 0.4   // 40% da altura
+  },
+  
+  // Carrossel 1:1 - região superior esquerda para diferenciação
+  'carousel-1:1': { 
+    x: 0.15,      // 15% da esquerda
+    y: 0.15,      // 15% do topo
+    width: 0.7,   // 70% da largura
+    height: 0.7   // 70% da altura
+  },
+  
+  // Carrossel 4:5 - faixa vertical superior para diferenciação
+  'carousel-4:5': { 
+    x: 0.2,       // 20% da esquerda
+    y: 0.05,      // 5% do topo
+    width: 0.6,   // 60% da largura
+    height: 0.9   // 90% da altura
   }
 };
 
 export const createGradientThumbnail = async (
   gradientPath: string,
-  format: 'square' | 'vertical' | 'horizontal',
+  format: 'square' | 'vertical' | 'horizontal' | 'carousel-1:1' | 'carousel-4:5',
   thumbnailSize: ThumbnailSize
 ): Promise<string> => {
   return new Promise((resolve) => {
@@ -76,8 +92,14 @@ export const createGradientThumbnail = async (
       ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       
-      // DEBUG: Confirmação de remoção do texto
-      console.log('🎨 THUMBNAIL LIMPO - Sem texto central, sem badge interno');
+      // DEBUG: Confirmação e informações do thumbnail
+      console.log('🎨 THUMBNAIL CRIADO:', { 
+        format, 
+        canvasSize: { width: canvas.width, height: canvas.height },
+        thumbnailSize,
+        cropRegion: crop,
+        sourceSize: { width: img.width, height: img.height }
+      });
       
       resolve(canvas.toDataURL('image/png', 0.9));
     };
