@@ -41,9 +41,9 @@ const TextCounter: React.FC<TextCounterProps> = ({ text, maxLength, className = 
         <div className="w-12 h-2 bg-gray-200 rounded-full ml-2">
           <div
             className={`h-2 rounded-full transition-all duration-300 ${
-              validation.percentage > 1 ? 'bg-red-500' :
-              validation.percentage > 0.9 ? 'bg-orange-500' :
-              validation.percentage > 0.7 ? 'bg-yellow-500' : 'bg-green-500'
+              validation.percentage > 1 ? 'bg-destructive' :
+              validation.percentage > 0.9 ? 'bg-warning' :
+              validation.percentage > 0.7 ? 'bg-accent-subtle' : 'bg-success'
             }`}
             style={{ width: `${Math.min(validation.percentage * 100, 100)}%` }}
           />
