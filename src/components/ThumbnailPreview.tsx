@@ -55,16 +55,8 @@ const ThumbnailPreview: React.FC<ThumbnailPreviewProps> = ({
       const ctx = canvas.getContext('2d');
       
       if (ctx) {
-        // Instagram gradient background
-        const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-        gradient.addColorStop(0, '#405DE6');
-        gradient.addColorStop(0.25, '#5851DB');
-        gradient.addColorStop(0.5, '#833AB4');
-        gradient.addColorStop(0.75, '#C13584');
-        gradient.addColorStop(1, '#E1306C');
-        
-        // Fill background
-        ctx.fillStyle = gradient;
+        // Instagram solid background
+        ctx.fillStyle = '#833AB4';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         
         // Add Instagram icon placeholder

@@ -129,7 +129,7 @@ const Step4: React.FC<Step4Props> = ({ formData, isSubmitting }) => {
 
       {/* Creative Name Preview */}
       {finalCreativeName && (
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4 mb-6">
+        <div className="bg-accent-subtle/10 border border-accent-subtle/30 rounded-lg p-4 mb-6">
           <div className="flex items-center space-x-3 mb-3">
             <Hash className="h-5 w-5 text-blue-600" />
             <h3 className="font-semibold text-blue-900">Nome Final do Criativo</h3>

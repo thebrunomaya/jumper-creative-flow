@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import Header from './Header';
+import Footer from './Footer';
 import ProgressBar from './ProgressBar';
 import Breadcrumbs from './Breadcrumbs';
 import Step1 from './steps/Step1';
@@ -9,6 +10,8 @@ import Step3 from './steps/Step3';
 import Step4 from './steps/Step4';
 import Success from './Success';
 import CreativeNavigation from './CreativeNavigation';
+import { JumperBackground } from '@/components/ui/jumper-background';
+import { JumperCard, JumperCardContent } from '@/components/ui/jumper-card';
 import { useNotionClients } from '@/hooks/useNotionData';
 import { useCreativeForm } from '@/hooks/useCreativeForm';
 import { useCreativeSubmission } from '@/hooks/useCreativeSubmission';
@@ -64,63 +67,66 @@ const CreativeSystem: React.FC = () => {
 
   if (isSubmitted) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen flex flex-col bg-background">
         <Header />
-        <div className="max-w-4xl mx-auto px-4 py-8">
+        <div className="max-w-4xl mx-auto px-4 py-8 flex-1">
           <Success creativeIds={creativeIds} onNewCreative={handleReset} />
         </div>
+        <Footer />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen flex flex-col bg-background">
       <Header />
       
-      <div className="max-w-4xl mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto px-4 py-8 flex-1">
         <ProgressBar 
           currentStep={currentStep} 
           totalSteps={4} 
           stepLabels={STEP_LABELS} 
         />
 
-        <div className="bg-card rounded-lg shadow-lg p-8 mb-8">
-          <Breadcrumbs 
-            formData={formData}
-            clients={clients}
-          />
-          
-          {currentStep === 1 && (
-            <Step1 
-              formData={formData} 
-              updateFormData={updateFormData} 
-              errors={errors} 
+        <JumperCard className="shadow-lg mb-8">
+          <JumperCardContent className="p-8">
+            <Breadcrumbs 
+              formData={formData}
+              clients={clients}
             />
-          )}
-          
-          {currentStep === 2 && (
-            <Step2 
-              formData={formData} 
-              updateFormData={updateFormData} 
-              errors={errors} 
-            />
-          )}
-          
-          {currentStep === 3 && (
-            <Step3 
-              formData={formData} 
-              updateFormData={updateFormData} 
-              errors={errors} 
-            />
-          )}
-          
-          {currentStep === 4 && (
-            <Step4 
-              formData={formData} 
-              isSubmitting={isSubmitting} 
-            />
-          )}
-        </div>
+            
+            {currentStep === 1 && (
+              <Step1 
+                formData={formData} 
+                updateFormData={updateFormData} 
+                errors={errors} 
+              />
+            )}
+            
+            {currentStep === 2 && (
+              <Step2 
+                formData={formData} 
+                updateFormData={updateFormData} 
+                errors={errors} 
+              />
+            )}
+            
+            {currentStep === 3 && (
+              <Step3 
+                formData={formData} 
+                updateFormData={updateFormData} 
+                errors={errors} 
+              />
+            )}
+            
+            {currentStep === 4 && (
+              <Step4 
+                formData={formData} 
+                isSubmitting={isSubmitting} 
+              />
+            )}
+          </JumperCardContent>
+        </JumperCard>
 
         <CreativeNavigation
           currentStep={currentStep}
@@ -131,6 +137,7 @@ const CreativeSystem: React.FC = () => {
           errors={errors}
         />
       </div>
+      <Footer />
     </div>
   );
 };

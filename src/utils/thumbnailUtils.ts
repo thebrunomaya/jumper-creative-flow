@@ -72,38 +72,36 @@ export const createMockupFile = (format: 'square' | 'vertical' | 'horizontal', c
   const ctx = canvas.getContext('2d');
   
   if (ctx) {
-    const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+    // Different solid colors based on type  
+    let solidColor: string;
     
     // Cores específicas para carrossel e formatos normais
     if (carouselMode) {
       if (carouselAspectRatio === '4:5') {
-        gradient.addColorStop(0, '#fef3c7'); // Amarelo claro
-        gradient.addColorStop(1, '#f59e0b'); // Laranja/amarelo
+        solidColor = '#f59e0b'; // Laranja/amarelo sólido
       } else {
         // 1:1 mantém cor azul
-        gradient.addColorStop(0, '#dbeafe');
-        gradient.addColorStop(1, '#3b82f6');
+        solidColor = '#3b82f6';
       }
     } else {
       // Cores originais para formatos normais
       switch (format) {
         case 'square':
-          gradient.addColorStop(0, '#dbeafe'); // Azul claro
-          gradient.addColorStop(1, '#3b82f6'); // Azul
+          solidColor = '#3b82f6'; // Azul
           break;
         case 'vertical':
-          gradient.addColorStop(0, '#faf5ff'); // Roxo claro
-          gradient.addColorStop(1, '#8b5cf6'); // Roxo
+          solidColor = '#8b5cf6'; // Roxo
           break;
         case 'horizontal':
-          gradient.addColorStop(0, '#f0fdf4'); // Verde claro
-          gradient.addColorStop(1, '#22c55e'); // Verde
+          solidColor = '#22c55e'; // Verde
           break;
+        default:
+          solidColor = '#3b82f6';
       }
     }
     
-    // Preencher o fundo com gradiente
-    ctx.fillStyle = gradient;
+    // Preencher o fundo com cor sólida
+    ctx.fillStyle = solidColor;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     
     // Borda externa sólida

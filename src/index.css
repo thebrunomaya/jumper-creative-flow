@@ -1,136 +1,173 @@
+/* Jumper Studio Official Fonts */
+@font-face {
+  font-family: 'Haffer';
+  src: url('https://jumper.studio/wp-content/uploads/2025/07/HafferVF.ttf') format('truetype-variations');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Haffer';
+  src: url('https://jumper.studio/wp-content/uploads/2025/07/HafferItalicVF.ttf') format('truetype-variations');
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. */
+/* Definition of the design system. All colors, fonts, etc should be defined here. */
 
 @layer base {
   :root {
-    /* Light Mode - Core Colors */
+    /* Jumper Studio Official Colors - Light Mode */
     --background: 0 0% 100%;
-    --foreground: 220 13% 18%;
+    --foreground: 210 11% 15%;
     
-    /* Light Mode - Card/Surface Colors */
-    --card: 0 0% 100%;
-    --card-foreground: 220 13% 18%;
+    --card: 0 0% 97%;
+    --card-foreground: 210 11% 15%;
     
-    /* Light Mode - Interactive Elements */
     --popover: 0 0% 100%;
-    --popover-foreground: 220 13% 18%;
+    --popover-foreground: 210 11% 15%;
     
-    --primary: 222 47% 11%;
-    --primary-foreground: 210 40% 98%;
+    /* Jumper Orange - CRITICAL ACTIONS ONLY */
+    --primary: 14 95% 55%;
+    --primary-foreground: 0 0% 100%;
     
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222 47% 11%;
+    /* Subtle gray accents - NEW MAIN ACCENTS */
+    --secondary: 220 9% 46%;
+    --secondary-foreground: 0 0% 100%;
     
-    --muted: 210 40% 96%;
-    --muted-foreground: 215 16% 47%;
+    --muted: 210 11% 89%;
+    --muted-foreground: 220 9% 46%;
     
-    --accent: 210 40% 96%;
-    --accent-foreground: 222 47% 11%;
+    --accent: 220 9% 46%;
+    --accent-foreground: 0 0% 100%;
     
-    /* Light Mode - Status Colors */
+    /* New subtle accent system */
+    --accent-subtle: 220 9% 46%;
+    --accent-light: 220 14% 68%;
+    --accent-border: 220 13% 82%;
+    --accent-critical: 14 95% 55%;
+    
+    /* Status Colors */
     --destructive: 0 84% 60%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 0 0% 100%;
     
-    --success: 142 71% 45%;
-    --success-foreground: 210 40% 98%;
+    --success: 159 64% 42%;
+    --success-foreground: 0 0% 100%;
     
     --warning: 38 92% 50%;
-    --warning-foreground: 220 13% 18%;
+    --warning-foreground: 210 11% 15%;
     
-    /* Light Mode - Border & Input */
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 222 84% 5%;
+    /* Borders & Inputs - subtle grays */
+    --border: 220 13% 82%;
+    --input: 220 13% 82%;
+    --ring: 220 9% 46%;
     
-    /* Light Mode - Special Elements */
-    --upload-zone: 0 0% 97%;
-    --upload-zone-border: 220 13% 88%;
-    --upload-zone-hover: 210 40% 94%;
+    /* Special Elements - subtle colors */
+    --upload-zone: 210 17% 97%;
+    --upload-zone-border: 220 13% 82%;
+    --upload-zone-hover: 220 13% 89%;
     
-    --media-card: 0 0% 100%;
-    --media-card-border: 220 13% 88%;
+    --media-card: 0 0% 97%;
+    --media-card-border: 220 13% 82%;
     
-    --thumbnail-bg: 210 40% 94%;
-    --disabled-bg: 0 0% 96%;
+    --thumbnail-bg: 210 17% 95%;
+    --disabled-bg: 210 11% 89%;
     --disabled-text: 220 9% 46%;
+
+    /* Jumper Official Brand Colors */
+    --jumper-orange: 14 95% 55%;
+    --jumper-purple: 273 44% 46%;
+
+    /* Jumper Official Solid Colors */
+    --jumper-orange-solid: 14 95% 55%;
+    --jumper-purple-solid: 273 44% 46%;
 
     --radius: 0.5rem;
 
     /* Sidebar - Light Mode */
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5% 26%;
-    --sidebar-primary: 240 6% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 5% 96%;
-    --sidebar-accent-foreground: 240 6% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217 91% 60%;
+    --sidebar-background: 0 0% 97%;
+    --sidebar-foreground: 210 11% 15%;
+    --sidebar-primary: 220 9% 46%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 13% 82%;
+    --sidebar-accent-foreground: 220 9% 46%;
+    --sidebar-border: 220 13% 82%;
+    --sidebar-ring: 220 9% 46%;
   }
 
   .dark {
-    /* Dark Mode - Core Colors */
-    --background: 224 71% 4%;
-    --foreground: 210 40% 98%;
+    /* Jumper Studio Official Colors - Dark Mode */
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
     
-    /* Dark Mode - Card/Surface Colors */
-    --card: 224 71% 6%;
-    --card-foreground: 210 40% 98%;
+    --card: 240 3% 9%;
+    --card-foreground: 0 0% 100%;
     
-    /* Dark Mode - Interactive Elements */
-    --popover: 224 71% 4%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 0 0% 0%;
+    --popover-foreground: 0 0% 100%;
     
-    --primary: 210 40% 98%;
-    --primary-foreground: 220 13% 18%;
+    /* Jumper Orange - CRITICAL ACTIONS ONLY */
+    --primary: 14 95% 55%;
+    --primary-foreground: 0 0% 100%;
     
-    --secondary: 215 28% 17%;
-    --secondary-foreground: 210 40% 98%;
+    /* Subtle gray accents - NEW MAIN ACCENTS */
+    --secondary: 220 9% 46%;
+    --secondary-foreground: 0 0% 100%;
     
-    --muted: 215 28% 17%;
-    --muted-foreground: 217 11% 65%;
+    --muted: 240 3% 9%;
+    --muted-foreground: 220 14% 68%;
     
-    --accent: 215 28% 17%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 220 9% 46%;
+    --accent-foreground: 0 0% 100%;
     
-    /* Dark Mode - Status Colors */
-    --destructive: 0 63% 31%;
-    --destructive-foreground: 210 40% 98%;
+    /* New subtle accent system - dark mode */
+    --accent-subtle: 220 9% 46%;
+    --accent-light: 220 14% 68%;
+    --accent-border: 220 13% 82%;
+    --accent-critical: 14 95% 55%;
     
-    --success: 142 71% 45%;
-    --success-foreground: 210 40% 98%;
+    /* Status Colors - dark mode */
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    
+    --success: 159 64% 42%;
+    --success-foreground: 0 0% 100%;
     
     --warning: 38 92% 50%;
-    --warning-foreground: 220 13% 18%;
+    --warning-foreground: 0 0% 0%;
     
-    /* Dark Mode - Border & Input */
-    --border: 215 28% 17%;
-    --input: 215 28% 17%;
-    --ring: 216 12% 84%;
+    /* Borders & Inputs - subtle grays */
+    --border: 240 3% 25%;
+    --input: 240 3% 25%;
+    --ring: 220 9% 46%;
     
-    /* Dark Mode - Special Elements */
-    --upload-zone: 215 28% 15%;
-    --upload-zone-border: 215 28% 20%;
-    --upload-zone-hover: 215 28% 18%;
+    /* Special Elements - subtle colors */
+    --upload-zone: 240 3% 9%;
+    --upload-zone-border: 240 3% 25%;
+    --upload-zone-hover: 240 3% 15%;
     
-    --media-card: 215 28% 15%;
-    --media-card-border: 215 28% 20%;
+    --media-card: 240 3% 9%;
+    --media-card-border: 240 3% 25%;
     
-    --thumbnail-bg: 215 28% 12%;
-    --disabled-bg: 215 28% 10%;
-    --disabled-text: 217 11% 45%;
+    --thumbnail-bg: 240 3% 9%;
+    --disabled-bg: 240 3% 25%;
+    --disabled-text: 220 14% 68%;
 
     /* Sidebar - Dark Mode */
-    --sidebar-background: 224 71% 4%;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 210 40% 98%;
-    --sidebar-primary-foreground: 220 13% 18%;
-    --sidebar-accent: 215 28% 17%;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 215 28% 17%;
-    --sidebar-ring: 217 91% 60%;
+    --sidebar-background: 0 0% 0%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 220 9% 46%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3% 25%;
+    --sidebar-accent-foreground: 220 14% 68%;
+    --sidebar-border: 240 3% 25%;
+    --sidebar-ring: 220 9% 46%;
   }
 }
 
@@ -141,5 +178,43 @@
 
   body {
     @apply bg-background text-foreground;
+    font-family: 'Haffer', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-variation-settings: 'wght' 400;
+  }
+
+  /* Headings with Haffer font */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Haffer', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-variation-settings: 'wght' 600;
+  }
+
+  /* Logo and branding elements */
+  .font-haffer {
+    font-family: 'Haffer', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  .font-haffer-light {
+    font-family: 'Haffer', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-variation-settings: 'wght' 300;
+  }
+
+  .font-haffer-medium {
+    font-family: 'Haffer', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-variation-settings: 'wght' 500;
+  }
+
+  .font-haffer-semibold {
+    font-family: 'Haffer', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-variation-settings: 'wght' 600;
+  }
+
+  .font-haffer-bold {
+    font-family: 'Haffer', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-variation-settings: 'wght' 700;
+  }
+
+  .font-haffer-black {
+    font-family: 'Haffer', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-variation-settings: 'wght' 900;
   }
 }

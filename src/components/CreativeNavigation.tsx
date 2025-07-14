@@ -1,8 +1,7 @@
 
 import React from 'react';
-import { Button } from '@/components/ui/button';
+import { JumperButton } from '@/components/ui/jumper-button';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
-import DarkModeToggle from './DarkModeToggle';
 import ValidationPanel from './ValidationPanel';
 
 interface CreativeNavigationProps {
@@ -27,44 +26,46 @@ const CreativeNavigation: React.FC<CreativeNavigationProps> = ({
       <ValidationPanel errors={errors} />
       
       <div className="flex justify-between items-center">
-      <Button
-        variant="outline"
-        onClick={onPrevStep}
-        disabled={currentStep === 1}
-        className="flex items-center space-x-2"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        <span>Voltar</span>
-      </Button>
-
-      <DarkModeToggle />
-
-      {currentStep < 4 ? (
-        <Button
-          onClick={onNextStep}
-          disabled={Object.keys(errors).length > 0}
-          className={`bg-gradient-jumper hover:opacity-90 transition-opacity flex items-center space-x-2 ${
-            Object.keys(errors).length > 0 ? 'opacity-50 cursor-not-allowed' : ''
-          }`}
+        <JumperButton
+          variant="ghost"
+          onClick={onPrevStep}
+          disabled={currentStep === 1}
+          className="flex items-center space-x-2"
         >
-          <span>
-            {Object.keys(errors).length > 0 
-              ? `Corrija ${Object.keys(errors).length} problema(s) para continuar`
-              : 'Continuar'
-            }
-          </span>
-          {Object.keys(errors).length === 0 && <ArrowRight className="w-4 h-4" />}
-        </Button>
-      ) : (
-        <Button
-          onClick={onSubmit}
-          disabled={isSubmitting}
-          className="bg-gradient-success hover:opacity-90 transition-opacity flex items-center space-x-2 px-8"
-        >
-          <span>🚀</span>
-          <span>{isSubmitting ? 'Enviando...' : 'Enviar Criativo'}</span>
-        </Button>
-      )}
+          <ArrowLeft className="w-4 h-4" />
+          <span>Voltar</span>
+        </JumperButton>
+
+        <div className="flex-1" />
+
+        {currentStep < 4 ? (
+          <JumperButton
+            variant="primary"
+            onClick={onNextStep}
+            disabled={Object.keys(errors).length > 0}
+            className={`flex items-center space-x-2 ${
+              Object.keys(errors).length > 0 ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
+          >
+            <span>
+              {Object.keys(errors).length > 0 
+                ? `Corrija ${Object.keys(errors).length} problema(s) para continuar`
+                : 'Continuar'
+              }
+            </span>
+            {Object.keys(errors).length === 0 && <ArrowRight className="w-4 h-4" />}
+          </JumperButton>
+        ) : (
+          <JumperButton
+            variant="primary"
+            onClick={onSubmit}
+            disabled={isSubmitting}
+            className="flex items-center space-x-2 px-8"
+          >
+            <span>🚀</span>
+            <span>{isSubmitting ? 'Enviando...' : 'Enviar Criativo'}</span>
+          </JumperButton>
+        )}
       </div>
     </div>
   );

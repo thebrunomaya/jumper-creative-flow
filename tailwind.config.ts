@@ -42,13 +42,15 @@ export default {
 					foreground: 'hsl(var(--warning-foreground))'
 				},
 				jumper: {
-					blue: '#667eea',
-					purple: '#764ba2',
-					success: 'hsl(var(--success))',
-					warning: 'hsl(var(--warning))',
-					error: 'hsl(var(--destructive))',
-					background: 'hsl(var(--background))',
-					text: 'hsl(var(--foreground))'
+					orange: '#FA4721',
+					purple: '#8143A7',
+					white: '#FFFFFF',
+					black: '#000000',
+					gray: {
+						dark: '#181818',
+						medium: '#3E3D40',
+						light: '#C6CBD4'
+					}
 				},
 				destructive: {
 					DEFAULT: 'hsl(var(--destructive))',
@@ -60,7 +62,11 @@ export default {
 				},
 				accent: {
 					DEFAULT: 'hsl(var(--accent))',
-					foreground: 'hsl(var(--accent-foreground))'
+					foreground: 'hsl(var(--accent-foreground))',
+					subtle: 'hsl(var(--accent-subtle))',
+					light: 'hsl(var(--accent-light))',
+					border: 'hsl(var(--accent-border))',
+					critical: 'hsl(var(--accent-critical))'
 				},
 				popover: {
 					DEFAULT: 'hsl(var(--popover))',
@@ -81,7 +87,13 @@ export default {
 				},
 				'thumbnail-bg': 'hsl(var(--thumbnail-bg))',
 				'disabled-bg': 'hsl(var(--disabled-bg))',
-				'disabled-text': 'hsl(var(--disabled-text))'
+				'disabled-text': 'hsl(var(--disabled-text))',
+				'jumper-orange-solid': 'hsl(var(--jumper-orange-solid))',
+				'jumper-purple-solid': 'hsl(var(--jumper-purple-solid))'
+			},
+			fontFamily: {
+				'haffer': ['Haffer', 'Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+				'sans': ['Haffer', 'Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
@@ -141,11 +153,7 @@ export default {
 				'scale-in': 'scale-in 0.2s ease-out',
 				'pulse-success': 'pulse-success 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
 			},
-			backgroundImage: {
-				'gradient-jumper': 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-				'gradient-success': 'linear-gradient(135deg, #48bb78 0%, #38a169 100%)',
-				'gradient-warning': 'linear-gradient(135deg, #ed8936 0%, #dd6b20 100%)',
-			}
+			// Removed backgroundImage with gradients as requested
 		}
 	},
 	plugins: [require("tailwindcss-animate")],
