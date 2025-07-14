@@ -85,6 +85,10 @@ export default {
 				'disabled-bg': 'hsl(var(--disabled-bg))',
 				'disabled-text': 'hsl(var(--disabled-text))'
 			},
+			fontFamily: {
+				'haffer': ['Haffer', 'Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+				'sans': ['Haffer', 'Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+			},
 			borderRadius: {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',
