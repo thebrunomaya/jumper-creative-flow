@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Button } from '@/components/ui/button';
+import { JumperButton } from '@/components/ui/jumper-button';
 import { useAuth } from '@/contexts/AuthContext';
 import { LogOut, User } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -28,15 +28,15 @@ const UserMenu: React.FC = () => {
         <span className="font-medium">{currentUser.name}</span>
       </div>
       
-      <Button
-        variant="outline"
+      <JumperButton
+        variant="ghost"
         size="sm"
         onClick={handleLogout}
         className="flex items-center space-x-2"
       >
         <LogOut className="h-4 w-4" />
         <span>Sair</span>
-      </Button>
+      </JumperButton>
     </div>
   );
 };
