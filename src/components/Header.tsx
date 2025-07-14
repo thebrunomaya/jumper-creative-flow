@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { X } from 'lucide-react';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 import UserMenu from './UserMenu';
 
@@ -18,7 +17,16 @@ const Header: React.FC = () => {
                   backgroundImage: 'url(https://jumper.studio/wp-content/uploads/2025/07/JMP-GR07.png)'
                 }}
               >
-                <X className="w-5 h-5 text-white dark:text-white" />
+                <img 
+                  src="https://jumper.studio/wp-content/uploads/2025/07/X-White.png"
+                  alt="Jumper X"
+                  className="w-5 h-5 dark:block hidden"
+                />
+                <img 
+                  src="https://jumper.studio/wp-content/uploads/2025/07/X-Black.png"
+                  alt="Jumper X"
+                  className="w-5 h-5 dark:hidden block"
+                />
               </div>
             </div>
           </div>
