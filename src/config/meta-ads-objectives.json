@@ -160,6 +160,23 @@
           "fieldType": "phone"
         }
       ]
+    },
+    
+    "Conversões": {
+      "destinations": [
+        {
+          "value": "website",
+          "label": "Website",
+          "ctas": ["Comprar agora", "Obter oferta", "Cadastre-se", "Saiba mais"],
+          "fieldType": "url"
+        },
+        {
+          "value": "whatsapp",
+          "label": "WhatsApp",
+          "ctas": ["Comprar agora", "Enviar mensagem pelo WhatsApp", "Obter oferta"],
+          "fieldType": "phone"
+        }
+      ]
     }
   },
   
