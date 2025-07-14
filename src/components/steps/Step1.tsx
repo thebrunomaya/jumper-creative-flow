@@ -10,7 +10,7 @@ import { useNotionClients } from '@/hooks/useNotionData';
 import { Skeleton } from '@/components/ui/skeleton';
 import { validateCreativeName, previewCreativeNameDetailed } from '@/utils/creativeName';
 import facebookLogo from '@/assets/facebook-logo.svg';
-import googleLogo from '@/assets/google-logo.svg';
+import googleGLogo from '@/assets/google-g-logo.svg';
 
 interface Step1Props {
   formData: FormData;
@@ -115,7 +115,7 @@ const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
           >
             <JumperCardContent className="p-6 text-center">
               <div className="w-12 h-12 mx-auto mb-3 flex items-center justify-center">
-                <img src={googleLogo} alt="Google" className="w-8 h-8" />
+                <img src={googleGLogo} alt="Google" className="w-8 h-8" />
               </div>
               <h3 className="font-semibold text-muted-foreground">Google Ads</h3>
               <p className="text-sm text-muted-foreground mt-1">Search & Display</p>
