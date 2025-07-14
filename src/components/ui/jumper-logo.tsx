@@ -2,6 +2,12 @@ import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
+// Import official Jumper Studio assets
+import xWhite from "@/assets/x-white.png"
+import xBlack from "@/assets/x-black.png"
+import jumperWhite from "@/assets/jumper-white.png"
+import jumperBlack from "@/assets/jumper-black.png"
+
 const jumperLogoVariants = cva(
   "flex items-center gap-2",
   {
@@ -11,7 +17,7 @@ const jumperLogoVariants = cva(
         md: "text-base",
         lg: "text-lg",
       },
-      variant: {
+      theme: {
         light: "",
         dark: "",
         auto: "",
@@ -19,19 +25,19 @@ const jumperLogoVariants = cva(
     },
     defaultVariants: {
       size: "md",
-      variant: "auto",
+      theme: "auto",
     },
   }
 )
 
 const logoSymbolVariants = cva(
-  "relative flex items-center justify-center font-bold transition-all duration-300",
+  "object-contain",
   {
     variants: {
       size: {
-        sm: "w-6 h-6 text-sm",
-        md: "w-8 h-8 text-base",
-        lg: "w-10 h-10 text-lg",
+        sm: "w-6 h-6",
+        md: "w-8 h-8",
+        lg: "w-10 h-10",
       },
     },
     defaultVariants: {
@@ -41,23 +47,17 @@ const logoSymbolVariants = cva(
 )
 
 const logoTextVariants = cva(
-  "font-semibold tracking-tight transition-colors duration-300",
+  "object-contain h-auto",
   {
     variants: {
       size: {
-        sm: "text-sm",
-        md: "text-base",
-        lg: "text-lg",
-      },
-      variant: {
-        light: "text-foreground",
-        dark: "text-foreground", 
-        auto: "text-foreground",
+        sm: "h-4",
+        md: "h-5",
+        lg: "h-6",
       },
     },
     defaultVariants: {
       size: "md",
-      variant: "auto",
     },
   }
 )
@@ -66,40 +66,66 @@ export interface JumperLogoProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof jumperLogoVariants> {
   showText?: boolean
+  theme?: 'light' | 'dark' | 'auto'
 }
 
 const JumperLogo = React.forwardRef<HTMLDivElement, JumperLogoProps>(
-  ({ className, size, variant, showText = true, ...props }, ref) => {
+  ({ className, size, theme = 'auto', showText = true, ...props }, ref) => {
+    
+    // Determine which theme to use
+    const getEffectiveTheme = () => {
+      if (theme === 'auto') {
+        // Check if dark mode is active
+        return document.documentElement.classList.contains('dark') ? 'dark' : 'light'
+      }
+      return theme
+    }
+
+    const effectiveTheme = getEffectiveTheme()
+    
+    // Select correct assets based on theme
+    const symbolSrc = effectiveTheme === 'dark' ? xWhite : xBlack
+    const textSrc = effectiveTheme === 'dark' ? jumperWhite : jumperBlack
+
+    const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+      // Fallback: hide image and show text
+      e.currentTarget.style.display = 'none'
+    }
+
     return (
       <div
-        className={cn(jumperLogoVariants({ size, variant, className }))}
+        className={cn(jumperLogoVariants({ size, theme, className }))}
         ref={ref}
         {...props}
       >
-        {/* Símbolo X com gradiente orgânico */}
-        <div className={cn(logoSymbolVariants({ size }))}>
-          <div 
-            className="absolute inset-0 rounded-md"
-            style={{
-              background: 'var(--gradient-jumper-1)',
-              opacity: 0.9,
-            }}
-          />
-          <span 
-            className="relative z-10 text-white font-bold select-none"
-            style={{
-              textShadow: '0 1px 2px rgba(0,0,0,0.3)',
-            }}
-          >
-            ✕
-          </span>
-        </div>
+        {/* Official X Symbol */}
+        <img 
+          src={symbolSrc}
+          alt="Jumper Studio"
+          className={cn(logoSymbolVariants({ size }))}
+          onError={handleImageError}
+          loading="lazy"
+        />
 
-        {/* Texto "Jumper Studio" */}
+        {/* Official Jumper Typography */}
         {showText && (
-          <span className={cn(logoTextVariants({ size, variant }))}>
-            Jumper Studio
-          </span>
+          <img
+            src={textSrc}
+            alt="Jumper Studio"
+            className={cn(logoTextVariants({ size }))}
+            onError={(e) => {
+              // Fallback to text if image fails
+              const parent = e.currentTarget.parentElement
+              if (parent) {
+                e.currentTarget.style.display = 'none'
+                const fallbackText = document.createElement('span')
+                fallbackText.textContent = 'Jumper Studio'
+                fallbackText.className = 'font-semibold tracking-tight text-foreground'
+                parent.appendChild(fallbackText)
+              }
+            }}
+            loading="lazy"
+          />
         )}
       </div>
     )
