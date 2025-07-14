@@ -26,15 +26,17 @@ const DesignSystem = () => {
       <div className="relative z-20 bg-background/95 backdrop-blur-sm border-b border-border">
         <div className="max-w-4xl mx-auto px-4 md:px-6 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <Link to="/">
-                <JumperButton variant="ghost" size="sm">
-                  <ArrowLeft className="w-4 h-4 mr-2" />
-                  Voltar
-                </JumperButton>
-              </Link>
+            <Link to="/">
+              <JumperButton variant="ghost" size="sm">
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Voltar
+              </JumperButton>
+            </Link>
+            
+            <div className="absolute left-1/2 transform -translate-x-1/2">
               <JumperLogo size="md" />
             </div>
+            
             <ThemeToggle variant="full" />
           </div>
         </div>
