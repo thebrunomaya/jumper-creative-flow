@@ -21,15 +21,15 @@ const TextCounterWithRecommendation: React.FC<TextCounterWithRecommendationProps
     if (percentageRecommended > 5) {
       return 'bg-red-500'; // > 500% do recomendado
     } else if (percentageRecommended > 2) {
-      return 'bg-warning'; // 200-500% do recomendado
+      return 'bg-yellow-500'; // 200-500% do recomendado
     } else if (percentageRecommended > 1.2) {
-      return 'bg-accent-subtle'; // 120-200% do recomendado
+      return 'bg-blue-500'; // 120-200% do recomendado
     } else if (percentageRecommended >= 0.51) {
-      return 'bg-success'; // 51-120% do recomendado (ZONA IDEAL)
+      return 'bg-green-500'; // 51-120% do recomendado (ZONA IDEAL)
     } else if (percentageRecommended >= 0.21) {
-      return 'bg-accent-subtle'; // 21-50% do recomendado
+      return 'bg-blue-500'; // 21-50% do recomendado
     } else {
-      return 'bg-warning'; // < 20% do recomendado
+      return 'bg-yellow-500'; // < 20% do recomendado
     }
   };
 

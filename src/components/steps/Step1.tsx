@@ -181,7 +181,7 @@ const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
                       <span className="text-gray-400">🏪 Coleção</span>
                       <Badge 
                         variant="outline" 
-                        className="ml-2 text-xs border-accent-border text-accent-subtle bg-accent-subtle/10"
+                        className="ml-2 text-xs border-orange-300 text-orange-600 bg-orange-50"
                       >
                         Em Breve
                       </Badge>

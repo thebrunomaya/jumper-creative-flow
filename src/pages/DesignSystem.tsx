@@ -95,16 +95,6 @@ const DesignSystem = () => {
                       </p>
                     </div>
                   </div>
-                  
-                  <div className="flex items-start space-x-3 p-3 rounded-lg bg-muted/30 border">
-                    <div className="w-2 h-2 rounded-full bg-foreground mt-2 flex-shrink-0"></div>
-                    <div>
-                      <p className="font-medium">Header com Logo Oficial</p>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        Implementação dos logos PNG oficiais da Jumper Studio com fallbacks responsivos
-                      </p>
-                    </div>
-                  </div>
                 </div>
               </div>
 

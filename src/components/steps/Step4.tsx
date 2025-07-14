@@ -131,13 +131,13 @@ const Step4: React.FC<Step4Props> = ({ formData, isSubmitting }) => {
       {finalCreativeName && (
         <div className="bg-accent-subtle/10 border border-accent-subtle/30 rounded-lg p-4 mb-6">
           <div className="flex items-center space-x-3 mb-3">
-            <Hash className="h-5 w-5 text-accent-subtle" />
-            <h3 className="font-semibold text-accent-subtle">Nome Final do Criativo</h3>
+            <Hash className="h-5 w-5 text-blue-600" />
+            <h3 className="font-semibold text-blue-900">Nome Final do Criativo</h3>
           </div>
-          <div className="bg-white border border-accent-border rounded-md p-3">
-            <p className="text-sm font-mono text-accent-subtle break-all">{finalCreativeName}</p>
+          <div className="bg-white border border-blue-200 rounded-md p-3">
+            <p className="text-sm font-mono text-blue-800 break-all">{finalCreativeName}</p>
           </div>
-          <p className="text-xs text-accent-subtle mt-2">
+          <p className="text-xs text-blue-600 mt-2">
             Este será o nome usado no Facebook Ads Manager e no Notion
           </p>
         </div>

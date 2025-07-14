@@ -215,7 +215,7 @@ const MediaPreviewLightbox: React.FC<MediaPreviewLightboxProps> = ({
                     <CardContent className="space-y-3">
                       {carouselMode ? (
                         <div className="space-y-2">
-                          <p className="text-sm text-accent-critical font-medium">
+                          <p className="text-sm text-blue-600 font-medium">
                             Formato Carrossel {carouselAspectRatio}
                           </p>
                           <div className="grid grid-cols-2 gap-3">
@@ -353,9 +353,9 @@ const MediaPreviewLightbox: React.FC<MediaPreviewLightboxProps> = ({
                       {analysis.suggestions.length > 0 ? (
                         <div className="space-y-2">
                           {analysis.suggestions.map((suggestion, index) => (
-                            <div key={index} className="flex items-start space-x-2 p-2 bg-accent-subtle/10 rounded">
-                              <Lightbulb className="h-4 w-4 text-accent-subtle mt-0.5 flex-shrink-0" />
-                              <span className="text-sm text-accent-subtle">{suggestion}</span>
+                            <div key={index} className="flex items-start space-x-2 p-2 bg-blue-50 rounded">
+                              <Lightbulb className="h-4 w-4 text-blue-500 mt-0.5 flex-shrink-0" />
+                              <span className="text-sm text-blue-800">{suggestion}</span>
                             </div>
                           ))}
                         </div>

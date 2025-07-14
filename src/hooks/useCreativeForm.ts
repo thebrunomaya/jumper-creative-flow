@@ -39,8 +39,9 @@ export const useCreativeForm = () => {
   const updateFormData = (newData: Partial<FormData>) => {
     setFormData(prev => ({ ...prev, ...newData }));
     
-    // Only clear errors for fields being updated, no immediate validation
+    // Remove errors for fields being updated and run immediate validation
     const newErrors = { ...errors };
+    const updatedFormData = { ...formData, ...newData };
     
     // Clear errors for directly updated fields
     Object.keys(newData).forEach(key => {
@@ -66,7 +67,61 @@ export const useCreativeForm = () => {
       });
     }
     
-    setErrors(newErrors);
+    // Run immediate validation for specific cases to show new errors
+    const immediateErrors: Record<string, string> = {};
+    
+    // Validate client field immediately
+    if (newData.client !== undefined) {
+      if (!updatedFormData.client) {
+        immediateErrors.client = 'Cliente é obrigatório';
+      }
+    }
+    
+    // Validate platform field immediately
+    if (newData.platform !== undefined) {
+      if (!updatedFormData.platform) {
+        immediateErrors.platform = 'Plataforma é obrigatória';
+      }
+    }
+    
+    // Validate campaignObjective field immediately
+    if (newData.campaignObjective !== undefined) {
+      if (!updatedFormData.campaignObjective) {
+        immediateErrors.campaignObjective = 'Objetivo é obrigatório';
+      }
+    }
+    
+    // Validate creativeName field immediately
+    if (newData.creativeName !== undefined) {
+      const nameValidation = validateCreativeName(updatedFormData.creativeName || '');
+      if (!nameValidation.valid) {
+        immediateErrors.creativeName = nameValidation.errors[0];
+      }
+    }
+    
+    // Validate text fields immediately
+    if (newData.titles) {
+      updatedFormData.titles?.forEach((title, index) => {
+        if (!title.trim()) {
+          immediateErrors[`title-${index}`] = 'Digite o título';
+        } else if (title.length > TEXT_LIMITS.title.maximum) {
+          immediateErrors[`title-${index}`] = `Título muito longo (${title.length}/${TEXT_LIMITS.title.maximum})`;
+        }
+      });
+    }
+    
+    if (newData.mainTexts) {
+      updatedFormData.mainTexts?.forEach((mainText, index) => {
+        if (!mainText.trim()) {
+          immediateErrors[`mainText-${index}`] = 'Digite o texto principal';
+        } else if (mainText.length > TEXT_LIMITS.mainText.maximum) {
+          immediateErrors[`mainText-${index}`] = `Texto muito longo (${mainText.length}/${TEXT_LIMITS.mainText.maximum})`;
+        }
+      });
+    }
+    
+    // Merge immediate errors with existing errors
+    setErrors({ ...newErrors, ...immediateErrors });
   };
 
   const resetForm = () => {

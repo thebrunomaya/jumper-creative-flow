@@ -58,8 +58,8 @@ const FileUpload: React.FC<FileUploadProps> = ({ files, onFilesChange, platform 
         {...getRootProps()}
         className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-all duration-200 ${
           isDragActive
-            ? 'border-accent-critical bg-accent-critical/10'
-            : 'border-accent-border hover:border-accent-critical hover:bg-accent-critical/5'
+            ? 'border-jumper-blue bg-blue-50'
+            : 'border-gray-300 hover:border-jumper-blue hover:bg-gray-50'
         }`}
       >
         <input {...getInputProps()} />
@@ -109,9 +109,9 @@ const FileUpload: React.FC<FileUploadProps> = ({ files, onFilesChange, platform 
                     {/* File Icon */}
                     <div className="flex-shrink-0">
                       {validatedFile.file.type.startsWith('image/') ? (
-                        <Image className="h-8 w-8 text-accent-subtle" />
+                        <Image className="h-8 w-8 text-blue-500" />
                       ) : (
-                        <Video className="h-8 w-8 text-accent-subtle" />
+                        <Video className="h-8 w-8 text-purple-500" />
                       )}
                     </div>
 
