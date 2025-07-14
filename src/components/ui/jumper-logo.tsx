@@ -31,7 +31,7 @@ const jumperLogoVariants = cva(
 )
 
 const logoSymbolVariants = cva(
-  "object-contain",
+  "object-contain flex-shrink-0",
   {
     variants: {
       size: {
@@ -47,13 +47,13 @@ const logoSymbolVariants = cva(
 )
 
 const logoTextVariants = cva(
-  "object-contain h-auto",
+  "object-contain h-auto flex-shrink-0",
   {
     variants: {
       size: {
-        sm: "h-4",
-        md: "h-5",
-        lg: "h-6",
+        sm: "h-6",
+        md: "h-8", 
+        lg: "h-10",
       },
     },
     defaultVariants: {
