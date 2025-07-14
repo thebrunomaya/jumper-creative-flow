@@ -69,7 +69,7 @@ const CreativeSystem: React.FC = () => {
     return (
       <div className="min-h-screen flex flex-col bg-background">
         <Header />
-        <div className="mx-auto px-4 py-8 flex-1">
+        <div className="w-full max-w-7xl mx-auto px-6 py-8 flex-1">
           <Success creativeIds={creativeIds} onNewCreative={handleReset} />
         </div>
         <Footer />
@@ -81,7 +81,7 @@ const CreativeSystem: React.FC = () => {
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
       
-      <div className="mx-auto px-4 py-8 flex-1">
+      <div className="w-full max-w-7xl mx-auto px-6 py-8 flex-1">
         <ProgressBar 
           currentStep={currentStep} 
           totalSteps={4} 
