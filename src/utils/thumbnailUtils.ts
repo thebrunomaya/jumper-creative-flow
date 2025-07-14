@@ -129,59 +129,6 @@ export const generateThumbnailPreview = async (
   return result;
 };
 
-export const createMockupFile = (format: 'square' | 'vertical' | 'horizontal', carouselMode = false, carouselAspectRatio?: '1:1' | '4:5') => {
-  const canvas = document.createElement('canvas');
-  const { width, height } = getThumbnailDimensions(format, carouselMode, carouselAspectRatio);
-  
-  // Usar dimensões calculadas para o canvas com escala 2x para qualidade
-  canvas.width = width * 2;
-  canvas.height = height * 2;
-  
-  const ctx = canvas.getContext('2d');
-  
-  if (ctx) {
-    // Usar gradiente CSS como fallback para compatibilidade
-    const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-    
-    // Gradientes baseados no formato
-    if (carouselMode) {
-      if (carouselAspectRatio === '4:5') {
-        gradient.addColorStop(0, '#6366f1');
-        gradient.addColorStop(1, '#8b5cf6');
-      } else {
-        gradient.addColorStop(0, '#3b82f6');
-        gradient.addColorStop(1, '#1d4ed8');
-      }
-    } else {
-      switch (format) {
-        case 'square':
-          gradient.addColorStop(0, '#3b82f6');
-          gradient.addColorStop(1, '#1d4ed8');
-          break;
-        case 'vertical':
-          gradient.addColorStop(0, '#6366f1');
-          gradient.addColorStop(1, '#8b5cf6');
-          break;
-        case 'horizontal':
-          gradient.addColorStop(0, '#059669');
-          gradient.addColorStop(1, '#047857');
-          break;
-        default:
-          gradient.addColorStop(0, '#6B7280');
-          gradient.addColorStop(1, '#4B5563');
-      }
-    }
-    
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    
-    // Continuar com borda e texto
-    drawBorderAndText(ctx, canvas, format, carouselMode, carouselAspectRatio);
-  }
-  
-  return canvas.toDataURL('image/png');
-};
-
 // Função auxiliar para obter texto de exibição
 export const getDisplayText = (format: 'square' | 'vertical' | 'horizontal', carouselMode: boolean, carouselAspectRatio?: '1:1' | '4:5'): string => {
   if (carouselMode) {
@@ -195,26 +142,4 @@ export const getDisplayText = (format: 'square' | 'vertical' | 'horizontal', car
       return '1.91:1';
     }
   }
-};
-
-// Função auxiliar para desenhar borda e texto (fallback)
-const drawBorderAndText = (ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, format: 'square' | 'vertical' | 'horizontal', carouselMode: boolean, carouselAspectRatio?: '1:1' | '4:5') => {
-  // Borda externa sólida
-  ctx.strokeStyle = '#e5e7eb';
-  ctx.lineWidth = 2;
-  ctx.strokeRect(1, 1, canvas.width - 2, canvas.height - 2);
-  
-  // Texto central
-  ctx.fillStyle = '#374151';
-  ctx.font = 'bold 16px system-ui, -apple-system, sans-serif';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  
-  const displayText = getDisplayText(format, carouselMode, carouselAspectRatio);
-  
-  ctx.fillText(
-    displayText,
-    canvas.width / 2,
-    canvas.height / 2
-  );
 };

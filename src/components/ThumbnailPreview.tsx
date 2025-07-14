@@ -158,7 +158,7 @@ const ThumbnailPreview: React.FC<ThumbnailPreviewProps> = ({
         
         {/* Format indicator - moved to top-left */}
         <div className="absolute top-1 left-1">
-          <div className="bg-primary bg-opacity-90 text-primary-foreground text-xs px-1.5 py-0.5 rounded">
+          <div className="bg-gray-600 bg-opacity-90 text-gray-200 text-xs px-1.5 py-0.5 rounded">
             {carouselMode 
               ? (carouselAspectRatio === '1:1' ? '1:1' : '4:5')
               : (format === 'square' ? '1:1' : format === 'vertical' ? '9:16' : '1.91:1')
