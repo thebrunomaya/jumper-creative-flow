@@ -115,7 +115,7 @@ const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
               <p className="text-sm text-muted-foreground mt-1">Search & Display</p>
               <Badge 
                 variant="secondary" 
-                className="absolute -top-2 -right-2 bg-gradient-to-r from-orange-400 to-yellow-500 text-white text-xs px-2 py-1 shadow-lg"
+                className="absolute -top-2 -right-2 bg-primary text-white text-xs px-2 py-1 shadow-lg"
               >
                 Em Breve
               </Badge>
@@ -212,7 +212,7 @@ const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
           
           {/* Preview detalhado do nome final */}
           {detailedPreviewName && (
-            <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-4">
+            <div className="bg-success/10 border border-success/30 rounded-lg p-4">
               <p className="text-sm font-medium text-green-800 mb-2">🎯 Preview do Nome Final:</p>
               <p className="text-sm font-mono text-green-700 break-all bg-white px-3 py-2 rounded border border-green-200">
                 {detailedPreviewName}

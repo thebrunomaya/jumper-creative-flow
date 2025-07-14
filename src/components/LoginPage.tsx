@@ -77,7 +77,7 @@ const LoginPage: React.FC = () => {
     <div className="min-h-screen bg-jumper-background flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="mx-auto mb-4 w-20 h-20 bg-gradient-jumper rounded-full flex items-center justify-center">
+          <div className="mx-auto mb-4 w-20 h-20 bg-primary rounded-full flex items-center justify-center">
             <LogIn className="h-10 w-10 text-white" />
           </div>
           <CardTitle className="text-2xl font-bold">Sistema de Criativos</CardTitle>
@@ -115,7 +115,7 @@ const LoginPage: React.FC = () => {
 
             <Button
               type="submit"
-              className="w-full bg-gradient-jumper hover:opacity-90 transition-opacity"
+              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground transition-colors"
               disabled={isLoading}
             >
               {isLoading ? (

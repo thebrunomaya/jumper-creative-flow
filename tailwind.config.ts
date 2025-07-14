@@ -87,7 +87,9 @@ export default {
 				},
 				'thumbnail-bg': 'hsl(var(--thumbnail-bg))',
 				'disabled-bg': 'hsl(var(--disabled-bg))',
-				'disabled-text': 'hsl(var(--disabled-text))'
+				'disabled-text': 'hsl(var(--disabled-text))',
+				'jumper-orange-solid': 'hsl(var(--jumper-orange-solid))',
+				'jumper-purple-solid': 'hsl(var(--jumper-purple-solid))'
 			},
 			fontFamily: {
 				'haffer': ['Haffer', 'Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
@@ -151,11 +153,7 @@ export default {
 				'scale-in': 'scale-in 0.2s ease-out',
 				'pulse-success': 'pulse-success 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
 			},
-			backgroundImage: {
-				'gradient-jumper': 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-				'gradient-success': 'linear-gradient(135deg, #48bb78 0%, #38a169 100%)',
-				'gradient-warning': 'linear-gradient(135deg, #ed8936 0%, #dd6b20 100%)',
-			}
+			// Removed backgroundImage with gradients as requested
 		}
 	},
 	plugins: [require("tailwindcss-animate")],

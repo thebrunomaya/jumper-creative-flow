@@ -149,7 +149,7 @@ const DesignSystem = () => {
           <JumperCardHeader>
             <JumperCardTitle>🚀 JumperLogo</JumperCardTitle>
             <JumperCardDescription>
-              Único componente que usa gradiente orgânico (símbolo X)
+              Logotipo oficial usando imagens PNG
             </JumperCardDescription>
           </JumperCardHeader>
           <JumperCardContent>
@@ -290,29 +290,29 @@ const DesignSystem = () => {
           <JumperCardHeader>
             <JumperCardTitle>🌈 JumperBackground</JumperCardTitle>
             <JumperCardDescription>
-              Gradientes orgânicos oficiais para backgrounds grandes
+              Cores sólidas oficiais para backgrounds
             </JumperCardDescription>
           </JumperCardHeader>
           <JumperCardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {[1, 2, 3, 4, 5, 6, 7].map((variant) => (
-                <div
-                  key={variant}
-                  className="h-20 rounded-lg border border-border relative overflow-hidden"
-                  style={{
-                    background: `var(--gradient-jumper-${variant})`,
-                  }}
-                >
-                  <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-                    <span className="text-white font-semibold text-sm">
-                      Gradient {variant}
-                    </span>
-                  </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              <div className="h-20 rounded-lg border bg-[hsl(var(--jumper-orange-solid))]">
+                <div className="flex items-center justify-center h-full text-white font-medium text-sm">
+                  Laranja Jumper
                 </div>
-              ))}
+              </div>
+              <div className="h-20 rounded-lg border bg-[hsl(var(--jumper-purple-solid))]">
+                <div className="flex items-center justify-center h-full text-white font-medium text-sm">
+                  Roxo Jumper
+                </div>
+              </div>
+              <div className="h-20 rounded-lg border bg-background">
+                <div className="flex items-center justify-center h-full text-foreground font-medium text-sm">
+                  Background
+                </div>
+              </div>
             </div>
             <p className="text-sm text-muted-foreground mt-4">
-              *Gradientes são usados apenas em backgrounds de páginas inteiras ou seções grandes
+              *Apenas cores sólidas são usadas em toda a aplicação
             </p>
           </JumperCardContent>
         </JumperCard>

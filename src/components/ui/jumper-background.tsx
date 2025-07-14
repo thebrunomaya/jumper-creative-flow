@@ -22,19 +22,19 @@ const jumperBackgroundVariants = cva(
   }
 )
 
-const getGradientStyle = (variant: number) => {
-  const gradientMap = {
-    1: 'var(--gradient-jumper-1)',
-    2: 'var(--gradient-jumper-2)',
-    3: 'var(--gradient-jumper-3)',
-    4: 'var(--gradient-jumper-4)',
-    5: 'var(--gradient-jumper-5)',
-    6: 'var(--gradient-jumper-6)',
-    7: 'var(--gradient-jumper-7)',
+const getSolidColorStyle = (variant: number) => {
+  const colorMap = {
+    1: 'hsl(var(--background))',
+    2: 'hsl(var(--jumper-orange-solid))',
+    3: 'hsl(var(--jumper-purple-solid))',
+    4: 'hsl(var(--background))',
+    5: 'hsl(var(--jumper-orange-solid))',
+    6: 'hsl(var(--jumper-purple-solid))',
+    7: 'hsl(var(--background))',
   }
   
   return {
-    background: gradientMap[variant as keyof typeof gradientMap] || gradientMap[1],
+    backgroundColor: colorMap[variant as keyof typeof colorMap] || colorMap[1],
   }
 }
 
@@ -51,7 +51,7 @@ const JumperBackground = React.forwardRef<HTMLDivElement, JumperBackgroundProps>
       <div
         ref={ref}
         className={cn(jumperBackgroundVariants({ variant }), className)}
-        style={getGradientStyle(variant)}
+        style={getSolidColorStyle(variant)}
         {...props}
       >
         {/* Overlay escuro para contraste */}
