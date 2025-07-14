@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import Header from './Header';
+import Footer from './Footer';
 import ProgressBar from './ProgressBar';
 import Breadcrumbs from './Breadcrumbs';
 import Step1 from './steps/Step1';
@@ -66,76 +67,82 @@ const CreativeSystem: React.FC = () => {
 
   if (isSubmitted) {
     return (
-      <JumperBackground variant={2} className="min-h-screen">
-        <Header />
-        <div className="max-w-4xl mx-auto px-4 py-8">
-          <Success creativeIds={creativeIds} onNewCreative={handleReset} />
-        </div>
-      </JumperBackground>
+      <div className="min-h-screen flex flex-col">
+        <JumperBackground variant={2} className="flex-1">
+          <Header />
+          <div className="max-w-4xl mx-auto px-4 py-8 flex-1">
+            <Success creativeIds={creativeIds} onNewCreative={handleReset} />
+          </div>
+        </JumperBackground>
+        <Footer />
+      </div>
     );
   }
 
   return (
-    <JumperBackground variant={1} className="min-h-screen">
-      <Header />
-      
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        <ProgressBar 
-          currentStep={currentStep} 
-          totalSteps={4} 
-          stepLabels={STEP_LABELS} 
-        />
+    <div className="min-h-screen flex flex-col">
+      <JumperBackground variant={1} className="flex-1">
+        <Header />
+        
+        <div className="max-w-4xl mx-auto px-4 py-8">
+          <ProgressBar 
+            currentStep={currentStep} 
+            totalSteps={4} 
+            stepLabels={STEP_LABELS} 
+          />
 
-        <JumperCard className="shadow-lg mb-8">
-          <JumperCardContent className="p-8">
-            <Breadcrumbs 
-              formData={formData}
-              clients={clients}
-            />
-            
-            {currentStep === 1 && (
-              <Step1 
-                formData={formData} 
-                updateFormData={updateFormData} 
-                errors={errors} 
+          <JumperCard className="shadow-lg mb-8">
+            <JumperCardContent className="p-8">
+              <Breadcrumbs 
+                formData={formData}
+                clients={clients}
               />
-            )}
-            
-            {currentStep === 2 && (
-              <Step2 
-                formData={formData} 
-                updateFormData={updateFormData} 
-                errors={errors} 
-              />
-            )}
-            
-            {currentStep === 3 && (
-              <Step3 
-                formData={formData} 
-                updateFormData={updateFormData} 
-                errors={errors} 
-              />
-            )}
-            
-            {currentStep === 4 && (
-              <Step4 
-                formData={formData} 
-                isSubmitting={isSubmitting} 
-              />
-            )}
-          </JumperCardContent>
-        </JumperCard>
+              
+              {currentStep === 1 && (
+                <Step1 
+                  formData={formData} 
+                  updateFormData={updateFormData} 
+                  errors={errors} 
+                />
+              )}
+              
+              {currentStep === 2 && (
+                <Step2 
+                  formData={formData} 
+                  updateFormData={updateFormData} 
+                  errors={errors} 
+                />
+              )}
+              
+              {currentStep === 3 && (
+                <Step3 
+                  formData={formData} 
+                  updateFormData={updateFormData} 
+                  errors={errors} 
+                />
+              )}
+              
+              {currentStep === 4 && (
+                <Step4 
+                  formData={formData} 
+                  isSubmitting={isSubmitting} 
+                />
+              )}
+            </JumperCardContent>
+          </JumperCard>
 
-        <CreativeNavigation
-          currentStep={currentStep}
-          onPrevStep={prevStep}
-          onNextStep={nextStep}
-          onSubmit={handleSubmit}
-          isSubmitting={isSubmitting}
-          errors={errors}
-        />
-      </div>
-    </JumperBackground>
+          <CreativeNavigation
+            currentStep={currentStep}
+            onPrevStep={prevStep}
+            onNextStep={nextStep}
+            onSubmit={handleSubmit}
+            isSubmitting={isSubmitting}
+            errors={errors}
+          />
+        </div>
+      </JumperBackground>
+      <Footer />
+    </div>
   );
 };
 
