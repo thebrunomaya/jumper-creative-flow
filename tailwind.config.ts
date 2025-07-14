@@ -42,13 +42,15 @@ export default {
 					foreground: 'hsl(var(--warning-foreground))'
 				},
 				jumper: {
-					blue: '#667eea',
-					purple: '#764ba2',
-					success: 'hsl(var(--success))',
-					warning: 'hsl(var(--warning))',
-					error: 'hsl(var(--destructive))',
-					background: 'hsl(var(--background))',
-					text: 'hsl(var(--foreground))'
+					orange: '#FA4721',
+					purple: '#8143A7',
+					white: '#FFFFFF',
+					black: '#000000',
+					gray: {
+						dark: '#181818',
+						medium: '#3E3D40',
+						light: '#C6CBD4'
+					}
 				},
 				destructive: {
 					DEFAULT: 'hsl(var(--destructive))',
