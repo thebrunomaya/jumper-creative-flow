@@ -89,12 +89,12 @@ const LoginPage: React.FC = () => {
       />
 
       {/* Lado Direito - Formulário de Login */}
-      <div className="flex-1 lg:w-1/2 flex flex-col min-h-screen bg-background">
+      <div className="flex-1 lg:w-1/2 flex flex-col min-h-screen bg-black text-white">
         {/* Header - Logo no topo */}
         <div className="p-6 lg:p-8">
           <JumperLogo 
             size="sm" 
-            theme="auto" 
+            theme="dark" 
             showText={true}
           />
         </div>
@@ -106,7 +106,7 @@ const LoginPage: React.FC = () => {
             <div className="lg:hidden text-center mb-8">
               <JumperLogo 
                 size="lg" 
-                theme="auto" 
+                theme="dark" 
                 showText={true}
                 className="mx-auto mb-4"
               />
@@ -114,7 +114,7 @@ const LoginPage: React.FC = () => {
 
             {/* Título Ad Uploader */}
             <div className="text-center">
-              <h1 className="text-2xl lg:text-3xl font-bold text-foreground">
+              <h1 className="text-2xl lg:text-3xl font-bold text-white">
                 Ad Uploader
               </h1>
             </div>
@@ -122,7 +122,7 @@ const LoginPage: React.FC = () => {
             {/* Formulário sem card */}
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-foreground font-medium">
+                <Label htmlFor="email" className="text-white font-medium">
                   Login
                 </Label>
                 <Input
@@ -133,13 +133,13 @@ const LoginPage: React.FC = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={isLoading}
                   autoComplete="email"
-                  className="h-12 border-border/50 focus:border-primary transition-colors"
+                  className="h-12 bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:border-[#FA4721] transition-colors"
                   autoFocus
                 />
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-foreground font-medium">
+                <Label htmlFor="password" className="text-white font-medium">
                   Senha
                 </Label>
                 <Input
@@ -150,7 +150,7 @@ const LoginPage: React.FC = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={isLoading}
                   autoComplete="current-password"
-                  className="h-12 border-border/50 focus:border-primary transition-colors"
+                  className="h-12 bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:border-[#FA4721] transition-colors"
                 />
               </div>
 
@@ -174,7 +174,7 @@ const LoginPage: React.FC = () => {
 
         {/* Rodapé - Tagline */}
         <div className="p-6 lg:p-8 text-center">
-          <p className="text-muted-foreground text-sm">
+          <p className="text-white/60 text-sm">
             A sua agência de tráfego digital
           </p>
         </div>
