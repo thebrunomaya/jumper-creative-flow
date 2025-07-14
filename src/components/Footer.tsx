@@ -44,7 +44,7 @@ const Footer: React.FC = () => {
         </div>
 
         {/* Linha inferior */}
-        <div className="border-t border-border mt-8 pt-6 text-center">
+        <div className="border-t border-border mt-8 pt-6">
           <p className="text-sm text-muted-foreground">
             © {new Date().getFullYear()} Jumper Studio. Todos os direitos reservados.
           </p>
