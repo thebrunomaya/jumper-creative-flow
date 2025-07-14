@@ -72,8 +72,8 @@ const ImageUploadSection: React.FC<ImageUploadSectionProps> = ({
         {...getRootProps()}
         className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-all duration-200 ${
           isDragActive
-            ? 'border-jumper-blue bg-blue-50'
-            : 'border-gray-300 hover:border-jumper-blue hover:bg-gray-50'
+            ? 'border-accent-critical bg-accent-critical/10'
+            : 'border-accent-border hover:border-accent-critical hover:bg-accent-critical/5'
         }`}
       >
         <input {...getInputProps()} />
@@ -107,7 +107,7 @@ const ImageUploadSection: React.FC<ImageUploadSectionProps> = ({
               <CardContent className="p-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3 flex-1">
-                    <Image className="h-6 w-6 text-blue-500 flex-shrink-0" />
+                    <Image className="h-6 w-6 text-accent-subtle flex-shrink-0" />
                     
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center space-x-2 mb-1">

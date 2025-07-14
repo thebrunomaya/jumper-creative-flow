@@ -36,9 +36,9 @@ const ExistingPostSection: React.FC<ExistingPostSectionProps> = ({
       </div>
 
       {/* Info Alert */}
-      <Alert className="border-blue-200 bg-blue-50">
-        <Info className="h-4 w-4 text-blue-600" />
-        <AlertDescription className="text-blue-700">
+      <Alert className="border-accent-border bg-accent-subtle/10">
+        <Info className="h-4 w-4 text-accent-subtle" />
+        <AlertDescription className="text-accent-subtle">
           <strong>Como funciona:</strong> Cole o link de uma publicação do seu Instagram (post, reel ou IGTV) 
           que você deseja impulsionar como anúncio.
         </AlertDescription>
