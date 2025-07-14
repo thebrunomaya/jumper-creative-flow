@@ -7,8 +7,8 @@ const jumperCardVariants = cva(
   {
     variants: {
       selected: {
-        true: "border-jumper-orange border-2 shadow-md",
-        false: "border-border hover:border-border/80 hover:shadow-sm",
+        true: "border-accent-border border-2 shadow-md",
+        false: "border-border hover:border-accent-light hover:shadow-sm",
       },
     },
     defaultVariants: {

@@ -52,61 +52,92 @@ const DesignSystem = () => {
         {/* Paleta de Cores */}
         <JumperCard>
           <JumperCardHeader>
-            <JumperCardTitle>🎨 Paleta de Cores Oficial</JumperCardTitle>
+            <JumperCardTitle>🎨 Nova Hierarquia de Cores</JumperCardTitle>
             <JumperCardDescription>
-              Cores principais da identidade visual da Jumper Studio
+              Sistema de cores sutis com laranja (#FA4721) apenas para ações críticas
             </JumperCardDescription>
           </JumperCardHeader>
           <JumperCardContent>
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-              <div className="text-center space-y-2">
-                <div 
-                  className="w-20 h-20 rounded-lg mx-auto border border-border"
-                  style={{ backgroundColor: colors.orange }}
-                />
-                <div>
-                  <p className="font-semibold text-sm">Jumper Orange</p>
-                  <p className="text-xs text-muted-foreground">{colors.orange}</p>
+            <div className="space-y-6">
+              {/* Cores Críticas */}
+              <div>
+                <h4 className="font-semibold mb-3 text-accent-critical">🔥 Cores Críticas (Uso Restrito)</h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="text-center space-y-2">
+                    <div 
+                      className="w-20 h-20 rounded-lg mx-auto border border-border"
+                      style={{ backgroundColor: colors.orange }}
+                    />
+                    <div>
+                      <p className="font-semibold text-sm">Jumper Orange</p>
+                      <p className="text-xs text-muted-foreground">{colors.orange}</p>
+                      <p className="text-xs text-accent-critical">Apenas ações principais</p>
+                    </div>
+                  </div>
+                  <div className="text-center space-y-2">
+                    <div 
+                      className="w-20 h-20 rounded-lg mx-auto border border-border bg-success"
+                    />
+                    <div>
+                      <p className="font-semibold text-sm">Success</p>
+                      <p className="text-xs text-muted-foreground">Para confirmações</p>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div className="text-center space-y-2">
-                <div 
-                  className="w-20 h-20 rounded-lg mx-auto border border-border"
-                  style={{ backgroundColor: colors.purple }}
-                />
-                <div>
-                  <p className="font-semibold text-sm">Jumper Purple</p>
-                  <p className="text-xs text-muted-foreground">{colors.purple}</p>
+
+              {/* Acentos Sutis */}
+              <div>
+                <h4 className="font-semibold mb-3 text-accent-subtle">✨ Acentos Principais (Sutis)</h4>
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="text-center space-y-2">
+                    <div className="w-20 h-20 rounded-lg mx-auto border border-border bg-accent-subtle" />
+                    <div>
+                      <p className="font-semibold text-sm">Accent Subtle</p>
+                      <p className="text-xs text-muted-foreground">Destaques gerais</p>
+                    </div>
+                  </div>
+                  <div className="text-center space-y-2">
+                    <div className="w-20 h-20 rounded-lg mx-auto border border-border bg-accent-light" />
+                    <div>
+                      <p className="font-semibold text-sm">Accent Light</p>
+                      <p className="text-xs text-muted-foreground">Hover states</p>
+                    </div>
+                  </div>
+                  <div className="text-center space-y-2">
+                    <div className="w-20 h-20 rounded-lg mx-auto border-2 border-accent-border bg-background" />
+                    <div>
+                      <p className="font-semibold text-sm">Accent Border</p>
+                      <p className="text-xs text-muted-foreground">Bordas ativas</p>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div className="text-center space-y-2">
-                <div 
-                  className="w-20 h-20 rounded-lg mx-auto border border-border"
-                  style={{ backgroundColor: colors.black }}
-                />
-                <div>
-                  <p className="font-semibold text-sm">Jumper Black</p>
-                  <p className="text-xs text-muted-foreground">{colors.black}</p>
-                </div>
-              </div>
-              <div className="text-center space-y-2">
-                <div 
-                  className="w-20 h-20 rounded-lg mx-auto border border-border"
-                  style={{ backgroundColor: colors.white }}
-                />
-                <div>
-                  <p className="font-semibold text-sm">Jumper White</p>
-                  <p className="text-xs text-muted-foreground">{colors.white}</p>
-                </div>
-              </div>
-              <div className="text-center space-y-2">
-                <div 
-                  className="w-20 h-20 rounded-lg mx-auto border border-border"
-                  style={{ backgroundColor: colors.gray.medium }}
-                />
-                <div>
-                  <p className="font-semibold text-sm">Jumper Gray</p>
-                  <p className="text-xs text-muted-foreground">{colors.gray.medium}</p>
+
+              {/* Cores Base */}
+              <div>
+                <h4 className="font-semibold mb-3">🖤 Cores Base</h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="text-center space-y-2">
+                    <div 
+                      className="w-20 h-20 rounded-lg mx-auto border border-border"
+                      style={{ backgroundColor: colors.black }}
+                    />
+                    <div>
+                      <p className="font-semibold text-sm">Jumper Black</p>
+                      <p className="text-xs text-muted-foreground">{colors.black}</p>
+                    </div>
+                  </div>
+                  <div className="text-center space-y-2">
+                    <div 
+                      className="w-20 h-20 rounded-lg mx-auto border border-border"
+                      style={{ backgroundColor: colors.white }}
+                    />
+                    <div>
+                      <p className="font-semibold text-sm">Jumper White</p>
+                      <p className="text-xs text-muted-foreground">{colors.white}</p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -228,7 +259,7 @@ const DesignSystem = () => {
           <JumperCardHeader>
             <JumperCardTitle>📝 JumperInput</JumperCardTitle>
             <JumperCardDescription>
-              Campos de entrada com foco laranja e validação
+              Campos de entrada com foco sutil e validação visual
             </JumperCardDescription>
           </JumperCardHeader>
           <JumperCardContent>
@@ -308,10 +339,10 @@ const DesignSystem = () => {
 
         {/* Footer da página */}
         <div className="text-center text-white/60 text-sm">
-          <p>Design System oficial da Jumper Studio</p>
+          <p>Design System oficial da Jumper Studio v2.0</p>
           <p className="mt-2">
-            Versão 1.0 • {new Date().getFullYear()} • 
-            <span className="text-jumper-orange ml-1">Cores sólidas em componentes, gradientes apenas em backgrounds</span>
+            Nova hierarquia: <span className="text-accent-subtle ml-1">Acentos sutis como padrão</span> • 
+            <span className="text-accent-critical ml-1">Laranja apenas para ações críticas</span>
           </p>
         </div>
       </div>

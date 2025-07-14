@@ -33,46 +33,52 @@
     --popover: 0 0% 100%;
     --popover-foreground: 210 11% 15%;
     
-    /* Jumper Orange as Primary */
+    /* Jumper Orange - CRITICAL ACTIONS ONLY */
     --primary: 14 95% 55%;
     --primary-foreground: 0 0% 100%;
     
-    /* Light backgrounds - solid colors only */
-    --secondary: 210 17% 95%;
-    --secondary-foreground: 210 11% 15%;
+    /* Subtle gray accents - NEW MAIN ACCENTS */
+    --secondary: 220 9% 46%;
+    --secondary-foreground: 0 0% 100%;
     
     --muted: 210 11% 89%;
-    --muted-foreground: 208 7% 46%;
+    --muted-foreground: 220 9% 46%;
     
-    --accent: 210 17% 95%;
-    --accent-foreground: 14 95% 55%;
+    --accent: 220 9% 46%;
+    --accent-foreground: 0 0% 100%;
+    
+    /* New subtle accent system */
+    --accent-subtle: 220 9% 46%;
+    --accent-light: 220 14% 68%;
+    --accent-border: 220 13% 82%;
+    --accent-critical: 14 95% 55%;
     
     /* Status Colors */
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
     
-    --success: 142 71% 45%;
+    --success: 159 64% 42%;
     --success-foreground: 0 0% 100%;
     
     --warning: 38 92% 50%;
     --warning-foreground: 210 11% 15%;
     
-    /* Borders & Inputs */
-    --border: 210 11% 89%;
-    --input: 210 11% 89%;
-    --ring: 14 95% 55%;
+    /* Borders & Inputs - subtle grays */
+    --border: 220 13% 82%;
+    --input: 220 13% 82%;
+    --ring: 220 9% 46%;
     
-    /* Special Elements - solid colors only */
+    /* Special Elements - subtle colors */
     --upload-zone: 210 17% 97%;
-    --upload-zone-border: 210 11% 89%;
-    --upload-zone-hover: 210 11% 93%;
+    --upload-zone-border: 220 13% 82%;
+    --upload-zone-hover: 220 13% 89%;
     
     --media-card: 0 0% 97%;
-    --media-card-border: 210 11% 89%;
+    --media-card-border: 220 13% 82%;
     
     --thumbnail-bg: 210 17% 95%;
     --disabled-bg: 210 11% 89%;
-    --disabled-text: 208 7% 46%;
+    --disabled-text: 220 9% 46%;
 
     /* Jumper Official Brand Colors */
     --jumper-orange: 14 95% 55%;
@@ -92,12 +98,12 @@
     /* Sidebar - Light Mode */
     --sidebar-background: 0 0% 97%;
     --sidebar-foreground: 210 11% 15%;
-    --sidebar-primary: 14 95% 55%;
+    --sidebar-primary: 220 9% 46%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 210 11% 89%;
-    --sidebar-accent-foreground: 14 95% 55%;
-    --sidebar-border: 210 11% 89%;
-    --sidebar-ring: 14 95% 55%;
+    --sidebar-accent: 220 13% 82%;
+    --sidebar-accent-foreground: 220 9% 46%;
+    --sidebar-border: 220 13% 82%;
+    --sidebar-ring: 220 9% 46%;
   }
 
   .dark {
@@ -111,36 +117,42 @@
     --popover: 0 0% 0%;
     --popover-foreground: 0 0% 100%;
     
-    /* Jumper Orange as Primary in dark mode */
+    /* Jumper Orange - CRITICAL ACTIONS ONLY */
     --primary: 14 95% 55%;
     --primary-foreground: 0 0% 100%;
     
-    /* Dark backgrounds - solid colors only */
-    --secondary: 240 3% 25%;
-    --secondary-foreground: 218 11% 81%;
+    /* Subtle gray accents - NEW MAIN ACCENTS */
+    --secondary: 220 9% 46%;
+    --secondary-foreground: 0 0% 100%;
     
     --muted: 240 3% 9%;
-    --muted-foreground: 218 11% 81%;
+    --muted-foreground: 220 14% 68%;
     
-    --accent: 240 3% 25%;
-    --accent-foreground: 14 95% 55%;
+    --accent: 220 9% 46%;
+    --accent-foreground: 0 0% 100%;
+    
+    /* New subtle accent system - dark mode */
+    --accent-subtle: 220 9% 46%;
+    --accent-light: 220 14% 68%;
+    --accent-border: 220 13% 82%;
+    --accent-critical: 14 95% 55%;
     
     /* Status Colors - dark mode */
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
     
-    --success: 142 71% 45%;
+    --success: 159 64% 42%;
     --success-foreground: 0 0% 100%;
     
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 0%;
     
-    /* Borders & Inputs - Dark mode */
+    /* Borders & Inputs - subtle grays */
     --border: 240 3% 25%;
     --input: 240 3% 25%;
-    --ring: 14 95% 55%;
+    --ring: 220 9% 46%;
     
-    /* Special Elements - solid colors only */
+    /* Special Elements - subtle colors */
     --upload-zone: 240 3% 9%;
     --upload-zone-border: 240 3% 25%;
     --upload-zone-hover: 240 3% 15%;
@@ -150,17 +162,17 @@
     
     --thumbnail-bg: 240 3% 9%;
     --disabled-bg: 240 3% 25%;
-    --disabled-text: 218 11% 45%;
+    --disabled-text: 220 14% 68%;
 
     /* Sidebar - Dark Mode */
     --sidebar-background: 0 0% 0%;
     --sidebar-foreground: 0 0% 100%;
-    --sidebar-primary: 14 95% 55%;
+    --sidebar-primary: 220 9% 46%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 240 3% 25%;
-    --sidebar-accent-foreground: 14 95% 55%;
+    --sidebar-accent-foreground: 220 14% 68%;
     --sidebar-border: 240 3% 25%;
-    --sidebar-ring: 14 95% 55%;
+    --sidebar-ring: 220 9% 46%;
   }
 }
 

@@ -8,7 +8,7 @@ const jumperInputVariants = cva(
     variants: {
       error: {
         true: "border-destructive bg-destructive/5 focus-visible:ring-destructive",
-        false: "border-input bg-background focus-visible:ring-jumper-orange",
+        false: "border-input bg-background focus-visible:ring-accent-subtle",
       },
     },
     defaultVariants: {
@@ -44,10 +44,10 @@ const JumperInput = React.forwardRef<HTMLInputElement, JumperInputProps>(
           type={type}
           className={cn(
             jumperInputVariants({ error: hasError }),
-            // Focus styles with Jumper orange
+            // Focus styles with subtle accent
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
             // Border color on focus
-            !hasError && "focus-visible:border-jumper-orange",
+            !hasError && "focus-visible:border-accent-subtle",
             className
           )}
           ref={ref}
