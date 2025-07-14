@@ -20,7 +20,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ currentStep, totalSteps, step
                 index + 1 <= currentStep
                   ? 'bg-accent-subtle text-white shadow-lg'
                   : index + 1 === currentStep + 1
-                  ? 'bg-accent text-accent-critical border-2 border-accent-critical'
+                  ? 'bg-background text-foreground border-2 border-accent-subtle shadow-md'
                   : 'bg-muted text-muted-foreground'
               }`}
             >
