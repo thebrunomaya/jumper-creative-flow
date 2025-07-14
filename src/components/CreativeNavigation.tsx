@@ -22,7 +22,7 @@ const CreativeNavigation: React.FC<CreativeNavigationProps> = ({
   errors = {}
 }) => {
   return (
-    <div>
+    <div className="pt-6 space-y-6">
       <ValidationPanel errors={errors} />
       
       <div className="flex justify-between items-center">
