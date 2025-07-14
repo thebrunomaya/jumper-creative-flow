@@ -9,6 +9,8 @@ import { Badge } from '@/components/ui/badge';
 import { useNotionClients } from '@/hooks/useNotionData';
 import { Skeleton } from '@/components/ui/skeleton';
 import { validateCreativeName, previewCreativeNameDetailed } from '@/utils/creativeName';
+import facebookLogo from '@/assets/facebook-logo.svg';
+import googleLogo from '@/assets/google-logo.svg';
 
 interface Step1Props {
   formData: FormData;
@@ -100,7 +102,9 @@ const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
             onClick={() => updateFormData({ platform: 'meta', campaignObjective: undefined, creativeType: undefined, objective: undefined, creativeName: '' })}
           >
             <JumperCardContent className="p-6 text-center">
-              <div className="text-4xl mb-3">📘</div>
+              <div className="w-12 h-12 mx-auto mb-3 flex items-center justify-center">
+                <img src={facebookLogo} alt="Facebook" className="w-8 h-8" />
+              </div>
               <h3 className="font-semibold text-foreground">Meta Ads</h3>
               <p className="text-sm text-muted-foreground mt-1">Facebook & Instagram</p>
             </JumperCardContent>
@@ -110,10 +114,12 @@ const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
             className="cursor-not-allowed transition-all duration-200 opacity-50 relative"
           >
             <JumperCardContent className="p-6 text-center">
-              <div className="text-4xl mb-3">🔍</div>
+              <div className="w-12 h-12 mx-auto mb-3 flex items-center justify-center">
+                <img src={googleLogo} alt="Google" className="w-8 h-8" />
+              </div>
               <h3 className="font-semibold text-muted-foreground">Google Ads</h3>
               <p className="text-sm text-muted-foreground mt-1">Search & Display</p>
-              <Badge 
+              <Badge
                 variant="secondary" 
                 className="absolute -top-2 -right-2 bg-primary text-white text-xs px-2 py-1 shadow-lg"
               >
