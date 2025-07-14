@@ -81,9 +81,9 @@ export const useCreativeForm = () => {
     
     return formData.mediaVariations.every(variation => {
       const requiredPositions = [];
-      if (variation.squareEnabled !== false) requiredPositions.push('square');
-      if (variation.verticalEnabled !== false) requiredPositions.push('vertical');
-      if (variation.horizontalEnabled !== false) requiredPositions.push('horizontal');
+      if (variation.squareEnabled === true) requiredPositions.push('square');
+      if (variation.verticalEnabled === true) requiredPositions.push('vertical');
+      if (variation.horizontalEnabled === true) requiredPositions.push('horizontal');
       
       return requiredPositions.every(position => {
         const file = variation[`${position}File`];
