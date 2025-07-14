@@ -1,4 +1,5 @@
-import { getGradientImage, getDisplayText } from '@/utils/thumbnailUtils';
+import React, { useState, useEffect } from 'react';
+import { generateThumbnailPreview, getDisplayText } from '@/utils/thumbnailUtils';
 
 interface GradientPreviewProps {
   format: 'square' | 'vertical' | 'horizontal';
@@ -15,26 +16,38 @@ export const GradientPreview = ({
   className = '',
   onClick
 }: GradientPreviewProps) => {
-  const gradientImage = getGradientImage(format, carouselMode, carouselAspectRatio);
+  const [thumbnailSrc, setThumbnailSrc] = useState<string>('');
   const displayText = getDisplayText(format, carouselMode, carouselAspectRatio);
+
+  useEffect(() => {
+    generateThumbnailPreview(format, carouselMode, carouselAspectRatio)
+      .then(setThumbnailSrc)
+      .catch(() => {
+        // Fallback - usar createMockupFile se necessário
+        console.warn('Failed to generate gradient thumbnail, using fallback');
+      });
+  }, [format, carouselMode, carouselAspectRatio]);
 
   return (
     <div 
       className={`relative w-full h-full overflow-hidden rounded border border-border ${className}`}
-      style={{
-        backgroundImage: `url(${gradientImage})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat'
-      }}
       onClick={onClick}
     >
-      {/* Overlay para o texto */}
-      <div className="absolute inset-0 flex items-center justify-center">
-        <div className="bg-white/90 px-2 py-1 rounded text-sm font-bold text-gray-700">
-          {displayText}
+      {thumbnailSrc ? (
+        <img
+          src={thumbnailSrc}
+          alt={`${format} preview`}
+          className="w-full h-full object-cover"
+          style={{ imageRendering: 'crisp-edges' }}
+        />
+      ) : (
+        // Loading state com gradiente CSS como fallback
+        <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/40 flex items-center justify-center">
+          <div className="bg-white/90 px-2 py-1 rounded text-sm font-bold text-gray-700">
+            {displayText}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
