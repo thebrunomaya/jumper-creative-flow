@@ -1,6 +1,7 @@
 import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
+import { useTheme } from "@/contexts/ThemeContext"
 
 // Import official Jumper Studio assets
 import xWhite from "@/assets/x-white.png"
@@ -72,11 +73,13 @@ export interface JumperLogoProps
 const JumperLogo = React.forwardRef<HTMLDivElement, JumperLogoProps>(
   ({ className, size, theme = 'auto', showText = true, ...props }, ref) => {
     
+    const { theme: contextTheme } = useTheme()
+    
     // Determine which theme to use
     const getEffectiveTheme = () => {
       if (theme === 'auto') {
-        // Check if dark mode is active
-        return document.documentElement.classList.contains('dark') ? 'dark' : 'light'
+        // Use theme from context for reactive updates
+        return contextTheme === 'dark' ? 'dark' : 'light'
       }
       return theme
     }
