@@ -5,8 +5,7 @@ export interface FormData {
   partner: string;
   platform: 'meta' | 'google';
   campaignObjective?: string; // New field for campaign objective from account
-  creativeType?: 'single' | 'carousel' | 'collection' | 'existing-post'; // For Meta Ads
-  googleCampaignType?: 'search' | 'display' | 'performance-max' | 'shopping' | 'video' | 'demand-gen' | 'app'; // For Google Ads
+  creativeType?: 'single' | 'carousel' | 'collection' | 'existing-post'; // Add existing-post
   objective?: 'sales' | 'traffic' | 'awareness' | 'leads' | 'engagement';
   creativeName: string; // New field for creative name
 
@@ -16,25 +15,13 @@ export interface FormData {
   mediaVariations?: MediaVariation[]; // New field for multiple media sets
   existingPost?: ExistingPostData; // New field for existing post
   
-  // Carousel specific fields (Meta Ads)
+  // Carousel specific fields
   carouselAspectRatio?: '1:1' | '4:5'; // Toggle de proporção no topo
   carouselCards?: CarouselCard[]; // Array de cartões do carrossel
   
-  // Google Ads specific fields
-  headlines?: string[]; // For Search, Display, Performance Max, Demand Gen, App
-  descriptions?: string[]; // For all Google Ads types
-  path1?: string; // Search only (15 char limit)
-  path2?: string; // Search only (15 char limit)
-  businessName?: string; // Performance Max (required)
-  logos?: File[]; // Performance Max (required)
-  videos?: File[]; // Video campaigns (required)
-  productFeed?: File; // Shopping campaigns (required)
-  merchantId?: string; // Shopping (optional)
-  appStoreUrl?: string; // App campaigns
-  
   // Step 3 - Updated for multiple titles and main texts + new conditional fields
-  mainTexts: string[]; // Changed from single mainText to array (Meta Ads)
-  titles: string[]; // Changed from single headline to array of titles (Meta Ads)
+  mainTexts: string[]; // Changed from single mainText to array
+  titles: string[]; // Changed from single headline to array of titles
   description: string;
   destination?: string; // New field for destination type
   cta?: string; // New field for CTA (conditional)
@@ -147,94 +134,4 @@ export const META_TEXT_VARIATIONS = {
 export const CAROUSEL_LIMITS = {
   minCards: 2,
   maxCards: 10
-};
-
-// Google Ads types and interfaces
-export interface GoogleAdsObjectiveConfig {
-  availableTypes: GoogleAdsCampaignTypeConfig[];
-}
-
-export interface GoogleAdsCampaignTypeConfig {
-  value: string;
-  label: string;
-  description: string;
-  recommended: boolean;
-}
-
-export interface GoogleAdsDestination {
-  value: string;
-  label: string;
-  ctas: string[];
-  fieldType: 'url' | 'phone';
-}
-
-export interface GoogleAdsAssetRequirement {
-  min?: number;
-  max?: number;
-  charLimit?: number;
-  recommended?: number;
-  required?: boolean;
-  formats?: string[];
-  maxSize?: number;
-  minSize?: string;
-}
-
-export interface GoogleAdsTypeConfiguration {
-  destinations: GoogleAdsDestination[];
-  assetRequirements: Record<string, GoogleAdsAssetRequirement>;
-}
-
-export interface GoogleAdsConfig {
-  objectiveToTypes: Record<string, GoogleAdsObjectiveConfig>;
-  typeConfigurations: Record<string, GoogleAdsTypeConfiguration>;
-}
-
-// Google Ads text limits for different campaign types
-export const GOOGLE_ADS_TEXT_LIMITS = {
-  headlines: {
-    search: { min: 3, max: 15, charLimit: 30, recommended: 10 },
-    display: { min: 1, max: 5, charLimit: 30, recommended: 3 },
-    'performance-max': { min: 3, max: 15, charLimit: 30, recommended: 10 },
-    'demand-gen': { min: 1, max: 5, charLimit: 30, recommended: 3 },
-    app: { min: 2, max: 5, charLimit: 30, recommended: 3 }
-  },
-  descriptions: {
-    search: { min: 2, max: 4, charLimit: 90, recommended: 4 },
-    display: { min: 1, max: 5, charLimit: 90, recommended: 3 },
-    'performance-max': { min: 1, max: 5, charLimit: 90, recommended: 4 },
-    'demand-gen': { min: 1, max: 5, charLimit: 90, recommended: 3 },
-    app: { min: 1, max: 5, charLimit: 90, recommended: 3 }
-  },
-  paths: {
-    search: { charLimit: 15 }
-  }
-};
-
-// Google Ads file specifications
-export const GOOGLE_ADS_SPECS = {
-  image: {
-    formats: ['JPG', 'PNG'],
-    maxSize: 5 * 1024 * 1024, // 5MB
-    recommended: {
-      square: { width: 1200, height: 1200 },
-      landscape: { width: 1200, height: 628 },
-      portrait: { width: 960, height: 1200 }
-    }
-  },
-  logo: {
-    formats: ['JPG', 'PNG'],
-    maxSize: 5 * 1024 * 1024, // 5MB
-    recommended: {
-      square: { width: 1200, height: 1200 },
-      landscape: { width: 1200, height: 300 }
-    }
-  },
-  video: {
-    formats: ['MP4', 'MOV', 'WEBM'],
-    maxSize: 256 * 1024 * 1024, // 256MB for regular videos
-    youtube: {
-      maxSize: 128 * 1024 * 1024 * 1024, // 128GB for YouTube
-      duration: { min: 1, max: 21600 } // 1 second to 6 hours
-    }
-  }
 };

@@ -5,7 +5,6 @@ import FileUpload from '@/components/FileUpload';
 import CarouselMediaSection from '@/components/sections/CarouselMediaSection';
 import SingleMediaSection from '@/components/sections/SingleMediaSection';
 import ExistingPostSection from '@/components/sections/ExistingPostSection';
-import GoogleAdsAssetSection from '@/components/sections/GoogleAdsAssetSection';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertTriangle } from 'lucide-react';
 
@@ -20,18 +19,6 @@ const Step2: React.FC<Step2Props> = ({
   updateFormData,
   errors
 }) => {
-  // Google Ads campaigns use a different asset collection approach
-  if (formData.platform === 'google' && formData.googleCampaignType) {
-    return (
-      <GoogleAdsAssetSection 
-        formData={formData}
-        updateFormData={updateFormData}
-        errors={errors}
-      />
-    );
-  }
-
-  // Meta Ads creative types
   // For carousel creative type
   if (formData.creativeType === 'carousel') {
     return (

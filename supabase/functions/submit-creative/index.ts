@@ -40,7 +40,6 @@ serve(async (req) => {
 
     const creativeData: CreativeSubmissionData = await req.json()
     console.log('🔍 Creative data received:')
-    console.log('- platform:', creativeData.platform)
     console.log('- creativeName:', creativeData.creativeName)
     console.log('- managerId:', creativeData.managerId)
     console.log('- destinationUrl:', creativeData.destinationUrl)
@@ -48,19 +47,6 @@ serve(async (req) => {
     console.log('- callToAction:', creativeData.callToAction)
     console.log('- observations:', creativeData.observations)
     console.log('- existingPost:', creativeData.existingPost)
-    
-    // Log Google Ads specific fields
-    if (creativeData.platform === 'google') {
-      console.log('=== Google Ads Specific Fields ===')
-      console.log('- googleCampaignType:', creativeData.googleCampaignType)
-      console.log('- headlines:', creativeData.headlines?.length || 0, 'items')
-      console.log('- descriptions:', creativeData.descriptions?.length || 0, 'items')
-      console.log('- businessName:', creativeData.businessName)
-      console.log('- path1:', creativeData.path1)
-      console.log('- path2:', creativeData.path2)
-      console.log('- merchantId:', creativeData.merchantId)
-      console.log('- appStoreUrl:', creativeData.appStoreUrl)
-    }
 
     // Fetch client data from Notion to get account name and ID
     console.log('🔍 Fetching client data from Notion...');
@@ -82,31 +68,21 @@ serve(async (req) => {
     console.log('✅ Client data fetched:', clientName);
     console.log('🔍 Client data structure:', JSON.stringify(clientData.properties, null, 2));
 
-    // Group files by variation index (or file type for Google Ads)
-    const filesByVariation = new Map<number, Array<{name: string; type: string; size: number; format?: string; base64Data?: string; fileType?: string}>>();
+    // Group files by variation index
+    const filesByVariation = new Map<number, Array<{name: string; type: string; size: number; format?: string; base64Data?: string}>>();
     
     if (creativeData.filesInfo && creativeData.filesInfo.length > 0) {
       console.log(`📁 Processing ${creativeData.filesInfo.length} files for upload...`);
       
-      if (creativeData.platform === 'google') {
-        // For Google Ads, group all files under variation 1 since we don't use variations
-        console.log('📊 Google Ads: Grouping all files under single creative');
-        filesByVariation.set(1, creativeData.filesInfo.map(fileInfo => ({
-          ...fileInfo,
-          fileType: fileInfo.fileType
-        })));
-      } else {
-        // For Meta Ads, use existing variation logic
-        creativeData.filesInfo.forEach(fileInfo => {
-          const variationIndex = fileInfo.variationIndex || 1;
-          if (!filesByVariation.has(variationIndex)) {
-            filesByVariation.set(variationIndex, []);
-          }
-          filesByVariation.get(variationIndex)!.push(fileInfo);
-        });
-      }
+      creativeData.filesInfo.forEach(fileInfo => {
+        const variationIndex = fileInfo.variationIndex || 1;
+        if (!filesByVariation.has(variationIndex)) {
+          filesByVariation.set(variationIndex, []);
+        }
+        filesByVariation.get(variationIndex)!.push(fileInfo);
+      });
       
-      console.log(`📊 Files grouped into ${filesByVariation.size} ${creativeData.platform === 'google' ? 'creative' : 'variations'}`);
+      console.log(`📊 Files grouped into ${filesByVariation.size} variations`);
     }
 
     const totalVariations = filesByVariation.size;
