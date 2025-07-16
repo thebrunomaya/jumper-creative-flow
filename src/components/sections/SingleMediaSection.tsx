@@ -113,9 +113,9 @@ const SingleMediaSection: React.FC<SingleMediaSectionProps> = ({
 
       {/* Warning when positions are disabled - apenas informativo */}
       {hasAnyDisabledPosition() && (
-        <Alert className="border-warning/30 bg-warning/10">
+        <Alert className="border-warning bg-warning/20">
           <AlertTriangle className="h-4 w-4 text-warning" />
-          <AlertDescription className="text-warning-foreground">
+          <AlertDescription className="text-foreground">
             <strong>Atenção:</strong> Para impedir que o Meta faça ajustes automáticos no anúncio, é necessário enviar mídias compatíveis para todos os posicionamentos.
           </AlertDescription>
         </Alert>
