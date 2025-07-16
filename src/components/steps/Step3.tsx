@@ -10,6 +10,7 @@ import { Separator } from '@/components/ui/separator';
 import { VALID_CTAS } from '@/types/creative';
 import { Plus, X, Instagram } from 'lucide-react';
 import TextCounterWithRecommendation from '../TextCounterWithRecommendation';
+import GoogleAdsContentSection from '@/components/sections/GoogleAdsContentSection';
 import metaAdsObjectives from '@/config/meta-ads-objectives.json';
 
 interface Step3Props {
@@ -19,7 +20,18 @@ interface Step3Props {
 }
 
 const Step3: React.FC<Step3Props> = ({ formData, updateFormData, errors }) => {
-  // Check if this is an existing post creative type
+  // Google Ads campaigns use a different content configuration approach
+  if (formData.platform === 'google' && formData.googleCampaignType) {
+    return (
+      <GoogleAdsContentSection 
+        formData={formData}
+        updateFormData={updateFormData}
+        errors={errors}
+      />
+    );
+  }
+
+  // Check if this is an existing post creative type (Meta Ads)
   const isExistingPost = formData.creativeType === 'existing-post';
 
   // Initialize arrays if they don't exist (but empty for existing posts)

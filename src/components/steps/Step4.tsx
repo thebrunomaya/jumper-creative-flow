@@ -6,6 +6,7 @@ import { useNotionClients } from '@/hooks/useNotionData';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { previewCreativeNameDetailed } from '@/utils/creativeName';
+import GoogleAdsReviewSection from '@/components/sections/GoogleAdsReviewSection';
 
 interface Step4Props {
   formData: FormData;
@@ -13,10 +14,20 @@ interface Step4Props {
 }
 
 const Step4: React.FC<Step4Props> = ({ formData, isSubmitting }) => {
+  // Google Ads campaigns use a different review approach
+  if (formData.platform === 'google' && formData.googleCampaignType) {
+    return (
+      <GoogleAdsReviewSection 
+        formData={formData}
+        isSubmitting={isSubmitting}
+      />
+    );
+  }
+
   const { clients } = useNotionClients();
   const { currentUser } = useAuth();
 
-  // Check if this is an existing post
+  // Check if this is an existing post (Meta Ads)
   const isExistingPost = formData.creativeType === 'existing-post';
 
   // Get client name
