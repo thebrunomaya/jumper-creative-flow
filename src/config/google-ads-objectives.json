@@ -1,23 +1,23 @@
 {
   "objectiveToTypes": {
-    "Website Traffic": {
+    "Tráfego": {
       "availableTypes": [
         {
           "value": "search",
-          "label": "Search Campaigns",
-          "description": "Ads when users search for your products",
+          "label": "Campanhas de Pesquisa",
+          "description": "Anúncios quando usuários pesquisam seus produtos",
           "recommended": true
         },
         {
           "value": "display",
-          "label": "Display Campaigns",
-          "description": "Visual banners on Google partner sites",
+          "label": "Campanhas de Display",
+          "description": "Banners visuais em sites parceiros do Google",
           "recommended": false
         },
         {
           "value": "performance-max",
           "label": "Performance Max",
-          "description": "Google AI optimizes across all networks",
+          "description": "IA do Google otimiza em todas as redes",
           "recommended": false
         }
       ]
@@ -26,80 +26,124 @@
       "availableTypes": [
         {
           "value": "search",
-          "label": "Search Campaigns",
-          "description": "Capture leads when users search your services",
+          "label": "Campanhas de Pesquisa",
+          "description": "Capture leads quando usuários pesquisam seus serviços",
           "recommended": true
         },
         {
           "value": "performance-max",
           "label": "Performance Max",
-          "description": "AI optimizes for conversions across all Google networks",
+          "description": "IA otimiza conversões em todas as redes do Google",
           "recommended": false
         },
         {
           "value": "demand-gen",
           "label": "Demand Gen",
-          "description": "Generate demand on YouTube, Discover and Gmail",
+          "description": "Gera demanda no YouTube, Discover e Gmail",
           "recommended": false
         }
       ]
     },
-    "Sales": {
+    "Vendas": {
       "availableTypes": [
         {
           "value": "shopping",
-          "label": "Shopping Campaigns",
-          "description": "Show products with prices in Google search",
+          "label": "Campanhas de Shopping",
+          "description": "Mostra produtos com preços na pesquisa Google",
           "recommended": true
         },
         {
           "value": "search",
-          "label": "Search Campaigns",
-          "description": "Direct sales from high-intent searches",
+          "label": "Campanhas de Pesquisa",
+          "description": "Vendas diretas de pesquisas com alta intenção",
           "recommended": false
         },
         {
           "value": "performance-max",
           "label": "Performance Max",
-          "description": "AI optimizes sales across all Google properties",
+          "description": "IA otimiza vendas em todas as propriedades Google",
           "recommended": false
         }
       ]
     },
-    "Brand Awareness": {
+    "Conversões": {
+      "availableTypes": [
+        {
+          "value": "search",
+          "label": "Campanhas de Pesquisa",
+          "description": "Otimizado para conversões diretas",
+          "recommended": true
+        },
+        {
+          "value": "performance-max",
+          "label": "Performance Max",
+          "description": "IA otimiza conversões em todas as redes",
+          "recommended": false
+        },
+        {
+          "value": "shopping",
+          "label": "Campanhas de Shopping",
+          "description": "Conversões de produtos com preços visíveis",
+          "recommended": false
+        }
+      ]
+    },
+    "Reconhecimento": {
       "availableTypes": [
         {
           "value": "display",
-          "label": "Display Campaigns",
-          "description": "Visual banners for large-scale awareness",
+          "label": "Campanhas de Display",
+          "description": "Banners visuais para reconhecimento em larga escala",
           "recommended": true
         },
         {
           "value": "video",
-          "label": "Video Campaigns",
-          "description": "YouTube videos for maximum visual reach",
+          "label": "Campanhas de Vídeo",
+          "description": "Vídeos no YouTube para máximo alcance visual",
           "recommended": false
         },
         {
           "value": "demand-gen",
           "label": "Demand Gen",
-          "description": "Visual content on YouTube, Discover and Gmail",
+          "description": "Conteúdo visual no YouTube, Discover e Gmail",
           "recommended": false
         }
       ]
     },
-    "App Promotion": {
+    "Engajamento": {
+      "availableTypes": [
+        {
+          "value": "video",
+          "label": "Campanhas de Vídeo",
+          "description": "Vídeos no YouTube para engajamento",
+          "recommended": true
+        },
+        {
+          "value": "display",
+          "label": "Campanhas de Display",
+          "description": "Banners interativos para engajamento",
+          "recommended": false
+        },
+        {
+          "value": "demand-gen",
+          "label": "Demand Gen",
+          "description": "Conteúdo envolvente no YouTube, Discover e Gmail",
+          "recommended": false
+        }
+      ]
+    },
+    "Aplicativo": {
       "availableTypes": [
         {
           "value": "app",
-          "label": "App Campaigns",
-          "description": "Promote downloads and app engagement",
+          "label": "Campanhas de App",
+          "description": "Promove downloads e engajamento do app",
           "recommended": true
         },
         {
           "value": "search",
-          "label": "Search Campaigns",
-          "description": "Search ads with app extensions",
+          "label": "Campanhas de Pesquisa",
+          "description": "Anúncios de pesquisa com extensões de app",
           "recommended": false
         }
       ]
