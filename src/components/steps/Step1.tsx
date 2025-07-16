@@ -34,7 +34,54 @@ const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
     if (formData.platform !== 'google' || !formData.campaignObjective) {
       return [];
     }
-    return config.objectiveToTypes[formData.campaignObjective]?.availableTypes || [];
+    
+    // Direct lookup first
+    let availableTypes = config.objectiveToTypes[formData.campaignObjective]?.availableTypes;
+    
+    // If not found, try objective mapping for common objectives
+    if (!availableTypes) {
+      const objectiveMapping = {
+        'Vendas': 'Vendas',
+        'Tráfego': 'Tráfego', 
+        'Leads': 'Leads',
+        'Conversões': 'Conversões',
+        'Reconhecimento': 'Reconhecimento',
+        'Engajamento': 'Engajamento',
+        'Aplicativo': 'Aplicativo',
+        'Divulgação': 'Reconhecimento', // Map to closest match
+        'Interações': 'Engajamento', // Map to closest match
+        'Seguidores': 'Reconhecimento', // Map to closest match
+        'Conversas': 'Leads', // Map to closest match
+        'Direções': 'Tráfego', // Map to closest match
+        'Cadastros': 'Leads' // Map to closest match
+      };
+      
+      const mappedObjective = objectiveMapping[formData.campaignObjective];
+      if (mappedObjective) {
+        availableTypes = config.objectiveToTypes[mappedObjective]?.availableTypes;
+      }
+    }
+    
+    // Fallback to a default set if still not found
+    if (!availableTypes) {
+      console.warn(`No Google Ads campaign types found for objective: ${formData.campaignObjective}`);
+      availableTypes = [
+        {
+          value: "search",
+          label: "Campanhas de Pesquisa",
+          description: "Anúncios quando usuários pesquisam",
+          recommended: true
+        },
+        {
+          value: "performance-max",
+          label: "Performance Max",
+          description: "IA do Google otimiza em todas as redes",
+          recommended: false
+        }
+      ];
+    }
+    
+    return availableTypes || [];
   };
 
   // Check if all prerequisites for creative name are filled
