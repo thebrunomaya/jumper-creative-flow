@@ -267,16 +267,17 @@ const GoogleAdsAssetSection: React.FC<GoogleAdsAssetSectionProps> = ({
                 onChange={(value) => updateFormData({ path1: value })}
                 placeholder="Ex: promocoes"
                 maxLength={15}
-                helpText="Aparece na URL do anúncio"
               />
+              <p className="text-xs text-muted-foreground">Aparece na URL do anúncio</p>
+              
               <JumperInput
                 label="Path 2 (opcional)"
                 value={formData.path2 || ''}
                 onChange={(value) => updateFormData({ path2: value })}
                 placeholder="Ex: desconto"
                 maxLength={15}
-                helpText="Aparece na URL do anúncio"
               />
+              <p className="text-xs text-muted-foreground">Aparece na URL do anúncio</p>
             </div>
           </CardContent>
         </Card>
@@ -293,8 +294,8 @@ const GoogleAdsAssetSection: React.FC<GoogleAdsAssetSectionProps> = ({
                 onChange={(value) => updateFormData({ businessName: value })}
                 placeholder="Nome da sua empresa"
                 error={businessNameValidation.error}
-                helpText="Nome que aparecerá nos anúncios"
               />
+              <p className="text-xs text-muted-foreground">Nome que aparecerá nos anúncios</p>
               
               {/* Logos upload section would go here */}
               <div className="space-y-2">
