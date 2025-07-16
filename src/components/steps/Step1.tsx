@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { FormData } from '@/types/creative';
+import { FormData, GoogleAdsConfig } from '@/types/creative';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { JumperCard, JumperCardContent } from '@/components/ui/jumper-card';
 import { JumperInput } from '@/components/ui/jumper-input';
@@ -11,6 +11,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { validateCreativeName, previewCreativeNameDetailed } from '@/utils/creativeName';
 import facebookLogo from '@/assets/facebook-logo.svg';
 import googleGLogo from '@/assets/google-g-logo.svg';
+import googleAdsConfig from '@/config/google-ads-objectives.json';
 
 interface Step1Props {
   formData: FormData;
@@ -25,12 +26,23 @@ const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
   const selectedClient = clients.find(client => client.id === formData.client);
   const availableObjectives = selectedClient?.objectives || [];
 
+  // Load Google Ads configuration
+  const config = googleAdsConfig as GoogleAdsConfig;
+
+  // Get available Google Ads campaign types for selected objective
+  const getAvailableGoogleCampaignTypes = () => {
+    if (formData.platform !== 'google' || !formData.campaignObjective) {
+      return [];
+    }
+    return config.objectiveToTypes[formData.campaignObjective]?.availableTypes || [];
+  };
+
   // Check if all prerequisites for creative name are filled
   const canShowCreativeName = !!(
     formData.client && 
     formData.platform && 
     formData.campaignObjective && 
-    (formData.platform === 'google' || formData.creativeType) // For Google, creativeType is not required
+    (formData.platform === 'meta' ? formData.creativeType : formData.googleCampaignType)
   );
 
   // Handle creative name change with automatic space removal
@@ -44,18 +56,22 @@ const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
     if (
       formData.creativeName && 
       formData.campaignObjective && 
-      formData.creativeType && 
-      selectedClient
+      selectedClient &&
+      (formData.platform === 'meta' ? formData.creativeType : formData.googleCampaignType)
     ) {
+      const typeForPreview = formData.platform === 'meta' 
+        ? formData.creativeType 
+        : formData.googleCampaignType;
+      
       return previewCreativeNameDetailed(
         formData.creativeName,
         formData.campaignObjective,
-        formData.creativeType,
+        typeForPreview!,
         selectedClient.name
       );
     }
     return null;
-  }, [formData.creativeName, formData.campaignObjective, formData.creativeType, selectedClient]);
+  }, [formData.creativeName, formData.campaignObjective, formData.creativeType, formData.googleCampaignType, selectedClient, formData.platform]);
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -99,7 +115,7 @@ const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
                 ? 'border-2 border-accent-subtle bg-accent-subtle/5' 
                 : 'hover:shadow-md'
             }`}
-            onClick={() => updateFormData({ platform: 'meta', campaignObjective: undefined, creativeType: undefined, objective: undefined, creativeName: '' })}
+            onClick={() => updateFormData({ platform: 'meta', campaignObjective: undefined, creativeType: undefined, googleCampaignType: undefined, objective: undefined, creativeName: '' })}
           >
             <JumperCardContent className="p-6 text-center">
               <div className="w-12 h-12 mx-auto mb-3 flex items-center justify-center">
@@ -111,20 +127,19 @@ const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
           </JumperCard>
           
           <JumperCard 
-            className="cursor-not-allowed transition-all duration-200 opacity-50 relative"
+            className={`cursor-pointer transition-all duration-200 hover:shadow-lg ${
+              formData.platform === 'google' 
+                ? 'border-2 border-accent-subtle bg-accent-subtle/5' 
+                : 'hover:shadow-md'
+            }`}
+            onClick={() => updateFormData({ platform: 'google', campaignObjective: undefined, creativeType: undefined, googleCampaignType: undefined, objective: undefined, creativeName: '' })}
           >
             <JumperCardContent className="p-6 text-center">
               <div className="w-12 h-12 mx-auto mb-3 flex items-center justify-center">
                 <img src={googleGLogo} alt="Google" className="w-8 h-8" />
               </div>
-              <h3 className="font-semibold text-muted-foreground">Google Ads</h3>
+              <h3 className="font-semibold text-foreground">Google Ads</h3>
               <p className="text-sm text-muted-foreground mt-1">Search & Display</p>
-              <Badge
-                variant="secondary" 
-                className="absolute -top-2 -right-2 bg-gray-100 text-gray-600 text-xs px-2 py-1 shadow-sm border border-gray-200"
-              >
-                Em Breve
-              </Badge>
             </JumperCardContent>
           </JumperCard>
         </div>
@@ -139,7 +154,7 @@ const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
             <Label className="text-sm font-medium text-foreground">Objetivo de Campanha *</Label>
             <Select 
               value={formData.campaignObjective || ''} 
-              onValueChange={(value) => updateFormData({ campaignObjective: value, creativeType: undefined, creativeName: '' })}
+              onValueChange={(value) => updateFormData({ campaignObjective: value, creativeType: undefined, googleCampaignType: undefined, creativeName: '' })}
               disabled={!formData.client}
             >
               <SelectTrigger className={`h-12 ${errors.campaignObjective ? 'border-red-500 bg-red-50' : ''}`}>
@@ -191,6 +206,43 @@ const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
                 </SelectContent>
               </Select>
               {errors.creativeType && <p className="text-sm text-red-500">{errors.creativeType}</p>}
+            </div>
+          )}
+
+          {/* Google Ads Campaign Type - only for Google Ads and only after campaign objective is selected */}
+          {formData.platform === 'google' && formData.campaignObjective && (
+            <div className="space-y-4 md:col-span-2">
+              <Label className="text-sm font-medium text-foreground">Tipo de Campanha *</Label>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {getAvailableGoogleCampaignTypes().map((campaignType) => (
+                  <JumperCard
+                    key={campaignType.value}
+                    className={`cursor-pointer transition-all duration-200 hover:shadow-lg ${
+                      formData.googleCampaignType === campaignType.value
+                        ? 'border-2 border-accent-subtle bg-accent-subtle/5'
+                        : 'hover:shadow-md'
+                    }`}
+                    onClick={() => updateFormData({ googleCampaignType: campaignType.value as any, creativeName: '' })}
+                  >
+                    <JumperCardContent className="p-4">
+                      <div className="flex items-start justify-between mb-2">
+                        <h4 className="font-semibold text-sm text-foreground">
+                          {campaignType.label}
+                        </h4>
+                        {campaignType.recommended && (
+                          <Badge variant="default" className="ml-2 text-xs bg-accent-subtle text-accent-foreground">
+                            Recomendado
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="text-xs text-muted-foreground leading-relaxed">
+                        {campaignType.description}
+                      </p>
+                    </JumperCardContent>
+                  </JumperCard>
+                ))}
+              </div>
+              {errors.googleCampaignType && <p className="text-sm text-red-500">{errors.googleCampaignType}</p>}
             </div>
           )}
         </div>

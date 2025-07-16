@@ -1,0 +1,222 @@
+{
+  "objectiveToTypes": {
+    "Website Traffic": {
+      "availableTypes": [
+        {
+          "value": "search",
+          "label": "Search Campaigns",
+          "description": "Ads when users search for your products",
+          "recommended": true
+        },
+        {
+          "value": "display",
+          "label": "Display Campaigns",
+          "description": "Visual banners on Google partner sites",
+          "recommended": false
+        },
+        {
+          "value": "performance-max",
+          "label": "Performance Max",
+          "description": "Google AI optimizes across all networks",
+          "recommended": false
+        }
+      ]
+    },
+    "Leads": {
+      "availableTypes": [
+        {
+          "value": "search",
+          "label": "Search Campaigns",
+          "description": "Capture leads when users search your services",
+          "recommended": true
+        },
+        {
+          "value": "performance-max",
+          "label": "Performance Max",
+          "description": "AI optimizes for conversions across all Google networks",
+          "recommended": false
+        },
+        {
+          "value": "demand-gen",
+          "label": "Demand Gen",
+          "description": "Generate demand on YouTube, Discover and Gmail",
+          "recommended": false
+        }
+      ]
+    },
+    "Sales": {
+      "availableTypes": [
+        {
+          "value": "shopping",
+          "label": "Shopping Campaigns",
+          "description": "Show products with prices in Google search",
+          "recommended": true
+        },
+        {
+          "value": "search",
+          "label": "Search Campaigns",
+          "description": "Direct sales from high-intent searches",
+          "recommended": false
+        },
+        {
+          "value": "performance-max",
+          "label": "Performance Max",
+          "description": "AI optimizes sales across all Google properties",
+          "recommended": false
+        }
+      ]
+    },
+    "Brand Awareness": {
+      "availableTypes": [
+        {
+          "value": "display",
+          "label": "Display Campaigns",
+          "description": "Visual banners for large-scale awareness",
+          "recommended": true
+        },
+        {
+          "value": "video",
+          "label": "Video Campaigns",
+          "description": "YouTube videos for maximum visual reach",
+          "recommended": false
+        },
+        {
+          "value": "demand-gen",
+          "label": "Demand Gen",
+          "description": "Visual content on YouTube, Discover and Gmail",
+          "recommended": false
+        }
+      ]
+    },
+    "App Promotion": {
+      "availableTypes": [
+        {
+          "value": "app",
+          "label": "App Campaigns",
+          "description": "Promote downloads and app engagement",
+          "recommended": true
+        },
+        {
+          "value": "search",
+          "label": "Search Campaigns",
+          "description": "Search ads with app extensions",
+          "recommended": false
+        }
+      ]
+    }
+  },
+  "typeConfigurations": {
+    "search": {
+      "destinations": [
+        {
+          "value": "website",
+          "label": "Website",
+          "ctas": ["Click here", "Learn more", "Visit now", "Get info"],
+          "fieldType": "url"
+        },
+        {
+          "value": "phone",
+          "label": "Phone",
+          "ctas": ["Call now", "Contact us", "Call today"],
+          "fieldType": "phone"
+        }
+      ],
+      "assetRequirements": {
+        "headlines": { "min": 3, "max": 15, "charLimit": 30, "recommended": 10 },
+        "descriptions": { "min": 2, "max": 4, "charLimit": 90, "recommended": 4 },
+        "images": { "required": false, "formats": ["JPG", "PNG"], "maxSize": 5242880 },
+        "path1": { "required": false, "charLimit": 15 },
+        "path2": { "required": false, "charLimit": 15 }
+      }
+    },
+    "display": {
+      "destinations": [
+        {
+          "value": "website",
+          "label": "Website",
+          "ctas": ["Learn more", "Visit now", "Click here"],
+          "fieldType": "url"
+        }
+      ],
+      "assetRequirements": {
+        "headlines": { "min": 1, "max": 5, "charLimit": 30 },
+        "descriptions": { "min": 1, "max": 5, "charLimit": 90 },
+        "images": { "required": true, "formats": ["JPG", "PNG"], "maxSize": 5242880 }
+      }
+    },
+    "performance-max": {
+      "destinations": [
+        {
+          "value": "website",
+          "label": "Website",
+          "ctas": ["Learn more", "Buy now", "Sign up"],
+          "fieldType": "url"
+        }
+      ],
+      "assetRequirements": {
+        "headlines": { "min": 3, "max": 15, "charLimit": 30 },
+        "descriptions": { "min": 1, "max": 5, "charLimit": 90 },
+        "images": { "required": true, "formats": ["JPG", "PNG"], "maxSize": 5242880 },
+        "logos": { "required": true, "formats": ["JPG", "PNG"], "maxSize": 5242880 },
+        "businessName": { "required": true }
+      }
+    },
+    "shopping": {
+      "destinations": [
+        {
+          "value": "product",
+          "label": "Product page",
+          "ctas": ["Buy", "View product", "Add to cart"],
+          "fieldType": "url"
+        }
+      ],
+      "assetRequirements": {
+        "productFeed": { "required": true },
+        "images": { "required": true, "minSize": "800x800", "formats": ["JPG", "PNG"] }
+      }
+    },
+    "video": {
+      "destinations": [
+        {
+          "value": "website",
+          "label": "Website",
+          "ctas": ["Learn more", "Visit channel", "Subscribe"],
+          "fieldType": "url"
+        }
+      ],
+      "assetRequirements": {
+        "videos": { "required": true, "formats": ["MP4", "MOV"], "maxSize": 268435456000 }
+      }
+    },
+    "demand-gen": {
+      "destinations": [
+        {
+          "value": "website",
+          "label": "Website",
+          "ctas": ["Learn more", "Discover more", "Explore"],
+          "fieldType": "url"
+        }
+      ],
+      "assetRequirements": {
+        "headlines": { "min": 1, "max": 5, "charLimit": 30 },
+        "descriptions": { "min": 1, "max": 5, "charLimit": 90 },
+        "images": { "required": true, "formats": ["JPG", "PNG"], "maxSize": 5242880 }
+      }
+    },
+    "app": {
+      "destinations": [
+        {
+          "value": "app_store",
+          "label": "App Store/Google Play",
+          "ctas": ["Install", "Download now", "Get app"],
+          "fieldType": "url"
+        }
+      ],
+      "assetRequirements": {
+        "headlines": { "min": 2, "max": 5, "charLimit": 30 },
+        "descriptions": { "min": 1, "max": 5, "charLimit": 90 },
+        "images": { "required": false, "formats": ["JPG", "PNG"], "maxSize": 5242880 }
+      }
+    }
+  }
+}
