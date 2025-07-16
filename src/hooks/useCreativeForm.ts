@@ -3,7 +3,6 @@ import { useState } from 'react';
 import { FormData, TEXT_LIMITS } from '@/types/creative';
 import { useToast } from '@/hooks/use-toast';
 import { validateCreativeName } from '@/utils/creativeName';
-import { validateGoogleAdsForm } from '@/utils/googleAdsValidation';
 import metaAdsObjectives from '@/config/meta-ads-objectives.json';
 
 const INITIAL_FORM_DATA: FormData = {
@@ -13,7 +12,6 @@ const INITIAL_FORM_DATA: FormData = {
   campaignObjective: undefined,
   creativeName: '',
   creativeType: undefined,
-  googleCampaignType: undefined,
   objective: undefined,
   files: [],
   validatedFiles: [],
@@ -23,18 +21,6 @@ const INITIAL_FORM_DATA: FormData = {
     verticalEnabled: true, 
     horizontalEnabled: true 
   }],
-  // Google Ads specific fields
-  headlines: [],
-  descriptions: [],
-  path1: '',
-  path2: '',
-  businessName: '',
-  logos: [],
-  videos: [],
-  productFeed: undefined,
-  merchantId: '',
-  appStoreUrl: '',
-  // Meta Ads fields
   mainTexts: [''],
   titles: [''],
   description: '',
@@ -75,23 +61,6 @@ export const useCreativeForm = () => {
     if (newData.mainTexts) {
       Object.keys(newErrors).forEach(key => {
         if (key.startsWith('mainText-')) {
-          delete newErrors[key];
-        }
-      });
-    }
-
-    // Clear Google Ads field errors
-    if (newData.headlines) {
-      Object.keys(newErrors).forEach(key => {
-        if (key.startsWith('headline-')) {
-          delete newErrors[key];
-        }
-      });
-    }
-
-    if (newData.descriptions) {
-      Object.keys(newErrors).forEach(key => {
-        if (key.startsWith('description-')) {
           delete newErrors[key];
         }
       });
@@ -167,71 +136,6 @@ export const useCreativeForm = () => {
   const validateStep = (step: number): boolean => {
     const newErrors: Record<string, string> = {};
 
-    // Special validation for Google Ads
-    if (formData.platform === 'google') {
-      const googleValidation = validateGoogleAdsForm(formData);
-      
-      switch (step) {
-        case 1:
-          if (!formData.client) newErrors.client = 'Cliente é obrigatório';
-          if (!formData.platform) newErrors.platform = 'Plataforma é obrigatória';
-          if (!formData.campaignObjective) newErrors.campaignObjective = 'Objetivo é obrigatório';
-          if (!formData.googleCampaignType) {
-            newErrors.googleCampaignType = 'Tipo de campanha é obrigatório';
-          }
-          
-          const nameValidation = validateCreativeName(formData.creativeName || '');
-          if (!nameValidation.valid) {
-            newErrors.creativeName = nameValidation.errors[0];
-          }
-          break;
-
-        case 2:
-          // Google Ads validation for step 2 (assets)
-          googleValidation.errors.forEach(error => {
-            if (error.includes('headline')) newErrors.headlines = error;
-            if (error.includes('description')) newErrors.descriptions = error;
-            if (error.includes('empresa')) newErrors.businessName = error;
-            if (error.includes('Logo')) newErrors.logos = error;
-            if (error.includes('Imagem')) newErrors.images = error;
-            if (error.includes('Vídeo')) newErrors.videos = error;
-            if (error.includes('Feed')) newErrors.productFeed = error;
-          });
-          break;
-
-        case 3:
-          // Google Ads validation for step 3 (destination & config)
-          if (!formData.destination) {
-            newErrors.destination = 'Selecione um destino';
-          }
-          
-          if (formData.destination && !formData.cta) {
-            newErrors.cta = 'Selecione um call-to-action';
-          }
-
-          if (!formData.destinationUrl?.trim()) {
-            newErrors.destinationUrl = 'Digite o destino';
-          } else {
-            // Validate URL format based on destination type
-            try {
-              new URL(formData.destinationUrl);
-            } catch {
-              newErrors.destinationUrl = 'URL inválida';
-            }
-          }
-
-          // Campaign-specific validations
-          if (formData.googleCampaignType === 'performance-max' && !formData.businessName?.trim()) {
-            newErrors.businessName = 'Nome da empresa é obrigatório para Performance Max';
-          }
-          break;
-      }
-      
-      setErrors(newErrors);
-      return Object.keys(newErrors).length === 0;
-    }
-
-    // Meta Ads validation (existing logic)
     switch (step) {
       case 1:
         if (!formData.client) newErrors.client = 'Cliente é obrigatório';

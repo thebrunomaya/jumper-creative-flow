@@ -15,20 +15,6 @@ const formatMainTextVariations = (textArray: string[]): string => {
     .join('\n\n');
 };
 
-// Função para headlines do Google Ads
-const formatHeadlineVariations = (textArray: string[]): string => {
-  return textArray
-    .map((text, index) => `🔹 #${String(index + 1).padStart(2, '0')}:\n${text}`)
-    .join('\n\n');
-};
-
-// Função para descriptions do Google Ads
-const formatDescriptionVariations = (textArray: string[]): string => {
-  return textArray
-    .map((text, index) => `🔸 #${String(index + 1).padStart(2, '0')}:\n${text}`)
-    .join('\n\n');
-};
-
 export const buildNotionPayload = (
   creativeData: CreativeSubmissionData,
   variationFiles: Array<{ name: string; url: string; format?: string }>,
@@ -68,35 +54,6 @@ export const buildNotionPayload = (
   // Build observations text with variation indicator
   let observationsText = creativeData.observations || '';
   
-  // Add Google Ads specific information to observations
-  if (creativeData.platform === 'google') {
-    const googleDetails = [];
-    
-    if (creativeData.businessName) {
-      googleDetails.push(`🏢 Nome da Empresa: ${creativeData.businessName}`);
-    }
-    
-    if (creativeData.path1 || creativeData.path2) {
-      const paths = [];
-      if (creativeData.path1) paths.push(creativeData.path1);
-      if (creativeData.path2) paths.push(creativeData.path2);
-      googleDetails.push(`🛤️ Paths: ${paths.join(', ')}`);
-    }
-    
-    if (creativeData.merchantId) {
-      googleDetails.push(`🛍️ Merchant ID: ${creativeData.merchantId}`);
-    }
-    
-    if (creativeData.appStoreUrl) {
-      googleDetails.push(`📱 App Store URL: ${creativeData.appStoreUrl}`);
-    }
-    
-    if (googleDetails.length > 0) {
-      const googleSection = `\n\n=== Configurações Google Ads ===\n${googleDetails.join('\n')}`;
-      observationsText = observationsText + googleSection;
-    }
-  }
-  
   // Add variation indicator if there are multiple variations
   if (totalVariations > 1) {
     const variationSuffix = ` (Variação ${variationIndex})`;
@@ -104,23 +61,9 @@ export const buildNotionPayload = (
   }
 
   // Check which fields exceed Notion property limits and prepare page content
-  let mainTextContent = '';
-  let titleContent = '';
-  let descriptionContent = creativeData.description || '';
-  
-  // Handle different platforms
-  if (creativeData.platform === 'google') {
-    // Google Ads uses headlines and descriptions
-    const headlineContent = formatHeadlineVariations(creativeData.headlines || []);
-    const googleDescContent = formatDescriptionVariations(creativeData.descriptions || []);
-    
-    mainTextContent = googleDescContent; // Map Google descriptions to main text
-    titleContent = headlineContent; // Map Google headlines to title
-  } else {
-    // Meta Ads uses mainTexts and titles
-    mainTextContent = formatMainTextVariations(creativeData.mainTexts);
-    titleContent = formatTitleVariations(creativeData.titles);
-  }
+  const mainTextContent = formatMainTextVariations(creativeData.mainTexts);
+  const titleContent = formatTitleVariations(creativeData.titles);
+  const descriptionContent = creativeData.description || '';
   
   let pageBlocks = [];
   let mainTextForProperty = mainTextContent;
@@ -238,17 +181,9 @@ export const buildNotionPayload = (
       "Formato do Anúncio": {
         multi_select: [
           {
-            name: creativeData.platform === 'google' 
-              ? (creativeData.googleCampaignType === 'search' ? 'Search' :
-                 creativeData.googleCampaignType === 'display' ? 'Display' :
-                 creativeData.googleCampaignType === 'performance-max' ? 'Performance Max' :
-                 creativeData.googleCampaignType === 'shopping' ? 'Shopping' :
-                 creativeData.googleCampaignType === 'video' ? 'Video' :
-                 creativeData.googleCampaignType === 'demand-gen' ? 'Demand Gen' :
-                 creativeData.googleCampaignType === 'app' ? 'App' : 'Google Ads')
-              : (creativeData.creativeType === 'single' ? 'Imagem' : 
+            name: creativeData.creativeType === 'single' ? 'Imagem' : 
                  creativeData.creativeType === 'carousel' ? 'Carrossel' : 
-                 creativeData.creativeType === 'existing-post' ? 'Publicação Existente' : 'Imagem')
+                 creativeData.creativeType === 'existing-post' ? 'Publicação Existente' : 'Imagem'
           }
         ]
       },
