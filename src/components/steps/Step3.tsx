@@ -167,11 +167,11 @@ const Step3: React.FC<Step3Props> = ({ formData, updateFormData, errors }) => {
         {!isExistingPost && (
           <>
             {/* Títulos Section */}
-            <div className="bg-gray-50 p-6 rounded-lg border space-y-4">
+            <div className="bg-card p-6 rounded-lg border space-y-4">
               <div className="flex items-center justify-between">
                 <div>
                   <Label className="text-lg font-semibold text-foreground">📝 Títulos *</Label>
-                  <p className="text-sm text-gray-500 mt-1">
+                  <p className="text-sm text-muted-foreground mt-1">
                     Você pode adicionar até {META_TEXT_VARIATIONS.maxTitles} títulos.
                   </p>
                 </div>
@@ -206,7 +206,7 @@ const Step3: React.FC<Step3Props> = ({ formData, updateFormData, errors }) => {
                             variant="ghost"
                             size="sm"
                             onClick={() => removeTitle(index)}
-                            className="text-red-500 hover:text-red-700 p-1"
+                            className="text-destructive hover:text-destructive p-1"
                           >
                             <X className="w-4 h-4" />
                           </Button>
@@ -222,7 +222,7 @@ const Step3: React.FC<Step3Props> = ({ formData, updateFormData, errors }) => {
                       />
                       
                       {errors[`title-${index}`] && (
-                        <p className="text-sm text-red-600 mt-1">{errors[`title-${index}`]}</p>
+                        <p className="text-sm text-destructive mt-1">{errors[`title-${index}`]}</p>
                       )}
                     </div>
                   </div>
@@ -237,11 +237,11 @@ const Step3: React.FC<Step3Props> = ({ formData, updateFormData, errors }) => {
             </div>
 
             {/* Textos Principais Section */}
-            <div className="bg-gray-50 p-6 rounded-lg border space-y-4">
+            <div className="bg-card p-6 rounded-lg border space-y-4">
               <div className="flex items-center justify-between">
                 <div>
                   <Label className="text-lg font-semibold text-foreground">💬 Textos Principais *</Label>
-                  <p className="text-sm text-gray-500 mt-1">
+                  <p className="text-sm text-muted-foreground mt-1">
                     Você pode adicionar até {META_TEXT_VARIATIONS.maxMainTexts} textos principais.
                   </p>
                 </div>
@@ -276,7 +276,7 @@ const Step3: React.FC<Step3Props> = ({ formData, updateFormData, errors }) => {
                             variant="ghost"
                             size="sm"
                             onClick={() => removeMainText(index)}
-                            className="text-red-500 hover:text-red-700 p-1"
+                            className="text-destructive hover:text-destructive p-1"
                           >
                             <X className="w-4 h-4" />
                           </Button>
@@ -292,7 +292,7 @@ const Step3: React.FC<Step3Props> = ({ formData, updateFormData, errors }) => {
                       />
                       
                       {errors[`mainText-${index}`] && (
-                        <p className="text-sm text-red-600 mt-1">{errors[`mainText-${index}`]}</p>
+                        <p className="text-sm text-destructive mt-1">{errors[`mainText-${index}`]}</p>
                       )}
                     </div>
                   </div>
@@ -320,7 +320,7 @@ const Step3: React.FC<Step3Props> = ({ formData, updateFormData, errors }) => {
                 className={`min-h-[80px] ${errors.description ? 'border-destructive bg-destructive/10' : ''}`}
               />
               {errors.description && (
-                <p className="text-sm text-red-600">{errors.description}</p>
+                <p className="text-sm text-destructive">{errors.description}</p>
               )}
               
               <TextCounterWithRecommendation
@@ -341,17 +341,17 @@ const Step3: React.FC<Step3Props> = ({ formData, updateFormData, errors }) => {
                 <h3 className="font-semibold text-foreground mb-2">📱 Publicação Selecionada</h3>
                 {formData.existingPost && formData.existingPost.valid ? (
                   <div className="space-y-2">
-                    <p className="text-sm text-gray-700">
+                    <p className="text-sm text-foreground">
                       <strong>Tipo:</strong> {formData.existingPost.contentType === 'post' ? 'Post' : 
                                              formData.existingPost.contentType === 'reel' ? 'Reel' : 'IGTV'}
                     </p>
                     {formData.existingPost.username && (
-                      <p className="text-sm text-gray-700">
+                      <p className="text-sm text-foreground">
                         <strong>Perfil:</strong> @{formData.existingPost.username}
                       </p>
                     )}
                     {formData.existingPost.postId && (
-                      <p className="text-sm text-gray-500">
+                      <p className="text-sm text-muted-foreground">
                         <strong>ID:</strong> {formData.existingPost.postId}
                       </p>
                     )}
@@ -361,7 +361,7 @@ const Step3: React.FC<Step3Props> = ({ formData, updateFormData, errors }) => {
                         variant="outline"
                         size="sm"
                         onClick={() => window.open(formData.existingPost.instagramUrl, '_blank')}
-                        className="text-pink-600 border-pink-300 hover:bg-pink-50"
+                        className="text-accent border-accent hover:bg-accent/10"
                       >
                         <Instagram className="h-4 w-4 mr-1" />
                         Ver Post
@@ -403,7 +403,7 @@ const Step3: React.FC<Step3Props> = ({ formData, updateFormData, errors }) => {
                   </SelectContent>
                 </Select>
                 {errors.destination && (
-                  <p className="text-sm text-red-600">{errors.destination}</p>
+                  <p className="text-sm text-destructive">{errors.destination}</p>
                 )}
               </div>
 
@@ -424,7 +424,7 @@ const Step3: React.FC<Step3Props> = ({ formData, updateFormData, errors }) => {
                     </SelectContent>
                   </Select>
                   {errors.cta && (
-                    <p className="text-sm text-red-600">{errors.cta}</p>
+                    <p className="text-sm text-destructive">{errors.cta}</p>
                   )}
                 </div>
               )}
@@ -450,7 +450,7 @@ const Step3: React.FC<Step3Props> = ({ formData, updateFormData, errors }) => {
                     className={errors.destinationUrl ? 'border-destructive bg-destructive/10' : ''}
                   />
                   {errors.destinationUrl && (
-                    <p className="text-sm text-red-600">{errors.destinationUrl}</p>
+                    <p className="text-sm text-destructive">{errors.destinationUrl}</p>
                   )}
                 </div>
               )}
@@ -473,7 +473,7 @@ const Step3: React.FC<Step3Props> = ({ formData, updateFormData, errors }) => {
                 className={errors.destinationUrl ? 'border-destructive bg-destructive/10' : ''}
               />
               {errors.destinationUrl && (
-                <p className="text-sm text-red-600">{errors.destinationUrl}</p>
+                <p className="text-sm text-destructive">{errors.destinationUrl}</p>
               )}
             </div>
           )}
@@ -495,7 +495,7 @@ const Step3: React.FC<Step3Props> = ({ formData, updateFormData, errors }) => {
                 </SelectContent>
               </Select>
               {errors.callToAction && (
-                <p className="text-sm text-red-600">{errors.callToAction}</p>
+                <p className="text-sm text-destructive">{errors.callToAction}</p>
               )}
             </div>
           )}
