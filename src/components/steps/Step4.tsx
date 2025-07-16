@@ -124,7 +124,7 @@ const Step4: React.FC<Step4Props> = ({ formData, isSubmitting }) => {
     <div className="space-y-6 animate-fade-in">
       <div className="text-center mb-8">
         <h2 className="text-2xl font-bold text-jumper-text mb-2">📋 Revisão Final</h2>
-        <p className="text-gray-600">Confira todas as informações antes de enviar</p>
+        <p className="text-muted-foreground">Confira todas as informações antes de enviar</p>
       </div>
 
       {/* Creative Name Preview */}
@@ -134,7 +134,7 @@ const Step4: React.FC<Step4Props> = ({ formData, isSubmitting }) => {
             <Hash className="h-5 w-5 text-accent-subtle" />
             <h3 className="font-semibold text-accent-subtle">Nome Final do Criativo</h3>
           </div>
-          <div className="bg-white border border-accent-border rounded-md p-3">
+          <div className="bg-card border border-accent-border rounded-md p-3">
             <p className="text-sm font-mono text-accent-subtle break-all">{finalCreativeName}</p>
           </div>
           <p className="text-xs text-accent-subtle mt-2">
@@ -176,10 +176,10 @@ const Step4: React.FC<Step4Props> = ({ formData, isSubmitting }) => {
       {/* Summary Cards */}
       <div className="grid md:grid-cols-2 gap-6">
         {/* Basic Info Card */}
-        <div className="bg-white border rounded-lg p-6 shadow-sm">
+        <div className="bg-card border rounded-lg p-6 shadow-sm">
           <div className="flex items-center space-x-3 mb-4">
             <Users className="h-5 w-5 text-jumper-blue" />
-            <h3 className="font-semibold text-gray-900">Informações Básicas</h3>
+            <h3 className="font-semibold text-foreground">Informações Básicas</h3>
           </div>
           <div className="space-y-2 text-sm">
             <div className="break-words"><span className="font-medium">Cliente:</span> <span className="break-all">{clientName}</span></div>
@@ -199,10 +199,10 @@ const Step4: React.FC<Step4Props> = ({ formData, isSubmitting }) => {
         </div>
 
         {/* Manager Info Card */}
-        <div className="bg-white border rounded-lg p-6 shadow-sm">
+        <div className="bg-card border rounded-lg p-6 shadow-sm">
           <div className="flex items-center space-x-3 mb-4">
             <User className="h-5 w-5 text-jumper-blue" />
-            <h3 className="font-semibold text-gray-900">Gerente Responsável</h3>
+            <h3 className="font-semibold text-foreground">Gerente Responsável</h3>
           </div>
           <div className="space-y-2 text-sm">
             <div className="break-words"><span className="font-medium">Nome:</span> <span className="break-all">{currentUser?.name || 'Não identificado'}</span></div>
@@ -213,7 +213,7 @@ const Step4: React.FC<Step4Props> = ({ formData, isSubmitting }) => {
         </div>
 
         {/* Files/Content Card */}
-        <div className="bg-white border rounded-lg p-6 shadow-sm">
+        <div className="bg-card border rounded-lg p-6 shadow-sm">
           <div className="flex items-center space-x-3 mb-4">
             {formData.creativeType === 'carousel' ? (
               <Image className="h-5 w-5 text-jumper-blue" />
@@ -222,7 +222,7 @@ const Step4: React.FC<Step4Props> = ({ formData, isSubmitting }) => {
             ) : (
               <FileText className="h-5 w-5 text-jumper-blue" />
             )}
-            <h3 className="font-semibold text-gray-900">
+            <h3 className="font-semibold text-foreground">
               {formData.creativeType === 'carousel' ? 'Cartões do Carrossel' : 
                formData.creativeType === 'existing-post' ? 'Publicação do Instagram' : 'Arquivos'}
             </h3>
@@ -293,10 +293,10 @@ const Step4: React.FC<Step4Props> = ({ formData, isSubmitting }) => {
 
         {/* Content Card - Hide for existing-post */}
         {!isExistingPost && (
-          <div className="bg-white border rounded-lg p-6 shadow-sm">
+          <div className="bg-card border rounded-lg p-6 shadow-sm">
             <div className="flex items-center space-x-3 mb-4">
               <FileText className="h-5 w-5 text-jumper-blue" />
-              <h3 className="font-semibold text-gray-900">Conteúdo</h3>
+              <h3 className="font-semibold text-foreground">Conteúdo</h3>
             </div>
             <div className="space-y-2 text-sm">
               <div><span className="font-medium">Títulos:</span> {formData.titles?.length || 0}</div>
@@ -314,10 +314,10 @@ const Step4: React.FC<Step4Props> = ({ formData, isSubmitting }) => {
         )}
 
         {/* CTA & Destination Card */}
-        <div className={`bg-white border rounded-lg p-6 shadow-sm ${isExistingPost ? 'col-span-full md:col-span-1' : 'col-span-full'}`}>
+        <div className={`bg-card border rounded-lg p-6 shadow-sm ${isExistingPost ? 'col-span-full md:col-span-1' : 'col-span-full'}`}>
           <div className="flex items-center space-x-3 mb-4">
             <CheckCircle className="h-5 w-5 text-jumper-blue" />
-            <h3 className="font-semibold text-gray-900">Call-to-Action & Destino</h3>
+            <h3 className="font-semibold text-foreground">Call-to-Action & Destino</h3>
           </div>
           <div className="grid md:grid-cols-2 gap-4 text-sm">
             <div className="break-words">
@@ -344,9 +344,9 @@ const Step4: React.FC<Step4Props> = ({ formData, isSubmitting }) => {
 
       {/* Observations */}
       {formData.observations && (
-        <div className="bg-white border rounded-lg p-6 shadow-sm">
-          <h3 className="font-semibold text-gray-900 mb-3">Observações</h3>
-          <p className="text-sm text-gray-600 break-words whitespace-pre-wrap">{formData.observations}</p>
+        <div className="bg-card border rounded-lg p-6 shadow-sm">
+          <h3 className="font-semibold text-foreground mb-3">Observações</h3>
+          <p className="text-sm text-muted-foreground break-words whitespace-pre-wrap">{formData.observations}</p>
         </div>
       )}
 

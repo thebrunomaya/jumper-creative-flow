@@ -98,7 +98,7 @@ const ThumbnailPreview: React.FC<ThumbnailPreviewProps> = ({
 
         {/* Instagram indicator */}
         <div className="absolute top-1 left-1">
-          <div className="bg-white bg-opacity-90 text-pink-600 text-xs px-1.5 py-0.5 rounded flex items-center gap-1">
+          <div className="bg-card bg-opacity-90 text-pink-600 text-xs px-1.5 py-0.5 rounded flex items-center gap-1">
             <Instagram className="h-3 w-3" />
             <span>Post</span>
           </div>
@@ -130,7 +130,7 @@ const ThumbnailPreview: React.FC<ThumbnailPreviewProps> = ({
             </div>
           ) : error ? (
             <div className="w-full h-full bg-gradient-to-br from-red-100 to-red-200 flex items-center justify-center rounded">
-              <div className="bg-white/90 px-2 py-1 rounded text-xs font-bold text-red-700">
+              <div className="bg-card/90 px-2 py-1 rounded text-xs font-bold text-red-700">
                 Erro
               </div>
             </div>
@@ -146,7 +146,7 @@ const ThumbnailPreview: React.FC<ThumbnailPreviewProps> = ({
             />
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/40 flex items-center justify-center rounded">
-              <div className="bg-white/90 px-2 py-1 rounded text-sm font-bold text-gray-700">
+              <div className="bg-card/90 px-2 py-1 rounded text-sm font-bold text-muted-foreground">
                 {carouselMode 
                   ? (carouselAspectRatio === '1:1' ? '1:1' : '4:5')
                   : (format === 'square' ? '1:1' : format === 'vertical' ? '9:16' : '1.91:1')
@@ -189,7 +189,7 @@ const ThumbnailPreview: React.FC<ThumbnailPreviewProps> = ({
           
           {isVideo && file.preview && (
             <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30">
-              <div className="bg-white bg-opacity-90 rounded-full p-2">
+              <div className="bg-card bg-opacity-90 rounded-full p-2">
                 <Play className="h-4 w-4 text-gray-800 fill-current" />
               </div>
             </div>

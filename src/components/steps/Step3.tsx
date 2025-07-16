@@ -151,10 +151,10 @@ const Step3: React.FC<Step3Props> = ({ formData, updateFormData, errors }) => {
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">
+        <h2 className="text-2xl font-bold text-foreground mb-2">
           {isExistingPost ? 'Configurações do Anúncio' : 'Conteúdo do Anúncio'}
         </h2>
-        <p className="text-gray-600">
+        <p className="text-muted-foreground">
           {isExistingPost 
             ? 'Configure o destino e as opções do seu anúncio de publicação existente.' 
             : 'Preencha os textos que aparecerão no seu anúncio.'
@@ -170,7 +170,7 @@ const Step3: React.FC<Step3Props> = ({ formData, updateFormData, errors }) => {
             <div className="bg-gray-50 p-6 rounded-lg border space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <Label className="text-lg font-semibold text-gray-900">📝 Títulos *</Label>
+                  <Label className="text-lg font-semibold text-foreground">📝 Títulos *</Label>
                   <p className="text-sm text-gray-500 mt-1">
                     Você pode adicionar até {META_TEXT_VARIATIONS.maxTitles} títulos.
                   </p>
@@ -218,7 +218,7 @@ const Step3: React.FC<Step3Props> = ({ formData, updateFormData, errors }) => {
                         value={title}
                         onChange={(e) => updateTitle(index, e.target.value)}
                         placeholder={`Digite o título ${index + 1} do anúncio`}
-                        className={errors[`title-${index}`] ? 'border-red-500 bg-red-50' : ''}
+                        className={errors[`title-${index}`] ? 'border-destructive bg-destructive/10' : ''}
                       />
                       
                       {errors[`title-${index}`] && (
@@ -240,7 +240,7 @@ const Step3: React.FC<Step3Props> = ({ formData, updateFormData, errors }) => {
             <div className="bg-gray-50 p-6 rounded-lg border space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <Label className="text-lg font-semibold text-gray-900">💬 Textos Principais *</Label>
+                  <Label className="text-lg font-semibold text-foreground">💬 Textos Principais *</Label>
                   <p className="text-sm text-gray-500 mt-1">
                     Você pode adicionar até {META_TEXT_VARIATIONS.maxMainTexts} textos principais.
                   </p>
@@ -288,7 +288,7 @@ const Step3: React.FC<Step3Props> = ({ formData, updateFormData, errors }) => {
                         value={mainText}
                         onChange={(e) => updateMainText(index, e.target.value)}
                         placeholder={`Digite o texto principal ${index + 1} do anúncio`}
-                        className={`min-h-[100px] ${errors[`mainText-${index}`] ? 'border-red-500 bg-red-50' : ''}`}
+                        className={`min-h-[100px] ${errors[`mainText-${index}`] ? 'border-destructive bg-destructive/10' : ''}`}
                       />
                       
                       {errors[`mainText-${index}`] && (
@@ -317,7 +317,7 @@ const Step3: React.FC<Step3Props> = ({ formData, updateFormData, errors }) => {
                 value={formData.description}
                 onChange={(e) => updateFormData({ description: e.target.value })}
                 placeholder="Digite uma descrição adicional (opcional)"
-                className={`min-h-[80px] ${errors.description ? 'border-red-500 bg-red-50' : ''}`}
+                className={`min-h-[80px] ${errors.description ? 'border-destructive bg-destructive/10' : ''}`}
               />
               {errors.description && (
                 <p className="text-sm text-red-600">{errors.description}</p>
@@ -338,7 +338,7 @@ const Step3: React.FC<Step3Props> = ({ formData, updateFormData, errors }) => {
             <div className="flex items-start space-x-3">
               <Instagram className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
               <div className="flex-1">
-                <h3 className="font-semibold text-gray-900 mb-2">📱 Publicação Selecionada</h3>
+                <h3 className="font-semibold text-foreground mb-2">📱 Publicação Selecionada</h3>
                 {formData.existingPost && formData.existingPost.valid ? (
                   <div className="space-y-2">
                     <p className="text-sm text-gray-700">
@@ -369,7 +369,7 @@ const Step3: React.FC<Step3Props> = ({ formData, updateFormData, errors }) => {
                     </div>
                   </div>
                 ) : (
-                  <p className="text-sm text-gray-600">Nenhuma publicação válida selecionada.</p>
+                  <p className="text-sm text-muted-foreground">Nenhuma publicação válida selecionada.</p>
                 )}
               </div>
             </div>
@@ -379,7 +379,7 @@ const Step3: React.FC<Step3Props> = ({ formData, updateFormData, errors }) => {
         {/* Outros Campos Section */}
         <div className="space-y-6">
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+            <h3 className="text-lg font-semibold text-foreground mb-4">
               {isExistingPost ? '🎯 Configurações do Anúncio' : 'ℹ️ Informações Adicionais'}
             </h3>
           </div>
@@ -391,7 +391,7 @@ const Step3: React.FC<Step3Props> = ({ formData, updateFormData, errors }) => {
               <div className="space-y-2">
                 <Label htmlFor="destination">Destino *</Label>
                 <Select value={formData.destination || ''} onValueChange={handleDestinationChange}>
-                  <SelectTrigger className={errors.destination ? 'border-red-500 bg-red-50' : ''}>
+                  <SelectTrigger className={errors.destination ? 'border-destructive bg-destructive/10' : ''}>
                     <SelectValue placeholder="Selecione o destino do anúncio" />
                   </SelectTrigger>
                   <SelectContent>
@@ -412,7 +412,7 @@ const Step3: React.FC<Step3Props> = ({ formData, updateFormData, errors }) => {
                 <div className="space-y-2">
                   <Label htmlFor="cta">Call-to-Action *</Label>
                   <Select value={formData.cta || ''} onValueChange={(value) => updateFormData({ cta: value })}>
-                    <SelectTrigger className={errors.cta ? 'border-red-500 bg-red-50' : ''}>
+                    <SelectTrigger className={errors.cta ? 'border-destructive bg-destructive/10' : ''}>
                       <SelectValue placeholder="Selecione um call-to-action" />
                     </SelectTrigger>
                     <SelectContent>
@@ -447,7 +447,7 @@ const Step3: React.FC<Step3Props> = ({ formData, updateFormData, errors }) => {
                       destinationFieldConfig.fieldType === 'phone' ? '(11) 99999-9999' :
                       'Digite aqui...'
                     }
-                    className={errors.destinationUrl ? 'border-red-500 bg-red-50' : ''}
+                    className={errors.destinationUrl ? 'border-destructive bg-destructive/10' : ''}
                   />
                   {errors.destinationUrl && (
                     <p className="text-sm text-red-600">{errors.destinationUrl}</p>
@@ -470,7 +470,7 @@ const Step3: React.FC<Step3Props> = ({ formData, updateFormData, errors }) => {
                   updateFormData({ destinationUrl: e.target.value });
                 }}
                 placeholder="https://exemplo.com"
-                className={errors.destinationUrl ? 'border-red-500 bg-red-50' : ''}
+                className={errors.destinationUrl ? 'border-destructive bg-destructive/10' : ''}
               />
               {errors.destinationUrl && (
                 <p className="text-sm text-red-600">{errors.destinationUrl}</p>
@@ -483,7 +483,7 @@ const Step3: React.FC<Step3Props> = ({ formData, updateFormData, errors }) => {
             <div className="space-y-2">
               <Label htmlFor="callToAction">Call-to-Action *</Label>
               <Select value={formData.callToAction} onValueChange={(value) => updateFormData({ callToAction: value })}>
-                <SelectTrigger className={errors.callToAction ? 'border-red-500 bg-red-50' : ''}>
+                <SelectTrigger className={errors.callToAction ? 'border-destructive bg-destructive/10' : ''}>
                   <SelectValue placeholder="Selecione um call-to-action" />
                 </SelectTrigger>
                 <SelectContent>
@@ -508,7 +508,7 @@ const Step3: React.FC<Step3Props> = ({ formData, updateFormData, errors }) => {
               value={formData.observations}
               onChange={(e) => updateFormData({ observations: e.target.value })}
               placeholder="Adicione observações ou instruções especiais para a equipe da Jumper"
-              className={`min-h-[80px] ${errors.observations ? 'border-red-500 bg-red-50' : ''}`}
+              className={`min-h-[80px] ${errors.observations ? 'border-destructive bg-destructive/10' : ''}`}
             />
           </div>
         </div>

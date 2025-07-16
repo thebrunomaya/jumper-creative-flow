@@ -73,7 +73,7 @@ const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
           <Skeleton className="h-12 w-full" />
         ) : (
           <Select value={formData.client} onValueChange={(value) => updateFormData({ client: value, campaignObjective: undefined, creativeType: undefined, objective: undefined, creativeName: '' })}>
-            <SelectTrigger className={`h-12 ${errors.client ? 'border-red-500 bg-red-50' : ''}`}>
+            <SelectTrigger className={`h-12 ${errors.client ? 'border-destructive bg-destructive/10' : ''}`}>
               <SelectValue placeholder="Selecione a conta" />
             </SelectTrigger>
             <SelectContent>
@@ -121,7 +121,7 @@ const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
               <p className="text-sm text-muted-foreground mt-1">Search & Display</p>
               <Badge
                 variant="secondary" 
-                className="absolute -top-2 -right-2 bg-gray-100 text-gray-600 text-xs px-2 py-1 shadow-sm border border-gray-200"
+                className="absolute -top-2 -right-2 bg-muted text-muted-foreground text-xs px-2 py-1 shadow-sm border border-border"
               >
                 Em Breve
               </Badge>
@@ -142,7 +142,7 @@ const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
               onValueChange={(value) => updateFormData({ campaignObjective: value, creativeType: undefined, creativeName: '' })}
               disabled={!formData.client}
             >
-              <SelectTrigger className={`h-12 ${errors.campaignObjective ? 'border-red-500 bg-red-50' : ''}`}>
+              <SelectTrigger className={`h-12 ${errors.campaignObjective ? 'border-destructive bg-destructive/10' : ''}`}>
                 <SelectValue placeholder={!formData.client ? "Selecione uma conta primeiro" : "Selecione o objetivo"} />
               </SelectTrigger>
               <SelectContent>
@@ -170,7 +170,7 @@ const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
                 onValueChange={(value) => updateFormData({ creativeType: value as any, creativeName: '' })}
                 disabled={!formData.campaignObjective}
               >
-                <SelectTrigger className={`h-12 ${errors.creativeType ? 'border-red-500 bg-red-50' : ''}`}>
+                <SelectTrigger className={`h-12 ${errors.creativeType ? 'border-destructive bg-destructive/10' : ''}`}>
                   <SelectValue placeholder={!formData.campaignObjective ? "Selecione o objetivo primeiro" : "Selecione o tipo"} />
                 </SelectTrigger>
                 <SelectContent>
@@ -220,7 +220,7 @@ const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
           {detailedPreviewName && (
             <div className="bg-success/10 border border-success/30 rounded-lg p-4">
               <p className="text-sm font-medium text-green-800 mb-2">🎯 Preview do Nome Final:</p>
-              <p className="text-sm font-mono text-green-700 break-all bg-white px-3 py-2 rounded border border-green-200">
+              <p className="text-sm font-mono text-green-700 break-all bg-card px-3 py-2 rounded border border-green-200">
                 {detailedPreviewName}
               </p>
               <p className="text-xs text-green-600 mt-2">

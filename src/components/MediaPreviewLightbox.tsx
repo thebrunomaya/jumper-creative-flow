@@ -56,7 +56,7 @@ const MediaPreviewLightbox: React.FC<MediaPreviewLightboxProps> = ({
       case 'high': return 'text-green-600 bg-green-100';
       case 'medium': return 'text-yellow-600 bg-yellow-100';
       case 'low': return 'text-red-600 bg-red-100';
-      default: return 'text-gray-600 bg-gray-100';
+      default: return 'text-muted-foreground bg-muted';
     }
   };
 
@@ -152,12 +152,12 @@ const MediaPreviewLightbox: React.FC<MediaPreviewLightboxProps> = ({
                 {/* Basic Info */}
                 <div className="mt-4 space-y-2">
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Tamanho:</span>
+                    <span className="text-muted-foreground">Tamanho:</span>
                     <span className="font-medium">{sizeInMB} MB</span>
                   </div>
                   {file.dimensions && (
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Resolução:</span>
+                      <span className="text-muted-foreground">Resolução:</span>
                       <span className="font-medium">
                         {file.dimensions.width}x{file.dimensions.height}px
                       </span>
@@ -165,19 +165,19 @@ const MediaPreviewLightbox: React.FC<MediaPreviewLightboxProps> = ({
                   )}
                   {file.duration && (
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Duração:</span>
+                      <span className="text-muted-foreground">Duração:</span>
                       <span className="font-medium">{file.duration}s</span>
                     </div>
                   )}
                   {analysis && (
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Proporção:</span>
+                      <span className="text-muted-foreground">Proporção:</span>
                       <span className="font-medium">{analysis.aspectRatio}</span>
                     </div>
                   )}
                   {carouselMode && (
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Formato:</span>
+                      <span className="text-muted-foreground">Formato:</span>
                       <span className="font-medium">Carrossel {carouselAspectRatio}</span>
                     </div>
                   )}
@@ -192,7 +192,7 @@ const MediaPreviewLightbox: React.FC<MediaPreviewLightboxProps> = ({
               <div className="flex items-center justify-center h-64">
                 <div className="text-center space-y-2">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
-                  <p className="text-sm text-gray-600">Analisando mídia...</p>
+                  <p className="text-sm text-muted-foreground">Analisando mídia...</p>
                 </div>
               </div>
             ) : analysis ? (
@@ -285,19 +285,19 @@ const MediaPreviewLightbox: React.FC<MediaPreviewLightboxProps> = ({
                     <CardContent className="space-y-4">
                       <div className="space-y-3">
                         <div className="flex items-center justify-between">
-                          <span className="text-sm text-gray-600">Nitidez:</span>
+                          <span className="text-sm text-muted-foreground">Nitidez:</span>
                           <Badge className={getQualityColor(analysis.quality.sharpness)}>
                             {getQualityLabel(analysis.quality.sharpness)}
                           </Badge>
                         </div>
                         <div className="flex items-center justify-between">
-                          <span className="text-sm text-gray-600">Brilho:</span>
+                          <span className="text-sm text-muted-foreground">Brilho:</span>
                           <Badge className={getQualityColor(analysis.quality.brightness)}>
                             {getQualityLabel(analysis.quality.brightness)}
                           </Badge>
                         </div>
                         <div className="flex items-center justify-between">
-                          <span className="text-sm text-gray-600">Contraste:</span>
+                          <span className="text-sm text-muted-foreground">Contraste:</span>
                           <Badge className={getQualityColor(analysis.quality.contrast)}>
                             {getQualityLabel(analysis.quality.contrast)}
                           </Badge>
@@ -330,7 +330,7 @@ const MediaPreviewLightbox: React.FC<MediaPreviewLightboxProps> = ({
                         
                         return (
                           <div key={key} className="flex items-center justify-between">
-                            <span className="text-sm text-gray-600">{labels[key]}:</span>
+                            <span className="text-sm text-muted-foreground">{labels[key]}:</span>
                             <span className="text-sm font-medium">
                               {typeof value === 'boolean' ? (value ? 'Sim' : 'Não') : value}
                             </span>
@@ -362,7 +362,7 @@ const MediaPreviewLightbox: React.FC<MediaPreviewLightboxProps> = ({
                       ) : (
                         <div className="text-center py-4">
                           <CheckCircle className="h-8 w-8 text-green-500 mx-auto mb-2" />
-                          <p className="text-sm text-gray-600">
+                          <p className="text-sm text-muted-foreground">
                             Arquivo otimizado! Nenhuma sugestão adicional.
                           </p>
                         </div>

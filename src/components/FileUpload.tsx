@@ -69,7 +69,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ files, onFilesChange, platform 
             <p className="text-lg font-medium text-jumper-text">
               {isDragActive ? 'Solte os arquivos aqui' : 'Arraste arquivos ou clique para selecionar'}
             </p>
-            <p className="text-sm text-gray-600 mt-2">
+            <p className="text-sm text-muted-foreground mt-2">
               JPG, PNG, MP4, MOV • Máx: 30MB (img) / 4GB (vídeo)
             </p>
           </div>
@@ -128,7 +128,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ files, onFilesChange, platform 
                         )}
                       </div>
                       
-                      <div className="text-xs text-gray-600 space-y-1">
+                      <div className="text-xs text-muted-foreground space-y-1">
                         <div>
                           {formatFileSize(validatedFile.file.size)}
                           {validatedFile.dimensions && (

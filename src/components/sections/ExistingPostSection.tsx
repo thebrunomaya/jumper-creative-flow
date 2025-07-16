@@ -32,7 +32,7 @@ const ExistingPostSection: React.FC<ExistingPostSectionProps> = ({
     <div className="space-y-6 animate-fade-in">
       <div className="text-center mb-8">
         <h2 className="text-2xl font-bold text-jumper-text mb-2">📱 Publicação Existente</h2>
-        <p className="text-gray-600">Impulsione uma publicação já existente no seu Instagram</p>
+        <p className="text-muted-foreground">Impulsione uma publicação já existente no seu Instagram</p>
       </div>
 
       {/* Info Alert */}
@@ -98,8 +98,8 @@ const ExistingPostSection: React.FC<ExistingPostSectionProps> = ({
 
       {/* Instructions */}
       <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-        <h3 className="font-semibold text-gray-900 mb-2">📋 Instruções</h3>
-        <ul className="text-sm text-gray-600 space-y-1">
+        <h3 className="font-semibold text-foreground mb-2">📋 Instruções</h3>
+        <ul className="text-sm text-muted-foreground space-y-1">
           <li>• Abra o Instagram e encontre a publicação que deseja impulsionar</li>
           <li>• Toque nos três pontos (...) da publicação</li>
           <li>• Selecione "Copiar link"</li>

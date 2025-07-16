@@ -39,7 +39,7 @@ const TextCounterWithRecommendation: React.FC<TextCounterWithRecommendationProps
     <div className={`space-y-2 ${className}`}>
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2 text-sm">
-          <span className={count > maximum ? 'text-red-600 font-semibold' : 'text-gray-600'}>
+          <span className={count > maximum ? 'text-red-600 font-semibold' : 'text-muted-foreground'}>
             {count}
           </span>
           <span className="text-gray-400">/{maximum}</span>

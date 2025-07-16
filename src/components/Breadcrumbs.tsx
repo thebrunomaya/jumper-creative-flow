@@ -74,7 +74,7 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ formData, clients }) => {
                   {item.label}
                 </BreadcrumbPage>
               ) : (
-                <span className="text-gray-600">
+                <span className="text-muted-foreground">
                   {item.label}
                 </span>
               )}

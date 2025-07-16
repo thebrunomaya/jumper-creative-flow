@@ -133,7 +133,7 @@ const LoginPage: React.FC = () => {
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={isLoading}
                   autoComplete="email"
-                  className="h-12 bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:border-[#FA4721] transition-colors"
+                  className="h-12 bg-card/10 border-border/20 text-white placeholder:text-white/60 focus:border-[#FA4721] transition-colors"
                   autoFocus
                 />
               </div>
@@ -150,7 +150,7 @@ const LoginPage: React.FC = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={isLoading}
                   autoComplete="current-password"
-                  className="h-12 bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:border-[#FA4721] transition-colors"
+                  className="h-12 bg-card/10 border-border/20 text-white placeholder:text-white/60 focus:border-[#FA4721] transition-colors"
                 />
               </div>
 

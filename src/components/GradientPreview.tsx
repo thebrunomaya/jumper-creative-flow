@@ -35,13 +35,13 @@ export const GradientPreview = ({
     >
       {isLoading ? (
         <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/40 flex items-center justify-center">
-          <div className="bg-white/90 px-2 py-1 rounded text-sm font-bold text-gray-700">
+          <div className="bg-card/90 px-2 py-1 rounded text-sm font-bold text-muted-foreground">
             {displayText}
           </div>
         </div>
       ) : error ? (
         <div className="w-full h-full bg-gradient-to-br from-red-100 to-red-200 flex items-center justify-center">
-          <div className="bg-white/90 px-2 py-1 rounded text-sm font-bold text-red-700">
+          <div className="bg-card/90 px-2 py-1 rounded text-sm font-bold text-red-700">
             Erro
           </div>
         </div>
@@ -54,7 +54,7 @@ export const GradientPreview = ({
         />
       ) : (
         <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/40 flex items-center justify-center">
-          <div className="bg-white/90 px-2 py-1 rounded text-sm font-bold text-gray-700">
+          <div className="bg-card/90 px-2 py-1 rounded text-sm font-bold text-muted-foreground">
             {displayText}
           </div>
         </div>

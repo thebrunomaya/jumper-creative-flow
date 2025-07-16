@@ -83,7 +83,7 @@ const ImageUploadSection: React.FC<ImageUploadSectionProps> = ({
             <p className="text-sm font-medium text-jumper-text">
               {isDragActive ? 'Solte os arquivos aqui' : 'Clique ou arraste imagens e vídeos'}
             </p>
-            <p className="text-xs text-gray-600 mt-1">
+            <p className="text-xs text-muted-foreground mt-1">
               JPG, PNG, MP4, MOV • {dimensions} • Máx: 30MB (imagens) / 4GB (vídeos)
             </p>
             {placeholder && (
@@ -121,7 +121,7 @@ const ImageUploadSection: React.FC<ImageUploadSectionProps> = ({
                         )}
                       </div>
                       
-                      <div className="text-xs text-gray-600">
+                      <div className="text-xs text-muted-foreground">
                         {formatFileSize(validatedFile.file.size)}
                         {validatedFile.dimensions && (
                           <span> • {validatedFile.dimensions.width}x{validatedFile.dimensions.height}px</span>
