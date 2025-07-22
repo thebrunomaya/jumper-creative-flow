@@ -92,6 +92,51 @@ export type Database = {
         }
         Relationships: []
       }
+      error_logs: {
+        Row: {
+          component_name: string | null
+          created_at: string | null
+          error_type: string
+          id: string
+          message: string
+          metadata: Json | null
+          resolved: boolean | null
+          severity: string | null
+          stack_trace: string | null
+          url: string | null
+          user_agent: string | null
+          user_email: string | null
+        }
+        Insert: {
+          component_name?: string | null
+          created_at?: string | null
+          error_type: string
+          id?: string
+          message: string
+          metadata?: Json | null
+          resolved?: boolean | null
+          severity?: string | null
+          stack_trace?: string | null
+          url?: string | null
+          user_agent?: string | null
+          user_email?: string | null
+        }
+        Update: {
+          component_name?: string | null
+          created_at?: string | null
+          error_type?: string
+          id?: string
+          message?: string
+          metadata?: Json | null
+          resolved?: boolean | null
+          severity?: string | null
+          stack_trace?: string | null
+          url?: string | null
+          user_agent?: string | null
+          user_email?: string | null
+        }
+        Relationships: []
+      }
       n8n_fila_mensagens: {
         Row: {
           id: number
@@ -178,7 +223,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      cleanup_old_error_logs: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

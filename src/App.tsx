@@ -11,6 +11,8 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import DesignSystem from "./pages/DesignSystem";
 import NotFound from "./pages/NotFound";
+import LogsPage from "./components/logs/LogsPage";
+import ErrorBoundary from "./components/ErrorBoundary";
 import { preloadCommonThumbnails } from "@/utils/thumbnailCache";
 
 const queryClient = new QueryClient();
@@ -26,20 +28,26 @@ const App = () => {
       <TooltipProvider>
         <ThemeProvider>
           <AuthProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              <Routes>
-                <Route path="/" element={
-                  <ProtectedRoute>
-                    <Index />
-                  </ProtectedRoute>
-                } />
-                <Route path="/design-system" element={<DesignSystem />} />
-                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </BrowserRouter>
+            <ErrorBoundary>
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
+                <Routes>
+                  <Route path="/" element={
+                    <ProtectedRoute>
+                      <Index />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/log" element={
+                    <ProtectedRoute>
+                      <LogsPage />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/design-system" element={<DesignSystem />} />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </BrowserRouter>
+            </ErrorBoundary>
           </AuthProvider>
         </ThemeProvider>
       </TooltipProvider>
