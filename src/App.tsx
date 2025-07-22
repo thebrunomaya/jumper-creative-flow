@@ -1,5 +1,5 @@
 
-import { useEffect } from "react";
+import { useEffect, lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -11,9 +11,11 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import DesignSystem from "./pages/DesignSystem";
 import NotFound from "./pages/NotFound";
-import LogsPage from "./components/logs/LogsPage";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { preloadCommonThumbnails } from "@/utils/thumbnailCache";
+
+// Lazy load the LogsPage component
+const LogsPage = lazy(() => import("@/components/logs/LogsPage"));
 
 const queryClient = new QueryClient();
 
@@ -40,7 +42,9 @@ const App = () => {
                   } />
                   <Route path="/log" element={
                     <ProtectedRoute>
-                      <LogsPage />
+                      <Suspense fallback={<div className="flex justify-center items-center h-64">Carregando...</div>}>
+                        <LogsPage />
+                      </Suspense>
                     </ProtectedRoute>
                   } />
                   <Route path="/design-system" element={<DesignSystem />} />
