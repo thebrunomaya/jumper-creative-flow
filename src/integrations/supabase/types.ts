@@ -92,6 +92,158 @@ export type Database = {
         }
         Relationships: []
       }
+      creative_files: {
+        Row: {
+          created_at: string
+          format: string | null
+          id: string
+          instagram_url: string | null
+          name: string | null
+          public_url: string | null
+          size: number | null
+          storage_path: string | null
+          submission_id: string
+          type: string | null
+          variation_index: number
+        }
+        Insert: {
+          created_at?: string
+          format?: string | null
+          id?: string
+          instagram_url?: string | null
+          name?: string | null
+          public_url?: string | null
+          size?: number | null
+          storage_path?: string | null
+          submission_id: string
+          type?: string | null
+          variation_index: number
+        }
+        Update: {
+          created_at?: string
+          format?: string | null
+          id?: string
+          instagram_url?: string | null
+          name?: string | null
+          public_url?: string | null
+          size?: number | null
+          storage_path?: string | null
+          submission_id?: string
+          type?: string | null
+          variation_index?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "creative_files_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: false
+            referencedRelation: "creative_submissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      creative_submissions: {
+        Row: {
+          campaign_objective: string | null
+          client: string | null
+          created_at: string
+          creative_type: string | null
+          error: string | null
+          id: string
+          manager_id: string | null
+          partner: string | null
+          payload: Json
+          platform: string | null
+          processed_at: string | null
+          result: Json | null
+          status: Database["public"]["Enums"]["submission_status"]
+          total_variations: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          campaign_objective?: string | null
+          client?: string | null
+          created_at?: string
+          creative_type?: string | null
+          error?: string | null
+          id?: string
+          manager_id?: string | null
+          partner?: string | null
+          payload: Json
+          platform?: string | null
+          processed_at?: string | null
+          result?: Json | null
+          status?: Database["public"]["Enums"]["submission_status"]
+          total_variations?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          campaign_objective?: string | null
+          client?: string | null
+          created_at?: string
+          creative_type?: string | null
+          error?: string | null
+          id?: string
+          manager_id?: string | null
+          partner?: string | null
+          payload?: Json
+          platform?: string | null
+          processed_at?: string | null
+          result?: Json | null
+          status?: Database["public"]["Enums"]["submission_status"]
+          total_variations?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      error_logs: {
+        Row: {
+          component_name: string | null
+          created_at: string | null
+          error_type: string
+          id: string
+          message: string
+          metadata: Json | null
+          resolved: boolean | null
+          severity: string | null
+          stack_trace: string | null
+          url: string | null
+          user_agent: string | null
+          user_email: string | null
+        }
+        Insert: {
+          component_name?: string | null
+          created_at?: string | null
+          error_type: string
+          id?: string
+          message: string
+          metadata?: Json | null
+          resolved?: boolean | null
+          severity?: string | null
+          stack_trace?: string | null
+          url?: string | null
+          user_agent?: string | null
+          user_email?: string | null
+        }
+        Update: {
+          component_name?: string | null
+          created_at?: string | null
+          error_type?: string
+          id?: string
+          message?: string
+          metadata?: Json | null
+          resolved?: boolean | null
+          severity?: string | null
+          stack_trace?: string | null
+          url?: string | null
+          user_agent?: string | null
+          user_email?: string | null
+        }
+        Relationships: []
+      }
       n8n_fila_mensagens: {
         Row: {
           id: number
@@ -178,10 +330,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      cleanup_old_error_logs: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
     }
     Enums: {
-      [_ in never]: never
+      submission_status:
+        | "pending"
+        | "queued"
+        | "processing"
+        | "processed"
+        | "error"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -308,6 +468,14 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      submission_status: [
+        "pending",
+        "queued",
+        "processing",
+        "processed",
+        "error",
+      ],
+    },
   },
 } as const

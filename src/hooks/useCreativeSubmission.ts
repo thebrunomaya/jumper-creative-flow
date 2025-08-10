@@ -139,32 +139,31 @@ export const useCreativeSubmission = () => {
         filesInfo
       };
 
-      console.log('Submitting creative to Notion:', submissionData);
+      console.log('Ingesting creative submission:', submissionData);
       
-      const { data, error } = await supabase.functions.invoke('submit-creative', {
+      const { data, error } = await supabase.functions.invoke('ingest-creative', {
         body: submissionData
       });
 
       if (error) {
         console.error('Supabase function error:', error);
-        throw new Error(error.message || 'Erro ao enviar criativo');
+        throw new Error(error.message || 'Erro ao salvar criativo');
       }
 
       if (!data?.success) {
-        throw new Error(data?.error || 'Erro desconhecido ao enviar criativo');
+        throw new Error(data?.error || 'Erro desconhecido ao salvar criativo');
       }
 
-      console.log('✅ Creative successfully submitted:', data);
+      console.log('✅ Creative successfully ingested:', data);
 
-      setCreativeIds(data.creativeIds || []);
+      setCreativeIds(data.submissionId ? [data.submissionId] : []);
       setIsSubmitted(true);
 
-      const creativeCount = data.totalCreatives || 1;
-      const creativeIdsList = data.creativeIds?.join(', ') || '';
+      const submissionId = data.submissionId || '';
 
       toast({
-        title: `${creativeCount} Criativo(s) enviado(s)!`,
-        description: `IDs: ${creativeIdsList}. Registros criados no Notion com sucesso!`,
+        title: `Submissão salva com sucesso!`,
+        description: `ID: ${submissionId}. O envio para o Notion será processado posteriormente.`,
       });
 
     } catch (error) {

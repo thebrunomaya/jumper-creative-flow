@@ -1,1 +1,7 @@
 project_id = "biwwowendjuzvpttyrlb"
+
+[functions.ingest-creative]
+verify_jwt = true
+
+[functions.process-submissions]
+verify_jwt = false
