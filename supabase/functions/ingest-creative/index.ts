@@ -60,23 +60,7 @@ Deno.serve(async (req) => {
   const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
 
   try {
-    const authHeader = req.headers.get("Authorization");
-    const token = authHeader?.replace("Bearer ", "");
-    if (!token) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    const { data: userData, error: userErr } = await supabase.auth.getUser(token);
-    if (userErr || !userData?.user) {
-      console.error("Auth error:", userErr);
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
+    const pseudoUserId = crypto.randomUUID();
 
     const body = (await req.json()) as SubmissionBody;
     const filesInfo: FileInfo[] = Array.isArray(body.filesInfo) ? body.filesInfo : [];
@@ -93,7 +77,7 @@ Deno.serve(async (req) => {
     const { data: insertSubmission, error: insertErr } = await supabase
       .from("creative_submissions")
       .insert({
-        user_id: userData.user.id,
+        user_id: pseudoUserId,
         manager_id: body.managerId ?? null,
         client: body.client ?? null,
         partner: body.partner ?? null,
