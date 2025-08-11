@@ -121,6 +121,19 @@ Deno.serve(async (req) => {
 
     const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
 
+    // Helper to fetch a public file URL and return base64 contents
+    async function fetchBase64(url: string): Promise<{ base64: string; contentType?: string }> {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`Falha ao baixar arquivo (${res.status})`);
+      const contentType = res.headers.get("content-type") || undefined;
+      const ab = await res.arrayBuffer();
+      const bytes = new Uint8Array(ab);
+      let binary = "";
+      for (let i = 0; i < bytes.byteLength; i++) binary += String.fromCharCode(bytes[i]);
+      const base64 = btoa(binary);
+      return { base64, contentType };
+    }
+
     if (action === "queue") {
       if (!submissionId) {
         return new Response(JSON.stringify({ error: "submissionId is required" }), {
@@ -149,13 +162,106 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Default: list pending submissions
-    const { data: pending, error: listErr } = await supabase
+    if (action === "publish") {
+      if (!submissionId) {
+        return new Response(JSON.stringify({ error: "submissionId is required" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      // Load submission
+      const { data: submission, error: subErr } = await supabase
+        .from("creative_submissions")
+        .select("id, payload, total_variations, status")
+        .eq("id", submissionId)
+        .maybeSingle();
+
+      if (subErr || !submission) {
+        return new Response(JSON.stringify({ error: subErr?.message || "Submissão não encontrada" }), {
+          status: 404,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      try {
+        // Load files for this submission
+        const { data: files, error: filesErr } = await supabase
+          .from("creative_files")
+          .select("name, type, size, format, variation_index, public_url")
+          .eq("submission_id", submissionId)
+          .order("variation_index", { ascending: true });
+
+        if (filesErr) throw new Error(filesErr.message);
+
+        // Build filesInfo with base64 from stored public_url
+        const filesInfo: Array<{ name: string; type: string; size: number; variationIndex: number; base64Data: string; format?: string }> = [];
+
+        for (const f of files || []) {
+          if (!f.public_url) continue;
+          const { base64, contentType } = await fetchBase64(f.public_url);
+          filesInfo.push({
+            name: f.name || "file",
+            type: f.type || contentType || "application/octet-stream",
+            size: f.size || 0,
+            variationIndex: (f.variation_index as number) || 1,
+            base64Data: base64,
+            format: f.format || undefined,
+          });
+        }
+
+        // Prepare creative data for submit-creative
+        const creativeData = {
+          ...(submission.payload || {}),
+          filesInfo,
+        };
+
+        // Invoke submit-creative to handle Notion creation
+        const { data: submitRes, error: submitErr } = await supabase.functions.invoke("submit-creative", {
+          body: creativeData,
+        });
+
+        if (submitErr || !submitRes?.success) {
+          const message = submitErr?.message || submitRes?.error || "Erro ao publicar";
+          await supabase
+            .from("creative_submissions")
+            .update({ status: "failed", error: message })
+            .eq("id", submissionId);
+
+          return new Response(JSON.stringify({ success: false, error: message }), {
+            status: 500,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+
+        await supabase
+          .from("creative_submissions")
+          .update({ status: "processed", result: submitRes, processed_at: new Date().toISOString() })
+          .eq("id", submissionId);
+
+        return new Response(JSON.stringify({ success: true, result: submitRes }), {
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      } catch (e: any) {
+        const msg = e?.message || "Erro inesperado ao publicar";
+        await supabase
+          .from("creative_submissions")
+          .update({ status: "failed", error: msg })
+          .eq("id", submissionId);
+        return new Response(JSON.stringify({ success: false, error: msg }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    }
+
+    // Default: listAll submissions (latest first)
+    const { data: items, error: listErr } = await supabase
       .from("creative_submissions")
-      .select("id, client, platform, status, created_at")
-      .eq("status", "pending")
-      .order("created_at", { ascending: true })
-      .limit(50);
+      .select("id, client, manager_id, status, error, created_at, updated_at")
+      .order("created_at", { ascending: false })
+      .limit(100);
 
     if (listErr) {
       return new Response(JSON.stringify({ error: listErr.message }), {
@@ -164,7 +270,35 @@ Deno.serve(async (req) => {
       });
     }
 
-    return new Response(JSON.stringify({ success: true, pending }), {
+    // Attempt to enrich client names from Notion (best-effort)
+    const clientIds = Array.from(new Set((items || []).map((r: any) => r.client).filter(Boolean))).slice(0, 30);
+    const clientMap: Record<string, string> = {};
+    for (const clientId of clientIds) {
+      try {
+        const res = await fetch(`https://api.notion.com/v1/pages/${clientId}`, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${NOTION_TOKEN}`,
+            "Content-Type": "application/json",
+            "Notion-Version": "2022-06-28",
+          },
+        });
+        if (res.ok) {
+          const page = await res.json();
+          const title = page.properties?.Conta?.title?.[0]?.plain_text
+            || page.properties?.Name?.title?.[0]?.plain_text
+            || page.properties?.Nome?.title?.[0]?.plain_text
+            || null;
+          if (title) clientMap[clientId as string] = title;
+        }
+      } catch (_) {
+        // ignore enrichment failure
+      }
+    }
+
+    const enriched = (items || []).map((r: any) => ({ ...r, client_name: r.client ? clientMap[r.client] || null : null }));
+
+    return new Response(JSON.stringify({ success: true, items: enriched }), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

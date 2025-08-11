@@ -11,6 +11,7 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import DesignSystem from "./pages/DesignSystem";
 import NotFound from "./pages/NotFound";
+import Admin from "./pages/Admin";
 import { preloadCommonThumbnails } from "@/utils/thumbnailCache";
 
 const queryClient = new QueryClient();
@@ -36,6 +37,11 @@ const App = () => {
                   </ProtectedRoute>
                 } />
                 <Route path="/design-system" element={<DesignSystem />} />
+                <Route path="/admin" element={
+                  <ProtectedRoute>
+                    <Admin />
+                  </ProtectedRoute>
+                } />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>

@@ -4,6 +4,7 @@ import { ThemeToggle } from '@/components/ui/theme-toggle';
 import UserMenu from './UserMenu';
 import xWhiteLogo from '../assets/logos/x-white.png';
 import logoBackground from '../assets/gradients/organic-07.png';
+import { Link } from 'react-router-dom';
 
 const Header: React.FC = () => {
   return (
@@ -41,6 +42,9 @@ const Header: React.FC = () => {
               <span>📧 Confirmação automática</span>
             </div>
             
+            <Link to="/admin" className="hidden md:inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors">
+              Admin
+            </Link>
             <ThemeToggle variant="icon" />
             <UserMenu />
           </div>
