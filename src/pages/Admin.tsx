@@ -113,12 +113,11 @@ const AdminPage: React.FC = () => {
     },
   });
 
-  const backfillMutation = useMutation({
-    mutationFn: async (submissionId: string) => {
+  const backfillAllMutation = useMutation({
+    mutationFn: async () => {
       const { data, error } = await supabase.functions.invoke("admin-actions", {
         body: {
-          action: "backfill_variations",
-          submissionId,
+          action: "backfill_all",
           credentials: { email: currentUser?.email, password: currentUser?.password },
         },
       });
@@ -126,8 +125,8 @@ const AdminPage: React.FC = () => {
       if (!data?.success) throw new Error(data?.error || "Falha no backfill");
       return data;
     },
-    onMutate: (id) => {
-      toast({ title: "Backfill", description: `Verificando e preenchendo variações para ${id}.` });
+    onMutate: () => {
+      toast({ title: "Backfill (bulk)", description: `Verificando e preenchendo variações em lote.` });
     },
     onSuccess: async (data) => {
       toast({ title: "Concluído", description: `${data?.count || 0} variação(ões) atualizadas.` });
@@ -162,6 +161,7 @@ const AdminPage: React.FC = () => {
               </div>
               <div className="flex gap-2">
                 <Button variant="outline" size="sm" onClick={() => refetch()}>Atualizar</Button>
+                <Button size="sm" onClick={() => backfillAllMutation.mutate()} disabled={backfillAllMutation.isPending}>Backfill</Button>
               </div>
             </div>
 
@@ -200,18 +200,15 @@ const AdminPage: React.FC = () => {
                             <div className="flex gap-2 justify-end">
                               <Button variant="outline" size="sm" onClick={() => setErrorDetails(row.error || "Sem detalhes disponíveis")}>Ver erro</Button>
                               <Button size="sm" onClick={() => publishMutation.mutate(row.id)} disabled={publishMutation.isPending}>Publicar novamente</Button>
-                              <Button variant="outline" size="sm" onClick={() => backfillMutation.mutate(row.id)} disabled={backfillMutation.isPending}>Backfill</Button>
                             </div>
                           ) : row.status === "processed" ? (
                             <div className="flex gap-2 justify-end">
                               <Button variant="outline" size="sm" onClick={() => toast({ title: "Publicado", description: "Este criativo já foi publicado." })}>Detalhes</Button>
-                              <Button variant="outline" size="sm" onClick={() => backfillMutation.mutate(row.id)} disabled={backfillMutation.isPending}>Backfill</Button>
                             </div>
                           ) : (
                             <div className="flex gap-2 justify-end">
                               <Button variant="outline" size="sm" onClick={() => queueMutation.mutate(row.id)} disabled={queueMutation.isPending}>Fila</Button>
                               <Button size="sm" onClick={() => publishMutation.mutate(row.id)} disabled={publishMutation.isPending}>Publicar</Button>
-                              <Button variant="outline" size="sm" onClick={() => backfillMutation.mutate(row.id)} disabled={backfillMutation.isPending}>Backfill</Button>
                             </div>
                           )}
                         </TableCell>

@@ -335,15 +335,67 @@ Deno.serve(async (req) => {
       });
     }
 
+    if (action === "backfill_all") {
+      // Load many submissions and upsert all variations found in their result
+      const { data: subs, error: listErr } = await supabase
+        .from("creative_submissions")
+        .select("id, result, payload")
+        .order("created_at", { ascending: false })
+        .limit(1000);
+
+      if (listErr) {
+        return new Response(JSON.stringify({ error: listErr.message }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      let count = 0;
+      const batch: any[] = [];
+      for (const s of subs || []) {
+        const vars = Array.isArray(s.result?.createdCreatives) ? s.result.createdCreatives : [];
+        const ctaValue = s?.payload?.cta || s?.payload?.callToAction || null;
+        for (const v of vars) {
+          batch.push({
+            submission_id: s.id,
+            variation_index: v.variationIndex,
+            notion_page_id: v.notionPageId,
+            creative_id: v.creativeId,
+            full_creative_name: v.fullCreativeName,
+            cta: ctaValue,
+            processed_at: new Date().toISOString(),
+          });
+        }
+      }
+
+      if (batch.length > 0) {
+        const { error: upsertErr } = await supabase
+          .from("creative_variations")
+          .upsert(batch, { onConflict: "submission_id,variation_index" });
+        if (upsertErr) {
+          return new Response(JSON.stringify({ success: false, error: upsertErr.message }), {
+            status: 500,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+        count = batch.length;
+      }
+
+      return new Response(JSON.stringify({ success: true, count }), {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     // Default: listAll submissions (latest first)
-    const { data: items, error: listErr } = await supabase
+    const { data: items, error: listErr2 } = await supabase
       .from("creative_submissions")
       .select("id, client, manager_id, status, error, created_at, updated_at")
       .order("created_at", { ascending: false })
       .limit(100);
 
-    if (listErr) {
-      return new Response(JSON.stringify({ error: listErr.message }), {
+    if (listErr2) {
+      return new Response(JSON.stringify({ error: listErr2.message }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });

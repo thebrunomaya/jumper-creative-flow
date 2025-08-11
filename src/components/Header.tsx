@@ -37,12 +37,6 @@ const Header: React.FC = () => {
           
           <div className="flex items-center space-x-6">
             
-            <Link to="/create" className="hidden md:inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors">
-              Novo Criativo
-            </Link>
-            <Link to="/admin" className="hidden md:inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors">
-              Admin
-            </Link>
             <ThemeToggle variant="icon" />
             <UserMenu />
           </div>
