@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card } from "@/components/ui/card";
@@ -36,10 +37,48 @@ const AdminPage: React.FC = () => {
   const { toast } = useToast();
   const qc = useQueryClient();
   const [errorDetails, setErrorDetails] = useState<string | null>(null);
+  const [startId, setStartId] = useState<number>(44);
+  const [endId, setEndId] = useState<number>(92);
+  const [notionCandidates, setNotionCandidates] = useState<Array<{ notion_page_id: string; creative_id: string | null; title: string | null }>>([]);
+  const [searching, setSearching] = useState<boolean>(false);
 
   useEffect(() => {
     document.title = "Admin • Ad Uploader";
   }, []);
+
+  const searchNotionRange = async () => {
+    if (!currentUser?.email || !currentUser?.password) {
+      toast({ title: "Credenciais ausentes", description: "Faça login como admin.", variant: "destructive" });
+      return;
+    }
+    const s = Math.min(startId, endId);
+    const e = Math.max(startId, endId);
+    const numbers = Array.from({ length: e - s + 1 }, (_, i) => s + i);
+    setSearching(true);
+    try {
+      const settled = await Promise.allSettled(
+        numbers.map(async (n) => {
+          const { data, error } = await supabase.functions.invoke("admin-actions", {
+            body: {
+              action: "reconcile_notion",
+              credentials: { email: currentUser.email, password: currentUser.password },
+              query: `JSC-${n}`,
+              limit: 5,
+            },
+          });
+          if (error) throw error;
+          return (data?.candidates || []) as Array<{ notion_page_id: string; creative_id: string | null; title: string | null }>;
+        })
+      );
+      const candidates = settled.flatMap((r) => (r.status === "fulfilled" ? r.value : []));
+      setNotionCandidates(candidates);
+      toast({ title: "Busca concluída", description: `${candidates.length} candidato(s) encontrados.` });
+    } catch (err: any) {
+      toast({ title: "Falha na busca", description: err?.message || "Tente novamente.", variant: "destructive" });
+    } finally {
+      setSearching(false);
+    }
+  };
 
   const fetchSubmissions = async (): Promise<SubmissionRow[]> => {
     if (!currentUser?.email || !currentUser?.password) {
@@ -152,9 +191,51 @@ const AdminPage: React.FC = () => {
             <Link to="/">
               <Button variant="outline" size="sm">Voltar à Home</Button>
             </Link>
-          </header>
+            </header>
 
-          <Card className="p-0 overflow-hidden">
+            <Card className="p-4 space-y-4">
+              <div className="flex flex-wrap items-end gap-3">
+                <div className="w-32">
+                  <label className="text-sm text-muted-foreground">Início</label>
+                  <Input type="number" value={startId} onChange={(e) => setStartId(Number(e.target.value))} />
+                </div>
+                <div className="w-32">
+                  <label className="text-sm text-muted-foreground">Fim</label>
+                  <Input type="number" value={endId} onChange={(e) => setEndId(Number(e.target.value))} />
+                </div>
+                <Button size="sm" onClick={searchNotionRange} disabled={searching}>
+                  {searching ? "Buscando…" : "Buscar no Notion (dry‑run)"}
+                </Button>
+                {notionCandidates.length > 0 && (
+                  <div className="text-sm text-muted-foreground">{notionCandidates.length} candidato(s)</div>
+                )}
+              </div>
+
+              {notionCandidates.length > 0 && (
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="w-[20%]">Creative ID</TableHead>
+                        <TableHead className="w-[50%]">Título</TableHead>
+                        <TableHead className="w-[30%]">Notion Page ID</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {notionCandidates.map((c, idx) => (
+                        <TableRow key={`${c.notion_page_id}-${idx}`}>
+                          <TableCell className="font-mono text-sm">{c.creative_id || "—"}</TableCell>
+                          <TableCell className="text-sm">{c.title || "(sem título)"}</TableCell>
+                          <TableCell className="font-mono text-xs">{c.notion_page_id}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+            </Card>
+
+            <Card className="p-0 overflow-hidden">
             <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-muted/40">
               <div className="text-sm text-muted-foreground">
                 {isFetching ? "Carregando…" : `${rows.length} criativo(s)`}
