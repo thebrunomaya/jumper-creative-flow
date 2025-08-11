@@ -199,6 +199,53 @@ export type Database = {
         }
         Relationships: []
       }
+      creative_variations: {
+        Row: {
+          created_at: string
+          creative_id: string
+          cta: string | null
+          full_creative_name: string
+          id: string
+          notion_page_id: string
+          processed_at: string | null
+          submission_id: string
+          updated_at: string
+          variation_index: number
+        }
+        Insert: {
+          created_at?: string
+          creative_id: string
+          cta?: string | null
+          full_creative_name: string
+          id?: string
+          notion_page_id: string
+          processed_at?: string | null
+          submission_id: string
+          updated_at?: string
+          variation_index: number
+        }
+        Update: {
+          created_at?: string
+          creative_id?: string
+          cta?: string | null
+          full_creative_name?: string
+          id?: string
+          notion_page_id?: string
+          processed_at?: string | null
+          submission_id?: string
+          updated_at?: string
+          variation_index?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "creative_variations_submission_fk"
+            columns: ["submission_id"]
+            isOneToOne: false
+            referencedRelation: "creative_submissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       error_logs: {
         Row: {
           component_name: string | null
