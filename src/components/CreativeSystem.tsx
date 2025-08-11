@@ -73,7 +73,7 @@ const CreativeSystem: React.FC = () => {
       return;
     }
 
-    if (!currentUser?.email || !currentUser?.password) {
+    if (!currentUser?.id) {
       toast({
         title: 'Sessão expirada',
         description: 'Faça login novamente para salvar o rascunho.',
@@ -86,7 +86,6 @@ const CreativeSystem: React.FC = () => {
       const { data, error } = await supabase.functions.invoke('manager-actions', {
         body: {
           action: 'saveDraft',
-          credentials: { email: currentUser.email, password: currentUser.password },
           draft: {
             client: formData.client,
             partner: formData.partner,

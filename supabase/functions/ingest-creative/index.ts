@@ -60,7 +60,35 @@ Deno.serve(async (req) => {
   const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
 
   try {
-    const pseudoUserId = crypto.randomUUID();
+    // Require authenticated user (JWT)
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      return new Response(JSON.stringify({ error: "Missing Authorization header" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY");
+    if (!SUPABASE_ANON_KEY) {
+      return new Response(JSON.stringify({ error: "Server not configured" }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const userClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      global: { headers: { Authorization: authHeader } },
+    });
+    const { data: { user }, error: userErr } = await userClient.auth.getUser();
+    if (userErr || !user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const userId = user.id;
 
     const body = (await req.json()) as SubmissionBody & { submissionId?: string };
     const submissionIdFromBody = body?.submissionId as string | undefined;
@@ -81,7 +109,7 @@ Deno.serve(async (req) => {
       const { data: updated, error: updErr } = await supabase
         .from("creative_submissions")
         .update({
-          user_id: pseudoUserId,
+          user_id: userId,
           manager_id: body.managerId ?? null,
           client: body.client ?? null,
           partner: body.partner ?? null,
@@ -111,7 +139,7 @@ Deno.serve(async (req) => {
       const { data: insertSubmission, error: insertErr } = await supabase
         .from("creative_submissions")
         .insert({
-          user_id: pseudoUserId,
+          user_id: userId,
           manager_id: body.managerId ?? null,
           client: body.client ?? null,
           partner: body.partner ?? null,

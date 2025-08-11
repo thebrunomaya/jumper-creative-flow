@@ -39,13 +39,12 @@ const Manager: React.FC = () => {
   }, []);
 
   const fetchMy = async (): Promise<Row[]> => {
-    if (!currentUser?.email || !currentUser?.password) {
-      throw new Error("Credenciais ausentes");
+    if (!currentUser) {
+      throw new Error("Não autenticado");
     }
     const { data, error } = await supabase.functions.invoke("manager-actions", {
       body: {
         action: "listMy",
-        credentials: { email: currentUser.email, password: currentUser.password },
       },
     });
     if (error) throw error;

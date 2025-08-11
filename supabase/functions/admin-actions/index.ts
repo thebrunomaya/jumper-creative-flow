@@ -63,63 +63,47 @@ Deno.serve(async (req) => {
     const body = await req.json().catch(() => ({}));
     const action = body?.action || "list";
     const submissionId = body?.submissionId as string | undefined;
-    const credentials = body?.credentials as { email?: string; password?: string } | undefined;
 
-    if (!credentials?.email || !credentials?.password) {
-      return new Response(JSON.stringify({ error: "Missing credentials" }), {
-        status: 400,
+    // JWT-based authentication and role check (admin)
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      return new Response(JSON.stringify({ error: "Missing Authorization header" }), {
+        status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    // Validate admin via Notion
-    const notionRes = await fetch(`https://api.notion.com/v1/databases/${DB_GERENTES_ID}/query`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${NOTION_TOKEN}`,
-        "Content-Type": "application/json",
-        "Notion-Version": "2022-06-28",
-      },
-      body: JSON.stringify({
-        page_size: 5,
-        filter: {
-          property: "E-Mail",
-          email: { equals: credentials.email },
-        },
-      }),
+    const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY");
+    if (!SUPABASE_ANON_KEY) {
+      return new Response(JSON.stringify({ error: "Server not configured" }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const userClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      global: { headers: { Authorization: authHeader } },
     });
 
-    if (!notionRes.ok) {
-      const txt = await notionRes.text();
-      console.error("Notion query failed:", notionRes.status, txt);
-      return new Response(JSON.stringify({ error: "Failed to verify credentials" }), {
-        status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    const notionData = await notionRes.json();
-    const manager = Array.isArray(notionData.results) ? notionData.results[0] : null;
-    if (!manager) {
+    const { data: { user }, error: userErr } = await userClient.auth.getUser();
+    if (userErr || !user) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    const props = manager.properties || {};
-    const storedPassword = getText(props["Senha"]);
-    const roles = getRoles(props["Função"]).map((r) => r.toLowerCase());
-
-    const isAdmin = roles.includes("admin");
-    if (!isAdmin || !storedPassword || storedPassword !== credentials.password) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401,
+    const adminClient = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
+    const { data: isAdmin, error: roleErr } = await adminClient.rpc('has_role', { _user_id: user.id, _role: 'admin' });
+    if (roleErr || !isAdmin) {
+      return new Response(JSON.stringify({ error: "Forbidden" }), {
+        status: 403,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
+    // Use admin client for privileged operations
+    const supabase = adminClient;
 
     // Helper to fetch a public file URL and return base64 contents
     async function fetchBase64(url: string): Promise<{ base64: string; contentType?: string }> {

@@ -42,14 +42,13 @@ const AdminPage: React.FC = () => {
   }, []);
 
   const fetchSubmissions = async (): Promise<SubmissionRow[]> => {
-    if (!currentUser?.email || !currentUser?.password) {
-      throw new Error("Credenciais de admin ausentes");
+    if (!currentUser) {
+      throw new Error("Não autenticado");
     }
 
     const { data, error } = await supabase.functions.invoke("admin-actions", {
       body: {
         action: "listAll",
-        credentials: { email: currentUser.email, password: currentUser.password },
       },
     });
 
@@ -70,7 +69,6 @@ const AdminPage: React.FC = () => {
         body: {
           action: "publish",
           submissionId,
-          credentials: { email: currentUser?.email, password: currentUser?.password },
         },
       });
       if (error) throw error;
@@ -95,7 +93,6 @@ const AdminPage: React.FC = () => {
         body: {
           action: "queue",
           submissionId,
-          credentials: { email: currentUser?.email, password: currentUser?.password },
         },
       });
       if (error) throw error;
