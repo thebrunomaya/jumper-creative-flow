@@ -14,3 +14,6 @@ verify_jwt = true
 
 [functions.get-accounts-safe]
 verify_jwt = true
+
+[functions.ensure-role]
+verify_jwt = true

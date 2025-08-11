@@ -17,6 +17,8 @@ interface AuthContextType {
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<{ error?: any }>;
   signup: (email: string, password: string) => Promise<{ error?: any }>;
+  loginWithMagicLink: (email: string) => Promise<{ error?: any }>;
+  resetPassword: (email: string) => Promise<{ error?: any }>;
   logout: () => Promise<void>;
   // Legacy field for backward compatibility
   currentUser: ManagerCompat | null;
@@ -36,6 +38,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
 
+  // Ensure the user has at least a default role after auth
+  const ensureUserRole = async () => {
+    try {
+      await supabase.functions.invoke('ensure-role', { body: {} });
+    } catch (e) {
+      console.error('ensure-role invocation failed', e);
+    }
+  };
   useEffect(() => {
     // Subscribe to auth state changes FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, newSession) => {
@@ -56,6 +66,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (!error) {
+      setTimeout(() => { ensureUserRole(); }, 0);
+    }
     return { error };
   };
 
@@ -66,11 +79,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       password,
       options: { emailRedirectTo: redirectUrl },
     });
+    if (!error) {
+      setTimeout(() => { ensureUserRole(); }, 0);
+    }
     return { error };
   };
 
   const logout = async () => {
     await supabase.auth.signOut();
+  };
+
+  const loginWithMagicLink = async (email: string) => {
+    const redirectUrl = `${window.location.origin}/`;
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: { emailRedirectTo: redirectUrl },
+    });
+    if (!error) {
+      setTimeout(() => { ensureUserRole(); }, 0);
+    }
+    return { error };
+  };
+
+  const resetPassword = async (email: string) => {
+    const redirectUrl = `${window.location.origin}/`;
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: redirectUrl,
+    });
+    return { error };
   };
 
   // Build a backward-compat currentUser object so existing UI keeps working
@@ -93,6 +129,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     isAuthenticated: !!user,
     login,
     signup,
+    loginWithMagicLink,
+    resetPassword,
     logout,
     currentUser,
   };
