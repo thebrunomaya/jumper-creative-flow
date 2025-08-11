@@ -36,11 +36,6 @@ const Header: React.FC = () => {
           </div>
           
           <div className="flex items-center space-x-6">
-            <div className="hidden md:flex items-center space-x-2 text-sm text-muted-foreground">
-              <span>⏰ SLA: 24h</span>
-              <span>•</span>
-              <span>📧 Confirmação automática</span>
-            </div>
             
             <Link to="/create" className="hidden md:inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors">
               Novo Criativo
