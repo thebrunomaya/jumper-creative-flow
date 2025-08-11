@@ -8,6 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import Header from "@/components/Header";
+import { Link } from "react-router-dom";
 
 interface SubmissionRow {
   id: string;
@@ -87,92 +89,153 @@ const AdminPage: React.FC = () => {
     },
   });
 
+  const queueMutation = useMutation({
+    mutationFn: async (submissionId: string) => {
+      const { data, error } = await supabase.functions.invoke("admin-actions", {
+        body: {
+          action: "queue",
+          submissionId,
+          credentials: { email: currentUser?.email, password: currentUser?.password },
+        },
+      });
+      if (error) throw error;
+      if (!data?.success) throw new Error(data?.error || "Falha ao enfileirar");
+      return data;
+    },
+    onMutate: (id) => {
+      toast({ title: "Enfileirando…", description: `Criativo ${id} foi colocado na fila.` });
+    },
+    onSuccess: async () => {
+      await qc.invalidateQueries({ queryKey: ["admin", "submissions"] });
+    },
+    onError: (err: any) => {
+      toast({ title: "Falha ao enfileirar", description: err?.message || "Tente novamente.", variant: "destructive" });
+    },
+  });
+
+  const backfillMutation = useMutation({
+    mutationFn: async (submissionId: string) => {
+      const { data, error } = await supabase.functions.invoke("admin-actions", {
+        body: {
+          action: "backfill_variations",
+          submissionId,
+          credentials: { email: currentUser?.email, password: currentUser?.password },
+        },
+      });
+      if (error) throw error;
+      if (!data?.success) throw new Error(data?.error || "Falha no backfill");
+      return data;
+    },
+    onMutate: (id) => {
+      toast({ title: "Backfill", description: `Verificando e preenchendo variações para ${id}.` });
+    },
+    onSuccess: async (data) => {
+      toast({ title: "Concluído", description: `${data?.count || 0} variação(ões) atualizadas.` });
+      await qc.invalidateQueries({ queryKey: ["admin", "submissions"] });
+    },
+    onError: (err: any) => {
+      toast({ title: "Falha no backfill", description: err?.message || "Tente novamente.", variant: "destructive" });
+    },
+  });
+
   const rows = useMemo(() => items, [items]);
 
   return (
-    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-      <section>
-        <header className="mb-4">
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground">Painel Administrativo</h1>
-          <p className="text-sm text-muted-foreground">Gerencie as submissões e publique no Notion.</p>
-        </header>
-
-        <Card className="p-0 overflow-hidden">
-          <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-muted/40">
-            <div className="text-sm text-muted-foreground">
-              {isFetching ? "Carregando…" : `${rows.length} criativo(s)`}
+    <>
+      <Header />
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+        <section>
+          <header className="mb-4 flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-semibold tracking-tight text-foreground">Painel Administrativo</h1>
+              <p className="text-sm text-muted-foreground">Gerencie as submissões e publique no Notion.</p>
             </div>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={() => refetch()}>Atualizar</Button>
+            <Link to="/">
+              <Button variant="outline" size="sm">Voltar à Home</Button>
+            </Link>
+          </header>
+
+          <Card className="p-0 overflow-hidden">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-muted/40">
+              <div className="text-sm text-muted-foreground">
+                {isFetching ? "Carregando…" : `${rows.length} criativo(s)`}
+              </div>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={() => refetch()}>Atualizar</Button>
+              </div>
             </div>
-          </div>
 
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[32%]">Conta</TableHead>
-                  <TableHead className="w-[24%]">Gerente</TableHead>
-                  <TableHead className="w-[20%]">Status</TableHead>
-                  <TableHead className="w-[24%]"/>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {rows.map((row) => {
-                  const statusInfo = statusToLabel[row.status] || { label: row.status, variant: "outline" };
-                  const gerente = row.manager_id ? (row.manager_id === currentUser?.id ? currentUser?.name : row.manager_id) : "—";
-                  const conta = row.client_name || row.client || "—";
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[32%]">Conta</TableHead>
+                    <TableHead className="w-[24%]">Gerente</TableHead>
+                    <TableHead className="w-[20%]">Status</TableHead>
+                    <TableHead className="w-[24%]"/>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {rows.map((row) => {
+                    const statusInfo = statusToLabel[row.status] || { label: row.status, variant: "outline" };
+                    const gerente = row.manager_id ? (row.manager_id === currentUser?.id ? currentUser?.name : row.manager_id) : "—";
+                    const conta = row.client_name || row.client || "—";
 
-                  return (
-                    <TableRow key={row.id}>
-                      <TableCell>
-                        <div className="flex flex-col">
-                          <span className="font-medium text-foreground truncate max-w-[420px]" title={conta}>{conta}</span>
-                          <span className="text-xs text-muted-foreground">ID: {row.id}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <span className="text-sm text-foreground">{gerente}</span>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={statusInfo.variant}>{statusInfo.label}</Badge>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {row.status === "error" ? (
-                          <div className="flex gap-2 justify-end">
-                            <Button variant="outline" size="sm" onClick={() => setErrorDetails(row.error || "Sem detalhes disponíveis")}>Ver erro</Button>
-                            <Button size="sm" onClick={() => publishMutation.mutate(row.id)} disabled={publishMutation.isPending}>Publicar novamente</Button>
+                    return (
+                      <TableRow key={row.id}>
+                        <TableCell>
+                          <div className="flex flex-col">
+                            <span className="font-medium text-foreground truncate max-w-[420px]" title={conta}>{conta}</span>
+                            <span className="text-xs text-muted-foreground">ID: {row.id}</span>
                           </div>
-                        ) : row.status === "processed" ? (
-                          <div className="flex gap-2 justify-end">
-                            <Button variant="outline" size="sm" onClick={() => toast({ title: "Publicado", description: "Este criativo já foi publicado." })}>Detalhes</Button>
-                          </div>
-                        ) : (
-                          <div className="flex gap-2 justify-end">
-                            <Button size="sm" onClick={() => publishMutation.mutate(row.id)} disabled={publishMutation.isPending}>Publicar</Button>
-                          </div>
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          </div>
-        </Card>
-      </section>
+                        </TableCell>
+                        <TableCell>
+                          <span className="text-sm text-foreground">{gerente}</span>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant={statusInfo.variant}>{statusInfo.label}</Badge>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {row.status === "error" ? (
+                            <div className="flex gap-2 justify-end">
+                              <Button variant="outline" size="sm" onClick={() => setErrorDetails(row.error || "Sem detalhes disponíveis")}>Ver erro</Button>
+                              <Button size="sm" onClick={() => publishMutation.mutate(row.id)} disabled={publishMutation.isPending}>Publicar novamente</Button>
+                              <Button variant="outline" size="sm" onClick={() => backfillMutation.mutate(row.id)} disabled={backfillMutation.isPending}>Backfill</Button>
+                            </div>
+                          ) : row.status === "processed" ? (
+                            <div className="flex gap-2 justify-end">
+                              <Button variant="outline" size="sm" onClick={() => toast({ title: "Publicado", description: "Este criativo já foi publicado." })}>Detalhes</Button>
+                              <Button variant="outline" size="sm" onClick={() => backfillMutation.mutate(row.id)} disabled={backfillMutation.isPending}>Backfill</Button>
+                            </div>
+                          ) : (
+                            <div className="flex gap-2 justify-end">
+                              <Button variant="outline" size="sm" onClick={() => queueMutation.mutate(row.id)} disabled={queueMutation.isPending}>Fila</Button>
+                              <Button size="sm" onClick={() => publishMutation.mutate(row.id)} disabled={publishMutation.isPending}>Publicar</Button>
+                              <Button variant="outline" size="sm" onClick={() => backfillMutation.mutate(row.id)} disabled={backfillMutation.isPending}>Backfill</Button>
+                            </div>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </div>
+          </Card>
+        </section>
 
-      <Dialog open={!!errorDetails} onOpenChange={() => setErrorDetails(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Detalhes do erro</DialogTitle>
-            <DialogDescription className="whitespace-pre-wrap text-left">
-              {errorDetails}
-            </DialogDescription>
-          </DialogHeader>
-        </DialogContent>
-      </Dialog>
-    </main>
+        <Dialog open={!!errorDetails} onOpenChange={() => setErrorDetails(null)}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Detalhes do erro</DialogTitle>
+              <DialogDescription className="whitespace-pre-wrap text-left">
+                {errorDetails}
+              </DialogDescription>
+            </DialogHeader>
+          </DialogContent>
+        </Dialog>
+      </main>
+    </>
   );
 };
 
