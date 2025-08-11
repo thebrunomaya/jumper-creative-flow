@@ -336,6 +336,62 @@ export type Database = {
         }
         Relationships: []
       }
+      notion_manager_accounts: {
+        Row: {
+          account_notion_id: string
+          created_at: string
+          manager_id: string
+        }
+        Insert: {
+          account_notion_id: string
+          created_at?: string
+          manager_id: string
+        }
+        Update: {
+          account_notion_id?: string
+          created_at?: string
+          manager_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notion_manager_accounts_manager_id_fkey"
+            columns: ["manager_id"]
+            isOneToOne: false
+            referencedRelation: "notion_managers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notion_managers: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          name: string | null
+          notion_id: string
+          role: Database["public"]["Enums"]["notion_role"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          name?: string | null
+          notion_id: string
+          role: Database["public"]["Enums"]["notion_role"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string | null
+          notion_id?: string
+          role?: Database["public"]["Enums"]["notion_role"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       partners: {
         Row: {
           created_at: string
@@ -415,6 +471,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "manager" | "user"
+      notion_role: "admin" | "gestor" | "supervisor" | "gerente"
       submission_status:
         | "pending"
         | "queued"
@@ -550,6 +607,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "manager", "user"],
+      notion_role: ["admin", "gestor", "supervisor", "gerente"],
       submission_status: [
         "pending",
         "queued",
