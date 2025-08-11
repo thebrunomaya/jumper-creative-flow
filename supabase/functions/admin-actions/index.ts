@@ -225,7 +225,7 @@ Deno.serve(async (req) => {
           const message = submitErr?.message || submitRes?.error || "Erro ao publicar";
           await supabase
             .from("creative_submissions")
-            .update({ status: "failed", error: message })
+            .update({ status: "error", error: message })
             .eq("id", submissionId);
 
           return new Response(JSON.stringify({ success: false, error: message }), {
@@ -247,7 +247,7 @@ Deno.serve(async (req) => {
         const msg = e?.message || "Erro inesperado ao publicar";
         await supabase
           .from("creative_submissions")
-          .update({ status: "failed", error: msg })
+          .update({ status: "error", error: msg })
           .eq("id", submissionId);
         return new Response(JSON.stringify({ success: false, error: msg }), {
           status: 500,

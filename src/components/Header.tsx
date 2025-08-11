@@ -42,6 +42,9 @@ const Header: React.FC = () => {
               <span>📧 Confirmação automática</span>
             </div>
             
+            <Link to="/create" className="hidden md:inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors">
+              Novo Criativo
+            </Link>
             <Link to="/admin" className="hidden md:inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors">
               Admin
             </Link>

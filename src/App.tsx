@@ -12,6 +12,7 @@ import Index from "./pages/Index";
 import DesignSystem from "./pages/DesignSystem";
 import NotFound from "./pages/NotFound";
 import Admin from "./pages/Admin";
+import CreativeSystem from "@/components/CreativeSystem";
 import { preloadCommonThumbnails } from "@/utils/thumbnailCache";
 
 const queryClient = new QueryClient();
@@ -34,6 +35,16 @@ const App = () => {
                 <Route path="/" element={
                   <ProtectedRoute>
                     <Index />
+                  </ProtectedRoute>
+                } />
+                <Route path="/create" element={
+                  <ProtectedRoute>
+                    <CreativeSystem />
+                  </ProtectedRoute>
+                } />
+                <Route path="/create/:id" element={
+                  <ProtectedRoute>
+                    <CreativeSystem />
                   </ProtectedRoute>
                 } />
                 <Route path="/design-system" element={<DesignSystem />} />

@@ -22,7 +22,7 @@ export const useCreativeSubmission = () => {
     });
   };
 
-  const submitForm = async (formData: FormData, validateStep: (step: number) => boolean, toast: any) => {
+  const submitForm = async (formData: FormData, validateStep: (step: number) => boolean, toast: any, options?: { submissionId?: string }) => {
     if (!validateStep(3)) {
       toast({
         title: "Erro na validação",
@@ -142,7 +142,7 @@ export const useCreativeSubmission = () => {
       console.log('Ingesting creative submission:', submissionData);
       
       const { data, error } = await supabase.functions.invoke('ingest-creative', {
-        body: submissionData
+        body: { ...submissionData, submissionId: options?.submissionId }
       });
 
       if (error) {

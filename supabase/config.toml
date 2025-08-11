@@ -9,3 +9,5 @@ verify_jwt = false
 [functions.admin-actions]
 verify_jwt = false
 
+[functions.manager-actions]
+verify_jwt = false

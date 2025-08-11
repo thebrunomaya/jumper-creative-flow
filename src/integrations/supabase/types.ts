@@ -342,6 +342,7 @@ export type Database = {
         | "processing"
         | "processed"
         | "error"
+        | "draft"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -475,6 +476,7 @@ export const Constants = {
         "processing",
         "processed",
         "error",
+        "draft",
       ],
     },
   },

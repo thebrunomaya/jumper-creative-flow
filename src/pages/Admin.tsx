@@ -21,10 +21,12 @@ interface SubmissionRow {
 }
 
 const statusToLabel: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
+  draft: { label: "Rascunho", variant: "outline" },
   pending: { label: "Armazenado", variant: "secondary" },
   queued: { label: "Armazenado", variant: "secondary" },
+  processing: { label: "Armazenado", variant: "secondary" },
   processed: { label: "Publicado", variant: "default" },
-  failed: { label: "Erro", variant: "destructive" },
+  error: { label: "Erro", variant: "destructive" },
 };
 
 const AdminPage: React.FC = () => {
@@ -136,7 +138,7 @@ const AdminPage: React.FC = () => {
                         <Badge variant={statusInfo.variant}>{statusInfo.label}</Badge>
                       </TableCell>
                       <TableCell className="text-right">
-                        {row.status === "failed" ? (
+                        {row.status === "error" ? (
                           <div className="flex gap-2 justify-end">
                             <Button variant="outline" size="sm" onClick={() => setErrorDetails(row.error || "Sem detalhes disponíveis")}>Ver erro</Button>
                             <Button size="sm" onClick={() => publishMutation.mutate(row.id)} disabled={publishMutation.isPending}>Publicar novamente</Button>

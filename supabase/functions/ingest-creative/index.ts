@@ -62,7 +62,8 @@ Deno.serve(async (req) => {
   try {
     const pseudoUserId = crypto.randomUUID();
 
-    const body = (await req.json()) as SubmissionBody;
+    const body = (await req.json()) as SubmissionBody & { submissionId?: string };
+    const submissionIdFromBody = body?.submissionId as string | undefined;
     const filesInfo: FileInfo[] = Array.isArray(body.filesInfo) ? body.filesInfo : [];
 
     const variationSet = new Set<number>();
@@ -73,33 +74,67 @@ Deno.serve(async (req) => {
 
     const sanitizedFilesInfo = filesInfo.map(({ base64Data, ...rest }) => rest);
 
-    // Insert submission row
-    const { data: insertSubmission, error: insertErr } = await supabase
-      .from("creative_submissions")
-      .insert({
-        user_id: pseudoUserId,
-        manager_id: body.managerId ?? null,
-        client: body.client ?? null,
-        partner: body.partner ?? null,
-        platform: body.platform ?? null,
-        creative_type: body.creativeType ?? null,
-        campaign_objective: body.campaignObjective ?? null,
-        total_variations: totalVariations,
-        payload: { ...body, filesInfo: sanitizedFilesInfo },
-        status: "pending",
-      })
-      .select("id")
-      .single();
+    // Insert or update submission row
+    let submissionId: string;
 
-    if (insertErr || !insertSubmission) {
-      console.error("DB insert error:", insertErr);
-      return new Response(JSON.stringify({ error: "Falha ao salvar submissão" }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+    if (submissionIdFromBody) {
+      const { data: updated, error: updErr } = await supabase
+        .from("creative_submissions")
+        .update({
+          user_id: pseudoUserId,
+          manager_id: body.managerId ?? null,
+          client: body.client ?? null,
+          partner: body.partner ?? null,
+          platform: body.platform ?? null,
+          creative_type: body.creativeType ?? null,
+          campaign_objective: body.campaignObjective ?? null,
+          total_variations: totalVariations,
+          payload: { ...body, filesInfo: sanitizedFilesInfo },
+          status: "pending",
+        })
+        .eq("id", submissionIdFromBody)
+        .select("id")
+        .single();
+
+      if (updErr || !updated) {
+        console.error("DB update error:", updErr);
+        return new Response(JSON.stringify({ error: "Falha ao atualizar submissão" }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      submissionId = updated.id as string;
+
+      // Clear previous files for this submission
+      await supabase.from("creative_files").delete().eq("submission_id", submissionId);
+    } else {
+      const { data: insertSubmission, error: insertErr } = await supabase
+        .from("creative_submissions")
+        .insert({
+          user_id: pseudoUserId,
+          manager_id: body.managerId ?? null,
+          client: body.client ?? null,
+          partner: body.partner ?? null,
+          platform: body.platform ?? null,
+          creative_type: body.creativeType ?? null,
+          campaign_objective: body.campaignObjective ?? null,
+          total_variations: totalVariations,
+          payload: { ...body, filesInfo: sanitizedFilesInfo },
+          status: "pending",
+        })
+        .select("id")
+        .single();
+
+      if (insertErr || !insertSubmission) {
+        console.error("DB insert error:", insertErr);
+        return new Response(JSON.stringify({ error: "Falha ao salvar submissão" }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      submissionId = insertSubmission.id as string;
     }
-
-    const submissionId = insertSubmission.id as string;
 
     // Upload files and register rows
     let uploadedCount = 0;
