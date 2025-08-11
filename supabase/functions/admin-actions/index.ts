@@ -234,6 +234,27 @@ Deno.serve(async (req) => {
           });
         }
 
+        // Upsert creative variations into DB for reference
+        const variations = Array.isArray(submitRes?.createdCreatives) ? submitRes.createdCreatives : [];
+        const ctaValue = submission?.payload?.cta || submission?.payload?.callToAction || null;
+        if (variations.length > 0) {
+          const rows = variations.map((v: any) => ({
+            submission_id: submissionId,
+            variation_index: v.variationIndex,
+            notion_page_id: v.notionPageId,
+            creative_id: v.creativeId,
+            full_creative_name: v.fullCreativeName,
+            cta: ctaValue,
+            processed_at: new Date().toISOString(),
+          }));
+          const { error: upsertErr } = await supabase
+            .from("creative_variations")
+            .upsert(rows, { onConflict: "submission_id,variation_index" });
+          if (upsertErr) {
+            console.error("Failed to upsert creative_variations:", upsertErr);
+          }
+        }
+
         await supabase
           .from("creative_submissions")
           .update({ status: "processed", result: submitRes, processed_at: new Date().toISOString() })
@@ -254,6 +275,64 @@ Deno.serve(async (req) => {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
+    }
+
+    if (action === "backfill_variations") {
+      if (!submissionId) {
+        return new Response(JSON.stringify({ error: "submissionId is required" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const { data: sub, error: subErr } = await supabase
+        .from("creative_submissions")
+        .select("id, result, payload")
+        .eq("id", submissionId)
+        .maybeSingle();
+
+      if (subErr || !sub) {
+        return new Response(JSON.stringify({ error: subErr?.message || "Submissão não encontrada" }), {
+          status: 404,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const variations = Array.isArray(sub.result?.createdCreatives) ? sub.result.createdCreatives : [];
+      const ctaValue = sub?.payload?.cta || sub?.payload?.callToAction || null;
+
+      if (variations.length === 0) {
+        return new Response(JSON.stringify({ success: true, message: "Nada para backfill", count: 0 }), {
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const rows = variations.map((v: any) => ({
+        submission_id: submissionId,
+        variation_index: v.variationIndex,
+        notion_page_id: v.notionPageId,
+        creative_id: v.creativeId,
+        full_creative_name: v.fullCreativeName,
+        cta: ctaValue,
+        processed_at: new Date().toISOString(),
+      }));
+
+      const { error: upsertErr } = await supabase
+        .from("creative_variations")
+        .upsert(rows, { onConflict: "submission_id,variation_index" });
+
+      if (upsertErr) {
+        return new Response(JSON.stringify({ success: false, error: upsertErr.message }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      return new Response(JSON.stringify({ success: true, count: rows.length }), {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     // Default: listAll submissions (latest first)
