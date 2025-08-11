@@ -110,6 +110,28 @@ const AdminPage: React.FC = () => {
     },
   });
 
+  const syncNotionMutation = useMutation({
+    mutationFn: async () => {
+      const { data, error } = await supabase.functions.invoke("notion-sync");
+      if (error) throw error;
+      if (!data?.ok) throw new Error(data?.error || "Falha ao sincronizar Notion");
+      return data;
+    },
+    onMutate: () => {
+      toast({ title: "Sincronizando…", description: "Buscando dados do Notion e atualizando o Supabase." });
+    },
+    onSuccess: async (data: any) => {
+      const s = data?.synced || {};
+      toast({
+        title: "Sincronizado",
+        description: `Contas: ${s.accounts || 0} | Gerentes: ${s.managers || 0} | Vínculos: ${s.links || 0}`,
+      });
+      await qc.invalidateQueries({ queryKey: ["admin", "submissions"] });
+    },
+    onError: (err: any) => {
+      toast({ title: "Falha ao sincronizar", description: err?.message || "Tente novamente.", variant: "destructive" });
+    },
+  });
 
   const rows = useMemo(() => items, [items]);
 
@@ -135,6 +157,7 @@ const AdminPage: React.FC = () => {
               </div>
               <div className="flex gap-2">
                 <Button variant="outline" size="sm" onClick={() => refetch()}>Atualizar</Button>
+                <Button size="sm" onClick={() => syncNotionMutation.mutate()} disabled={syncNotionMutation.isPending}>Sincronizar Notion</Button>
               </div>
             </div>
 
