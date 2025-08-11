@@ -11,3 +11,6 @@ verify_jwt = false
 
 [functions.manager-actions]
 verify_jwt = false
+
+[functions.get-accounts-safe]
+verify_jwt = true
