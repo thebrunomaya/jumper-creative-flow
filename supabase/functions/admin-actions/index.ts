@@ -387,6 +387,159 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Reconcile variations directly from Notion (dry-run by default)
+    if (action === "reconcile_notion") {
+      const dryRun: boolean = body?.dryRun !== false; // default true
+      const limit: number = Math.min(50, Math.max(1, Number(body?.limit) || 10));
+      const query: string | undefined = body?.query;
+      const mappings: Array<{
+        submission_id: string;
+        variation_index: number;
+        notion_page_id: string;
+        creative_id?: string;
+        cta?: string | null;
+      }> | undefined = Array.isArray(body?.mappings) ? body.mappings : undefined;
+
+      async function fetchNotionPage(pageId: string): Promise<{ title: string | null; creativeId: string | null }> {
+        try {
+          const res = await fetch(`https://api.notion.com/v1/pages/${pageId}`, {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${NOTION_TOKEN}`,
+              "Content-Type": "application/json",
+              "Notion-Version": "2022-06-28",
+            },
+          });
+          if (!res.ok) {
+            const t = await res.text();
+            console.warn("Notion page fetch failed", pageId, res.status, t);
+            return { title: null, creativeId: null };
+          }
+          const page = await res.json();
+          const title = page.properties?.["Nome do Criativo"]?.title?.[0]?.plain_text
+            || page.properties?.Name?.title?.[0]?.plain_text
+            || page.properties?.Nome?.title?.[0]?.plain_text
+            || null;
+          const number = page.properties?.ID?.unique_id?.number ?? null;
+          const creativeId = number != null ? `JSC-${number}` : null;
+          return { title, creativeId };
+        } catch (e) {
+          console.error("Error fetching Notion page", pageId, e);
+          return { title: null, creativeId: null };
+        }
+      }
+
+      // Helper to get CTA from submission payload when available
+      const submissionCtaCache = new Map<string, string | null>();
+      async function getSubmissionCta(submission_id: string): Promise<string | null> {
+        if (submissionCtaCache.has(submission_id)) return submissionCtaCache.get(submission_id)!;
+        const { data, error } = await supabase
+          .from("creative_submissions")
+          .select("payload")
+          .eq("id", submission_id)
+          .maybeSingle();
+        const cta = (data?.payload?.cta || data?.payload?.callToAction) ?? null;
+        if (error) console.warn("Could not fetch submission for CTA", submission_id, error.message);
+        submissionCtaCache.set(submission_id, cta);
+        return cta;
+      }
+
+      // Mode 1: Only search and suggest candidates (no DB writes)
+      if (!mappings && query) {
+        const searchRes = await fetch("https://api.notion.com/v1/search", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${NOTION_TOKEN}`,
+            "Content-Type": "application/json",
+            "Notion-Version": "2022-06-28",
+          },
+          body: JSON.stringify({ query, page_size: limit, filter: { value: "page", property: "object" } }),
+        });
+        if (!searchRes.ok) {
+          const t = await searchRes.text();
+          return new Response(JSON.stringify({ success: false, error: `Search failed: ${t}` }), {
+            status: 400,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+        const searchData = await searchRes.json();
+        const candidates: any[] = [];
+        for (const r of (searchData.results || []).slice(0, limit)) {
+          const id = r.id;
+          const details = await fetchNotionPage(id);
+          candidates.push({ notion_page_id: id, title: details.title, creative_id: details.creativeId });
+        }
+        return new Response(JSON.stringify({ success: true, dryRun: true, candidates, count: candidates.length }), {
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      // Mode 2: Apply explicit mappings with verification from Notion
+      if (!mappings || mappings.length === 0) {
+        return new Response(JSON.stringify({ error: "Provide 'mappings' or a 'query' to search" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const rows: any[] = [];
+      const issues: any[] = [];
+
+      for (const m of mappings.slice(0, limit)) {
+        if (!m.submission_id || !m.variation_index || !m.notion_page_id) {
+          issues.push({ mapping: m, error: "Missing required fields" });
+          continue;
+        }
+        const details = await fetchNotionPage(m.notion_page_id);
+        const creative_id = m.creative_id || details.creativeId;
+        const full_creative_name = details.title || null;
+        if (!creative_id) {
+          issues.push({ mapping: m, error: "Could not resolve creative_id from Notion page" });
+          continue;
+        }
+        const cta = m.cta ?? (await getSubmissionCta(m.submission_id));
+        rows.push({
+          submission_id: m.submission_id,
+          variation_index: m.variation_index,
+          notion_page_id: m.notion_page_id,
+          creative_id,
+          full_creative_name,
+          cta,
+          processed_at: new Date().toISOString(),
+        });
+      }
+
+      if (dryRun) {
+        return new Response(JSON.stringify({ success: true, dryRun: true, rows, issues, count: rows.length }), {
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      if (rows.length === 0) {
+        return new Response(JSON.stringify({ success: false, error: "No valid rows to upsert", issues }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const { error: upsertErr } = await supabase
+        .from("creative_variations")
+        .upsert(rows, { onConflict: "submission_id,variation_index" });
+      if (upsertErr) {
+        return new Response(JSON.stringify({ success: false, error: upsertErr.message, issues }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      return new Response(JSON.stringify({ success: true, dryRun: false, count: rows.length, issues }), {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     // Default: listAll submissions (latest first)
     const { data: items, error: listErr2 } = await supabase
       .from("creative_submissions")
