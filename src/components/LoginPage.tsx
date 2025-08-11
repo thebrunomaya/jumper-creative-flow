@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { useManagers } from '@/hooks/useManagers';
+
 import { useAuth } from '@/contexts/AuthContext';
 import { Loader2, LogIn } from 'lucide-react';
 import { JumperLogo } from '@/components/ui/jumper-logo';
@@ -16,7 +16,7 @@ const LoginPage: React.FC = () => {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
-  const { managers, loading: managersLoading, validateLogin } = useManagers();
+  
   const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -34,21 +34,20 @@ const LoginPage: React.FC = () => {
     setIsLoading(true);
 
     try {
-      // Simular delay de autenticação
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const { error } = await login(email, password);
       
-      const authenticatedUser = validateLogin(email, password);
-      
-      if (authenticatedUser) {
-        login(authenticatedUser);
+      if (!error) {
         toast({
           title: "Login realizado com sucesso",
-          description: `Bem-vindo(a), ${authenticatedUser.name}!`,
+          description: `Bem-vindo(a)!`,
         });
       } else {
+        const message = error?.message?.toLowerCase().includes('invalid') 
+          ? "E-mail ou senha incorretos"
+          : "Não foi possível entrar. Tente novamente.";
         toast({
           title: "Credenciais inválidas",
-          description: "E-mail ou senha incorretos",
+          description: message,
           variant: "destructive",
         });
       }
@@ -64,16 +63,6 @@ const LoginPage: React.FC = () => {
     }
   };
 
-  if (managersLoading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="flex items-center space-x-2 text-foreground">
-          <Loader2 className="h-6 w-6 animate-spin" />
-          <span>Carregando sistema...</span>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen flex">
