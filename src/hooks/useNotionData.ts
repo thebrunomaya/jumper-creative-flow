@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { Client, Partner } from '@/types/creative';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { useMyNotionAccounts } from '@/hooks/useMyNotionAccounts';
 
 interface NotionClient {
   id: string;
@@ -45,6 +46,7 @@ export const useNotionClients = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { currentUser } = useAuth();
+  const { accountIds } = useMyNotionAccounts();
 
   useEffect(() => {
     const fetchClients = async () => {
@@ -112,11 +114,11 @@ export const useNotionClients = () => {
           };
         });
         
-        // Filtrar clientes baseado nas contas do gerente logado
+        // Filtrar clientes baseado nas contas do gerente logado (via Notion)
         let filteredClients = formattedClients;
-        if (currentUser?.accounts && currentUser.accounts.length > 0) {
+        if (accountIds && accountIds.length > 0) {
           filteredClients = formattedClients.filter(client => 
-            currentUser.accounts!.includes(client.id)
+            accountIds.includes(client.id)
           );
           console.log('Filtered clients for manager:', filteredClients);
         }
@@ -141,7 +143,7 @@ export const useNotionClients = () => {
     };
 
     fetchClients();
-  }, [currentUser]); // Refetch quando o usuário mudar
+  }, [accountIds]); // Refetch quando contas vinculadas mudarem
 
   return { clients, loading, error };
 };

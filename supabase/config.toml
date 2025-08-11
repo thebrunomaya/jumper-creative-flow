@@ -17,3 +17,6 @@ verify_jwt = true
 
 [functions.ensure-role]
 verify_jwt = true
+
+[functions.notion-my-accounts]
+verify_jwt = true
