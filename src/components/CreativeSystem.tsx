@@ -15,6 +15,8 @@ import { JumperCard, JumperCardContent } from '@/components/ui/jumper-card';
 import { useNotionClients } from '@/hooks/useNotionData';
 import { useCreativeForm } from '@/hooks/useCreativeForm';
 import { useCreativeSubmission } from '@/hooks/useCreativeSubmission';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 
 const STEP_LABELS = ['Básico', 'Arquivos', 'Conteúdo', 'Revisão'];
 
@@ -39,6 +41,8 @@ const CreativeSystem: React.FC = () => {
     resetSubmission
   } = useCreativeSubmission();
 
+  const { currentUser } = useAuth();
+
   const nextStep = () => {
     if (validateStep(currentStep)) {
       setCurrentStep(prev => Math.min(prev + 1, 4));
@@ -57,6 +61,65 @@ const CreativeSystem: React.FC = () => {
 
   const handleSubmit = () => {
     submitForm(formData, validateStep, toast);
+  };
+
+  const handleSaveDraft = async () => {
+    if (!formData.creativeName || !formData.creativeName.trim()) {
+      toast({
+        title: 'Informe o nome do criativo',
+        description: 'Dê um nome ao criativo para salvar como rascunho.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (!currentUser?.email || !currentUser?.password) {
+      toast({
+        title: 'Sessão expirada',
+        description: 'Faça login novamente para salvar o rascunho.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase.functions.invoke('manager-actions', {
+        body: {
+          action: 'saveDraft',
+          credentials: { email: currentUser.email, password: currentUser.password },
+          draft: {
+            client: formData.client,
+            partner: formData.partner,
+            platform: formData.platform,
+            campaignObjective: formData.campaignObjective,
+            creativeName: formData.creativeName,
+            creativeType: formData.creativeType,
+            objective: formData.objective,
+            destination: formData.destination,
+            cta: formData.cta,
+            destinationUrl: formData.destinationUrl,
+            callToAction: formData.callToAction,
+            observations: formData.observations,
+          },
+        },
+      });
+
+      if (error || !data?.success) {
+        throw new Error(error?.message || data?.error || 'Falha ao salvar rascunho');
+      }
+
+      toast({
+        title: 'Rascunho salvo',
+        description: data?.submissionId ? `ID: ${data.submissionId}` : 'Seu rascunho foi salvo com sucesso.',
+      });
+    } catch (err: any) {
+      console.error('Erro ao salvar rascunho:', err);
+      toast({
+        title: 'Erro ao salvar rascunho',
+        description: err?.message || 'Tente novamente.',
+        variant: 'destructive',
+      });
+    }
   };
 
   const handleReset = () => {
@@ -135,6 +198,7 @@ const CreativeSystem: React.FC = () => {
           onSubmit={handleSubmit}
           isSubmitting={isSubmitting}
           errors={errors}
+          onSaveDraft={handleSaveDraft}
         />
       </div>
       <Footer />
