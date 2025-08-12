@@ -47,8 +47,45 @@ serve(async (req) => {
       });
     }
 
+    // First, try Supabase (synced tables) to resolve linked account notion IDs
+    const targetEmail = (user.email || '').toLowerCase();
+
+    try {
+      const service = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+
+      const { data: managerRow, error: mgrErr } = await service
+        .from('notion_managers')
+        .select('id, email')
+        .ilike('email', user.email || '')
+        .maybeSingle();
+
+      if (!mgrErr && managerRow) {
+        const { data: links, error: linkErr } = await service
+          .from('notion_manager_accounts')
+          .select('account_notion_id')
+          .eq('manager_id', managerRow.id);
+
+        if (!linkErr && Array.isArray(links)) {
+          const accounts = links.map((l: any) => l.account_notion_id).filter(Boolean);
+          if (accounts.length > 0) {
+            return new Response(
+              JSON.stringify({ success: true, accounts, email: targetEmail, source: 'supabase' }),
+              { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            );
+          }
+        }
+      }
+    } catch (_e) {
+      // Ignore and fallback to Notion
+    }
+
+    // Fallback to Notion if Supabase tables didn't resolve linked accounts
     if (!NOTION_TOKEN) {
-      throw new Error('NOTION_API_KEY not configured');
+      // If Notion is not configured, return empty accounts gracefully
+      return new Response(
+        JSON.stringify({ success: true, accounts: [], email: targetEmail, note: 'No linked accounts in Supabase and NOTION_API_KEY not configured' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     // Fetch all managers and find current user's manager entry by E-Mail
@@ -70,9 +107,7 @@ serve(async (req) => {
 
     const data = await response.json();
     const results = Array.isArray(data.results) ? data.results : [];
-
     // Try to match by email in the "E-Mail" property (email type) or rich_text fallback
-    const targetEmail = (user.email || '').toLowerCase();
 
     const findEmailInProperty = (prop: any): string => {
       if (!prop) return '';
@@ -88,7 +123,7 @@ serve(async (req) => {
 
     const myManager = results.find((r: any) => {
       const props = r.properties || {};
-      const emailProp = props['E-Mail'] || props['Email'] || props['E-mail'];
+      const emailProp = props['E-Mail'] || props['Email'] || props['E-mail'] || props['email'];
       const value = findEmailInProperty(emailProp);
       return value === targetEmail;
     });

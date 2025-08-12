@@ -115,17 +115,31 @@ export const useNotionClients = () => {
         });
         
         // Filtrar clientes baseado nas contas do gerente logado (via Notion)
+        // Se não houver contas e o usuário não for admin, não mostrar nada
+        // Checar admin via RPC has_role
+        const { data: authData } = await supabase.auth.getUser();
+        const userId = currentUser?.id || authData?.user?.id || null;
+        let isAdmin = false;
+        if (userId) {
+          const { data: isAdminData, error: roleErr } = await supabase.rpc('has_role', { _user_id: userId, _role: 'admin' });
+          isAdmin = !roleErr && !!isAdminData;
+        }
+
         let filteredClients = formattedClients;
         if (accountIds && accountIds.length > 0) {
-          filteredClients = formattedClients.filter(client => 
-            accountIds.includes(client.id)
-          );
+          filteredClients = formattedClients.filter(client => accountIds.includes(client.id));
           console.log('Filtered clients for manager:', filteredClients);
+        } else if (!isAdmin) {
+          filteredClients = [];
         }
         
         console.log('Formatted clients:', filteredClients);
         setClients(filteredClients);
-        setError(null);
+        if (!isAdmin && filteredClients.length === 0) {
+          setError('Você não tem contas vinculadas no Notion.');
+        } else {
+          setError(null);
+        }
       } catch (err) {
         console.error('Error fetching clients:', err);
         setError('Erro ao carregar clientes do Notion');
