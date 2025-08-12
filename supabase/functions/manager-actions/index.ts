@@ -309,18 +309,72 @@ Deno.serve(async (req) => {
           });
         }
       } else {
-        const { error } = await supabase
+        // Try update by submissionId; if none affected, fallback to upsert by creativeName
+        const { data: updatedRow, error: updErr } = await supabase
           .from('creative_submissions')
           .update(baseRow as any)
           .eq('id', submissionId)
-          .eq('manager_id', managerId);
-        if (error) {
-          return new Response(JSON.stringify({ error: error.message }), {
+          .eq('manager_id', managerId)
+          .select('id')
+          .maybeSingle();
+        if (updErr) {
+          return new Response(JSON.stringify({ error: updErr.message }), {
             status: 400,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           });
         }
-        return new Response(JSON.stringify({ success: true, submissionId, creativeName: finalCreativeName }), {
+
+        if (updatedRow?.id) {
+          return new Response(JSON.stringify({ success: true, submissionId, creativeName: finalCreativeName }), {
+            status: 200,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+
+        // Fallback: deduplicate by creativeName for this manager
+        const creativeName = (draft?.creativeName || '').trim();
+        let targetId: string | null = null;
+        if (creativeName) {
+          const { data: existing } = await supabase
+            .from('creative_submissions')
+            .select('id')
+            .eq('manager_id', managerId)
+            .eq('status', 'draft')
+            .filter('payload->>creativeName', 'eq', creativeName)
+            .maybeSingle();
+          if (existing?.id) targetId = existing.id as string;
+        }
+
+        if (targetId) {
+          const { error: upErr } = await supabase
+            .from('creative_submissions')
+            .update(baseRow as any)
+            .eq('id', targetId)
+            .eq('manager_id', managerId);
+          if (upErr) {
+            return new Response(JSON.stringify({ error: upErr.message }), {
+              status: 400,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            });
+          }
+          return new Response(JSON.stringify({ success: true, submissionId: targetId, creativeName: finalCreativeName }), {
+            status: 200,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+
+        const { data: inserted, error: insErr } = await supabase
+          .from('creative_submissions')
+          .insert(baseRow as any)
+          .select('id')
+          .single();
+        if (insErr) {
+          return new Response(JSON.stringify({ error: insErr.message }), {
+            status: 400,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        return new Response(JSON.stringify({ success: true, submissionId: inserted.id, creativeName: finalCreativeName }), {
           status: 200,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });

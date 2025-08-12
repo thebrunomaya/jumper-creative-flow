@@ -91,7 +91,7 @@ const CreativeSystem: React.FC = () => {
   };
 
   const handleSubmit = () => {
-    submitForm(formData, validateStep, toast, { submissionId: draftSubmissionId ?? undefined });
+    submitForm(formData, validateStep, toast, { submissionId: routeSubmissionId ?? undefined });
   };
 
   const handleSaveDraft = async () => {
@@ -116,7 +116,7 @@ const CreativeSystem: React.FC = () => {
       const { data, error } = await supabase.functions.invoke('manager-actions', {
         body: {
           action: 'saveDraft',
-          submissionId: draftSubmissionId ?? undefined,
+          submissionId: routeSubmissionId ?? undefined,
           draft: formData,
         },
       });
