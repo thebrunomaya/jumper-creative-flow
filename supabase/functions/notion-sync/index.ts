@@ -148,14 +148,35 @@ serve(async (req) => {
       });
     }
 
-    // Only Supabase admins can run sync
+    // Allow sync if user is Supabase admin OR Notion admin (by email)
+    let canSync = false;
+    let managerPagesCache: any[] | null = null;
+
     const { data: isAdmin, error: roleErr } = await userClient.rpc('has_role', { _user_id: user.id, _role: 'admin' });
-    if (roleErr || !isAdmin) {
+    if (!roleErr && isAdmin) {
+      canSync = true;
+    } else {
+      // Fallback: check Notion role by email
+      managerPagesCache = await fetchAllFromNotionDatabase(DB_GERENTES_ID, NOTION_TOKEN);
+      const targetEmail = (user.email || '').toLowerCase();
+      const notionAdmin = managerPagesCache.find((p: any) => {
+        const props = p.properties || {};
+        const email = extractEmail(props);
+        const roleProp = props['Função'] || props['Funcao'] || props['Role'] || props['Cargo'];
+        const roleName = extractSelectName(roleProp);
+        const role = normalizeRole(roleName);
+        return email === targetEmail && role === 'admin';
+      });
+      canSync = !!notionAdmin;
+    }
+
+    if (!canSync) {
       return new Response(JSON.stringify({ ok: false, error: 'Forbidden: admin only' }), {
         status: 403,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
+
 
     const service = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
 
