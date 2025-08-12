@@ -18,6 +18,7 @@ import { useCreativeSubmission } from '@/hooks/useCreativeSubmission';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useParams } from 'react-router-dom';
+import { validateFile } from '@/utils/fileValidation';
 
 const STEP_LABELS = ['Básico', 'Arquivos', 'Conteúdo', 'Revisão'];
 

@@ -134,7 +134,7 @@ Deno.serve(async (req) => {
       const enriched = (data || []).map((r: any) => ({ 
         ...r,
         client_name: r.client ? clientMap[r.client] || null : null,
-        creative_name: r?.payload?.creativeName || r?.payload?.managerInputName || null,
+        creative_name: r?.payload?.managerInputName || r?.payload?.creativeName || null,
       }));
       return new Response(JSON.stringify({ success: true, items: enriched }), {
         status: 200,
@@ -195,53 +195,82 @@ Deno.serve(async (req) => {
         } catch (_) {}
       }
 
-      // Build a standardized "final" creative name string
+      // Build a standardized creative name string
+      // Preserve user case for manager input, only trim and replace spaces with underscores
+      const managerInputRaw = (draft?.creativeName || '').toString().trim();
+      const managerInput = managerInputRaw.replace(/\s+/g, '_');
+
+      // Codes for objective/type remain standardized
       const normalize = (s: string) => (s || "")
         .normalize('NFD')
         .replace(/\p{Diacritic}/gu, '')
         .replace(/[^a-zA-Z0-9-_ ]/g, '')
-        .trim()
-        .replace(/\s+/g, '-')
-        .toUpperCase();
+        .trim();
       const getObjectiveCode = (obj: string) => {
         const o = (obj || '').toLowerCase();
         const map: Record<string, string> = {
           "conversions": "CONV",
           "conversao": "CONV",
           "conversões": "CONV",
-          "leads": "LEADS",
-          "mensagens": "MSG",
-          "alcance": "ALC",
-          "reach": "ALC",
-          "engajamento": "ENG",
-          "engagement": "ENG",
+          "leads": "LEAD",
+          "mensagens": "MSGS",
+          "alcance": "RECH",
+          "reach": "RECH",
+          "engajamento": "ENGA",
+          "engagement": "ENGA",
           "tráfego": "TRAF",
           "trafego": "TRAF",
           "traffic": "TRAF",
-          "vendas": "SALES",
-          "sales": "SALES",
+          "vendas": "CONV",
+          "sales": "CONV",
         };
-        return map[o] || normalize(obj).slice(0, 6) || 'OBJ';
+        // Fallback to upcased sanitized slice if unknown
+        return map[o] || (normalize(obj).slice(0, 6).toUpperCase() || 'OBJ');
       };
       const getTypeCode = (t: string) => {
         const tt = (t || '').toLowerCase();
         const map: Record<string, string> = {
           "single": "SING",
-          "carrossel": "CAR",
-          "carousel": "CAR",
-          "história": "STORY",
-          "story": "STORY",
+          "carrossel": "CARR",
+          "carousel": "CARR",
+          "história": "STOR",
+          "story": "STOR",
           "reels": "REELS",
           "existing-post": "POST",
         };
-        return map[tt] || normalize(t).slice(0, 6) || 'TYPE';
+        return map[tt] || (normalize(t).slice(0, 6).toUpperCase() || 'TYPE');
       };
 
-      const managerInput = normalize(draft?.creativeName || 'SEM-NOME');
+      // Generate account code from Accounts table (name + id)
+      const generateAccountCode = (accountName: string, accountId: string): string => {
+        const cleanName = (accountName || '').toUpperCase().replace(/[\s\-_.\,]/g, '');
+        const firstLetter = cleanName[0] || 'X';
+        const remainingChars = cleanName.slice(1);
+        let consonants = remainingChars.replace(/[AEIOU]/g, '');
+        if (consonants.length < 3) {
+          consonants = remainingChars;
+        }
+        const finalChars = consonants.slice(0, 3).padEnd(3, 'X');
+        return `${firstLetter}${finalChars}#${accountId || 'XXX'}`;
+      };
+
+      let accountCode = 'ACCT#XXX';
+      try {
+        const notionId = draft?.client as string | undefined;
+        if (notionId) {
+          const { data: acc } = await supabase
+            .from('accounts')
+            .select('name, ad_account_id')
+            .eq('notion_id', notionId)
+            .maybeSingle();
+          if (acc?.name && acc?.ad_account_id) {
+            accountCode = generateAccountCode(acc.name as string, acc.ad_account_id as string);
+          }
+        }
+      } catch (_) {}
+
       const objectiveCode = getObjectiveCode(draft?.campaignObjective || draft?.objective || '');
       const typeCode = getTypeCode(draft?.creativeType || '');
-      // Placeholder account code until final ID is generated on submission
-      const accountCode = 'ACCT#XXX';
       const finalCreativeName = `JSC-XXX_${managerInput}_${objectiveCode}_${typeCode}_${accountCode}`;
 
       // store both for traceability
