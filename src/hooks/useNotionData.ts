@@ -46,9 +46,25 @@ export const useNotionClients = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { currentUser } = useAuth();
-  const { accountIds } = useMyNotionAccounts();
+  const { accountIds, loading: accountsLoading } = useMyNotionAccounts();
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
+    const checkRole = async () => {
+      const { data: authData } = await supabase.auth.getUser();
+      const userId = currentUser?.id || authData?.user?.id || null;
+      if (!userId) return setIsAdmin(false);
+      const { data, error } = await supabase.rpc('has_role', { _user_id: userId, _role: 'admin' });
+      setIsAdmin(!error && !!data);
+    };
+    checkRole();
+  }, [currentUser?.id]);
+
+  useEffect(() => {
+    if (!isAdmin && accountsLoading) {
+      setLoading(true);
+      return;
+    }
     const fetchClients = async () => {
       try {
         console.log('Fetching clients from Notion DB_Contas...');
@@ -116,14 +132,7 @@ export const useNotionClients = () => {
         
         // Filtrar clientes baseado nas contas do gerente logado (via Notion)
         // Se não houver contas e o usuário não for admin, não mostrar nada
-        // Checar admin via RPC has_role
-        const { data: authData } = await supabase.auth.getUser();
-        const userId = currentUser?.id || authData?.user?.id || null;
-        let isAdmin = false;
-        if (userId) {
-          const { data: isAdminData, error: roleErr } = await supabase.rpc('has_role', { _user_id: userId, _role: 'admin' });
-          isAdmin = !roleErr && !!isAdminData;
-        }
+        // Usando isAdmin do estado
 
         let filteredClients = formattedClients;
         if (accountIds && accountIds.length > 0) {
@@ -157,7 +166,7 @@ export const useNotionClients = () => {
     };
 
     fetchClients();
-  }, [accountIds]); // Refetch quando contas vinculadas mudarem
+  }, [accountIds, accountsLoading, isAdmin]); // Refetch quando contas vinculadas mudarem ou quando role/carregamento mudar
 
   return { clients, loading, error };
 };

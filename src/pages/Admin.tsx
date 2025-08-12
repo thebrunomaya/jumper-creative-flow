@@ -46,6 +46,14 @@ const AdminPage: React.FC = () => {
       throw new Error("Não autenticado");
     }
 
+    // Verificação defensiva de função admin para evitar chamadas 403 desnecessárias
+    const { data: authData } = await supabase.auth.getUser();
+    const userId = currentUser?.id || authData?.user?.id || null;
+    const { data: isAdmin, error: roleErr } = await supabase.rpc('has_role', { _user_id: userId, _role: 'admin' });
+    if (roleErr || !isAdmin) {
+      throw new Error('Acesso negado: apenas administradores.');
+    }
+
     const { data, error } = await supabase.functions.invoke("admin-actions", {
       body: {
         action: "listAll",
