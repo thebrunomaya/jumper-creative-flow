@@ -17,6 +17,7 @@ import { useCreativeForm } from '@/hooks/useCreativeForm';
 import { useCreativeSubmission } from '@/hooks/useCreativeSubmission';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { useParams } from 'react-router-dom';
 
 const STEP_LABELS = ['Básico', 'Arquivos', 'Conteúdo', 'Revisão'];
 
@@ -45,7 +46,34 @@ const CreativeSystem: React.FC = () => {
   } = useCreativeSubmission();
 
   const { currentUser } = useAuth();
+  const { id: routeSubmissionId } = useParams();
 
+  useEffect(() => {
+    const loadDraft = async () => {
+      if (!routeSubmissionId) return;
+      try {
+        const { data, error } = await supabase.functions.invoke('manager-actions', {
+          body: { action: 'get', submissionId: routeSubmissionId },
+        });
+        if (error || !data?.success) {
+          toast({ title: 'Falha ao carregar rascunho', description: data?.error || error?.message || 'Tente novamente.', variant: 'destructive' });
+          return;
+        }
+        const item = data.item;
+        if (item?.payload) {
+          updateFormData(item.payload);
+        }
+        if (item?.id) {
+          setDraftSubmissionId(item.id);
+          try { sessionStorage.setItem('draftSubmissionId', item.id); } catch (_) {}
+        }
+      } catch (e: any) {
+        console.error('Erro ao carregar rascunho:', e);
+        toast({ title: 'Erro ao carregar rascunho', description: e?.message || 'Tente novamente.', variant: 'destructive' });
+      }
+    };
+    loadDraft();
+  }, [routeSubmissionId]);
   const nextStep = () => {
     if (validateStep(currentStep)) {
       setCurrentStep(prev => Math.min(prev + 1, 4));
@@ -63,7 +91,7 @@ const CreativeSystem: React.FC = () => {
   };
 
   const handleSubmit = () => {
-    submitForm(formData, validateStep, toast);
+    submitForm(formData, validateStep, toast, { submissionId: draftSubmissionId ?? undefined });
   };
 
   const handleSaveDraft = async () => {
@@ -89,20 +117,7 @@ const CreativeSystem: React.FC = () => {
         body: {
           action: 'saveDraft',
           submissionId: draftSubmissionId ?? undefined,
-          draft: {
-            client: formData.client,
-            partner: formData.partner,
-            platform: formData.platform,
-            campaignObjective: formData.campaignObjective,
-            creativeName: formData.creativeName,
-            creativeType: formData.creativeType,
-            objective: formData.objective,
-            destination: formData.destination,
-            cta: formData.cta,
-            destinationUrl: formData.destinationUrl,
-            callToAction: formData.callToAction,
-            observations: formData.observations,
-          },
+          draft: formData,
         },
       });
 

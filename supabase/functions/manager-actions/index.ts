@@ -191,6 +191,59 @@ Deno.serve(async (req) => {
         } catch (_) {}
       }
 
+      // Build a standardized "final" creative name string
+      const normalize = (s: string) => (s || "")
+        .normalize('NFD')
+        .replace(/\p{Diacritic}/gu, '')
+        .replace(/[^a-zA-Z0-9-_ ]/g, '')
+        .trim()
+        .replace(/\s+/g, '-')
+        .toUpperCase();
+      const getObjectiveCode = (obj: string) => {
+        const o = (obj || '').toLowerCase();
+        const map: Record<string, string> = {
+          "conversions": "CONV",
+          "conversao": "CONV",
+          "conversões": "CONV",
+          "leads": "LEADS",
+          "mensagens": "MSG",
+          "alcance": "ALC",
+          "reach": "ALC",
+          "engajamento": "ENG",
+          "engagement": "ENG",
+          "tráfego": "TRAF",
+          "trafego": "TRAF",
+          "traffic": "TRAF",
+          "vendas": "SALES",
+          "sales": "SALES",
+        };
+        return map[o] || normalize(obj).slice(0, 6) || 'OBJ';
+      };
+      const getTypeCode = (t: string) => {
+        const tt = (t || '').toLowerCase();
+        const map: Record<string, string> = {
+          "single": "SING",
+          "carrossel": "CAR",
+          "carousel": "CAR",
+          "história": "STORY",
+          "story": "STORY",
+          "reels": "REELS",
+          "existing-post": "POST",
+        };
+        return map[tt] || normalize(t).slice(0, 6) || 'TYPE';
+      };
+
+      const managerInput = normalize(draft?.creativeName || 'SEM-NOME');
+      const objectiveCode = getObjectiveCode(draft?.campaignObjective || draft?.objective || '');
+      const typeCode = getTypeCode(draft?.creativeType || '');
+      // Placeholder account code until final ID is generated on submission
+      const accountCode = 'ACCT#XXX';
+      const finalCreativeName = `JSC-XXX_${managerInput}_${objectiveCode}_${typeCode}_${accountCode}`;
+
+      // store both for traceability
+      draft.managerInputName = draft?.creativeName || '';
+      draft.creativeName = finalCreativeName;
+
       const baseRow = {
         user_id: managerId,
         manager_id: managerId,
@@ -204,7 +257,7 @@ Deno.serve(async (req) => {
       };
 
       if (!submissionId) {
-        // Try to find existing draft by creativeName for this manager
+        // Try to find existing draft by FINAL creativeName for this manager
         const creativeName = (draft?.creativeName || '').trim();
         let targetId: string | null = null;
         if (creativeName) {
@@ -268,6 +321,57 @@ Deno.serve(async (req) => {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
+    }
+
+    if (action === "deleteDraft") {
+      const submissionId = body?.submissionId as string | undefined;
+      if (!submissionId) {
+        return new Response(JSON.stringify({ error: 'submissionId is required' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      // Verify draft ownership and status
+      const { data: submission, error: getErr } = await supabase
+        .from('creative_submissions')
+        .select('id, manager_id, status')
+        .eq('id', submissionId)
+        .maybeSingle();
+
+      if (getErr || !submission) {
+        return new Response(JSON.stringify({ error: getErr?.message || 'Not found' }), {
+          status: 404,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      if (submission.manager_id !== managerId) {
+        return new Response(JSON.stringify({ error: 'Forbidden' }), {
+          status: 403,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      if (submission.status !== 'draft') {
+        return new Response(JSON.stringify({ error: 'Only drafts can be deleted' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      // Delete dependent records first (files, variations), then submission
+      await supabase.from('creative_files').delete().eq('submission_id', submissionId);
+      await supabase.from('creative_variations').delete().eq('submission_id', submissionId);
+      const { error: delErr } = await supabase.from('creative_submissions').delete().eq('id', submissionId);
+      if (delErr) {
+        return new Response(JSON.stringify({ error: delErr.message }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      return new Response(JSON.stringify({ success: true }), {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     return new Response(JSON.stringify({ error: "Unknown action" }), {
