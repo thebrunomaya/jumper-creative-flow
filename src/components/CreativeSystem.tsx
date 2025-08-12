@@ -49,6 +49,151 @@ const CreativeSystem: React.FC = () => {
   const { currentUser } = useAuth();
   const { id: routeSubmissionId } = useParams();
 
+  // Upload a single asset to Supabase Storage and return metadata for rehydration
+  const uploadAsset = async (file: File, format: string) => {
+    const originalName = file.name || `${format}`;
+    const ext = originalName.includes('.') ? originalName.split('.').pop() : undefined;
+    const ts = Date.now();
+    const rand = Math.random().toString(36).slice(2, 8);
+    const user = currentUser?.id || 'anon';
+    const subId = routeSubmissionId || 'new';
+    const safeExt = ext ? `.${ext}` : '';
+    const path = `drafts/${user}/${subId}/${ts}-${rand}-${format}${safeExt}`;
+
+    const { error } = await supabase.storage
+      .from('creative-files')
+      .upload(path, file, { contentType: file.type || 'application/octet-stream', upsert: false });
+    if (error) throw error;
+
+    const { data: urlData } = supabase.storage.from('creative-files').getPublicUrl(path);
+    return {
+      url: urlData.publicUrl,
+      path,
+      name: originalName,
+      type: file.type,
+      size: file.size,
+      format,
+    };
+  };
+
+  // Build savedMedia object by uploading all present files in the form
+  const buildSavedMedia = async () => {
+    const saved: any = {};
+
+    if (Array.isArray(formData.mediaVariations) && formData.mediaVariations.length > 0) {
+      const variations = await Promise.all(
+        formData.mediaVariations.map(async (v: any) => {
+          const entry: any = {
+            id: v.id,
+            squareEnabled: v.squareEnabled,
+            verticalEnabled: v.verticalEnabled,
+            horizontalEnabled: v.horizontalEnabled,
+          };
+          if (v.squareFile?.file) entry.square = await uploadAsset(v.squareFile.file, 'square');
+          if (v.verticalFile?.file) entry.vertical = await uploadAsset(v.verticalFile.file, 'vertical');
+          if (v.horizontalFile?.file) entry.horizontal = await uploadAsset(v.horizontalFile.file, 'horizontal');
+          return entry;
+        })
+      );
+      saved.mediaVariations = variations;
+    }
+
+    if (Array.isArray((formData as any).carouselCards) && (formData as any).carouselCards.length > 0) {
+      const cards = await Promise.all(
+        (formData as any).carouselCards.map(async (c: any) => {
+          const entry: any = { id: c.id };
+          if (c.file?.file) {
+            const ratio = (formData.carouselAspectRatio || '1:1') === '1:1' ? 'carousel-1:1' : 'carousel-4:5';
+            entry.asset = await uploadAsset(c.file.file, ratio);
+          }
+          // Preserve per-card custom fields without the heavy file
+          if (c.customTitle) entry.customTitle = c.customTitle;
+          if (c.customDescription) entry.customDescription = c.customDescription;
+          if (c.customDestinationUrl) entry.customDestinationUrl = c.customDestinationUrl;
+          if (c.customCta) entry.customCta = c.customCta;
+          return entry;
+        })
+      );
+      saved.carouselCards = cards;
+      saved.carouselAspectRatio = formData.carouselAspectRatio || '1:1';
+    }
+
+    if ((formData as any).existingPost) {
+      saved.existingPost = (formData as any).existingPost;
+    }
+
+    return saved;
+  };
+
+  // From savedMedia, reconstruct ValidatedFile objects and inject them back into formData
+  async function rehydrateFilesFromSavedMedia(savedMedia: any, payload: any) {
+    const newData: any = { ...payload };
+
+    if (Array.isArray(newData.mediaVariations) && Array.isArray(savedMedia.mediaVariations)) {
+      const byId: Record<number, any> = {};
+      savedMedia.mediaVariations.forEach((v: any) => { if (v?.id != null) byId[v.id] = v; });
+
+      const rehydrated = await Promise.all(newData.mediaVariations.map(async (v: any) => {
+        const savedV = byId[v.id];
+        const result: any = {
+          ...v,
+          squareFile: undefined,
+          verticalFile: undefined,
+          horizontalFile: undefined,
+        };
+
+        if (savedV?.square?.url) {
+          const res = await fetch(savedV.square.url);
+          const blob = await res.blob();
+          const f = new File([blob], savedV.square.name || `square-${v.id}`, { type: blob.type || savedV.square.type || 'application/octet-stream' });
+          result.squareFile = await validateFile(f, 'square');
+        }
+        if (savedV?.vertical?.url) {
+          const res = await fetch(savedV.vertical.url);
+          const blob = await res.blob();
+          const f = new File([blob], savedV.vertical.name || `vertical-${v.id}`, { type: blob.type || savedV.vertical.type || 'application/octet-stream' });
+          result.verticalFile = await validateFile(f, 'vertical');
+        }
+        if (savedV?.horizontal?.url) {
+          const res = await fetch(savedV.horizontal.url);
+          const blob = await res.blob();
+          const f = new File([blob], savedV.horizontal.name || `horizontal-${v.id}`, { type: blob.type || savedV.horizontal.type || 'application/octet-stream' });
+          result.horizontalFile = await validateFile(f, 'horizontal');
+        }
+        return result;
+      }));
+
+      newData.mediaVariations = rehydrated;
+      updateFormData({ mediaVariations: rehydrated });
+    }
+
+    if (Array.isArray(newData.carouselCards) && Array.isArray(savedMedia.carouselCards)) {
+      const byId: Record<number, any> = {};
+      savedMedia.carouselCards.forEach((c: any) => { if (c?.id != null) byId[c.id] = c; });
+      const ratio = (savedMedia.carouselAspectRatio || newData.carouselAspectRatio || '1:1') === '1:1' ? 'carousel-1:1' : 'carousel-4:5';
+
+      const rehydratedCards = await Promise.all(newData.carouselCards.map(async (c: any) => {
+        const savedC = byId[c.id];
+        const result: any = { ...c, file: undefined };
+        if (savedC?.asset?.url) {
+          const res = await fetch(savedC.asset.url);
+          const blob = await res.blob();
+          const f = new File([blob], savedC.asset.name || `card-${c.id}`, { type: blob.type || savedC.asset.type || 'application/octet-stream' });
+          result.file = await validateFile(f, ratio as any);
+        }
+        // restore custom fields if present
+        if (savedC?.customTitle) result.customTitle = savedC.customTitle;
+        if (savedC?.customDescription) result.customDescription = savedC.customDescription;
+        if (savedC?.customDestinationUrl) result.customDestinationUrl = savedC.customDestinationUrl;
+        if (savedC?.customCta) result.customCta = savedC.customCta;
+        return result;
+      }));
+
+      newData.carouselCards = rehydratedCards;
+      updateFormData({ carouselCards: rehydratedCards, carouselAspectRatio: savedMedia.carouselAspectRatio || newData.carouselAspectRatio });
+    }
+  }
+
   useEffect(() => {
     const loadDraft = async () => {
       if (!routeSubmissionId) return;
@@ -62,7 +207,16 @@ const CreativeSystem: React.FC = () => {
         }
         const item = data.item;
         if (item?.payload) {
-          updateFormData(item.payload);
+          const payload = { ...item.payload };
+          // 1) Ao retomar, mostrar apenas o nome digitado pelo usuário
+          if (payload.managerInputName) {
+            payload.creativeName = payload.managerInputName;
+          }
+          updateFormData(payload);
+          // 2) Reidratar arquivos a partir de savedMedia, se existir
+          if (payload.savedMedia) {
+            await rehydrateFilesFromSavedMedia(payload.savedMedia, payload);
+          }
         }
         if (item?.id) {
           setDraftSubmissionId(item.id);
@@ -114,11 +268,36 @@ const CreativeSystem: React.FC = () => {
     }
 
     try {
+      // 1) Enviar arquivos para o Storage e montar savedMedia
+      const savedMedia = await buildSavedMedia();
+
+      // 2) Montar um payload leve, sem objetos File, para salvar como rascunho
+      const draftPayload: any = { ...formData, savedMedia };
+      draftPayload.files = [];
+      draftPayload.validatedFiles = [];
+      if (Array.isArray(draftPayload.mediaVariations)) {
+        draftPayload.mediaVariations = draftPayload.mediaVariations.map((v: any) => ({
+          id: v.id,
+          squareEnabled: v.squareEnabled,
+          verticalEnabled: v.verticalEnabled,
+          horizontalEnabled: v.horizontalEnabled,
+        }));
+      }
+      if (Array.isArray(draftPayload.carouselCards)) {
+        draftPayload.carouselCards = draftPayload.carouselCards.map((c: any) => ({
+          id: c.id,
+          customTitle: c.customTitle,
+          customDescription: c.customDescription,
+          customDestinationUrl: c.customDestinationUrl,
+          customCta: c.customCta,
+        }));
+      }
+
       const { data, error } = await supabase.functions.invoke('manager-actions', {
         body: {
           action: 'saveDraft',
           submissionId: routeSubmissionId ?? undefined,
-          draft: formData,
+          draft: draftPayload,
         },
       });
 
