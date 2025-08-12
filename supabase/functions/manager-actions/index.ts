@@ -95,7 +95,7 @@ Deno.serve(async (req) => {
     if (action === "listMy") {
       const { data, error } = await supabase
         .from("creative_submissions")
-        .select("id, client, manager_id, status, created_at, updated_at, result")
+        .select("id, client, manager_id, status, created_at, updated_at, result, payload")
         .eq("manager_id", managerId)
         .order("created_at", { ascending: false })
         .limit(200);
@@ -131,7 +131,11 @@ Deno.serve(async (req) => {
         } catch (_) {}
       }
 
-      const enriched = (data || []).map((r: any) => ({ ...r, client_name: r.client ? clientMap[r.client] || null : null }));
+      const enriched = (data || []).map((r: any) => ({ 
+        ...r,
+        client_name: r.client ? clientMap[r.client] || null : null,
+        creative_name: r?.payload?.creativeName || r?.payload?.managerInputName || null,
+      }));
       return new Response(JSON.stringify({ success: true, items: enriched }), {
         status: 200,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -283,7 +287,7 @@ Deno.serve(async (req) => {
               headers: { ...corsHeaders, 'Content-Type': 'application/json' },
             });
           }
-          return new Response(JSON.stringify({ success: true, submissionId: targetId }), {
+          return new Response(JSON.stringify({ success: true, submissionId: targetId, creativeName: finalCreativeName }), {
             status: 200,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           });
@@ -299,7 +303,7 @@ Deno.serve(async (req) => {
               headers: { ...corsHeaders, 'Content-Type': 'application/json' },
             });
           }
-          return new Response(JSON.stringify({ success: true, submissionId: data.id }), {
+          return new Response(JSON.stringify({ success: true, submissionId: data.id, creativeName: finalCreativeName }), {
             status: 200,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           });
@@ -316,7 +320,7 @@ Deno.serve(async (req) => {
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           });
         }
-        return new Response(JSON.stringify({ success: true, submissionId }), {
+        return new Response(JSON.stringify({ success: true, submissionId, creativeName: finalCreativeName }), {
           status: 200,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });

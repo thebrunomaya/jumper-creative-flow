@@ -132,7 +132,7 @@ const CreativeSystem: React.FC = () => {
 
       toast({
         title: 'Rascunho salvo',
-        description: data?.submissionId ? `ID: ${data.submissionId}` : 'Seu rascunho foi salvo com sucesso.',
+        description: data?.creativeName || formData.creativeName || 'Rascunho atualizado.',
       });
     } catch (err: any) {
       console.error('Erro ao salvar rascunho:', err);

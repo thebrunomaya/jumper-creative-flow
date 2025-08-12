@@ -20,6 +20,7 @@ interface Row {
   updated_at?: string;
   client_name?: string | null;
   result?: any;
+  creative_name?: string | null;
 }
 
 const statusToLabel: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
@@ -95,7 +96,7 @@ const Manager: React.FC = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-[40%]">Conta</TableHead>
+                    <TableHead className="w-[40%]">Criativo</TableHead>
                     <TableHead className="w-[20%]">Status</TableHead>
                     <TableHead className="w-[40%]"></TableHead>
                   </TableRow>
@@ -106,12 +107,12 @@ const Manager: React.FC = () => {
                       <TableCell colSpan={3} className="text-center text-muted-foreground">Nenhum rascunho</TableCell>
                     </TableRow>
                   ) : drafts.map((row) => {
-                    const conta = row.client_name || row.client || "—";
+                    const nome = row.creative_name || row.client_name || row.client || "—";
                     return (
                       <TableRow key={row.id}>
                         <TableCell>
                           <div className="flex flex-col">
-                            <span className="font-medium text-foreground truncate max-w-[420px]" title={conta}>{conta}</span>
+                            <span className="font-medium text-foreground truncate max-w-[420px]" title={nome}>{nome}</span>
                             <span className="text-xs text-muted-foreground">ID: {row.id}</span>
                           </div>
                         </TableCell>
