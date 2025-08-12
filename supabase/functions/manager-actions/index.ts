@@ -411,6 +411,47 @@ Deno.serve(async (req) => {
       }
     }
 
+    if (action === "accountCode") {
+      const notionId = body?.notionId as string | undefined;
+      if (!notionId) {
+        return new Response(JSON.stringify({ error: 'notionId is required' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      try {
+        const { data: acc, error: accErr } = await supabase
+          .from('accounts')
+          .select('name, ad_account_id')
+          .eq('notion_id', notionId)
+          .maybeSingle();
+        if (accErr || !acc) {
+          return new Response(JSON.stringify({ error: accErr?.message || 'Account not found' }), {
+            status: 404,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        const cleanName = (acc.name || '').toUpperCase().replace(/[\s\-_.\,]/g, '');
+        const firstLetter = cleanName[0] || 'X';
+        const remainingChars = cleanName.slice(1);
+        let consonants = remainingChars.replace(/[AEIOU]/g, '');
+        if (consonants.length < 3) consonants = remainingChars;
+        const finalChars = consonants.slice(0, 3).padEnd(3, 'X');
+        const digits = (acc.ad_account_id || '').replace(/\D/g, '');
+        const tail = digits.slice(-3) || 'XXX';
+        const accountCode = `${firstLetter}${finalChars}#${tail}`;
+        return new Response(JSON.stringify({ success: true, accountCode }), {
+          status: 200,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      } catch (e) {
+        return new Response(JSON.stringify({ error: 'Failed to compute account code' }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+    }
+
     if (action === "deleteDraft") {
       const submissionId = body?.submissionId as string | undefined;
       if (!submissionId) {

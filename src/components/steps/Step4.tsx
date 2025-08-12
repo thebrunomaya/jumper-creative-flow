@@ -24,23 +24,27 @@ const Step4: React.FC<Step4Props> = ({ formData, isSubmitting }) => {
   const selectedClient = clients.find(c => c.id === formData.client);
   const clientName = selectedClient?.name || 'Cliente não encontrado';
 
-  // Fetch real ad_account_id for accurate preview
-  const [accountId, setAccountId] = React.useState<string | null>(null);
+  // Fetch account code via edge function for accurate preview
+  const [accountCode, setAccountCode] = React.useState<string | null>(null);
   React.useEffect(() => {
-    async function fetchAccount() {
-      if (!formData.client) { setAccountId(null); return; }
+    let isMounted = true;
+    async function fetchAccountCode() {
+      if (!formData.client) { if (isMounted) setAccountCode(null); return; }
       try {
-        const { data, error } = await supabase
-          .from('accounts')
-          .select('ad_account_id')
-          .eq('notion_id', formData.client)
-          .maybeSingle();
-        if (!error) setAccountId(data?.ad_account_id || null);
+        const { data, error } = await supabase.functions.invoke('manager-actions', {
+          body: { action: 'accountCode', notionId: formData.client },
+        });
+        if (!error && data?.success && isMounted) {
+          setAccountCode(data.accountCode || null);
+        } else if (isMounted) {
+          setAccountCode(null);
+        }
       } catch (_) {
-        setAccountId(null);
+        if (isMounted) setAccountCode(null);
       }
     }
-    fetchAccount();
+    fetchAccountCode();
+    return () => { isMounted = false; };
   }, [formData.client]);
 
   // Generate preview of final creative name using detailed function (prefer accurate account code)
@@ -51,18 +55,10 @@ const Step4: React.FC<Step4Props> = ({ formData, isSubmitting }) => {
       formData.creativeType && 
       selectedClient
     ) {
-      if (accountId) {
-        const cleanName = selectedClient.name.toUpperCase().replace(/[\s\-_.\,]/g, '');
-        const firstLetter = cleanName[0] || 'X';
-        const remaining = cleanName.slice(1);
-        let consonants = remaining.replace(/[AEIOU]/g, '');
-        if (consonants.length < 3) consonants = remaining;
-        const finalChars = consonants.slice(0, 3).padEnd(3, 'X');
-        const digits = accountId.replace(/\D/g, '');
-        const tail = digits.slice(-3) || 'XXX';
+      if (accountCode) {
         const obj = getObjectiveCode(formData.campaignObjective);
         const type = getTypeCode(formData.creativeType);
-        return `JSC-XXX_${formData.creativeName}_${obj}_${type}_${firstLetter}${finalChars}#${tail}`;
+        return `JSC-XXX_${formData.creativeName}_${obj}_${type}_${accountCode}`;
       }
       return previewCreativeNameDetailed(
         formData.creativeName,
@@ -72,7 +68,7 @@ const Step4: React.FC<Step4Props> = ({ formData, isSubmitting }) => {
       );
     }
     return null;
-  }, [formData.creativeName, formData.campaignObjective, formData.creativeType, selectedClient, accountId]);
+  }, [formData.creativeName, formData.campaignObjective, formData.creativeType, selectedClient, accountCode]);
 
   // Check for validation issues based on creative type
   const getValidationIssues = () => {

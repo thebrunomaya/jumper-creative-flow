@@ -26,23 +26,27 @@ const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
   const selectedClient = clients.find(client => client.id === formData.client);
   const availableObjectives = selectedClient?.objectives || [];
 
-  // Fetch real ad_account_id for accurate preview
-  const [accountId, setAccountId] = React.useState<string | null>(null);
+  // Fetch account code via edge function for accurate preview
+  const [accountCode, setAccountCode] = React.useState<string | null>(null);
   React.useEffect(() => {
-    async function fetchAccount() {
-      if (!formData.client) { setAccountId(null); return; }
+    let isMounted = true;
+    async function fetchAccountCode() {
+      if (!formData.client) { if (isMounted) setAccountCode(null); return; }
       try {
-        const { data, error } = await supabase
-          .from('accounts')
-          .select('ad_account_id')
-          .eq('notion_id', formData.client)
-          .maybeSingle();
-        if (!error) setAccountId(data?.ad_account_id || null);
+        const { data, error } = await supabase.functions.invoke('manager-actions', {
+          body: { action: 'accountCode', notionId: formData.client },
+        });
+        if (!error && data?.success && isMounted) {
+          setAccountCode(data.accountCode || null);
+        } else if (isMounted) {
+          setAccountCode(null);
+        }
       } catch (_) {
-        setAccountId(null);
+        if (isMounted) setAccountCode(null);
       }
     }
-    fetchAccount();
+    fetchAccountCode();
+    return () => { isMounted = false; };
   }, [formData.client]);
   // Check if all prerequisites for creative name are filled
   const canShowCreativeName = !!(
@@ -66,19 +70,11 @@ const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
       formData.creativeType && 
       selectedClient
     ) {
-      // If we have a real account id, compute an accurate preview aligned with backend
-      if (accountId) {
-        const cleanName = selectedClient.name.toUpperCase().replace(/[\s\-_.\,]/g, '');
-        const firstLetter = cleanName[0] || 'X';
-        const remaining = cleanName.slice(1);
-        let consonants = remaining.replace(/[AEIOU]/g, '');
-        if (consonants.length < 3) consonants = remaining;
-        const finalChars = consonants.slice(0, 3).padEnd(3, 'X');
-        const digits = accountId.replace(/\D/g, '');
-        const tail = digits.slice(-3) || 'XXX';
+      // If we have the real account code, compute an accurate preview aligned with backend
+      if (accountCode) {
         const obj = getObjectiveCode(formData.campaignObjective);
         const type = getTypeCode(formData.creativeType);
-        return `JSC-XXX_${formData.creativeName}_${obj}_${type}_${firstLetter}${finalChars}#${tail}`;
+        return `JSC-XXX_${formData.creativeName}_${obj}_${type}_${accountCode}`;
       }
       // Fallback to previous preview (with #XXX)
       return previewCreativeNameDetailed(
@@ -89,7 +85,7 @@ const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
       );
     }
     return null;
-  }, [formData.creativeName, formData.campaignObjective, formData.creativeType, selectedClient, accountId]);
+  }, [formData.creativeName, formData.campaignObjective, formData.creativeType, selectedClient, accountCode]);
 
   return (
     <div className="space-y-6 animate-fade-in">
