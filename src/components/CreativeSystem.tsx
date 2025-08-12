@@ -23,6 +23,9 @@ const STEP_LABELS = ['Básico', 'Arquivos', 'Conteúdo', 'Revisão'];
 const CreativeSystem: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const { clients } = useNotionClients();
+  const [draftSubmissionId, setDraftSubmissionId] = useState<string | null>(() =>
+    (typeof window !== 'undefined' ? sessionStorage.getItem('draftSubmissionId') : null)
+  );
   
   const {
     formData,
@@ -66,8 +69,7 @@ const CreativeSystem: React.FC = () => {
   const handleSaveDraft = async () => {
     if (!formData.creativeName || !formData.creativeName.trim()) {
       toast({
-        title: 'Informe o nome do criativo',
-        description: 'Dê um nome ao criativo para salvar como rascunho.',
+        title: 'Antes de salvar o rascunho, defina um nome para o Criativo',
         variant: 'destructive',
       });
       return;
@@ -86,6 +88,7 @@ const CreativeSystem: React.FC = () => {
       const { data, error } = await supabase.functions.invoke('manager-actions', {
         body: {
           action: 'saveDraft',
+          submissionId: draftSubmissionId ?? undefined,
           draft: {
             client: formData.client,
             partner: formData.partner,
@@ -107,6 +110,11 @@ const CreativeSystem: React.FC = () => {
         throw new Error(error?.message || data?.error || 'Falha ao salvar rascunho');
       }
 
+      if (data?.submissionId) {
+        setDraftSubmissionId(data.submissionId);
+        try { sessionStorage.setItem('draftSubmissionId', data.submissionId); } catch (_) {}
+      }
+
       toast({
         title: 'Rascunho salvo',
         description: data?.submissionId ? `ID: ${data.submissionId}` : 'Seu rascunho foi salvo com sucesso.',
@@ -125,6 +133,8 @@ const CreativeSystem: React.FC = () => {
     resetForm();
     resetSubmission();
     setCurrentStep(1);
+    setDraftSubmissionId(null);
+    try { sessionStorage.removeItem('draftSubmissionId'); } catch (_) {}
   };
 
   if (isSubmitted) {

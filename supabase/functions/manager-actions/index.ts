@@ -204,36 +204,68 @@ Deno.serve(async (req) => {
       };
 
       if (!submissionId) {
-        const { data, error } = await supabase
-          .from("creative_submissions")
-          .insert(baseRow as any)
-          .select("id")
-          .single();
-        if (error) {
-          return new Response(JSON.stringify({ error: error.message }), {
-            status: 400,
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
+        // Try to find existing draft by creativeName for this manager
+        const creativeName = (draft?.creativeName || '').trim();
+        let targetId: string | null = null;
+        if (creativeName) {
+          const { data: existing } = await supabase
+            .from('creative_submissions')
+            .select('id')
+            .eq('manager_id', managerId)
+            .eq('status', 'draft')
+            .filter('payload->>creativeName', 'eq', creativeName)
+            .maybeSingle();
+          if (existing?.id) targetId = existing.id as string;
+        }
+
+        if (targetId) {
+          const { error } = await supabase
+            .from('creative_submissions')
+            .update(baseRow as any)
+            .eq('id', targetId)
+            .eq('manager_id', managerId);
+          if (error) {
+            return new Response(JSON.stringify({ error: error.message }), {
+              status: 400,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            });
+          }
+          return new Response(JSON.stringify({ success: true, submissionId: targetId }), {
+            status: 200,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        } else {
+          const { data, error } = await supabase
+            .from('creative_submissions')
+            .insert(baseRow as any)
+            .select('id')
+            .single();
+          if (error) {
+            return new Response(JSON.stringify({ error: error.message }), {
+              status: 400,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            });
+          }
+          return new Response(JSON.stringify({ success: true, submissionId: data.id }), {
+            status: 200,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           });
         }
-        return new Response(JSON.stringify({ success: true, submissionId: data.id }), {
-          status: 200,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
       } else {
         const { error } = await supabase
-          .from("creative_submissions")
+          .from('creative_submissions')
           .update(baseRow as any)
-          .eq("id", submissionId)
-          .eq("manager_id", managerId);
+          .eq('id', submissionId)
+          .eq('manager_id', managerId);
         if (error) {
           return new Response(JSON.stringify({ error: error.message }), {
             status: 400,
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           });
         }
         return new Response(JSON.stringify({ success: true, submissionId }), {
           status: 200,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
     }
