@@ -8,7 +8,8 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { useNotionClients } from '@/hooks/useNotionData';
 import { Skeleton } from '@/components/ui/skeleton';
-import { validateCreativeName, previewCreativeNameDetailed } from '@/utils/creativeName';
+import { validateCreativeName, previewCreativeNameDetailed, getObjectiveCode, getTypeCode } from '@/utils/creativeName';
+import { supabase } from '@/integrations/supabase/client';
 import facebookLogo from '@/assets/facebook-logo.svg';
 import googleGLogo from '@/assets/google-g-logo.svg';
 
@@ -25,6 +26,24 @@ const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
   const selectedClient = clients.find(client => client.id === formData.client);
   const availableObjectives = selectedClient?.objectives || [];
 
+  // Fetch real ad_account_id for accurate preview
+  const [accountId, setAccountId] = React.useState<string | null>(null);
+  React.useEffect(() => {
+    async function fetchAccount() {
+      if (!formData.client) { setAccountId(null); return; }
+      try {
+        const { data, error } = await supabase
+          .from('accounts')
+          .select('ad_account_id')
+          .eq('notion_id', formData.client)
+          .maybeSingle();
+        if (!error) setAccountId(data?.ad_account_id || null);
+      } catch (_) {
+        setAccountId(null);
+      }
+    }
+    fetchAccount();
+  }, [formData.client]);
   // Check if all prerequisites for creative name are filled
   const canShowCreativeName = !!(
     formData.client && 
@@ -33,9 +52,9 @@ const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
     (formData.platform === 'google' || formData.creativeType) // For Google, creativeType is not required
   );
 
-  // Handle creative name change with automatic space removal
+  // Handle creative name change replacing spaces with underscores
   const handleCreativeNameChange = (value: string) => {
-    const cleanValue = value.replace(/\s/g, ''); // Remove espaços automaticamente
+    const cleanValue = value.replace(/\s+/g, '_');
     updateFormData({ creativeName: cleanValue });
   };
 
@@ -47,6 +66,21 @@ const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
       formData.creativeType && 
       selectedClient
     ) {
+      // If we have a real account id, compute an accurate preview aligned with backend
+      if (accountId) {
+        const cleanName = selectedClient.name.toUpperCase().replace(/[\s\-_.\,]/g, '');
+        const firstLetter = cleanName[0] || 'X';
+        const remaining = cleanName.slice(1);
+        let consonants = remaining.replace(/[AEIOU]/g, '');
+        if (consonants.length < 3) consonants = remaining;
+        const finalChars = consonants.slice(0, 3).padEnd(3, 'X');
+        const digits = accountId.replace(/\D/g, '');
+        const tail = digits.slice(-3) || 'XXX';
+        const obj = getObjectiveCode(formData.campaignObjective);
+        const type = getTypeCode(formData.creativeType);
+        return `JSC-XXX_${formData.creativeName}_${obj}_${type}_${firstLetter}${finalChars}#${tail}`;
+      }
+      // Fallback to previous preview (with #XXX)
       return previewCreativeNameDetailed(
         formData.creativeName,
         formData.campaignObjective,
@@ -55,7 +89,7 @@ const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
       );
     }
     return null;
-  }, [formData.creativeName, formData.campaignObjective, formData.creativeType, selectedClient]);
+  }, [formData.creativeName, formData.campaignObjective, formData.creativeType, selectedClient, accountId]);
 
   return (
     <div className="space-y-6 animate-fade-in">

@@ -251,9 +251,10 @@ Deno.serve(async (req) => {
           consonants = remainingChars;
         }
         const finalChars = consonants.slice(0, 3).padEnd(3, 'X');
-        return `${firstLetter}${finalChars}#${accountId || 'XXX'}`;
+        const digits = (accountId || '').replace(/\D/g, '');
+        const tail = digits.slice(-3) || 'XXX';
+        return `${firstLetter}${finalChars}#${tail}`;
       };
-
       let accountCode = 'ACCT#XXX';
       try {
         const notionId = draft?.client as string | undefined;

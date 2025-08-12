@@ -128,6 +128,7 @@ const CreativeSystem: React.FC = () => {
   // From savedMedia, reconstruct ValidatedFile objects and inject them back into formData
   async function rehydrateFilesFromSavedMedia(savedMedia: any, payload: any) {
     const newData: any = { ...payload };
+    let hadFailures = false;
 
     if (Array.isArray(newData.mediaVariations) && Array.isArray(savedMedia.mediaVariations)) {
       const byId: Record<number, any> = {};
@@ -143,22 +144,37 @@ const CreativeSystem: React.FC = () => {
         };
 
         if (savedV?.square?.url) {
-          const res = await fetch(savedV.square.url);
-          const blob = await res.blob();
-          const f = new File([blob], savedV.square.name || `square-${v.id}`, { type: blob.type || savedV.square.type || 'application/octet-stream' });
-          result.squareFile = await validateFile(f, 'square');
+          try {
+            const res = await fetch(savedV.square.url);
+            const blob = await res.blob();
+            const f = new File([blob], savedV.square.name || `square-${v.id}`, { type: blob.type || savedV.square.type || 'application/octet-stream' });
+            result.squareFile = await validateFile(f, 'square');
+          } catch (e) {
+            console.warn('Falha ao reidratar square', e);
+            hadFailures = true;
+          }
         }
         if (savedV?.vertical?.url) {
-          const res = await fetch(savedV.vertical.url);
-          const blob = await res.blob();
-          const f = new File([blob], savedV.vertical.name || `vertical-${v.id}`, { type: blob.type || savedV.vertical.type || 'application/octet-stream' });
-          result.verticalFile = await validateFile(f, 'vertical');
+          try {
+            const res = await fetch(savedV.vertical.url);
+            const blob = await res.blob();
+            const f = new File([blob], savedV.vertical.name || `vertical-${v.id}`, { type: blob.type || savedV.vertical.type || 'application/octet-stream' });
+            result.verticalFile = await validateFile(f, 'vertical');
+          } catch (e) {
+            console.warn('Falha ao reidratar vertical', e);
+            hadFailures = true;
+          }
         }
         if (savedV?.horizontal?.url) {
-          const res = await fetch(savedV.horizontal.url);
-          const blob = await res.blob();
-          const f = new File([blob], savedV.horizontal.name || `horizontal-${v.id}`, { type: blob.type || savedV.horizontal.type || 'application/octet-stream' });
-          result.horizontalFile = await validateFile(f, 'horizontal');
+          try {
+            const res = await fetch(savedV.horizontal.url);
+            const blob = await res.blob();
+            const f = new File([blob], savedV.horizontal.name || `horizontal-${v.id}`, { type: blob.type || savedV.horizontal.type || 'application/octet-stream' });
+            result.horizontalFile = await validateFile(f, 'horizontal');
+          } catch (e) {
+            console.warn('Falha ao reidratar horizontal', e);
+            hadFailures = true;
+          }
         }
         return result;
       }));
@@ -176,10 +192,15 @@ const CreativeSystem: React.FC = () => {
         const savedC = byId[c.id];
         const result: any = { ...c, file: undefined };
         if (savedC?.asset?.url) {
-          const res = await fetch(savedC.asset.url);
-          const blob = await res.blob();
-          const f = new File([blob], savedC.asset.name || `card-${c.id}`, { type: blob.type || savedC.asset.type || 'application/octet-stream' });
-          result.file = await validateFile(f, ratio as any);
+          try {
+            const res = await fetch(savedC.asset.url);
+            const blob = await res.blob();
+            const f = new File([blob], savedC.asset.name || `card-${c.id}`, { type: blob.type || savedC.asset.type || 'application/octet-stream' });
+            result.file = await validateFile(f, ratio as any);
+          } catch (e) {
+            console.warn('Falha ao reidratar cartão', e);
+            hadFailures = true;
+          }
         }
         // restore custom fields if present
         if (savedC?.customTitle) result.customTitle = savedC.customTitle;
@@ -191,6 +212,13 @@ const CreativeSystem: React.FC = () => {
 
       newData.carouselCards = rehydratedCards;
       updateFormData({ carouselCards: rehydratedCards, carouselAspectRatio: savedMedia.carouselAspectRatio || newData.carouselAspectRatio });
+    }
+
+    if (hadFailures) {
+      toast({
+        title: 'Alguns arquivos não puderam ser reidratados',
+        description: 'Eles foram ignorados. Se necessário, reenvie os arquivos.',
+      });
     }
   }
 

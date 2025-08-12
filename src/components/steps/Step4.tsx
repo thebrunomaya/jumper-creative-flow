@@ -5,7 +5,8 @@ import { AlertTriangle, CheckCircle, FileText, Image, Video, Users, User, Instag
 import { useNotionClients } from '@/hooks/useNotionData';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { previewCreativeNameDetailed } from '@/utils/creativeName';
+import { previewCreativeNameDetailed, getObjectiveCode, getTypeCode } from '@/utils/creativeName';
+import { supabase } from '@/integrations/supabase/client';
 
 interface Step4Props {
   formData: FormData;
@@ -23,7 +24,26 @@ const Step4: React.FC<Step4Props> = ({ formData, isSubmitting }) => {
   const selectedClient = clients.find(c => c.id === formData.client);
   const clientName = selectedClient?.name || 'Cliente não encontrado';
 
-  // Generate preview of final creative name using the detailed function
+  // Fetch real ad_account_id for accurate preview
+  const [accountId, setAccountId] = React.useState<string | null>(null);
+  React.useEffect(() => {
+    async function fetchAccount() {
+      if (!formData.client) { setAccountId(null); return; }
+      try {
+        const { data, error } = await supabase
+          .from('accounts')
+          .select('ad_account_id')
+          .eq('notion_id', formData.client)
+          .maybeSingle();
+        if (!error) setAccountId(data?.ad_account_id || null);
+      } catch (_) {
+        setAccountId(null);
+      }
+    }
+    fetchAccount();
+  }, [formData.client]);
+
+  // Generate preview of final creative name using detailed function (prefer accurate account code)
   const finalCreativeName = React.useMemo(() => {
     if (
       formData.creativeName && 
@@ -31,6 +51,19 @@ const Step4: React.FC<Step4Props> = ({ formData, isSubmitting }) => {
       formData.creativeType && 
       selectedClient
     ) {
+      if (accountId) {
+        const cleanName = selectedClient.name.toUpperCase().replace(/[\s\-_.\,]/g, '');
+        const firstLetter = cleanName[0] || 'X';
+        const remaining = cleanName.slice(1);
+        let consonants = remaining.replace(/[AEIOU]/g, '');
+        if (consonants.length < 3) consonants = remaining;
+        const finalChars = consonants.slice(0, 3).padEnd(3, 'X');
+        const digits = accountId.replace(/\D/g, '');
+        const tail = digits.slice(-3) || 'XXX';
+        const obj = getObjectiveCode(formData.campaignObjective);
+        const type = getTypeCode(formData.creativeType);
+        return `JSC-XXX_${formData.creativeName}_${obj}_${type}_${firstLetter}${finalChars}#${tail}`;
+      }
       return previewCreativeNameDetailed(
         formData.creativeName,
         formData.campaignObjective,
@@ -39,7 +72,7 @@ const Step4: React.FC<Step4Props> = ({ formData, isSubmitting }) => {
       );
     }
     return null;
-  }, [formData.creativeName, formData.campaignObjective, formData.creativeType, selectedClient]);
+  }, [formData.creativeName, formData.campaignObjective, formData.creativeType, selectedClient, accountId]);
 
   // Check for validation issues based on creative type
   const getValidationIssues = () => {
