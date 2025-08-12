@@ -12,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { User, LogOut, PlusCircle, Shield } from 'lucide-react';
+import { User, LogOut, PlusCircle, Shield, LayoutDashboard } from 'lucide-react';
 
 const UserMenu: React.FC = () => {
   const { currentUser, logout } = useAuth();
@@ -47,7 +47,11 @@ const UserMenu: React.FC = () => {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
-        <DropdownMenuLabel>Conta</DropdownMenuLabel>
+        <DropdownMenuLabel>Painel</DropdownMenuLabel>
+        <DropdownMenuItem onSelect={() => navigate('/manager')} className="cursor-pointer">
+          <LayoutDashboard className="mr-2 h-4 w-4" />
+          <span>Painel</span>
+        </DropdownMenuItem>
         <DropdownMenuItem onSelect={() => navigate('/create')} className="cursor-pointer">
           <PlusCircle className="mr-2 h-4 w-4" />
           <span>Novo criativo</span>

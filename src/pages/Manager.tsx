@@ -9,6 +9,7 @@ import { Card } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Link } from "react-router-dom";
 import Header from "@/components/Header";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
 interface Row {
   id: string;
@@ -53,6 +54,18 @@ const Manager: React.FC = () => {
   };
 
   const { data: items = [], isFetching, refetch } = useQuery({ queryKey: ["manager", "my-submissions"], queryFn: fetchMy });
+
+  const handleDelete = async (id: string) => {
+    const { data, error } = await supabase.functions.invoke("manager-actions", {
+      body: { action: "deleteDraft", submissionId: id },
+    });
+    if (error || !data?.success) {
+      toast({ title: "Falha ao apagar", description: data?.error || error?.message || "Tente novamente" });
+      return;
+    }
+    toast({ title: "Rascunho apagado", description: "O rascunho foi removido." });
+    refetch();
+  };
 
   const drafts = useMemo(() => items.filter((i) => i.status === "draft"), [items]);
   const sent = useMemo(() => items.filter((i) => ["pending", "queued", "processing"].includes(i.status)), [items]);
@@ -109,6 +122,23 @@ const Manager: React.FC = () => {
                           <Link to={`/create/${row.id}`}>
                             <Button size="sm">Continuar</Button>
                           </Link>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button variant="destructive" size="sm" className="ml-2">Apagar</Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Apagar rascunho?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Esta ação não pode ser desfeita e removerá o rascunho permanentemente.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => handleDelete(row.id)}>Confirmar</AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
                         </TableCell>
                       </TableRow>
                     );

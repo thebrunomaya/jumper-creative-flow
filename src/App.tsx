@@ -13,6 +13,7 @@ import Index from "./pages/Index";
 import DesignSystem from "./pages/DesignSystem";
 import NotFound from "./pages/NotFound";
 import Admin from "./pages/Admin";
+import Manager from "./pages/Manager";
 import CreativeSystem from "@/components/CreativeSystem";
 import { preloadCommonThumbnails } from "@/utils/thumbnailCache";
 
@@ -53,6 +54,11 @@ const App = () => {
                   <AdminRoute>
                     <Admin />
                   </AdminRoute>
+                } />
+                <Route path="/manager" element={
+                  <ProtectedRoute>
+                    <Manager />
+                  </ProtectedRoute>
                 } />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
