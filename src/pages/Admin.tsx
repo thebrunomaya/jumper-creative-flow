@@ -20,6 +20,7 @@ interface SubmissionRow {
   created_at: string;
   updated_at?: string;
   client_name?: string | null;
+  creative_name?: string | null;
 }
 
 const statusToLabel: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
@@ -173,28 +174,30 @@ const AdminPage: React.FC = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-[32%]">Conta</TableHead>
-                    <TableHead className="w-[24%]">Gerente</TableHead>
-                    <TableHead className="w-[20%]">Status</TableHead>
-                    <TableHead className="w-[24%]"/>
+                    <TableHead className="w-[35%]">Criativo</TableHead>
+                    <TableHead className="w-[30%]">Conta</TableHead>
+                    <TableHead className="w-[15%]">Status</TableHead>
+                    <TableHead className="w-[20%]"/>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {rows.map((row) => {
                     const statusInfo = statusToLabel[row.status] || { label: row.status, variant: "outline" };
-                    const gerente = row.manager_id ? (row.manager_id === currentUser?.id ? currentUser?.name : row.manager_id) : "—";
                     const conta = row.client_name || row.client || "—";
+                    const criativo = row.creative_name || "Sem nome";
 
                     return (
                       <TableRow key={row.id}>
                         <TableCell>
                           <div className="flex flex-col">
-                            <span className="font-medium text-foreground truncate max-w-[420px]" title={conta}>{conta}</span>
+                            <span className="font-medium text-foreground truncate max-w-[300px]" title={criativo}>{criativo}</span>
                             <span className="text-xs text-muted-foreground">ID: {row.id}</span>
                           </div>
                         </TableCell>
                         <TableCell>
-                          <span className="text-sm text-foreground">{gerente}</span>
+                          <div className="flex flex-col">
+                            <span className="font-medium text-foreground truncate max-w-[250px]" title={conta}>{conta}</span>
+                          </div>
                         </TableCell>
                         <TableCell>
                           <Badge variant={statusInfo.variant}>{statusInfo.label}</Badge>

@@ -374,7 +374,7 @@ Deno.serve(async (req) => {
     // Default: listAll submissions (latest first)
     const { data: items, error: listErr2 } = await supabase
       .from("j_ads_creative_submissions")
-      .select("id, client, manager_id, status, error, created_at, updated_at")
+      .select("id, client, manager_id, status, error, created_at, updated_at, payload")
       .order("created_at", { ascending: false })
       .limit(100);
     if (listErr2) {
@@ -410,7 +410,11 @@ Deno.serve(async (req) => {
       }
     }
 
-    const enriched = (items || []).map((r: any) => ({ ...r, client_name: r.client ? clientMap[r.client] || null : null }));
+    const enriched = (items || []).map((r: any) => ({ 
+      ...r, 
+      client_name: r.client ? clientMap[r.client] || null : null,
+      creative_name: r?.payload?.managerInputName || r?.payload?.creativeName || null,
+    }));
 
     return new Response(JSON.stringify({ success: true, items: enriched }), {
       status: 200,

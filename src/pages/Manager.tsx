@@ -96,29 +96,36 @@ const Manager: React.FC = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-[40%]">Criativo</TableHead>
-                    <TableHead className="w-[20%]">Status</TableHead>
-                    <TableHead className="w-[40%]"></TableHead>
+                    <TableHead className="w-[35%]">Criativo</TableHead>
+                    <TableHead className="w-[30%]">Conta</TableHead>
+                    <TableHead className="w-[15%]">Status</TableHead>
+                    <TableHead className="w-[20%]"></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {drafts.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={3} className="text-center text-muted-foreground">Nenhum rascunho</TableCell>
-                    </TableRow>
-                  ) : drafts.map((row) => {
-                    const nome = row.creative_name || row.client_name || row.client || "—";
-                    return (
-                      <TableRow key={row.id}>
-                        <TableCell>
-                          <div className="flex flex-col">
-                            <span className="font-medium text-foreground truncate max-w-[420px]" title={nome}>{nome}</span>
-                            <span className="text-xs text-muted-foreground">ID: {row.id}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant={statusToLabel[row.status]?.variant || "outline"}>{statusToLabel[row.status]?.label || row.status}</Badge>
-                        </TableCell>
+                   {drafts.length === 0 ? (
+                     <TableRow>
+                       <TableCell colSpan={4} className="text-center text-muted-foreground">Nenhum rascunho</TableCell>
+                     </TableRow>
+                   ) : drafts.map((row) => {
+                     const criativo = row.creative_name || "Sem nome";
+                     const conta = row.client_name || row.client || "—";
+                     return (
+                       <TableRow key={row.id}>
+                         <TableCell>
+                           <div className="flex flex-col">
+                             <span className="font-medium text-foreground truncate max-w-[300px]" title={criativo}>{criativo}</span>
+                             <span className="text-xs text-muted-foreground">ID: {row.id}</span>
+                           </div>
+                         </TableCell>
+                         <TableCell>
+                           <div className="flex flex-col">
+                             <span className="font-medium text-foreground truncate max-w-[250px]" title={conta}>{conta}</span>
+                           </div>
+                         </TableCell>
+                         <TableCell>
+                           <Badge variant={statusToLabel[row.status]?.variant || "outline"}>{statusToLabel[row.status]?.label || row.status}</Badge>
+                         </TableCell>
                         <TableCell className="text-right">
                           <Link to={`/create/${row.id}`}>
                             <Button size="sm">Continuar</Button>
@@ -157,24 +164,31 @@ const Manager: React.FC = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-[40%]">Conta</TableHead>
-                    <TableHead className="w-[20%]">Status</TableHead>
-                    <TableHead className="w-[40%]"></TableHead>
+                    <TableHead className="w-[35%]">Criativo</TableHead>
+                    <TableHead className="w-[30%]">Conta</TableHead>
+                    <TableHead className="w-[15%]">Status</TableHead>
+                    <TableHead className="w-[20%]"></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {sent.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={3} className="text-center text-muted-foreground">Nada por aqui ainda</TableCell>
-                    </TableRow>
+                   {sent.length === 0 ? (
+                     <TableRow>
+                       <TableCell colSpan={4} className="text-center text-muted-foreground">Nada por aqui ainda</TableCell>
+                     </TableRow>
                   ) : sent.map((row) => {
+                    const criativo = row.creative_name || "Sem nome";
                     const conta = row.client_name || row.client || "—";
                     return (
                       <TableRow key={row.id}>
                         <TableCell>
                           <div className="flex flex-col">
-                            <span className="font-medium text-foreground truncate max-w-[420px]" title={conta}>{conta}</span>
+                            <span className="font-medium text-foreground truncate max-w-[300px]" title={criativo}>{criativo}</span>
                             <span className="text-xs text-muted-foreground">ID: {row.id}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex flex-col">
+                            <span className="font-medium text-foreground truncate max-w-[250px]" title={conta}>{conta}</span>
                           </div>
                         </TableCell>
                         <TableCell>
@@ -199,24 +213,31 @@ const Manager: React.FC = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-[40%]">Conta</TableHead>
-                    <TableHead className="w-[20%]">Status</TableHead>
-                    <TableHead className="w-[40%]"></TableHead>
+                    <TableHead className="w-[35%]">Criativo</TableHead>
+                    <TableHead className="w-[30%]">Conta</TableHead>
+                    <TableHead className="w-[15%]">Status</TableHead>
+                    <TableHead className="w-[20%]"></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {processed.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={3} className="text-center text-muted-foreground">Sem criativos processados</TableCell>
-                    </TableRow>
+                   {processed.length === 0 ? (
+                     <TableRow>
+                       <TableCell colSpan={4} className="text-center text-muted-foreground">Sem criativos processados</TableCell>
+                     </TableRow>
                   ) : processed.map((row) => {
+                    const criativo = row.creative_name || "Sem nome";
                     const conta = row.client_name || row.client || "—";
                     return (
                       <TableRow key={row.id}>
                         <TableCell>
                           <div className="flex flex-col">
-                            <span className="font-medium text-foreground truncate max-w-[420px]" title={conta}>{conta}</span>
+                            <span className="font-medium text-foreground truncate max-w-[300px]" title={criativo}>{criativo}</span>
                             <span className="text-xs text-muted-foreground">ID: {row.id}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex flex-col">
+                            <span className="font-medium text-foreground truncate max-w-[250px]" title={conta}>{conta}</span>
                           </div>
                         </TableCell>
                         <TableCell>
