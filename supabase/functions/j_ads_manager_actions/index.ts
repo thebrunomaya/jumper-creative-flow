@@ -260,7 +260,7 @@ Deno.serve(async (req) => {
         const notionId = draft?.client as string | undefined;
         if (notionId) {
           const { data: acc } = await supabase
-            .from('j_ads_accounts')
+            .from('accounts')
             .select('name, ad_account_id')
             .eq('notion_id', notionId)
             .maybeSingle();
@@ -421,7 +421,7 @@ Deno.serve(async (req) => {
       }
       try {
         const { data: acc, error: accErr } = await supabase
-          .from('j_ads_accounts')
+          .from('accounts')
           .select('name, ad_account_id')
           .eq('notion_id', notionId)
           .maybeSingle();

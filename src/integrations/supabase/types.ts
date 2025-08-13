@@ -14,7 +14,7 @@ export type Database = {
   }
   public: {
     Tables: {
-      j_ads_accounts: {
+      accounts: {
         Row: {
           account_manager: string | null
           ad_account_id: string
@@ -347,42 +347,6 @@ export type Database = {
         }
         Relationships: []
       }
-      j_ads_partners: {
-        Row: {
-          created_at: string
-          default_url: string
-          id: string
-          name: string
-          primary_color: string | null
-          secondary_color: string | null
-          slug: string
-          title: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          default_url: string
-          id?: string
-          name: string
-          primary_color?: string | null
-          secondary_color?: string | null
-          slug: string
-          title: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          default_url?: string
-          id?: string
-          name?: string
-          primary_color?: string | null
-          secondary_color?: string | null
-          slug?: string
-          title?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
       n8n_fila_mensagens: {
         Row: {
           id: number
@@ -425,6 +389,42 @@ export type Database = {
           id?: number
           message?: Json
           session_id?: string
+        }
+        Relationships: []
+      }
+      partners: {
+        Row: {
+          created_at: string
+          default_url: string
+          id: string
+          name: string
+          primary_color: string | null
+          secondary_color: string | null
+          slug: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          default_url: string
+          id?: string
+          name: string
+          primary_color?: string | null
+          secondary_color?: string | null
+          slug: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          default_url?: string
+          id?: string
+          name?: string
+          primary_color?: string | null
+          secondary_color?: string | null
+          slug?: string
+          title?: string
+          updated_at?: string
         }
         Relationships: []
       }
