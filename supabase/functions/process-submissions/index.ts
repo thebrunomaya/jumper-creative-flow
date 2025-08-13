@@ -37,7 +37,7 @@ Deno.serve(async (req) => {
 
       if (action === "queue" && submissionId) {
         const { data, error } = await supabase
-          .from("creative_submissions")
+          .from("j_ads_creative_submissions")
           .update({ status: "queued" })
           .eq("id", submissionId)
           .select("id, status")
@@ -58,7 +58,7 @@ Deno.serve(async (req) => {
 
       // Default: list pending
       const { data: pending, error: listErr } = await supabase
-        .from("creative_submissions")
+        .from("j_ads_creative_submissions")
         .select("id, status, created_at")
         .eq("status", "pending")
         .order("created_at", { ascending: true })
