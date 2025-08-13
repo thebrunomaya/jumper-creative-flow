@@ -274,14 +274,11 @@ serve(async (req) => {
         const user = users.users.find(u => u.email?.toLowerCase() === manager.email.toLowerCase());
         if (!user) continue;
 
-        // Upsert role in j_ads_user_roles
-        const { error: roleErr } = await service
-          .from('j_ads_user_roles')
-          .upsert({ 
-            user_id: user.id, 
-            role: manager.role 
-          }, { 
-            onConflict: 'user_id,role' 
+        // Use the set_user_role function for more reliable role updates
+        const { data: roleResult, error: roleErr } = await service
+          .rpc('set_user_role', {
+            _user_email: manager.email,
+            _role: manager.role
           });
         
         if (!roleErr) rolesSynced++;
