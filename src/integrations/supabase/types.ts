@@ -14,84 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      accounts: {
-        Row: {
-          account_manager: string | null
-          ad_account_id: string
-          created_at: string
-          google_ads_id: string | null
-          manager: string | null
-          monthly_budget_google: number | null
-          monthly_budget_meta: number | null
-          monthly_budget_tiktok: number | null
-          name: string
-          niche: Json | null
-          notion_id: string
-          objectives: Json
-          partner_id: string | null
-          payment_method: string | null
-          sowork_channel: string | null
-          status: string | null
-          tasks: Json | null
-          tier: number | null
-          tracking: Json | null
-          updated_at: string
-          whatsapp: string | null
-          woo_consumer_key: string | null
-          woo_consumer_secret: string | null
-        }
-        Insert: {
-          account_manager?: string | null
-          ad_account_id: string
-          created_at?: string
-          google_ads_id?: string | null
-          manager?: string | null
-          monthly_budget_google?: number | null
-          monthly_budget_meta?: number | null
-          monthly_budget_tiktok?: number | null
-          name: string
-          niche?: Json | null
-          notion_id: string
-          objectives?: Json
-          partner_id?: string | null
-          payment_method?: string | null
-          sowork_channel?: string | null
-          status?: string | null
-          tasks?: Json | null
-          tier?: number | null
-          tracking?: Json | null
-          updated_at?: string
-          whatsapp?: string | null
-          woo_consumer_key?: string | null
-          woo_consumer_secret?: string | null
-        }
-        Update: {
-          account_manager?: string | null
-          ad_account_id?: string
-          created_at?: string
-          google_ads_id?: string | null
-          manager?: string | null
-          monthly_budget_google?: number | null
-          monthly_budget_meta?: number | null
-          monthly_budget_tiktok?: number | null
-          name?: string
-          niche?: Json | null
-          notion_id?: string
-          objectives?: Json
-          partner_id?: string | null
-          payment_method?: string | null
-          sowork_channel?: string | null
-          status?: string | null
-          tasks?: Json | null
-          tier?: number | null
-          tracking?: Json | null
-          updated_at?: string
-          whatsapp?: string | null
-          woo_consumer_key?: string | null
-          woo_consumer_secret?: string | null
-        }
-        Relationships: []
-      }
       j_ads_creative_files: {
         Row: {
           created_at: string
@@ -347,6 +269,30 @@ export type Database = {
         }
         Relationships: []
       }
+      j_ads_user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       n8n_fila_mensagens: {
         Row: {
           id: number
@@ -389,66 +335,6 @@ export type Database = {
           id?: number
           message?: Json
           session_id?: string
-        }
-        Relationships: []
-      }
-      partners: {
-        Row: {
-          created_at: string
-          default_url: string
-          id: string
-          name: string
-          primary_color: string | null
-          secondary_color: string | null
-          slug: string
-          title: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          default_url: string
-          id?: string
-          name: string
-          primary_color?: string | null
-          secondary_color?: string | null
-          slug: string
-          title: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          default_url?: string
-          id?: string
-          name?: string
-          primary_color?: string | null
-          secondary_color?: string | null
-          slug?: string
-          title?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      user_roles: {
-        Row: {
-          created_at: string
-          id: string
-          role: Database["public"]["Enums"]["app_role"]
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          role: Database["public"]["Enums"]["app_role"]
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          role?: Database["public"]["Enums"]["app_role"]
-          updated_at?: string
-          user_id?: string
         }
         Relationships: []
       }

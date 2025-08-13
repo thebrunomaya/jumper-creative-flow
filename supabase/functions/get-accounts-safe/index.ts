@@ -49,7 +49,7 @@ Deno.serve(async (req) => {
 
     // Check roles for this user
     const { data: roles, error: rolesError } = await adminClient
-      .from('user_roles')
+      .from('j_ads_user_roles')
       .select('role')
       .eq('user_id', user.id);
 

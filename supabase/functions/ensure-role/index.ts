@@ -52,7 +52,7 @@ Deno.serve(async (req: Request) => {
 
     // Check if user already has any role
     const { data: roles, error: rolesError } = await admin
-      .from('user_roles')
+      .from('j_ads_user_roles')
       .select('id, role')
       .eq('user_id', user.id)
       .limit(1)
@@ -74,7 +74,7 @@ Deno.serve(async (req: Request) => {
 
     // Assign default role 'manager'
     const { error: insertError } = await admin
-      .from('user_roles')
+      .from('j_ads_user_roles')
       .insert({ user_id: user.id, role: 'manager' })
 
     if (insertError) {
