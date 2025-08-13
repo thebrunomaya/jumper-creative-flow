@@ -328,7 +328,6 @@ const CreativeSystem: React.FC = () => {
           draft: draftPayload,
         },
       });
-      });
 
       if (error || !data?.success) {
         throw new Error(error?.message || data?.error || 'Falha ao salvar rascunho');
