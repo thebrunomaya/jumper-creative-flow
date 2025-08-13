@@ -42,8 +42,11 @@ export const useCreativeSubmission = () => {
         format?: string;
         variationIndex?: number;
         base64Data?: string;
+        url?: string;
         instagramUrl?: string;
       }> = [];
+
+      const savedMedia = (formData as any).savedMedia;
 
       if (formData.creativeType === 'existing-post' && formData.existingPost) {
         filesInfo.push({
@@ -51,8 +54,60 @@ export const useCreativeSubmission = () => {
           type: 'existing-post',
           size: 0,
           instagramUrl: formData.existingPost.instagramUrl,
-          variationIndex: 1
+          variationIndex: 1,
         });
+      } else if (savedMedia && formData.creativeType === 'carousel' && Array.isArray(savedMedia.carouselCards)) {
+        const ratio = savedMedia.carouselAspectRatio || formData.carouselAspectRatio || '1:1';
+        const format = ratio === '1:1' ? 'carousel-1:1' : 'carousel-4:5';
+        for (const card of savedMedia.carouselCards) {
+          const asset = card?.asset;
+          if (asset?.url) {
+            filesInfo.push({
+              name: asset.name || 'carousel-card',
+              type: asset.type || 'application/octet-stream',
+              size: asset.size || 0,
+              format,
+              variationIndex: 1,
+              url: asset.url,
+            });
+          }
+        }
+      } else if (savedMedia && formData.creativeType === 'single' && Array.isArray(savedMedia.mediaVariations)) {
+        for (let i = 0; i < savedMedia.mediaVariations.length; i++) {
+          const v = savedMedia.mediaVariations[i];
+          const variationIndex = (v?.id && Number.isFinite(v.id)) ? v.id : i + 1;
+
+          if (v?.square?.url) {
+            filesInfo.push({
+              name: v.square.name || 'square',
+              type: v.square.type || 'application/octet-stream',
+              size: v.square.size || 0,
+              format: 'square',
+              variationIndex,
+              url: v.square.url,
+            });
+          }
+          if (v?.vertical?.url) {
+            filesInfo.push({
+              name: v.vertical.name || 'vertical',
+              type: v.vertical.type || 'application/octet-stream',
+              size: v.vertical.size || 0,
+              format: 'vertical',
+              variationIndex,
+              url: v.vertical.url,
+            });
+          }
+          if (v?.horizontal?.url) {
+            filesInfo.push({
+              name: v.horizontal.name || 'horizontal',
+              type: v.horizontal.type || 'application/octet-stream',
+              size: v.horizontal.size || 0,
+              format: 'horizontal',
+              variationIndex,
+              url: v.horizontal.url,
+            });
+          }
+        }
       } else if (formData.creativeType === 'carousel' && formData.carouselCards) {
         for (const card of formData.carouselCards) {
           if (card.file) {
@@ -63,14 +118,14 @@ export const useCreativeSubmission = () => {
               size: card.file.file.size,
               format: `carousel-${formData.carouselAspectRatio}`,
               variationIndex: 1,
-              base64Data
+              base64Data,
             });
           }
         }
       } else if (formData.creativeType === 'single' && formData.mediaVariations) {
         for (const variation of formData.mediaVariations) {
           const index = formData.mediaVariations.indexOf(variation);
-          
+
           if (variation.squareFile) {
             const base64Data = await convertFileToBase64(variation.squareFile.file);
             filesInfo.push({
@@ -79,7 +134,7 @@ export const useCreativeSubmission = () => {
               size: variation.squareFile.file.size,
               format: 'square',
               variationIndex: index + 1,
-              base64Data
+              base64Data,
             });
           }
           if (variation.verticalFile) {
@@ -90,7 +145,7 @@ export const useCreativeSubmission = () => {
               size: variation.verticalFile.file.size,
               format: 'vertical',
               variationIndex: index + 1,
-              base64Data
+              base64Data,
             });
           }
           if (variation.horizontalFile) {
@@ -101,7 +156,7 @@ export const useCreativeSubmission = () => {
               size: variation.horizontalFile.file.size,
               format: 'horizontal',
               variationIndex: index + 1,
-              base64Data
+              base64Data,
             });
           }
         }
@@ -113,7 +168,7 @@ export const useCreativeSubmission = () => {
             type: file.file.type,
             size: file.file.size,
             variationIndex: 1,
-            base64Data
+            base64Data,
           });
         }
       }

@@ -12,6 +12,7 @@ type FileInfo = {
   format?: string;
   variationIndex?: number;
   base64Data?: string;
+  url?: string; // optional: prefer URL-based ingestion to reduce payload size
   instagramUrl?: string;
 };
 
@@ -164,66 +165,97 @@ Deno.serve(async (req) => {
       submissionId = insertSubmission.id as string;
     }
 
-    // Upload files and register rows
-    let uploadedCount = 0;
-    for (const file of filesInfo) {
-      const variationIndex = file.variationIndex || 1;
+// Upload files and register rows
+let uploadedCount = 0;
+for (const file of filesInfo) {
+  const variationIndex = file.variationIndex || 1;
 
-      if (file.base64Data) {
-        try {
-          const byteCharacters = atob(file.base64Data);
-          const byteNumbers = new Array(byteCharacters.length);
-          for (let i = 0; i < byteCharacters.length; i++) {
-            byteNumbers[i] = byteCharacters.charCodeAt(i);
-          }
-          const byteArray = new Uint8Array(byteNumbers);
-          const fileNameSafe = `${Date.now()}-${file.name}`.replace(/[^a-zA-Z0-9_.-]/g, "_");
-          const storagePath = `submissions/${submissionId}/var-${variationIndex}/${fileNameSafe}`;
+  try {
+    const fileNameSafe = `${Date.now()}-${file.name}`.replace(/[^a-zA-Z0-9_.-]/g, "_");
+    const storagePath = `submissions/${submissionId}/var-${variationIndex}/${fileNameSafe}`;
 
-          const { error: upErr } = await supabase.storage
-            .from("creative-files")
-            .upload(storagePath, byteArray, { contentType: file.type });
-
-          if (upErr) {
-            console.error("Upload error for", file.name, upErr);
-          }
-
-          const { data: pub } = supabase.storage
-            .from("creative-files")
-            .getPublicUrl(storagePath);
-
-          const publicUrl = pub?.publicUrl ?? null;
-
-          await supabase.from("creative_files").insert({
-            submission_id: submissionId,
-            variation_index: variationIndex,
-            name: file.name,
-            type: file.type,
-            size: file.size,
-            format: file.format ?? null,
-            instagram_url: null,
-            storage_path: storagePath,
-            public_url: publicUrl,
-          });
-
-          uploadedCount++;
-        } catch (e) {
-          console.error("Failed processing file:", file.name, e);
-        }
-      } else if (file.instagramUrl) {
-        await supabase.from("creative_files").insert({
-          submission_id: submissionId,
-          variation_index: variationIndex,
-          name: file.name ?? "Instagram Post",
-          type: file.type ?? "existing-post",
-          size: file.size ?? 0,
-          format: file.format ?? null,
-          instagram_url: file.instagramUrl,
-          storage_path: null,
-          public_url: null,
-        });
+    if (file.url) {
+      // Prefer URL-based ingestion to avoid huge request bodies
+      const res = await fetch(file.url);
+      if (!res.ok) throw new Error(`Failed to fetch ${file.url}: ${res.status}`);
+      const arrayBuffer = await res.arrayBuffer();
+      const { error: upErr } = await supabase.storage
+        .from("creative-files")
+        .upload(storagePath, new Uint8Array(arrayBuffer), { contentType: file.type });
+      if (upErr) {
+        console.error("Upload error (url) for", file.name, upErr);
+        continue;
       }
+
+      const { data: pub } = supabase.storage.from("creative-files").getPublicUrl(storagePath);
+      const publicUrl = pub?.publicUrl ?? null;
+
+      await supabase.from("creative_files").insert({
+        submission_id: submissionId,
+        variation_index: variationIndex,
+        name: file.name,
+        type: file.type,
+        size: file.size,
+        format: file.format ?? null,
+        instagram_url: null,
+        storage_path: storagePath,
+        public_url: publicUrl,
+      });
+      uploadedCount++;
+      continue;
     }
+
+    if (file.base64Data) {
+      const byteCharacters = atob(file.base64Data);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+
+      const { error: upErr } = await supabase.storage
+        .from("creative-files")
+        .upload(storagePath, byteArray, { contentType: file.type });
+
+      if (upErr) {
+        console.error("Upload error for", file.name, upErr);
+        continue;
+      }
+
+      const { data: pub } = supabase.storage.from("creative-files").getPublicUrl(storagePath);
+      const publicUrl = pub?.publicUrl ?? null;
+
+      await supabase.from("creative_files").insert({
+        submission_id: submissionId,
+        variation_index: variationIndex,
+        name: file.name,
+        type: file.type,
+        size: file.size,
+        format: file.format ?? null,
+        instagram_url: null,
+        storage_path: storagePath,
+        public_url: publicUrl,
+      });
+
+      uploadedCount++;
+    } else if (file.instagramUrl) {
+      await supabase.from("creative_files").insert({
+        submission_id: submissionId,
+        variation_index: variationIndex,
+        name: file.name ?? "Instagram Post",
+        type: file.type ?? "existing-post",
+        size: file.size ?? 0,
+        format: file.format ?? null,
+        instagram_url: file.instagramUrl,
+        storage_path: null,
+        public_url: null,
+      });
+    }
+  } catch (e) {
+    console.error("Failed processing file:", file.name, e);
+  }
+}
+
 
     return new Response(
       JSON.stringify({
