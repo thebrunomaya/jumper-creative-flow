@@ -113,10 +113,12 @@ const Manager: React.FC = () => {
                      return (
                        <TableRow key={row.id}>
                          <TableCell>
-                           <div className="flex flex-col">
-                             <span className="font-medium text-foreground truncate max-w-[300px]" title={criativo}>{criativo}</span>
-                             <span className="text-xs text-muted-foreground">ID: {row.id}</span>
-                           </div>
+                           <Link to={`/create?draft=${row.id}`} className="block">
+                             <div className="flex flex-col hover:text-primary cursor-pointer">
+                               <span className="font-medium text-foreground truncate max-w-[300px]" title={criativo}>{criativo}</span>
+                               <span className="text-xs text-muted-foreground">ID: {row.id}</span>
+                             </div>
+                           </Link>
                          </TableCell>
                          <TableCell>
                            <div className="flex flex-col">
@@ -126,28 +128,28 @@ const Manager: React.FC = () => {
                          <TableCell>
                            <Badge variant={statusToLabel[row.status]?.variant || "outline"}>{statusToLabel[row.status]?.label || row.status}</Badge>
                          </TableCell>
-                        <TableCell className="text-right">
-                          <Link to={`/create/${row.id}`}>
-                            <Button size="sm">Continuar</Button>
-                          </Link>
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button variant="destructive" size="sm" className="ml-2">Apagar</Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>Apagar rascunho?</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  Esta ação não pode ser desfeita e removerá o rascunho permanentemente.
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                <AlertDialogAction onClick={() => handleDelete(row.id)}>Confirmar</AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                        </TableCell>
+                         <TableCell className="text-right">
+                           <div className="flex gap-2 justify-end">
+                             <Link to={`/create?draft=${row.id}`}>
+                               <Button variant="outline" size="sm">Editar</Button>
+                             </Link>
+                             <AlertDialog>
+                               <AlertDialogTrigger asChild>
+                                 <Button variant="destructive" size="sm">Apagar</Button>
+                               </AlertDialogTrigger>
+                               <AlertDialogContent>
+                                 <AlertDialogHeader>
+                                   <AlertDialogTitle>Tem certeza?</AlertDialogTitle>
+                                   <AlertDialogDescription>Esta ação não pode ser desfeita. O rascunho será permanentemente removido.</AlertDialogDescription>
+                                 </AlertDialogHeader>
+                                 <AlertDialogFooter>
+                                   <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                   <AlertDialogAction onClick={() => handleDelete(row.id)}>Apagar</AlertDialogAction>
+                                 </AlertDialogFooter>
+                               </AlertDialogContent>
+                             </AlertDialog>
+                           </div>
+                         </TableCell>
                       </TableRow>
                     );
                   })}
@@ -178,25 +180,27 @@ const Manager: React.FC = () => {
                   ) : sent.map((row) => {
                     const criativo = row.creative_name || "Sem nome";
                     const conta = row.client_name || row.client || "—";
-                    return (
-                      <TableRow key={row.id}>
-                        <TableCell>
-                          <div className="flex flex-col">
-                            <span className="font-medium text-foreground truncate max-w-[300px]" title={criativo}>{criativo}</span>
-                            <span className="text-xs text-muted-foreground">ID: {row.id}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex flex-col">
-                            <span className="font-medium text-foreground truncate max-w-[250px]" title={conta}>{conta}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant={statusToLabel[row.status]?.variant || "outline"}>{statusToLabel[row.status]?.label || row.status}</Badge>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <Button variant="outline" size="sm" onClick={() => toast({ title: "Aguardando processamento", description: "O admin publicará em breve." })}>Detalhes</Button>
-                        </TableCell>
+                     return (
+                       <TableRow key={row.id}>
+                         <TableCell>
+                           <Button variant="ghost" className="p-0 h-auto text-left justify-start" onClick={() => toast({ title: "Detalhes", description: `Criativo ${criativo} foi enviado e está sendo processado.` })}>
+                             <div className="flex flex-col hover:text-primary cursor-pointer">
+                               <span className="font-medium text-foreground truncate max-w-[300px]" title={criativo}>{criativo}</span>
+                               <span className="text-xs text-muted-foreground">ID: {row.id}</span>
+                             </div>
+                           </Button>
+                         </TableCell>
+                         <TableCell>
+                           <div className="flex flex-col">
+                             <span className="font-medium text-foreground truncate max-w-[250px]" title={conta}>{conta}</span>
+                           </div>
+                         </TableCell>
+                         <TableCell>
+                           <Badge variant={statusToLabel[row.status]?.variant || "outline"}>{statusToLabel[row.status]?.label || row.status}</Badge>
+                         </TableCell>
+                         <TableCell className="text-right">
+                           <Button variant="outline" size="sm" onClick={() => toast({ title: "Enviado", description: "Criativo foi enviado e está sendo processado." })}>Ver</Button>
+                         </TableCell>
                       </TableRow>
                     );
                   })}
@@ -227,25 +231,27 @@ const Manager: React.FC = () => {
                   ) : processed.map((row) => {
                     const criativo = row.creative_name || "Sem nome";
                     const conta = row.client_name || row.client || "—";
-                    return (
-                      <TableRow key={row.id}>
-                        <TableCell>
-                          <div className="flex flex-col">
-                            <span className="font-medium text-foreground truncate max-w-[300px]" title={criativo}>{criativo}</span>
-                            <span className="text-xs text-muted-foreground">ID: {row.id}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex flex-col">
-                            <span className="font-medium text-foreground truncate max-w-[250px]" title={conta}>{conta}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant={statusToLabel[row.status]?.variant || "outline"}>{statusToLabel[row.status]?.label || row.status}</Badge>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <Button variant="outline" size="sm" onClick={() => toast({ title: "Publicado", description: "Criativo já enviado ao Notion." })}>Ver</Button>
-                        </TableCell>
+                     return (
+                       <TableRow key={row.id}>
+                         <TableCell>
+                           <Button variant="ghost" className="p-0 h-auto text-left justify-start" onClick={() => toast({ title: "Processado", description: `Criativo ${criativo} foi processado com sucesso e enviado ao Notion.` })}>
+                             <div className="flex flex-col hover:text-primary cursor-pointer">
+                               <span className="font-medium text-foreground truncate max-w-[300px]" title={criativo}>{criativo}</span>
+                               <span className="text-xs text-muted-foreground">ID: {row.id}</span>
+                             </div>
+                           </Button>
+                         </TableCell>
+                         <TableCell>
+                           <div className="flex flex-col">
+                             <span className="font-medium text-foreground truncate max-w-[250px]" title={conta}>{conta}</span>
+                           </div>
+                         </TableCell>
+                         <TableCell>
+                           <Badge variant={statusToLabel[row.status]?.variant || "outline"}>{statusToLabel[row.status]?.label || row.status}</Badge>
+                         </TableCell>
+                         <TableCell className="text-right">
+                           <Button variant="outline" size="sm" onClick={() => toast({ title: "Processado", description: "Criativo já enviado ao Notion." })}>Ver</Button>
+                         </TableCell>
                       </TableRow>
                     );
                   })}
