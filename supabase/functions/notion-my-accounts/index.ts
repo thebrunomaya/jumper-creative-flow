@@ -54,14 +54,14 @@ serve(async (req) => {
       const service = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
       const { data: managerRow, error: mgrErr } = await service
-        .from('notion_managers')
+        .from('j_ads_notion_managers')
         .select('id, email')
         .ilike('email', user.email || '')
         .maybeSingle();
 
       if (!mgrErr && managerRow) {
         const { data: links, error: linkErr } = await service
-          .from('notion_manager_accounts')
+          .from('j_ads_notion_manager_accounts')
           .select('account_notion_id')
           .eq('manager_id', managerRow.id);
 

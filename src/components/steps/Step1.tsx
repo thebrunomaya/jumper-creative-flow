@@ -33,7 +33,7 @@ const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
     async function fetchAccountCode() {
       if (!formData.client) { if (isMounted) setAccountCode(null); return; }
       try {
-        const { data, error } = await supabase.functions.invoke('manager-actions', {
+        const { data, error } = await supabase.functions.invoke('j_ads_manager_actions', {
           body: { action: 'accountCode', notionId: formData.client },
         });
         if (!error && data?.success && isMounted) {

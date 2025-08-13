@@ -14,7 +14,7 @@ export type Database = {
   }
   public: {
     Tables: {
-      accounts: {
+      j_ads_accounts: {
         Row: {
           account_manager: string | null
           ad_account_id: string
@@ -92,7 +92,7 @@ export type Database = {
         }
         Relationships: []
       }
-      creative_files: {
+      j_ads_creative_files: {
         Row: {
           created_at: string
           format: string | null
@@ -137,12 +137,12 @@ export type Database = {
             foreignKeyName: "creative_files_submission_id_fkey"
             columns: ["submission_id"]
             isOneToOne: false
-            referencedRelation: "creative_submissions"
+            referencedRelation: "j_ads_creative_submissions"
             referencedColumns: ["id"]
           },
         ]
       }
-      creative_submissions: {
+      j_ads_creative_submissions: {
         Row: {
           campaign_objective: string | null
           client: string | null
@@ -199,7 +199,7 @@ export type Database = {
         }
         Relationships: []
       }
-      creative_variations: {
+      j_ads_creative_variations: {
         Row: {
           created_at: string
           creative_id: string
@@ -241,12 +241,12 @@ export type Database = {
             foreignKeyName: "creative_variations_submission_fk"
             columns: ["submission_id"]
             isOneToOne: false
-            referencedRelation: "creative_submissions"
+            referencedRelation: "j_ads_creative_submissions"
             referencedColumns: ["id"]
           },
         ]
       }
-      error_logs: {
+      j_ads_error_logs: {
         Row: {
           component_name: string | null
           created_at: string | null
@@ -288,6 +288,98 @@ export type Database = {
           url?: string | null
           user_agent?: string | null
           user_email?: string | null
+        }
+        Relationships: []
+      }
+      j_ads_notion_manager_accounts: {
+        Row: {
+          account_notion_id: string
+          created_at: string
+          manager_id: string
+        }
+        Insert: {
+          account_notion_id: string
+          created_at?: string
+          manager_id: string
+        }
+        Update: {
+          account_notion_id?: string
+          created_at?: string
+          manager_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notion_manager_accounts_manager_id_fkey"
+            columns: ["manager_id"]
+            isOneToOne: false
+            referencedRelation: "j_ads_notion_managers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      j_ads_notion_managers: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          name: string | null
+          notion_id: string
+          role: Database["public"]["Enums"]["notion_role"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          name?: string | null
+          notion_id: string
+          role: Database["public"]["Enums"]["notion_role"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string | null
+          notion_id?: string
+          role?: Database["public"]["Enums"]["notion_role"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      j_ads_partners: {
+        Row: {
+          created_at: string
+          default_url: string
+          id: string
+          name: string
+          primary_color: string | null
+          secondary_color: string | null
+          slug: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          default_url: string
+          id?: string
+          name: string
+          primary_color?: string | null
+          secondary_color?: string | null
+          slug: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          default_url?: string
+          id?: string
+          name?: string
+          primary_color?: string | null
+          secondary_color?: string | null
+          slug?: string
+          title?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -333,98 +425,6 @@ export type Database = {
           id?: number
           message?: Json
           session_id?: string
-        }
-        Relationships: []
-      }
-      notion_manager_accounts: {
-        Row: {
-          account_notion_id: string
-          created_at: string
-          manager_id: string
-        }
-        Insert: {
-          account_notion_id: string
-          created_at?: string
-          manager_id: string
-        }
-        Update: {
-          account_notion_id?: string
-          created_at?: string
-          manager_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "notion_manager_accounts_manager_id_fkey"
-            columns: ["manager_id"]
-            isOneToOne: false
-            referencedRelation: "notion_managers"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      notion_managers: {
-        Row: {
-          created_at: string
-          email: string
-          id: string
-          name: string | null
-          notion_id: string
-          role: Database["public"]["Enums"]["notion_role"]
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          email: string
-          id?: string
-          name?: string | null
-          notion_id: string
-          role: Database["public"]["Enums"]["notion_role"]
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          email?: string
-          id?: string
-          name?: string | null
-          notion_id?: string
-          role?: Database["public"]["Enums"]["notion_role"]
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      partners: {
-        Row: {
-          created_at: string
-          default_url: string
-          id: string
-          name: string
-          primary_color: string | null
-          secondary_color: string | null
-          slug: string
-          title: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          default_url: string
-          id?: string
-          name: string
-          primary_color?: string | null
-          secondary_color?: string | null
-          slug: string
-          title: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          default_url?: string
-          id?: string
-          name?: string
-          primary_color?: string | null
-          secondary_color?: string | null
-          slug?: string
-          title?: string
-          updated_at?: string
         }
         Relationships: []
       }

@@ -226,7 +226,7 @@ const CreativeSystem: React.FC = () => {
     const loadDraft = async () => {
       if (!routeSubmissionId) return;
       try {
-        const { data, error } = await supabase.functions.invoke('manager-actions', {
+        const { data, error } = await supabase.functions.invoke('j_ads_manager_actions', {
           body: { action: 'get', submissionId: routeSubmissionId },
         });
         if (error || !data?.success) {
@@ -321,12 +321,13 @@ const CreativeSystem: React.FC = () => {
         }));
       }
 
-      const { data, error } = await supabase.functions.invoke('manager-actions', {
+      const { data, error } = await supabase.functions.invoke('j_ads_manager_actions', {
         body: {
           action: 'saveDraft',
           submissionId: routeSubmissionId ?? undefined,
           draft: draftPayload,
         },
+      });
       });
 
       if (error || !data?.success) {

@@ -196,7 +196,7 @@ export const useCreativeSubmission = () => {
 
       console.log('Ingesting creative submission:', submissionData);
       
-      const { data, error } = await supabase.functions.invoke('ingest-creative', {
+      const { data, error } = await supabase.functions.invoke('j_ads_ingest_creative', {
         body: { ...submissionData, submissionId: options?.submissionId }
       });
 

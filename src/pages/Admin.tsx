@@ -54,7 +54,7 @@ const AdminPage: React.FC = () => {
       throw new Error('Acesso negado: apenas administradores.');
     }
 
-    const { data, error } = await supabase.functions.invoke("admin-actions", {
+    const { data, error } = await supabase.functions.invoke("j_ads_admin_actions", {
       body: {
         action: "listAll",
       },
@@ -73,7 +73,7 @@ const AdminPage: React.FC = () => {
 
   const publishMutation = useMutation({
     mutationFn: async (submissionId: string) => {
-      const { data, error } = await supabase.functions.invoke("admin-actions", {
+      const { data, error } = await supabase.functions.invoke("j_ads_admin_actions", {
         body: {
           action: "publish",
           submissionId,
@@ -97,7 +97,7 @@ const AdminPage: React.FC = () => {
 
   const queueMutation = useMutation({
     mutationFn: async (submissionId: string) => {
-      const { data, error } = await supabase.functions.invoke("admin-actions", {
+      const { data, error } = await supabase.functions.invoke("j_ads_admin_actions", {
         body: {
           action: "queue",
           submissionId,

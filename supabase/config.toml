@@ -26,3 +26,13 @@ verify_jwt = true
 
 [functions.notion-sync-cron]
 verify_jwt = false
+
+# New namespaced functions
+[functions.j_ads_ingest_creative]
+verify_jwt = true
+
+[functions.j_ads_admin_actions]
+verify_jwt = true
+
+[functions.j_ads_manager_actions]
+verify_jwt = true
