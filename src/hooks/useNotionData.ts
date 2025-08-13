@@ -68,7 +68,7 @@ export const useNotionClients = () => {
     const fetchClients = async () => {
       try {
         console.log('Fetching clients from Notion DB_Contas...');
-        const { data, error } = await supabase.functions.invoke('notion-clients');
+        const { data, error } = await supabase.functions.invoke('j_ads_notion_clients');
         
         if (error) {
           console.error('Supabase function error:', error);
@@ -180,7 +180,7 @@ export const useNotionPartners = () => {
     const fetchPartners = async () => {
       try {
         console.log('Fetching partners from Notion DB_Parceiros...');
-        const { data, error } = await supabase.functions.invoke('notion-partners');
+        const { data, error } = await supabase.functions.invoke('j_ads_notion_partners');
         
         if (error) {
           console.error('Supabase function error:', error);

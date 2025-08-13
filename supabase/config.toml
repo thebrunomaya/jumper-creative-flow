@@ -27,7 +27,7 @@ verify_jwt = true
 [functions.notion-sync-cron]
 verify_jwt = false
 
-# New namespaced functions
+# New namespaced functions (existing)
 [functions.j_ads_ingest_creative]
 verify_jwt = true
 
@@ -35,4 +35,23 @@ verify_jwt = true
 verify_jwt = true
 
 [functions.j_ads_manager_actions]
+verify_jwt = true
+
+# Newly namespaced Notion and auth functions
+[functions.j_ads_ensure_role]
+verify_jwt = true
+
+[functions.j_ads_notion_my_accounts]
+verify_jwt = true
+
+[functions.j_ads_notion_clients]
+verify_jwt = true
+
+[functions.j_ads_notion_partners]
+verify_jwt = true
+
+[functions.j_ads_notion_managers]
+verify_jwt = true
+
+[functions.j_ads_notion_sync]
 verify_jwt = true

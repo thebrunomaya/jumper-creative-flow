@@ -120,7 +120,7 @@ const AdminPage: React.FC = () => {
 
   const syncNotionMutation = useMutation({
     mutationFn: async () => {
-      const { data, error } = await supabase.functions.invoke("notion-sync");
+      const { data, error } = await supabase.functions.invoke("j_ads_notion_sync");
       if (error) throw error;
       if (!data?.ok) throw new Error(data?.error || "Falha ao sincronizar Notion");
       return data;

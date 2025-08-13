@@ -58,7 +58,7 @@ export const useManagers = () => {
       setLoading(true);
       setError(null);
       
-      const { data, error } = await supabase.functions.invoke('notion-managers');
+      const { data, error } = await supabase.functions.invoke('j_ads_notion_managers');
       
       if (error) {
         console.error('Supabase function error:', error);

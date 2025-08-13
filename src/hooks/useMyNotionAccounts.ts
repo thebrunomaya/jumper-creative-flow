@@ -11,7 +11,7 @@ export const useMyNotionAccounts = () => {
       try {
         setLoading(true);
         setError(null);
-        const { data, error } = await supabase.functions.invoke('notion-my-accounts');
+        const { data, error } = await supabase.functions.invoke('j_ads_notion_my_accounts');
         if (error) throw error;
         if (!data || data.success !== true) {
           throw new Error(data?.error || 'Resposta inválida do servidor');
