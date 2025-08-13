@@ -34,8 +34,8 @@ const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
   }, [isAuthenticated, currentUser?.id]);
 
   if (!isAuthenticated) return <LoginPage />;
-  if (isAdmin === null) return null; // keep blank while checking role
-  if (!isAdmin) return null; // optionally render 404 or nothing to avoid leaking admin UI
+  if (isAdmin === null) return <div className="flex items-center justify-center min-h-screen">Verificando permissões...</div>; 
+  if (!isAdmin) return <div className="flex items-center justify-center min-h-screen text-destructive">Acesso negado. Você precisa ser administrador para acessar esta página.</div>;
 
   return <>{children}</>;
 };

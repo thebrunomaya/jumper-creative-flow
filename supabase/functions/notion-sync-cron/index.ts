@@ -93,23 +93,7 @@ serve(async (req) => {
       fetchAllFromNotionDatabase(DB_CONTAS_ID, NOTION_TOKEN),
     ]);
 
-    const accountsUpserts: any[] = []; let accountsSkipped = 0;
-    for (const page of accountPages) {
-      const notion_id: string = page.id; const props = page.properties || {};
-      const name = extractText(props['Name'] || props['Nome'] || props['Título'] || props['Title']);
-      const adIdRaw = props['Ad Account ID'] || props['ad_account_id'] || props['Conta de Anúncios'] || props['ID Conta'] || props['ContaID'] || props['AdAccount'];
-      let ad_account_id = extractText(adIdRaw);
-      if (!ad_account_id) ad_account_id = notion_id;
-      if (!name || !ad_account_id) { accountsSkipped++; continue; }
-      const status = extractSelectName(props['Status'] || props['Situação']);
-      const objectives = extractMultiSelect(props['Objetivos'] || props['Objectives']);
-      const manager = extractText(props['Manager'] || props['Gerente'] || props['Gestor']);
-      accountsUpserts.push({ notion_id, name, ad_account_id, status: status || null, objectives: objectives?.length ? objectives : undefined, manager: manager || null });
-    }
-    if (accountsUpserts.length > 0) {
-      const { error: accErr } = await service.from('accounts').upsert(accountsUpserts, { onConflict: 'notion_id' });
-      if (accErr) throw accErr;
-    }
+    // Skip account processing since accounts table is not needed
 
     const managersUpserts: any[] = []; const links: Array<{ manager_notion_id: string; account_notion_id: string }> = [];
     for (const page of managerPages) {
@@ -124,23 +108,23 @@ serve(async (req) => {
       for (const accId of accountRelIds) links.push({ manager_notion_id: notion_id, account_notion_id: accId });
     }
     if (managersUpserts.length > 0) {
-      const { error: manErr } = await service.from('notion_managers').upsert(managersUpserts, { onConflict: 'notion_id' });
+      const { error: manErr } = await service.from('j_ads_notion_managers').upsert(managersUpserts, { onConflict: 'notion_id' });
       if (manErr) throw manErr;
     }
 
     const uniqManagerNotionIds = Array.from(new Set(managersUpserts.map(m => m.notion_id)));
-    const { data: managerRows, error: mapErr } = await service.from('notion_managers').select('id, notion_id').in('notion_id', uniqManagerNotionIds);
+    const { data: managerRows, error: mapErr } = await service.from('j_ads_notion_managers').select('id, notion_id').in('notion_id', uniqManagerNotionIds);
     if (mapErr) throw mapErr;
     const managerIdByNotion: Record<string, string> = Object.fromEntries((managerRows || []).map((r: any) => [r.notion_id, r.id]));
 
     if (uniqManagerNotionIds.length > 0) {
       const managerIds = uniqManagerNotionIds.map(nid => managerIdByNotion[nid]).filter(Boolean);
       if (managerIds.length > 0) {
-        const { error: delErr } = await service.from('notion_manager_accounts').delete().in('manager_id', managerIds);
+        const { error: delErr } = await service.from('j_ads_notion_manager_accounts').delete().in('manager_id', managerIds);
         if (delErr) throw delErr;
         const linkRows = links.map(l => ({ manager_id: managerIdByNotion[l.manager_notion_id], account_notion_id: l.account_notion_id })).filter(r => !!r.manager_id && !!r.account_notion_id);
         if (linkRows.length > 0) {
-          const { error: insErr } = await service.from('notion_manager_accounts').insert(linkRows);
+          const { error: insErr } = await service.from('j_ads_notion_manager_accounts').insert(linkRows);
           if (insErr) throw insErr;
         }
       }

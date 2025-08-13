@@ -94,7 +94,7 @@ Deno.serve(async (req) => {
 
     if (action === "listMy") {
       const { data, error } = await supabase
-        .from("creative_submissions")
+        .from("j_ads_creative_submissions")
         .select("id, client, manager_id, status, created_at, updated_at, result, payload")
         .eq("manager_id", managerId)
         .order("created_at", { ascending: false })
@@ -151,7 +151,7 @@ Deno.serve(async (req) => {
         });
       }
       const { data, error } = await supabase
-        .from("creative_submissions")
+        .from("j_ads_creative_submissions")
         .select("id, manager_id, payload, status")
         .eq("id", submissionId)
         .maybeSingle();
@@ -259,11 +259,8 @@ Deno.serve(async (req) => {
       try {
         const notionId = draft?.client as string | undefined;
         if (notionId) {
-          const { data: acc } = await supabase
-            .from('accounts')
-            .select('name, ad_account_id')
-            .eq('notion_id', notionId)
-            .maybeSingle();
+          // Since accounts table doesn't exist, use placeholder account code
+          const acc = null;
           if (acc?.name && acc?.ad_account_id) {
             accountCode = generateAccountCode(acc.name as string, acc.ad_account_id as string);
           }
@@ -296,7 +293,7 @@ Deno.serve(async (req) => {
         let targetId: string | null = null;
         if (creativeName) {
           const { data: existing } = await supabase
-            .from('creative_submissions')
+            .from('j_ads_creative_submissions')
             .select('id')
             .eq('manager_id', managerId)
             .eq('status', 'draft')
@@ -307,7 +304,7 @@ Deno.serve(async (req) => {
 
         if (targetId) {
           const { error } = await supabase
-            .from('creative_submissions')
+            .from('j_ads_creative_submissions')
             .update(baseRow as any)
             .eq('id', targetId)
             .eq('manager_id', managerId);
@@ -323,7 +320,7 @@ Deno.serve(async (req) => {
           });
         } else {
           const { data, error } = await supabase
-            .from('creative_submissions')
+            .from('j_ads_creative_submissions')
             .insert(baseRow as any)
             .select('id')
             .single();
@@ -341,7 +338,7 @@ Deno.serve(async (req) => {
       } else {
         // Try update by submissionId; if none affected, fallback to upsert by creativeName
         const { data: updatedRow, error: updErr } = await supabase
-          .from('creative_submissions')
+          .from('j_ads_creative_submissions')
           .update(baseRow as any)
           .eq('id', submissionId)
           .eq('manager_id', managerId)
@@ -366,7 +363,7 @@ Deno.serve(async (req) => {
         let targetId: string | null = null;
         if (creativeName) {
           const { data: existing } = await supabase
-            .from('creative_submissions')
+            .from('j_ads_creative_submissions')
             .select('id')
             .eq('manager_id', managerId)
             .eq('status', 'draft')
@@ -377,7 +374,7 @@ Deno.serve(async (req) => {
 
         if (targetId) {
           const { error: upErr } = await supabase
-            .from('creative_submissions')
+            .from('j_ads_creative_submissions')
             .update(baseRow as any)
             .eq('id', targetId)
             .eq('manager_id', managerId);
@@ -394,7 +391,7 @@ Deno.serve(async (req) => {
         }
 
         const { data: inserted, error: insErr } = await supabase
-          .from('creative_submissions')
+          .from('j_ads_creative_submissions')
           .insert(baseRow as any)
           .select('id')
           .single();

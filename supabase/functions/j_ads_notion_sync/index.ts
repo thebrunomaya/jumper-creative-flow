@@ -186,52 +186,7 @@ serve(async (req) => {
       fetchAllFromNotionDatabase(DB_CONTAS_ID, NOTION_TOKEN),
     ]);
 
-    // Prepare accounts map for quick check
-    const accountsUpserts: any[] = [];
-    let accountsSkipped = 0;
-
-    for (const page of accountPages) {
-      const notion_id: string = page.id;
-      const props = page.properties || {};
-      const name = extractText(props['Name'] || props['Nome'] || props['Título'] || props['Title']);
-
-      // Attempt to get ad account id from common fields
-      const adIdRaw = props['Ad Account ID'] || props['ad_account_id'] || props['Conta de Anúncios'] || props['ID Conta'] || props['ContaID'] || props['AdAccount'];
-      let ad_account_id = extractText(adIdRaw);
-
-      if (!ad_account_id) {
-        // As a last resort, allow using the Notion ID to satisfy NOT NULL, but mark skipped if still empty
-        ad_account_id = notion_id;
-      }
-
-      if (!name || !ad_account_id) {
-        accountsSkipped++;
-        continue;
-      }
-
-      const status = extractSelectName(props['Status'] || props['Situação']);
-      const objectives = extractMultiSelect(props['Objetivos'] || props['Objectives']);
-      const manager = extractText(props['Manager'] || props['Gerente'] || props['Gestor']);
-
-      accountsUpserts.push({
-        notion_id,
-        name,
-        ad_account_id,
-        status: status || null,
-        objectives: objectives?.length ? objectives : undefined,
-        manager: manager || null,
-      });
-    }
-
-    // Upsert accounts by notion_id
-    let accountsResult: any = { count: 0 };
-    if (accountsUpserts.length > 0) {
-      const { error: accErr } = await service
-        .from('accounts')
-        .upsert(accountsUpserts, { onConflict: 'notion_id' });
-      if (accErr) throw accErr;
-      accountsResult.count = accountsUpserts.length;
-    }
+    // Skip account processing since accounts table is not needed
 
     // Prepare managers and links
     const managersUpserts: any[] = [];
@@ -266,7 +221,7 @@ serve(async (req) => {
     let managersResult: any = { count: 0 };
     if (managersUpserts.length > 0) {
       const { error: manErr } = await service
-        .from('notion_managers')
+        .from('j_ads_notion_managers')
         .upsert(managersUpserts, { onConflict: 'notion_id' });
       if (manErr) throw manErr;
       managersResult.count = managersUpserts.length;
@@ -275,7 +230,7 @@ serve(async (req) => {
     // Build map notion_id -> id
     const uniqManagerNotionIds = Array.from(new Set(managersUpserts.map(m => m.notion_id)));
     const { data: managerRows, error: mapErr } = await service
-      .from('notion_managers')
+      .from('j_ads_notion_managers')
       .select('id, notion_id')
       .in('notion_id', uniqManagerNotionIds);
     if (mapErr) throw mapErr;
@@ -288,7 +243,7 @@ serve(async (req) => {
       if (managerIds.length > 0) {
         // delete existing links for these managers
         const { error: delErr } = await service
-          .from('notion_manager_accounts')
+          .from('j_ads_notion_manager_accounts')
           .delete()
           .in('manager_id', managerIds);
         if (delErr) throw delErr;
@@ -300,7 +255,7 @@ serve(async (req) => {
 
         if (linkRows.length > 0) {
           const { error: insErr } = await service
-            .from('notion_manager_accounts')
+            .from('j_ads_notion_manager_accounts')
             .insert(linkRows);
           if (insErr) throw insErr;
           linksInserted = linkRows.length;
@@ -308,13 +263,39 @@ serve(async (req) => {
       }
     }
 
+    // Sync roles to j_ads_user_roles
+    let rolesSynced = 0;
+    for (const manager of managersUpserts) {
+      try {
+        // Check if user exists in auth.users with this email
+        const { data: users, error: usersErr } = await service.auth.admin.listUsers();
+        if (usersErr) continue;
+        
+        const user = users.users.find(u => u.email?.toLowerCase() === manager.email.toLowerCase());
+        if (!user) continue;
+
+        // Upsert role in j_ads_user_roles
+        const { error: roleErr } = await service
+          .from('j_ads_user_roles')
+          .upsert({ 
+            user_id: user.id, 
+            role: manager.role 
+          }, { 
+            onConflict: 'user_id,role' 
+          });
+        
+        if (!roleErr) rolesSynced++;
+      } catch (e) {
+        console.error('Error syncing role for', manager.email, e);
+      }
+    }
+
     const result = {
       ok: true,
       synced: {
-        accounts: accountsResult.count,
         managers: managersResult.count,
         links: linksInserted,
-        accountsSkipped,
+        roles: rolesSynced,
       }
     };
 
