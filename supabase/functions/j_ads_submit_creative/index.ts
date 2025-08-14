@@ -52,6 +52,10 @@ serve(async (req) => {
 
     // Fetch client data from Notion
     console.log('🔍 Fetching client data from Notion for client:', creativeData.client);
+    console.log('📋 Full creative data received:', JSON.stringify({
+      ...creativeData,
+      filesInfo: creativeData.filesInfo.map(f => ({ ...f, base64Data: f.base64Data ? '[TRUNCATED]' : undefined }))
+    }, null, 2));
     
     const clientResponse = await fetch(`https://api.notion.com/v1/pages/${creativeData.client}`, {
       headers: {
@@ -122,6 +126,14 @@ serve(async (req) => {
               url: publicUrl,
               format: fileInfo.format
             });
+          } else if (fileInfo.url) {
+            // File already uploaded, use existing URL
+            console.log(`🔗 Using existing file URL: ${fileInfo.name} -> ${fileInfo.url}`);
+            uploadedFiles.push({
+              name: fileInfo.name,
+              url: fileInfo.url,
+              format: fileInfo.format
+            });
           } else if (fileInfo.instagramUrl) {
             console.log(`🔗 Using Instagram URL: ${fileInfo.instagramUrl}`);
             uploadedFiles.push({
@@ -129,10 +141,12 @@ serve(async (req) => {
               url: fileInfo.instagramUrl,
               format: fileInfo.format
             });
+          } else {
+            console.warn(`⚠️ No valid URL or base64 data found for file: ${fileInfo.name}`);
           }
         } catch (error) {
-          console.error(`❌ Failed to upload file ${fileInfo.name}:`, error);
-          throw new Error(`Failed to upload file ${fileInfo.name}: ${error.message}`);
+          console.error(`❌ Failed to process file ${fileInfo.name}:`, error);
+          throw new Error(`Failed to process file ${fileInfo.name}: ${error.message}`);
         }
       }
 

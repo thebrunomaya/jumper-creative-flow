@@ -26,6 +26,7 @@ export interface CreativeSubmissionData {
     format?: string;
     variationIndex?: number;
     base64Data?: string;
+    url?: string;
     instagramUrl?: string;
   }>;
 }
