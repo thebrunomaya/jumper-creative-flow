@@ -56,7 +56,7 @@ serve(async (req) => {
       filesInfo: creativeData.filesInfo.map(f => ({ ...f, base64Data: f.base64Data ? '[TRUNCATED]' : undefined }))
     }, null, 2));
 
-    // Fetch client data for account information (but not for DB_CRIATIVOS_ID)
+    // Fetch client data for account information (needed for account name and ID)
     console.log('🔍 Fetching client data from Notion for client:', creativeData.client);
     
     const clientResponse = await fetch(`https://api.notion.com/v1/pages/${creativeData.client}`, {
