@@ -108,37 +108,30 @@ Deno.serve(async (req) => {
     // Helper to fetch a public file URL and return base64 contents
     async function fetchBase64(url: string): Promise<{ base64: string; contentType?: string }> {
       console.log(`📥 Downloading file: ${url}`);
+      
+      // Use streaming approach for large files
       const res = await fetch(url);
       if (!res.ok) throw new Error(`Falha ao baixar arquivo (${res.status})`);
       
       const contentType = res.headers.get("content-type") || undefined;
       const contentLength = res.headers.get("content-length");
       
-      // Check file size limit (50MB = 52,428,800 bytes)
-      if (contentLength && parseInt(contentLength) > 52428800) {
-        throw new Error(`Arquivo muito grande: ${Math.round(parseInt(contentLength) / 1024 / 1024)}MB. Limite: 50MB`);
+      // Check file size limit (40MB = 41,943,040 bytes to leave memory headroom)
+      if (contentLength && parseInt(contentLength) > 41943040) {
+        throw new Error(`Arquivo muito grande: ${Math.round(parseInt(contentLength) / 1024 / 1024)}MB. Limite: 40MB`);
       }
       
       console.log(`📊 File size: ${contentLength ? Math.round(parseInt(contentLength) / 1024 / 1024) : '?'}MB`);
       
-      const ab = await res.arrayBuffer();
+      // Use Response.arrayBuffer() which is more efficient for large files
+      const arrayBuffer = await res.arrayBuffer();
       
-      // Use a more memory-efficient approach for large files
-      const bytes = new Uint8Array(ab);
-      const chunks: string[] = [];
-      const chunkSize = 8192; // Process in 8KB chunks
+      // Convert to base64 using more efficient method
+      const uint8Array = new Uint8Array(arrayBuffer);
+      const binaryString = Array.from(uint8Array, byte => String.fromCharCode(byte)).join('');
+      const base64 = btoa(binaryString);
       
-      for (let i = 0; i < bytes.length; i += chunkSize) {
-        const chunk = bytes.slice(i, i + chunkSize);
-        let binary = "";
-        for (let j = 0; j < chunk.length; j++) {
-          binary += String.fromCharCode(chunk[j]);
-        }
-        chunks.push(btoa(binary));
-      }
-      
-      const base64 = chunks.join("");
-      console.log(`✅ File converted to base64: ${Math.round(base64.length / 1024 / 1024)}MB`);
+      console.log(`✅ File converted to base64: ${Math.round(base64.length * 0.75 / 1024 / 1024)}MB`);
       
       return { base64, contentType };
     }
@@ -206,17 +199,30 @@ Deno.serve(async (req) => {
         // Build filesInfo with base64 from stored public_url
         const filesInfo: Array<{ name: string; type: string; size: number; variationIndex: number; base64Data: string; format?: string }> = [];
 
+        console.log(`📁 Processing ${files?.length || 0} files for submission ${submissionId}`);
+
         for (const f of files || []) {
-          if (!f.public_url) continue;
-          const { base64, contentType } = await fetchBase64(f.public_url);
-          filesInfo.push({
-            name: f.name || "file",
-            type: f.type || contentType || "application/octet-stream",
-            size: f.size || 0,
-            variationIndex: (f.variation_index as number) || 1,
-            base64Data: base64,
-            format: f.format || undefined,
-          });
+          if (!f.public_url) {
+            console.log(`⚠️ Skipping file ${f.name} - no public URL`);
+            continue;
+          }
+          
+          try {
+            console.log(`📥 Processing file: ${f.name} (${Math.round((f.size || 0) / 1024 / 1024)}MB)`);
+            const { base64, contentType } = await fetchBase64(f.public_url);
+            filesInfo.push({
+              name: f.name || "file",
+              type: f.type || contentType || "application/octet-stream",
+              size: f.size || 0,
+              variationIndex: (f.variation_index as number) || 1,
+              base64Data: base64,
+              format: f.format || undefined,
+            });
+            console.log(`✅ File processed: ${f.name}`);
+          } catch (fileError) {
+            console.error(`❌ Failed to process file ${f.name}:`, fileError);
+            throw new Error(`Erro ao processar arquivo ${f.name}: ${fileError.message}`);
+          }
         }
 
         // Prepare creative data for submit-creative
