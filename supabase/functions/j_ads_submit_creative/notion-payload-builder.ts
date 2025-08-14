@@ -106,7 +106,7 @@ export const buildNotionPayload = (
   // Build the main Notion payload using correct property names from working function
   const notionPayload = {
     parent: {
-      database_id: DB_CRIATIVOS_ID
+      database_id: DB_CRIATIVOS_DATABASE_ID
     },
     properties: {
       "Conta": {
