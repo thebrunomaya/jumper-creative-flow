@@ -120,11 +120,11 @@ serve(async (req) => {
     if (uniqManagerNotionIds.length > 0) {
       const managerIds = uniqManagerNotionIds.map(nid => managerIdByNotion[nid]).filter(Boolean);
       if (managerIds.length > 0) {
-        const { error: delErr } = await service.from('j_ads_notion_manager_accounts').delete().in('manager_id', managerIds);
+        const { error: delErr } = await service.from('j_ads_notion_accounts').delete().in('manager_id', managerIds);
         if (delErr) throw delErr;
         const linkRows = links.map(l => ({ manager_id: managerIdByNotion[l.manager_notion_id], account_notion_id: l.account_notion_id })).filter(r => !!r.manager_id && !!r.account_notion_id);
         if (linkRows.length > 0) {
-          const { error: insErr } = await service.from('j_ads_notion_manager_accounts').insert(linkRows);
+          const { error: insErr } = await service.from('j_ads_notion_accounts').insert(linkRows);
           if (insErr) throw insErr;
         }
       }

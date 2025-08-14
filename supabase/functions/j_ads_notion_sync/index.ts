@@ -243,7 +243,7 @@ serve(async (req) => {
       if (managerIds.length > 0) {
         // delete existing links for these managers
         const { error: delErr } = await service
-          .from('j_ads_notion_manager_accounts')
+          .from('j_ads_notion_accounts')
           .delete()
           .in('manager_id', managerIds);
         if (delErr) throw delErr;
@@ -255,7 +255,7 @@ serve(async (req) => {
 
         if (linkRows.length > 0) {
           const { error: insErr } = await service
-            .from('j_ads_notion_manager_accounts')
+            .from('j_ads_notion_accounts')
             .insert(linkRows);
           if (insErr) throw insErr;
           linksInserted = linkRows.length;

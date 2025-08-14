@@ -60,10 +60,10 @@ serve(async (req) => {
         .maybeSingle();
 
       if (!mgrErr && managerRow) {
-        const { data: links, error: linkErr } = await service
-          .from('j_ads_notion_manager_accounts')
-          .select('account_notion_id')
-          .eq('manager_id', managerRow.id);
+      const { data: links, error: linkErr } = await service
+        .from('j_ads_notion_accounts')
+        .select('account_notion_id')
+        .eq('manager_id', managerRow.id);
 
         if (!linkErr && Array.isArray(links)) {
           const accounts = links.map((l: any) => l.account_notion_id).filter(Boolean);

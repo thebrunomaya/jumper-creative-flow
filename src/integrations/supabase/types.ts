@@ -213,7 +213,7 @@ export type Database = {
         }
         Relationships: []
       }
-      j_ads_notion_manager_accounts: {
+      j_ads_notion_accounts: {
         Row: {
           account_notion_id: string
           created_at: string
