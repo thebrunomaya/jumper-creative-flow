@@ -47,23 +47,8 @@ serve(async (req) => {
 
     const creativeData: CreativeSubmissionData = body;
 
-    // Validate managerId if provided
-    if (creativeData.managerId) {
-      const { data: managerData, error: managerError } = await supabase
-        .from('j_ads_notion_managers')
-        .select('*')
-        .eq('id', creativeData.managerId)
-        .single();
-
-      if (managerError || !managerData) {
-        console.error('❌ Manager validation failed:', managerError);
-        return new Response(
-          JSON.stringify({ error: 'Invalid manager ID' }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-      console.log('✅ Manager validated:', managerData.name);
-    }
+    // Skip managerId validation - permissions are handled by j_ads_admin_actions
+    console.log('📋 Processing creative submission (managerId validation skipped)');
 
     // Fetch client data from Notion
     console.log('🔍 Fetching client data from Notion for client:', creativeData.client);
