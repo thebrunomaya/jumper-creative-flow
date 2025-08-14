@@ -33,3 +33,6 @@ verify_jwt = false
 
 [functions.j_ads_process_submissions]
 verify_jwt = false
+
+[functions.j_ads_submit_creative]
+verify_jwt = true
