@@ -47,8 +47,8 @@ serve(async (req) => {
 
     const creativeData: CreativeSubmissionData = body;
 
-    // Fixed DB_CRIATIVOS_ID - same as the original submit-creative function
-    const DB_CRIATIVOS_ID = "20edb6094968807eac5fe7920c517077";
+    // Database ID for the "DB Criativos" notion database
+    const DB_CRIATIVOS_DATABASE_ID = "20edb6094968807eac5fe7920c517077";
 
     console.log('📋 Processing creative submission');
     console.log('📋 Full creative data received:', JSON.stringify({
@@ -77,7 +77,7 @@ serve(async (req) => {
 
     const clientData = await clientResponse.json();
     console.log('✅ Client data fetched successfully');
-    console.log('📊 Using fixed DB_CRIATIVOS_ID:', DB_CRIATIVOS_ID);
+    console.log('📊 Using DB Criativos database ID:', DB_CRIATIVOS_DATABASE_ID);
 
     // Group files by variation index
     const variationGroups = new Map<number, Array<{ name: string; type: string; size: number; format?: string; base64Data?: string; instagramUrl?: string }>>();
@@ -149,7 +149,7 @@ serve(async (req) => {
           variationIndex,
           variationGroups.size,
           NOTION_TOKEN,
-          DB_CRIATIVOS_ID,
+          DB_CRIATIVOS_DATABASE_ID,
           clientData
         );
         
