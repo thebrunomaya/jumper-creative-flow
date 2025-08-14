@@ -269,8 +269,8 @@ Deno.serve(async (req) => {
 
         console.log(`📤 Invoking submit-creative function...`);
 
-        // Invoke submit-creative function
-        const { data: submitRes, error: submitErr } = await supabase.functions.invoke("submit-creative", {
+        // Invoke j_ads_submit_creative function
+        const { data: submitRes, error: submitErr } = await supabase.functions.invoke("j_ads_submit_creative", {
           body: creativeData,
         });
 
