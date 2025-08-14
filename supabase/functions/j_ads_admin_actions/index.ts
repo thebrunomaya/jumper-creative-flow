@@ -109,29 +109,36 @@ Deno.serve(async (req) => {
     async function fetchBase64(url: string): Promise<{ base64: string; contentType?: string }> {
       console.log(`📥 Downloading file: ${url}`);
       
-      // Use streaming approach for large files
       const res = await fetch(url);
       if (!res.ok) throw new Error(`Falha ao baixar arquivo (${res.status})`);
       
       const contentType = res.headers.get("content-type") || undefined;
       const contentLength = res.headers.get("content-length");
       
-      // Check file size limit (40MB = 41,943,040 bytes to leave memory headroom)
-      if (contentLength && parseInt(contentLength) > 41943040) {
-        throw new Error(`Arquivo muito grande: ${Math.round(parseInt(contentLength) / 1024 / 1024)}MB. Limite: 40MB`);
+      // Stricter file size limit (25MB) 
+      if (contentLength && parseInt(contentLength) > 26214400) {
+        throw new Error(`Arquivo muito grande: ${Math.round(parseInt(contentLength) / 1024 / 1024)}MB. Limite: 25MB`);
       }
       
       console.log(`📊 File size: ${contentLength ? Math.round(parseInt(contentLength) / 1024 / 1024) : '?'}MB`);
       
-      // Use Response.arrayBuffer() which is more efficient for large files
+      // Use the most memory-efficient approach
       const arrayBuffer = await res.arrayBuffer();
-      
-      // Convert to base64 using more efficient method
       const uint8Array = new Uint8Array(arrayBuffer);
-      const binaryString = Array.from(uint8Array, byte => String.fromCharCode(byte)).join('');
-      const base64 = btoa(binaryString);
       
-      console.log(`✅ File converted to base64: ${Math.round(base64.length * 0.75 / 1024 / 1024)}MB`);
+      // Convert directly to base64
+      let binary = '';
+      const chunkSize = 1024; // 1KB chunks to reduce memory pressure
+      for (let i = 0; i < uint8Array.length; i += chunkSize) {
+        const chunk = uint8Array.slice(i, i + chunkSize);
+        binary += String.fromCharCode.apply(null, Array.from(chunk));
+      }
+      
+      const base64 = btoa(binary);
+      console.log(`✅ File converted to base64`);
+      
+      // Clear references to help GC
+      binary = '';
       
       return { base64, contentType };
     }
@@ -172,21 +179,40 @@ Deno.serve(async (req) => {
         });
       }
 
-      // Load submission
-      const { data: submission, error: subErr } = await supabase
+      // Update status to "processing" immediately
+      await supabase
         .from("j_ads_creative_submissions")
-        .select("id, payload, total_variations, status")
-        .eq("id", submissionId)
-        .maybeSingle();
+        .update({ status: "processing" })
+        .eq("id", submissionId);
 
-      if (subErr || !submission) {
-        return new Response(JSON.stringify({ error: subErr?.message || "Submissão não encontrada" }), {
-          status: 404,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
+      // Start background processing without waiting
+      EdgeRuntime.waitUntil(processSubmissionInBackground(submissionId, supabase, fetchBase64));
 
+      return new Response(JSON.stringify({ 
+        success: true, 
+        message: "Publicação iniciada em background. Verifique o status em alguns minutos." 
+      }), {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Background processing function
+    async function processSubmissionInBackground(submissionId: string, supabase: any, fetchBase64: any) {
       try {
+        console.log(`🚀 Starting background processing for submission ${submissionId}`);
+        
+        // Load submission
+        const { data: submission, error: subErr } = await supabase
+          .from("j_ads_creative_submissions")
+          .select("id, payload, total_variations, status")
+          .eq("id", submissionId)
+          .maybeSingle();
+
+        if (subErr || !submission) {
+          throw new Error(subErr?.message || "Submissão não encontrada");
+        }
+
         // Load files for this submission
         const { data: files, error: filesErr } = await supabase
           .from("j_ads_creative_files")
@@ -196,11 +222,11 @@ Deno.serve(async (req) => {
 
         if (filesErr) throw new Error(filesErr.message);
 
-        // Build filesInfo with base64 from stored public_url
-        const filesInfo: Array<{ name: string; type: string; size: number; variationIndex: number; base64Data: string; format?: string }> = [];
-
         console.log(`📁 Processing ${files?.length || 0} files for submission ${submissionId}`);
 
+        // Process files in smaller batches to avoid memory issues
+        const filesInfo: Array<{ name: string; type: string; size: number; variationIndex: number; base64Data: string; format?: string }> = [];
+        
         for (const f of files || []) {
           if (!f.public_url) {
             console.log(`⚠️ Skipping file ${f.name} - no public URL`);
@@ -209,6 +235,12 @@ Deno.serve(async (req) => {
           
           try {
             console.log(`📥 Processing file: ${f.name} (${Math.round((f.size || 0) / 1024 / 1024)}MB)`);
+            
+            // Check file size before processing
+            if (f.size && f.size > 25 * 1024 * 1024) { // 25MB limit
+              throw new Error(`Arquivo ${f.name} muito grande: ${Math.round(f.size / 1024 / 1024)}MB. Limite: 25MB`);
+            }
+            
             const { base64, contentType } = await fetchBase64(f.public_url);
             filesInfo.push({
               name: f.name || "file",
@@ -219,6 +251,10 @@ Deno.serve(async (req) => {
               format: f.format || undefined,
             });
             console.log(`✅ File processed: ${f.name}`);
+            
+            // Force garbage collection after each file
+            if (globalThis.gc) globalThis.gc();
+            
           } catch (fileError) {
             console.error(`❌ Failed to process file ${f.name}:`, fileError);
             throw new Error(`Erro ao processar arquivo ${f.name}: ${fileError.message}`);
@@ -231,7 +267,9 @@ Deno.serve(async (req) => {
           filesInfo,
         };
 
-        // Invoke new namespaced submit function (wrapper)
+        console.log(`📤 Invoking submit-creative function...`);
+
+        // Invoke submit-creative function
         const { data: submitRes, error: submitErr } = await supabase.functions.invoke("submit-creative", {
           body: creativeData,
         });
@@ -242,16 +280,13 @@ Deno.serve(async (req) => {
             .from("j_ads_creative_submissions")
             .update({ status: "error", error: message })
             .eq("id", submissionId);
-
-          return new Response(JSON.stringify({ success: false, error: message }), {
-            status: 500,
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-          });
+          throw new Error(message);
         }
 
         // Upsert creative variations into DB for reference
         const variations = Array.isArray(submitRes?.createdCreatives) ? submitRes.createdCreatives : [];
         const ctaValue = submission?.payload?.cta || submission?.payload?.callToAction || null;
+        
         if (variations.length > 0) {
           const rows = variations.map((v: any) => ({
             submission_id: submissionId,
@@ -262,9 +297,11 @@ Deno.serve(async (req) => {
             cta: ctaValue,
             processed_at: new Date().toISOString(),
           }));
+          
           const { error: upsertErr } = await supabase
             .from("j_ads_creative_variations")
             .upsert(rows, { onConflict: "submission_id,variation_index" });
+            
           if (upsertErr) {
             console.error("Failed to upsert j_ads_creative_variations:", upsertErr);
           }
@@ -272,23 +309,22 @@ Deno.serve(async (req) => {
 
         await supabase
           .from("j_ads_creative_submissions")
-          .update({ status: "processed", result: submitRes, processed_at: new Date().toISOString() })
+          .update({ 
+            status: "processed", 
+            result: submitRes, 
+            processed_at: new Date().toISOString() 
+          })
           .eq("id", submissionId);
 
-        return new Response(JSON.stringify({ success: true, result: submitRes }), {
-          status: 200,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+        console.log(`🎉 Background processing completed successfully for submission ${submissionId}`);
+
       } catch (e: any) {
+        console.error(`❌ Background processing failed for submission ${submissionId}:`, e);
         const msg = e?.message || "Erro inesperado ao publicar";
         await supabase
           .from("j_ads_creative_submissions")
           .update({ status: "error", error: msg })
           .eq("id", submissionId);
-        return new Response(JSON.stringify({ success: false, error: msg }), {
-          status: 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
       }
     }
 
