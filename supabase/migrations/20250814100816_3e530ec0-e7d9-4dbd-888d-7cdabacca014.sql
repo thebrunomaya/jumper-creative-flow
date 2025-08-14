@@ -1,0 +1,1 @@
+UPDATE j_ads_creative_submissions SET manager_id = '214db609-4968-8018-8855-cdef3328ef00', status = 'pending' WHERE id = 'f2bb0dd2-7d90-4b2a-9066-fff254327e1c';

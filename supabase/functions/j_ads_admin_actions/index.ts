@@ -274,13 +274,25 @@ Deno.serve(async (req) => {
           body: creativeData,
         });
 
-        if (submitErr || !submitRes?.success) {
-          const message = submitErr?.message || submitRes?.error || "Erro ao publicar";
+        // Enhanced error handling
+        if (submitErr) {
+          console.error(`❌ Submit-creative function error:`, submitErr);
+          const errorMessage = `Submit-creative error: ${submitErr.message}`;
           await supabase
             .from("j_ads_creative_submissions")
-            .update({ status: "error", error: message })
+            .update({ status: "error", error: errorMessage })
             .eq("id", submissionId);
-          throw new Error(message);
+          throw new Error(errorMessage);
+        }
+        
+        if (!submitRes?.success) {
+          console.error(`❌ Submit-creative failed:`, submitRes);
+          const errorMessage = submitRes?.error || "Submit-creative function failed";
+          await supabase
+            .from("j_ads_creative_submissions")
+            .update({ status: "error", error: errorMessage })
+            .eq("id", submissionId);
+          throw new Error(errorMessage);
         }
 
         // Upsert creative variations into DB for reference
