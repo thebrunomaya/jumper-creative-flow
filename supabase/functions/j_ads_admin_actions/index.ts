@@ -107,14 +107,39 @@ Deno.serve(async (req) => {
 
     // Helper to fetch a public file URL and return base64 contents
     async function fetchBase64(url: string): Promise<{ base64: string; contentType?: string }> {
+      console.log(`📥 Downloading file: ${url}`);
       const res = await fetch(url);
       if (!res.ok) throw new Error(`Falha ao baixar arquivo (${res.status})`);
+      
       const contentType = res.headers.get("content-type") || undefined;
+      const contentLength = res.headers.get("content-length");
+      
+      // Check file size limit (50MB = 52,428,800 bytes)
+      if (contentLength && parseInt(contentLength) > 52428800) {
+        throw new Error(`Arquivo muito grande: ${Math.round(parseInt(contentLength) / 1024 / 1024)}MB. Limite: 50MB`);
+      }
+      
+      console.log(`📊 File size: ${contentLength ? Math.round(parseInt(contentLength) / 1024 / 1024) : '?'}MB`);
+      
       const ab = await res.arrayBuffer();
+      
+      // Use a more memory-efficient approach for large files
       const bytes = new Uint8Array(ab);
-      let binary = "";
-      for (let i = 0; i < bytes.byteLength; i++) binary += String.fromCharCode(bytes[i]);
-      const base64 = btoa(binary);
+      const chunks: string[] = [];
+      const chunkSize = 8192; // Process in 8KB chunks
+      
+      for (let i = 0; i < bytes.length; i += chunkSize) {
+        const chunk = bytes.slice(i, i + chunkSize);
+        let binary = "";
+        for (let j = 0; j < chunk.length; j++) {
+          binary += String.fromCharCode(chunk[j]);
+        }
+        chunks.push(btoa(binary));
+      }
+      
+      const base64 = chunks.join("");
+      console.log(`✅ File converted to base64: ${Math.round(base64.length / 1024 / 1024)}MB`);
+      
       return { base64, contentType };
     }
 
