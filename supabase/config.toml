@@ -1,33 +1,6 @@
 project_id = "biwwowendjuzvpttyrlb"
 
-[functions.ingest-creative]
-verify_jwt = true
-
-[functions.process-submissions]
-verify_jwt = false
-
-[functions.admin-actions]
-verify_jwt = true
-
-[functions.manager-actions]
-verify_jwt = true
-
-[functions.get-accounts-safe]
-verify_jwt = true
-
-[functions.ensure-role]
-verify_jwt = true
-
-[functions.notion-my-accounts]
-verify_jwt = true
-
-[functions.notion-sync]
-verify_jwt = true
-
-[functions.notion-sync-cron]
-verify_jwt = false
-
-# New namespaced functions (existing)
+# J_ADS namespaced functions
 [functions.j_ads_ingest_creative]
 verify_jwt = true
 
@@ -37,7 +10,6 @@ verify_jwt = true
 [functions.j_ads_manager_actions]
 verify_jwt = true
 
-# Newly namespaced Notion and auth functions
 [functions.j_ads_ensure_role]
 verify_jwt = true
 
@@ -55,3 +27,9 @@ verify_jwt = true
 
 [functions.j_ads_notion_sync]
 verify_jwt = true
+
+[functions.j_ads_notion_sync_cron]
+verify_jwt = false
+
+[functions.j_ads_process_submissions]
+verify_jwt = false
