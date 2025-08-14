@@ -9,7 +9,7 @@ export const createNotionCreative = async (
   variationIndex: number,
   totalVariations: number,
   NOTION_TOKEN: string,
-  DB_CRIATIVOS_ID: string,
+  DB_CRIATIVOS_DATABASE_ID: string,
   clientData: any
 ) => {
   // Build the Notion payload
@@ -18,7 +18,7 @@ export const createNotionCreative = async (
     variationFiles,
     variationIndex,
     totalVariations,
-    DB_CRIATIVOS_ID
+    DB_CRIATIVOS_DATABASE_ID
   );
 
   console.log(`📤 Sending variation ${variationIndex} to Notion with CTA: ${ctaValue}`);

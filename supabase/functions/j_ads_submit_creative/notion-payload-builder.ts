@@ -14,7 +14,7 @@ export const buildNotionPayload = (
   variationFiles: Array<{ name: string; url: string; format?: string }>,
   variationIndex: number,
   totalVariations: number,
-  DB_CRIATIVOS_ID: string
+  DB_CRIATIVOS_DATABASE_ID: string
 ) => {
   console.log(`🏗️ Building Notion payload for variation ${variationIndex}`);
 
@@ -103,56 +103,45 @@ export const buildNotionPayload = (
     });
   }
 
-  // Build the main Notion payload
+  // Build the main Notion payload using correct property names from working function
   const notionPayload = {
     parent: {
-      type: 'database_id',
       database_id: DB_CRIATIVOS_ID
     },
     properties: {
-      "Name": {
-        title: [
-          {
-            text: {
-              content: "Processando..."
-            }
-          }
-        ]
-      },
-      "Cliente": {
+      "Conta": {
         relation: [
           {
             id: creativeData.client
           }
         ]
       },
-      "Parceiro": {
-        relation: creativeData.partner ? [
+      "Gerente": {
+        relation: [
           {
-            id: creativeData.partner
+            id: creativeData.managerId || ""
           }
-        ] : []
+        ]
       },
       "Plataforma": {
         select: {
-          name: creativeData.platform || "Meta"
+          name: creativeData.platform === 'meta' ? 'Meta Ads' : 'Google Ads'
         }
       },
-      "Objetivo da campanha": {
-        select: creativeData.campaignObjective ? {
-          name: creativeData.campaignObjective
-        } : null
+      "Formato do Anúncio": {
+        multi_select: [
+          {
+            name: creativeData.creativeType === 'single' ? 'Imagem' : 
+                 creativeData.creativeType === 'carousel' ? 'Carrossel' : 
+                 creativeData.creativeType === 'existing-post' ? 'Publicação Existente' : 'Imagem'
+          }
+        ]
       },
-      "Tipo de criativo": {
-        select: creativeData.creativeType ? {
-          name: creativeData.creativeType
-        } : null
-      },
-      "Nome do criativo": {
+      "Objetivo do anúncio": {
         rich_text: [
           {
             text: {
-              content: creativeData.creativeName || ''
+              content: creativeData.campaignObjective || ''
             }
           }
         ]
@@ -188,31 +177,29 @@ export const buildNotionPayload = (
         rich_text: [
           {
             text: {
-              content: creativeData.destination || ''
+              content: creativeData.destinationUrl || ''
             }
           }
         ]
       },
-      "CTA": {
-        rich_text: [
-          {
-            text: {
-              content: ctaValue
-            }
-          }
-        ]
-      },
-      "URL de destino": {
-        url: creativeData.destinationUrl || null
+      "Call-to-Action": {
+        select: {
+          name: ctaValue
+        }
       },
       "Observações": {
         rich_text: [
           {
             text: {
-              content: observationsText
+              content: observationsText.substring(0, 2000)
             }
           }
         ]
+      },
+      "Status": {
+        select: {
+          name: "Pendente"
+        }
       }
     }
   };
