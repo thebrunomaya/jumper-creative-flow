@@ -47,15 +47,17 @@ serve(async (req) => {
 
     const creativeData: CreativeSubmissionData = body;
 
-    // Skip managerId validation - permissions are handled by j_ads_admin_actions
-    console.log('📋 Processing creative submission (managerId validation skipped)');
+    // Fixed DB_CRIATIVOS_ID - same as the original submit-creative function
+    const DB_CRIATIVOS_ID = "20edb6094968807eac5fe7920c517077";
 
-    // Fetch client data from Notion
-    console.log('🔍 Fetching client data from Notion for client:', creativeData.client);
+    console.log('📋 Processing creative submission');
     console.log('📋 Full creative data received:', JSON.stringify({
       ...creativeData,
       filesInfo: creativeData.filesInfo.map(f => ({ ...f, base64Data: f.base64Data ? '[TRUNCATED]' : undefined }))
     }, null, 2));
+
+    // Fetch client data for account information (but not for DB_CRIATIVOS_ID)
+    console.log('🔍 Fetching client data from Notion for client:', creativeData.client);
     
     const clientResponse = await fetch(`https://api.notion.com/v1/pages/${creativeData.client}`, {
       headers: {
@@ -75,18 +77,7 @@ serve(async (req) => {
 
     const clientData = await clientResponse.json();
     console.log('✅ Client data fetched successfully');
-
-    // Get DB_CRIATIVOS_ID from client properties
-    const DB_CRIATIVOS_ID = clientData.properties?.['DB CRIATIVOS']?.relation?.[0]?.id;
-    if (!DB_CRIATIVOS_ID) {
-      console.error('❌ DB CRIATIVOS relation not found in client data');
-      return new Response(
-        JSON.stringify({ error: 'Client is not properly configured (missing DB CRIATIVOS)' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    console.log('📊 Using DB_CRIATIVOS_ID:', DB_CRIATIVOS_ID);
+    console.log('📊 Using fixed DB_CRIATIVOS_ID:', DB_CRIATIVOS_ID);
 
     // Group files by variation index
     const variationGroups = new Map<number, Array<{ name: string; type: string; size: number; format?: string; base64Data?: string; instagramUrl?: string }>>();
