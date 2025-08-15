@@ -125,7 +125,7 @@ async function getManagerNameByEmail(email: string, supabase: any, notionToken: 
   }
 }
 
-// Helper to get email from user ID
+// Helper to get email from user ID with multiple fallbacks
 async function getEmailFromUserId(userId: string, supabase: any): Promise<string> {
   if (!userId) return "";
   
@@ -140,6 +140,36 @@ async function getEmailFromUserId(userId: string, supabase: any): Promise<string
     console.error(`❌ Error getting email for user ID ${userId}:`, error);
     return "";
   }
+}
+
+// Helper to resolve email with resilient fallbacks
+async function resolveEmail(submission: any, supabase: any): Promise<string> {
+  // Try 1: payload.managerEmail (most reliable)
+  if (submission.payload?.managerEmail) {
+    console.log(`✅ Using manager email from payload: ${submission.payload.managerEmail}`);
+    return submission.payload.managerEmail;
+  }
+
+  // Try 2: manager_id -> getUserById
+  if (submission.manager_id) {
+    const email = await getEmailFromUserId(submission.manager_id, supabase);
+    if (email) {
+      console.log(`✅ Resolved email from manager_id: ${email}`);
+      return email;
+    }
+  }
+
+  // Try 3: user_id -> getUserById (fallback for legacy data)
+  if (submission.user_id) {
+    const email = await getEmailFromUserId(submission.user_id, supabase);
+    if (email) {
+      console.log(`✅ Resolved email from user_id fallback: ${email}`);
+      return email;
+    }
+  }
+
+  console.log(`⚠️ Could not resolve email for submission ${submission.id}`);
+  return "";
 }
 
 Deno.serve(async (req) => {
@@ -680,6 +710,55 @@ Deno.serve(async (req) => {
       });
     }
 
+    if (action === "backfill_manager_emails") {
+      // Backfill manager emails for legacy submissions
+      const { data: subs, error: listErr } = await supabase
+        .from("j_ads_creative_submissions")
+        .select("id, payload, manager_id, user_id")
+        .order("created_at", { ascending: false })
+        .limit(1000);
+
+      if (listErr) {
+        return new Response(JSON.stringify({ error: listErr.message }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      let updated = 0;
+      for (const sub of subs || []) {
+        // Skip if already has managerEmail
+        if (sub.payload?.managerEmail) continue;
+
+        // Try to resolve email
+        const email = await resolveEmail(sub, supabase);
+        if (email) {
+          // Update payload with managerEmail
+          const updatedPayload = {
+            ...sub.payload,
+            managerEmail: email
+          };
+
+          const { error: updateErr } = await supabase
+            .from("j_ads_creative_submissions")
+            .update({ payload: updatedPayload })
+            .eq("id", sub.id);
+
+          if (!updateErr) {
+            updated++;
+            console.log(`✅ Backfilled manager email for submission ${sub.id}: ${email}`);
+          } else {
+            console.log(`⚠️ Failed to update submission ${sub.id}: ${updateErr.message}`);
+          }
+        }
+      }
+
+      return new Response(JSON.stringify({ success: true, updated }), {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     if (action === "getDetails") {
       if (!submissionId) {
         return new Response(JSON.stringify({ error: "submissionId is required" }), {
@@ -713,19 +792,17 @@ Deno.serve(async (req) => {
         console.error("Error fetching files:", filesErr);
       }
 
-      // Get manager name using robust helper
+      // Get manager name using robust email resolution
       let managerName = "—";
-      let managerEmail = submission?.payload?.managerEmail as string;
-      
-      // If no managerEmail in payload, try to get it from manager_id
-      if (!managerEmail && submission.manager_id) {
-        managerEmail = await getEmailFromUserId(submission.manager_id, supabase);
-      }
+      const managerEmail = await resolveEmail(submission, supabase);
       
       if (managerEmail) {
         const resolvedName = await getManagerNameByEmail(managerEmail, supabase, NOTION_TOKEN);
         if (resolvedName) {
           managerName = resolvedName;
+        } else {
+          // Last resort: show the email if we can't find the name
+          managerName = managerEmail;
         }
       }
 
@@ -976,12 +1053,9 @@ Deno.serve(async (req) => {
     // Enrich manager names using robust batch processing
     const managerMap: Record<string, string> = {};
     
-    // 1. Collect all unique emails (from payload or fallback to user_id)
+    // 1. Collect all unique emails using resilient email resolution
     const emailPromises = (items || []).map(async (item: any) => {
-      let email = item?.payload?.managerEmail;
-      if (!email && item.manager_id) {
-        email = await getEmailFromUserId(item.manager_id, supabase);
-      }
+      const email = await resolveEmail(item, supabase);
       return { itemId: item.id, email };
     });
     
@@ -1058,10 +1132,16 @@ Deno.serve(async (req) => {
 
     const enriched = (items || []).map((r: any) => {
       const itemEmail = emailToItemMap.get(r.id);
+      let managerName = null;
+      
+      if (itemEmail) {
+        managerName = managerMap[itemEmail] || itemEmail; // Show email as fallback if name not found
+      }
+      
       return {
         ...r, 
         client_name: r.client ? clientMap[r.client] || null : null,
-        manager_name: itemEmail ? (managerMap[itemEmail] || null) : null,
+        manager_name: managerName,
         creative_name: r?.payload?.managerInputName || r?.payload?.creativeName || null,
       };
     });
