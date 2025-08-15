@@ -12,6 +12,29 @@ function getText(prop: any): string {
   if (prop.rich_text?.length) return prop.rich_text.map((t: any) => t.plain_text).join("");
   if (typeof prop.email === "string") return prop.email;
   if (typeof prop.plain_text === "string") return prop.plain_text;
+  if (typeof prop.name === "string") return prop.name;
+  return "";
+}
+
+function extractEmail(props: any): string {
+  // Try different email property variations
+  for (const key of ["E-Mail", "Email", "E-mail", "email"]) {
+    if (props[key]) {
+      const email = getText(props[key]);
+      if (email) return email;
+    }
+  }
+  return "";
+}
+
+function extractName(props: any): string {
+  // Try different name property variations
+  for (const key of ["Name", "Nome", "Título", "Title"]) {
+    if (props[key]) {
+      const name = getText(props[key]);
+      if (name) return name;
+    }
+  }
   return "";
 }
 
@@ -25,6 +48,98 @@ function getRoles(prop: any): string[] {
   // Fallback to text
   const txt = getText(prop);
   return txt ? txt.split(/[,;\n]/).map((s) => s.trim()).filter(Boolean) : [];
+}
+
+// Helper to get manager name by email
+async function getManagerNameByEmail(email: string, supabase: any, notionToken: string): Promise<string> {
+  if (!email) {
+    console.log("⚠️ No email provided for manager lookup");
+    return "";
+  }
+
+  try {
+    // 1st attempt: Query j_ads_notion_managers table (fast)
+    const { data: managerData, error: dbErr } = await supabase
+      .from("j_ads_notion_managers")
+      .select("name")
+      .eq("email", email)
+      .maybeSingle();
+
+    if (!dbErr && managerData?.name) {
+      console.log(`✅ Found manager name in database: ${managerData.name}`);
+      return managerData.name;
+    }
+
+    if (dbErr) {
+      console.log(`⚠️ Database lookup failed: ${dbErr.message}`);
+    } else {
+      console.log(`⚠️ Manager not found in database for email: ${email}`);
+    }
+
+    // 2nd attempt: Fallback to Notion API
+    if (!notionToken) {
+      console.log("⚠️ No Notion token for fallback lookup");
+      return "";
+    }
+
+    console.log(`🔄 Falling back to Notion API for email: ${email}`);
+    const notionRes = await fetch(`https://api.notion.com/v1/databases/${DB_GERENTES_ID}/query`, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${notionToken}`,
+        "Content-Type": "application/json",
+        "Notion-Version": "2022-06-28",
+      },
+      body: JSON.stringify({
+        filter: {
+          or: [
+            { property: "E-Mail", email: { equals: email } },
+            { property: "Email", email: { equals: email } },
+            { property: "E-mail", email: { equals: email } },
+            { property: "email", email: { equals: email } }
+          ]
+        }
+      }),
+    });
+
+    if (!notionRes.ok) {
+      console.log(`⚠️ Notion API error: ${notionRes.status}`);
+      return "";
+    }
+
+    const notionData = await notionRes.json();
+    if (notionData.results && notionData.results.length > 0) {
+      const managerName = extractName(notionData.results[0].properties);
+      if (managerName) {
+        console.log(`✅ Found manager name in Notion: ${managerName}`);
+        return managerName;
+      }
+    }
+
+    console.log(`⚠️ Manager not found in Notion for email: ${email}`);
+    return "";
+
+  } catch (error) {
+    console.error(`❌ Error getting manager name for ${email}:`, error);
+    return "";
+  }
+}
+
+// Helper to get email from user ID
+async function getEmailFromUserId(userId: string, supabase: any): Promise<string> {
+  if (!userId) return "";
+  
+  try {
+    const { data: userData, error } = await supabase.auth.admin.getUserById(userId);
+    if (error || !userData?.user?.email) {
+      console.log(`⚠️ Could not get email for user ID: ${userId}`);
+      return "";
+    }
+    return userData.user.email;
+  } catch (error) {
+    console.error(`❌ Error getting email for user ID ${userId}:`, error);
+    return "";
+  }
 }
 
 Deno.serve(async (req) => {
@@ -598,36 +713,19 @@ Deno.serve(async (req) => {
         console.error("Error fetching files:", filesErr);
       }
 
-      // Get manager name from managerEmail in payload
+      // Get manager name using robust helper
       let managerName = "—";
-      const managerEmail = submission?.payload?.managerEmail as string;
+      let managerEmail = submission?.payload?.managerEmail as string;
       
-      if (managerEmail && NOTION_TOKEN) {
-        try {
-          const managerRes = await fetch(`https://api.notion.com/v1/databases/${DB_GERENTES_ID}/query`, {
-            method: "POST",
-            headers: {
-              "Authorization": `Bearer ${NOTION_TOKEN}`,
-              "Content-Type": "application/json",
-              "Notion-Version": "2022-06-28",
-            },
-            body: JSON.stringify({
-              filter: {
-                property: "E-mail",
-                email: { equals: managerEmail },
-              },
-            }),
-          });
-          
-          if (managerRes.ok) {
-            const managerData = await managerRes.json();
-            if (managerData.results && managerData.results.length > 0) {
-              const manager = managerData.results[0];
-              managerName = getText(manager.properties?.Name || manager.properties?.name) || "—";
-            }
-          }
-        } catch (e) {
-          console.error("Error fetching manager by email:", e);
+      // If no managerEmail in payload, try to get it from manager_id
+      if (!managerEmail && submission.manager_id) {
+        managerEmail = await getEmailFromUserId(submission.manager_id, supabase);
+      }
+      
+      if (managerEmail) {
+        const resolvedName = await getManagerNameByEmail(managerEmail, supabase, NOTION_TOKEN);
+        if (resolvedName) {
+          managerName = resolvedName;
         }
       }
 
@@ -708,12 +806,18 @@ Deno.serve(async (req) => {
       }
 
       if (submissionId) {
-        // Update existing
+        // Update existing - ensure manager email is included
+        const updatedPayload = {
+          ...draft,
+          managerEmail: user.email
+        };
+        
         const { data, error } = await supabase
           .from("j_ads_creative_submissions")
           .update({ 
-            payload: draft,
+            payload: updatedPayload,
             status: "draft",
+            manager_id: user.id,
             updated_at: new Date().toISOString()
           })
           .eq("id", submissionId)
@@ -736,18 +840,23 @@ Deno.serve(async (req) => {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       } else {
-        // Create new
+        // Create new - ensure manager email is included
+        const newPayload = {
+          ...draft,
+          managerEmail: user.email
+        };
+        
         const { data, error } = await supabase
           .from("j_ads_creative_submissions")
           .insert({
             user_id: user.id,
-            payload: draft,
+            payload: newPayload,
             status: "draft",
             client: draft.client,
             platform: draft.platform,
             campaign_objective: draft.campaignObjective,
             creative_type: draft.creativeType,
-            manager_id: draft.managerId,
+            manager_id: user.id,
             partner: draft.partner,
             total_variations: draft.totalVariations || 1
           })
@@ -864,12 +973,47 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Enrich manager names from managerEmail in payload
-    const managerEmails = Array.from(new Set((items || []).map((r: any) => r?.payload?.managerEmail).filter(Boolean))).slice(0, 50);
+    // Enrich manager names using robust batch processing
     const managerMap: Record<string, string> = {};
     
-    for (const email of managerEmails) {
+    // 1. Collect all unique emails (from payload or fallback to user_id)
+    const emailPromises = (items || []).map(async (item: any) => {
+      let email = item?.payload?.managerEmail;
+      if (!email && item.manager_id) {
+        email = await getEmailFromUserId(item.manager_id, supabase);
+      }
+      return { itemId: item.id, email };
+    });
+    
+    const emailResults = await Promise.all(emailPromises);
+    const uniqueEmails = Array.from(new Set(emailResults.map(r => r.email).filter(Boolean))).slice(0, 50);
+    
+    // 2. Batch query j_ads_notion_managers table first
+    if (uniqueEmails.length > 0) {
       try {
+        const { data: managerData, error: dbErr } = await supabase
+          .from("j_ads_notion_managers")
+          .select("email, name")
+          .in("email", uniqueEmails);
+        
+        if (!dbErr && managerData) {
+          managerData.forEach(manager => {
+            if (manager.email && manager.name) {
+              managerMap[manager.email] = manager.name;
+              console.log(`✅ Found manager in database: ${manager.name} (${manager.email})`);
+            }
+          });
+        }
+      } catch (e) {
+        console.log(`⚠️ Database batch lookup failed: ${e.message}`);
+      }
+    }
+    
+    // 3. For remaining emails not found in database, use Notion API fallback
+    const missingEmails = uniqueEmails.filter(email => !managerMap[email]);
+    for (const email of missingEmails.slice(0, 10)) { // Limit Notion API calls
+      try {
+        console.log(`🔄 Notion fallback for: ${email}`);
         const managerRes = await fetch(`https://api.notion.com/v1/databases/${DB_GERENTES_ID}/query`, {
           method: "POST",
           headers: {
@@ -879,31 +1023,48 @@ Deno.serve(async (req) => {
           },
           body: JSON.stringify({
             filter: {
-              property: "E-mail",
-              email: { equals: email },
-            },
+              or: [
+                { property: "E-Mail", email: { equals: email } },
+                { property: "Email", email: { equals: email } },
+                { property: "E-mail", email: { equals: email } },
+                { property: "email", email: { equals: email } }
+              ]
+            }
           }),
         });
         
         if (managerRes.ok) {
           const managerData = await managerRes.json();
           if (managerData.results?.[0]) {
-            const manager = managerData.results[0];
-            const name = getText(manager.properties?.Name || manager.properties?.name);
-            if (name) managerMap[email] = name;
+            const managerName = extractName(managerData.results[0].properties);
+            if (managerName) {
+              managerMap[email] = managerName;
+              console.log(`✅ Found manager in Notion: ${managerName} (${email})`);
+            }
           }
         }
-      } catch (_) {
-        // ignore
+      } catch (e) {
+        console.log(`⚠️ Notion fallback failed for ${email}: ${e.message}`);
       }
     }
 
-    const enriched = (items || []).map((r: any) => ({ 
-      ...r, 
-      client_name: r.client ? clientMap[r.client] || null : null,
-      manager_name: r?.payload?.managerEmail ? (managerMap[r.payload.managerEmail] || null) : null,
-      creative_name: r?.payload?.managerInputName || r?.payload?.creativeName || null,
-    }));
+    // 4. Map manager names to items
+    const emailToItemMap = new Map();
+    emailResults.forEach(result => {
+      if (result.email) {
+        emailToItemMap.set(result.itemId, result.email);
+      }
+    });
+
+    const enriched = (items || []).map((r: any) => {
+      const itemEmail = emailToItemMap.get(r.id);
+      return {
+        ...r, 
+        client_name: r.client ? clientMap[r.client] || null : null,
+        manager_name: itemEmail ? (managerMap[itemEmail] || null) : null,
+        creative_name: r?.payload?.managerInputName || r?.payload?.creativeName || null,
+      };
+    });
 
     return new Response(JSON.stringify({ success: true, items: enriched }), {
       status: 200,
