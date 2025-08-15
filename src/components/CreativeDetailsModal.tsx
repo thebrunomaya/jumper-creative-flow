@@ -136,10 +136,6 @@ export const CreativeDetailsModal: React.FC<CreativeDetailsModalProps> = ({
                     <span className="text-sm font-medium">Nome do Criativo:</span>
                     <p className="text-sm text-muted-foreground">{payload.creativeName || '—'}</p>
                   </div>
-                  <div>
-                    <span className="text-sm font-medium">Parceiro:</span>
-                    <p className="text-sm text-muted-foreground">{payload.partner || '—'}</p>
-                  </div>
                   {payload.observations && (
                     <div className="col-span-2">
                       <span className="text-sm font-medium">Observações:</span>
