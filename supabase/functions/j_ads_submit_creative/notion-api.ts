@@ -48,41 +48,121 @@ export const createNotionPage = async (payload: any, NOTION_TOKEN: string, varia
 export const updateNotionPageTitle = async (pageId: string, title: string, NOTION_TOKEN: string) => {
   console.log(`✏️ Updating Notion page title: ${pageId} -> ${title}`);
   
-  const updatePayload = {
-    properties: {
-      "Name": {
-        title: [
-          {
-            text: {
-              content: title
+  // First, try to fetch the page to understand its properties structure
+  try {
+    const pageResponse = await fetch(`https://api.notion.com/v1/pages/${pageId}`, {
+      headers: {
+        'Authorization': `Bearer ${NOTION_TOKEN}`,
+        'Notion-Version': '2022-06-28',
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    if (pageResponse.ok) {
+      const pageData = await pageResponse.json();
+      const properties = pageData.properties || {};
+      
+      // Find the title property dynamically
+      const titleProperty = Object.keys(properties).find(key => 
+        properties[key]?.type === 'title'
+      );
+      
+      console.log(`🔍 Found title property: ${titleProperty || 'none found'}`);
+      console.log(`📊 Available properties: ${Object.keys(properties).join(', ')}`);
+      
+      if (titleProperty) {
+        const updatePayload = {
+          properties: {
+            [titleProperty]: {
+              title: [
+                {
+                  text: {
+                    content: title
+                  }
+                }
+              ]
             }
           }
-        ]
+        };
+        
+        console.log(`📝 Update payload using property "${titleProperty}":`, JSON.stringify(updatePayload, null, 2));
+        
+        const response = await fetch(`https://api.notion.com/v1/pages/${pageId}`, {
+          method: 'PATCH',
+          headers: {
+            'Authorization': `Bearer ${NOTION_TOKEN}`,
+            'Notion-Version': '2022-06-28',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(updatePayload)
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('❌ Failed to update Notion page title:', errorText);
+          throw new Error(`Failed to update Notion page title: ${response.statusText} - ${errorText}`);
+        }
+
+        const result = await response.json();
+        console.log('✅ Notion page title updated successfully');
+        return result;
+      } else {
+        console.warn('⚠️ No title property found, skipping title update');
+        return { success: false, reason: 'No title property found' };
       }
     }
-  };
-
-  console.log('📝 Update payload:', JSON.stringify(updatePayload, null, 2));
-
-  const response = await fetch(`https://api.notion.com/v1/pages/${pageId}`, {
-    method: 'PATCH',
-    headers: {
-      'Authorization': `Bearer ${NOTION_TOKEN}`,
-      'Notion-Version': '2022-06-28',
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(updatePayload)
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    console.error('❌ Failed to update Notion page title:', errorText);
-    throw new Error(`Failed to update Notion page title: ${response.statusText} - ${errorText}`);
+  } catch (error) {
+    console.error('❌ Error fetching page structure, attempting with fallback approach:', error);
   }
+  
+  // Fallback: try common title property names
+  const commonTitleNames = ['Name', 'Title', 'Título', 'Nome'];
+  
+  for (const titlePropertyName of commonTitleNames) {
+    try {
+      console.log(`🔄 Trying title property: ${titlePropertyName}`);
+      
+      const updatePayload = {
+        properties: {
+          [titlePropertyName]: {
+            title: [
+              {
+                text: {
+                  content: title
+                }
+              }
+            ]
+          }
+        }
+      };
 
-  const result = await response.json();
-  console.log('✅ Notion page title updated successfully');
-  return result;
+      
+      const response = await fetch(`https://api.notion.com/v1/pages/${pageId}`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${NOTION_TOKEN}`,
+          'Notion-Version': '2022-06-28',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(updatePayload)
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log(`✅ Notion page title updated successfully using property: ${titlePropertyName}`);
+        return result;
+      } else {
+        const errorText = await response.text();
+        console.warn(`⚠️ Failed with property "${titlePropertyName}": ${errorText}`);
+      }
+    } catch (error) {
+      console.warn(`⚠️ Error with property "${titlePropertyName}":`, error);
+    }
+  }
+  
+  // If all attempts fail, log warning but don't throw error to avoid breaking the creative creation
+  console.warn('⚠️ Could not update page title with any known property names. Continuing without title update.');
+  return { success: false, reason: 'No valid title property found' };
 };
 
 // Add blocks to a Notion page
