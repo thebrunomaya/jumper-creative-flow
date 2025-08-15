@@ -47,6 +47,37 @@ serve(async (req) => {
 
     const creativeData: CreativeSubmissionData = body;
 
+    // Resolve manager ID if needed (convert Supabase user ID to Notion ID)
+    if (creativeData.managerId) {
+      console.log('🔍 Original manager ID received:', creativeData.managerId);
+      
+      // Check if this is a Supabase UUID that needs to be converted to Notion ID
+      const { data: managerData, error: managerError } = await supabase
+        .from('j_ads_notion_managers')
+        .select('notion_id, name')
+        .eq('id', creativeData.managerId)
+        .single();
+
+      if (managerData) {
+        console.log(`✅ Converting manager ID: ${creativeData.managerId} -> ${managerData.notion_id} (${managerData.name})`);
+        creativeData.managerId = managerData.notion_id;
+      } else {
+        // Try to find by notion_id directly (in case frontend already sends Notion ID)
+        const { data: notionManagerData, error: notionError } = await supabase
+          .from('j_ads_notion_managers')
+          .select('notion_id, name')
+          .eq('notion_id', creativeData.managerId)
+          .single();
+
+        if (notionManagerData) {
+          console.log(`✅ Manager ID is already a valid Notion ID: ${creativeData.managerId} (${notionManagerData.name})`);
+        } else {
+          console.warn(`⚠️ Manager ID ${creativeData.managerId} not found in j_ads_notion_managers table. Will proceed without manager.`);
+          creativeData.managerId = undefined; // Clear invalid manager ID
+        }
+      }
+    }
+
     // Database ID for the "DB Criativos" notion database
     const DB_CRIATIVOS_DATABASE_ID = "20edb6094968807eac5fe7920c517077";
 
