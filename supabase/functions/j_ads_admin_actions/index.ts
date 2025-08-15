@@ -532,6 +532,116 @@ Deno.serve(async (req) => {
       });
     }
 
+    if (action === "getDetails") {
+      if (!submissionId) {
+        return new Response(JSON.stringify({ error: "submissionId is required" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      // Get submission with all details
+      const { data: submission, error: subErr } = await supabase
+        .from("j_ads_creative_submissions")
+        .select("*")
+        .eq("id", submissionId)
+        .maybeSingle();
+
+      if (subErr || !submission) {
+        return new Response(JSON.stringify({ error: subErr?.message || "Submissão não encontrada" }), {
+          status: 404,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      // Get files
+      const { data: files, error: filesErr } = await supabase
+        .from("j_ads_creative_files")
+        .select("*")
+        .eq("submission_id", submissionId)
+        .order("variation_index", { ascending: true });
+
+      if (filesErr) {
+        console.error("Error fetching files:", filesErr);
+      }
+
+      // Get manager name from Notion
+      let managerName = "—";
+      if (submission.manager_id && NOTION_TOKEN) {
+        try {
+          const notionRes = await fetch(`https://api.notion.com/v1/databases/${DB_GERENTES_ID}/query`, {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${NOTION_TOKEN}`,
+              "Content-Type": "application/json",
+              "Notion-Version": "2022-06-28",
+            },
+            body: JSON.stringify({
+              filter: {
+                property: "id",
+                rich_text: { equals: submission.manager_id }
+              }
+            }),
+          });
+
+          if (notionRes.ok) {
+            const notionData = await notionRes.json();
+            if (notionData.results && notionData.results.length > 0) {
+              const manager = notionData.results[0];
+              managerName = getText(manager.properties?.name || manager.properties?.Name) || "—";
+            }
+          }
+        } catch (e) {
+          console.error("Error fetching manager name:", e);
+        }
+      }
+
+      // Get client name from Notion if we have it
+      let clientName = submission.client || "—";
+      if (submission.client && NOTION_TOKEN) {
+        try {
+          const DB_CLIENTS_ID = "213db60949688003beeedd4c7d50a4f1";
+          const clientRes = await fetch(`https://api.notion.com/v1/databases/${DB_CLIENTS_ID}/query`, {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${NOTION_TOKEN}`,
+              "Content-Type": "application/json",
+              "Notion-Version": "2022-06-28",
+            },
+            body: JSON.stringify({
+              filter: {
+                property: "id",
+                rich_text: { equals: submission.client }
+              }
+            }),
+          });
+
+          if (clientRes.ok) {
+            const clientData = await clientRes.json();
+            if (clientData.results && clientData.results.length > 0) {
+              const client = clientData.results[0];
+              clientName = getText(client.properties?.name || client.properties?.Name) || submission.client;
+            }
+          }
+        } catch (e) {
+          console.error("Error fetching client name:", e);
+        }
+      }
+
+      // Enrich submission data
+      const enrichedSubmission = {
+        ...submission,
+        manager_name: managerName,
+        client_name: clientName,
+        files: files || []
+      };
+
+      return new Response(JSON.stringify({ success: true, submission: enrichedSubmission }), {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     if (action === "getSubmission") {
       if (!submissionId) {
         return new Response(JSON.stringify({ error: "submissionId is required" }), {

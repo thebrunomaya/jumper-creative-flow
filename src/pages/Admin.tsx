@@ -42,6 +42,8 @@ const AdminPage: React.FC = () => {
   const qc = useQueryClient();
   const [errorDetails, setErrorDetails] = useState<string | null>(null);
   const [selectedSubmission, setSelectedSubmission] = useState<SubmissionRow | null>(null);
+  const [detailsSubmission, setDetailsSubmission] = useState<any>(null);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
 
   useEffect(() => {
     document.title = "Admin • Ad Uploader";
@@ -171,6 +173,36 @@ const AdminPage: React.FC = () => {
     },
   });
 
+  const fetchSubmissionDetails = async (submissionId: string) => {
+    try {
+      const { data, error } = await supabase.functions.invoke('j_ads_admin_actions', {
+        body: { action: 'getDetails', submissionId }
+      });
+      
+      if (error) throw error;
+      if (!data?.success) throw new Error(data?.error || 'Failed to fetch details');
+      
+      return data.submission;
+    } catch (error: any) {
+      toast({
+        title: "Erro ao carregar detalhes",
+        description: error.message,
+        variant: "destructive",
+      });
+      throw error;
+    }
+  };
+
+  const handleViewDetails = async (submission: SubmissionRow) => {
+    try {
+      const details = await fetchSubmissionDetails(submission.id);
+      setDetailsSubmission(details);
+      setIsDetailsModalOpen(true);
+    } catch (error) {
+      // Error already handled in fetchSubmissionDetails
+    }
+  };
+
   const rows = useMemo(() => items, [items]);
 
   return (
@@ -241,7 +273,7 @@ const AdminPage: React.FC = () => {
                         <TableCell className="text-right">
                           {row.status === "draft" ? (
                             <div className="flex gap-1 justify-end">
-                              <Button variant="outline" size="sm" onClick={() => setSelectedSubmission(row)}>Detalhes</Button>
+                              <Button variant="outline" size="sm" onClick={() => handleViewDetails(row)}>Detalhes</Button>
                               <Link to={`/create/${row.id}`}>
                                 <Button variant="outline" size="sm">Editar</Button>
                               </Link>
@@ -260,7 +292,7 @@ const AdminPage: React.FC = () => {
                             </div>
                           ) : row.status === "error" ? (
                             <div className="flex gap-1 justify-end">
-                              <Button variant="outline" size="sm" onClick={() => setSelectedSubmission(row)}>Detalhes</Button>
+                              <Button variant="outline" size="sm" onClick={() => handleViewDetails(row)}>Detalhes</Button>
                               <Link to={`/create/${row.id}`}>
                                 <Button variant="outline" size="sm">Editar</Button>
                               </Link>
@@ -268,11 +300,11 @@ const AdminPage: React.FC = () => {
                             </div>
                           ) : row.status === "processed" ? (
                             <div className="flex gap-1 justify-end">
-                              <Button variant="outline" size="sm" onClick={() => setSelectedSubmission(row)}>Detalhes</Button>
+                              <Button variant="outline" size="sm" onClick={() => handleViewDetails(row)}>Detalhes</Button>
                             </div>
                           ) : ["pending", "queued", "processing"].includes(row.status) ? (
                             <div className="flex gap-1 justify-end">
-                              <Button variant="outline" size="sm" onClick={() => setSelectedSubmission(row)}>Detalhes</Button>
+                              <Button variant="outline" size="sm" onClick={() => handleViewDetails(row)}>Detalhes</Button>
                               <Link to={`/create/${row.id}`}>
                                 <Button variant="outline" size="sm">Editar</Button>
                               </Link>
@@ -312,10 +344,13 @@ const AdminPage: React.FC = () => {
           </DialogContent>
         </Dialog>
 
-        <CreativeDetailsModal 
-          isOpen={!!selectedSubmission}
-          onClose={() => setSelectedSubmission(null)}
-          submission={selectedSubmission}
+        <CreativeDetailsModal
+          isOpen={isDetailsModalOpen}
+          onClose={() => {
+            setIsDetailsModalOpen(false);
+            setDetailsSubmission(null);
+          }}
+          submission={detailsSubmission}
         />
       </main>
     </>

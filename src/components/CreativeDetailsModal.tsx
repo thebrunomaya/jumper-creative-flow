@@ -40,6 +40,19 @@ export const CreativeDetailsModal: React.FC<CreativeDetailsModalProps> = ({
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
+  const getStatusInPortuguese = (status: string) => {
+    const statusMap: { [key: string]: string } = {
+      'draft': 'Rascunho',
+      'pending': 'Pendente',
+      'queued': 'Na Fila',
+      'processing': 'Processando',
+      'processed': 'Processado',
+      'published': 'Publicado',
+      'error': 'Erro'
+    };
+    return statusMap[status] || status;
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[80vh]">
@@ -62,11 +75,11 @@ export const CreativeDetailsModal: React.FC<CreativeDetailsModalProps> = ({
                   </div>
                   <div>
                     <span className="text-sm font-medium">Status:</span>
-                    <p className="text-sm text-muted-foreground">{submission.status}</p>
+                    <p className="text-sm text-muted-foreground">{getStatusInPortuguese(submission.status)}</p>
                   </div>
                   <div>
-                    <span className="text-sm font-medium">Cliente:</span>
-                    <p className="text-sm text-muted-foreground">{submission.client || submission.client_name || '—'}</p>
+                    <span className="text-sm font-medium">Conta:</span>
+                    <p className="text-sm text-muted-foreground">{submission.client_name || submission.client || '—'}</p>
                   </div>
                   <div>
                     <span className="text-sm font-medium">Gerente:</span>
@@ -93,63 +106,80 @@ export const CreativeDetailsModal: React.FC<CreativeDetailsModalProps> = ({
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <span className="text-sm font-medium">Plataforma:</span>
-                    <p className="text-sm text-muted-foreground">{submission.platform || '—'}</p>
+                    <p className="text-sm text-muted-foreground">{payload.platform || submission.platform || '—'}</p>
                   </div>
                   <div>
                     <span className="text-sm font-medium">Objetivo:</span>
-                    <p className="text-sm text-muted-foreground">{submission.campaign_objective || '—'}</p>
+                    <p className="text-sm text-muted-foreground">{payload.campaignObjective || submission.campaign_objective || '—'}</p>
                   </div>
                   <div>
                     <span className="text-sm font-medium">Tipo:</span>
-                    <p className="text-sm text-muted-foreground">{submission.creative_type || '—'}</p>
+                    <p className="text-sm text-muted-foreground">{payload.creativeType || submission.creative_type || '—'}</p>
                   </div>
                   <div>
                     <span className="text-sm font-medium">Total de Variações:</span>
                     <p className="text-sm text-muted-foreground">{submission.total_variations || 1}</p>
                   </div>
+                  <div>
+                    <span className="text-sm font-medium">Nome do Criativo:</span>
+                    <p className="text-sm text-muted-foreground">{payload.creativeName || '—'}</p>
+                  </div>
+                  <div>
+                    <span className="text-sm font-medium">Parceiro:</span>
+                    <p className="text-sm text-muted-foreground">{payload.partner || '—'}</p>
+                  </div>
+                  <div>
+                    <span className="text-sm font-medium">URL de Destino:</span>
+                    <p className="text-sm text-muted-foreground">{payload.destinationUrl || '—'}</p>
+                  </div>
+                  <div>
+                    <span className="text-sm font-medium">Call to Action:</span>
+                    <p className="text-sm text-muted-foreground">{payload.callToAction || payload.cta || '—'}</p>
+                  </div>
+                  {payload.observations && (
+                    <div className="col-span-2">
+                      <span className="text-sm font-medium">Observações:</span>
+                      <p className="text-sm text-muted-foreground">{payload.observations}</p>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
 
             {/* Textos e CTAs */}
-            {payload.variations && payload.variations.length > 0 && (
+            {(payload.mainTexts || payload.titles || payload.description) && (
               <Card>
                 <CardHeader>
                   <CardTitle>Textos e CTAs</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {payload.variations.map((variation: any, index: number) => (
-                      <div key={index} className="border rounded p-3">
-                        <h4 className="font-medium mb-2">Variação {index + 1}</h4>
-                        <div className="space-y-2">
-                          {variation.primaryText && (
-                            <div>
-                              <span className="text-sm font-medium">Texto Principal:</span>
-                              <p className="text-sm text-muted-foreground">{variation.primaryText}</p>
-                            </div>
-                          )}
-                          {variation.headline && (
-                            <div>
-                              <span className="text-sm font-medium">Título:</span>
-                              <p className="text-sm text-muted-foreground">{variation.headline}</p>
-                            </div>
-                          )}
-                          {variation.description && (
-                            <div>
-                              <span className="text-sm font-medium">Descrição:</span>
-                              <p className="text-sm text-muted-foreground">{variation.description}</p>
-                            </div>
-                          )}
-                          {variation.cta && (
-                            <div>
-                              <span className="text-sm font-medium">CTA:</span>
-                              <Badge variant="outline">{variation.cta}</Badge>
-                            </div>
-                          )}
+                    {payload.mainTexts && (
+                      <div>
+                        <span className="text-sm font-medium">Textos Principais:</span>
+                        <div className="mt-1">
+                          {payload.mainTexts.map((text: string, index: number) => (
+                            <p key={index} className="text-sm text-muted-foreground mb-1">• {text}</p>
+                          ))}
                         </div>
                       </div>
-                    ))}
+                    )}
+                    {payload.titles && (
+                      <div>
+                        <span className="text-sm font-medium">Títulos:</span>
+                        <div className="mt-1">
+                          {payload.titles.map((title: string, index: number) => (
+                            <p key={index} className="text-sm text-muted-foreground mb-1">• {title}</p>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {payload.description && (
+                      <div>
+                        <span className="text-sm font-medium">Descrição:</span>
+                        <p className="text-sm text-muted-foreground">{payload.description}</p>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -168,7 +198,7 @@ export const CreativeDetailsModal: React.FC<CreativeDetailsModalProps> = ({
                         <div className="flex-1">
                           <p className="font-medium">{file.name}</p>
                           <p className="text-sm text-muted-foreground">
-                            {file.type} • {formatFileSize(file.size)} • Variação {file.variation_index + 1}
+                            {file.type} • {formatFileSize(file.size)} • Variação {(file.variation_index || 0) + 1}
                           </p>
                         </div>
                         {file.public_url && (
