@@ -17,12 +17,21 @@ export const buildNotionPayload = (
   DB_CRIATIVOS_DATABASE_ID: string
 ) => {
   console.log(`🏗️ Building Notion payload for variation ${variationIndex}`);
+  console.log(`📋 Manager ID received in payload builder: ${creativeData.managerId}`);
 
   // Validate and format destinationUrl and cta
   let ctaValue = creativeData.cta || creativeData.callToAction || '';
   if (!ctaValue) {
-    console.warn('⚠️ No CTA provided, using empty string');
+    console.warn('⚠️ No CTA provided, will omit Call-to-Action property');
     ctaValue = '';
+  }
+  console.log(`🎯 CTA value: "${ctaValue}"`);
+
+  // Validate manager ID
+  if (creativeData.managerId) {
+    console.log(`👤 Manager ID validated: ${creativeData.managerId}`);
+  } else {
+    console.warn('⚠️ No manager ID provided, will omit Gerente property');
   }
 
   // Add variation indicator to observations if there are multiple variations
@@ -116,13 +125,6 @@ export const buildNotionPayload = (
           }
         ]
       },
-      "Gerente": {
-        relation: [
-          {
-            id: creativeData.managerId || ""
-          }
-        ]
-      },
       "Plataforma": {
         select: {
           name: creativeData.platform === 'meta' ? 'Meta Ads' : 'Google Ads'
@@ -182,11 +184,6 @@ export const buildNotionPayload = (
           }
         ]
       },
-      "Call-to-Action": {
-        select: {
-          name: ctaValue
-        }
-      },
       "Observações": {
         rich_text: [
           {
@@ -203,6 +200,38 @@ export const buildNotionPayload = (
       }
     }
   };
+
+  // Add Gerente relation only if manager ID is provided
+  if (creativeData.managerId) {
+    console.log(`👤 Adding Gerente relation with ID: ${creativeData.managerId}`);
+    notionPayload.properties["Gerente"] = {
+      relation: [
+        {
+          id: creativeData.managerId
+        }
+      ]
+    };
+  }
+
+  // Add Call-to-Action only if CTA value is provided and not empty
+  if (ctaValue && ctaValue.trim() !== '') {
+    console.log(`🎯 Adding Call-to-Action: ${ctaValue}`);
+    notionPayload.properties["Call-to-Action"] = {
+      select: {
+        name: ctaValue
+      }
+    };
+  }
+
+  // Log the final payload properties for debugging
+  console.log('📋 Final Notion payload properties:', Object.keys(notionPayload.properties));
+  console.log('📋 Notion payload with relations:', JSON.stringify({
+    properties: {
+      Conta: notionPayload.properties["Conta"],
+      Gerente: notionPayload.properties["Gerente"],
+      "Call-to-Action": notionPayload.properties["Call-to-Action"]
+    }
+  }, null, 2));
 
   // Add Instagram post URL if it's an existing post
   if (creativeData.creativeType === 'existing-post' && creativeData.existingPost?.instagramUrl) {

@@ -22,6 +22,7 @@ export const fetchNotionPage = async (pageId: string, NOTION_TOKEN: string) => {
 // Create a new Notion page
 export const createNotionPage = async (payload: any, NOTION_TOKEN: string, variationIndex: number) => {
   console.log(`📤 Creating Notion page for variation ${variationIndex}`);
+  console.log(`📤 Sending payload to Notion API:`, JSON.stringify(payload, null, 2));
   
   const response = await fetch('https://api.notion.com/v1/pages', {
     method: 'POST',
@@ -33,10 +34,14 @@ export const createNotionPage = async (payload: any, NOTION_TOKEN: string, varia
     body: JSON.stringify(payload)
   });
 
+  console.log(`📡 Notion API response status: ${response.status} ${response.statusText}`);
+
   if (!response.ok) {
     const errorText = await response.text();
-    console.error(`❌ Failed to create Notion page for variation ${variationIndex}:`, errorText);
-    throw new Error(`Failed to create Notion page: ${response.statusText} - ${errorText}`);
+    console.error(`❌ Failed to create Notion page for variation ${variationIndex}:`, response.status, response.statusText);
+    console.error(`❌ Error response body:`, errorText);
+    console.error(`❌ Original payload that caused error:`, JSON.stringify(payload, null, 2));
+    throw new Error(`Failed to create Notion page: ${response.status} ${response.statusText} - ${errorText}`);
   }
 
   const result = await response.json();
