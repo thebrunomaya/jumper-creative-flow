@@ -20,7 +20,7 @@ interface Step1Props {
 }
 
 const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
-  const { clients, loading: clientsLoading, error: clientsError } = useNotionClients();
+  const { clients, loading: clientsLoading, error: clientsError, isAdmin, userAccessibleAccounts } = useNotionClients();
 
   // Get selected client data to access objectives
   const selectedClient = clients.find(client => client.id === formData.client);
@@ -107,11 +107,19 @@ const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
               <SelectValue placeholder="Selecione a conta" />
             </SelectTrigger>
             <SelectContent>
-              {clients.map((client) => (
-                <SelectItem key={client.id} value={client.id}>
-                  {client.name}
-                </SelectItem>
-              ))}
+              {clients.map((client) => {
+                const hasNormalAccess = userAccessibleAccounts.includes(client.id);
+                const isAdminOnlyAccess = isAdmin && !hasNormalAccess;
+                
+                return (
+                  <SelectItem key={client.id} value={client.id}>
+                    <span className={isAdminOnlyAccess ? 'italic text-muted-foreground' : ''}>
+                      {client.name}
+                      {isAdminOnlyAccess && ' (admin)'}
+                    </span>
+                  </SelectItem>
+                );
+              })}
             </SelectContent>
           </Select>
         )}

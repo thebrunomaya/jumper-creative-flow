@@ -48,6 +48,7 @@ export const useNotionClients = () => {
   const { currentUser } = useAuth();
   const { accountIds, loading: accountsLoading } = useMyNotionAccounts();
   const [isAdmin, setIsAdmin] = useState(false);
+  const [userAccessibleAccounts, setUserAccessibleAccounts] = useState<string[]>([]);
 
   useEffect(() => {
     const checkRole = async () => {
@@ -130,16 +131,18 @@ export const useNotionClients = () => {
           };
         });
         
-        // Filtrar clientes baseado nas contas do gerente logado (via Notion)
-        // Se não houver contas e o usuário não for admin, não mostrar nada
-        // Usando isAdmin do estado
-
+        // Store user's accessible accounts for styling purposes
+        setUserAccessibleAccounts(accountIds || []);
+        
+        // Admins see all clients, regular users see only their accessible accounts
         let filteredClients = formattedClients;
-        if (accountIds && accountIds.length > 0) {
-          filteredClients = formattedClients.filter(client => accountIds.includes(client.id));
-          console.log('Filtered clients for manager:', filteredClients);
-        } else if (!isAdmin) {
-          filteredClients = [];
+        if (!isAdmin) {
+          if (accountIds && accountIds.length > 0) {
+            filteredClients = formattedClients.filter(client => accountIds.includes(client.id));
+            console.log('Filtered clients for manager:', filteredClients);
+          } else {
+            filteredClients = [];
+          }
         }
         
         console.log('Formatted clients:', filteredClients);
@@ -168,7 +171,7 @@ export const useNotionClients = () => {
     fetchClients();
   }, [accountIds, accountsLoading, isAdmin]); // Refetch quando contas vinculadas mudarem ou quando role/carregamento mudar
 
-  return { clients, loading, error };
+  return { clients, loading, error, isAdmin, userAccessibleAccounts };
 };
 
 export const useNotionPartners = () => {
