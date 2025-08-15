@@ -97,10 +97,10 @@ export const CreativeDetailsModal: React.FC<CreativeDetailsModalProps> = ({
               </CardContent>
             </Card>
 
-            {/* Configurações da Campanha */}
+            {/* 1. CONFIGURAÇÕES */}
             <Card>
               <CardHeader>
-                <CardTitle>Configurações da Campanha</CardTitle>
+                <CardTitle>1. Configurações</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
                 <div className="grid grid-cols-2 gap-4">
@@ -115,10 +115,6 @@ export const CreativeDetailsModal: React.FC<CreativeDetailsModalProps> = ({
                   <div>
                     <span className="text-sm font-medium">Tipo:</span>
                     <p className="text-sm text-muted-foreground">{payload.creativeType || submission.creative_type || '—'}</p>
-                  </div>
-                  <div>
-                    <span className="text-sm font-medium">Total de Variações:</span>
-                    <p className="text-sm text-muted-foreground">{submission.total_variations || 1}</p>
                   </div>
                   <div>
                     <span className="text-sm font-medium">Nome do Criativo:</span>
@@ -136,6 +132,10 @@ export const CreativeDetailsModal: React.FC<CreativeDetailsModalProps> = ({
                     <span className="text-sm font-medium">Call to Action:</span>
                     <p className="text-sm text-muted-foreground">{payload.callToAction || payload.cta || '—'}</p>
                   </div>
+                  <div>
+                    <span className="text-sm font-medium">Total de Variações:</span>
+                    <p className="text-sm text-muted-foreground">{submission.total_variations || 1}</p>
+                  </div>
                   {payload.observations && (
                     <div className="col-span-2">
                       <span className="text-sm font-medium">Observações:</span>
@@ -146,11 +146,44 @@ export const CreativeDetailsModal: React.FC<CreativeDetailsModalProps> = ({
               </CardContent>
             </Card>
 
-            {/* Textos e CTAs */}
+            {/* 2. ARQUIVOS */}
+            {files.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>2. Arquivos ({files.length})</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {files.map((file: CreativeFile, index: number) => (
+                      <div key={index} className="flex items-center justify-between border rounded p-3">
+                        <div className="flex-1">
+                          <p className="font-medium">{file.name}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {file.type} • {formatFileSize(file.size)} • Variação {(file.variation_index || 0) + 1}
+                          </p>
+                        </div>
+                        {file.public_url && (
+                          <a 
+                            href={file.public_url} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-primary hover:underline text-sm"
+                          >
+                            Ver arquivo
+                          </a>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* 3. CONTEÚDO */}
             {(payload.mainTexts || payload.titles || payload.description) && (
               <Card>
                 <CardHeader>
-                  <CardTitle>Textos e CTAs</CardTitle>
+                  <CardTitle>3. Conteúdo</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
@@ -185,41 +218,8 @@ export const CreativeDetailsModal: React.FC<CreativeDetailsModalProps> = ({
               </Card>
             )}
 
-            {/* Arquivos */}
-            {files.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Arquivos ({files.length})</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {files.map((file: CreativeFile, index: number) => (
-                      <div key={index} className="flex items-center justify-between border rounded p-3">
-                        <div className="flex-1">
-                          <p className="font-medium">{file.name}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {file.type} • {formatFileSize(file.size)} • Variação {(file.variation_index || 0) + 1}
-                          </p>
-                        </div>
-                        {file.public_url && (
-                          <a 
-                            href={file.public_url} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="text-primary hover:underline text-sm"
-                          >
-                            Ver arquivo
-                          </a>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Erro (se houver) */}
-            {submission.error && (
+            {/* Erro (só mostra se houver e o status não for success) */}
+            {submission.error && submission.status !== 'processed' && submission.status !== 'published' && (
               <Card>
                 <CardHeader>
                   <CardTitle className="text-destructive">Erro</CardTitle>
