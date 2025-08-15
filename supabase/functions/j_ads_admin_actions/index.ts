@@ -260,9 +260,9 @@ Deno.serve(async (req) => {
       const contentType = res.headers.get("content-type") || undefined;
       const contentLength = res.headers.get("content-length");
       
-      // File size limit (50MB) 
-      if (contentLength && parseInt(contentLength) > 52428800) {
-        throw new Error(`Arquivo muito grande: ${Math.round(parseInt(contentLength) / 1024 / 1024)}MB. Limite: 50MB`);
+      // File size limit (1GB) 
+      if (contentLength && parseInt(contentLength) > 1073741824) {
+        throw new Error(`Arquivo muito grande: ${Math.round(parseInt(contentLength) / 1024 / 1024)}MB. Limite: 1GB`);
       }
       
       console.log(`📊 File size: ${contentLength ? Math.round(parseInt(contentLength) / 1024 / 1024) : '?'}MB`);
@@ -464,8 +464,8 @@ Deno.serve(async (req) => {
             console.log(`📥 Processing file: ${f.name} (${Math.round((f.size || 0) / 1024 / 1024)}MB)`);
             
             // Check file size before processing
-            if (f.size && f.size > 50 * 1024 * 1024) { // 50MB limit
-              throw new Error(`Arquivo ${f.name} muito grande: ${Math.round(f.size / 1024 / 1024)}MB. Limite: 50MB`);
+            if (f.size && f.size > 1073741824) { // 1GB limit
+              throw new Error(`Arquivo ${f.name} muito grande: ${Math.round(f.size / 1024 / 1024)}MB. Limite: 1GB`);
             }
             
             const { base64, contentType } = await fetchBase64(f.public_url);

@@ -113,9 +113,9 @@ export const validateVideo = (file: File, isCarousel?: boolean): Promise<{ valid
 };
 
 export const validateFileSize = (file: File, isVideo: boolean, isCarousel?: boolean): { valid: boolean; message: string } => {
-  // For carousel: images 30MB, videos 4GB
-  const maxImageSize = 30 * 1024 * 1024; // 30MB
-  const maxVideoSize = isCarousel ? 4 * 1024 * 1024 * 1024 : META_SPECS.video.feed.maxSize; // 4GB for carousel
+  // Increased limits to support larger files
+  const maxImageSize = 500 * 1024 * 1024; // 500MB for images
+  const maxVideoSize = 1024 * 1024 * 1024; // 1GB for videos
   
   const maxSize = isVideo ? maxVideoSize : maxImageSize;
   const sizeInMB = file.size / (1024 * 1024);
