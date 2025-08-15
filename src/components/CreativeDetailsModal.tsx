@@ -55,12 +55,12 @@ export const CreativeDetailsModal: React.FC<CreativeDetailsModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[85vh] flex flex-col">
+      <DialogContent className="max-w-4xl h-[85vh] min-h-0 flex flex-col overflow-hidden">
         <DialogHeader className="flex-shrink-0">
           <DialogTitle>Detalhes do Criativo</DialogTitle>
         </DialogHeader>
         
-        <ScrollArea className="flex-1 pr-4">
+        <ScrollArea className="flex-1 min-h-0 pr-4">
           <div className="space-y-6">
             {/* Informações Básicas */}
             <Card>
