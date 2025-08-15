@@ -132,7 +132,7 @@ async function getEmailFromUserId(userId: string, supabase: any): Promise<string
   try {
     const { data: userData, error } = await supabase.auth.admin.getUserById(userId);
     if (error || !userData?.user?.email) {
-      console.log(`⚠️ Could not get email for user ID: ${userId}`);
+      // Don't spam logs for missing users - this is expected for old/test data
       return "";
     }
     return userData.user.email;
@@ -168,7 +168,7 @@ async function resolveEmail(submission: any, supabase: any): Promise<string> {
     }
   }
 
-  console.log(`⚠️ Could not resolve email for submission ${submission.id}`);
+  // Don't spam logs - just return empty string silently
   return "";
 }
 
@@ -286,6 +286,46 @@ Deno.serve(async (req) => {
       binary = '';
       
       return { base64, contentType };
+    }
+
+    if (action === "backfill_manager_emails") {
+      console.log("🔄 Starting backfill of manager emails for submissions");
+      
+      const { data: submissions, error: fetchErr } = await supabase
+        .from("j_ads_creative_submissions")
+        .select("id, payload, manager_id, user_id")
+        .is("payload->managerEmail", null)
+        .limit(100);
+
+      if (fetchErr) {
+        return new Response(JSON.stringify({ error: fetchErr.message }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      let updated = 0;
+      for (const submission of submissions || []) {
+        const email = await resolveEmail(submission, supabase);
+        if (email) {
+          const updatedPayload = { ...(submission.payload || {}), managerEmail: email };
+          await supabase
+            .from("j_ads_creative_submissions")
+            .update({ payload: updatedPayload })
+            .eq("id", submission.id);
+          updated++;
+        }
+      }
+
+      console.log(`✅ Backfilled ${updated} manager emails`);
+      return new Response(JSON.stringify({ 
+        success: true, 
+        updated,
+        total: submissions?.length || 0 
+      }), {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     if (action === "queue") {

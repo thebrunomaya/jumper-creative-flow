@@ -173,6 +173,30 @@ const AdminPage: React.FC = () => {
     },
   });
 
+  const backfillEmailsMutation = useMutation({
+    mutationFn: async () => {
+      const { data, error } = await supabase.functions.invoke("j_ads_admin_actions", {
+        body: { action: "backfill_manager_emails" },
+      });
+      if (error) throw error;
+      if (!data?.success) throw new Error(data?.error || "Falha ao preencher emails");
+      return data;
+    },
+    onMutate: () => {
+      toast({ title: "Preenchendo emails…", description: "Corrigindo emails de gerentes em submissões antigas." });
+    },
+    onSuccess: async (data: any) => {
+      toast({
+        title: "Emails preenchidos",
+        description: `${data.updated || 0} de ${data.total || 0} submissões atualizadas`,
+      });
+      await qc.invalidateQueries({ queryKey: ["admin", "submissions"] });
+    },
+    onError: (err: any) => {
+      toast({ title: "Falha ao preencher emails", description: err?.message || "Tente novamente.", variant: "destructive" });
+    },
+  });
+
   const fetchSubmissionDetails = async (submissionId: string) => {
     try {
       const { data, error } = await supabase.functions.invoke('j_ads_admin_actions', {
@@ -225,10 +249,11 @@ const AdminPage: React.FC = () => {
               <div className="text-sm text-muted-foreground">
                 {isFetching ? "Carregando…" : `${rows.length} criativo(s)`}
               </div>
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={() => refetch()}>Atualizar</Button>
-                <Button size="sm" onClick={() => syncNotionMutation.mutate()} disabled={syncNotionMutation.isPending}>Sincronizar Notion</Button>
-              </div>
+               <div className="flex gap-2">
+                 <Button variant="outline" size="sm" onClick={() => refetch()}>Atualizar</Button>
+                 <Button variant="outline" size="sm" onClick={() => backfillEmailsMutation.mutate()} disabled={backfillEmailsMutation.isPending}>Corrigir Emails</Button>
+                 <Button size="sm" onClick={() => syncNotionMutation.mutate()} disabled={syncNotionMutation.isPending}>Sincronizar Notion</Button>
+               </div>
             </div>
 
             <div className="overflow-x-auto">
