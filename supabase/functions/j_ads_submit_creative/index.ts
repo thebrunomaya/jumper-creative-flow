@@ -51,18 +51,28 @@ serve(async (req) => {
     if (creativeData.managerId) {
       console.log('🔍 Original manager ID received:', creativeData.managerId);
       
-      // Check if this is a Supabase UUID that needs to be converted to Notion ID
-      const { data: managerData, error: managerError } = await supabase
-        .from('j_ads_notion_managers')
-        .select('notion_id, name')
-        .eq('id', creativeData.managerId)
-        .single();
+      // First, try to get user email from auth.users using the managerId (Supabase user ID)
+      const { data: authUser, error: authError } = await supabase.auth.admin.getUserById(creativeData.managerId);
+      
+      if (authUser?.user?.email) {
+        console.log(`📧 Found user email: ${authUser.user.email} for user ID: ${creativeData.managerId}`);
+        
+        // Use email to find corresponding manager in j_ads_notion_managers
+        const { data: managerData, error: managerError } = await supabase
+          .from('j_ads_notion_managers')
+          .select('notion_id, name, email')
+          .eq('email', authUser.user.email)
+          .single();
 
-      if (managerData) {
-        console.log(`✅ Converting manager ID: ${creativeData.managerId} -> ${managerData.notion_id} (${managerData.name})`);
-        creativeData.managerId = managerData.notion_id;
+        if (managerData) {
+          console.log(`✅ Bridge successful! Email ${authUser.user.email} -> Notion ID: ${managerData.notion_id} (${managerData.name})`);
+          creativeData.managerId = managerData.notion_id;
+        } else {
+          console.warn(`⚠️ No manager found in j_ads_notion_managers for email: ${authUser.user.email}. Will proceed without manager.`);
+          creativeData.managerId = undefined;
+        }
       } else {
-        // Try to find by notion_id directly (in case frontend already sends Notion ID)
+        // Fallback: try to find by notion_id directly (in case frontend already sends Notion ID)
         const { data: notionManagerData, error: notionError } = await supabase
           .from('j_ads_notion_managers')
           .select('notion_id, name')
@@ -72,8 +82,8 @@ serve(async (req) => {
         if (notionManagerData) {
           console.log(`✅ Manager ID is already a valid Notion ID: ${creativeData.managerId} (${notionManagerData.name})`);
         } else {
-          console.warn(`⚠️ Manager ID ${creativeData.managerId} not found in j_ads_notion_managers table. Will proceed without manager.`);
-          creativeData.managerId = undefined; // Clear invalid manager ID
+          console.warn(`⚠️ Could not resolve manager ID ${creativeData.managerId}. Auth error: ${authError?.message}. Will proceed without manager.`);
+          creativeData.managerId = undefined;
         }
       }
     }
