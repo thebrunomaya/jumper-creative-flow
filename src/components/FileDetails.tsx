@@ -28,7 +28,7 @@ const FileDetails: React.FC<FileDetailsProps> = ({
   };
 
   return (
-    <div className={`flex-1 bg-background p-6 flex flex-col justify-between ${!enabled ? 'opacity-60' : ''}`}>
+    <div className={`h-full bg-background p-6 flex flex-col justify-between overflow-hidden ${!enabled ? 'opacity-60' : ''}`}>
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-3 flex-1 min-w-0">
           <Image className={`h-5 w-5 flex-shrink-0 ${enabled ? 'text-jumper-orange' : 'text-muted-foreground'}`} />
@@ -66,7 +66,7 @@ const FileDetails: React.FC<FileDetailsProps> = ({
         )}
       </div>
       
-      <div className="text-sm text-muted-foreground mb-4 flex items-center space-x-4 text-left">
+      <div className="text-sm text-muted-foreground mb-4 flex items-center space-x-4 text-left flex-shrink-0">
         <span className="font-medium">{formatFileSize(file.file.size)}</span>
         {file.dimensions && (
           <span>{file.dimensions.width}×{file.dimensions.height}px</span>
@@ -76,7 +76,7 @@ const FileDetails: React.FC<FileDetailsProps> = ({
         )}
       </div>
       
-      <div className="space-y-2 text-left">
+      <div className="space-y-2 text-left flex-1 overflow-y-auto min-h-0">
         {file.errors.map((error, errorIndex) => (
           <div 
             key={errorIndex}
