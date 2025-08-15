@@ -226,14 +226,24 @@ const CreativeSystem: React.FC = () => {
     const loadDraft = async () => {
       if (!routeSubmissionId) return;
       try {
-        const { data, error } = await supabase.functions.invoke('j_ads_manager_actions', {
+        // First try manager actions (for managers)
+        let response = await supabase.functions.invoke('j_ads_manager_actions', {
           body: { action: 'get', submissionId: routeSubmissionId },
         });
-        if (error || !data?.success) {
-          toast({ title: 'Falha ao carregar rascunho', description: data?.error || error?.message || 'Tente novamente.', variant: 'destructive' });
+        
+        // If that fails, try admin actions (for admins)
+        if (response.error || !response.data?.success) {
+          response = await supabase.functions.invoke('j_ads_admin_actions', {
+            body: { action: 'getSubmission', submissionId: routeSubmissionId },
+          });
+        }
+        
+        if (response.error || !response.data?.success) {
+          toast({ title: 'Falha ao carregar criativo', description: response.data?.error || response.error?.message || 'Tente novamente.', variant: 'destructive' });
           return;
         }
-        const item = data.item;
+        
+        const item = response.data.item;
         if (item?.payload) {
           const payload = { ...item.payload };
           // 1) Ao retomar, mostrar apenas o nome digitado pelo usuário
@@ -251,8 +261,8 @@ const CreativeSystem: React.FC = () => {
           try { sessionStorage.setItem('draftSubmissionId', item.id); } catch (_) {}
         }
       } catch (e: any) {
-        console.error('Erro ao carregar rascunho:', e);
-        toast({ title: 'Erro ao carregar rascunho', description: e?.message || 'Tente novamente.', variant: 'destructive' });
+        console.error('Erro ao carregar criativo:', e);
+        toast({ title: 'Erro ao carregar criativo', description: e?.message || 'Tente novamente.', variant: 'destructive' });
       }
     };
     loadDraft();
@@ -321,7 +331,8 @@ const CreativeSystem: React.FC = () => {
         }));
       }
 
-      const { data, error } = await supabase.functions.invoke('j_ads_manager_actions', {
+      // Try manager endpoint first, then admin endpoint
+      let response = await supabase.functions.invoke('j_ads_manager_actions', {
         body: {
           action: 'saveDraft',
           submissionId: routeSubmissionId ?? undefined,
@@ -329,9 +340,22 @@ const CreativeSystem: React.FC = () => {
         },
       });
 
-      if (error || !data?.success) {
-        throw new Error(error?.message || data?.error || 'Falha ao salvar rascunho');
+      // If manager endpoint fails, try admin endpoint
+      if (response.error || !response.data?.success) {
+        response = await supabase.functions.invoke('j_ads_admin_actions', {
+          body: {
+            action: 'saveDraft',
+            submissionId: routeSubmissionId ?? undefined,
+            draft: draftPayload,
+          },
+        });
       }
+
+      if (response.error || !response.data?.success) {
+        throw new Error(response.error?.message || response.data?.error || 'Falha ao salvar rascunho');
+      }
+
+      const data = response.data;
 
       if (data?.submissionId) {
         setDraftSubmissionId(data.submissionId);

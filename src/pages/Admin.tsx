@@ -119,6 +119,30 @@ const AdminPage: React.FC = () => {
     },
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: async (submissionId: string) => {
+      const { data, error } = await supabase.functions.invoke("j_ads_admin_actions", {
+        body: {
+          action: "deleteSubmission",
+          submissionId,
+        },
+      });
+      if (error) throw error;
+      if (!data?.success) throw new Error(data?.error || "Falha ao excluir");
+      return data;
+    },
+    onMutate: (id) => {
+      toast({ title: "Excluindo…", description: `Removendo criativo ${id}...` });
+    },
+    onSuccess: async () => {
+      toast({ title: "Excluído", description: "Criativo removido com sucesso." });
+      await qc.invalidateQueries({ queryKey: ["admin", "submissions"] });
+    },
+    onError: (err: any) => {
+      toast({ title: "Falha ao excluir", description: err?.message || "Tente novamente.", variant: "destructive" });
+    },
+  });
+
   const syncNotionMutation = useMutation({
     mutationFn: async () => {
       const { data, error } = await supabase.functions.invoke("j_ads_notion_sync");
@@ -203,7 +227,25 @@ const AdminPage: React.FC = () => {
                           <Badge variant={statusInfo.variant}>{statusInfo.label}</Badge>
                         </TableCell>
                         <TableCell className="text-right">
-                          {row.status === "error" ? (
+                          {row.status === "draft" ? (
+                            <div className="flex gap-2 justify-end">
+                              <Link to={`/create/${row.id}`}>
+                                <Button variant="outline" size="sm">Editar</Button>
+                              </Link>
+                              <Button 
+                                variant="destructive" 
+                                size="sm" 
+                                onClick={() => {
+                                  if (confirm("Tem certeza que deseja excluir este rascunho?")) {
+                                    deleteMutation.mutate(row.id);
+                                  }
+                                }}
+                                disabled={deleteMutation.isPending}
+                              >
+                                Excluir
+                              </Button>
+                            </div>
+                          ) : row.status === "error" ? (
                             <div className="flex gap-2 justify-end">
                               <Button variant="outline" size="sm" onClick={() => setErrorDetails(row.error || "Sem detalhes disponíveis")}>Ver erro</Button>
                               <Button size="sm" onClick={() => publishMutation.mutate(row.id)} disabled={publishMutation.isPending}>Publicar novamente</Button>

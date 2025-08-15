@@ -151,6 +151,27 @@ Deno.serve(async (req) => {
         });
       }
 
+      // Validate submission is not a draft
+      const { data: submission, error: fetchErr } = await supabase
+        .from("j_ads_creative_submissions")
+        .select("id, status, payload")
+        .eq("id", submissionId)
+        .maybeSingle();
+
+      if (fetchErr || !submission) {
+        return new Response(JSON.stringify({ error: "Submissão não encontrada" }), {
+          status: 404,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      if (submission.status === "draft") {
+        return new Response(JSON.stringify({ error: "Não é possível enfileirar rascunhos. Complete o criativo primeiro." }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
       const { data, error } = await supabase
         .from("j_ads_creative_submissions")
         .update({ status: "queued" })
@@ -174,6 +195,67 @@ Deno.serve(async (req) => {
     if (action === "publish") {
       if (!submissionId) {
         return new Response(JSON.stringify({ error: "submissionId is required" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      // Validate submission completeness before publishing
+      const { data: submission, error: fetchErr } = await supabase
+        .from("j_ads_creative_submissions")
+        .select("id, status, payload, creative_type")
+        .eq("id", submissionId)
+        .maybeSingle();
+
+      if (fetchErr || !submission) {
+        return new Response(JSON.stringify({ error: "Submissão não encontrada" }), {
+          status: 404,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      if (submission.status === "draft") {
+        return new Response(JSON.stringify({ error: "Não é possível publicar rascunhos. Complete o criativo primeiro." }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      // Validate required fields
+      const payload = submission.payload || {};
+      const requiredFields = ['creativeName', 'client', 'platform', 'campaignObjective'];
+      const missingFields = requiredFields.filter(field => !payload[field]);
+      
+      if (missingFields.length > 0) {
+        return new Response(JSON.stringify({ 
+          error: `Campos obrigatórios em falta: ${missingFields.join(', ')}` 
+        }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      // Validate that submission has files or existing post
+      const { data: files, error: filesErr } = await supabase
+        .from("j_ads_creative_files")
+        .select("id")
+        .eq("submission_id", submissionId)
+        .limit(1);
+
+      if (filesErr) {
+        return new Response(JSON.stringify({ error: "Erro ao verificar arquivos" }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const hasFiles = files && files.length > 0;
+      const hasExistingPost = submission.creative_type === 'existing-post' && payload.existingPost;
+
+      if (!hasFiles && !hasExistingPost) {
+        return new Response(JSON.stringify({ 
+          error: "Criativo incompleto: adicione arquivos ou uma URL de post existente" 
+        }), {
           status: 400,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
@@ -445,6 +527,160 @@ Deno.serve(async (req) => {
       }
 
       return new Response(JSON.stringify({ success: true, count }), {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    if (action === "getSubmission") {
+      if (!submissionId) {
+        return new Response(JSON.stringify({ error: "submissionId is required" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const { data: submission, error: subErr } = await supabase
+        .from("j_ads_creative_submissions")
+        .select("*")
+        .eq("id", submissionId)
+        .maybeSingle();
+
+      if (subErr || !submission) {
+        return new Response(JSON.stringify({ error: "Submissão não encontrada" }), {
+          status: 404,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      return new Response(JSON.stringify({ success: true, item: submission }), {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    if (action === "saveDraft") {
+      const draft = body?.draft;
+      if (!draft) {
+        return new Response(JSON.stringify({ error: "draft data is required" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      if (submissionId) {
+        // Update existing
+        const { data, error } = await supabase
+          .from("j_ads_creative_submissions")
+          .update({ 
+            payload: draft,
+            status: "draft",
+            updated_at: new Date().toISOString()
+          })
+          .eq("id", submissionId)
+          .select("id")
+          .maybeSingle();
+
+        if (error) {
+          return new Response(JSON.stringify({ error: error.message }), {
+            status: 400,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+
+        return new Response(JSON.stringify({ 
+          success: true, 
+          submissionId: data?.id,
+          creativeName: draft.creativeName 
+        }), {
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      } else {
+        // Create new
+        const { data, error } = await supabase
+          .from("j_ads_creative_submissions")
+          .insert({
+            user_id: user.id,
+            payload: draft,
+            status: "draft",
+            client: draft.client,
+            platform: draft.platform,
+            campaign_objective: draft.campaignObjective,
+            creative_type: draft.creativeType,
+            manager_id: draft.managerId,
+            partner: draft.partner,
+            total_variations: draft.totalVariations || 1
+          })
+          .select("id")
+          .maybeSingle();
+
+        if (error) {
+          return new Response(JSON.stringify({ error: error.message }), {
+            status: 400,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+
+        return new Response(JSON.stringify({ 
+          success: true, 
+          submissionId: data?.id,
+          creativeName: draft.creativeName 
+        }), {
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    }
+
+    if (action === "deleteSubmission") {
+      if (!submissionId) {
+        return new Response(JSON.stringify({ error: "submissionId is required" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      // Get submission files to delete from storage
+      const { data: files } = await supabase
+        .from("j_ads_creative_files")
+        .select("storage_path")
+        .eq("submission_id", submissionId);
+
+      // Delete files from storage
+      if (files && files.length > 0) {
+        const paths = files.map(f => f.storage_path).filter(Boolean);
+        if (paths.length > 0) {
+          await supabase.storage.from('creative-files').remove(paths);
+        }
+      }
+
+      // Delete creative files records
+      await supabase
+        .from("j_ads_creative_files")
+        .delete()
+        .eq("submission_id", submissionId);
+
+      // Delete creative variations
+      await supabase
+        .from("j_ads_creative_variations")
+        .delete()
+        .eq("submission_id", submissionId);
+
+      // Delete submission
+      const { error } = await supabase
+        .from("j_ads_creative_submissions")
+        .delete()
+        .eq("id", submissionId);
+
+      if (error) {
+        return new Response(JSON.stringify({ error: error.message }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      return new Response(JSON.stringify({ success: true }), {
         status: 200,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
