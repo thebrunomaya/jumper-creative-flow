@@ -115,7 +115,6 @@ const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
                   <SelectItem key={client.id} value={client.id}>
                     <span className={isAdminOnlyAccess ? 'italic text-muted-foreground' : ''}>
                       {client.name}
-                      {isAdminOnlyAccess && ' (admin)'}
                     </span>
                   </SelectItem>
                 );
