@@ -33,6 +33,12 @@ const UserMenu: React.FC = () => {
 
   if (!currentUser) return null;
 
+  const formatUserName = (name: string) => {
+    return name.split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ');
+  };
+
   const handleLogout = () => {
     logout();
     toast({ title: 'Logout realizado', description: 'Você foi desconectado do sistema' });
@@ -43,23 +49,22 @@ const UserMenu: React.FC = () => {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="sm" className="flex items-center gap-2">
           <User className="h-4 w-4" />
-          <span className="font-medium">{currentUser.name}</span>
+          <span className="font-medium">{formatUserName(currentUser.name)}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
-        <DropdownMenuLabel>Painel</DropdownMenuLabel>
         <DropdownMenuItem onSelect={() => navigate('/manager')} className="cursor-pointer">
           <LayoutDashboard className="mr-2 h-4 w-4" />
-          <span>Painel</span>
+          <span>Meus Criativos</span>
         </DropdownMenuItem>
         <DropdownMenuItem onSelect={() => navigate('/create')} className="cursor-pointer">
           <PlusCircle className="mr-2 h-4 w-4" />
-          <span>Novo criativo</span>
+          <span>Novo Criativo</span>
         </DropdownMenuItem>
         {isAdmin && (
           <DropdownMenuItem onSelect={() => navigate('/admin')} className="cursor-pointer">
             <Shield className="mr-2 h-4 w-4" />
-            <span>Painel administrativo</span>
+            <span>Painel de Admin</span>
           </DropdownMenuItem>
         )}
         <DropdownMenuSeparator />
