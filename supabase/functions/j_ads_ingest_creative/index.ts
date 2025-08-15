@@ -18,7 +18,9 @@ type FileInfo = {
 
 type SubmissionBody = {
   client?: string;
-  managerId?: string;
+  managerUserId?: string;
+  managerEmail?: string;
+  managerId?: string; // Legacy field
   partner?: string;
   platform?: string;
   campaignObjective?: string;
@@ -111,14 +113,19 @@ Deno.serve(async (req) => {
         .from("j_ads_creative_submissions")
         .update({
           user_id: userId,
-          manager_id: body.managerId ?? null,
+          manager_id: userId, // Always use JWT user ID
           client: body.client ?? null,
           partner: body.partner ?? null,
           platform: body.platform ?? null,
           creative_type: body.creativeType ?? null,
           campaign_objective: body.campaignObjective ?? null,
           total_variations: totalVariations,
-          payload: { ...body, filesInfo: sanitizedFilesInfo },
+          payload: { 
+            ...body, 
+            filesInfo: sanitizedFilesInfo,
+            managerUserId: userId,
+            managerEmail: user.email,
+          },
           status: "pending",
         })
         .eq("id", submissionIdFromBody)
@@ -141,14 +148,19 @@ Deno.serve(async (req) => {
         .from("j_ads_creative_submissions")
         .insert({
           user_id: userId,
-          manager_id: body.managerId ?? null,
+          manager_id: userId, // Always use JWT user ID
           client: body.client ?? null,
           partner: body.partner ?? null,
           platform: body.platform ?? null,
           creative_type: body.creativeType ?? null,
           campaign_objective: body.campaignObjective ?? null,
           total_variations: totalVariations,
-          payload: { ...body, filesInfo: sanitizedFilesInfo },
+          payload: { 
+            ...body, 
+            filesInfo: sanitizedFilesInfo,
+            managerUserId: userId,
+            managerEmail: user.email,
+          },
           status: "pending",
         })
         .select("id")

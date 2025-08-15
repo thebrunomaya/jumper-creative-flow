@@ -175,7 +175,8 @@ export const useCreativeSubmission = () => {
 
       const submissionData = {
         client: formData.client,
-        managerId: currentUser?.id,
+        managerUserId: currentUser?.id,
+        managerEmail: currentUser?.email,
         partner: formData.partner,
         platform: formData.platform,
         campaignObjective: formData.campaignObjective,
