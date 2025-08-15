@@ -168,25 +168,11 @@ const Step3: React.FC<Step3Props> = ({ formData, updateFormData, errors }) => {
           <>
             {/* Títulos Section */}
             <div className="bg-card p-6 rounded-lg border space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label className="text-lg font-semibold text-foreground">📝 Títulos *</Label>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Você pode adicionar até {META_TEXT_VARIATIONS.maxTitles} títulos.
-                  </p>
-                </div>
-                {titles.length < META_TEXT_VARIATIONS.maxTitles && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={addTitle}
-                    className="flex items-center space-x-1"
-                  >
-                    <Plus className="w-4 h-4" />
-                    <span>Adicionar título</span>
-                  </Button>
-                )}
+              <div>
+                <Label className="text-lg font-semibold text-foreground">📝 Títulos *</Label>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Você pode adicionar até {META_TEXT_VARIATIONS.maxTitles} títulos.
+                </p>
               </div>
 
               {titles.map((title, index) => (
@@ -234,29 +220,31 @@ const Step3: React.FC<Step3Props> = ({ formData, updateFormData, errors }) => {
                   />
                 </div>
               ))}
-            </div>
 
-            {/* Textos Principais Section */}
-            <div className="bg-card p-6 rounded-lg border space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label className="text-lg font-semibold text-foreground">💬 Textos Principais *</Label>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Você pode adicionar até {META_TEXT_VARIATIONS.maxMainTexts} textos principais.
-                  </p>
-                </div>
-                {mainTexts.length < META_TEXT_VARIATIONS.maxMainTexts && (
+              {/* Botão de adicionar após todas as variações */}
+              {titles.length < META_TEXT_VARIATIONS.maxTitles && (
+                <div className="flex justify-center pt-2">
                   <Button
                     type="button"
                     variant="outline"
                     size="sm"
-                    onClick={addMainText}
+                    onClick={addTitle}
                     className="flex items-center space-x-1"
                   >
                     <Plus className="w-4 h-4" />
-                    <span>Adicionar texto</span>
+                    <span>Adicionar título</span>
                   </Button>
-                )}
+                </div>
+              )}
+            </div>
+
+            {/* Textos Principais Section */}
+            <div className="bg-card p-6 rounded-lg border space-y-4">
+              <div>
+                <Label className="text-lg font-semibold text-foreground">💬 Textos Principais *</Label>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Você pode adicionar até {META_TEXT_VARIATIONS.maxMainTexts} textos principais.
+                </p>
               </div>
 
               {mainTexts.map((mainText, index) => (
@@ -304,6 +292,22 @@ const Step3: React.FC<Step3Props> = ({ formData, updateFormData, errors }) => {
                   />
                 </div>
               ))}
+
+              {/* Botão de adicionar após todas as variações */}
+              {mainTexts.length < META_TEXT_VARIATIONS.maxMainTexts && (
+                <div className="flex justify-center pt-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={addMainText}
+                    className="flex items-center space-x-1"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Adicionar texto</span>
+                  </Button>
+                </div>
+              )}
             </div>
 
             {/* Separador */}
