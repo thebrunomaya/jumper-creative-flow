@@ -113,8 +113,8 @@ export const validateVideo = (file: File, isCarousel?: boolean): Promise<{ valid
 };
 
 export const validateFileSize = (file: File, isVideo: boolean, isCarousel?: boolean): { valid: boolean; message: string } => {
-  // Increased limits to support larger files
-  const maxImageSize = 500 * 1024 * 1024; // 500MB for images
+  // Supabase Pro supports up to 5GB, but we'll limit to 1GB for performance
+  const maxImageSize = 1024 * 1024 * 1024; // 1GB for images
   const maxVideoSize = 1024 * 1024 * 1024; // 1GB for videos
   
   const maxSize = isVideo ? maxVideoSize : maxImageSize;
