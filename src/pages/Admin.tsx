@@ -10,6 +10,7 @@ import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import Header from "@/components/Header";
 import { Link } from "react-router-dom";
+import { CreativeDetailsModal } from "@/components/CreativeDetailsModal";
 
 interface SubmissionRow {
   id: string;
@@ -21,6 +22,9 @@ interface SubmissionRow {
   updated_at?: string;
   client_name?: string | null;
   creative_name?: string | null;
+  manager_name?: string | null;
+  payload?: any;
+  files?: any[];
 }
 
 const statusToLabel: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
@@ -37,6 +41,7 @@ const AdminPage: React.FC = () => {
   const { toast } = useToast();
   const qc = useQueryClient();
   const [errorDetails, setErrorDetails] = useState<string | null>(null);
+  const [selectedSubmission, setSelectedSubmission] = useState<SubmissionRow | null>(null);
 
   useEffect(() => {
     document.title = "Admin • Ad Uploader";
@@ -198,10 +203,11 @@ const AdminPage: React.FC = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-[35%]">Criativo</TableHead>
-                    <TableHead className="w-[30%]">Conta</TableHead>
+                    <TableHead className="w-[25%]">Criativo</TableHead>
+                    <TableHead className="w-[25%]">Conta</TableHead>
+                    <TableHead className="w-[20%]">Gerente</TableHead>
                     <TableHead className="w-[15%]">Status</TableHead>
-                    <TableHead className="w-[20%]"/>
+                    <TableHead className="w-[15%]"/>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -209,18 +215,24 @@ const AdminPage: React.FC = () => {
                     const statusInfo = statusToLabel[row.status] || { label: row.status, variant: "outline" };
                     const conta = row.client_name || row.client || "—";
                     const criativo = row.creative_name || "Sem nome";
+                    const gerente = row.manager_name || "—";
 
                     return (
                       <TableRow key={row.id}>
                         <TableCell>
                           <div className="flex flex-col">
-                            <span className="font-medium text-foreground truncate max-w-[300px]" title={criativo}>{criativo}</span>
+                            <span className="font-medium text-foreground truncate max-w-[200px]" title={criativo}>{criativo}</span>
                             <span className="text-xs text-muted-foreground">ID: {row.id}</span>
                           </div>
                         </TableCell>
                         <TableCell>
                           <div className="flex flex-col">
-                            <span className="font-medium text-foreground truncate max-w-[250px]" title={conta}>{conta}</span>
+                            <span className="font-medium text-foreground truncate max-w-[200px]" title={conta}>{conta}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex flex-col">
+                            <span className="font-medium text-foreground truncate max-w-[150px]" title={gerente}>{gerente}</span>
                           </div>
                         </TableCell>
                         <TableCell>
@@ -228,7 +240,8 @@ const AdminPage: React.FC = () => {
                         </TableCell>
                         <TableCell className="text-right">
                           {row.status === "draft" ? (
-                            <div className="flex gap-2 justify-end">
+                            <div className="flex gap-1 justify-end">
+                              <Button variant="outline" size="sm" onClick={() => setSelectedSubmission(row)}>Detalhes</Button>
                               <Link to={`/create/${row.id}`}>
                                 <Button variant="outline" size="sm">Editar</Button>
                               </Link>
@@ -246,20 +259,38 @@ const AdminPage: React.FC = () => {
                               </Button>
                             </div>
                           ) : row.status === "error" ? (
-                            <div className="flex gap-2 justify-end">
-                              <Button variant="outline" size="sm" onClick={() => setErrorDetails(row.error || "Sem detalhes disponíveis")}>Ver erro</Button>
-                              <Button size="sm" onClick={() => publishMutation.mutate(row.id)} disabled={publishMutation.isPending}>Publicar novamente</Button>
-                            </div>
-                          ) : row.status === "processed" ? (
-                            <div className="flex gap-2 justify-end">
-                              <Button variant="outline" size="sm" onClick={() => toast({ title: "Publicado", description: "Este criativo já foi publicado." })}>Detalhes</Button>
-                            </div>
-                          ) : (
-                            <div className="flex gap-2 justify-end">
-                              <Button variant="outline" size="sm" onClick={() => queueMutation.mutate(row.id)} disabled={queueMutation.isPending}>Fila</Button>
+                            <div className="flex gap-1 justify-end">
+                              <Button variant="outline" size="sm" onClick={() => setSelectedSubmission(row)}>Detalhes</Button>
+                              <Link to={`/create/${row.id}`}>
+                                <Button variant="outline" size="sm">Editar</Button>
+                              </Link>
                               <Button size="sm" onClick={() => publishMutation.mutate(row.id)} disabled={publishMutation.isPending}>Publicar</Button>
                             </div>
-                          )}
+                          ) : row.status === "processed" ? (
+                            <div className="flex gap-1 justify-end">
+                              <Button variant="outline" size="sm" onClick={() => setSelectedSubmission(row)}>Detalhes</Button>
+                            </div>
+                          ) : ["pending", "queued", "processing"].includes(row.status) ? (
+                            <div className="flex gap-1 justify-end">
+                              <Button variant="outline" size="sm" onClick={() => setSelectedSubmission(row)}>Detalhes</Button>
+                              <Link to={`/create/${row.id}`}>
+                                <Button variant="outline" size="sm">Editar</Button>
+                              </Link>
+                              <Button 
+                                variant="destructive" 
+                                size="sm" 
+                                onClick={() => {
+                                  if (confirm("Tem certeza que deseja excluir este criativo?")) {
+                                    deleteMutation.mutate(row.id);
+                                  }
+                                }}
+                                disabled={deleteMutation.isPending}
+                              >
+                                Excluir
+                              </Button>
+                              <Button size="sm" onClick={() => publishMutation.mutate(row.id)} disabled={publishMutation.isPending}>Publicar</Button>
+                            </div>
+                          ) : null}
                         </TableCell>
                       </TableRow>
                     );
@@ -280,6 +311,12 @@ const AdminPage: React.FC = () => {
             </DialogHeader>
           </DialogContent>
         </Dialog>
+
+        <CreativeDetailsModal 
+          isOpen={!!selectedSubmission}
+          onClose={() => setSelectedSubmission(null)}
+          submission={selectedSubmission}
+        />
       </main>
     </>
   );
