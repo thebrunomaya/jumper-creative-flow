@@ -223,9 +223,23 @@ export const useCreativeSubmission = () => {
 
     } catch (error) {
       console.error('Error submitting creative:', error);
+      
+      // Provide more specific error messages based on error type
+      let errorMessage = "Erro ao enviar para o Notion. Tente novamente.";
+      
+      if (error.message?.includes('CTA')) {
+        errorMessage = "CTA inválido. Verifique se selecionou um valor válido.";
+      } else if (error.message?.includes('Gerente') || error.message?.includes('Manager')) {
+        errorMessage = "Erro na validação do gerente. Tente fazer logout e login novamente.";
+      } else if (error.message?.includes('Notion')) {
+        errorMessage = "Erro na comunicação com o Notion. Verifique a conexão e tente novamente.";
+      } else if (error.message?.includes('validation')) {
+        errorMessage = "Erro de validação dos dados. Verifique todos os campos obrigatórios.";
+      }
+      
       toast({
         title: "Erro no envio",
-        description: error.message || "Erro ao enviar para o Notion. Tente novamente.",
+        description: error.message || errorMessage,
         variant: "destructive",
       });
     } finally {

@@ -7,6 +7,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { previewCreativeNameDetailed, getObjectiveCode, getTypeCode } from '@/utils/creativeName';
 import { supabase } from '@/integrations/supabase/client';
+import { validateCTA } from '@/utils/ctaValidation';
+import { VALID_CTAS } from '@/types/creative';
 
 interface Step4Props {
   formData: FormData;
@@ -70,58 +72,66 @@ const Step4: React.FC<Step4Props> = ({ formData, isSubmitting }) => {
     return null;
   }, [formData.creativeName, formData.campaignObjective, formData.creativeType, selectedClient, accountCode]);
 
+  // Validate CTA
+  const ctaValidation = validateCTA(formData.cta || formData.callToAction || '');
+  
   // Check for validation issues based on creative type
   const getValidationIssues = () => {
+    const issues: string[] = [];
+    
+    // Add CTA validation issue if applicable
+    if (!ctaValidation.isValid) {
+      issues.push(`CTA "${formData.cta || formData.callToAction}" não é válido. Sugestão: "${ctaValidation.suggestion}"`);
+    }
     if (formData.creativeType === 'carousel') {
       // For carousel, check carouselCards
       if (!formData.carouselCards || formData.carouselCards.length === 0) {
-        return ['Nenhum cartão de carrossel encontrado'];
+        issues.push('Nenhum cartão de carrossel encontrado');
+      } else {
+        const invalidCards = formData.carouselCards.filter(card => !card.file || !card.file.valid);
+        if (invalidCards.length > 0) {
+          issues.push(`${invalidCards.length} cartão(s) do carrossel com problemas`);
+        }
       }
       
-      const invalidCards = formData.carouselCards.filter(card => !card.file || !card.file.valid);
-      if (invalidCards.length > 0) {
-        return [`${invalidCards.length} cartão(s) do carrossel com problemas`];
-      }
-      
-      return [];
+      return issues;
     } else if (formData.creativeType === 'single') {
       // For single, check mediaVariations
       if (!formData.mediaVariations || formData.mediaVariations.length === 0) {
-        return ['Nenhuma variação de mídia encontrada'];
-      }
-      
-      const issues: string[] = [];
-      formData.mediaVariations.forEach((variation, index) => {
-        const requiredPositions = [];
-        if (variation.squareEnabled !== false) requiredPositions.push('square');
-        if (variation.verticalEnabled !== false) requiredPositions.push('vertical');
-        if (variation.horizontalEnabled !== false) requiredPositions.push('horizontal');
-        
-        const missingFiles = requiredPositions.filter(position => {
-          const file = variation[`${position}File`];
-          return !file || !file.valid;
+        issues.push('Nenhuma variação de mídia encontrada');
+      } else {
+        formData.mediaVariations.forEach((variation, index) => {
+          const requiredPositions = [];
+          if (variation.squareEnabled !== false) requiredPositions.push('square');
+          if (variation.verticalEnabled !== false) requiredPositions.push('vertical');
+          if (variation.horizontalEnabled !== false) requiredPositions.push('horizontal');
+          
+          const missingFiles = requiredPositions.filter(position => {
+            const file = variation[`${position}File`];
+            return !file || !file.valid;
+          });
+          
+          if (missingFiles.length > 0) {
+            issues.push(`Variação ${index + 1}: ${missingFiles.join(', ')} com problemas`);
+          }
         });
-        
-        if (missingFiles.length > 0) {
-          issues.push(`Variação ${index + 1}: ${missingFiles.join(', ')} com problemas`);
-        }
-      });
+      }
       
       return issues;
     } else if (formData.creativeType === 'existing-post') {
       // For existing post, check URL validation
       if (!formData.existingPost || !formData.existingPost.valid) {
-        return ['URL da publicação do Instagram inválida ou não fornecida'];
+        issues.push('URL da publicação do Instagram inválida ou não fornecida');
       }
-      return [];
+      return issues;
     } else {
       // For other types, check validatedFiles
       const invalidFiles = formData.validatedFiles.filter(f => !f.valid);
       if (invalidFiles.length > 0) {
-        return [`${invalidFiles.length} arquivo(s) com problemas`];
+        issues.push(`${invalidFiles.length} arquivo(s) com problemas`);
       }
       
-      return [];
+      return issues;
     }
   };
 
