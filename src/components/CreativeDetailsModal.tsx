@@ -53,6 +53,22 @@ export const CreativeDetailsModal: React.FC<CreativeDetailsModalProps> = ({
     return statusMap[status] || status;
   };
 
+  const getPlatformDisplay = (platform: string) => {
+    if (platform === 'meta') return 'Meta';
+    if (platform === 'google') return 'Google';
+    return platform;
+  };
+
+  const getCreativeTypeDisplay = (type: string) => {
+    const typeMap: { [key: string]: string } = {
+      'single': 'Imagem/Vídeo Único',
+      'carousel': 'Carrossel',
+      'collection': 'Coleção',
+      'existing-post': 'Publicação Existente'
+    };
+    return typeMap[type] || type;
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl h-[85vh] min-h-0 flex flex-col overflow-hidden">
@@ -106,7 +122,7 @@ export const CreativeDetailsModal: React.FC<CreativeDetailsModalProps> = ({
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <span className="text-sm font-medium">Plataforma:</span>
-                    <p className="text-sm text-muted-foreground">{payload.platform || submission.platform || '—'}</p>
+                    <p className="text-sm text-muted-foreground">{getPlatformDisplay(payload.platform || submission.platform || '—')}</p>
                   </div>
                   <div>
                     <span className="text-sm font-medium">Objetivo:</span>
@@ -114,7 +130,7 @@ export const CreativeDetailsModal: React.FC<CreativeDetailsModalProps> = ({
                   </div>
                   <div>
                     <span className="text-sm font-medium">Tipo:</span>
-                    <p className="text-sm text-muted-foreground">{payload.creativeType || submission.creative_type || '—'}</p>
+                    <p className="text-sm text-muted-foreground">{getCreativeTypeDisplay(payload.creativeType || submission.creative_type || '—')}</p>
                   </div>
                   <div>
                     <span className="text-sm font-medium">Nome do Criativo:</span>
@@ -123,18 +139,6 @@ export const CreativeDetailsModal: React.FC<CreativeDetailsModalProps> = ({
                   <div>
                     <span className="text-sm font-medium">Parceiro:</span>
                     <p className="text-sm text-muted-foreground">{payload.partner || '—'}</p>
-                  </div>
-                  <div>
-                    <span className="text-sm font-medium">URL de Destino:</span>
-                    <p className="text-sm text-muted-foreground">{payload.destinationUrl || '—'}</p>
-                  </div>
-                  <div>
-                    <span className="text-sm font-medium">Call to Action:</span>
-                    <p className="text-sm text-muted-foreground">{payload.callToAction || payload.cta || '—'}</p>
-                  </div>
-                  <div>
-                    <span className="text-sm font-medium">Total de Variações:</span>
-                    <p className="text-sm text-muted-foreground">{submission.total_variations || 1}</p>
                   </div>
                   {payload.observations && (
                     <div className="col-span-2">
@@ -180,7 +184,7 @@ export const CreativeDetailsModal: React.FC<CreativeDetailsModalProps> = ({
             )}
 
             {/* 3. CONTEÚDO */}
-            {(payload.mainTexts || payload.titles || payload.description) && (
+            {(payload.mainTexts || payload.titles || payload.description || payload.callToAction || payload.cta || payload.destinationUrl) && (
               <Card>
                 <CardHeader>
                   <CardTitle>3. Conteúdo</CardTitle>
@@ -213,6 +217,22 @@ export const CreativeDetailsModal: React.FC<CreativeDetailsModalProps> = ({
                         <p className="text-sm text-muted-foreground">{payload.description}</p>
                       </div>
                     )}
+                    {(payload.callToAction || payload.cta) && (
+                      <div>
+                        <span className="text-sm font-medium">Call to Action:</span>
+                        <p className="text-sm text-muted-foreground">{payload.callToAction || payload.cta}</p>
+                      </div>
+                    )}
+                    {payload.destinationUrl && (
+                      <div>
+                        <span className="text-sm font-medium">URL de Destino:</span>
+                        <p className="text-sm text-muted-foreground break-all">{payload.destinationUrl}</p>
+                      </div>
+                    )}
+                    <div>
+                      <span className="text-sm font-medium">Total de Variações:</span>
+                      <p className="text-sm text-muted-foreground">{submission.total_variations || 1}</p>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
