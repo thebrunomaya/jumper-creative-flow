@@ -11,6 +11,9 @@ import { VALID_CTAS } from '@/types/creative';
 import { Plus, X, Instagram } from 'lucide-react';
 import TextCounterWithRecommendation from '../TextCounterWithRecommendation';
 import metaAdsObjectives from '@/config/meta-ads-objectives.json';
+import { normalizeObjective } from '../../utils/objectives';
+import { Alert, AlertDescription } from '../ui/alert';
+import { AlertTriangle } from 'lucide-react';
 
 interface Step3Props {
   formData: FormData;
@@ -31,7 +34,15 @@ const Step3: React.FC<Step3Props> = ({ formData, updateFormData, errors }) => {
     if (!formData.campaignObjective || formData.platform !== 'meta') {
       return [];
     }
-    const objectiveConfig = metaAdsObjectives.objectiveMapping[formData.campaignObjective];
+    
+    // Try direct mapping first, then normalized
+    let objectiveConfig = metaAdsObjectives.objectiveMapping[formData.campaignObjective];
+    
+    if (!objectiveConfig) {
+      const normalizedObjective = normalizeObjective(formData.campaignObjective);
+      objectiveConfig = metaAdsObjectives.objectiveMapping[normalizedObjective];
+    }
+    
     return objectiveConfig ? objectiveConfig.destinations : [];
   };
 
@@ -147,6 +158,7 @@ const Step3: React.FC<Step3Props> = ({ formData, updateFormData, errors }) => {
   const availableCTAs = getAvailableCTAs();
   const destinationFieldConfig = getDestinationFieldConfig();
   const shouldShowConditionalFields = formData.platform === 'meta' && formData.campaignObjective;
+  const hasUnmappedObjective = shouldShowConditionalFields && availableDestinations.length === 0;
 
   return (
     <div className="space-y-8">
@@ -391,25 +403,36 @@ const Step3: React.FC<Step3Props> = ({ formData, updateFormData, errors }) => {
           {/* Conditional Fields for Meta Ads */}
           {shouldShowConditionalFields && (
             <>
-              {/* Destino */}
-              <div className="space-y-2">
-                <Label htmlFor="destination">Destino *</Label>
-                <Select value={formData.destination || ''} onValueChange={handleDestinationChange}>
-                  <SelectTrigger className={errors.destination ? 'border-destructive bg-destructive/10' : ''}>
-                    <SelectValue placeholder="Selecione o destino do anúncio" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {availableDestinations.map((destination) => (
-                      <SelectItem key={destination.value} value={destination.value}>
-                        {destination.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {errors.destination && (
-                  <p className="text-sm text-destructive">{errors.destination}</p>
-                )}
-              </div>
+              {hasUnmappedObjective && (
+                <Alert>
+                  <AlertTriangle className="h-4 w-4" />
+                  <AlertDescription>
+                    Objetivo "{formData.campaignObjective}" não mapeado. Ajuste seu objetivo ou contate o suporte.
+                  </AlertDescription>
+                </Alert>
+              )}
+              
+              {!hasUnmappedObjective && (
+                <>
+                  {/* Destino */}
+                  <div className="space-y-2">
+                    <Label htmlFor="destination">Destino *</Label>
+                    <Select value={formData.destination || ''} onValueChange={handleDestinationChange}>
+                      <SelectTrigger className={errors.destination ? 'border-destructive bg-destructive/10' : ''}>
+                        <SelectValue placeholder="Selecione o destino do anúncio" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {availableDestinations.map((destination) => (
+                          <SelectItem key={destination.value} value={destination.value}>
+                            {destination.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {errors.destination && (
+                      <p className="text-sm text-destructive">{errors.destination}</p>
+                    )}
+                  </div>
 
               {/* CTA - only show if destination is selected */}
               {formData.destination && (
@@ -433,30 +456,32 @@ const Step3: React.FC<Step3Props> = ({ formData, updateFormData, errors }) => {
                 </div>
               )}
 
-              {/* Destination Field - only show if destination has a field type */}
-              {destinationFieldConfig && (
-                <div className="space-y-2">
-                  <Label htmlFor="destinationUrl">{destinationFieldConfig.label} *</Label>
-                  <Input
-                    id="destinationUrl"
-                    type={getInputType(destinationFieldConfig.fieldType)}
-                    value={formData.destinationUrl}
-                    onChange={(e) => {
-                      console.log('🔄 Destination field changed:', e.target.value);
-                      updateFormData({ destinationUrl: e.target.value });
-                    }}
-                    placeholder={
-                      destinationFieldConfig.fieldType === 'url' ? 'https://exemplo.com' :
-                      destinationFieldConfig.fieldType === 'facebook_url' ? 'https://facebook.com/suapagina' :
-                      destinationFieldConfig.fieldType === 'phone' ? '(11) 99999-9999' :
-                      'Digite aqui...'
-                    }
-                    className={errors.destinationUrl ? 'border-destructive bg-destructive/10' : ''}
-                  />
-                  {errors.destinationUrl && (
-                    <p className="text-sm text-destructive">{errors.destinationUrl}</p>
+                  {/* Destination Field - only show if destination has a field type */}
+                  {destinationFieldConfig && (
+                    <div className="space-y-2">
+                      <Label htmlFor="destinationUrl">{destinationFieldConfig.label} *</Label>
+                      <Input
+                        id="destinationUrl"
+                        type={getInputType(destinationFieldConfig.fieldType)}
+                        value={formData.destinationUrl}
+                        onChange={(e) => {
+                          console.log('🔄 Destination field changed:', e.target.value);
+                          updateFormData({ destinationUrl: e.target.value });
+                        }}
+                        placeholder={
+                          destinationFieldConfig.fieldType === 'url' ? 'https://exemplo.com' :
+                          destinationFieldConfig.fieldType === 'facebook_url' ? 'https://facebook.com/suapagina' :
+                          destinationFieldConfig.fieldType === 'phone' ? '(11) 99999-9999' :
+                          'Digite aqui...'
+                        }
+                        className={errors.destinationUrl ? 'border-destructive bg-destructive/10' : ''}
+                      />
+                      {errors.destinationUrl && (
+                        <p className="text-sm text-destructive">{errors.destinationUrl}</p>
+                      )}
+                    </div>
                   )}
-                </div>
+                </>
               )}
             </>
           )}

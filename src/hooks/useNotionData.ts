@@ -4,6 +4,7 @@ import { Client, Partner } from '@/types/creative';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useMyNotionAccounts } from '@/hooks/useMyNotionAccounts';
+import { normalizeObjective, getDistinctObjectives } from '../utils/objectives';
 
 interface NotionClient {
   id: string;
@@ -124,10 +125,13 @@ export const useNotionClients = () => {
             }
           }
           
+          // Normalize objectives and remove duplicates
+          const normalizedObjectives = getDistinctObjectives(objectives);
+          
           return {
             id: item.id,
             name: name,
-            objectives: objectives
+            objectives: normalizedObjectives
           };
         });
         
