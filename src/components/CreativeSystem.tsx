@@ -226,16 +226,20 @@ const CreativeSystem: React.FC = () => {
     const loadDraft = async () => {
       if (!routeSubmissionId) return;
       try {
+        console.log('🔄 Carregando draft:', routeSubmissionId);
         // First try manager actions (for managers)
         let response = await supabase.functions.invoke('j_ads_manager_actions', {
           body: { action: 'get', submissionId: routeSubmissionId },
         });
+        console.log('📥 Resposta manager_actions:', response);
         
         // If that fails, try admin actions (for admins)
         if (response.error || !response.data?.success) {
+          console.log('⚠️ Manager actions falhou, tentando admin actions');
           response = await supabase.functions.invoke('j_ads_admin_actions', {
             body: { action: 'getSubmission', submissionId: routeSubmissionId },
           });
+          console.log('📥 Resposta admin_actions:', response);
         }
         
         if (response.error || !response.data?.success) {
@@ -244,12 +248,15 @@ const CreativeSystem: React.FC = () => {
         }
         
         const item = response.data.item;
+        console.log('📋 Item carregado:', item);
         if (item?.payload) {
           const payload = { ...item.payload };
+          console.log('📦 Payload original:', payload);
           // 1) Ao retomar, mostrar apenas o nome digitado pelo usuário
           if (payload.managerInputName) {
             payload.creativeName = payload.managerInputName;
           }
+          console.log('📝 Atualizando formData com:', payload);
           updateFormData(payload);
           // 2) Reidratar arquivos a partir de savedMedia, se existir
           if (payload.savedMedia) {
