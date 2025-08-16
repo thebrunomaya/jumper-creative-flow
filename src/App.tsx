@@ -1,5 +1,5 @@
 
-import { useEffect } from "react";
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -15,15 +15,10 @@ import NotFound from "./pages/NotFound";
 import Admin from "./pages/Admin";
 import Manager from "./pages/Manager";
 import CreativeSystem from "@/components/CreativeSystem";
-import { preloadCommonThumbnails } from "@/utils/thumbnailCache";
 
 const queryClient = new QueryClient();
 
 const App = () => {
-  // Pré-carregar thumbnails comuns para melhor performance
-  useEffect(() => {
-    preloadCommonThumbnails();
-  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>

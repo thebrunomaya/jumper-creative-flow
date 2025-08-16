@@ -24,6 +24,10 @@ interface ThemeProviderProps {
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   const [theme, setTheme] = useState<Theme>(() => {
     try {
+      // Check DOM first for immediate sync
+      const isDomDark = document.documentElement.classList.contains('dark');
+      if (isDomDark) return 'dark';
+      
       const saved = localStorage.getItem('theme');
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       return (saved === 'light' || saved === 'dark') ? saved : (prefersDark ? 'dark' : 'light');
