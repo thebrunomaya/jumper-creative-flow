@@ -264,6 +264,13 @@ const CreativeSystem: React.FC = () => {
     const newData: any = { ...payload };
     let hadFailures = false;
 
+    console.log('🔄 Rehydrating files from savedMedia:', {
+      hasVariations: Boolean(savedMedia.mediaVariations),
+      variationsCount: savedMedia.mediaVariations?.length || 0,
+      hasCarouselCards: Boolean(savedMedia.carouselCards),
+      carouselCardsCount: savedMedia.carouselCards?.length || 0
+    });
+
     if (Array.isArray(newData.mediaVariations) && Array.isArray(savedMedia.mediaVariations)) {
       const byId: Record<number, any> = {};
       savedMedia.mediaVariations.forEach((v: any) => { if (v?.id != null) byId[v.id] = v; });
@@ -277,71 +284,115 @@ const CreativeSystem: React.FC = () => {
           horizontalFile: undefined,
         };
 
-        if (savedV?.square?.url) {
+        console.log(`🔄 Processing variation ${v.id}:`, {
+          hasSaved: Boolean(savedV),
+          squareData: savedV?.square,
+          verticalData: savedV?.vertical,
+          horizontalData: savedV?.horizontal
+        });
+
+        // Helper function to get URL from either string (legacy) or object format
+        const getUrlFromSaved = (saved: any) => {
+          if (typeof saved === 'string') return saved;
+          if (saved && typeof saved === 'object' && saved.url) return saved.url;
+          return null;
+        };
+
+        // Helper function to normalize saved data to object format
+        const normalizeSavedData = (saved: any, defaultName: string) => {
+          if (typeof saved === 'string') {
+            return {
+              url: saved,
+              path: `legacy/${Date.now()}`,
+              name: defaultName,
+              type: 'application/octet-stream',
+              size: 0
+            };
+          }
+          return saved;
+        };
+
+        // Process square file
+        const squareUrl = getUrlFromSaved(savedV?.square);
+        if (squareUrl) {
           try {
-            const res = await fetch(savedV.square.url);
+            const res = await fetch(squareUrl);
             const blob = await res.blob();
-            const f = new File([blob], savedV.square.name || `square-${v.id}`, { type: blob.type || savedV.square.type || 'application/octet-stream' });
+            const savedSquareData = normalizeSavedData(savedV.square, `square-${v.id}`);
+            const f = new File([blob], savedSquareData.name, { type: blob.type || savedSquareData.type });
             result.squareFile = await validateFile(f, 'square');
             
             // Mark file as from saved source to avoid re-uploading
             if (result.squareFile?.file) {
               Object.defineProperty(result.squareFile.file, '__source_saved_url', {
-                value: savedV.square,
+                value: savedSquareData,
                 writable: false,
                 enumerable: false
               });
             }
+            console.log(`✅ Square file rehydrated for variation ${v.id}`);
           } catch (e) {
-            console.warn('Falha ao reidratar square', e);
+            console.warn(`❌ Falha ao reidratar square para variation ${v.id}:`, e);
             hadFailures = true;
           }
         }
-        if (savedV?.vertical?.url) {
+
+        // Process vertical file
+        const verticalUrl = getUrlFromSaved(savedV?.vertical);
+        if (verticalUrl) {
           try {
-            const res = await fetch(savedV.vertical.url);
+            const res = await fetch(verticalUrl);
             const blob = await res.blob();
-            const f = new File([blob], savedV.vertical.name || `vertical-${v.id}`, { type: blob.type || savedV.vertical.type || 'application/octet-stream' });
+            const savedVerticalData = normalizeSavedData(savedV.vertical, `vertical-${v.id}`);
+            const f = new File([blob], savedVerticalData.name, { type: blob.type || savedVerticalData.type });
             result.verticalFile = await validateFile(f, 'vertical');
             
             // Mark file as from saved source to avoid re-uploading
             if (result.verticalFile?.file) {
               Object.defineProperty(result.verticalFile.file, '__source_saved_url', {
-                value: savedV.vertical,
+                value: savedVerticalData,
                 writable: false,
                 enumerable: false
               });
             }
+            console.log(`✅ Vertical file rehydrated for variation ${v.id}`);
           } catch (e) {
-            console.warn('Falha ao reidratar vertical', e);
+            console.warn(`❌ Falha ao reidratar vertical para variation ${v.id}:`, e);
             hadFailures = true;
           }
         }
-        if (savedV?.horizontal?.url) {
+
+        // Process horizontal file
+        const horizontalUrl = getUrlFromSaved(savedV?.horizontal);
+        if (horizontalUrl) {
           try {
-            const res = await fetch(savedV.horizontal.url);
+            const res = await fetch(horizontalUrl);
             const blob = await res.blob();
-            const f = new File([blob], savedV.horizontal.name || `horizontal-${v.id}`, { type: blob.type || savedV.horizontal.type || 'application/octet-stream' });
+            const savedHorizontalData = normalizeSavedData(savedV.horizontal, `horizontal-${v.id}`);
+            const f = new File([blob], savedHorizontalData.name, { type: blob.type || savedHorizontalData.type });
             result.horizontalFile = await validateFile(f, 'horizontal');
             
             // Mark file as from saved source to avoid re-uploading
             if (result.horizontalFile?.file) {
               Object.defineProperty(result.horizontalFile.file, '__source_saved_url', {
-                value: savedV.horizontal,
+                value: savedHorizontalData,
                 writable: false,
                 enumerable: false
               });
             }
+            console.log(`✅ Horizontal file rehydrated for variation ${v.id}`);
           } catch (e) {
-            console.warn('Falha ao reidratar horizontal', e);
+            console.warn(`❌ Falha ao reidratar horizontal para variation ${v.id}:`, e);
             hadFailures = true;
           }
         }
+
         return result;
       }));
 
       newData.mediaVariations = rehydrated;
       updateFormData({ mediaVariations: rehydrated });
+      console.log(`✅ Rehydrated ${rehydrated.length} media variations`);
     }
 
     if (Array.isArray(newData.carouselCards) && Array.isArray(savedMedia.carouselCards)) {
@@ -352,26 +403,58 @@ const CreativeSystem: React.FC = () => {
       const rehydratedCards = await Promise.all(newData.carouselCards.map(async (c: any) => {
         const savedC = byId[c.id];
         const result: any = { ...c, file: undefined };
-        if (savedC?.asset?.url) {
+        
+        console.log(`🔄 Processing carousel card ${c.id}:`, {
+          hasSaved: Boolean(savedC),
+          assetData: savedC?.asset
+        });
+
+        // Helper function to get URL from either string (legacy) or object format
+        const getAssetUrl = (asset: any) => {
+          if (typeof asset === 'string') return asset;
+          if (asset && typeof asset === 'object' && asset.url) return asset.url;
+          return null;
+        };
+
+        // Helper function to normalize asset data to object format
+        const normalizeAssetData = (asset: any, defaultName: string) => {
+          if (typeof asset === 'string') {
+            return {
+              url: asset,
+              path: `legacy/${Date.now()}`,
+              name: defaultName,
+              type: 'application/octet-stream',
+              size: 0,
+              format: 'carousel'
+            };
+          }
+          return asset;
+        };
+
+        const assetUrl = getAssetUrl(savedC?.asset);
+        if (assetUrl) {
           try {
-            const res = await fetch(savedC.asset.url);
+            const res = await fetch(assetUrl);
             const blob = await res.blob();
-            const f = new File([blob], savedC.asset.name || `card-${c.id}`, { type: blob.type || savedC.asset.type || 'application/octet-stream' });
+            const savedAssetData = normalizeAssetData(savedC.asset, `card-${c.id}`);
+            const f = new File([blob], savedAssetData.name, { type: blob.type || savedAssetData.type });
             result.file = await validateFile(f, ratio as any);
             
             // Mark file as from saved source to avoid re-uploading
             if (result.file?.file) {
               Object.defineProperty(result.file.file, '__source_saved_url', {
-                value: savedC.asset,
+                value: savedAssetData,
                 writable: false,
                 enumerable: false
               });
             }
+            console.log(`✅ Carousel card ${c.id} rehydrated`);
           } catch (e) {
-            console.warn('Falha ao reidratar cartão', e);
+            console.warn(`❌ Falha ao reidratar cartão ${c.id}:`, e);
             hadFailures = true;
           }
         }
+        
         // restore custom fields if present
         if (savedC?.customTitle) result.customTitle = savedC.customTitle;
         if (savedC?.customDescription) result.customDescription = savedC.customDescription;
@@ -382,6 +465,7 @@ const CreativeSystem: React.FC = () => {
 
       newData.carouselCards = rehydratedCards;
       updateFormData({ carouselCards: rehydratedCards, carouselAspectRatio: savedMedia.carouselAspectRatio || newData.carouselAspectRatio });
+      console.log(`✅ Rehydrated ${rehydratedCards.length} carousel cards`);
     }
 
     if (hadFailures) {
