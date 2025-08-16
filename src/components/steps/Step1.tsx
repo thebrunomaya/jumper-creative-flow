@@ -6,7 +6,7 @@ import { JumperCard, JumperCardContent } from '@/components/ui/jumper-card';
 import { JumperInput } from '@/components/ui/jumper-input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { useNotionClients } from '@/hooks/useNotionData';
+
 import { Skeleton } from '@/components/ui/skeleton';
 import { validateCreativeName, previewCreativeNameDetailed, getObjectiveCode, getTypeCode } from '@/utils/creativeName';
 import { supabase } from '@/integrations/supabase/client';
@@ -17,10 +17,23 @@ interface Step1Props {
   formData: FormData;
   updateFormData: (data: Partial<FormData>) => void;
   errors: Record<string, string>;
+  clients: Array<{ id: string; name: string; objectives?: string[] }>;
+  clientsLoading: boolean;
+  clientsError: string | null;
+  isAdmin: boolean;
+  userAccessibleAccounts: string[];
 }
 
-const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
-  const { clients, loading: clientsLoading, error: clientsError, isAdmin, userAccessibleAccounts } = useNotionClients();
+const Step1: React.FC<Step1Props> = ({ 
+  formData, 
+  updateFormData, 
+  errors, 
+  clients, 
+  clientsLoading, 
+  clientsError, 
+  isAdmin, 
+  userAccessibleAccounts 
+}) => {
 
   // Get selected client data to access objectives
   const selectedClient = clients.find(client => client.id === formData.client);

@@ -29,7 +29,7 @@ const CreativeSystem: React.FC = () => {
   const [isSavingDraft, setIsSavingDraft] = useState(false);
   const [isRehydrating, setIsRehydrating] = useState(false);
   const [uploadProgress, setUploadProgress] = useState({ current: 0, total: 0, message: '' });
-  const { clients, loading: isLoadingClients } = useNotionClients();
+  const { clients, loading: isLoadingClients, error: clientsError, isAdmin, userAccessibleAccounts } = useNotionClients();
   const [draftSubmissionId, setDraftSubmissionId] = useState<string | null>(() =>
     (typeof window !== 'undefined' ? sessionStorage.getItem('draftSubmissionId') : null)
   );
@@ -496,7 +496,12 @@ const CreativeSystem: React.FC = () => {
               <Step1 
                 formData={formData} 
                 updateFormData={updateFormData} 
-                errors={errors} 
+                errors={errors}
+                clients={clients}
+                clientsLoading={isLoadingClients}
+                clientsError={clientsError}
+                isAdmin={isAdmin}
+                userAccessibleAccounts={userAccessibleAccounts}
               />
             )}
             
@@ -541,15 +546,17 @@ const CreativeSystem: React.FC = () => {
       
       <Footer />
       
-      {/* Loading overlay - appears on top when loading */}
-      {(isLoadingDraft || isSavingDraft) && (
+      {/* Loading overlay para carregamento inicial de rascunho ou dados do Step 1 */}
+      {(isLoadingDraft || (currentStep === 1 && isLoadingClients) || isSavingDraft) && (
         <JumperLoadingOverlay 
           message={
             isLoadingDraft 
-              ? "Carregando dados do criativo..." 
-              : uploadProgress.total > 0 
-                ? `${uploadProgress.message} (${uploadProgress.current}/${uploadProgress.total})`
-                : uploadProgress.message || "Salvando rascunho..."
+              ? "Carregando criativo..." 
+              : (currentStep === 1 && isLoadingClients)
+                ? "Carregando contas..."
+                : uploadProgress.total > 0 
+                  ? `${uploadProgress.message} (${uploadProgress.current}/${uploadProgress.total})`
+                  : uploadProgress.message || "Salvando rascunho..."
           } 
         />
       )}
