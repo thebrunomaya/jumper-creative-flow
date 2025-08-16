@@ -26,6 +26,8 @@ const STEP_LABELS = ['Básico', 'Arquivos', 'Conteúdo', 'Revisão'];
 const CreativeSystem: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoadingDraft, setIsLoadingDraft] = useState(false);
+  const [isSavingDraft, setIsSavingDraft] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState({ current: 0, total: 0, message: '' });
   const { clients, loading: isLoadingClients } = useNotionClients();
   const [draftSubmissionId, setDraftSubmissionId] = useState<string | null>(() =>
     (typeof window !== 'undefined' ? sessionStorage.getItem('draftSubmissionId') : null)
@@ -81,9 +83,25 @@ const CreativeSystem: React.FC = () => {
     };
   };
 
-  // Build savedMedia object by uploading all present files in the form
-  const buildSavedMedia = async () => {
+  // Build savedMedia object by uploading all present files in the form with progress tracking
+  const buildSavedMedia = async (onProgress?: (current: number, total: number, message: string) => void) => {
     const saved: any = {};
+    let uploadedCount = 0;
+    let totalFiles = 0;
+
+    // Count total files first
+    if (Array.isArray(formData.mediaVariations)) {
+      formData.mediaVariations.forEach((v: any) => {
+        if (v.squareFile?.file) totalFiles++;
+        if (v.verticalFile?.file) totalFiles++;
+        if (v.horizontalFile?.file) totalFiles++;
+      });
+    }
+    if (Array.isArray((formData as any).carouselCards)) {
+      (formData as any).carouselCards.forEach((c: any) => {
+        if (c.file?.file) totalFiles++;
+      });
+    }
 
     if (Array.isArray(formData.mediaVariations) && formData.mediaVariations.length > 0) {
       const variations = await Promise.all(
@@ -94,9 +112,18 @@ const CreativeSystem: React.FC = () => {
             verticalEnabled: v.verticalEnabled,
             horizontalEnabled: v.horizontalEnabled,
           };
-          if (v.squareFile?.file) entry.square = await uploadAsset(v.squareFile.file, 'square');
-          if (v.verticalFile?.file) entry.vertical = await uploadAsset(v.verticalFile.file, 'vertical');
-          if (v.horizontalFile?.file) entry.horizontal = await uploadAsset(v.horizontalFile.file, 'horizontal');
+          if (v.squareFile?.file) {
+            onProgress?.(++uploadedCount, totalFiles, `Enviando arquivo quadrado ${v.id}...`);
+            entry.square = await uploadAsset(v.squareFile.file, 'square');
+          }
+          if (v.verticalFile?.file) {
+            onProgress?.(++uploadedCount, totalFiles, `Enviando arquivo vertical ${v.id}...`);
+            entry.vertical = await uploadAsset(v.verticalFile.file, 'vertical');
+          }
+          if (v.horizontalFile?.file) {
+            onProgress?.(++uploadedCount, totalFiles, `Enviando arquivo horizontal ${v.id}...`);
+            entry.horizontal = await uploadAsset(v.horizontalFile.file, 'horizontal');
+          }
           return entry;
         })
       );
@@ -109,6 +136,7 @@ const CreativeSystem: React.FC = () => {
           const entry: any = { id: c.id };
           if (c.file?.file) {
             const ratio = (formData.carouselAspectRatio || '1:1') === '1:1' ? 'carousel-1:1' : 'carousel-4:5';
+            onProgress?.(++uploadedCount, totalFiles, `Enviando cartão ${c.id}...`);
             entry.asset = await uploadAsset(c.file.file, ratio);
           }
           // Preserve per-card custom fields without the heavy file
@@ -322,13 +350,13 @@ const CreativeSystem: React.FC = () => {
     }
 
     try {
-      toast({
-        title: 'Salvando rascunho...',
-        description: 'Enviando arquivos para o servidor.',
-      });
+      setIsSavingDraft(true);
+      setUploadProgress({ current: 0, total: 0, message: 'Preparando upload...' });
 
-      // 1) Enviar arquivos para o Storage e montar savedMedia
-      const savedMedia = await buildSavedMedia();
+      // 1) Enviar arquivos para o Storage e montar savedMedia com progresso
+      const savedMedia = await buildSavedMedia((current, total, message) => {
+        setUploadProgress({ current, total, message });
+      });
 
       // 2) Montar um payload leve, sem objetos File, para salvar como rascunho
       const draftPayload: any = { ...formData, savedMedia };
@@ -352,7 +380,7 @@ const CreativeSystem: React.FC = () => {
         }));
       }
 
-      // Try manager endpoint first, then admin endpoint
+      setUploadProgress({ current: 0, total: 0, message: 'Salvando no servidor...' });
       let response = await supabase.functions.invoke('j_ads_manager_actions', {
         body: {
           action: 'saveDraft',
@@ -394,6 +422,9 @@ const CreativeSystem: React.FC = () => {
         description: err?.message || 'Tente novamente.',
         variant: 'destructive',
       });
+    } finally {
+      setIsSavingDraft(false);
+      setUploadProgress({ current: 0, total: 0, message: '' });
     }
   };
 
@@ -482,12 +513,16 @@ const CreativeSystem: React.FC = () => {
       <Footer />
       
       {/* Loading overlay - appears on top when loading */}
-      {(isLoadingDraft || isLoadingClients) && (
+      {(isLoadingDraft || isLoadingClients || isSavingDraft) && (
         <JumperLoadingOverlay 
           message={
             isLoadingDraft 
               ? "Carregando dados do criativo..." 
-              : "Carregando informações..."
+              : isSavingDraft
+                ? uploadProgress.total > 0 
+                  ? `${uploadProgress.message} (${uploadProgress.current}/${uploadProgress.total})`
+                  : uploadProgress.message || "Salvando rascunho..."
+                : "Carregando informações..."
           } 
         />
       )}

@@ -39,13 +39,13 @@ export const JumperLoading: React.FC<JumperLoadingProps> = ({
         "relative flex items-center justify-center",
         sizeClasses[size]
       )}>
-        {/* X Logo perfectly centered - 30% of ring size */}
+        {/* X Logo perfectly centered - 50% of ring size */}
         <img 
           src={logoSrc}
           alt="Jumper Studio"
           className={cn(
             "animate-pulse opacity-60 object-contain",
-            size === 'sm' ? 'w-2.5 h-2.5' : size === 'md' ? 'w-3.5 h-3.5' : 'w-5 h-5'
+            size === 'sm' ? 'w-4 h-4' : size === 'md' ? 'w-6 h-6' : 'w-8 h-8'
           )}
         />
         
