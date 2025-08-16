@@ -187,7 +187,37 @@ Deno.serve(async (req) => {
         const storagePath = `submissions/${submissionId}/var-${variationIndex}/${fileNameSafe}`;
 
         if (file.url) {
-          // Prefer URL-based ingestion to avoid huge request bodies
+          // Try server-side copy within the same bucket first to avoid huge request bodies
+          const match = file.url.match(/\/object\/public\/creative-files\/(.+)$/);
+          if (match && match[1]) {
+            const sourcePath = match[1];
+            const { error: copyErr } = await supabase.storage
+              .from("creative-files")
+              .copy(sourcePath, storagePath);
+            if (!copyErr) {
+              const { data: pub } = supabase.storage.from("creative-files").getPublicUrl(storagePath);
+              const publicUrl = pub?.publicUrl ?? null;
+
+              await supabase.from("j_ads_creative_files").insert({
+                submission_id: submissionId,
+                variation_index: variationIndex,
+                name: file.name,
+                type: file.type,
+                size: file.size,
+                format: file.format ?? null,
+                instagram_url: null,
+                storage_path: storagePath,
+                public_url: publicUrl,
+              });
+              uploadedCount++;
+              continue;
+            } else {
+              console.error("Copy error for", file.name, sourcePath, "->", storagePath, copyErr);
+              // Fallback to fetching the URL below
+            }
+          }
+
+          // Fallback: download and re-upload (for external URLs)
           const res = await fetch(file.url);
           if (!res.ok) throw new Error(`Failed to fetch ${file.url}: ${res.status}`);
           const arrayBuffer = await res.arrayBuffer();
