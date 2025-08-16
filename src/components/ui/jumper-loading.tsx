@@ -33,6 +33,7 @@ export const JumperLoading: React.FC<JumperLoadingProps> = ({
         sizeClasses[size]
       )}>
         <JumperLogo 
+          showText={false}
           className={cn(
             "animate-pulse opacity-60",
             sizeClasses[size]
