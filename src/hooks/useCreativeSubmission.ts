@@ -34,6 +34,11 @@ export const useCreativeSubmission = () => {
 
     setIsSubmitting(true);
 
+    toast({
+      title: "Enviando criativo...",
+      description: "Processando arquivos e enviando para o Notion.",
+    });
+
     try {
       const filesInfo: Array<{
         name: string;

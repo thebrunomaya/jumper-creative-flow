@@ -19,11 +19,13 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useParams } from 'react-router-dom';
 import { validateFile } from '@/utils/fileValidation';
+import { JumperPageLoading } from './ui/jumper-loading';
 
 const STEP_LABELS = ['Básico', 'Arquivos', 'Conteúdo', 'Revisão'];
 
 const CreativeSystem: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(1);
+  const [isLoadingDraft, setIsLoadingDraft] = useState(false);
   const { clients } = useNotionClients();
   const [draftSubmissionId, setDraftSubmissionId] = useState<string | null>(() =>
     (typeof window !== 'undefined' ? sessionStorage.getItem('draftSubmissionId') : null)
@@ -228,6 +230,8 @@ const CreativeSystem: React.FC = () => {
   useEffect(() => {
     const loadDraft = async () => {
       if (!routeSubmissionId) return;
+      
+      setIsLoadingDraft(true);
       try {
         console.log('🔄 Carregando draft:', routeSubmissionId);
         // First try manager actions (for managers)
@@ -273,6 +277,8 @@ const CreativeSystem: React.FC = () => {
       } catch (e: any) {
         console.error('Erro ao carregar criativo:', e);
         toast({ title: 'Erro ao carregar criativo', description: e?.message || 'Tente novamente.', variant: 'destructive' });
+      } finally {
+        setIsLoadingDraft(false);
       }
     };
     loadDraft();
@@ -316,6 +322,11 @@ const CreativeSystem: React.FC = () => {
     }
 
     try {
+      toast({
+        title: 'Salvando rascunho...',
+        description: 'Enviando arquivos para o servidor.',
+      });
+
       // 1) Enviar arquivos para o Storage e montar savedMedia
       const savedMedia = await buildSavedMedia();
 
@@ -398,9 +409,20 @@ const CreativeSystem: React.FC = () => {
     return (
       <div className="min-h-screen flex flex-col bg-background">
         <Header />
-        <div className="w-full max-w-4xl mx-auto px-4 md:px-6 py-6 flex-1">
+        <div className="flex-1">
           <Success creativeIds={creativeIds} onNewCreative={handleReset} />
         </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  // Show loading when fetching draft data
+  if (isLoadingDraft) {
+    return (
+      <div className="min-h-screen flex flex-col bg-background">
+        <Header />
+        <JumperPageLoading message="Carregando dados do criativo..." />
         <Footer />
       </div>
     );

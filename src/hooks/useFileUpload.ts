@@ -25,7 +25,7 @@ export const useFileUpload = () => {
       
       // Check file size before upload (different limits for different file types)
       const fileSizeMB = Math.round(file.size / 1024 / 1024);
-      const maxSizeMB = 500; // 500MB limit for better reliability
+      const maxSizeMB = 200; // 200MB limit aligned with Supabase bucket
       
       console.log(`📊 File size check: ${fileSizeMB}MB (limit: ${maxSizeMB}MB)`);
       

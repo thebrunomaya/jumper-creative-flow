@@ -70,7 +70,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ files, onFilesChange, platform 
               {isDragActive ? 'Solte os arquivos aqui' : 'Arraste arquivos ou clique para selecionar'}
             </p>
             <p className="text-sm text-muted-foreground mt-2">
-              JPG, PNG, MP4, MOV • Máx: 1GB por arquivo
+              JPG, PNG, MP4, MOV • Máx: 200MB por arquivo
             </p>
           </div>
           {isValidating && (
@@ -91,7 +91,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ files, onFilesChange, platform 
               <div>🖼️ Feed: 1080x1080px</div>
               <div>📱 Stories: 1080x1920px</div>
               <div>🎬 Vídeo: 15-60s, MP4/MOV</div>
-              <div>💾 Máx: 1GB por arquivo</div>
+              <div>💾 Máx: 200MB por arquivo</div>
             </div>
           </CardContent>
         </Card>
