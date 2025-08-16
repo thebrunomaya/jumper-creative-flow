@@ -4,6 +4,7 @@ import { FormData, TEXT_LIMITS } from '@/types/creative';
 import { useToast } from '@/hooks/use-toast';
 import { validateCreativeName } from '@/utils/creativeName';
 import metaAdsObjectives from '@/config/meta-ads-objectives.json';
+import { normalizeObjective } from '@/utils/objectives';
 
 const INITIAL_FORM_DATA: FormData = {
   client: '',
@@ -107,11 +108,17 @@ export const useCreativeForm = () => {
   };
 
   const getDestinationFieldConfig = () => {
-    if (!formData.destination || formData.platform !== 'meta') {
+    if (!formData.destination || formData.platform !== 'meta' || !formData.campaignObjective) {
       return null;
     }
     
-    const objectiveConfig = metaAdsObjectives.objectiveMapping[formData.campaignObjective];
+    // Try direct mapping first, then normalized mapping
+    let objectiveConfig = metaAdsObjectives.objectiveMapping[formData.campaignObjective];
+    if (!objectiveConfig) {
+      const normalizedObjective = normalizeObjective(formData.campaignObjective);
+      objectiveConfig = metaAdsObjectives.objectiveMapping[normalizedObjective];
+    }
+    
     if (!objectiveConfig) return null;
     
     const selectedDestination = objectiveConfig.destinations.find(dest => dest.value === formData.destination);
@@ -216,25 +223,46 @@ export const useCreativeForm = () => {
           if (formData.destination && !formData.cta) {
             newErrors.cta = 'Selecione um call-to-action';
           }
+          
+          // Only require destinationUrl if the selected destination needs it
+          const destinationFieldConfig = getDestinationFieldConfig();
+          if (destinationFieldConfig) {
+            if (!formData.destinationUrl.trim()) {
+              newErrors.destinationUrl = 'Digite o destino';
+            } else if (shouldValidateAsUrl()) {
+              try {
+                new URL(formData.destinationUrl);
+              } catch {
+                newErrors.destinationUrl = 'URL inválida';
+              }
+            }
+          }
         } else {
           if (!formData.callToAction) {
             newErrors.callToAction = 'Selecione um call-to-action';
           }
-        }
-
-        if (!formData.destinationUrl.trim()) {
-          newErrors.destinationUrl = 'Digite o destino';
-        } else if (shouldValidateAsUrl()) {
-          try {
-            new URL(formData.destinationUrl);
-          } catch {
-            newErrors.destinationUrl = 'URL inválida';
+          
+          // For non-meta platforms, always require destination URL
+          if (!formData.destinationUrl.trim()) {
+            newErrors.destinationUrl = 'Digite o destino';
+          } else if (shouldValidateAsUrl()) {
+            try {
+              new URL(formData.destinationUrl);
+            } catch {
+              newErrors.destinationUrl = 'URL inválida';
+            }
           }
         }
         break;
     }
 
     setErrors(newErrors);
+    
+    // Debug logging for failed validations
+    if (Object.keys(newErrors).length > 0) {
+      console.log('Validation failed for step', step, 'with errors:', newErrors);
+    }
+    
     return Object.keys(newErrors).length === 0;
   };
 
