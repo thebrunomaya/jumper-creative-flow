@@ -93,17 +93,17 @@ const CreativeSystem: React.FC = () => {
     let uploadedCount = 0;
     let totalFiles = 0;
 
-    // Count total files first
+    // Count total files that need to be uploaded (excluding already saved ones)
     if (Array.isArray(formData.mediaVariations)) {
       formData.mediaVariations.forEach((v: any) => {
-        if (v.squareFile?.file) totalFiles++;
-        if (v.verticalFile?.file) totalFiles++;
-        if (v.horizontalFile?.file) totalFiles++;
+        if (v.squareFile?.file && !v.squareFile.file.__source_saved_url) totalFiles++;
+        if (v.verticalFile?.file && !v.verticalFile.file.__source_saved_url) totalFiles++;
+        if (v.horizontalFile?.file && !v.horizontalFile.file.__source_saved_url) totalFiles++;
       });
     }
     if (Array.isArray((formData as any).carouselCards)) {
       (formData as any).carouselCards.forEach((c: any) => {
-        if (c.file?.file) totalFiles++;
+        if (c.file?.file && !c.file.file.__source_saved_url) totalFiles++;
       });
     }
 
@@ -116,18 +116,35 @@ const CreativeSystem: React.FC = () => {
             verticalEnabled: v.verticalEnabled,
             horizontalEnabled: v.horizontalEnabled,
           };
+          
+          // Only upload if file doesn't have saved URL, otherwise reuse existing URL
           if (v.squareFile?.file) {
-            onProgress?.(++uploadedCount, totalFiles, `Enviando arquivo quadrado ${v.id}...`);
-            entry.square = await uploadAsset(v.squareFile.file, 'square');
+            if (v.squareFile.file.__source_saved_url) {
+              entry.square = v.squareFile.file.__source_saved_url;
+            } else {
+              onProgress?.(++uploadedCount, totalFiles, `Enviando arquivo quadrado ${v.id}...`);
+              entry.square = await uploadAsset(v.squareFile.file, 'square');
+            }
           }
+          
           if (v.verticalFile?.file) {
-            onProgress?.(++uploadedCount, totalFiles, `Enviando arquivo vertical ${v.id}...`);
-            entry.vertical = await uploadAsset(v.verticalFile.file, 'vertical');
+            if (v.verticalFile.file.__source_saved_url) {
+              entry.vertical = v.verticalFile.file.__source_saved_url;
+            } else {
+              onProgress?.(++uploadedCount, totalFiles, `Enviando arquivo vertical ${v.id}...`);
+              entry.vertical = await uploadAsset(v.verticalFile.file, 'vertical');
+            }
           }
+          
           if (v.horizontalFile?.file) {
-            onProgress?.(++uploadedCount, totalFiles, `Enviando arquivo horizontal ${v.id}...`);
-            entry.horizontal = await uploadAsset(v.horizontalFile.file, 'horizontal');
+            if (v.horizontalFile.file.__source_saved_url) {
+              entry.horizontal = v.horizontalFile.file.__source_saved_url;
+            } else {
+              onProgress?.(++uploadedCount, totalFiles, `Enviando arquivo horizontal ${v.id}...`);
+              entry.horizontal = await uploadAsset(v.horizontalFile.file, 'horizontal');
+            }
           }
+          
           return entry;
         })
       );
@@ -139,9 +156,13 @@ const CreativeSystem: React.FC = () => {
         (formData as any).carouselCards.map(async (c: any) => {
           const entry: any = { id: c.id };
           if (c.file?.file) {
-            const ratio = (formData.carouselAspectRatio || '1:1') === '1:1' ? 'carousel-1:1' : 'carousel-4:5';
-            onProgress?.(++uploadedCount, totalFiles, `Enviando cartão ${c.id}...`);
-            entry.asset = await uploadAsset(c.file.file, ratio);
+            if (c.file.file.__source_saved_url) {
+              entry.asset = c.file.file.__source_saved_url;
+            } else {
+              const ratio = (formData.carouselAspectRatio || '1:1') === '1:1' ? 'carousel-1:1' : 'carousel-4:5';
+              onProgress?.(++uploadedCount, totalFiles, `Enviando cartão ${c.id}...`);
+              entry.asset = await uploadAsset(c.file.file, ratio);
+            }
           }
           // Preserve per-card custom fields without the heavy file
           if (c.customTitle) entry.customTitle = c.customTitle;

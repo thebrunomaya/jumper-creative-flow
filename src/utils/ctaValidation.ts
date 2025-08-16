@@ -7,8 +7,12 @@ export const validateCTA = (cta: string): { isValid: boolean; suggestion?: strin
 
   const normalizedCta = cta.trim();
   
-  // Check if CTA is in the valid list
-  if (VALID_CTAS.includes(normalizedCta)) {
+  // Check if CTA is in the valid list (case-insensitive)
+  const exactMatch = VALID_CTAS.find(validCta => 
+    validCta.toLowerCase() === normalizedCta.toLowerCase()
+  );
+  
+  if (exactMatch) {
     return { isValid: true };
   }
 
