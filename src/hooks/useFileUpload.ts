@@ -23,11 +23,17 @@ export const useFileUpload = () => {
     try {
       console.log(`🔄 Uploading file: ${fileName} (${Math.round(file.size / 1024 / 1024)}MB)`);
       
-      // Check file size before upload (1GB limit)
-      if (file.size > 1024 * 1024 * 1024) {
-        const errorMsg = `Arquivo muito grande: ${Math.round(file.size / 1024 / 1024)}MB. Limite: 1GB`;
+      // Check file size before upload (different limits for different file types)
+      const fileSizeMB = Math.round(file.size / 1024 / 1024);
+      const maxSizeMB = 500; // 500MB limit for better reliability
+      
+      console.log(`📊 File size check: ${fileSizeMB}MB (limit: ${maxSizeMB}MB)`);
+      
+      if (file.size > maxSizeMB * 1024 * 1024) {
+        const errorMsg = `Arquivo muito grande: ${fileSizeMB}MB. Limite máximo: ${maxSizeMB}MB`;
+        console.error(`❌ File size exceeded: ${fileSizeMB}MB > ${maxSizeMB}MB`);
         toast({
-          title: "Erro no upload",
+          title: "Arquivo muito grande",
           description: errorMsg,
           variant: "destructive",
         });
