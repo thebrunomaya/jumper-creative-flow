@@ -513,16 +513,14 @@ const CreativeSystem: React.FC = () => {
       <Footer />
       
       {/* Loading overlay - appears on top when loading */}
-      {(isLoadingDraft || isLoadingClients || isSavingDraft) && (
+      {(isLoadingDraft || isSavingDraft) && (
         <JumperLoadingOverlay 
           message={
             isLoadingDraft 
               ? "Carregando dados do criativo..." 
-              : isSavingDraft
-                ? uploadProgress.total > 0 
-                  ? `${uploadProgress.message} (${uploadProgress.current}/${uploadProgress.total})`
-                  : uploadProgress.message || "Salvando rascunho..."
-                : "Carregando informações..."
+              : uploadProgress.total > 0 
+                ? `${uploadProgress.message} (${uploadProgress.current}/${uploadProgress.total})`
+                : uploadProgress.message || "Salvando rascunho..."
           } 
         />
       )}
