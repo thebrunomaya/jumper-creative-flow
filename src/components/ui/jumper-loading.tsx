@@ -1,6 +1,8 @@
 import React from 'react';
-import { JumperLogo } from './jumper-logo';
 import { cn } from '@/lib/utils';
+import { useTheme } from '@/contexts/ThemeContext';
+import xWhite from "@/assets/logos/x-white.png";
+import xBlack from "@/assets/logos/x-black.png";
 
 interface JumperLoadingProps {
   message?: string;
@@ -13,6 +15,8 @@ export const JumperLoading: React.FC<JumperLoadingProps> = ({
   size = 'md',
   className
 }) => {
+  const { theme } = useTheme();
+  
   const sizeClasses = {
     sm: 'w-8 h-8',
     md: 'w-12 h-12',
@@ -25,17 +29,22 @@ export const JumperLoading: React.FC<JumperLoadingProps> = ({
     lg: 'text-lg'
   };
 
+  // Use the correct X logo based on theme
+  const logoSrc = theme === 'dark' ? xWhite : xBlack;
+
   return (
     <div className={cn("flex flex-col items-center justify-center space-y-4", className)}>
-      {/* Logo with pulsing animation */}
+      {/* Logo with spinning ring */}
       <div className={cn(
-        "relative",
+        "relative flex items-center justify-center",
         sizeClasses[size]
       )}>
-        <JumperLogo 
-          showText={false}
+        {/* X Logo perfectly centered */}
+        <img 
+          src={logoSrc}
+          alt="Jumper Studio"
           className={cn(
-            "animate-pulse opacity-60",
+            "animate-pulse opacity-60 object-contain",
             sizeClasses[size]
           )}
         />
@@ -67,7 +76,7 @@ export const JumperLoading: React.FC<JumperLoadingProps> = ({
   );
 };
 
-// Full screen loading overlay
+// Full screen loading overlay - perfectly centered
 export const JumperLoadingOverlay: React.FC<JumperLoadingProps> = (props) => {
   return (
     <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center">
@@ -78,10 +87,10 @@ export const JumperLoadingOverlay: React.FC<JumperLoadingProps> = (props) => {
   );
 };
 
-// Page loading component
+// Page loading component - perfectly centered
 export const JumperPageLoading: React.FC<JumperLoadingProps> = (props) => {
   return (
-    <div className="min-h-[400px] flex items-center justify-center">
+    <div className="min-h-[60vh] flex items-center justify-center">
       <JumperLoading {...props} size="lg" />
     </div>
   );
