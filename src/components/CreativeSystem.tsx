@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Header from './Header';
 import Footer from './Footer';
 import ProgressBar from './ProgressBar';
@@ -41,6 +41,9 @@ const CreativeSystem: React.FC = () => {
     validateStep,
     toast
   } = useCreativeForm();
+
+  // Evita reidratar múltiplas vezes ao entrar/sair do Step 2
+  const rehydratedRef = useRef(false);
 
   const {
     isSubmitting,
@@ -311,6 +314,22 @@ const CreativeSystem: React.FC = () => {
     };
     loadDraft();
   }, [routeSubmissionId]);
+
+  // Reidratar arquivos ao entrar no Step 2
+  useEffect(() => {
+    const hasSaved = (formData as any)?.savedMedia;
+    if (currentStep === 2 && hasSaved && !rehydratedRef.current) {
+      rehydratedRef.current = true;
+      (async () => {
+        try {
+          await rehydrateFilesFromSavedMedia((formData as any).savedMedia, formData);
+        } catch (e) {
+          console.error('Erro na reidratação no Step 2:', e);
+        }
+      })();
+    }
+  }, [currentStep, (formData as any).savedMedia]);
+
   const nextStep = () => {
     if (validateStep(currentStep)) {
       setCurrentStep(prev => Math.min(prev + 1, 4));
