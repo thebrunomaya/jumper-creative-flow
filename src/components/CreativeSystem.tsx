@@ -124,6 +124,12 @@ const CreativeSystem: React.FC = () => {
             } else {
               onProgress?.(++uploadedCount, totalFiles, `Enviando arquivo quadrado ${v.id}...`);
               entry.square = await uploadAsset(v.squareFile.file, 'square');
+              // Mark file as saved to avoid re-uploading
+              Object.defineProperty(v.squareFile.file, '__source_saved_url', {
+                value: entry.square,
+                writable: false,
+                enumerable: false
+              });
             }
           }
           
@@ -133,6 +139,12 @@ const CreativeSystem: React.FC = () => {
             } else {
               onProgress?.(++uploadedCount, totalFiles, `Enviando arquivo vertical ${v.id}...`);
               entry.vertical = await uploadAsset(v.verticalFile.file, 'vertical');
+              // Mark file as saved to avoid re-uploading
+              Object.defineProperty(v.verticalFile.file, '__source_saved_url', {
+                value: entry.vertical,
+                writable: false,
+                enumerable: false
+              });
             }
           }
           
@@ -142,6 +154,12 @@ const CreativeSystem: React.FC = () => {
             } else {
               onProgress?.(++uploadedCount, totalFiles, `Enviando arquivo horizontal ${v.id}...`);
               entry.horizontal = await uploadAsset(v.horizontalFile.file, 'horizontal');
+              // Mark file as saved to avoid re-uploading
+              Object.defineProperty(v.horizontalFile.file, '__source_saved_url', {
+                value: entry.horizontal,
+                writable: false,
+                enumerable: false
+              });
             }
           }
           
@@ -162,6 +180,12 @@ const CreativeSystem: React.FC = () => {
               const ratio = (formData.carouselAspectRatio || '1:1') === '1:1' ? 'carousel-1:1' : 'carousel-4:5';
               onProgress?.(++uploadedCount, totalFiles, `Enviando cartão ${c.id}...`);
               entry.asset = await uploadAsset(c.file.file, ratio);
+              // Mark file as saved to avoid re-uploading
+              Object.defineProperty(c.file.file, '__source_saved_url', {
+                value: entry.asset,
+                writable: false,
+                enumerable: false
+              });
             }
           }
           // Preserve per-card custom fields without the heavy file
@@ -207,6 +231,15 @@ const CreativeSystem: React.FC = () => {
             const blob = await res.blob();
             const f = new File([blob], savedV.square.name || `square-${v.id}`, { type: blob.type || savedV.square.type || 'application/octet-stream' });
             result.squareFile = await validateFile(f, 'square');
+            
+            // Mark file as from saved source to avoid re-uploading
+            if (result.squareFile?.file) {
+              Object.defineProperty(result.squareFile.file, '__source_saved_url', {
+                value: savedV.square.url,
+                writable: false,
+                enumerable: false
+              });
+            }
           } catch (e) {
             console.warn('Falha ao reidratar square', e);
             hadFailures = true;
@@ -218,6 +251,15 @@ const CreativeSystem: React.FC = () => {
             const blob = await res.blob();
             const f = new File([blob], savedV.vertical.name || `vertical-${v.id}`, { type: blob.type || savedV.vertical.type || 'application/octet-stream' });
             result.verticalFile = await validateFile(f, 'vertical');
+            
+            // Mark file as from saved source to avoid re-uploading
+            if (result.verticalFile?.file) {
+              Object.defineProperty(result.verticalFile.file, '__source_saved_url', {
+                value: savedV.vertical.url,
+                writable: false,
+                enumerable: false
+              });
+            }
           } catch (e) {
             console.warn('Falha ao reidratar vertical', e);
             hadFailures = true;
@@ -229,6 +271,15 @@ const CreativeSystem: React.FC = () => {
             const blob = await res.blob();
             const f = new File([blob], savedV.horizontal.name || `horizontal-${v.id}`, { type: blob.type || savedV.horizontal.type || 'application/octet-stream' });
             result.horizontalFile = await validateFile(f, 'horizontal');
+            
+            // Mark file as from saved source to avoid re-uploading
+            if (result.horizontalFile?.file) {
+              Object.defineProperty(result.horizontalFile.file, '__source_saved_url', {
+                value: savedV.horizontal.url,
+                writable: false,
+                enumerable: false
+              });
+            }
           } catch (e) {
             console.warn('Falha ao reidratar horizontal', e);
             hadFailures = true;
@@ -255,6 +306,15 @@ const CreativeSystem: React.FC = () => {
             const blob = await res.blob();
             const f = new File([blob], savedC.asset.name || `card-${c.id}`, { type: blob.type || savedC.asset.type || 'application/octet-stream' });
             result.file = await validateFile(f, ratio as any);
+            
+            // Mark file as from saved source to avoid re-uploading
+            if (result.file?.file) {
+              Object.defineProperty(result.file.file, '__source_saved_url', {
+                value: savedC.asset.url,
+                writable: false,
+                enumerable: false
+              });
+            }
           } catch (e) {
             console.warn('Falha ao reidratar cartão', e);
             hadFailures = true;
