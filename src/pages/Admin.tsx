@@ -126,10 +126,18 @@ const AdminPage: React.FC = () => {
       }
     },
     onError: (err: any) => {
+      let details: any = undefined;
+      try {
+        if (err?.context) {
+          details = typeof err.context === 'string' ? JSON.parse(err.context) : err.context;
+        }
+      } catch {}
+
       setPublishingResult({
         success: false,
-        error: err.message,
-        stack: err.stack
+        error: err?.message || 'Edge Function error',
+        stack: err?.stack,
+        details,
       });
       
       toast({ 
@@ -140,12 +148,7 @@ const AdminPage: React.FC = () => {
       });
     },
     onSettled: () => {
-      // Keep overlay open to show final result
-      setTimeout(() => {
-        setPublishingSubmission(null);
-        setPublishingLogs([]);
-        setPublishingResult(null);
-      }, 5000);
+      // Não feche automaticamente; espere o administrador fechar manualmente
     },
   });
 
@@ -516,6 +519,14 @@ const AdminPage: React.FC = () => {
                                 <strong>Stack trace:</strong>
                                 <pre className="text-xs bg-background p-2 rounded overflow-auto mt-1">
                                   {publishingResult.stack}
+                                </pre>
+                              </div>
+                            )}
+                            {publishingResult.details && (
+                              <div className="text-xs">
+                                <strong>Detalhes (payload do servidor):</strong>
+                                <pre className="text-xs bg-background p-2 rounded overflow-auto mt-1">
+                                  {JSON.stringify(publishingResult.details, null, 2)}
                                 </pre>
                               </div>
                             )}
