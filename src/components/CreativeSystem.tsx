@@ -19,14 +19,14 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useParams } from 'react-router-dom';
 import { validateFile } from '@/utils/fileValidation';
-import { JumperPageLoading } from './ui/jumper-loading';
+import { JumperPageLoading, JumperLoadingOverlay } from './ui/jumper-loading';
 
 const STEP_LABELS = ['Básico', 'Arquivos', 'Conteúdo', 'Revisão'];
 
 const CreativeSystem: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoadingDraft, setIsLoadingDraft] = useState(false);
-  const { clients } = useNotionClients();
+  const { clients, loading: isLoadingClients } = useNotionClients();
   const [draftSubmissionId, setDraftSubmissionId] = useState<string | null>(() =>
     (typeof window !== 'undefined' ? sessionStorage.getItem('draftSubmissionId') : null)
   );
@@ -417,16 +417,6 @@ const CreativeSystem: React.FC = () => {
     );
   }
 
-  // Show loading when fetching draft data
-  if (isLoadingDraft) {
-    return (
-      <div className="min-h-screen flex flex-col bg-background">
-        <Header />
-        <JumperPageLoading message="Carregando dados do criativo..." />
-        <Footer />
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -484,12 +474,23 @@ const CreativeSystem: React.FC = () => {
           onPrevStep={prevStep}
           onNextStep={nextStep}
           onSubmit={handleSubmit}
-          isSubmitting={isSubmitting}
-          errors={errors}
           onSaveDraft={handleSaveDraft}
+          isSubmitting={isSubmitting}
         />
       </div>
+      
       <Footer />
+      
+      {/* Loading overlay - appears on top when loading */}
+      {(isLoadingDraft || isLoadingClients) && (
+        <JumperLoadingOverlay 
+          message={
+            isLoadingDraft 
+              ? "Carregando dados do criativo..." 
+              : "Carregando informações..."
+          } 
+        />
+      )}
     </div>
   );
 };
