@@ -522,42 +522,20 @@ Deno.serve(async (req) => {
         addLog(`📁 Encontrados ${files?.length || 0} arquivos para processar`);
         await updateProgress("processing", logs);
 
-        // Convert files for submission to notion
+        // Prepare files for submission (always use URLs to avoid memory limits)
         const processedFiles = [];
         
         for (const file of files || []) {
-          const fileSizeMB = Math.round((file.size || 0) / 1024 / 1024);
-          addLog(`📥 Processando arquivo: ${file.name} (${fileSizeMB}MB)`);
-          
-          // Para arquivos grandes (>50MB), não convertemos para base64
-          // Passamos apenas a URL para o submit-creative processar diretamente
-          if (fileSizeMB > 50) {
-            addLog(`⚡ Arquivo grande detectado (${fileSizeMB}MB) - usando processamento direto por URL`);
-            processedFiles.push({
-              name: file.name,
-              type: file.type,
-              size: file.size,
-              url: file.public_url,
-              variationIndex: file.variation_index,
-              format: file.type
-            });
-          } else {
-            addLog(`📥 Fazendo download: ${file.public_url}`);
-            
-            const { base64 } = await fetchBase64(file.public_url);
-            addLog(`📊 Arquivo convertido: ${Math.round(base64.length / 1024 / 1024)}MB em base64`);
-            
-            processedFiles.push({
-              name: file.name,
-              type: file.type,
-              size: file.size,
-              base64Data: base64,
-              variationIndex: file.variation_index,
-              format: file.type
-            });
-          }
-          
-          addLog(`✅ Arquivo processado: ${file.name}`);
+          addLog(`📥 Processando arquivo: ${file.name} (via URL)`);
+          processedFiles.push({
+            name: file.name,
+            type: file.type,
+            size: file.size,
+            url: file.public_url,
+            variationIndex: file.variation_index,
+            format: file.format || file.type
+          });
+          addLog(`✅ Arquivo preparado: ${file.name}`);
           await updateProgress("processing", logs);
         }
 
