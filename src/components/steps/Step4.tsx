@@ -207,7 +207,11 @@ const Step4: React.FC<Step4Props> = ({ formData, isSubmitting }) => {
         <Alert className="mb-6 border-green-200 bg-green-50">
           <CheckCircle className="h-4 w-4 text-green-600" />
           <AlertDescription className="text-green-700">
-            <strong>Tudo pronto!</strong> Seu criativo está válido e pode ser enviado.
+            <strong>Tudo pronto!</strong> Seu criativo está válido e pode ser salvo.
+            <br />
+            <span className="text-xs mt-1 block text-green-600">
+              📝 Após salvar, o criativo ficará pendente para aprovação do Admin. O Admin então publicará no Notion.
+            </span>
           </AlertDescription>
         </Alert>
       )}

@@ -34,9 +34,15 @@ export const useCreativeSubmission = () => {
 
     setIsSubmitting(true);
 
+    console.log('🚀 Iniciando submissão do criativo:', { 
+      creativeType: formData.creativeType,
+      client: formData.client,
+      submissionId: options?.submissionId 
+    });
+
     toast({
-      title: "Enviando criativo...",
-      description: "Processando arquivos e enviando para o Notion.",
+      title: "Salvando criativo...",
+      description: "Processando arquivos e salvando submissão para aprovação.",
     });
 
     try {
@@ -223,28 +229,28 @@ export const useCreativeSubmission = () => {
       const submissionId = data.submissionId || '';
 
       toast({
-        title: `Submissão salva com sucesso!`,
-        description: `ID: ${submissionId}. O envio para o Notion será processado posteriormente.`,
+        title: `Criativo salvo com sucesso!`,
+        description: `ID: ${submissionId}. Aguardando aprovação do Admin para publicação no Notion.`,
       });
 
     } catch (error) {
       console.error('Error submitting creative:', error);
       
       // Provide more specific error messages based on error type
-      let errorMessage = "Erro ao enviar para o Notion. Tente novamente.";
+      let errorMessage = "Erro ao salvar criativo. Tente novamente.";
       
       if (error.message?.includes('CTA')) {
         errorMessage = "CTA inválido. Verifique se selecionou um valor válido.";
       } else if (error.message?.includes('Gerente') || error.message?.includes('Manager')) {
         errorMessage = "Erro na validação do gerente. Tente fazer logout e login novamente.";
-      } else if (error.message?.includes('Notion')) {
-        errorMessage = "Erro na comunicação com o Notion. Verifique a conexão e tente novamente.";
       } else if (error.message?.includes('validation')) {
         errorMessage = "Erro de validação dos dados. Verifique todos os campos obrigatórios.";
+      } else if (error.message?.includes('file') || error.message?.includes('upload')) {
+        errorMessage = "Erro no processamento dos arquivos. Verifique os arquivos e tente novamente.";
       }
       
       toast({
-        title: "Erro no envio",
+        title: "Erro ao salvar",
         description: error.message || errorMessage,
         variant: "destructive",
       });
