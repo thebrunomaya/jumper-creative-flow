@@ -6,8 +6,9 @@ import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import Header from "@/components/Header";
 import { Link } from "react-router-dom";
 import { CreativeDetailsModal } from "@/components/CreativeDetailsModal";
@@ -30,8 +31,8 @@ interface SubmissionRow {
 const statusToLabel: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
   draft: { label: "Rascunho", variant: "outline" },
   pending: { label: "Armazenado", variant: "secondary" },
-  queued: { label: "Armazenado", variant: "secondary" },
-  processing: { label: "Armazenado", variant: "secondary" },
+  queued: { label: "Na Fila", variant: "secondary" },
+  processing: { label: "Processando", variant: "secondary" },
   processed: { label: "Publicado", variant: "default" },
   error: { label: "Erro", variant: "destructive" },
 };
@@ -44,6 +45,9 @@ const AdminPage: React.FC = () => {
   const [selectedSubmission, setSelectedSubmission] = useState<SubmissionRow | null>(null);
   const [detailsSubmission, setDetailsSubmission] = useState<any>(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [publishingSubmission, setPublishingSubmission] = useState<string | null>(null);
+  const [publishingLogs, setPublishingLogs] = useState<string[]>([]);
+  const [publishingResult, setPublishingResult] = useState<any>(null);
 
   useEffect(() => {
     document.title = "Admin • Ad Uploader";
@@ -81,6 +85,12 @@ const AdminPage: React.FC = () => {
 
   const publishMutation = useMutation({
     mutationFn: async (submissionId: string) => {
+      // Start polling
+      setPublishingSubmission(submissionId);
+      setPublishingLogs(["🚀 Iniciando publicação..."]);
+      setPublishingResult(null);
+
+      // Start the publication process
       const { data, error } = await supabase.functions.invoke("j_ads_admin_actions", {
         body: {
           action: "publish",
@@ -91,15 +101,51 @@ const AdminPage: React.FC = () => {
       if (!data?.success) throw new Error(data?.error || "Falha ao publicar");
       return data;
     },
-    onMutate: (id) => {
-      toast({ title: "Publicando…", description: `Criativo ${id} em processamento.` });
+    onMutate: () => {
+      // No toast here, we'll show the overlay
     },
-    onSuccess: async () => {
-      toast({ title: "Publicado", description: "Criativo enviado ao Notion com sucesso." });
+    onSuccess: async (data) => {
+      setPublishingResult(data.result);
+      
+      // Show success toast with details
+      toast({ 
+        title: "✅ Publicação Concluída", 
+        description: JSON.stringify(data.result?.createdCreatives || {}, null, 2),
+        duration: 10000 
+      });
+      
       await qc.invalidateQueries({ queryKey: ["admin", "submissions"] });
+      
+      // Auto-open details modal after success
+      if (publishingSubmission) {
+        setTimeout(async () => {
+          const details = await fetchSubmissionDetails(publishingSubmission);
+          setDetailsSubmission(details);
+          setIsDetailsModalOpen(true);
+        }, 1000);
+      }
     },
     onError: (err: any) => {
-      toast({ title: "Falha ao publicar", description: err?.message || "Tente novamente.", variant: "destructive" });
+      setPublishingResult({
+        success: false,
+        error: err.message,
+        stack: err.stack
+      });
+      
+      toast({ 
+        title: "❌ Falha na Publicação", 
+        description: `Erro: ${err?.message || "Erro desconhecido"}`, 
+        variant: "destructive",
+        duration: 10000
+      });
+    },
+    onSettled: () => {
+      // Keep overlay open to show final result
+      setTimeout(() => {
+        setPublishingSubmission(null);
+        setPublishingLogs([]);
+        setPublishingResult(null);
+      }, 5000);
     },
   });
 
@@ -226,6 +272,32 @@ const AdminPage: React.FC = () => {
       // Error already handled in fetchSubmissionDetails
     }
   };
+
+  // Polling for publishing status
+  useEffect(() => {
+    if (!publishingSubmission) return;
+
+    const pollInterval = setInterval(async () => {
+      try {
+        const details = await fetchSubmissionDetails(publishingSubmission);
+        const result = details?.result;
+        
+        if (result?.logs) {
+          setPublishingLogs(result.logs);
+        }
+        
+        // Stop polling if finished
+        if (details?.status === "processed" || details?.status === "error") {
+          clearInterval(pollInterval);
+          setPublishingResult(result);
+        }
+      } catch (error) {
+        console.error("Polling error:", error);
+      }
+    }, 2000);
+
+    return () => clearInterval(pollInterval);
+  }, [publishingSubmission]);
 
   const rows = useMemo(() => items, [items]);
 
@@ -377,6 +449,110 @@ const AdminPage: React.FC = () => {
           }}
           submission={detailsSubmission}
         />
+
+        {/* Publishing Overlay */}
+        {publishingSubmission && (
+          <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center">
+            <Card className="w-full max-w-2xl mx-4 max-h-[80vh] flex flex-col">
+              <CardHeader className="flex-shrink-0">
+                <CardTitle className="flex items-center gap-2">
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-primary border-r-transparent"></div>
+                  Publicando Criativo
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="flex-1 overflow-hidden">
+                <div className="space-y-4">
+                  <div className="text-sm text-muted-foreground">
+                    ID: {publishingSubmission}
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <h4 className="font-medium">Logs em Tempo Real:</h4>
+                    <ScrollArea className="h-60 w-full border rounded p-3">
+                      <div className="space-y-1">
+                        {publishingLogs.map((log, index) => (
+                          <div key={index} className="text-sm font-mono">
+                            {log}
+                          </div>
+                        ))}
+                      </div>
+                    </ScrollArea>
+                  </div>
+
+                  {publishingResult && (
+                    <div className="space-y-2">
+                      <h4 className="font-medium">
+                        {publishingResult.success ? "✅ Resultado da Publicação:" : "❌ Erro na Publicação:"}
+                      </h4>
+                      <div className="border rounded p-3 bg-muted/30">
+                        {publishingResult.success ? (
+                          <div className="space-y-2">
+                            <div className="text-sm">
+                              <strong>Criativos criados no Notion:</strong>
+                            </div>
+                            <pre className="text-xs bg-background p-2 rounded overflow-auto">
+                              {JSON.stringify(publishingResult.createdCreatives || {}, null, 2)}
+                            </pre>
+                            <div className="flex gap-2">
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={() => {
+                                  navigator.clipboard.writeText(JSON.stringify(publishingResult, null, 2));
+                                  toast({ title: "Copiado!", description: "Resultado copiado para área de transferência" });
+                                }}
+                              >
+                                Copiar JSON Completo
+                              </Button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="space-y-2">
+                            <div className="text-sm text-destructive">
+                              <strong>Erro:</strong> {publishingResult.error}
+                            </div>
+                            {publishingResult.stack && (
+                              <div className="text-xs">
+                                <strong>Stack trace:</strong>
+                                <pre className="text-xs bg-background p-2 rounded overflow-auto mt-1">
+                                  {publishingResult.stack}
+                                </pre>
+                              </div>
+                            )}
+                            <div className="flex gap-2">
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={() => {
+                                  navigator.clipboard.writeText(JSON.stringify(publishingResult, null, 2));
+                                  toast({ title: "Copiado!", description: "Erro copiado para área de transferência" });
+                                }}
+                              >
+                                Copiar Erro Completo
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {publishingResult && (
+                    <div className="flex justify-end">
+                      <Button onClick={() => {
+                        setPublishingSubmission(null);
+                        setPublishingLogs([]);
+                        setPublishingResult(null);
+                      }}>
+                        Fechar
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
       </main>
     </>
   );

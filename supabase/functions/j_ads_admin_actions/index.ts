@@ -385,258 +385,238 @@ Deno.serve(async (req) => {
         });
       }
 
-      // Validate submission completeness before publishing
-      const { data: submission, error: fetchErr } = await supabase
+      // Record initial state
+      const { data: currentSubmission } = await supabase
         .from("j_ads_creative_submissions")
-        .select("id, status, payload, creative_type")
+        .select("*")
         .eq("id", submissionId)
-        .maybeSingle();
+        .single();
 
-      if (fetchErr || !submission) {
-        return new Response(JSON.stringify({ error: "Submissão não encontrada" }), {
+      if (!currentSubmission) {
+        return new Response(JSON.stringify({ error: "Submission not found" }), {
           status: 404,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
 
-      if (submission.status === "draft") {
-        return new Response(JSON.stringify({ error: "Não é possível publicar rascunhos. Complete o criativo primeiro." }), {
-          status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
+      // Update status to processing and start logging
+      const initResult = {
+        startTime: new Date().toISOString(),
+        logs: ["🚀 Iniciando publicação..."],
+        status: "processing"
+      };
 
-      // Validate required fields
-      const payload = submission.payload || {};
-      const requiredFields = ['creativeName', 'client', 'platform', 'campaignObjective'];
-      const missingFields = requiredFields.filter(field => !payload[field]);
-      
-      if (missingFields.length > 0) {
-        return new Response(JSON.stringify({ 
-          error: `Campos obrigatórios em falta: ${missingFields.join(', ')}` 
-        }), {
-          status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
+      const { error: updateErr } = await supabase
+        .from("j_ads_creative_submissions")
+        .update({ 
+          status: "processing",
+          result: initResult,
+          error: null
+        })
+        .eq("id", submissionId);
 
-      // Validate that submission has files or existing post
-      const { data: files, error: filesErr } = await supabase
-        .from("j_ads_creative_files")
-        .select("id")
-        .eq("submission_id", submissionId)
-        .limit(1);
-
-      if (filesErr) {
-        return new Response(JSON.stringify({ error: "Erro ao verificar arquivos" }), {
+      if (updateErr) {
+        console.error("Failed to update status to processing:", updateErr);
+        return new Response(JSON.stringify({ error: "Failed to update status" }), {
           status: 500,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
 
-      const hasFiles = files && files.length > 0;
-      const hasExistingPost = submission.creative_type === 'existing-post' && payload.existingPost;
-
-      if (!hasFiles && !hasExistingPost) {
+      try {
+        // Process synchronously and return detailed result
+        const result = await processSubmissionInBackground(submissionId, supabase, fetchBase64);
+        
         return new Response(JSON.stringify({ 
-          error: "Criativo incompleto: adicione arquivos ou uma URL de post existente" 
+          success: true, 
+          message: result.success ? "Publicação realizada com sucesso!" : "Falha na publicação",
+          result: result 
         }), {
-          status: 400,
+          status: 200,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
-      }
-
-      // Update status to "processing" immediately
-      await supabase
-        .from("j_ads_creative_submissions")
-        .update({ status: "processing" })
-        .eq("id", submissionId);
-
-      // Start background processing without waiting
-      EdgeRuntime.waitUntil(processSubmissionInBackground(submissionId, supabase, fetchBase64));
-
-      return new Response(JSON.stringify({ 
-        success: true, 
-        message: "Publicação iniciada em background. Verifique o status em alguns minutos." 
-      }), {
-        status: 200,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    // Background processing function
-    async function processSubmissionInBackground(submissionId: string, supabase: any, fetchBase64: any) {
-      try {
-        console.log(`🚀 Starting background processing for submission ${submissionId}`);
+      } catch (error: any) {
+        console.error("Synchronous publishing failed:", error);
         
-        // Load submission
-        const { data: submission, error: subErr } = await supabase
-          .from("j_ads_creative_submissions")
-          .select("id, payload, total_variations, status")
-          .eq("id", submissionId)
-          .maybeSingle();
-
-        if (subErr || !submission) {
-          throw new Error(subErr?.message || "Submissão não encontrada");
-        }
-
-        // Load files for this submission
-        const { data: files, error: filesErr } = await supabase
-          .from("j_ads_creative_files")
-          .select("name, type, size, format, variation_index, public_url")
-          .eq("submission_id", submissionId)
-          .order("variation_index", { ascending: true });
-
-        if (filesErr) throw new Error(filesErr.message);
-
-        console.log(`📁 Processing ${files?.length || 0} files for submission ${submissionId}`);
-
-        // Process files in smaller batches to avoid memory issues
-        const filesInfo: Array<{ name: string; type: string; size: number; variationIndex: number; base64Data: string; format?: string }> = [];
-        
-        for (const f of files || []) {
-          if (!f.public_url) {
-            console.log(`⚠️ Skipping file ${f.name} - no public URL`);
-            continue;
-          }
-          
-          try {
-            console.log(`📥 Processing file: ${f.name} (${Math.round((f.size || 0) / 1024 / 1024)}MB)`);
-            
-            // Check file size before processing
-            if (f.size && f.size > 1073741824) { // 1GB limit
-              throw new Error(`Arquivo ${f.name} muito grande: ${Math.round(f.size / 1024 / 1024)}MB. Limite: 1GB`);
-            }
-            
-            const { base64, contentType } = await fetchBase64(f.public_url);
-            filesInfo.push({
-              name: f.name || "file",
-              type: f.type || contentType || "application/octet-stream",
-              size: f.size || 0,
-              variationIndex: (f.variation_index as number) || 1,
-              base64Data: base64,
-              format: f.format || undefined,
-            });
-            console.log(`✅ File processed: ${f.name}`);
-            
-            // Force garbage collection after each file
-            if (globalThis.gc) globalThis.gc();
-            
-          } catch (fileError) {
-            console.error(`❌ Failed to process file ${f.name}:`, fileError);
-            throw new Error(`Erro ao processar arquivo ${f.name}: ${fileError.message}`);
-          }
-        }
-
-        // Determine manager Notion ID to send to submit-creative
-        let managerNotionId: string | null = null;
-        const managerEmail = submission?.payload?.managerEmail as string;
-        
-        if (managerEmail && NOTION_TOKEN) {
-          try {
-            const managerRes = await fetch(`https://api.notion.com/v1/databases/${DB_GERENTES_ID}/query`, {
-              method: "POST",
-              headers: {
-                "Authorization": `Bearer ${NOTION_TOKEN}`,
-                "Content-Type": "application/json",
-                "Notion-Version": "2022-06-28",
-              },
-              body: JSON.stringify({
-                filter: {
-                  property: "E-mail",
-                  email: { equals: managerEmail }
-                }
-              }),
-            });
-
-            if (managerRes.ok) {
-              const managerData = await managerRes.json();
-              if (managerData.results && managerData.results.length > 0) {
-                managerNotionId = managerData.results[0].id;
-              }
-            }
-          } catch (e) {
-            console.error("Error getting manager notion ID:", e);
-          }
-        }
-
-        // Prepare creative data for submit-creative with corrected manager ID
-        const creativeData = {
-          ...(submission.payload || {}),
-          filesInfo,
-          ...(managerNotionId && { managerId: managerNotionId }),
-        };
-
-        console.log(`📤 Invoking submit-creative function...`);
-
-        // Invoke j_ads_submit_creative function
-        const { data: submitRes, error: submitErr } = await supabase.functions.invoke("j_ads_submit_creative", {
-          body: creativeData,
-        });
-
-        // Enhanced error handling
-        if (submitErr) {
-          console.error(`❌ Submit-creative function error:`, submitErr);
-          const errorMessage = `Submit-creative error: ${submitErr.message}`;
-          await supabase
-            .from("j_ads_creative_submissions")
-            .update({ status: "error", error: errorMessage })
-            .eq("id", submissionId);
-          throw new Error(errorMessage);
-        }
-        
-        if (!submitRes?.success) {
-          console.error(`❌ Submit-creative failed:`, submitRes);
-          const errorMessage = submitRes?.error || "Submit-creative function failed";
-          await supabase
-            .from("j_ads_creative_submissions")
-            .update({ status: "error", error: errorMessage })
-            .eq("id", submissionId);
-          throw new Error(errorMessage);
-        }
-
-        // Upsert creative variations into DB for reference
-        const variations = Array.isArray(submitRes?.createdCreatives) ? submitRes.createdCreatives : [];
-        const ctaValue = submission?.payload?.cta || submission?.payload?.callToAction || null;
-        
-        if (variations.length > 0) {
-          const rows = variations.map((v: any) => ({
-            submission_id: submissionId,
-            variation_index: v.variationIndex,
-            notion_page_id: v.notionPageId,
-            creative_id: v.creativeId,
-            full_creative_name: v.fullCreativeName,
-            cta: ctaValue,
-            processed_at: new Date().toISOString(),
-          }));
-          
-          const { error: upsertErr } = await supabase
-            .from("j_ads_creative_variations")
-            .upsert(rows, { onConflict: "submission_id,variation_index" });
-            
-          if (upsertErr) {
-            console.error("Failed to upsert j_ads_creative_variations:", upsertErr);
-          }
-        }
-
+        // Update with error
         await supabase
           .from("j_ads_creative_submissions")
           .update({ 
-            status: "processed", 
-            result: submitRes, 
-            processed_at: new Date().toISOString() 
+            status: "error",
+            error: error.message || "Unknown error during publishing",
+            result: {
+              startTime: initResult.startTime,
+              endTime: new Date().toISOString(),
+              logs: [...initResult.logs, `❌ Erro: ${error.message}`, `Stack: ${error.stack}`],
+              success: false,
+              error: error.message
+            }
           })
           .eq("id", submissionId);
 
-        console.log(`🎉 Background processing completed successfully for submission ${submissionId}`);
+        return new Response(JSON.stringify({ 
+          success: false, 
+          error: error.message || "Unknown error during publishing",
+          result: {
+            success: false,
+            error: error.message,
+            stack: error.stack
+          }
+        }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    }
 
-      } catch (e: any) {
-        console.error(`❌ Background processing failed for submission ${submissionId}:`, e);
-        const msg = e?.message || "Erro inesperado ao publicar";
+    // Background processing function with detailed logging
+    async function processSubmissionInBackground(submissionId: string, supabase: any, fetchBase64: any) {
+      const logs: string[] = [];
+      const startTime = new Date().toISOString();
+      
+      const addLog = (message: string) => {
+        console.log(message);
+        logs.push(`${new Date().toLocaleTimeString('pt-BR')} - ${message}`);
+      };
+
+      const updateProgress = async (status: string, newLogs: string[], result?: any) => {
         await supabase
           .from("j_ads_creative_submissions")
-          .update({ status: "error", error: msg })
+          .update({
+            status,
+            result: {
+              startTime,
+              logs: newLogs,
+              endTime: status === "processed" || status === "error" ? new Date().toISOString() : undefined,
+              ...result
+            }
+          })
           .eq("id", submissionId);
+      };
+
+      try {
+        addLog(`🚀 Iniciando processamento para submissão ${submissionId}`);
+        await updateProgress("processing", logs);
+        
+        // Get submission details
+        addLog("📋 Carregando detalhes da submissão...");
+        const { data: submission } = await supabase
+          .from("j_ads_creative_submissions")
+          .select("*")
+          .eq("id", submissionId)
+          .single();
+
+        if (!submission) {
+          throw new Error("Submissão não encontrada");
+        }
+        addLog("✅ Detalhes da submissão carregados");
+
+        // Get files for this submission
+        addLog("📁 Carregando arquivos...");
+        const { data: files } = await supabase
+          .from("j_ads_creative_files")
+          .select("*")
+          .eq("submission_id", submissionId)
+          .order("variation_index");
+
+        addLog(`📁 Encontrados ${files?.length || 0} arquivos para processar`);
+        await updateProgress("processing", logs);
+
+        // Convert files to base64 for submission to notion
+        const processedFiles = [];
+        
+        for (const file of files || []) {
+          addLog(`📥 Processando arquivo: ${file.name} (${Math.round((file.size || 0) / 1024 / 1024)}MB)`);
+          addLog(`📥 Fazendo download: ${file.public_url}`);
+          
+          const { base64 } = await fetchBase64(file.public_url);
+          addLog(`📊 Arquivo convertido: ${Math.round(base64.length / 1024 / 1024)}MB em base64`);
+          
+          processedFiles.push({
+            name: file.name,
+            type: file.type,
+            size: file.size,
+            base64Data: base64,
+            variationIndex: file.variation_index
+          });
+          
+          addLog(`✅ Arquivo processado: ${file.name}`);
+          await updateProgress("processing", logs);
+        }
+
+        // Prepare payload for j_ads_submit_creative
+        addLog("🔧 Preparando payload para envio ao Notion...");
+        const payload = {
+          ...submission.payload,
+          filesInfo: processedFiles,
+          submissionId: submissionId
+        };
+
+        // Get manager email
+        addLog("👤 Resolvendo email do gerente...");
+        const managerEmail = await resolveEmail(submission, supabase);
+        addLog(`✅ Email do gerente: ${managerEmail}`);
+
+        // Call j_ads_submit_creative
+        addLog("📤 Enviando para o Notion...");
+        await updateProgress("processing", logs);
+        
+        const { data: submitResult, error: submitError } = await supabase.functions.invoke('j_ads_submit_creative', {
+          body: {
+            ...payload,
+            managerEmail: managerEmail
+          }
+        });
+
+        if (submitError) {
+          throw new Error(`Erro ao enviar para o Notion: ${submitError.message}`);
+        }
+
+        if (!submitResult?.success) {
+          throw new Error(`Falha no envio para o Notion: ${submitResult?.error || 'Erro desconhecido'}`);
+        }
+
+        addLog("✅ Criativo enviado ao Notion com sucesso!");
+        addLog(`📋 IDs criados: ${JSON.stringify(submitResult.createdCreatives || {})}`);
+
+        // Update submission with success result
+        await updateProgress("processed", logs, {
+          success: true,
+          notionResult: submitResult,
+          createdCreatives: submitResult.createdCreatives,
+          endTime: new Date().toISOString()
+        });
+
+        addLog(`🎉 Processamento concluído para submissão ${submissionId}`);
+        
+        return {
+          success: true,
+          logs,
+          result: submitResult,
+          createdCreatives: submitResult.createdCreatives
+        };
+        
+      } catch (error: any) {
+        addLog(`❌ Erro no processamento: ${error.message}`);
+        addLog(`📋 Stack trace: ${error.stack}`);
+        
+        // Update submission with error
+        await updateProgress("error", logs, {
+          success: false,
+          error: error.message,
+          stack: error.stack,
+          endTime: new Date().toISOString()
+        });
+
+        // Also update the error column for backward compatibility
+        await supabase
+          .from("j_ads_creative_submissions")
+          .update({
+            error: error.message
+          })
+          .eq("id", submissionId);
+
+        throw error; // Re-throw for the calling function
       }
     }
 

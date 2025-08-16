@@ -1,8 +1,10 @@
 import React from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 
 interface CreativeFile {
   name: string;
@@ -23,10 +25,13 @@ export const CreativeDetailsModal: React.FC<CreativeDetailsModalProps> = ({
   onClose,
   submission
 }) => {
+  const { toast } = useToast();
+
   if (!submission) return null;
 
   const payload = submission.payload || {};
   const files = submission.files || [];
+  const result = submission.result || {};
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleString('pt-BR');
@@ -74,6 +79,9 @@ export const CreativeDetailsModal: React.FC<CreativeDetailsModalProps> = ({
       <DialogContent className="max-w-4xl h-[85vh] min-h-0 flex flex-col overflow-hidden">
         <DialogHeader className="flex-shrink-0">
           <DialogTitle>Detalhes do Criativo</DialogTitle>
+          <DialogDescription>
+            Visualize as informações completas da submissão incluindo logs e resultados da publicação.
+          </DialogDescription>
         </DialogHeader>
         
         <ScrollArea className="flex-1 min-h-0 pr-4">
@@ -234,8 +242,75 @@ export const CreativeDetailsModal: React.FC<CreativeDetailsModalProps> = ({
               </Card>
             )}
 
-            {/* Erro (só mostra se houver e o status não for success) */}
-            {submission.error && submission.status !== 'processed' && submission.status !== 'published' && (
+            {/* Resultado da Publicação */}
+            {result && (result.logs || result.createdCreatives || result.error) && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className={result.success ? "text-primary" : "text-destructive"}>
+                    {result.success ? "✅ Resultado da Publicação" : "❌ Erro na Publicação"}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {result.logs && (
+                    <div>
+                      <span className="text-sm font-medium">Logs do Processamento:</span>
+                      <ScrollArea className="h-40 w-full border rounded p-3 mt-2">
+                        <div className="space-y-1">
+                          {result.logs.map((log: string, index: number) => (
+                            <div key={index} className="text-xs font-mono">
+                              {log}
+                            </div>
+                          ))}
+                        </div>
+                      </ScrollArea>
+                    </div>
+                  )}
+                  
+                  {result.success && result.createdCreatives && (
+                    <div>
+                      <span className="text-sm font-medium">Criativos criados no Notion:</span>
+                      <pre className="text-xs bg-muted p-3 rounded mt-2 overflow-auto">
+                        {JSON.stringify(result.createdCreatives, null, 2)}
+                      </pre>
+                    </div>
+                  )}
+                  
+                  {result.error && (
+                    <div>
+                      <span className="text-sm font-medium text-destructive">Mensagem de Erro:</span>
+                      <p className="text-sm text-muted-foreground mt-1">{result.error}</p>
+                      {result.stack && (
+                        <div className="mt-2">
+                          <span className="text-sm font-medium">Stack Trace:</span>
+                          <pre className="text-xs bg-muted p-3 rounded mt-1 overflow-auto">
+                            {result.stack}
+                          </pre>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  <div className="flex gap-2">
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      onClick={() => {
+                        navigator.clipboard.writeText(JSON.stringify(result, null, 2));
+                        toast({ 
+                          title: "Copiado!", 
+                          description: "Resultado completo copiado para área de transferência" 
+                        });
+                      }}
+                    >
+                      Copiar JSON Completo
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Erro (só mostra se houver e o status não for success e não tiver result) */}
+            {submission.error && submission.status !== 'processed' && submission.status !== 'published' && !result?.error && (
               <Card>
                 <CardHeader>
                   <CardTitle className="text-destructive">Erro</CardTitle>
