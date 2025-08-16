@@ -50,8 +50,12 @@ const CreativeSystem: React.FC = () => {
     isSubmitting,
     isSubmitted,
     creativeIds,
+    submissionLog,
+    submissionError,
+    lastInvoke,
     submitForm,
-    resetSubmission
+    resetSubmission,
+    resetSubmissionLog
   } = useCreativeSubmission();
 
   const { currentUser } = useAuth();
@@ -759,7 +763,11 @@ const CreativeSystem: React.FC = () => {
             {currentStep === 4 && (
               <Step4 
                 formData={formData} 
-                isSubmitting={isSubmitting} 
+                isSubmitting={isSubmitting}
+                submissionLog={submissionLog}
+                submissionError={submissionError}
+                lastInvoke={lastInvoke}
+                onClearLog={resetSubmissionLog}
               />
             )}
           </JumperCardContent>

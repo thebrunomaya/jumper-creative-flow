@@ -4,11 +4,67 @@ import { FormData } from '@/types/creative';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
+// Logging types
+interface LogEntry {
+  ts: number;
+  level: 'info' | 'warn' | 'error';
+  message: string;
+  data?: unknown;
+}
+
+interface SubmissionError {
+  message: string;
+  stack?: string;
+  name?: string;
+  status?: number;
+  details?: any;
+}
+
 export const useCreativeSubmission = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [creativeIds, setCreativeIds] = useState<string[]>([]);
+  const [submissionLog, setSubmissionLog] = useState<LogEntry[]>([]);
+  const [submissionError, setSubmissionError] = useState<SubmissionError | null>(null);
+  const [lastInvoke, setLastInvoke] = useState<{ data?: unknown; error?: unknown } | null>(null);
   const { currentUser } = useAuth();
+
+  // Helper to sanitize data by removing base64Data
+  const sanitizeData = (data: any): any => {
+    if (!data || typeof data !== 'object') return data;
+    
+    if (Array.isArray(data)) {
+      return data.map(sanitizeData);
+    }
+    
+    const sanitized = { ...data };
+    Object.keys(sanitized).forEach(key => {
+      if (key === 'base64Data') {
+        sanitized[key] = '<omitted>';
+      } else if (typeof sanitized[key] === 'object') {
+        sanitized[key] = sanitizeData(sanitized[key]);
+      }
+    });
+    return sanitized;
+  };
+
+  // Helper to add log entries
+  const pushLog = (level: LogEntry['level'], message: string, data?: unknown) => {
+    const entry: LogEntry = {
+      ts: Date.now(),
+      level,
+      message,
+      data: data ? sanitizeData(data) : undefined
+    };
+    setSubmissionLog(prev => [...prev, entry]);
+  };
+
+  // Reset submission log
+  const resetSubmissionLog = () => {
+    setSubmissionLog([]);
+    setSubmissionError(null);
+    setLastInvoke(null);
+  };
 
   const convertFileToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -23,16 +79,30 @@ export const useCreativeSubmission = () => {
   };
 
   const submitForm = async (formData: FormData, validateStep: (step: number) => boolean, toast: any, options?: { submissionId?: string }) => {
+    // Reset previous error state
+    setSubmissionError(null);
+    setLastInvoke(null);
+    
     if (!validateStep(3)) {
+      const validationError = "Corrija os erros antes de enviar";
+      pushLog('error', 'Validação falhou', { step: 3 });
       toast({
         title: "Erro na validação",
-        description: "Corrija os erros antes de enviar",
+        description: validationError,
         variant: "destructive",
       });
       return;
     }
 
     setIsSubmitting(true);
+    
+    pushLog('info', 'Iniciando submissão do criativo', { 
+      creativeType: formData.creativeType,
+      client: formData.client,
+      submissionId: options?.submissionId,
+      hasExistingPost: Boolean(formData.existingPost),
+      hasSavedMedia: Boolean((formData as any).savedMedia)
+    });
 
     console.log('🚀 Iniciando submissão do criativo:', { 
       creativeType: formData.creativeType,
@@ -206,20 +276,68 @@ export const useCreativeSubmission = () => {
         filesInfo
       };
 
+      // Log file counts and payload size estimation
+      const fileCountsByFormat = filesInfo.reduce((acc: Record<string, number>, file) => {
+        const format = file.format || 'unknown';
+        acc[format] = (acc[format] || 0) + 1;
+        return acc;
+      }, {});
+      
+      const payloadSizeKB = Math.round(JSON.stringify(sanitizeData(submissionData)).length / 1024);
+      
+      pushLog('info', 'Preparando dados para envio', {
+        totalFiles: filesInfo.length,
+        fileCountsByFormat,
+        payloadSizeKB: `${payloadSizeKB} KB`,
+        submissionType: options?.submissionId ? 'update' : 'new'
+      });
+
       console.log('Ingesting creative submission:', submissionData);
+      
+      pushLog('info', 'Chamando edge function j_ads_ingest_creative', {
+        function: 'j_ads_ingest_creative',
+        payloadFields: Object.keys(submissionData)
+      });
       
       const { data, error } = await supabase.functions.invoke('j_ads_ingest_creative', {
         body: { ...submissionData, submissionId: options?.submissionId }
       });
+      
+      // Store the complete invoke result for debugging
+      setLastInvoke({ data, error });
 
       if (error) {
         console.error('Supabase function error:', error);
+        
+        // Capture detailed error information
+        const detailedError: SubmissionError = {
+          message: error.message || 'Erro ao salvar criativo',
+          name: error.name,
+          status: (error as any)?.status,
+          details: error
+        };
+        setSubmissionError(detailedError);
+        pushLog('error', 'Edge function retornou erro', { error: detailedError });
+        
         throw new Error(error.message || 'Erro ao salvar criativo');
       }
 
       if (!data?.success) {
-        throw new Error(data?.error || 'Erro desconhecido ao salvar criativo');
+        const responseError = data?.error || 'Erro desconhecido ao salvar criativo';
+        const detailedError: SubmissionError = {
+          message: responseError,
+          details: data
+        };
+        setSubmissionError(detailedError);
+        pushLog('error', 'Edge function retornou sucesso=false', { error: responseError, data });
+        
+        throw new Error(responseError);
       }
+
+      pushLog('info', 'Envio concluído com sucesso', { 
+        submissionId: data.submissionId,
+        responseData: sanitizeData(data)
+      });
 
       console.log('✅ Creative successfully ingested:', data);
 
@@ -233,8 +351,23 @@ export const useCreativeSubmission = () => {
         description: `ID: ${submissionId}. Aguardando aprovação do Admin para publicação no Notion.`,
       });
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error submitting creative:', error);
+      
+      // Capture full error details
+      const fullError: SubmissionError = {
+        message: error.message || 'Erro desconhecido',
+        name: error.name,
+        stack: error.stack,
+        status: error.status,
+        details: error
+      };
+      
+      if (!submissionError) {
+        setSubmissionError(fullError);
+      }
+      
+      pushLog('error', 'Falha ao enviar criativo', { error: fullError });
       
       // Provide more specific error messages based on error type
       let errorMessage = "Erro ao salvar criativo. Tente novamente.";
@@ -247,6 +380,8 @@ export const useCreativeSubmission = () => {
         errorMessage = "Erro de validação dos dados. Verifique todos os campos obrigatórios.";
       } else if (error.message?.includes('file') || error.message?.includes('upload')) {
         errorMessage = "Erro no processamento dos arquivos. Verifique os arquivos e tente novamente.";
+      } else if (error.message?.includes('Memory limit exceeded')) {
+        errorMessage = "Erro de memória no servidor. Tente reduzir o tamanho dos arquivos.";
       }
       
       toast({
@@ -263,13 +398,18 @@ export const useCreativeSubmission = () => {
     setIsSubmitted(false);
     setCreativeIds([]);
     setIsSubmitting(false);
+    resetSubmissionLog();
   };
 
   return {
     isSubmitting,
     isSubmitted,
     creativeIds,
+    submissionLog,
+    submissionError,
+    lastInvoke,
     submitForm,
-    resetSubmission
+    resetSubmission,
+    resetSubmissionLog
   };
 };
