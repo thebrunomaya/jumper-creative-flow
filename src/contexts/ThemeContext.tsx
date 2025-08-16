@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useLayoutEffect, useState } from 'react';
 
 type Theme = 'light' | 'dark';
 
@@ -23,13 +23,27 @@ interface ThemeProviderProps {
 
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   const [theme, setTheme] = useState<Theme>(() => {
-    const saved = localStorage.getItem('theme');
-    return (saved as Theme) || 'dark';
+    try {
+      const saved = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      return (saved === 'light' || saved === 'dark') ? saved : (prefersDark ? 'dark' : 'light');
+    } catch {
+      return 'dark';
+    }
   });
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     localStorage.setItem('theme', theme);
-    document.documentElement.classList.toggle('dark', theme === 'dark');
+    const isDark = theme === 'dark';
+    const hasClass = document.documentElement.classList.contains('dark');
+    
+    if (isDark && !hasClass) {
+      document.documentElement.classList.add('dark');
+    } else if (!isDark && hasClass) {
+      document.documentElement.classList.remove('dark');
+    }
+    
+    document.documentElement.style.colorScheme = theme;
   }, [theme]);
 
   const toggleTheme = () => {
