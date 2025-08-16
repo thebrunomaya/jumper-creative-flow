@@ -23,18 +23,19 @@ const MetaZoneOverlay: React.FC<MetaZoneOverlayProps> = ({
   carouselMode = false,
   carouselAspectRatio = '1:1'
 }) => {
-  console.log('MetaZoneOverlay - Rendering with props:', { 
-    format, 
-    fileName: file?.name, 
-    fileType: file?.type,
-    imageUrl: imageUrl ? 'Present' : 'Missing',
-    expanded,
-    size,
-    carouselMode,
-    carouselAspectRatio
-  });
+  try {
+    console.log('MetaZoneOverlay - Rendering with props:', { 
+      format, 
+      fileName: file?.name, 
+      fileType: file?.type,
+      imageUrl: imageUrl ? 'Present' : 'Missing',
+      expanded,
+      size,
+      carouselMode,
+      carouselAspectRatio
+    });
 
-  // For carousel mode, show overlay ONLY if there's a real file uploaded
+    // For carousel mode, show overlay ONLY if there's a real file uploaded
   if (carouselMode) {
     const objectFit = size === 'lightbox' ? 'object-contain' : 'object-cover';
     const isThumbnail = size === 'thumbnail';
@@ -595,6 +596,32 @@ const MetaZoneOverlay: React.FC<MetaZoneOverlayProps> = ({
       </div>
     </div>
   );
+  } catch (error) {
+    console.error('MetaZoneOverlay error:', error);
+    // Fallback to simple preview without overlay
+    const objectFit = size === 'lightbox' ? 'object-contain' : 'object-cover';
+    
+    if (file?.type.startsWith('video/')) {
+      return (
+        <video 
+          src={imageUrl} 
+          className={`w-full h-full ${objectFit} rounded`}
+          muted
+          controls={expanded}
+          onLoadedData={onImageLoad}
+        />
+      );
+    }
+    
+    return (
+      <img 
+        src={imageUrl} 
+        alt="Preview" 
+        className={`w-full h-full ${objectFit} rounded`}
+        onLoad={onImageLoad}
+      />
+    );
+  }
 };
 
 export default MetaZoneOverlay;

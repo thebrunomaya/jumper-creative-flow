@@ -5,6 +5,7 @@ import FileUpload from '@/components/FileUpload';
 import CarouselMediaSection from '@/components/sections/CarouselMediaSection';
 import SingleMediaSection from '@/components/sections/SingleMediaSection';
 import ExistingPostSection from '@/components/sections/ExistingPostSection';
+import ErrorBoundary from '@/components/ErrorBoundary';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertTriangle } from 'lucide-react';
 
@@ -27,11 +28,13 @@ const Step2: React.FC<Step2Props> = ({
   if (formData.creativeType === 'carousel') {
     console.log('Rendering CarouselMediaSection');
     return (
-      <CarouselMediaSection 
-        formData={formData}
-        updateFormData={updateFormData}
-        errors={errors}
-      />
+      <ErrorBoundary>
+        <CarouselMediaSection 
+          formData={formData}
+          updateFormData={updateFormData}
+          errors={errors}
+        />
+      </ErrorBoundary>
     );
   }
 
@@ -39,11 +42,13 @@ const Step2: React.FC<Step2Props> = ({
   if (formData.creativeType === 'single') {
     console.log('Rendering SingleMediaSection');
     return (
-      <SingleMediaSection 
-        formData={formData}
-        updateFormData={updateFormData}
-        errors={errors}
-      />
+      <ErrorBoundary>
+        <SingleMediaSection 
+          formData={formData}
+          updateFormData={updateFormData}
+          errors={errors}
+        />
+      </ErrorBoundary>
     );
   }
 
@@ -51,11 +56,13 @@ const Step2: React.FC<Step2Props> = ({
   if (formData.creativeType === 'existing-post') {
     console.log('Rendering ExistingPostSection');
     return (
-      <ExistingPostSection 
-        formData={formData}
-        updateFormData={updateFormData}
-        errors={errors}
-      />
+      <ErrorBoundary>
+        <ExistingPostSection 
+          formData={formData}
+          updateFormData={updateFormData}
+          errors={errors}
+        />
+      </ErrorBoundary>
     );
   }
 

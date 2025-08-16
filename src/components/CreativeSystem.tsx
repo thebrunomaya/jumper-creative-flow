@@ -94,18 +94,34 @@ const CreativeSystem: React.FC = () => {
     let totalFiles = 0;
 
     // Count total files that need to be uploaded (excluding already saved ones)
+    let reusedFiles = 0;
     if (Array.isArray(formData.mediaVariations)) {
       formData.mediaVariations.forEach((v: any) => {
-        if (v.squareFile?.file && !v.squareFile.file.__source_saved_url) totalFiles++;
-        if (v.verticalFile?.file && !v.verticalFile.file.__source_saved_url) totalFiles++;
-        if (v.horizontalFile?.file && !v.horizontalFile.file.__source_saved_url) totalFiles++;
+        if (v.squareFile?.file) {
+          if (v.squareFile.file.__source_saved_url) reusedFiles++;
+          else totalFiles++;
+        }
+        if (v.verticalFile?.file) {
+          if (v.verticalFile.file.__source_saved_url) reusedFiles++;
+          else totalFiles++;
+        }
+        if (v.horizontalFile?.file) {
+          if (v.horizontalFile.file.__source_saved_url) reusedFiles++;
+          else totalFiles++;
+        }
       });
     }
     if (Array.isArray((formData as any).carouselCards)) {
       (formData as any).carouselCards.forEach((c: any) => {
-        if (c.file?.file && !c.file.file.__source_saved_url) totalFiles++;
+        if (c.file?.file) {
+          if (c.file.file.__source_saved_url) reusedFiles++;
+          else totalFiles++;
+        }
       });
     }
+
+    console.log(`📊 Upload stats: ${totalFiles} novos arquivos, ${reusedFiles} reutilizados`);
+    onProgress?.(0, totalFiles, `Iniciando uploads (${totalFiles} arquivos)...`);
 
     if (Array.isArray(formData.mediaVariations) && formData.mediaVariations.length > 0) {
       const variations = await Promise.all(
@@ -120,7 +136,16 @@ const CreativeSystem: React.FC = () => {
           // Only upload if file doesn't have saved URL, otherwise reuse existing URL
           if (v.squareFile?.file) {
             if (v.squareFile.file.__source_saved_url) {
-              entry.square = v.squareFile.file.__source_saved_url;
+              // Normalize saved URL metadata - handle both string (legacy) and object formats
+              const savedUrl = v.squareFile.file.__source_saved_url;
+              entry.square = typeof savedUrl === 'string' ? {
+                url: savedUrl,
+                path: `legacy/${Date.now()}`,
+                name: v.squareFile.file.name || 'square',
+                type: v.squareFile.file.type || 'application/octet-stream',
+                size: v.squareFile.file.size || 0,
+                format: 'square'
+              } : savedUrl;
             } else {
               onProgress?.(++uploadedCount, totalFiles, `Enviando arquivo quadrado ${v.id}...`);
               entry.square = await uploadAsset(v.squareFile.file, 'square');
@@ -135,7 +160,16 @@ const CreativeSystem: React.FC = () => {
           
           if (v.verticalFile?.file) {
             if (v.verticalFile.file.__source_saved_url) {
-              entry.vertical = v.verticalFile.file.__source_saved_url;
+              // Normalize saved URL metadata - handle both string (legacy) and object formats
+              const savedUrl = v.verticalFile.file.__source_saved_url;
+              entry.vertical = typeof savedUrl === 'string' ? {
+                url: savedUrl,
+                path: `legacy/${Date.now()}`,
+                name: v.verticalFile.file.name || 'vertical',
+                type: v.verticalFile.file.type || 'application/octet-stream',
+                size: v.verticalFile.file.size || 0,
+                format: 'vertical'
+              } : savedUrl;
             } else {
               onProgress?.(++uploadedCount, totalFiles, `Enviando arquivo vertical ${v.id}...`);
               entry.vertical = await uploadAsset(v.verticalFile.file, 'vertical');
@@ -150,7 +184,16 @@ const CreativeSystem: React.FC = () => {
           
           if (v.horizontalFile?.file) {
             if (v.horizontalFile.file.__source_saved_url) {
-              entry.horizontal = v.horizontalFile.file.__source_saved_url;
+              // Normalize saved URL metadata - handle both string (legacy) and object formats
+              const savedUrl = v.horizontalFile.file.__source_saved_url;
+              entry.horizontal = typeof savedUrl === 'string' ? {
+                url: savedUrl,
+                path: `legacy/${Date.now()}`,
+                name: v.horizontalFile.file.name || 'horizontal',
+                type: v.horizontalFile.file.type || 'application/octet-stream',
+                size: v.horizontalFile.file.size || 0,
+                format: 'horizontal'
+              } : savedUrl;
             } else {
               onProgress?.(++uploadedCount, totalFiles, `Enviando arquivo horizontal ${v.id}...`);
               entry.horizontal = await uploadAsset(v.horizontalFile.file, 'horizontal');
@@ -175,7 +218,16 @@ const CreativeSystem: React.FC = () => {
           const entry: any = { id: c.id };
           if (c.file?.file) {
             if (c.file.file.__source_saved_url) {
-              entry.asset = c.file.file.__source_saved_url;
+              // Normalize saved URL metadata - handle both string (legacy) and object formats
+              const savedUrl = c.file.file.__source_saved_url;
+              entry.asset = typeof savedUrl === 'string' ? {
+                url: savedUrl,
+                path: `legacy/${Date.now()}`,
+                name: c.file.file.name || `card-${c.id}`,
+                type: c.file.file.type || 'application/octet-stream',
+                size: c.file.file.size || 0,
+                format: 'carousel'
+              } : savedUrl;
             } else {
               const ratio = (formData.carouselAspectRatio || '1:1') === '1:1' ? 'carousel-1:1' : 'carousel-4:5';
               onProgress?.(++uploadedCount, totalFiles, `Enviando cartão ${c.id}...`);
@@ -235,7 +287,7 @@ const CreativeSystem: React.FC = () => {
             // Mark file as from saved source to avoid re-uploading
             if (result.squareFile?.file) {
               Object.defineProperty(result.squareFile.file, '__source_saved_url', {
-                value: savedV.square.url,
+                value: savedV.square,
                 writable: false,
                 enumerable: false
               });
@@ -255,7 +307,7 @@ const CreativeSystem: React.FC = () => {
             // Mark file as from saved source to avoid re-uploading
             if (result.verticalFile?.file) {
               Object.defineProperty(result.verticalFile.file, '__source_saved_url', {
-                value: savedV.vertical.url,
+                value: savedV.vertical,
                 writable: false,
                 enumerable: false
               });
@@ -275,7 +327,7 @@ const CreativeSystem: React.FC = () => {
             // Mark file as from saved source to avoid re-uploading
             if (result.horizontalFile?.file) {
               Object.defineProperty(result.horizontalFile.file, '__source_saved_url', {
-                value: savedV.horizontal.url,
+                value: savedV.horizontal,
                 writable: false,
                 enumerable: false
               });
@@ -310,7 +362,7 @@ const CreativeSystem: React.FC = () => {
             // Mark file as from saved source to avoid re-uploading
             if (result.file?.file) {
               Object.defineProperty(result.file.file, '__source_saved_url', {
-                value: savedC.asset.url,
+                value: savedC.asset,
                 writable: false,
                 enumerable: false
               });
@@ -459,9 +511,23 @@ const CreativeSystem: React.FC = () => {
       setIsSavingDraft(true);
       setUploadProgress({ current: 0, total: 0, message: 'Preparando upload...' });
 
+      console.log('💾 Iniciando salvamento de rascunho...');
+      console.log('📊 Estado do formData antes do upload:', {
+        mediaVariations: formData.mediaVariations?.length || 0,
+        carouselCards: (formData as any).carouselCards?.length || 0,
+        existingPost: !!(formData as any).existingPost
+      });
+
       // 1) Enviar arquivos para o Storage e montar savedMedia com progresso
       const savedMedia = await buildSavedMedia((current, total, message) => {
+        console.log(`📈 Progresso: ${current}/${total} - ${message}`);
         setUploadProgress({ current, total, message });
+      });
+
+      console.log('💾 SavedMedia resultante:', {
+        mediaVariations: savedMedia.mediaVariations?.length || 0,
+        carouselCards: savedMedia.carouselCards?.length || 0,
+        totalSize: JSON.stringify(savedMedia).length
       });
 
       // 2) Montar um payload leve, sem objetos File, para salvar como rascunho
