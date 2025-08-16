@@ -27,6 +27,7 @@ const CreativeSystem: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoadingDraft, setIsLoadingDraft] = useState(false);
   const [isSavingDraft, setIsSavingDraft] = useState(false);
+  const [isRehydrating, setIsRehydrating] = useState(false);
   const [uploadProgress, setUploadProgress] = useState({ current: 0, total: 0, message: '' });
   const { clients, loading: isLoadingClients } = useNotionClients();
   const [draftSubmissionId, setDraftSubmissionId] = useState<string | null>(() =>
@@ -320,11 +321,16 @@ const CreativeSystem: React.FC = () => {
     const hasSaved = (formData as any)?.savedMedia;
     if (currentStep === 2 && hasSaved && !rehydratedRef.current) {
       rehydratedRef.current = true;
+      setIsRehydrating(true);
       (async () => {
         try {
+          console.log('🔄 Iniciando reidratação no Step 2...');
           await rehydrateFilesFromSavedMedia((formData as any).savedMedia, formData);
+          console.log('✅ Reidratação concluída');
         } catch (e) {
-          console.error('Erro na reidratação no Step 2:', e);
+          console.error('❌ Erro na reidratação no Step 2:', e);
+        } finally {
+          setIsRehydrating(false);
         }
       })();
     }
@@ -494,7 +500,11 @@ const CreativeSystem: React.FC = () => {
               />
             )}
             
-            {currentStep === 2 && (
+            {currentStep === 2 && isRehydrating && (
+              <JumperLoadingOverlay message="Carregando mídias salvas..." />
+            )}
+            
+            {currentStep === 2 && !isRehydrating && (
               <Step2 
                 formData={formData} 
                 updateFormData={updateFormData} 
