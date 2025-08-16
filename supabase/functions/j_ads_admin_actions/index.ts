@@ -522,23 +522,40 @@ Deno.serve(async (req) => {
         addLog(`📁 Encontrados ${files?.length || 0} arquivos para processar`);
         await updateProgress("processing", logs);
 
-        // Convert files to base64 for submission to notion
+        // Convert files for submission to notion
         const processedFiles = [];
         
         for (const file of files || []) {
-          addLog(`📥 Processando arquivo: ${file.name} (${Math.round((file.size || 0) / 1024 / 1024)}MB)`);
-          addLog(`📥 Fazendo download: ${file.public_url}`);
+          const fileSizeMB = Math.round((file.size || 0) / 1024 / 1024);
+          addLog(`📥 Processando arquivo: ${file.name} (${fileSizeMB}MB)`);
           
-          const { base64 } = await fetchBase64(file.public_url);
-          addLog(`📊 Arquivo convertido: ${Math.round(base64.length / 1024 / 1024)}MB em base64`);
-          
-          processedFiles.push({
-            name: file.name,
-            type: file.type,
-            size: file.size,
-            base64Data: base64,
-            variationIndex: file.variation_index
-          });
+          // Para arquivos grandes (>50MB), não convertemos para base64
+          // Passamos apenas a URL para o submit-creative processar diretamente
+          if (fileSizeMB > 50) {
+            addLog(`⚡ Arquivo grande detectado (${fileSizeMB}MB) - usando processamento direto por URL`);
+            processedFiles.push({
+              name: file.name,
+              type: file.type,
+              size: file.size,
+              url: file.public_url,
+              variationIndex: file.variation_index,
+              format: file.type
+            });
+          } else {
+            addLog(`📥 Fazendo download: ${file.public_url}`);
+            
+            const { base64 } = await fetchBase64(file.public_url);
+            addLog(`📊 Arquivo convertido: ${Math.round(base64.length / 1024 / 1024)}MB em base64`);
+            
+            processedFiles.push({
+              name: file.name,
+              type: file.type,
+              size: file.size,
+              base64Data: base64,
+              variationIndex: file.variation_index,
+              format: file.type
+            });
+          }
           
           addLog(`✅ Arquivo processado: ${file.name}`);
           await updateProgress("processing", logs);

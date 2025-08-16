@@ -208,7 +208,8 @@ serve(async (req) => {
       JSON.stringify({
         success: true,
         message: `Successfully created ${results.length} creative variation(s)`,
-        results: results
+        results: results,
+        createdCreatives: results  // Add this field for backward compatibility
       }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
