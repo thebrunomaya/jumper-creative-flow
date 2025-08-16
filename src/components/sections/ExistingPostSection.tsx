@@ -31,14 +31,14 @@ const ExistingPostSection: React.FC<ExistingPostSectionProps> = ({
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold text-jumper-text mb-2">📱 Publicação Existente</h2>
+        <h2 className="text-2xl font-bold text-foreground mb-2">📱 Publicação Existente</h2>
         <p className="text-muted-foreground">Impulsione uma publicação já existente no seu Instagram</p>
       </div>
 
       {/* Info Alert */}
-      <Alert className="border-accent-border bg-accent-subtle/10">
-        <Info className="h-4 w-4 text-accent-subtle" />
-        <AlertDescription className="text-accent-subtle">
+      <Alert className="border-border bg-muted/50">
+        <Info className="h-4 w-4 text-primary" />
+        <AlertDescription className="text-foreground">
           <strong>Como funciona:</strong> Cole o link de uma publicação do seu Instagram (post, reel ou IGTV) 
           que você deseja impulsionar como anúncio.
         </AlertDescription>
@@ -97,7 +97,7 @@ const ExistingPostSection: React.FC<ExistingPostSectionProps> = ({
       )}
 
       {/* Instructions */}
-      <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+      <div className="bg-muted/50 border border-border rounded-lg p-4">
         <h3 className="font-semibold text-foreground mb-2">📋 Instruções</h3>
         <ul className="text-sm text-muted-foreground space-y-1">
           <li>• Abra o Instagram e encontre a publicação que deseja impulsionar</li>
