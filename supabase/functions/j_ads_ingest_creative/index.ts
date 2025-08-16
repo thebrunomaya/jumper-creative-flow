@@ -5,6 +5,38 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Helper function to get file extension from filename or MIME type
+function getFileExtension(fileName: string, mimeType: string): string {
+  // If filename already has extension, keep it
+  if (fileName && fileName.includes('.')) {
+    const parts = fileName.split('.');
+    if (parts.length > 1 && parts[parts.length - 1].length > 0) {
+      return `.${parts[parts.length - 1]}`;
+    }
+  }
+  
+  // Infer from MIME type
+  const mimeToExt: Record<string, string> = {
+    'image/jpeg': '.jpg',
+    'image/jpg': '.jpg',
+    'image/png': '.png',
+    'image/gif': '.gif',
+    'image/webp': '.webp',
+    'image/svg+xml': '.svg',
+    'video/mp4': '.mp4',
+    'video/webm': '.webm',
+    'video/ogg': '.ogv',
+    'video/quicktime': '.mov',
+    'video/x-msvideo': '.avi',
+    'application/pdf': '.pdf',
+    'text/plain': '.txt',
+    'application/json': '.json',
+    'application/octet-stream': '.bin'
+  };
+  
+  return mimeToExt[mimeType] || '.bin';
+}
+
 type FileInfo = {
   name: string;
   type: string;
@@ -183,7 +215,13 @@ Deno.serve(async (req) => {
       const variationIndex = file.variationIndex || 1;
 
       try {
-        const fileNameSafe = `${Date.now()}-${file.name}`.replace(/[^a-zA-Z0-9_.-]/g, "_");
+        // Ensure filename has proper extension
+        const originalName = file.name || 'file';
+        const extension = getFileExtension(originalName, file.type);
+        const baseFileName = originalName.includes('.') ? originalName.split('.')[0] : originalName;
+        const sanitizedBaseName = baseFileName.replace(/[^a-zA-Z0-9_-]/g, "_");
+        const finalFileName = `${sanitizedBaseName}${extension}`;
+        const fileNameSafe = `${Date.now()}-${finalFileName}`;
         const storagePath = `submissions/${submissionId}/var-${variationIndex}/${fileNameSafe}`;
 
         if (file.url) {
@@ -201,7 +239,7 @@ Deno.serve(async (req) => {
               await supabase.from("j_ads_creative_files").insert({
                 submission_id: submissionId,
                 variation_index: variationIndex,
-                name: file.name,
+                name: finalFileName,
                 type: file.type,
                 size: file.size,
                 format: file.format ?? null,
@@ -235,7 +273,7 @@ Deno.serve(async (req) => {
           await supabase.from("j_ads_creative_files").insert({
             submission_id: submissionId,
             variation_index: variationIndex,
-            name: file.name,
+            name: finalFileName,
             type: file.type,
             size: file.size,
             format: file.format ?? null,
@@ -270,7 +308,7 @@ Deno.serve(async (req) => {
           await supabase.from("j_ads_creative_files").insert({
             submission_id: submissionId,
             variation_index: variationIndex,
-            name: file.name,
+            name: finalFileName,
             type: file.type,
             size: file.size,
             format: file.format ?? null,

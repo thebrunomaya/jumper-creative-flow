@@ -1,3 +1,35 @@
+// Helper function to get file extension from filename or MIME type
+function getFileExtension(fileName: string, mimeType: string): string {
+  // If filename already has extension, keep it
+  if (fileName && fileName.includes('.')) {
+    const parts = fileName.split('.');
+    if (parts.length > 1 && parts[parts.length - 1].length > 0) {
+      return `.${parts[parts.length - 1]}`;
+    }
+  }
+  
+  // Infer from MIME type
+  const mimeToExt: Record<string, string> = {
+    'image/jpeg': '.jpg',
+    'image/jpg': '.jpg',
+    'image/png': '.png',
+    'image/gif': '.gif',
+    'image/webp': '.webp',
+    'image/svg+xml': '.svg',
+    'video/mp4': '.mp4',
+    'video/webm': '.webm',
+    'video/ogg': '.ogv',
+    'video/quicktime': '.mov',
+    'video/x-msvideo': '.avi',
+    'application/pdf': '.pdf',
+    'text/plain': '.txt',
+    'application/json': '.json',
+    'application/octet-stream': '.bin'
+  };
+  
+  return mimeToExt[mimeType] || '.bin';
+}
+
 export const uploadFileToSupabase = async (
   fileName: string,
   base64Data: string,
@@ -13,10 +45,12 @@ export const uploadFileToSupabase = async (
     bytes[i] = binaryString.charCodeAt(i);
   }
 
-  // Create unique filename with timestamp
+  // Create unique filename with timestamp and ensure extension
   const timestamp = Date.now();
-  const fileExtension = fileName.split('.').pop();
-  const uniqueFileName = `${timestamp}-${fileName}`;
+  const extension = getFileExtension(fileName, mimeType);
+  const baseName = fileName.includes('.') ? fileName.split('.')[0] : fileName;
+  const sanitizedBaseName = baseName.replace(/[^a-zA-Z0-9_-]/g, "_");
+  const uniqueFileName = `${timestamp}-${sanitizedBaseName}${extension}`;
 
   console.log(`📤 Uploading to Supabase with filename: ${uniqueFileName}`);
 

@@ -1,5 +1,37 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
+// Helper function to get file extension from filename or MIME type
+function getFileExtension(fileName: string, mimeType: string): string {
+  // If filename already has extension, keep it
+  if (fileName && fileName.includes('.')) {
+    const parts = fileName.split('.');
+    if (parts.length > 1 && parts[parts.length - 1].length > 0) {
+      return `.${parts[parts.length - 1]}`;
+    }
+  }
+  
+  // Infer from MIME type
+  const mimeToExt: Record<string, string> = {
+    'image/jpeg': '.jpg',
+    'image/jpg': '.jpg',
+    'image/png': '.png',
+    'image/gif': '.gif',
+    'image/webp': '.webp',
+    'image/svg+xml': '.svg',
+    'video/mp4': '.mp4',
+    'video/webm': '.webm',
+    'video/ogg': '.ogv',
+    'video/quicktime': '.mov',
+    'video/x-msvideo': '.avi',
+    'application/pdf': '.pdf',
+    'text/plain': '.txt',
+    'application/json': '.json',
+    'application/octet-stream': '.bin'
+  };
+  
+  return mimeToExt[mimeType] || '.bin';
+}
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -527,15 +559,66 @@ Deno.serve(async (req) => {
         
         for (const file of files || []) {
           addLog(`📥 Processando arquivo: ${file.name} (via URL)`);
+          
+          let finalName = file.name;
+          let finalUrl = file.public_url;
+          
+          // Check if file lacks extension and fix it
+          if (finalName && !finalName.includes('.') && file.type) {
+            const extension = getFileExtension(finalName, file.type);
+            const correctedName = `${finalName}${extension}`;
+            addLog(`🔧 Corrigindo nome do arquivo: ${finalName} → ${correctedName}`);
+            
+            // Try to copy the file to a new location with the correct name
+            try {
+              const match = file.public_url?.match(/\/object\/public\/creative-files\/(.+)$/);
+              if (match && match[1]) {
+                const sourcePath = match[1];
+                const pathParts = sourcePath.split('/');
+                pathParts[pathParts.length - 1] = correctedName;
+                const newPath = pathParts.join('/');
+                
+                const { error: copyErr } = await supabase.storage
+                  .from("creative-files")
+                  .copy(sourcePath, newPath);
+                
+                if (!copyErr) {
+                  const { data: newUrlData } = supabase.storage
+                    .from("creative-files")
+                    .getPublicUrl(newPath);
+                  
+                  finalName = correctedName;
+                  finalUrl = newUrlData?.publicUrl || file.public_url;
+                  
+                  // Update the database record
+                  await supabase
+                    .from("j_ads_creative_files")
+                    .update({ 
+                      name: correctedName, 
+                      public_url: finalUrl,
+                      storage_path: newPath 
+                    })
+                    .eq("id", file.id);
+                  
+                  addLog(`✅ Arquivo copiado e atualizado: ${finalUrl}`);
+                } else {
+                  addLog(`⚠️ Falha ao copiar arquivo: ${copyErr.message}`);
+                }
+              }
+            } catch (e) {
+              addLog(`⚠️ Erro ao corrigir nome do arquivo: ${e.message}`);
+            }
+          }
+          
           processedFiles.push({
-            name: file.name,
+            name: finalName,
             type: file.type,
             size: file.size,
-            url: file.public_url,
+            url: finalUrl,
             variationIndex: file.variation_index,
             format: file.format || file.type
           });
-          addLog(`✅ Arquivo preparado: ${file.name}`);
+          addLog(`✅ Arquivo preparado: ${finalName}`);
           await updateProgress("processing", logs);
         }
 
