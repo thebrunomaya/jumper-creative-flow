@@ -47,7 +47,10 @@ const CreativeSystem: React.FC = () => {
   } = useCreativeSubmission();
 
   const { currentUser } = useAuth();
-  const { id: routeSubmissionId } = useParams();
+  
+  // Extract draft ID from query string instead of route params
+  const searchParams = new URLSearchParams(window.location.search);
+  const routeSubmissionId = searchParams.get('draft');
 
   // Upload a single asset to Supabase Storage and return metadata for rehydration
   const uploadAsset = async (file: File, format: string) => {
