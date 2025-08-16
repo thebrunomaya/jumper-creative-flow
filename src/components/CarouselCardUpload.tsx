@@ -1,8 +1,9 @@
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import { CarouselCard, ValidatedFile } from '@/types/creative';
 import { validateFile } from '@/utils/fileValidation';
 import { useDropzone } from 'react-dropzone';
+import { useFileCleanup } from '@/hooks/useFileCleanup';
 import MediaPreviewLightbox from './MediaPreviewLightbox';
 import MediaCard from './MediaCard';
 
@@ -25,6 +26,16 @@ const CarouselCardUpload: React.FC<CarouselCardUploadProps> = ({
 }) => {
   const [isValidating, setIsValidating] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
+  const { revokeUrl } = useFileCleanup();
+  
+  // Cleanup file preview URL when card file changes
+  useEffect(() => {
+    return () => {
+      if (card.file?.preview) {
+        revokeUrl(card.file.preview);
+      }
+    };
+  }, [card.file?.preview, revokeUrl]);
 
   const format = aspectRatio === '1:1' ? 'carousel-1:1' : 'carousel-4:5';
   const dimensions = aspectRatio === '1:1' ? '1080x1080px (1:1)' : '1080x1350px (4:5)';
@@ -80,6 +91,9 @@ const CarouselCardUpload: React.FC<CarouselCardUploadProps> = ({
   };
 
   const handleRemoveClick = () => {
+    if (card.file?.preview) {
+      revokeUrl(card.file.preview);
+    }
     onFileChange(undefined);
   };
 

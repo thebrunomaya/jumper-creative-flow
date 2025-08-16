@@ -4,6 +4,9 @@ export const validateImage = (file: File, format?: 'square' | 'vertical' | 'hori
   return new Promise((resolve) => {
     const img = new Image();
     img.onload = () => {
+      // Revoke the object URL after processing
+      URL.revokeObjectURL(img.src);
+      
       let isValid = false;
       let expectedDimensions = '';
 
@@ -66,6 +69,9 @@ export const validateImage = (file: File, format?: 'square' | 'vertical' | 'hori
       });
     };
     img.onerror = () => {
+      // Revoke the object URL on error
+      URL.revokeObjectURL(img.src);
+      
       resolve({
         valid: false,
         width: 0,
@@ -83,6 +89,9 @@ export const validateVideo = (file: File, isCarousel?: boolean): Promise<{ valid
     video.preload = 'metadata';
     
     video.onloadedmetadata = () => {
+      // Revoke the object URL after processing
+      URL.revokeObjectURL(video.src);
+      
       const duration = Math.round(video.duration);
       // For carousel, video duration can be 1s to 240 minutes (14400s)
       const minDuration = isCarousel ? 1 : 15;
@@ -101,6 +110,9 @@ export const validateVideo = (file: File, isCarousel?: boolean): Promise<{ valid
     };
     
     video.onerror = () => {
+      // Revoke the object URL on error
+      URL.revokeObjectURL(video.src);
+      
       resolve({
         valid: false,
         duration: 0,
@@ -205,6 +217,14 @@ export const validateFile = async (file: File, format?: 'square' | 'vertical' | 
   if (isImage || isVideo) {
     preview = URL.createObjectURL(file);
     console.log('validateFile - Created preview URL:', { preview: !!preview, isVideo, isImage });
+    
+    // Schedule revocation after a delay to ensure the preview is used
+    setTimeout(() => {
+      if (preview) {
+        URL.revokeObjectURL(preview);
+        console.log('validateFile - Revoked preview URL after timeout');
+      }
+    }, 30000); // 30 seconds timeout
   }
 
   const result = {

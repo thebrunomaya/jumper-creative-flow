@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Play, FileText, Instagram, Loader2 } from 'lucide-react';
 import { getThumbnailDimensions } from '@/utils/thumbnailUtils';
 import { useLazyThumbnail } from '@/hooks/useLazyThumbnail';
+import { useFileCleanup } from '@/hooks/useFileCleanup';
 import MetaZoneOverlay from './MetaZoneOverlay';
 
 interface ThumbnailPreviewProps {
@@ -30,6 +31,18 @@ const ThumbnailPreview: React.FC<ThumbnailPreviewProps> = ({
 }) => {
   // Get thumbnail dimensions for proper sizing
   const { width, height } = getThumbnailDimensions(format, carouselMode, carouselAspectRatio);
+  
+  // File cleanup for memory management
+  const { revokeUrl } = useFileCleanup();
+  
+  // Cleanup file preview URL when component unmounts or file changes
+  useEffect(() => {
+    return () => {
+      if (file?.preview) {
+        revokeUrl(file.preview);
+      }
+    };
+  }, [file?.preview, revokeUrl]);
 
   // Handle disabled state
   if (!enabled) {

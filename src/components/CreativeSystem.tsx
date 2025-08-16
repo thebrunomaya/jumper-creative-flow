@@ -293,8 +293,8 @@ const CreativeSystem: React.FC = () => {
           }
           console.log('📝 Atualizando formData com:', payload);
           updateFormData(payload);
-          // 2) Reidratar arquivos a partir de savedMedia, se existir
-          if (payload.savedMedia) {
+          // 2) Reidratar arquivos apenas quando necessário (no Step 2)
+          if (payload.savedMedia && currentStep === 2) {
             await rehydrateFilesFromSavedMedia(payload.savedMedia, payload);
           }
         }
