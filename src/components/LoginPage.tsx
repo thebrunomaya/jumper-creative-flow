@@ -151,8 +151,8 @@ const LoginPage: React.FC = () => {
             {/* Formulário sem card */}
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-2">
-                <Button type="button" variant={mode === 'login' ? 'default' : 'outline'} className="h-10" onClick={() => setMode('login')}>Entrar</Button>
-                <Button type="button" variant={mode === 'signup' ? 'default' : 'outline'} className="h-10" onClick={() => setMode('signup')}>Criar conta</Button>
+                <Button type="button" variant={mode === 'login' ? 'default' : 'outline'} className={`h-10 ${mode !== 'login' ? 'dark-bg-button-outline' : ''}`} onClick={() => setMode('login')}>Entrar</Button>
+                <Button type="button" variant={mode === 'signup' ? 'default' : 'outline'} className={`h-10 ${mode !== 'signup' ? 'dark-bg-button-outline' : ''}`} onClick={() => setMode('signup')}>Criar conta</Button>
               </div>
             </div>
             <form onSubmit={handleSubmit} className="space-y-6">

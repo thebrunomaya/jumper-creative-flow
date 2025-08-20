@@ -577,26 +577,26 @@ const Step4: React.FC<Step4Props> = ({
 
                   {/* Error Details */}
                   {submissionError && (
-                    <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                      <h4 className="text-sm font-medium text-red-800 mb-2">Detalhes do Erro</h4>
-                      <div className="text-xs space-y-1">
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                      <h4 className="text-sm font-semibold text-red-900 mb-3">Detalhes do Erro</h4>
+                      <div className="text-sm space-y-2 text-red-800">
                         {submissionError.name && (
-                          <div><span className="font-medium">Tipo:</span> {submissionError.name}</div>
+                          <div><span className="font-semibold">Tipo:</span> {submissionError.name}</div>
                         )}
                         {submissionError.status && (
-                          <div><span className="font-medium">Status:</span> {submissionError.status}</div>
+                          <div><span className="font-semibold">Status:</span> {submissionError.status}</div>
                         )}
                         {submissionError.details && (
                           <div>
-                            <span className="font-medium">Detalhes:</span>
-                            <pre className="mt-1 text-xs bg-red-100 p-2 rounded whitespace-pre-wrap font-mono">
+                            <span className="font-semibold">Detalhes:</span>
+                            <pre className="mt-2 text-xs bg-red-100 border border-red-300 p-3 rounded whitespace-pre-wrap font-mono text-red-900">
                               {JSON.stringify(submissionError.details, null, 2).slice(0, 500)}
                               {JSON.stringify(submissionError.details).length > 500 ? '...' : ''}
                             </pre>
                           </div>
                         )}
                         {!submissionError.details && (
-                          <div className="text-muted-foreground">Sem detalhes adicionais</div>
+                          <div className="text-red-700">Sem detalhes adicionais</div>
                         )}
                       </div>
                     </div>

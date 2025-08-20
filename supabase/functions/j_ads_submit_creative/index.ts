@@ -2,7 +2,8 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { CreativeSubmissionData } from './types.ts';
 import { uploadFileToSupabase } from './file-upload.ts';
-import { createNotionCreative } from './notion-client.ts';
+import { performHealthCheck } from './resilience-utils.ts';
+import { uploadFilesTransactionally, cleanupOldTransactions } from './transactional-upload.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -25,18 +26,21 @@ serve(async (req) => {
       );
     }
 
+    // Perform health check before processing
+    console.log('🔍 Performing system health check...');
+    const healthStatus = await performHealthCheck();
+    console.log('📊 Health check results:', healthStatus);
+    
+    if (!healthStatus.overall) {
+      console.warn('⚠️ System health check failed, but continuing with degraded mode');
+    }
+    
+    // Cleanup old orphaned transactions
+    await cleanupOldTransactions(supabase);
+
     // Get environment variables
     const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const NOTION_TOKEN = Deno.env.get('NOTION_API_KEY')!;
-
-    if (!NOTION_TOKEN) {
-      console.error('❌ NOTION_API_KEY not found in environment variables');
-      return new Response(
-        JSON.stringify({ error: 'Notion API key not configured' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
 
     // Initialize Supabase client
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
@@ -88,37 +92,12 @@ serve(async (req) => {
       }
     }
 
-    // Database ID for the "DB Criativos" notion database
-    const DB_CRIATIVOS_DATABASE_ID = "20edb6094968807eac5fe7920c517077";
 
-    console.log('📋 Processing creative submission');
+    console.log('📋 Processing creative submission for manager approval');
     console.log('📋 Full creative data received:', JSON.stringify({
       ...creativeData,
       filesInfo: creativeData.filesInfo.map(f => ({ ...f, base64Data: f.base64Data ? '[TRUNCATED]' : undefined }))
     }, null, 2));
-
-    // Fetch client data for account information (needed for account name and ID)
-    console.log('🔍 Fetching client data from Notion for client:', creativeData.client);
-    
-    const clientResponse = await fetch(`https://api.notion.com/v1/pages/${creativeData.client}`, {
-      headers: {
-        'Authorization': `Bearer ${NOTION_TOKEN}`,
-        'Notion-Version': '2022-06-28',
-        'Content-Type': 'application/json'
-      }
-    });
-
-    if (!clientResponse.ok) {
-      console.error('❌ Failed to fetch client data from Notion:', clientResponse.statusText);
-      return new Response(
-        JSON.stringify({ error: 'Failed to fetch client data from Notion' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    const clientData = await clientResponse.json();
-    console.log('✅ Client data fetched successfully');
-    console.log('📊 Using DB Criativos database ID:', DB_CRIATIVOS_DATABASE_ID);
 
     // Group files by variation index
     const variationGroups = new Map<number, Array<{ name: string; type: string; size: number; format?: string; base64Data?: string; instagramUrl?: string }>>();
@@ -131,86 +110,110 @@ serve(async (req) => {
       variationGroups.get(variationIndex)!.push(fileInfo);
     }
 
-    console.log(`📁 Processing ${variationGroups.size} variation(s)`);
+    console.log(`📁 Processing ${variationGroups.size} variation(s) for submission`);
 
     const results = [];
 
-    // Process each variation
+    // Process each variation - ONLY upload files and save to Supabase
     for (const [variationIndex, files] of variationGroups) {
       console.log(`🔄 Processing variation ${variationIndex} with ${files.length} files`);
 
-      const uploadedFiles = [];
+      // Upload files to Supabase Storage using transactional upload
+      console.log(`📤 Starting transactional upload for variation ${variationIndex}`);
+      
+      const uploadResult = await uploadFilesTransactionally(files, supabase);
+      
+      if (!uploadResult.success) {
+        console.error(`❌ Transactional upload failed for variation ${variationIndex}:`, uploadResult.error);
+        throw new Error(`File upload failed for variation ${variationIndex}: ${uploadResult.error?.message}`);
+      }
+      
+      const uploadedFiles = uploadResult.files;
+      console.log(`✅ All files uploaded successfully for variation ${variationIndex} (transaction: ${uploadResult.transactionId})`);
+      
+      // Create submission record in Supabase with 'submitted' status
+      const submissionData = {
+        client: creativeData.client,
+        manager_user_id: creativeData.managerUserId,
+        manager_email: creativeData.managerEmail,
+        partner: creativeData.partner,
+        platform: creativeData.platform,
+        campaign_objective: creativeData.campaignObjective,
+        creative_name: creativeData.creativeName,
+        creative_type: creativeData.creativeType,
+        objective: creativeData.objective,
+        main_texts: creativeData.mainTexts,
+        titles: creativeData.titles,
+        description: creativeData.description,
+        destination: creativeData.destination,
+        cta: creativeData.cta,
+        destination_url: creativeData.destinationUrl,
+        call_to_action: creativeData.callToAction,
+        observations: creativeData.observations,
+        existing_post: creativeData.existingPost,
+        status: 'submitted', // Changed from 'processed' to 'submitted'
+        submitted_at: new Date().toISOString(),
+        variation_index: variationIndex,
+        total_variations: variationGroups.size
+      };
 
-      // Upload files to Supabase Storage
-      for (const fileInfo of files) {
-        try {
-          if (fileInfo.base64Data) {
-            console.log(`📤 Uploading file: ${fileInfo.name}`);
-            const publicUrl = await uploadFileToSupabase(
-              fileInfo.name,
-              fileInfo.base64Data,
-              fileInfo.type,
-              supabase
-            );
-            
-            uploadedFiles.push({
-              name: fileInfo.name,
-              url: publicUrl,
-              format: fileInfo.format
-            });
-          } else if (fileInfo.url) {
-            // File already uploaded, use existing URL
-            console.log(`🔗 Using existing file URL: ${fileInfo.name} -> ${fileInfo.url}`);
-            uploadedFiles.push({
-              name: fileInfo.name,
-              url: fileInfo.url,
-              format: fileInfo.format
-            });
-          } else if (fileInfo.instagramUrl) {
-            console.log(`🔗 Using Instagram URL: ${fileInfo.instagramUrl}`);
-            uploadedFiles.push({
-              name: fileInfo.name,
-              url: fileInfo.instagramUrl,
-              format: fileInfo.format
-            });
-          } else {
-            console.warn(`⚠️ No valid URL or base64 data found for file: ${fileInfo.name}`);
-          }
-        } catch (error) {
-          console.error(`❌ Failed to process file ${fileInfo.name}:`, error);
-          throw new Error(`Failed to process file ${fileInfo.name}: ${error.message}`);
-        }
+      const { data: submission, error: submissionError } = await supabase
+        .from('j_ads_creative_submissions')
+        .insert(submissionData)
+        .select('id')
+        .single();
+
+      if (submissionError) {
+        console.error(`❌ Failed to create submission for variation ${variationIndex}:`, submissionError);
+        throw new Error(`Failed to create submission: ${submissionError.message}`);
       }
 
-      // Create Notion creative for this variation
-      try {
-        const result = await createNotionCreative(
-          creativeData,
-          uploadedFiles,
-          variationIndex,
-          variationGroups.size,
-          NOTION_TOKEN,
-          DB_CRIATIVOS_DATABASE_ID,
-          clientData
-        );
-        
-        results.push(result);
-        console.log(`✅ Variation ${variationIndex} created successfully with ID: ${result.creativeId}`);
-      } catch (error) {
-        console.error(`❌ Failed to create Notion creative for variation ${variationIndex}:`, error);
-        throw new Error(`Failed to create Notion creative for variation ${variationIndex}: ${error.message}`);
+      const submissionId = submission.id;
+      console.log(`✅ Created submission ${submissionId} for variation ${variationIndex}`);
+
+      // Create file records
+      const fileRecords = uploadedFiles.map(file => ({
+        submission_id: submissionId,
+        file_name: file.name,
+        file_type: file.type || 'application/octet-stream',
+        file_size: file.size || 0,
+        file_url: file.url,
+        format: file.format,
+        variation_index: variationIndex
+      }));
+
+      const { error: filesError } = await supabase
+        .from('j_ads_creative_files')
+        .insert(fileRecords);
+
+      if (filesError) {
+        console.warn(`⚠️ Failed to create file records for ${submissionId}:`, filesError);
+      } else {
+        console.log(`✅ Created ${fileRecords.length} file records for ${submissionId}`);
       }
+
+      results.push({
+        creativeId: submissionId,
+        submissionId: submissionId,
+        variationIndex,
+        status: 'submitted',
+        totalFiles: uploadedFiles.length
+      });
     }
 
-    console.log(`🎉 Successfully processed ${results.length} creative variation(s)`);
+    console.log(`🎉 Successfully submitted ${results.length} creative variation(s) for admin review`);
+
+    // Prepare response for manager
+    const response = {
+      success: true,
+      message: `Successfully submitted ${results.length} creative variation(s) for review`,
+      submissionId: results[0]?.submissionId,
+      results: results,
+      status: 'submitted'
+    };
 
     return new Response(
-      JSON.stringify({
-        success: true,
-        message: `Successfully created ${results.length} creative variation(s)`,
-        results: results,
-        createdCreatives: results  // Add this field for backward compatibility
-      }),
+      JSON.stringify(response),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 

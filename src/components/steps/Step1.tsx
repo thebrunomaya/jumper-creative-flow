@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { FormData } from '@/types/creative';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { JumperCard, JumperCardContent } from '@/components/ui/jumper-card';
@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 
 import { Skeleton } from '@/components/ui/skeleton';
 import { validateCreativeName, previewCreativeNameDetailed, getObjectiveCode, getTypeCode } from '@/utils/creativeName';
+import { organizeClientAccounts } from '@/utils/accountUtils';
 import { supabase } from '@/integrations/supabase/client';
 import facebookLogo from '@/assets/facebook-logo.svg';
 import googleGLogo from '@/assets/google-g-logo.svg';
@@ -75,8 +76,14 @@ const Step1: React.FC<Step1Props> = ({
     updateFormData({ creativeName: cleanValue });
   };
 
+  // Memoizar a ordenação das contas para evitar re-renders desnecessários
+  const sortedClients = useMemo(() => 
+    organizeClientAccounts(clients, userAccessibleAccounts), 
+    [clients, userAccessibleAccounts]
+  );
+
   // Generate detailed preview name if all required fields are filled
-  const detailedPreviewName = React.useMemo(() => {
+  const detailedPreviewName = useMemo(() => {
     if (
       formData.creativeName && 
       formData.campaignObjective && 
@@ -113,25 +120,56 @@ const Step1: React.FC<Step1Props> = ({
           Conta *
         </Label>
         {clientsLoading ? (
-          <Skeleton className="h-12 w-full" />
+          <div className="space-y-2">
+            <Skeleton className="h-12 w-full" />
+            <div className="text-xs text-muted-foreground animate-pulse">
+              Carregando contas...
+            </div>
+          </div>
         ) : (
           <Select value={formData.client} onValueChange={(value) => updateFormData({ client: value, campaignObjective: undefined, creativeType: undefined, objective: undefined, creativeName: '' })}>
             <SelectTrigger className={`h-12 ${errors.client ? 'border-destructive bg-destructive/10' : ''}`}>
               <SelectValue placeholder="Selecione a conta" />
             </SelectTrigger>
             <SelectContent>
-              {clients.map((client) => {
-                const hasNormalAccess = userAccessibleAccounts.includes(client.id);
-                const isAdminOnlyAccess = isAdmin && !hasNormalAccess;
-                
-                return (
-                  <SelectItem key={client.id} value={client.id}>
-                    <span className={isAdminOnlyAccess ? 'italic text-muted-foreground' : ''}>
-                      {client.name}
-                    </span>
-                  </SelectItem>
-                );
-              })}
+              {/* Seção: Minhas Contas (contas vinculadas do usuário) */}
+              {isAdmin && sortedClients.sortedNormalAccounts.length > 0 && (
+                <div className="px-2 py-1 bg-green-50 border-l-2 border-green-500">
+                  <div className="text-xs font-medium text-green-700">📋 Minhas Contas</div>
+                </div>
+              )}
+              {sortedClients.sortedNormalAccounts.map((client) => (
+                <SelectItem key={client.id} value={client.id}>
+                  <span className="flex items-center">
+                    <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                    {client.name}
+                    {isAdmin && <span className="ml-auto text-xs text-green-600">Vinculada</span>}
+                  </span>
+                </SelectItem>
+              ))}
+              
+              {/* Seção: Outras Contas (apenas admin) */}
+              {isAdmin && sortedClients.sortedAdminOnlyAccounts.length > 0 && (
+                <>
+                  {sortedClients.sortedNormalAccounts.length > 0 && (
+                    <div className="px-2 py-1">
+                      <div className="h-px bg-border"></div>
+                    </div>
+                  )}
+                  <div className="px-2 py-1 bg-orange-50 border-l-2 border-orange-500">
+                    <div className="text-xs font-medium text-orange-700">⚙️ Outras Contas (Admin)</div>
+                  </div>
+                  {sortedClients.sortedAdminOnlyAccounts.map((client) => (
+                    <SelectItem key={client.id} value={client.id}>
+                      <span className="flex items-center text-muted-foreground">
+                        <span className="w-2 h-2 bg-orange-400 rounded-full mr-2"></span>
+                        {client.name}
+                        <span className="ml-auto text-xs text-orange-600">Admin</span>
+                      </span>
+                    </SelectItem>
+                  ))}
+                </>
+              )}
             </SelectContent>
           </Select>
         )}

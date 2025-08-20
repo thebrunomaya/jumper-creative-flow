@@ -13,8 +13,12 @@ import CreativeNavigation from './CreativeNavigation';
 import { JumperBackground } from '@/components/ui/jumper-background';
 import { JumperCard, JumperCardContent } from '@/components/ui/jumper-card';
 import { useNotionClients } from '@/hooks/useNotionData';
+import { WarningModal } from '@/components/ui/warning-modal';
+import { FinalSubmissionModal } from '@/components/ui/final-submission-modal';
+import { ValidationResult } from '@/types/validation';
 import { useCreativeForm } from '@/hooks/useCreativeForm';
 import { useCreativeSubmission } from '@/hooks/useCreativeSubmission';
+import { useValidationTracking } from '@/hooks/useValidationTracking';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useParams } from 'react-router-dom';
@@ -28,6 +32,12 @@ const CreativeSystem: React.FC = () => {
   const [isLoadingDraft, setIsLoadingDraft] = useState(false);
   const [isSavingDraft, setIsSavingDraft] = useState(false);
   const [isRehydrating, setIsRehydrating] = useState(false);
+  const [warningModal, setWarningModal] = useState<{
+    isOpen: boolean;
+    step: number;
+    validation: ValidationResult;
+  } | null>(null);
+  const [finalSubmissionModal, setFinalSubmissionModal] = useState(false);
   const [uploadProgress, setUploadProgress] = useState({ current: 0, total: 0, message: '' });
   const { clients, loading: isLoadingClients, error: clientsError, isAdmin, userAccessibleAccounts } = useNotionClients();
   const [draftSubmissionId, setDraftSubmissionId] = useState<string | null>(() =>
@@ -58,6 +68,7 @@ const CreativeSystem: React.FC = () => {
     resetSubmissionLog
   } = useCreativeSubmission();
 
+  const { logValidation, getValidationSummary } = useValidationTracking();
   const { currentUser } = useAuth();
   
   // Extract draft ID from query string instead of route params
@@ -558,15 +569,47 @@ const CreativeSystem: React.FC = () => {
   }, [currentStep, (formData as any).savedMedia]);
 
   const nextStep = () => {
-    if (validateStep(currentStep)) {
-      setCurrentStep(prev => Math.min(prev + 1, 4));
-    } else {
+    const validationResult = validateStep(currentStep);
+    
+    if (!validationResult.canProceed) {
+      // Erros críticos - bloqueia navegação
       toast({
         title: "Campos obrigatórios",
-        description: "Preencha todos os campos obrigatórios para continuar",
+        description: "Corrija os erros críticos antes de continuar",
         variant: "destructive",
       });
+      return;
     }
+    
+    if (validationResult.hasIssues) {
+      // Tem warnings - mostra modal
+      setWarningModal({
+        isOpen: true,
+        step: currentStep,
+        validation: validationResult
+      });
+      return;
+    }
+    
+    // Tudo ok - avança normalmente
+    proceedToNextStep();
+  };
+
+  const proceedToNextStep = () => {
+    setCurrentStep(prev => Math.min(prev + 1, 4));
+    closeWarningModal();
+  };
+
+  const closeWarningModal = () => {
+    setWarningModal(null);
+  };
+
+  const handleProceedWithWarnings = () => {
+    if (warningModal?.validation) {
+      // Log que o gerente optou por prosseguir ignorando warnings
+      logValidation(warningModal.validation, 'proceeded');
+    }
+    proceedToNextStep();
   };
 
   const prevStep = () => {
@@ -574,7 +617,32 @@ const CreativeSystem: React.FC = () => {
   };
 
   const handleSubmit = () => {
-    submitForm(formData, validateStep, toast, { submissionId: routeSubmissionId ?? undefined });
+    // Mostrar modal de confirmação final com resumo dos warnings bypassed
+    setFinalSubmissionModal(true);
+  };
+
+  const handleConfirmSubmit = () => {
+    // Prosseguir com a submissão real
+    setFinalSubmissionModal(false);
+    const validationSummary = getValidationSummary();
+    
+    // Incluir warnings bypassados no payload
+    const submissionData = {
+      ...formData,
+      validationOverrides: validationSummary.bypassedWarnings
+    };
+    
+    submitForm(submissionData, validateStep, toast, { submissionId: routeSubmissionId ?? undefined });
+  };
+
+  const handleGoBackAndFix = () => {
+    setFinalSubmissionModal(false);
+    // Opcionalmente, navegar para o primeiro step com problemas
+    const validationSummary = getValidationSummary();
+    if (validationSummary.stepsWithIssues.length > 0) {
+      const firstProblemStep = Math.min(...validationSummary.stepsWithIssues);
+      setCurrentStep(firstProblemStep);
+    }
   };
 
   const handleSaveDraft = async () => {
@@ -799,6 +867,29 @@ const CreativeSystem: React.FC = () => {
           } 
         />
       )}
+
+      {/* Warning Modal */}
+      {warningModal && (
+        <WarningModal
+          isOpen={warningModal.isOpen}
+          onClose={closeWarningModal}
+          onProceed={handleProceedWithWarnings}
+          onGoBack={closeWarningModal}
+          step={warningModal.step}
+          warnings={warningModal.validation.warnings}
+          criticalErrors={warningModal.validation.criticalErrors}
+        />
+      )}
+
+      {/* Final Submission Modal */}
+      <FinalSubmissionModal
+        isOpen={finalSubmissionModal}
+        onClose={() => setFinalSubmissionModal(false)}
+        onSubmit={handleConfirmSubmit}
+        onGoBackAndFix={handleGoBackAndFix}
+        bypassedWarnings={getValidationSummary().bypassedWarnings}
+        isSubmitting={isSubmitting}
+      />
     </div>
   );
 };

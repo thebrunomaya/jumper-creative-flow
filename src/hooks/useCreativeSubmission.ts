@@ -3,6 +3,8 @@ import { useState } from 'react';
 import { FormData } from '@/types/creative';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { performSystemHealthCheck, validateSubmissionReadiness } from '@/utils/systemHealth';
+import { ValidationResult } from '@/types/validation';
 
 // Logging types
 interface LogEntry {
@@ -78,14 +80,73 @@ export const useCreativeSubmission = () => {
     });
   };
 
-  const submitForm = async (formData: FormData, validateStep: (step: number) => boolean, toast: any, options?: { submissionId?: string }) => {
+  const submitForm = async (formData: FormData, validateStep: (step: number) => ValidationResult, toast: any, options?: { submissionId?: string }) => {
     // Reset previous error state
     setSubmissionError(null);
     setLastInvoke(null);
     
-    if (!validateStep(3)) {
+    // Perform defensive validation with health checks
+    pushLog('info', 'Iniciando validação defensiva do sistema');
+    
+    try {
+      const validationResult = await validateSubmissionReadiness(formData);
+      
+      // Log health status for debugging
+      pushLog('info', 'Status de saúde do sistema verificado', {
+        canProceed: validationResult.canProceed,
+        blockers: validationResult.blockers,
+        warnings: validationResult.warnings,
+        systemHealth: {
+          overall: validationResult.healthStatus.overall,
+          canSubmit: validationResult.healthStatus.canSubmit,
+          services: Object.keys(validationResult.healthStatus.services).reduce((acc, key) => {
+            const service = validationResult.healthStatus.services[key as keyof typeof validationResult.healthStatus.services];
+            acc[key] = { healthy: service.healthy, responseTime: service.responseTime };
+            return acc;
+          }, {} as Record<string, any>)
+        }
+      });
+      
+      // Show warnings to user but don't block submission
+      if (validationResult.warnings.length > 0) {
+        const warningMessage = validationResult.warnings.slice(0, 2).join('. ');
+        toast({
+          title: "Aviso do Sistema",
+          description: `${warningMessage}. Sua submissão ainda funcionará.`,
+          variant: "default",
+        });
+      }
+      
+      // Only block if there are critical blockers
+      if (!validationResult.canProceed) {
+        const blockerMessage = validationResult.blockers.slice(0, 2).join('. ');
+        pushLog('error', 'Submissão bloqueada por problemas críticos', { blockers: validationResult.blockers });
+        
+        toast({
+          title: "Não é possível enviar",
+          description: blockerMessage,
+          variant: "destructive",
+        });
+        return;
+      }
+      
+    } catch (healthCheckError) {
+      // Health check failed, but don't block submission - just warn
+      console.warn('Health check failed, proceeding anyway:', healthCheckError);
+      pushLog('warn', 'Verificação de saúde falhou, prosseguindo mesmo assim', { error: healthCheckError });
+      
+      toast({
+        title: "Sistema em modo degradado",
+        description: "Sua submissão ainda funcionará, mas pode ser mais lenta.",
+        variant: "default",
+      });
+    }
+    
+    // Traditional form validation as fallback
+    const step3Validation = validateStep(3);
+    if (!step3Validation.canProceed) {
       const validationError = "Corrija os erros antes de enviar";
-      pushLog('error', 'Validação falhou', { step: 3 });
+      pushLog('error', 'Validação do formulário falhou', { step: 3 });
       toast({
         title: "Erro na validação",
         description: validationError,
@@ -111,8 +172,8 @@ export const useCreativeSubmission = () => {
     });
 
     toast({
-      title: "Salvando criativo...",
-      description: "Processando arquivos e salvando submissão para aprovação.",
+      title: "Enviando criativo...",
+      description: "Processando arquivos e enviando para revisão do Gestor/Admin.",
     });
 
     try {
@@ -294,12 +355,12 @@ export const useCreativeSubmission = () => {
 
       console.log('Ingesting creative submission:', submissionData);
       
-      pushLog('info', 'Chamando edge function j_ads_ingest_creative', {
-        function: 'j_ads_ingest_creative',
+      pushLog('info', 'Chamando edge function j_ads_submit_creative', {
+        function: 'j_ads_submit_creative',
         payloadFields: Object.keys(submissionData)
       });
       
-      const { data, error } = await supabase.functions.invoke('j_ads_ingest_creative', {
+      const { data, error } = await supabase.functions.invoke('j_ads_submit_creative', {
         body: { ...submissionData, submissionId: options?.submissionId }
       });
       
@@ -334,12 +395,12 @@ export const useCreativeSubmission = () => {
         throw new Error(responseError);
       }
 
-      pushLog('info', 'Envio concluído com sucesso', { 
+      pushLog('info', 'Submissão concluída com sucesso', { 
         submissionId: data.submissionId,
         responseData: sanitizeData(data)
       });
 
-      console.log('✅ Creative successfully ingested:', data);
+      console.log('✅ Creative successfully submitted for review:', data);
 
       setCreativeIds(data.submissionId ? [data.submissionId] : []);
       setIsSubmitted(true);
@@ -347,8 +408,8 @@ export const useCreativeSubmission = () => {
       const submissionId = data.submissionId || '';
 
       toast({
-        title: `Criativo salvo com sucesso!`,
-        description: `ID: ${submissionId}. Aguardando aprovação do Admin para publicação no Notion.`,
+        title: `Criativo enviado com sucesso!`,
+        description: `ID: ${submissionId}. Aguardando revisão e aprovação do Gestor/Admin para publicação.`,
       });
 
     } catch (error: any) {
@@ -370,7 +431,7 @@ export const useCreativeSubmission = () => {
       pushLog('error', 'Falha ao enviar criativo', { error: fullError });
       
       // Provide more specific error messages based on error type
-      let errorMessage = "Erro ao salvar criativo. Tente novamente.";
+      let errorMessage = "Erro ao enviar criativo. Tente novamente.";
       
       if (error.message?.includes('CTA')) {
         errorMessage = "CTA inválido. Verifique se selecionou um valor válido.";
@@ -385,7 +446,7 @@ export const useCreativeSubmission = () => {
       }
       
       toast({
-        title: "Erro ao salvar",
+        title: "Erro ao enviar",
         description: error.message || errorMessage,
         variant: "destructive",
       });

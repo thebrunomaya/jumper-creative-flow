@@ -135,18 +135,23 @@ export const useNotionClients = () => {
           };
         });
         
-        // Store user's accessible accounts for styling purposes
+        // Store user's specifically linked accounts for both admin and regular users
         setUserAccessibleAccounts(accountIds || []);
         
-        // Admins see all clients, regular users see only their accessible accounts
+        // Filter clients based on role
         let filteredClients = formattedClients;
         if (!isAdmin) {
+          // Regular users: only their linked accounts
           if (accountIds && accountIds.length > 0) {
             filteredClients = formattedClients.filter(client => accountIds.includes(client.id));
             console.log('Filtered clients for manager:', filteredClients);
           } else {
             filteredClients = [];
           }
+        } else {
+          // Admin users: all clients (but we track their personal linked accounts separately)
+          console.log('Admin user - showing all clients, personal linked accounts:', accountIds);
+          filteredClients = formattedClients; // Admins see all
         }
         
         console.log('Formatted clients:', filteredClients);

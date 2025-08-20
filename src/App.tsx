@@ -10,11 +10,21 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import AdminRoute from "@/components/AdminRoute";
 import Index from "./pages/Index";
-import DesignSystem from "./pages/DesignSystem";
 import NotFound from "./pages/NotFound";
-import Admin from "./pages/Admin";
-import Manager from "./pages/Manager";
-import CreativeSystem from "@/components/CreativeSystem";
+import { Suspense, lazy } from "react";
+
+// Lazy load das páginas principais para reduzir bundle inicial
+const DesignSystem = lazy(() => import("./pages/DesignSystem"));
+const Admin = lazy(() => import("./pages/Admin"));
+const Manager = lazy(() => import("./pages/Manager"));
+const CreativeSystem = lazy(() => import("@/components/CreativeSystem"));
+
+// Loading component reutilizável
+const PageLoading = () => (
+  <div className="flex items-center justify-center min-h-screen">
+    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-jumper-orange"></div>
+  </div>
+);
 
 const queryClient = new QueryClient();
 
@@ -36,23 +46,35 @@ const App = () => {
                 } />
                 <Route path="/create" element={
                   <ProtectedRoute>
-                    <CreativeSystem />
+                    <Suspense fallback={<PageLoading />}>
+                      <CreativeSystem />
+                    </Suspense>
                   </ProtectedRoute>
                 } />
                 <Route path="/create/:id" element={
                   <ProtectedRoute>
-                    <CreativeSystem />
+                    <Suspense fallback={<PageLoading />}>
+                      <CreativeSystem />
+                    </Suspense>
                   </ProtectedRoute>
                 } />
-                <Route path="/design-system" element={<DesignSystem />} />
+                <Route path="/design-system" element={
+                  <Suspense fallback={<PageLoading />}>
+                    <DesignSystem />
+                  </Suspense>
+                } />
                 <Route path="/admin" element={
                   <AdminRoute>
-                    <Admin />
+                    <Suspense fallback={<PageLoading />}>
+                      <Admin />
+                    </Suspense>
                   </AdminRoute>
                 } />
                 <Route path="/manager" element={
                   <ProtectedRoute>
-                    <Manager />
+                    <Suspense fallback={<PageLoading />}>
+                      <Manager />
+                    </Suspense>
                   </ProtectedRoute>
                 } />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

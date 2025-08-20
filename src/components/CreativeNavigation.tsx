@@ -3,6 +3,7 @@ import React from 'react';
 import { JumperButton } from '@/components/ui/jumper-button';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import ValidationPanel from './ValidationPanel';
+import { HealthStatus } from '@/components/ui/health-status';
 
 interface CreativeNavigationProps {
   currentStep: number;
@@ -26,6 +27,11 @@ const CreativeNavigation: React.FC<CreativeNavigationProps> = ({
   return (
     <div className="pt-6 space-y-6">
       <ValidationPanel errors={errors} />
+      
+      {/* System Health Status */}
+      <div className="bg-card border rounded-lg p-3">
+        <HealthStatus showDetails={currentStep === 4} />
+      </div>
       
       <div className="flex justify-between items-center">
         <JumperButton

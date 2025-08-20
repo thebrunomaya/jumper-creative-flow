@@ -86,9 +86,10 @@ export const CLIENTS: Client[] = [];
 export const PARTNERS: Partner[] = [];
 
 export const VALID_CTAS = [
-  'Compre Agora', 'Saiba Mais', 'Cadastre-se', 'Baixe Agora',
+  'Compre Agora', 'Comprar agora', 'Saiba Mais', 'Cadastre-se', 'Baixe Agora',
   'Entre em Contato', 'Ligar Agora', 'Enviar Mensagem', 
-  'Ver Mais', 'Obter Oferta', 'Instalar Agora'
+  'Ver Mais', 'Ver menu', 'Obter Oferta', 'Instalar Agora',
+  'Enviar mensagem pelo WhatsApp'
 ];
 
 export const META_SPECS = {

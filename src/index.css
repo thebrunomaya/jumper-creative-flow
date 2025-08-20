@@ -228,4 +228,16 @@
     font-family: 'Haffer', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-variation-settings: 'wght' 900;
   }
+
+  /* Button contrast improvements for dark backgrounds */
+  .dark-bg-button-outline {
+    background: hsl(240 3% 15%) !important;
+    border: 1px solid hsl(240 3% 25%) !important;
+    color: hsl(0 0% 100%) !important;
+  }
+  
+  .dark-bg-button-outline:hover {
+    background: hsl(240 3% 20%) !important;
+    color: hsl(0 0% 100%) !important;
+  }
 }

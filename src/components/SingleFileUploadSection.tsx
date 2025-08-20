@@ -36,21 +36,25 @@ const SingleFileUploadSection: React.FC<SingleFileUploadSectionProps> = ({
   const processFile = useCallback(async (selectedFile: File) => {
     if (!enabled) return;
     
-    console.log('SingleFileUploadSection - Processing file:', {
+    console.log('🚀 SingleFileUploadSection - Processing file:', {
       fileName: selectedFile.name,
       fileType: selectedFile.type,
-      format: format
+      format: format,
+      title: title
     });
     
     setIsValidating(true);
     const validatedFile = await validateFile(selectedFile, format);
-    console.log('SingleFileUploadSection - Validation complete:', {
+    console.log('🎯 SingleFileUploadSection - Validation complete:', {
       valid: validatedFile.valid,
-      hasPreview: !!validatedFile.preview
+      hasPreview: !!validatedFile.preview,
+      errors: validatedFile.errors,
+      format: validatedFile.format
     });
+    
     onFileChange(validatedFile);
     setIsValidating(false);
-  }, [onFileChange, format, enabled]);
+  }, [onFileChange, format, enabled, title]);
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     if (acceptedFiles.length === 0 || !enabled) return;
