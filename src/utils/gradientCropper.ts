@@ -57,15 +57,31 @@ export const createGradientThumbnail = async (
   format: 'square' | 'vertical' | 'horizontal' | 'carousel-1:1' | 'carousel-4:5',
   thumbnailSize: ThumbnailSize
 ): Promise<string> => {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
+    console.log('🚀 Iniciando criação de thumbnail:', { gradientPath, format, thumbnailSize });
+    
     const img = new Image();
     img.crossOrigin = 'anonymous';
     
+    img.onerror = (error) => {
+      console.error('❌ Erro ao carregar imagem gradiente:', { error, gradientPath });
+      reject(new Error(`Falha ao carregar gradiente: ${gradientPath}`));
+    };
+    
     img.onload = () => {
+      console.log('✅ Imagem gradiente carregada:', { 
+        width: img.width, 
+        height: img.height, 
+        src: img.src 
+      });
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
       
-      if (!ctx) return;
+      if (!ctx) {
+        console.error('❌ Não foi possível obter contexto do canvas');
+        reject(new Error('Contexto do canvas não disponível'));
+        return;
+      }
       
       // Configurar tamanho do thumbnail (2x para qualidade)
       canvas.width = thumbnailSize.width * 2;
@@ -101,9 +117,108 @@ export const createGradientThumbnail = async (
         sourceSize: { width: img.width, height: img.height }
       });
       
-      resolve(canvas.toDataURL('image/png', 0.9));
+      const dataUrl = canvas.toDataURL('image/png', 0.9);
+      console.log('✅ Thumbnail gerado com sucesso, tamanho:', dataUrl.length);
+      resolve(dataUrl);
     };
     
+    console.log('📥 Carregando imagem:', gradientPath);
     img.src = gradientPath;
+  });
+};
+
+export const createCSSGradientThumbnail = async (
+  gradientStyle: string,
+  format: 'square' | 'vertical' | 'horizontal' | 'carousel-1:1' | 'carousel-4:5',
+  thumbnailSize: ThumbnailSize
+): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    console.log('🚀 Criando thumbnail CSS:', { gradientStyle, format, thumbnailSize });
+    
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    
+    if (!ctx) {
+      console.error('❌ Não foi possível obter contexto do canvas');
+      reject(new Error('Contexto do canvas não disponível'));
+      return;
+    }
+    
+    // Configurar tamanho do thumbnail (2x para qualidade)
+    canvas.width = thumbnailSize.width * 2;
+    canvas.height = thumbnailSize.height * 2;
+    
+    // Criar gradiente baseado no estilo CSS
+    let gradient;
+    
+    // Parse do CSS gradient
+    if (gradientStyle.includes('linear-gradient')) {
+      // Extrair direção e cores do linear-gradient
+      const match = gradientStyle.match(/linear-gradient\(([^)]+)\)/);
+      if (match) {
+        const parts = match[1].split(',').map(p => p.trim());
+        const direction = parts[0];
+        
+        // Determinar coordenadas baseado na direção
+        let x0 = 0, y0 = 0, x1 = 0, y1 = 0;
+        
+        if (direction.includes('deg')) {
+          const angle = parseInt(direction);
+          const radians = (angle * Math.PI) / 180;
+          x1 = Math.cos(radians) * canvas.width;
+          y1 = Math.sin(radians) * canvas.height;
+        } else if (direction.includes('90deg')) {
+          x1 = canvas.width;
+        } else if (direction.includes('180deg')) {
+          y1 = canvas.height;
+        } else {
+          // Diagonal padrão
+          x1 = canvas.width;
+          y1 = canvas.height;
+        }
+        
+        gradient = ctx.createLinearGradient(x0, y0, x1, y1);
+        
+        // Adicionar cores
+        for (let i = 1; i < parts.length; i++) {
+          const colorPart = parts[i].trim();
+          const colorMatch = colorPart.match(/(#[a-fA-F0-9]{6}|rgba?\([^)]+\))\s*(\d+%)?/);
+          if (colorMatch) {
+            const color = colorMatch[1];
+            const position = colorMatch[2] ? parseFloat(colorMatch[2]) / 100 : (i - 1) / (parts.length - 2);
+            gradient.addColorStop(position, color);
+          }
+        }
+      }
+    }
+    
+    // Fallback para gradiente simples se parsing falhar
+    if (!gradient) {
+      gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+      gradient.addColorStop(0, '#667eea');
+      gradient.addColorStop(1, '#764ba2');
+    }
+    
+    // Preencher canvas com o gradiente
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // Adicionar overlay sutil para melhor contraste
+    const overlayGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    overlayGradient.addColorStop(0, 'rgba(0,0,0,0.1)');
+    overlayGradient.addColorStop(1, 'rgba(0,0,0,0.3)');
+    ctx.fillStyle = overlayGradient;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    const dataUrl = canvas.toDataURL('image/png', 0.9);
+    
+    console.log('✅ Thumbnail CSS gerado:', { 
+      format, 
+      canvasSize: { width: canvas.width, height: canvas.height },
+      thumbnailSize,
+      dataUrlLength: dataUrl.length
+    });
+    
+    resolve(dataUrl);
   });
 };
