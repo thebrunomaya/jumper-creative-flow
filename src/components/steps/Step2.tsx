@@ -5,6 +5,7 @@ import FileUpload from '@/components/FileUpload';
 import CarouselMediaSection from '@/components/sections/CarouselMediaSection';
 import SingleMediaSection from '@/components/sections/SingleMediaSection';
 import ExistingPostSection from '@/components/sections/ExistingPostSection';
+import ErrorBoundary from '@/components/ErrorBoundary';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertTriangle } from 'lucide-react';
 
@@ -19,38 +20,53 @@ const Step2: React.FC<Step2Props> = ({
   updateFormData,
   errors
 }) => {
+  console.log('Step2 rendering with formData:', formData);
+  console.log('Step2 errors:', errors);
+  
+  try {
   // For carousel creative type
   if (formData.creativeType === 'carousel') {
+    console.log('Rendering CarouselMediaSection');
     return (
-      <CarouselMediaSection 
-        formData={formData}
-        updateFormData={updateFormData}
-        errors={errors}
-      />
+      <ErrorBoundary>
+        <CarouselMediaSection 
+          formData={formData}
+          updateFormData={updateFormData}
+          errors={errors}
+        />
+      </ErrorBoundary>
     );
   }
 
   // For single image/video ads
   if (formData.creativeType === 'single') {
+    console.log('Rendering SingleMediaSection');
     return (
-      <SingleMediaSection 
-        formData={formData}
-        updateFormData={updateFormData}
-        errors={errors}
-      />
+      <ErrorBoundary>
+        <SingleMediaSection 
+          formData={formData}
+          updateFormData={updateFormData}
+          errors={errors}
+        />
+      </ErrorBoundary>
     );
   }
 
   // For existing post type
   if (formData.creativeType === 'existing-post') {
+    console.log('Rendering ExistingPostSection');
     return (
-      <ExistingPostSection 
-        formData={formData}
-        updateFormData={updateFormData}
-        errors={errors}
-      />
+      <ErrorBoundary>
+        <ExistingPostSection 
+          formData={formData}
+          updateFormData={updateFormData}
+          errors={errors}
+        />
+      </ErrorBoundary>
     );
   }
+
+  console.log('Rendering default FileUpload component for creativeType:', formData.creativeType);
 
   // For other creative types, use the original FileUpload component
   return (
@@ -95,6 +111,18 @@ const Step2: React.FC<Step2Props> = ({
       )}
     </div>
   );
+  } catch (error) {
+    console.error('Error in Step2:', error);
+    return (
+      <div className="space-y-6 animate-fade-in">
+        <div className="text-center mb-8">
+          <h2 className="text-2xl font-bold text-foreground mb-2">⚠️ Erro no Step 2</h2>
+          <p className="text-muted-foreground">Ocorreu um erro ao carregar o Step 2</p>
+          <p className="text-sm text-destructive mt-2">{error?.message || 'Erro desconhecido'}</p>
+        </div>
+      </div>
+    );
+  }
 };
 
 export default Step2;

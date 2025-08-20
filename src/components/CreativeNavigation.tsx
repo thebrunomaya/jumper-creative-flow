@@ -3,6 +3,7 @@ import React from 'react';
 import { JumperButton } from '@/components/ui/jumper-button';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import ValidationPanel from './ValidationPanel';
+import { HealthStatus } from '@/components/ui/health-status';
 
 interface CreativeNavigationProps {
   currentStep: number;
@@ -11,6 +12,7 @@ interface CreativeNavigationProps {
   onSubmit: () => void;
   isSubmitting: boolean;
   errors?: Record<string, string>;
+  onSaveDraft?: () => void;
 }
 
 const CreativeNavigation: React.FC<CreativeNavigationProps> = ({
@@ -19,11 +21,17 @@ const CreativeNavigation: React.FC<CreativeNavigationProps> = ({
   onNextStep,
   onSubmit,
   isSubmitting,
-  errors = {}
+  errors = {},
+  onSaveDraft,
 }) => {
   return (
     <div className="pt-6 space-y-6">
       <ValidationPanel errors={errors} />
+      
+      {/* System Health Status */}
+      <div className="bg-card border rounded-lg p-3">
+        <HealthStatus showDetails={currentStep === 4} />
+      </div>
       
       <div className="flex justify-between items-center">
         <JumperButton
@@ -39,32 +47,50 @@ const CreativeNavigation: React.FC<CreativeNavigationProps> = ({
         <div className="flex-1" />
 
         {currentStep < 4 ? (
-          <JumperButton
-            variant="primary"
-            onClick={onNextStep}
-            disabled={Object.keys(errors).length > 0}
-            className={`flex items-center space-x-2 ${
-              Object.keys(errors).length > 0 ? 'opacity-50 cursor-not-allowed' : ''
-            }`}
-          >
-            <span>
-              {Object.keys(errors).length > 0 
-                ? `Corrija ${Object.keys(errors).length} problema(s) para continuar`
-                : 'Continuar'
-              }
-            </span>
-            {Object.keys(errors).length === 0 && <ArrowRight className="w-4 h-4" />}
-          </JumperButton>
+          <div className="flex items-center gap-3">
+            <JumperButton
+              variant="secondary"
+              onClick={onSaveDraft}
+              className="flex items-center space-x-2"
+            >
+              <span>Salvar rascunho</span>
+            </JumperButton>
+            <JumperButton
+              variant="primary"
+              onClick={onNextStep}
+              disabled={Object.keys(errors).length > 0}
+              className={`flex items-center space-x-2 ${
+                Object.keys(errors).length > 0 ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
+            >
+              <span>
+                {Object.keys(errors).length > 0 
+                  ? `Corrija ${Object.keys(errors).length} problema(s) para continuar`
+                  : 'Continuar'
+                }
+              </span>
+              {Object.keys(errors).length === 0 && <ArrowRight className="w-4 h-4" />}
+            </JumperButton>
+          </div>
         ) : (
-          <JumperButton
-            variant="critical"
-            onClick={onSubmit}
-            disabled={isSubmitting}
-            className="flex items-center space-x-2 px-8"
-          >
-            <span>🚀</span>
-            <span>{isSubmitting ? 'Enviando...' : 'Enviar Criativo'}</span>
-          </JumperButton>
+          <div className="flex items-center gap-3">
+            <JumperButton
+              variant="secondary"
+              onClick={onSaveDraft}
+              className="flex items-center space-x-2 px-8"
+            >
+              <span>Salvar</span>
+            </JumperButton>
+            <JumperButton
+              variant="critical"
+              onClick={onSubmit}
+              disabled={isSubmitting}
+              className="flex items-center space-x-2 px-8"
+            >
+              <span>🚀</span>
+              <span>{isSubmitting ? 'Enviando...' : 'Enviar Criativo'}</span>
+            </JumperButton>
+          </div>
         )}
       </div>
     </div>

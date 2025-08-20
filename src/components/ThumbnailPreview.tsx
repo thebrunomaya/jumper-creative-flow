@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Play, FileText, Instagram, Loader2 } from 'lucide-react';
 import { getThumbnailDimensions } from '@/utils/thumbnailUtils';
 import { useLazyThumbnail } from '@/hooks/useLazyThumbnail';
+import { useFileCleanup } from '@/hooks/useFileCleanup';
 import MetaZoneOverlay from './MetaZoneOverlay';
 
 interface ThumbnailPreviewProps {
@@ -30,6 +31,26 @@ const ThumbnailPreview: React.FC<ThumbnailPreviewProps> = ({
 }) => {
   // Get thumbnail dimensions for proper sizing
   const { width, height } = getThumbnailDimensions(format, carouselMode, carouselAspectRatio);
+  
+  // File cleanup for memory management
+  const { revokeUrl } = useFileCleanup();
+  
+  // Use lazy loading hook for thumbnail generation - ALWAYS call hooks first
+  const { ref, thumbnailSrc, isLoading, error } = useLazyThumbnail({
+    format,
+    carouselMode,
+    carouselAspectRatio,
+    enabled: enabled && !file // Only generate for empty state
+  });
+  
+  // Cleanup file preview URL when component unmounts or file changes
+  useEffect(() => {
+    return () => {
+      if (file?.preview) {
+        revokeUrl(file.preview);
+      }
+    };
+  }, [file?.preview, revokeUrl]);
 
   // Handle disabled state
   if (!enabled) {
@@ -107,13 +128,7 @@ const ThumbnailPreview: React.FC<ThumbnailPreviewProps> = ({
     );
   }
 
-  // Use lazy loading hook for thumbnail generation
-  const { ref, thumbnailSrc, isLoading, error } = useLazyThumbnail({
-    format,
-    carouselMode,
-    carouselAspectRatio,
-    enabled: enabled && !file // Only generate for empty state
-  });
+  // Hook was moved to the top of the component to avoid conditional hook calls
   
   // Handle empty state (no file) - Show beautiful mockup for regular media
   if (!file) {

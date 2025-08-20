@@ -1,10 +1,11 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import { ValidatedFile } from '@/types/creative';
 import { validateFile } from '@/utils/fileValidation';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { X, Upload, CheckCircle, AlertCircle, Image } from 'lucide-react';
 import { useDropzone } from 'react-dropzone';
+import { useFileCleanup } from '@/hooks/useFileCleanup';
 
 interface ImageUploadSectionProps {
   title: string;
@@ -24,6 +25,18 @@ const ImageUploadSection: React.FC<ImageUploadSectionProps> = ({
   placeholder
 }) => {
   const [isValidating, setIsValidating] = useState(false);
+  const { revokeUrl } = useFileCleanup();
+  
+  // Cleanup preview URLs when files change
+  useEffect(() => {
+    return () => {
+      files.forEach(file => {
+        if (file.preview) {
+          revokeUrl(file.preview);
+        }
+      });
+    };
+  }, [files, revokeUrl]);
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     setIsValidating(true);
@@ -48,6 +61,10 @@ const ImageUploadSection: React.FC<ImageUploadSectionProps> = ({
   });
 
   const removeFile = (index: number) => {
+    const fileToRemove = files[index];
+    if (fileToRemove?.preview) {
+      revokeUrl(fileToRemove.preview);
+    }
     const newFiles = files.filter((_, i) => i !== index);
     onFilesChange(newFiles);
   };

@@ -1,1 +1,38 @@
 project_id = "biwwowendjuzvpttyrlb"
+
+# J_ADS namespaced functions
+[functions.j_ads_ingest_creative]
+verify_jwt = true
+
+[functions.j_ads_admin_actions]
+verify_jwt = true
+
+[functions.j_ads_manager_actions]
+verify_jwt = true
+
+[functions.j_ads_ensure_role]
+verify_jwt = true
+
+[functions.j_ads_notion_my_accounts]
+verify_jwt = true
+
+[functions.j_ads_notion_clients]
+verify_jwt = true
+
+[functions.j_ads_notion_partners]
+verify_jwt = true
+
+[functions.j_ads_notion_managers]
+verify_jwt = true
+
+[functions.j_ads_notion_sync]
+verify_jwt = true
+
+[functions.j_ads_notion_sync_cron]
+verify_jwt = false
+
+[functions.j_ads_process_submissions]
+verify_jwt = false
+
+[functions.j_ads_submit_creative]
+verify_jwt = true

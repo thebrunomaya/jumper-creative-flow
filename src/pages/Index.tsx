@@ -1,8 +1,7 @@
-
-import CreativeSystem from '@/components/CreativeSystem';
+import Manager from '@/pages/Manager';
 
 const Index = () => {
-  return <CreativeSystem />;
+  return <Manager />;
 };
 
 export default Index;

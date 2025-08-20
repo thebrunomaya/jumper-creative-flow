@@ -1,20 +1,54 @@
 import React from 'react';
 import { FormData } from '@/types/creative';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertTriangle, CheckCircle, FileText, Image, Video, Users, User, Instagram, ExternalLink, Hash } from 'lucide-react';
+import { AlertTriangle, CheckCircle, FileText, Image, Video, Users, User, Instagram, ExternalLink, Hash, Copy, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
 import { useNotionClients } from '@/hooks/useNotionData';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { previewCreativeNameDetailed } from '@/utils/creativeName';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { previewCreativeNameDetailed, getObjectiveCode, getTypeCode } from '@/utils/creativeName';
+import { supabase } from '@/integrations/supabase/client';
+import { validateCTA } from '@/utils/ctaValidation';
+import { VALID_CTAS } from '@/types/creative';
+import { useToast } from '@/hooks/use-toast';
+
+// Logging types
+interface LogEntry {
+  ts: number;
+  level: 'info' | 'warn' | 'error';
+  message: string;
+  data?: unknown;
+}
+
+interface SubmissionError {
+  message: string;
+  stack?: string;
+  name?: string;
+  status?: number;
+  details?: any;
+}
 
 interface Step4Props {
   formData: FormData;
   isSubmitting: boolean;
+  submissionLog?: LogEntry[];
+  submissionError?: SubmissionError | null;
+  lastInvoke?: { data?: unknown; error?: unknown } | null;
+  onClearLog?: () => void;
 }
 
-const Step4: React.FC<Step4Props> = ({ formData, isSubmitting }) => {
+const Step4: React.FC<Step4Props> = ({ 
+  formData, 
+  isSubmitting, 
+  submissionLog = [], 
+  submissionError,
+  lastInvoke,
+  onClearLog 
+}) => {
   const { clients } = useNotionClients();
   const { currentUser } = useAuth();
+  const { toast } = useToast();
+  const [isLogExpanded, setIsLogExpanded] = React.useState(false);
 
   // Check if this is an existing post
   const isExistingPost = formData.creativeType === 'existing-post';
@@ -23,7 +57,30 @@ const Step4: React.FC<Step4Props> = ({ formData, isSubmitting }) => {
   const selectedClient = clients.find(c => c.id === formData.client);
   const clientName = selectedClient?.name || 'Cliente não encontrado';
 
-  // Generate preview of final creative name using the detailed function
+  // Fetch account code via edge function for accurate preview
+  const [accountCode, setAccountCode] = React.useState<string | null>(null);
+  React.useEffect(() => {
+    let isMounted = true;
+    async function fetchAccountCode() {
+      if (!formData.client) { if (isMounted) setAccountCode(null); return; }
+      try {
+        const { data, error } = await supabase.functions.invoke('j_ads_manager_actions', {
+          body: { action: 'accountCode', notionId: formData.client },
+        });
+        if (!error && data?.success && isMounted) {
+          setAccountCode(data.accountCode || null);
+        } else if (isMounted) {
+          setAccountCode(null);
+        }
+      } catch (_) {
+        if (isMounted) setAccountCode(null);
+      }
+    }
+    fetchAccountCode();
+    return () => { isMounted = false; };
+  }, [formData.client]);
+
+  // Generate preview of final creative name using detailed function (prefer accurate account code)
   const finalCreativeName = React.useMemo(() => {
     if (
       formData.creativeName && 
@@ -31,6 +88,11 @@ const Step4: React.FC<Step4Props> = ({ formData, isSubmitting }) => {
       formData.creativeType && 
       selectedClient
     ) {
+      if (accountCode) {
+        const obj = getObjectiveCode(formData.campaignObjective);
+        const type = getTypeCode(formData.creativeType);
+        return `JSC-XXX_${formData.creativeName}_${obj}_${type}_${accountCode}`;
+      }
       return previewCreativeNameDetailed(
         formData.creativeName,
         formData.campaignObjective,
@@ -39,60 +101,68 @@ const Step4: React.FC<Step4Props> = ({ formData, isSubmitting }) => {
       );
     }
     return null;
-  }, [formData.creativeName, formData.campaignObjective, formData.creativeType, selectedClient]);
+  }, [formData.creativeName, formData.campaignObjective, formData.creativeType, selectedClient, accountCode]);
 
+  // Validate CTA
+  const ctaValidation = validateCTA(formData.cta || formData.callToAction || '');
+  
   // Check for validation issues based on creative type
   const getValidationIssues = () => {
+    const issues: string[] = [];
+    
+    // Add CTA validation issue if applicable
+    if (!ctaValidation.isValid) {
+      issues.push(`CTA "${formData.cta || formData.callToAction}" não é válido. Sugestão: "${ctaValidation.suggestion}"`);
+    }
     if (formData.creativeType === 'carousel') {
       // For carousel, check carouselCards
       if (!formData.carouselCards || formData.carouselCards.length === 0) {
-        return ['Nenhum cartão de carrossel encontrado'];
+        issues.push('Nenhum cartão de carrossel encontrado');
+      } else {
+        const invalidCards = formData.carouselCards.filter(card => !card.file || !card.file.valid);
+        if (invalidCards.length > 0) {
+          issues.push(`${invalidCards.length} cartão(s) do carrossel com problemas`);
+        }
       }
       
-      const invalidCards = formData.carouselCards.filter(card => !card.file || !card.file.valid);
-      if (invalidCards.length > 0) {
-        return [`${invalidCards.length} cartão(s) do carrossel com problemas`];
-      }
-      
-      return [];
+      return issues;
     } else if (formData.creativeType === 'single') {
       // For single, check mediaVariations
       if (!formData.mediaVariations || formData.mediaVariations.length === 0) {
-        return ['Nenhuma variação de mídia encontrada'];
-      }
-      
-      const issues: string[] = [];
-      formData.mediaVariations.forEach((variation, index) => {
-        const requiredPositions = [];
-        if (variation.squareEnabled !== false) requiredPositions.push('square');
-        if (variation.verticalEnabled !== false) requiredPositions.push('vertical');
-        if (variation.horizontalEnabled !== false) requiredPositions.push('horizontal');
-        
-        const missingFiles = requiredPositions.filter(position => {
-          const file = variation[`${position}File`];
-          return !file || !file.valid;
+        issues.push('Nenhuma variação de mídia encontrada');
+      } else {
+        formData.mediaVariations.forEach((variation, index) => {
+          const requiredPositions = [];
+          if (variation.squareEnabled !== false) requiredPositions.push('square');
+          if (variation.verticalEnabled !== false) requiredPositions.push('vertical');
+          if (variation.horizontalEnabled !== false) requiredPositions.push('horizontal');
+          
+          const missingFiles = requiredPositions.filter(position => {
+            const file = variation[`${position}File`];
+            return !file || !file.valid;
+          });
+          
+          if (missingFiles.length > 0) {
+            issues.push(`Variação ${index + 1}: ${missingFiles.join(', ')} com problemas`);
+          }
         });
-        
-        if (missingFiles.length > 0) {
-          issues.push(`Variação ${index + 1}: ${missingFiles.join(', ')} com problemas`);
-        }
-      });
+      }
       
       return issues;
     } else if (formData.creativeType === 'existing-post') {
       // For existing post, check URL validation
       if (!formData.existingPost || !formData.existingPost.valid) {
-        return ['URL da publicação do Instagram inválida ou não fornecida'];
+        issues.push('URL da publicação do Instagram inválida ou não fornecida');
       }
-      return [];
+      return issues;
     } else {
       // For other types, check validatedFiles
       const invalidFiles = formData.validatedFiles.filter(f => !f.valid);
       if (invalidFiles.length > 0) {
-        return [`${invalidFiles.length} arquivo(s) com problemas`];
+        issues.push(`${invalidFiles.length} arquivo(s) com problemas`);
       }
       
-      return [];
+      return issues;
     }
   };
 
@@ -119,6 +189,48 @@ const Step4: React.FC<Step4Props> = ({ formData, isSubmitting }) => {
   };
 
   const totalFiles = getTotalFiles();
+
+  // Copy log to clipboard
+  const copyLogToClipboard = () => {
+    const logData = {
+      timestamp: new Date().toISOString(),
+      events: submissionLog,
+      error: submissionError,
+      lastInvokeSummary: lastInvoke ? {
+        hasData: Boolean(lastInvoke.data),
+        hasError: Boolean(lastInvoke.error),
+        dataKeys: lastInvoke.data ? Object.keys(lastInvoke.data) : undefined,
+        errorMessage: (lastInvoke.error as any)?.message
+      } : null
+    };
+    
+    navigator.clipboard.writeText(JSON.stringify(logData, null, 2)).then(() => {
+      toast({
+        title: "Log copiado!",
+        description: "O log foi copiado para a área de transferência."
+      });
+    }).catch(() => {
+      toast({
+        title: "Erro ao copiar",
+        description: "Não foi possível copiar o log.",
+        variant: "destructive"
+      });
+    });
+  };
+
+  // Format timestamp for display
+  const formatTime = (ts: number) => {
+    return new Date(ts).toLocaleTimeString('pt-BR');
+  };
+
+  // Get level color
+  const getLevelColor = (level: string) => {
+    switch (level) {
+      case 'error': return 'text-red-600';
+      case 'warn': return 'text-yellow-600';
+      default: return 'text-blue-600';
+    }
+  };
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -168,7 +280,11 @@ const Step4: React.FC<Step4Props> = ({ formData, isSubmitting }) => {
         <Alert className="mb-6 border-green-200 bg-green-50">
           <CheckCircle className="h-4 w-4 text-green-600" />
           <AlertDescription className="text-green-700">
-            <strong>Tudo pronto!</strong> Seu criativo está válido e pode ser enviado.
+            <strong>Tudo pronto!</strong> Seu criativo está válido e pode ser salvo.
+            <br />
+            <span className="text-xs mt-1 block text-green-600">
+              📝 Após salvar, o criativo ficará pendente para aprovação do Admin. O Admin então publicará no Notion.
+            </span>
           </AlertDescription>
         </Alert>
       )}
@@ -350,13 +466,170 @@ const Step4: React.FC<Step4Props> = ({ formData, isSubmitting }) => {
         </div>
       )}
 
+      {/* Submission Error Log */}
+      {(submissionError || submissionLog.length > 0) && (
+        <div className="bg-card border rounded-lg p-6 shadow-sm">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-semibold text-foreground">Log do Envio</h3>
+            <div className="flex space-x-2">
+              {submissionLog.length > 0 && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={copyLogToClipboard}
+                  className="text-xs h-7"
+                >
+                  <Copy className="h-3 w-3 mr-1" />
+                  Copiar log
+                </Button>
+              )}
+              {onClearLog && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={onClearLog}
+                  className="text-xs h-7"
+                >
+                  <Trash2 className="h-3 w-3 mr-1" />
+                  Limpar log
+                </Button>
+              )}
+            </div>
+          </div>
+
+          {/* Error Alert */}
+          {submissionError && (
+            <Alert variant="destructive" className="mb-4">
+              <AlertTriangle className="h-4 w-4" />
+              <AlertDescription>
+                <strong>Erro durante o envio:</strong>
+                <br />
+                {submissionError.message}
+                {submissionError.status && (
+                  <span className="text-xs block mt-1">Status: {submissionError.status}</span>
+                )}
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {/* Log Details - Collapsible */}
+          {submissionLog.length > 0 && (
+            <Collapsible open={isLogExpanded} onOpenChange={setIsLogExpanded}>
+              <CollapsibleTrigger asChild>
+                <Button variant="ghost" className="w-full justify-between p-2 h-auto">
+                  <span className="text-sm font-medium">Detalhes técnicos ({submissionLog.length} eventos)</span>
+                  {isLogExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                </Button>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="mt-3">
+                <div className="space-y-3">
+                  {/* Request Summary */}
+                  {submissionLog.some(log => log.message.includes('Preparando dados')) && (
+                    <div className="bg-muted/50 border rounded-lg p-3">
+                      <h4 className="text-sm font-medium mb-2">Resumo da Requisição</h4>
+                      <div className="text-xs space-y-1">
+                        <div><span className="font-medium">Função chamada:</span> j_ads_ingest_creative</div>
+                        {submissionLog
+                          .filter(log => log.message.includes('Preparando dados'))
+                          .map((log, i) => (
+                            <div key={i}>
+                              {log.data && typeof log.data === 'object' && 'totalFiles' in log.data && (
+                                <div><span className="font-medium">Total de arquivos:</span> {(log.data as any).totalFiles}</div>
+                              )}
+                              {log.data && typeof log.data === 'object' && 'fileCountsByFormat' in log.data && (
+                                <div><span className="font-medium">Por formato:</span> {JSON.stringify((log.data as any).fileCountsByFormat)}</div>
+                              )}
+                              {log.data && typeof log.data === 'object' && 'payloadSizeKB' in log.data && (
+                                <div><span className="font-medium">Tamanho estimado:</span> {(log.data as any).payloadSizeKB}</div>
+                              )}
+                            </div>
+                          ))
+                        }
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Event Log */}
+                  <div className="bg-muted/50 border rounded-lg p-3">
+                    <h4 className="text-sm font-medium mb-2">Cronologia de Eventos</h4>
+                    <div className="max-h-40 overflow-y-auto space-y-2">
+                      {submissionLog.map((log, i) => (
+                        <div key={i} className="text-xs border-l-2 pl-2" style={{
+                          borderLeftColor: log.level === 'error' ? '#ef4444' : log.level === 'warn' ? '#f59e0b' : '#3b82f6'
+                        }}>
+                          <div className="flex items-center space-x-2">
+                            <span className="text-muted-foreground">{formatTime(log.ts)}</span>
+                            <span className={`font-medium ${getLevelColor(log.level)}`}>
+                              {log.level.toUpperCase()}
+                            </span>
+                            <span>{log.message}</span>
+                          </div>
+                          {log.data && (
+                            <pre className="mt-1 text-xs text-muted-foreground whitespace-pre-wrap font-mono">
+                              {JSON.stringify(log.data, null, 2).slice(0, 200)}
+                              {JSON.stringify(log.data).length > 200 ? '...' : ''}
+                            </pre>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Error Details */}
+                  {submissionError && (
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                      <h4 className="text-sm font-semibold text-red-900 mb-3">Detalhes do Erro</h4>
+                      <div className="text-sm space-y-2 text-red-800">
+                        {submissionError.name && (
+                          <div><span className="font-semibold">Tipo:</span> {submissionError.name}</div>
+                        )}
+                        {submissionError.status && (
+                          <div><span className="font-semibold">Status:</span> {submissionError.status}</div>
+                        )}
+                        {submissionError.details && (
+                          <div>
+                            <span className="font-semibold">Detalhes:</span>
+                            <pre className="mt-2 text-xs bg-red-100 border border-red-300 p-3 rounded whitespace-pre-wrap font-mono text-red-900">
+                              {JSON.stringify(submissionError.details, null, 2).slice(0, 500)}
+                              {JSON.stringify(submissionError.details).length > 500 ? '...' : ''}
+                            </pre>
+                          </div>
+                        )}
+                        {!submissionError.details && (
+                          <div className="text-red-700">Sem detalhes adicionais</div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
+          )}
+        </div>
+      )}
+
       {/* Submission Status */}
       {isSubmitting && (
         <div className="text-center py-8">
-          <div className="inline-flex items-center space-x-3 text-jumper-blue">
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-jumper-blue"></div>
-            <span className="font-medium">Enviando criativo...</span>
-          </div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-jumper-blue mx-auto mb-4"></div>
+          <p className="text-lg font-medium text-foreground">Salvando criativo...</p>
+          <p className="text-sm text-muted-foreground mt-2">Aguarde enquanto processamos sua submissão</p>
+          {submissionLog.length > 0 && (
+            <div className="mt-4 text-left max-w-md mx-auto">
+              <div className="bg-muted/50 border rounded-lg p-3">
+                <h4 className="text-sm font-medium mb-2">Progresso em tempo real:</h4>
+                <div className="max-h-32 overflow-y-auto space-y-1">
+                  {submissionLog.slice(-5).map((log, i) => (
+                    <div key={i} className="text-xs flex items-center space-x-2">
+                      <span className="text-muted-foreground">{formatTime(log.ts)}</span>
+                      <span className={getLevelColor(log.level)}>•</span>
+                      <span>{log.message}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

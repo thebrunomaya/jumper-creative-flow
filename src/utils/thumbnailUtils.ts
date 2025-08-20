@@ -55,16 +55,7 @@ export const getThumbnailDimensions = (format: 'square' | 'vertical' | 'horizont
     }
   }
   
-  // DEBUG: Mostrar cálculos das dimensões
-  console.log('📐 Dimension calc:', {
-    format,
-    carouselMode,
-    carouselAspectRatio,
-    aspectRatio,
-    finalDimensions: { width, height },
-    isVertical: aspectRatio < 1,
-    isHorizontal: aspectRatio > 1
-  });
+  // Remove debug logging for performance
   
   return { 
     width, 
@@ -125,7 +116,6 @@ export const generateThumbnailPreview = async (
   }
   
   const { width, height } = getThumbnailDimensions(format, carouselMode, carouselAspectRatio);
-  console.log('🎨 Dimensions:', { format, carouselMode, carouselAspectRatio, width, height });
   
   // Determinar qual gradiente usar baseado no formato e modo carrossel
   let gradientKey: string;
@@ -141,8 +131,6 @@ export const generateThumbnailPreview = async (
   
   // Usar gradientes orgânicos locais com crop inteligente
   const gradientPath = GRADIENT_MAPPING[gradientKey as keyof typeof GRADIENT_MAPPING];
-  
-  console.log('🎨 Gradient info:', { gradientKey, gradientFormat, gradientPath });
   
   const result = await createGradientThumbnail(gradientPath, gradientFormat as 'square' | 'vertical' | 'horizontal' | 'carousel-1:1' | 'carousel-4:5', { width, height });
   

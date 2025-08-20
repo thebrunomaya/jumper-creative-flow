@@ -3,6 +3,8 @@ import { useState, useEffect } from 'react';
 import { Client, Partner } from '@/types/creative';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { useMyNotionAccounts } from '@/hooks/useMyNotionAccounts';
+import { normalizeObjective, getDistinctObjectives } from '../utils/objectives';
 
 interface NotionClient {
   id: string;
@@ -45,12 +47,30 @@ export const useNotionClients = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { currentUser } = useAuth();
+  const { accountIds, loading: accountsLoading } = useMyNotionAccounts();
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [userAccessibleAccounts, setUserAccessibleAccounts] = useState<string[]>([]);
 
   useEffect(() => {
+    const checkRole = async () => {
+      const { data: authData } = await supabase.auth.getUser();
+      const userId = currentUser?.id || authData?.user?.id || null;
+      if (!userId) return setIsAdmin(false);
+      const { data, error } = await supabase.rpc('has_role', { _user_id: userId, _role: 'admin' });
+      setIsAdmin(!error && !!data);
+    };
+    checkRole();
+  }, [currentUser?.id]);
+
+  useEffect(() => {
+    if (!isAdmin && accountsLoading) {
+      setLoading(true);
+      return;
+    }
     const fetchClients = async () => {
       try {
         console.log('Fetching clients from Notion DB_Contas...');
-        const { data, error } = await supabase.functions.invoke('notion-clients');
+        const { data, error } = await supabase.functions.invoke('j_ads_notion_clients');
         
         if (error) {
           console.error('Supabase function error:', error);
@@ -105,25 +125,42 @@ export const useNotionClients = () => {
             }
           }
           
+          // Normalize objectives and remove duplicates
+          const normalizedObjectives = getDistinctObjectives(objectives);
+          
           return {
             id: item.id,
             name: name,
-            objectives: objectives
+            objectives: normalizedObjectives
           };
         });
         
-        // Filtrar clientes baseado nas contas do gerente logado
+        // Store user's specifically linked accounts for both admin and regular users
+        setUserAccessibleAccounts(accountIds || []);
+        
+        // Filter clients based on role
         let filteredClients = formattedClients;
-        if (currentUser?.accounts && currentUser.accounts.length > 0) {
-          filteredClients = formattedClients.filter(client => 
-            currentUser.accounts!.includes(client.id)
-          );
-          console.log('Filtered clients for manager:', filteredClients);
+        if (!isAdmin) {
+          // Regular users: only their linked accounts
+          if (accountIds && accountIds.length > 0) {
+            filteredClients = formattedClients.filter(client => accountIds.includes(client.id));
+            console.log('Filtered clients for manager:', filteredClients);
+          } else {
+            filteredClients = [];
+          }
+        } else {
+          // Admin users: all clients (but we track their personal linked accounts separately)
+          console.log('Admin user - showing all clients, personal linked accounts:', accountIds);
+          filteredClients = formattedClients; // Admins see all
         }
         
         console.log('Formatted clients:', filteredClients);
         setClients(filteredClients);
-        setError(null);
+        if (!isAdmin && filteredClients.length === 0) {
+          setError('Você não tem contas vinculadas no Notion.');
+        } else {
+          setError(null);
+        }
       } catch (err) {
         console.error('Error fetching clients:', err);
         setError('Erro ao carregar clientes do Notion');
@@ -141,9 +178,9 @@ export const useNotionClients = () => {
     };
 
     fetchClients();
-  }, [currentUser]); // Refetch quando o usuário mudar
+  }, [accountIds, accountsLoading, isAdmin]); // Refetch quando contas vinculadas mudarem ou quando role/carregamento mudar
 
-  return { clients, loading, error };
+  return { clients, loading, error, isAdmin, userAccessibleAccounts };
 };
 
 export const useNotionPartners = () => {
@@ -155,7 +192,7 @@ export const useNotionPartners = () => {
     const fetchPartners = async () => {
       try {
         console.log('Fetching partners from Notion DB_Parceiros...');
-        const { data, error } = await supabase.functions.invoke('notion-partners');
+        const { data, error } = await supabase.functions.invoke('j_ads_notion_partners');
         
         if (error) {
           console.error('Supabase function error:', error);

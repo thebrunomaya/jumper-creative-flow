@@ -1,14 +1,16 @@
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { FormData } from '@/types/creative';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { JumperCard, JumperCardContent } from '@/components/ui/jumper-card';
 import { JumperInput } from '@/components/ui/jumper-input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { useNotionClients } from '@/hooks/useNotionData';
+
 import { Skeleton } from '@/components/ui/skeleton';
-import { validateCreativeName, previewCreativeNameDetailed } from '@/utils/creativeName';
+import { validateCreativeName, previewCreativeNameDetailed, getObjectiveCode, getTypeCode } from '@/utils/creativeName';
+import { organizeClientAccounts } from '@/utils/accountUtils';
+import { supabase } from '@/integrations/supabase/client';
 import facebookLogo from '@/assets/facebook-logo.svg';
 import googleGLogo from '@/assets/google-g-logo.svg';
 
@@ -16,15 +18,50 @@ interface Step1Props {
   formData: FormData;
   updateFormData: (data: Partial<FormData>) => void;
   errors: Record<string, string>;
+  clients: Array<{ id: string; name: string; objectives?: string[] }>;
+  clientsLoading: boolean;
+  clientsError: string | null;
+  isAdmin: boolean;
+  userAccessibleAccounts: string[];
 }
 
-const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
-  const { clients, loading: clientsLoading, error: clientsError } = useNotionClients();
+const Step1: React.FC<Step1Props> = ({ 
+  formData, 
+  updateFormData, 
+  errors, 
+  clients, 
+  clientsLoading, 
+  clientsError, 
+  isAdmin, 
+  userAccessibleAccounts 
+}) => {
 
   // Get selected client data to access objectives
   const selectedClient = clients.find(client => client.id === formData.client);
   const availableObjectives = selectedClient?.objectives || [];
 
+  // Fetch account code via edge function for accurate preview
+  const [accountCode, setAccountCode] = React.useState<string | null>(null);
+  React.useEffect(() => {
+    let isMounted = true;
+    async function fetchAccountCode() {
+      if (!formData.client) { if (isMounted) setAccountCode(null); return; }
+      try {
+        const { data, error } = await supabase.functions.invoke('j_ads_manager_actions', {
+          body: { action: 'accountCode', notionId: formData.client },
+        });
+        if (!error && data?.success && isMounted) {
+          setAccountCode(data.accountCode || null);
+        } else if (isMounted) {
+          setAccountCode(null);
+        }
+      } catch (_) {
+        if (isMounted) setAccountCode(null);
+      }
+    }
+    fetchAccountCode();
+    return () => { isMounted = false; };
+  }, [formData.client]);
   // Check if all prerequisites for creative name are filled
   const canShowCreativeName = !!(
     formData.client && 
@@ -33,20 +70,33 @@ const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
     (formData.platform === 'google' || formData.creativeType) // For Google, creativeType is not required
   );
 
-  // Handle creative name change with automatic space removal
+  // Handle creative name change replacing spaces with underscores
   const handleCreativeNameChange = (value: string) => {
-    const cleanValue = value.replace(/\s/g, ''); // Remove espaços automaticamente
+    const cleanValue = value.replace(/\s+/g, '_');
     updateFormData({ creativeName: cleanValue });
   };
 
+  // Memoizar a ordenação das contas para evitar re-renders desnecessários
+  const sortedClients = useMemo(() => 
+    organizeClientAccounts(clients, userAccessibleAccounts), 
+    [clients, userAccessibleAccounts]
+  );
+
   // Generate detailed preview name if all required fields are filled
-  const detailedPreviewName = React.useMemo(() => {
+  const detailedPreviewName = useMemo(() => {
     if (
       formData.creativeName && 
       formData.campaignObjective && 
       formData.creativeType && 
       selectedClient
     ) {
+      // If we have the real account code, compute an accurate preview aligned with backend
+      if (accountCode) {
+        const obj = getObjectiveCode(formData.campaignObjective);
+        const type = getTypeCode(formData.creativeType);
+        return `JSC-XXX_${formData.creativeName}_${obj}_${type}_${accountCode}`;
+      }
+      // Fallback to previous preview (with #XXX)
       return previewCreativeNameDetailed(
         formData.creativeName,
         formData.campaignObjective,
@@ -55,7 +105,7 @@ const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
       );
     }
     return null;
-  }, [formData.creativeName, formData.campaignObjective, formData.creativeType, selectedClient]);
+  }, [formData.creativeName, formData.campaignObjective, formData.creativeType, selectedClient, accountCode]);
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -70,18 +120,56 @@ const Step1: React.FC<Step1Props> = ({ formData, updateFormData, errors }) => {
           Conta *
         </Label>
         {clientsLoading ? (
-          <Skeleton className="h-12 w-full" />
+          <div className="space-y-2">
+            <Skeleton className="h-12 w-full" />
+            <div className="text-xs text-muted-foreground animate-pulse">
+              Carregando contas...
+            </div>
+          </div>
         ) : (
           <Select value={formData.client} onValueChange={(value) => updateFormData({ client: value, campaignObjective: undefined, creativeType: undefined, objective: undefined, creativeName: '' })}>
             <SelectTrigger className={`h-12 ${errors.client ? 'border-destructive bg-destructive/10' : ''}`}>
               <SelectValue placeholder="Selecione a conta" />
             </SelectTrigger>
             <SelectContent>
-              {clients.map((client) => (
+              {/* Seção: Minhas Contas (contas vinculadas do usuário) */}
+              {isAdmin && sortedClients.sortedNormalAccounts.length > 0 && (
+                <div className="px-2 py-1 bg-green-50 border-l-2 border-green-500">
+                  <div className="text-xs font-medium text-green-700">📋 Minhas Contas</div>
+                </div>
+              )}
+              {sortedClients.sortedNormalAccounts.map((client) => (
                 <SelectItem key={client.id} value={client.id}>
-                  {client.name}
+                  <span className="flex items-center">
+                    <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                    {client.name}
+                    {isAdmin && <span className="ml-auto text-xs text-green-600">Vinculada</span>}
+                  </span>
                 </SelectItem>
               ))}
+              
+              {/* Seção: Outras Contas (apenas admin) */}
+              {isAdmin && sortedClients.sortedAdminOnlyAccounts.length > 0 && (
+                <>
+                  {sortedClients.sortedNormalAccounts.length > 0 && (
+                    <div className="px-2 py-1">
+                      <div className="h-px bg-border"></div>
+                    </div>
+                  )}
+                  <div className="px-2 py-1 bg-orange-50 border-l-2 border-orange-500">
+                    <div className="text-xs font-medium text-orange-700">⚙️ Outras Contas (Admin)</div>
+                  </div>
+                  {sortedClients.sortedAdminOnlyAccounts.map((client) => (
+                    <SelectItem key={client.id} value={client.id}>
+                      <span className="flex items-center text-muted-foreground">
+                        <span className="w-2 h-2 bg-orange-400 rounded-full mr-2"></span>
+                        {client.name}
+                        <span className="ml-auto text-xs text-orange-600">Admin</span>
+                      </span>
+                    </SelectItem>
+                  ))}
+                </>
+              )}
             </SelectContent>
           </Select>
         )}

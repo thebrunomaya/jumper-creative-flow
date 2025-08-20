@@ -7,88 +7,289 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.3 (519615d)"
   }
   public: {
     Tables: {
-      accounts: {
+      j_ads_creative_files: {
         Row: {
-          account_manager: string | null
-          ad_account_id: string
           created_at: string
-          google_ads_id: string | null
-          manager: string | null
-          monthly_budget_google: number | null
-          monthly_budget_meta: number | null
-          monthly_budget_tiktok: number | null
-          name: string
-          niche: Json | null
-          notion_id: string
-          objectives: Json
-          partner_id: string | null
-          payment_method: string | null
-          sowork_channel: string | null
-          status: string | null
-          tasks: Json | null
-          tier: number | null
-          tracking: Json | null
-          updated_at: string
-          whatsapp: string | null
-          woo_consumer_key: string | null
-          woo_consumer_secret: string | null
+          format: string | null
+          id: string
+          instagram_url: string | null
+          name: string | null
+          public_url: string | null
+          size: number | null
+          storage_path: string | null
+          submission_id: string
+          type: string | null
+          variation_index: number
         }
         Insert: {
-          account_manager?: string | null
-          ad_account_id: string
           created_at?: string
-          google_ads_id?: string | null
-          manager?: string | null
-          monthly_budget_google?: number | null
-          monthly_budget_meta?: number | null
-          monthly_budget_tiktok?: number | null
-          name: string
-          niche?: Json | null
-          notion_id: string
-          objectives?: Json
-          partner_id?: string | null
-          payment_method?: string | null
-          sowork_channel?: string | null
-          status?: string | null
-          tasks?: Json | null
-          tier?: number | null
-          tracking?: Json | null
-          updated_at?: string
-          whatsapp?: string | null
-          woo_consumer_key?: string | null
-          woo_consumer_secret?: string | null
+          format?: string | null
+          id?: string
+          instagram_url?: string | null
+          name?: string | null
+          public_url?: string | null
+          size?: number | null
+          storage_path?: string | null
+          submission_id: string
+          type?: string | null
+          variation_index: number
         }
         Update: {
-          account_manager?: string | null
-          ad_account_id?: string
           created_at?: string
-          google_ads_id?: string | null
-          manager?: string | null
-          monthly_budget_google?: number | null
-          monthly_budget_meta?: number | null
-          monthly_budget_tiktok?: number | null
-          name?: string
-          niche?: Json | null
-          notion_id?: string
-          objectives?: Json
-          partner_id?: string | null
-          payment_method?: string | null
-          sowork_channel?: string | null
-          status?: string | null
-          tasks?: Json | null
-          tier?: number | null
-          tracking?: Json | null
+          format?: string | null
+          id?: string
+          instagram_url?: string | null
+          name?: string | null
+          public_url?: string | null
+          size?: number | null
+          storage_path?: string | null
+          submission_id?: string
+          type?: string | null
+          variation_index?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "creative_files_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: false
+            referencedRelation: "j_ads_creative_submissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      j_ads_creative_submissions: {
+        Row: {
+          campaign_objective: string | null
+          client: string | null
+          created_at: string
+          creative_type: string | null
+          error: string | null
+          id: string
+          manager_id: string | null
+          partner: string | null
+          payload: Json
+          platform: string | null
+          processed_at: string | null
+          result: Json | null
+          status: Database["public"]["Enums"]["submission_status"]
+          total_variations: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          campaign_objective?: string | null
+          client?: string | null
+          created_at?: string
+          creative_type?: string | null
+          error?: string | null
+          id?: string
+          manager_id?: string | null
+          partner?: string | null
+          payload: Json
+          platform?: string | null
+          processed_at?: string | null
+          result?: Json | null
+          status?: Database["public"]["Enums"]["submission_status"]
+          total_variations?: number
           updated_at?: string
-          whatsapp?: string | null
-          woo_consumer_key?: string | null
-          woo_consumer_secret?: string | null
+          user_id: string
+        }
+        Update: {
+          campaign_objective?: string | null
+          client?: string | null
+          created_at?: string
+          creative_type?: string | null
+          error?: string | null
+          id?: string
+          manager_id?: string | null
+          partner?: string | null
+          payload?: Json
+          platform?: string | null
+          processed_at?: string | null
+          result?: Json | null
+          status?: Database["public"]["Enums"]["submission_status"]
+          total_variations?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      j_ads_creative_variations: {
+        Row: {
+          created_at: string
+          creative_id: string
+          cta: string | null
+          full_creative_name: string
+          id: string
+          notion_page_id: string
+          processed_at: string | null
+          submission_id: string
+          updated_at: string
+          variation_index: number
+        }
+        Insert: {
+          created_at?: string
+          creative_id: string
+          cta?: string | null
+          full_creative_name: string
+          id?: string
+          notion_page_id: string
+          processed_at?: string | null
+          submission_id: string
+          updated_at?: string
+          variation_index: number
+        }
+        Update: {
+          created_at?: string
+          creative_id?: string
+          cta?: string | null
+          full_creative_name?: string
+          id?: string
+          notion_page_id?: string
+          processed_at?: string | null
+          submission_id?: string
+          updated_at?: string
+          variation_index?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "creative_variations_submission_fk"
+            columns: ["submission_id"]
+            isOneToOne: false
+            referencedRelation: "j_ads_creative_submissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      j_ads_error_logs: {
+        Row: {
+          component_name: string | null
+          created_at: string | null
+          error_type: string
+          id: string
+          message: string
+          metadata: Json | null
+          resolved: boolean | null
+          severity: string | null
+          stack_trace: string | null
+          url: string | null
+          user_agent: string | null
+          user_email: string | null
+        }
+        Insert: {
+          component_name?: string | null
+          created_at?: string | null
+          error_type: string
+          id?: string
+          message: string
+          metadata?: Json | null
+          resolved?: boolean | null
+          severity?: string | null
+          stack_trace?: string | null
+          url?: string | null
+          user_agent?: string | null
+          user_email?: string | null
+        }
+        Update: {
+          component_name?: string | null
+          created_at?: string | null
+          error_type?: string
+          id?: string
+          message?: string
+          metadata?: Json | null
+          resolved?: boolean | null
+          severity?: string | null
+          stack_trace?: string | null
+          url?: string | null
+          user_agent?: string | null
+          user_email?: string | null
+        }
+        Relationships: []
+      }
+      j_ads_notion_accounts: {
+        Row: {
+          account_notion_id: string
+          created_at: string
+          manager_id: string
+        }
+        Insert: {
+          account_notion_id: string
+          created_at?: string
+          manager_id: string
+        }
+        Update: {
+          account_notion_id?: string
+          created_at?: string
+          manager_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notion_manager_accounts_manager_id_fkey"
+            columns: ["manager_id"]
+            isOneToOne: false
+            referencedRelation: "j_ads_notion_managers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      j_ads_notion_managers: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          name: string | null
+          notion_id: string
+          role: Database["public"]["Enums"]["notion_role"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          name?: string | null
+          notion_id: string
+          role: Database["public"]["Enums"]["notion_role"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string | null
+          notion_id?: string
+          role?: Database["public"]["Enums"]["notion_role"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      j_ads_user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -137,51 +338,40 @@ export type Database = {
         }
         Relationships: []
       }
-      partners: {
-        Row: {
-          created_at: string
-          default_url: string
-          id: string
-          name: string
-          primary_color: string | null
-          secondary_color: string | null
-          slug: string
-          title: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          default_url: string
-          id?: string
-          name: string
-          primary_color?: string | null
-          secondary_color?: string | null
-          slug: string
-          title: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          default_url?: string
-          id?: string
-          name?: string
-          primary_color?: string | null
-          secondary_color?: string | null
-          slug?: string
-          title?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      cleanup_old_error_logs: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      set_user_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_email: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "manager" | "user"
+      notion_role: "admin" | "gestor" | "supervisor" | "gerente"
+      submission_status:
+        | "pending"
+        | "queued"
+        | "processing"
+        | "processed"
+        | "error"
+        | "draft"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -308,6 +498,17 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "manager", "user"],
+      notion_role: ["admin", "gestor", "supervisor", "gerente"],
+      submission_status: [
+        "pending",
+        "queued",
+        "processing",
+        "processed",
+        "error",
+        "draft",
+      ],
+    },
   },
 } as const

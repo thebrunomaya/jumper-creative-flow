@@ -33,8 +33,10 @@ const SingleMediaSection: React.FC<SingleMediaSectionProps> = ({
 
   const addVariation = () => {
     if (mediaVariations.length < 10) {
+      // Generate unique ID by finding the maximum existing ID and adding 1
+      const maxId = Math.max(0, ...mediaVariations.map(v => v.id || 0));
       const newVariations = [...mediaVariations, {
-        id: mediaVariations.length + 1,
+        id: maxId + 1,
         squareEnabled: true,
         verticalEnabled: true,
         horizontalEnabled: true

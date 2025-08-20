@@ -4,6 +4,8 @@ import { ThemeToggle } from '@/components/ui/theme-toggle';
 import UserMenu from './UserMenu';
 import xWhiteLogo from '../assets/logos/x-white.png';
 import logoBackground from '../assets/gradients/organic-07.png';
+import { LazyImage } from '@/components/ui/lazy-image';
+import { Link } from 'react-router-dom';
 
 const Header: React.FC = () => {
   return (
@@ -35,11 +37,6 @@ const Header: React.FC = () => {
           </div>
           
           <div className="flex items-center space-x-6">
-            <div className="hidden md:flex items-center space-x-2 text-sm text-muted-foreground">
-              <span>⏰ SLA: 24h</span>
-              <span>•</span>
-              <span>📧 Confirmação automática</span>
-            </div>
             
             <ThemeToggle variant="icon" />
             <UserMenu />

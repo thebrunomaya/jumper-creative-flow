@@ -48,6 +48,22 @@ serve(async (req) => {
     console.log('- observations:', creativeData.observations)
     console.log('- existingPost:', creativeData.existingPost)
 
+    // Validate managerId exists in j_ads_notion_managers if provided
+    if (creativeData.managerId) {
+      console.log(`🔍 Validating managerId: ${creativeData.managerId}`);
+      const { data: managerData, error: managerError } = await supabase
+        .from('j_ads_notion_managers')
+        .select('notion_id')
+        .eq('notion_id', creativeData.managerId)
+        .single();
+      
+      if (managerError || !managerData) {
+        console.error(`❌ Invalid managerId ${creativeData.managerId}:`, managerError);
+        throw new Error(`Invalid managerId: ${creativeData.managerId} not found in managers database`);
+      }
+      console.log(`✅ ManagerId validated: ${creativeData.managerId}`);
+    }
+
     // Fetch client data from Notion to get account name and ID
     console.log('🔍 Fetching client data from Notion...');
     const clientResponse = await fetch(`https://api.notion.com/v1/pages/${creativeData.client}`, {

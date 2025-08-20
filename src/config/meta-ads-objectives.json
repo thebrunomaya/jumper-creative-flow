@@ -3,6 +3,64 @@
   "description": "Mapeamento de objetivos Notion → configurações Meta Ads",
   
   "objectiveMapping": {
+    "Engajamento": {
+      "destinations": [
+        {
+          "value": "no_anuncio",
+          "label": "No anúncio",
+          "ctas": ["Salvar", "Ver evento", "Jogar"],
+          "fieldType": null
+        },
+        {
+          "value": "website", 
+          "label": "Website",
+          "ctas": ["Saiba mais", "Obter oferta", "Ver menu", "Jogar"],
+          "fieldType": "url"
+        },
+        {
+          "value": "pagina_facebook",
+          "label": "Página do Facebook", 
+          "ctas": ["Curtir Página", "Saiba mais"],
+          "fieldType": "facebook_url"
+        },
+        {
+          "value": "whatsapp",
+          "label": "WhatsApp",
+          "ctas": ["Enviar mensagem pelo WhatsApp", "Saiba mais"], 
+          "fieldType": "phone"
+        }
+      ]
+    },
+    
+    "Engagement": {
+      "destinations": [
+        {
+          "value": "no_anuncio",
+          "label": "No anúncio",
+          "ctas": ["Salvar", "Ver evento", "Jogar"],
+          "fieldType": null
+        },
+        {
+          "value": "website", 
+          "label": "Website",
+          "ctas": ["Saiba mais", "Obter oferta", "Ver menu", "Jogar"],
+          "fieldType": "url"
+        },
+        {
+          "value": "pagina_facebook",
+          "label": "Página do Facebook", 
+          "ctas": ["Curtir Página", "Saiba mais"],
+          "fieldType": "facebook_url"
+        },
+        {
+          "value": "whatsapp",
+          "label": "WhatsApp",
+          "ctas": ["Enviar mensagem pelo WhatsApp", "Saiba mais"], 
+          "fieldType": "phone"
+        }
+      ]
+    },
+    
     "Interações": {
       "destinations": [
         {

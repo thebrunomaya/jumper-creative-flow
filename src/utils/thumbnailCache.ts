@@ -51,10 +51,7 @@ export const clearThumbnailCache = (): void => {
   console.log('🧹 CACHE LIMPO - Forçando regeneração de thumbnails');
 };
 
-// Limpar cache imediatamente para forçar regeneração
-clearThumbnailCache();
-
-// Limpeza automática do cache
+// Limpeza automática do cache apenas (removido preload agressivo)
 setInterval(() => {
   const now = Date.now();
   for (const [key, entry] of THUMBNAIL_CACHE.entries()) {
@@ -63,26 +60,3 @@ setInterval(() => {
     }
   }
 }, CACHE_DURATION);
-
-// Função para pré-carregar thumbnails comuns
-export const preloadCommonThumbnails = async (): Promise<void> => {
-  const { generateThumbnailPreview } = await import('./thumbnailUtils');
-  
-  const commonFormats = [
-    { format: 'square' as const, carouselMode: false, carouselAspectRatio: '1:1' as const },
-    { format: 'vertical' as const, carouselMode: false, carouselAspectRatio: '1:1' as const },
-    { format: 'horizontal' as const, carouselMode: false, carouselAspectRatio: '1:1' as const },
-    { format: 'square' as const, carouselMode: true, carouselAspectRatio: '1:1' as const },
-    { format: 'square' as const, carouselMode: true, carouselAspectRatio: '4:5' as const },
-  ];
-  
-  // Pré-carregar em background sem bloquear a UI
-  Promise.all(
-    commonFormats.map(({ format, carouselMode, carouselAspectRatio }) =>
-      generateThumbnailPreview(format, carouselMode, carouselAspectRatio)
-        .catch(() => {
-          // Silenciar erros de pré-carregamento
-        })
-    )
-  );
-};
