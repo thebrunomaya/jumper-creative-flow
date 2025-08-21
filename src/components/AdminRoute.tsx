@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import LoginPage from './LoginPage';
+import LoginPageNew from './LoginPageNew';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -33,7 +33,7 @@ const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
     checkRole();
   }, [isAuthenticated, currentUser?.id]);
 
-  if (!isAuthenticated) return <LoginPage />;
+  if (!isAuthenticated) return <LoginPageNew />;
   if (isAdmin === null) return <div className="flex items-center justify-center min-h-screen">Verificando permissões...</div>; 
   if (!isAdmin) return <div className="flex items-center justify-center min-h-screen text-destructive">Acesso negado. Você precisa ser administrador para acessar esta página.</div>;
 
