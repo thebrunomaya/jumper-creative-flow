@@ -63,43 +63,36 @@ export const getThumbnailDimensions = (format: 'square' | 'vertical' | 'horizont
   };
 };
 
-// Import gradient images - Gradientes Orgânicos Jumper Studio
-import gradientSquare from '../assets/gradients/organic-01.png';
-import gradientVertical from '../assets/gradients/organic-02.png';
-import gradientHorizontal from '../assets/gradients/organic-03.png';
-import gradientCarousel11 from '../assets/gradients/organic-01.png';
-import gradientCarousel45 from '../assets/gradients/organic-05.png';
-import { createGradientThumbnail } from './gradientCropper';
+// CSS-based gradients instead of missing image files
+import { createCSSGradientThumbnail } from './gradientCropper';
 import { getCachedThumbnail, setCachedThumbnail } from './thumbnailCache';
 
-const GRADIENT_MAPPING = {
-  square: gradientSquare,
-  vertical: gradientVertical, 
-  horizontal: gradientHorizontal,
-  'carousel-1:1': gradientCarousel11,
-  'carousel-4:5': gradientCarousel45
+const GRADIENT_STYLES = {
+  square: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+  vertical: 'linear-gradient(180deg, #ffecd2 0%, #fcb69f 100%)', 
+  horizontal: 'linear-gradient(90deg, #a8edea 0%, #fed6e3 100%)',
+  'carousel-1:1': 'linear-gradient(45deg, #d299c2 0%, #fef9d7 100%)',
+  'carousel-4:5': 'linear-gradient(225deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%)'
 };
 
-export const getGradientImage = (format: 'square' | 'vertical' | 'horizontal', carouselMode = false, carouselAspectRatio?: '1:1' | '4:5'): string => {
-  // Gradientes específicos para carrossel e formatos normais
+export const getGradientStyle = (format: 'square' | 'vertical' | 'horizontal', carouselMode = false, carouselAspectRatio?: '1:1' | '4:5'): string => {
+  // CSS gradients específicos para carrossel e formatos normais
   if (carouselMode) {
     if (carouselAspectRatio === '4:5') {
-      return gradientCarousel45; // Gradiente específico para 4:5
+      return GRADIENT_STYLES['carousel-4:5'];
     } else {
-      // 1:1 usa gradiente específico para carrossel
-      return gradientCarousel11;
+      return GRADIENT_STYLES['carousel-1:1'];
     }
   } else {
-    // Gradientes oficiais para formatos normais
     switch (format) {
       case 'square':
-        return gradientSquare;
+        return GRADIENT_STYLES.square;
       case 'vertical':
-        return gradientVertical;
+        return GRADIENT_STYLES.vertical;
       case 'horizontal':
-        return gradientHorizontal;
+        return GRADIENT_STYLES.horizontal;
       default:
-        return gradientSquare;
+        return GRADIENT_STYLES.square;
     }
   }
 };
@@ -129,10 +122,10 @@ export const generateThumbnailPreview = async (
     gradientFormat = format;
   }
   
-  // Usar gradientes orgânicos locais com crop inteligente
-  const gradientPath = GRADIENT_MAPPING[gradientKey as keyof typeof GRADIENT_MAPPING];
+  // Usar gradientes CSS em vez de imagens ausentes
+  const gradientStyle = GRADIENT_STYLES[gradientKey as keyof typeof GRADIENT_STYLES];
   
-  const result = await createGradientThumbnail(gradientPath, gradientFormat as 'square' | 'vertical' | 'horizontal' | 'carousel-1:1' | 'carousel-4:5', { width, height });
+  const result = await createCSSGradientThumbnail(gradientStyle, gradientFormat as 'square' | 'vertical' | 'horizontal' | 'carousel-1:1' | 'carousel-4:5', { width, height });
   
   // Salvar no cache
   setCachedThumbnail(format, carouselMode, carouselAspectRatio, result);
