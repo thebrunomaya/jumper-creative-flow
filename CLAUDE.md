@@ -6,7 +6,7 @@
 
 **🎯 OBJETIVO PRINCIPAL:** TORNAR-SE O HUB COMPLETO de gestores de tráfego, gerentes parceiros e clientes finais da Jumper Studio para **democratizar serviços de tráfego pago**.
 
-**📍 Missão Atual:** Eliminar 100% dos criativos incompletos ✅ + Sistema à prova de falhas ✅  
+**📍 Missão Atual:** Eliminar 100% dos criativos incompletos ✅ + Sistema à prova de falhas ✅ + Deploy em produção ✅  
 **🚀 Visão Futura:** Plataforma self-service que reduz trabalho operacional e permite preços mais baixos
 
 ### **👥 Usuários do Sistema (4 tipos)**
@@ -18,7 +18,7 @@
 
 ### **🔄 Fases de Desenvolvimento**
 
-**✅ FASE 1 (COMPLETA - 2025-08-18):** Sistema de criativos completo, validação, integração Notion + **SISTEMA RESILIENTE ATIVO**  
+**✅ FASE 1 (COMPLETA - 2025-08-21):** Sistema de criativos completo, validação, integração Notion + **SISTEMA RESILIENTE ATIVO** + **DEPLOY EM PRODUÇÃO**  
 **🔄 FASE 2 (6-12 meses):** Dashboards, sistema de otimizações, reports automatizados, multi-plataforma  
 **💎 FASE 3 (1-2 anos):** Plataforma self-service completa, democratização do tráfego, escala nacional/global
 
@@ -57,6 +57,7 @@ Este não é apenas um "sistema interno" - é um **PRODUTO ESTRATÉGICO** que va
 - **Framework**: React 18 + Vite + TypeScript
 - **Styling**: Tailwind CSS + shadcn/ui design system
 - **Backend**: Supabase (Auth + Database + Edge Functions)
+- **Hosting**: Vercel (Production: ads.jumper.studio)
 - **Integration**: Notion API para gestão de clientes e criação de páginas
 - **State Management**: React Query (@tanstack/react-query)
 
@@ -72,6 +73,10 @@ npm run lint               # ESLint validation
 npm run typecheck          # TypeScript type checking
 npm run build             # Production build
 npm run preview           # Preview production build
+
+# Deploy Commands
+npm run deploy            # Deploy to Vercel production
+npm run deploy:preview    # Deploy preview to Vercel
 ```
 
 ### Pre-commit Checklist
@@ -154,13 +159,18 @@ supabase/
 ## 🔑 Environment & Configuration
 
 ### **Git Workflow**
-- **Main branch**: `main` (production)
-- **Working branch**: `supastorage` (current development)
-- Always check current branch before making commits
+- **Main branch**: `main` (production) ✅ ATIVO
+- **Development**: Feature branches → merge para main
+- **Deploy automático**: Push para main = deploy no Vercel
+- **Vercel Production**: https://ads.jumper.studio
 
-### **Key Environment Variables** (Supabase Edge Functions)
-- `SUPABASE_URL` - Supabase project URL
-- `SUPABASE_ANON_KEY` - Public anon key
+### **Environment Variables**
+
+**Frontend (Vercel):**
+- `VITE_SUPABASE_URL` - Supabase project URL ✅ CONFIGURADO
+- `VITE_SUPABASE_ANON_KEY` - Public anon key ✅ CONFIGURADO
+
+**Backend (Supabase Edge Functions):**
 - `SUPABASE_SERVICE_ROLE_KEY` - Service role for admin operations
 - `NOTION_TOKEN` - Notion integration token
 
@@ -422,6 +432,64 @@ A **separação de responsabilidades** está corretamente implementada:
 
 ---
 
-**Last Updated**: 2025-08-18 (Workflow Fix - Separação Gerente/Admin implementada)  
+## 📊 STATUS DA SESSÃO 2025-08-21 (DEPLOY PRODUÇÃO)
+
+### **🎯 OBJETIVOS ALCANÇADOS NESTA SESSÃO:**
+- ✅ **Deploy em Produção Realizado** - Sistema 100% operacional em ads.jumper.studio
+- ✅ **Migração Completa do Lovable** - Projeto totalmente independente no Vercel
+- ✅ **Branch Management** - Merge supastorage → main realizado com sucesso
+- ✅ **Favicon Atualizado** - Logo da Jumper Studio substituindo Lovable
+- ✅ **Configuração de Deploy Automático** - Scripts npm + Vercel CLI configurados
+
+### **🚀 INFRAESTRUTURA FINAL:**
+
+**Frontend (Vercel):**
+```
+✅ Domínio: ads.jumper.studio
+✅ Deploy automático: Push main → Vercel
+✅ Environment Variables: VITE_SUPABASE_* configuradas
+✅ Scripts: npm run deploy / npm run deploy:preview
+✅ Branding: 100% Jumper Studio (sem Lovable)
+```
+
+**Backend (Supabase):**
+```
+✅ Edge Functions: Todas operacionais
+✅ Database: Conectado e funcionando
+✅ Storage: Upload de arquivos ativo
+✅ Sistema Resiliente: 100% funcional
+```
+
+**Git Workflow:**
+```
+✅ Branch principal: main (produção)
+✅ Deploy automático: GitHub → Vercel
+✅ Merge realizado: supastorage → main
+✅ Histórico preservado: Todos os commits mantidos
+```
+
+### **🎉 RESULTADO CRÍTICO:**
+**"SISTEMA 100% EM PRODUÇÃO E INDEPENDENTE!"**
+
+- **Zero dependência** do Lovable
+- **Deploy automático** configurado
+- **Domínio próprio** funcionando
+- **Sistema resiliente** ativo
+- **Validações completas** operacionais
+
+### **📋 WORKFLOW DE DESENVOLVIMENTO ATUAL:**
+1. **Development**: Desenvolver em feature branches
+2. **Merge**: Feature branch → main via pull request
+3. **Deploy**: Automático no Vercel quando push para main
+4. **Production**: ads.jumper.studio atualizado automaticamente
+
+### **🔄 PRÓXIMAS SESSÕES:**
+- [ ] **Fase 2**: Dashboards de gestão e otimizações
+- [ ] **Monitoramento**: Métricas avançadas e alertas
+- [ ] **Expansão**: Multi-plataforma (Meta, Google, TikTok)
+
+---
+
+**Last Updated**: 2025-08-21 (Deploy Produção - Sistema 100% operacional)  
 **Maintained by**: Claude Code Assistant  
-**Project Status**: **FASE 1 COMPLETA** ✅ → Preparando Fase 2 (Dashboards/Otimizações)
+**Project Status**: **FASE 1 COMPLETA** ✅ → **EM PRODUÇÃO** 🚀 → Preparando Fase 2
