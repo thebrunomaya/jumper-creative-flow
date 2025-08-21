@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
+import PasswordModal from '@/components/PasswordModal';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,13 +13,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { User, LogOut, PlusCircle, Shield, LayoutDashboard } from 'lucide-react';
+import { User, LogOut, PlusCircle, Shield, LayoutDashboard, Lock } from 'lucide-react';
 
 const UserMenu: React.FC = () => {
   const { currentUser, logout } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState(false);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
 
   useEffect(() => {
     const checkRole = async () => {
@@ -45,35 +47,46 @@ const UserMenu: React.FC = () => {
   };
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="sm" className="flex items-center gap-2">
-          <User className="h-4 w-4" />
-          <span className="font-medium">{formatUserName(currentUser.name)}</span>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56">
-        <DropdownMenuItem onSelect={() => navigate('/manager')} className="cursor-pointer">
-          <LayoutDashboard className="mr-2 h-4 w-4" />
-          <span>Meus Criativos</span>
-        </DropdownMenuItem>
-        <DropdownMenuItem onSelect={() => navigate('/create')} className="cursor-pointer">
-          <PlusCircle className="mr-2 h-4 w-4" />
-          <span>Novo Criativo</span>
-        </DropdownMenuItem>
-        {isAdmin && (
-          <DropdownMenuItem onSelect={() => navigate('/admin')} className="cursor-pointer">
-            <Shield className="mr-2 h-4 w-4" />
-            <span>Painel de Admin</span>
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" size="sm" className="flex items-center gap-2">
+            <User className="h-4 w-4" />
+            <span className="font-medium">{formatUserName(currentUser.name)}</span>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-56">
+          <DropdownMenuItem onSelect={() => navigate('/manager')} className="cursor-pointer">
+            <LayoutDashboard className="mr-2 h-4 w-4" />
+            <span>Meus Criativos</span>
           </DropdownMenuItem>
-        )}
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onSelect={handleLogout} className="cursor-pointer text-destructive">
-          <LogOut className="mr-2 h-4 w-4" />
-          <span>Sair</span>
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+          <DropdownMenuItem onSelect={() => navigate('/create')} className="cursor-pointer">
+            <PlusCircle className="mr-2 h-4 w-4" />
+            <span>Novo Criativo</span>
+          </DropdownMenuItem>
+          {isAdmin && (
+            <DropdownMenuItem onSelect={() => navigate('/admin')} className="cursor-pointer">
+              <Shield className="mr-2 h-4 w-4" />
+              <span>Painel de Admin</span>
+            </DropdownMenuItem>
+          )}
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onSelect={() => setShowPasswordModal(true)} className="cursor-pointer">
+            <Lock className="mr-2 h-4 w-4" />
+            <span>Criar/Redefinir Senha</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem onSelect={handleLogout} className="cursor-pointer text-destructive">
+            <LogOut className="mr-2 h-4 w-4" />
+            <span>Sair</span>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <PasswordModal 
+        isOpen={showPasswordModal}
+        onClose={() => setShowPasswordModal(false)}
+      />
+    </>
   );
 };
 

@@ -11,6 +11,7 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import AdminRoute from "@/components/AdminRoute";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
+import ResetPasswordPage from "@/components/ResetPasswordPage";
 import { Suspense, lazy } from "react";
 
 // Lazy load das páginas principais para reduzir bundle inicial
@@ -77,6 +78,7 @@ const App = () => {
                     </Suspense>
                   </ProtectedRoute>
                 } />
+                <Route path="/reset-password" element={<ResetPasswordPage />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>

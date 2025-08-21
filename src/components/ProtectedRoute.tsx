@@ -9,8 +9,18 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const { isAuthenticated } = useAuth();
+  const [isRecovery, setIsRecovery] = React.useState(false);
 
-  if (!isAuthenticated) {
+  React.useEffect(() => {
+    // Verificar se é um fluxo de recovery
+    const hash = window.location.hash;
+    if (hash && hash.includes('type=recovery')) {
+      setIsRecovery(true);
+    }
+  }, []);
+
+  // Se for recovery, sempre mostrar LoginPageNew (mesmo se autenticado)
+  if (isRecovery || !isAuthenticated) {
     return <LoginPageNew />;
   }
 

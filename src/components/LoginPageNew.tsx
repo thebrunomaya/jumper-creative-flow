@@ -9,17 +9,48 @@ import { JumperLogo } from '@/components/ui/jumper-logo';
 import gradientImage from '@/assets/gradients/organic-02.png';
 import { checkEmailWhitelist, type WhitelistCheckResult } from '@/utils/checkWhitelist';
 import { setupTestManagers } from '@/utils/setupTestManagers';
+import { supabase } from '@/integrations/supabase/client';
 
-type AuthStep = 'email' | 'password' | 'magic-link-sent' | 'first-access';
+type AuthStep = 'email' | 'password' | 'magic-link-sent' | 'first-access' | 'reset-password' | 'link-expired';
 
 const LoginPageNew: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [authStep, setAuthStep] = useState<AuthStep>('email');
   const [isLoading, setIsLoading] = useState(false);
   const [managerName, setManagerName] = useState('');
   const { toast } = useToast();
-  const { login, loginWithMagicLink } = useAuth();
+  const { login, loginWithMagicLink, resetPassword } = useAuth();
+
+  // Verificar se é um fluxo de recovery ou erro ao carregar
+  React.useEffect(() => {
+    const hash = window.location.hash;
+    
+    // Verificar erros primeiro
+    if (hash && hash.includes('error=')) {
+      const params = new URLSearchParams(hash.substring(1));
+      const error = params.get('error');
+      const errorCode = params.get('error_code');
+      
+      if (errorCode === 'otp_expired' || error === 'access_denied') {
+        setAuthStep('link-expired');
+        return;
+      }
+    }
+    
+    // Verificar recovery
+    if (hash && hash.includes('type=recovery')) {
+      setAuthStep('reset-password');
+      // Extrair o access_token do hash para garantir autenticação
+      const params = new URLSearchParams(hash.substring(1));
+      const accessToken = params.get('access_token');
+      if (accessToken) {
+        // O Supabase já deve ter processado o token
+        console.log('Recovery mode activated with valid token');
+      }
+    }
+  }, []);
 
 
   const handleEmailSubmit = async (e: React.FormEvent) => {
@@ -129,6 +160,70 @@ const LoginPageNew: React.FC = () => {
       console.error('Login error:', error);
       toast({
         title: "Erro na autenticação",
+        description: "Tente novamente em alguns instantes",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleResetPasswordSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!password.trim() || !confirmPassword.trim()) {
+      toast({
+        title: "Campos obrigatórios",
+        description: "Por favor, preencha a senha e confirmação",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      toast({
+        title: "Senhas não coincidem",
+        description: "A senha e confirmação devem ser iguais",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (password.length < 6) {
+      toast({
+        title: "Senha muito curta",
+        description: "A senha deve ter pelo menos 6 caracteres",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: password
+      });
+
+      if (!error) {
+        toast({
+          title: "Senha definida com sucesso!",
+          description: "Redirecionando para o sistema...",
+        });
+        
+        // Limpar hash da URL e redirecionar
+        window.location.href = window.location.origin;
+      } else {
+        toast({
+          title: "Erro ao definir senha",
+          description: "Tente novamente ou use o Magic Link",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Password update error:', error);
+      toast({
+        title: "Erro inesperado",
         description: "Tente novamente em alguns instantes",
         variant: "destructive",
       });
@@ -255,27 +350,6 @@ const LoginPageNew: React.FC = () => {
                   Apenas emails autorizados no sistema Notion têm acesso
                 </p>
 
-                {/* Botão temporário para adicionar managers de teste */}
-                {process.env.NODE_ENV === 'development' && (
-                  <div className="pt-4 border-t border-white/10">
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="w-full text-white/40 hover:text-white/60 text-xs"
-                      onClick={async () => {
-                        const success = await setupTestManagers();
-                        toast({
-                          title: success ? "Managers de teste adicionados" : "Erro ao adicionar managers",
-                          description: success ? "Use: gerente.teste@empresa.com" : "Verifique o console",
-                          variant: success ? "default" : "destructive"
-                        });
-                      }}
-                    >
-                      [DEV] Adicionar managers de teste
-                    </Button>
-                  </div>
-                )}
               </form>
             )}
 
@@ -288,10 +362,40 @@ const LoginPageNew: React.FC = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="password" className="text-white font-medium flex items-center gap-2">
-                    <Lock className="w-4 h-4" />
-                    Sua senha
-                  </Label>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="password" className="text-white font-medium flex items-center gap-2">
+                      <Lock className="w-4 h-4" />
+                      Sua senha
+                    </Label>
+                    <Button
+                      type="button"
+                      variant="link"
+                      className="px-0 h-auto text-xs text-white/60 hover:text-white"
+                      onClick={async () => {
+                        setIsLoading(true);
+                        try {
+                          const { error } = await resetPassword(email);
+                          if (!error) {
+                            toast({
+                              title: "E-mail enviado",
+                              description: "Verifique sua caixa de entrada para criar ou redefinir sua senha.",
+                            });
+                          } else {
+                            toast({
+                              title: "Não foi possível enviar",
+                              description: "Tente novamente.",
+                              variant: "destructive",
+                            });
+                          }
+                        } finally {
+                          setIsLoading(false);
+                        }
+                      }}
+                      disabled={isLoading}
+                    >
+                      Criar/Redefinir senha
+                    </Button>
+                  </div>
                   <Input
                     id="password"
                     type="password"
@@ -398,6 +502,170 @@ const LoginPageNew: React.FC = () => {
                     onClick={resetFlow}
                   >
                     Tentar com outro email
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* Step: Reset Password */}
+            {authStep === 'reset-password' && (
+              <form onSubmit={handleResetPasswordSubmit} className="space-y-6">
+                <div className="text-center space-y-2">
+                  <h2 className="text-xl font-semibold text-white">
+                    Criar Nova Senha
+                  </h2>
+                  <p className="text-white/60 text-sm">
+                    Defina uma senha segura para sua conta
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="new-password" className="text-white font-medium flex items-center gap-2">
+                    <Lock className="w-4 h-4" />
+                    Nova senha
+                  </Label>
+                  <Input
+                    id="new-password"
+                    type="password"
+                    placeholder="Digite sua nova senha"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    disabled={isLoading}
+                    autoComplete="new-password"
+                    className="h-12 bg-white/5 border-white/20 text-white placeholder:text-white/40 focus:border-[#FA4721] transition-all"
+                    autoFocus
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="confirm-password" className="text-white font-medium">
+                    Confirmar senha
+                  </Label>
+                  <Input
+                    id="confirm-password"
+                    type="password"
+                    placeholder="Digite novamente sua senha"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    disabled={isLoading}
+                    autoComplete="new-password"
+                    className="h-12 bg-white/5 border-white/20 text-white placeholder:text-white/40 focus:border-[#FA4721] transition-all"
+                  />
+                </div>
+
+                <Button
+                  type="submit"
+                  className="w-full h-12 bg-[#FA4721] hover:bg-[#FA4721]/90 text-white font-semibold transition-all duration-200"
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                      Definindo senha...
+                    </>
+                  ) : (
+                    'Definir senha'
+                  )}
+                </Button>
+
+                <p className="text-xs text-white/50 text-center">
+                  Mínimo de 6 caracteres. Use uma senha forte e única.
+                </p>
+              </form>
+            )}
+
+            {/* Step: Link Expired */}
+            {authStep === 'link-expired' && (
+              <div className="space-y-6">
+                <div className="text-center space-y-2">
+                  <div className="flex justify-center mb-4">
+                    <div className="bg-red-500/10 p-4 rounded-full">
+                      <Lock className="h-8 w-8 text-red-500" />
+                    </div>
+                  </div>
+                  
+                  <h2 className="text-xl font-semibold text-white">
+                    Link Expirado
+                  </h2>
+                  <p className="text-white/60 text-sm">
+                    Este link de redefinição de senha expirou ou é inválido.
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="expired-email" className="text-white font-medium">
+                    Digite seu e-mail para receber um novo link
+                  </Label>
+                  <Input
+                    id="expired-email"
+                    type="email"
+                    placeholder="seu.email@empresa.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    disabled={isLoading}
+                    autoComplete="email"
+                    className="h-12 bg-white/5 border-white/20 text-white placeholder:text-white/40 focus:border-[#FA4721] transition-all"
+                    autoFocus
+                  />
+                </div>
+
+                <Button
+                  onClick={async () => {
+                    if (!email.trim()) {
+                      toast({
+                        title: "Digite seu e-mail",
+                        description: "O e-mail é obrigatório para enviar um novo link",
+                        variant: "destructive",
+                      });
+                      return;
+                    }
+                    
+                    setIsLoading(true);
+                    try {
+                      const { error } = await resetPassword(email);
+                      if (!error) {
+                        toast({
+                          title: "Novo link enviado!",
+                          description: "Verifique seu e-mail para criar ou redefinir sua senha.",
+                        });
+                        setAuthStep('email');
+                        // Limpar hash da URL
+                        window.location.hash = '';
+                      } else {
+                        toast({
+                          title: "Erro ao enviar link",
+                          description: "Verifique o e-mail e tente novamente.",
+                          variant: "destructive",
+                        });
+                      }
+                    } finally {
+                      setIsLoading(false);
+                    }
+                  }}
+                  className="w-full h-12 bg-[#FA4721] hover:bg-[#FA4721]/90 text-white font-semibold transition-all duration-200"
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                      Enviando novo link...
+                    </>
+                  ) : (
+                    'Enviar novo link'
+                  )}
+                </Button>
+
+                <div className="text-center">
+                  <Button
+                    type="button"
+                    variant="link"
+                    className="text-white/60 hover:text-white"
+                    onClick={() => {
+                      setAuthStep('email');
+                      window.location.hash = '';
+                    }}
+                  >
+                    Voltar ao login
                   </Button>
                 </div>
               </div>
