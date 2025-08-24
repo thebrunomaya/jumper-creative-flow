@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { shouldLogForUser, createEdgeLogger } from '../_shared/conditionalLogging.ts'
+// Temporarily disabled conditional logging to fix deployment issue
+// import { shouldLogForUser, createEdgeLogger } from '../_shared/conditionalLogging.ts'
 
 // Types - inline para evitar problemas de import
 interface CreativeSubmissionData {
@@ -99,9 +100,12 @@ serve(async (req) => {
     // Now create service client for database operations
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
     
-    // Check if user should see debug logs
-    const shouldLog = await shouldLogForUser(supabase, user.id, user.email);
-    const logger = createEdgeLogger(shouldLog);
+    // Temporary simple logger until we fix the shared module issue
+    const logger = {
+      log: (message: string, ...args: any[]) => console.log(message, ...args),
+      warn: (message: string, ...args: any[]) => console.warn(message, ...args),
+      error: (message: string, ...args: any[]) => console.error(message, ...args),
+    };
     
     logger.log(`✅ Authenticated user: ${user.email} (${user.id})`);
     logger.log('✅ Supabase client initialized successfully');
