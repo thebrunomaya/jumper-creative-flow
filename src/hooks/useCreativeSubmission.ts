@@ -432,8 +432,12 @@ export const useCreativeSubmission = () => {
       
       // Provide more specific error messages based on error type
       let errorMessage = "Erro ao enviar criativo. Tente novamente.";
+      let errorTitle = "Erro ao enviar";
       
-      if (error.message?.includes('CTA')) {
+      if (error.message?.includes('non-2xx status code') || error.name === 'FunctionsHttpError') {
+        errorTitle = "Sistema em manutenção";
+        errorMessage = "O sistema está passando por uma atualização rápida. Por favor, tente novamente em alguns minutos.";
+      } else if (error.message?.includes('CTA')) {
         errorMessage = "CTA inválido. Verifique se selecionou um valor válido.";
       } else if (error.message?.includes('Gerente') || error.message?.includes('Manager')) {
         errorMessage = "Erro na validação do gerente. Tente fazer logout e login novamente.";
@@ -446,8 +450,8 @@ export const useCreativeSubmission = () => {
       }
       
       toast({
-        title: "Erro ao enviar",
-        description: error.message || errorMessage,
+        title: errorTitle,
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {

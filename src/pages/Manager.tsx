@@ -75,22 +75,34 @@ const Manager: React.FC = () => {
   return (
     <>
       <Header />
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      <main 
+        id="main-content"
+        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8"
+        role="main"
+        aria-label="Gerenciamento de criativos"
+      >
         <header className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-semibold tracking-tight text-foreground">Meus Criativos</h1>
             <p className="text-sm text-muted-foreground">Acompanhe rascunhos, envios e processados.</p>
           </div>
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={() => refetch()} size="sm">Atualizar</Button>
-            <Link to="/create">
-              <Button size="sm">Novo Criativo</Button>
+          <div className="flex gap-2" role="toolbar" aria-label="Ações de criativo">
+            <Button 
+              variant="outline" 
+              onClick={() => refetch()} 
+              size="sm"
+              aria-label="Atualizar lista de criativos"
+            >
+              Atualizar
+            </Button>
+            <Link to="/create" className="no-underline">
+              <Button size="sm" aria-label="Criar novo criativo">Novo Criativo</Button>
             </Link>
           </div>
         </header>
 
-        <section className="space-y-4">
-          <h2 className="text-lg font-medium text-foreground">Rascunhos</h2>
+        <section className="space-y-4" aria-labelledby="drafts-heading">
+          <h2 id="drafts-heading" className="text-lg font-medium text-foreground">Rascunhos</h2>
           <Card className="overflow-hidden">
             <div className="overflow-x-auto">
               <Table>

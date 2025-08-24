@@ -93,10 +93,11 @@ Deno.serve(async (req) => {
     const supabase = adminClient;
 
     if (action === "listMy") {
+      // ✅ CORREÇÃO CRÍTICA: Filtrar por user_id (quem criou), não manager_id
       const { data, error } = await supabase
         .from("j_ads_creative_submissions")
-        .select("id, client, manager_id, status, created_at, updated_at, result, payload")
-        .eq("manager_id", managerId)
+        .select("id, client, manager_id, status, created_at, updated_at, result, payload, user_id")
+        .eq("user_id", managerId) // managerId aqui é o user.id do JWT
         .order("created_at", { ascending: false })
         .limit(200);
 
@@ -152,7 +153,7 @@ Deno.serve(async (req) => {
       }
       const { data, error } = await supabase
         .from("j_ads_creative_submissions")
-        .select("id, manager_id, payload, status")
+        .select("id, user_id, payload, status")
         .eq("id", submissionId)
         .maybeSingle();
 
@@ -162,7 +163,8 @@ Deno.serve(async (req) => {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      if (data.manager_id !== managerId) {
+      // ✅ CORREÇÃO: Verificar se o usuário é o criador da submissão
+      if (data.user_id !== managerId) {
         return new Response(JSON.stringify({ error: "Forbidden" }), {
           status: 403,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -276,8 +278,8 @@ Deno.serve(async (req) => {
       draft.creativeName = finalCreativeName;
 
       const baseRow = {
-        user_id: managerId,
-        manager_id: managerId,
+        user_id: managerId, // ✅ Correto: user.id do JWT
+        manager_id: null,   // ✅ Correto: null até publicação no Notion
         client: draft?.client ?? null,
         partner: draft?.partner ?? null,
         platform: draft?.platform ?? null,
@@ -295,7 +297,7 @@ Deno.serve(async (req) => {
           const { data: existing } = await supabase
             .from('j_ads_creative_submissions')
             .select('id')
-            .eq('manager_id', managerId)
+            .eq('user_id', managerId) // ✅ CORREÇÃO: Buscar por user_id
             .eq('status', 'draft')
             .filter('payload->>creativeName', 'eq', creativeName)
             .maybeSingle();
@@ -307,7 +309,7 @@ Deno.serve(async (req) => {
             .from('j_ads_creative_submissions')
             .update(baseRow as any)
             .eq('id', targetId)
-            .eq('manager_id', managerId);
+            .eq('user_id', managerId) // ✅ CORREÇÃO: Buscar por user_id;
           if (error) {
             return new Response(JSON.stringify({ error: error.message }), {
               status: 400,
@@ -341,7 +343,7 @@ Deno.serve(async (req) => {
           .from('j_ads_creative_submissions')
           .update(baseRow as any)
           .eq('id', submissionId)
-          .eq('manager_id', managerId)
+          .eq('user_id', managerId)
           .select('id')
           .maybeSingle();
         if (updErr) {
@@ -365,7 +367,7 @@ Deno.serve(async (req) => {
           const { data: existing } = await supabase
             .from('j_ads_creative_submissions')
             .select('id')
-            .eq('manager_id', managerId)
+            .eq('user_id', managerId) // ✅ CORREÇÃO: Buscar por user_id
             .eq('status', 'draft')
             .filter('payload->>creativeName', 'eq', creativeName)
             .maybeSingle();
@@ -377,7 +379,7 @@ Deno.serve(async (req) => {
             .from('j_ads_creative_submissions')
             .update(baseRow as any)
             .eq('id', targetId)
-            .eq('manager_id', managerId);
+            .eq('user_id', managerId) // ✅ CORREÇÃO: Buscar por user_id;
           if (upErr) {
             return new Response(JSON.stringify({ error: upErr.message }), {
               status: 400,
@@ -442,7 +444,7 @@ Deno.serve(async (req) => {
       // Verify draft ownership and status
       const { data: submission, error: getErr } = await supabase
         .from('j_ads_creative_submissions')
-        .select('id, manager_id, status')
+        .select('id, user_id, status')
         .eq('id', submissionId)
         .maybeSingle();
 
@@ -452,7 +454,8 @@ Deno.serve(async (req) => {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
-      if (submission.manager_id !== managerId) {
+      // ✅ CORREÇÃO: Verificar se o usuário é o criador
+      if (submission.user_id !== managerId) {
         return new Response(JSON.stringify({ error: 'Forbidden' }), {
           status: 403,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },

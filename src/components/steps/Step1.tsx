@@ -131,7 +131,14 @@ const Step1: React.FC<Step1Props> = ({
             <SelectTrigger className={`h-12 ${errors.client ? 'border-destructive bg-destructive/10' : ''}`}>
               <SelectValue placeholder="Selecione a conta" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent 
+              side="bottom" 
+              align="start" 
+              avoidCollisions={false}
+              sticky="always"
+              className="!transform-none"
+              style={{ top: '100%', bottom: 'auto' }}
+            >
               {/* Seção: Minhas Contas (contas vinculadas do usuário) */}
               {isAdmin && sortedClients.sortedNormalAccounts.length > 0 && (
                 <div className="px-2 py-1 bg-green-50 border-l-2 border-green-500">
