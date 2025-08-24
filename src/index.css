@@ -321,18 +321,29 @@
 /* 2. Skip to Content Link */
 .skip-to-content {
   position: absolute;
-  top: -40px;
-  left: 0;
+  top: -100px;
+  left: -100px;
+  width: 1px;
+  height: 1px;
   background: hsl(var(--primary));
   color: hsl(var(--primary-foreground));
   padding: 8px 16px;
   z-index: 100;
   text-decoration: none;
   border-radius: 0 0 0.5rem 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
 }
 
 .skip-to-content:focus {
+  position: absolute;
   top: 0;
+  left: 0;
+  width: auto;
+  height: auto;
+  clip: auto;
+  overflow: visible;
 }
 
 /* 3. Screen Reader Only Text */

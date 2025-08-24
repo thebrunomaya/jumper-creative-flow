@@ -1,15 +1,19 @@
 import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
+import { useUserRole } from "@/hooks/useUserRole";
+import { createSimpleConditionalLogger } from "@/utils/conditionalLogging";
 
 const NotFound = () => {
   const location = useLocation();
+  const { userRole } = useUserRole();
+  const logger = createSimpleConditionalLogger(userRole);
 
   useEffect(() => {
-    console.error(
+    logger.error(
       "404 Error: User attempted to access non-existent route:",
       location.pathname
     );
-  }, [location.pathname]);
+  }, [location.pathname, logger]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">

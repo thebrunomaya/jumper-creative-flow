@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { shouldLogForUser, createEdgeLogger } from '../_shared/conditionalLogging.ts'
 
 // Types - inline para evitar problemas de import
 interface CreativeSubmissionData {
@@ -59,6 +60,7 @@ serve(async (req) => {
   }
 
   try {
+    // Start with basic logging before authentication
     console.log('🚀 J_ADS Submit Creative function started');
 
     if (req.method !== 'POST') {
@@ -94,36 +96,40 @@ serve(async (req) => {
       );
     }
 
-    console.log(`✅ Authenticated user: ${user.email} (${user.id})`);
-
     // Now create service client for database operations
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
-    console.log('✅ Supabase client initialized successfully');
+    
+    // Check if user should see debug logs
+    const shouldLog = await shouldLogForUser(supabase, user.id, user.email);
+    const logger = createEdgeLogger(shouldLog);
+    
+    logger.log(`✅ Authenticated user: ${user.email} (${user.id})`);
+    logger.log('✅ Supabase client initialized successfully');
 
     // Parse request body
     const body = await req.json();
-    console.log('📥 Received request body:', JSON.stringify(body, null, 2));
+    logger.log('📥 Received request body:', JSON.stringify(body, null, 2));
 
     const creativeData: CreativeSubmissionData = body;
 
-    console.log('📋 Processing creative submission for user:', user.email);
+    logger.log('📋 Processing creative submission for user:', user.email);
 
     // Get or generate submission ID
     const existingSubmissionId = body.submissionId as string | undefined;
     const submissionId = existingSubmissionId || generateUniqueId();
-    console.log('🆔 Submission ID:', submissionId, existingSubmissionId ? '(updating existing)' : '(creating new)');
+    logger.log('🆔 Submission ID:', submissionId, existingSubmissionId ? '(updating existing)' : '(creating new)');
 
     // Process files (simplified - just store file info for now)
     const processedFiles: any[] = [];
     
     if (creativeData.filesInfo && creativeData.filesInfo.length > 0) {
-      console.log(`📁 Processing ${creativeData.filesInfo.length} files...`);
+      logger.log(`📁 Processing ${creativeData.filesInfo.length} files...`);
       
       for (let i = 0; i < creativeData.filesInfo.length; i++) {
         const fileInfo = creativeData.filesInfo[i];
         
         // For now, just log the file info (actual upload would happen here)
-        console.log(`📄 File ${i + 1}: ${fileInfo.name} (${fileInfo.type}, ${fileInfo.size} bytes)`);
+        logger.log(`📄 File ${i + 1}: ${fileInfo.name} (${fileInfo.type}, ${fileInfo.size} bytes)`);
         
         processedFiles.push({
           submission_id: submissionId,
@@ -138,7 +144,7 @@ serve(async (req) => {
     }
 
     // Create submission record
-    console.log('💾 Creating submission record...');
+    logger.log('💾 Creating submission record...');
     
     // Minimal submission data - use only essential fields  
     const submissionData = {
@@ -181,7 +187,7 @@ serve(async (req) => {
     
     if (existingSubmissionId) {
       // Update existing draft to submitted
-      console.log('📝 Updating existing submission:', existingSubmissionId);
+      logger.log('📝 Updating existing submission:', existingSubmissionId);
       const { data, error } = await supabase
         .from('j_ads_creative_submissions')
         .update({
@@ -197,7 +203,7 @@ serve(async (req) => {
       submissionError = error;
     } else {
       // Create new submission
-      console.log('🆕 Creating new submission');
+      logger.log('🆕 Creating new submission');
       const { data, error } = await supabase
         .from('j_ads_creative_submissions')
         .insert(submissionData)
@@ -208,25 +214,25 @@ serve(async (req) => {
     }
 
     if (submissionError) {
-      console.error('❌ Failed to create submission:', submissionError);
+      logger.error('❌ Failed to create submission:', submissionError);
       throw new Error(`Failed to create submission: ${submissionError.message}`);
     }
 
-    console.log('✅ Submission created successfully:', submission.id);
+    logger.log('✅ Submission created successfully:', submission.id);
 
     // Insert file records if any
     if (processedFiles.length > 0) {
-      console.log('📁 Creating file records...');
+      logger.log('📁 Creating file records...');
       
       const { error: filesError } = await supabase
         .from('j_ads_creative_files')
         .insert(processedFiles);
 
       if (filesError) {
-        console.warn('⚠️ Warning: Failed to create some file records:', filesError);
+        logger.warn('⚠️ Warning: Failed to create some file records:', filesError);
         // Don't throw - submission was successful, file records are secondary
       } else {
-        console.log(`✅ Created ${processedFiles.length} file records`);
+        logger.log(`✅ Created ${processedFiles.length} file records`);
       }
     }
 
@@ -240,8 +246,8 @@ serve(async (req) => {
       timestamp: new Date().toISOString()
     };
 
-    console.log('🎉 J_ADS Submit Creative function completed successfully');
-    console.log('📤 Returning response:', response);
+    logger.log('🎉 J_ADS Submit Creative function completed successfully');
+    logger.log('📤 Returning response:', response);
 
     return new Response(
       JSON.stringify(response),

@@ -5,14 +5,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { performSystemHealthCheck, validateSubmissionReadiness } from '@/utils/systemHealth';
 import { ValidationResult } from '@/types/validation';
-
-// Logging types
-interface LogEntry {
-  ts: number;
-  level: 'info' | 'warn' | 'error';
-  message: string;
-  data?: unknown;
-}
+import { useUserRole } from '@/hooks/useUserRole';
+import { LogEntry, createConditionalLogger } from '@/utils/conditionalLogging';
 
 interface SubmissionError {
   message: string;
@@ -30,6 +24,7 @@ export const useCreativeSubmission = () => {
   const [submissionError, setSubmissionError] = useState<SubmissionError | null>(null);
   const [lastInvoke, setLastInvoke] = useState<{ data?: unknown; error?: unknown } | null>(null);
   const { currentUser } = useAuth();
+  const { userRole } = useUserRole();
 
   // Helper to sanitize data by removing base64Data
   const sanitizeData = (data: any): any => {
@@ -50,16 +45,9 @@ export const useCreativeSubmission = () => {
     return sanitized;
   };
 
-  // Helper to add log entries
-  const pushLog = (level: LogEntry['level'], message: string, data?: unknown) => {
-    const entry: LogEntry = {
-      ts: Date.now(),
-      level,
-      message,
-      data: data ? sanitizeData(data) : undefined
-    };
-    setSubmissionLog(prev => [...prev, entry]);
-  };
+  // Create conditional logger based on user role
+  const logger = createConditionalLogger(userRole, setSubmissionLog, sanitizeData);
+  const { pushLog, consoleLog, consoleWarn, consoleError } = logger;
 
   // Reset submission log
   const resetSubmissionLog = () => {
@@ -132,7 +120,7 @@ export const useCreativeSubmission = () => {
       
     } catch (healthCheckError) {
       // Health check failed, but don't block submission - just warn
-      console.warn('Health check failed, proceeding anyway:', healthCheckError);
+      consoleWarn('Health check failed, proceeding anyway:', healthCheckError);
       pushLog('warn', 'Verificação de saúde falhou, prosseguindo mesmo assim', { error: healthCheckError });
       
       toast({
@@ -165,7 +153,7 @@ export const useCreativeSubmission = () => {
       hasSavedMedia: Boolean((formData as any).savedMedia)
     });
 
-    console.log('🚀 Iniciando submissão do criativo:', { 
+    consoleLog('🚀 Iniciando submissão do criativo:', { 
       creativeType: formData.creativeType,
       client: formData.client,
       submissionId: options?.submissionId 
@@ -353,7 +341,7 @@ export const useCreativeSubmission = () => {
         submissionType: options?.submissionId ? 'update' : 'new'
       });
 
-      console.log('Ingesting creative submission:', submissionData);
+      consoleLog('Ingesting creative submission:', submissionData);
       
       pushLog('info', 'Chamando edge function j_ads_submit_creative', {
         function: 'j_ads_submit_creative',
@@ -368,7 +356,7 @@ export const useCreativeSubmission = () => {
       setLastInvoke({ data, error });
 
       if (error) {
-        console.error('Supabase function error:', error);
+        consoleError('Supabase function error:', error);
         
         // Capture detailed error information
         const detailedError: SubmissionError = {
@@ -400,7 +388,7 @@ export const useCreativeSubmission = () => {
         responseData: sanitizeData(data)
       });
 
-      console.log('✅ Creative successfully submitted for review:', data);
+      consoleLog('✅ Creative successfully submitted for review:', data);
 
       setCreativeIds(data.submissionId ? [data.submissionId] : []);
       setIsSubmitted(true);
@@ -413,7 +401,7 @@ export const useCreativeSubmission = () => {
       });
 
     } catch (error: any) {
-      console.error('Error submitting creative:', error);
+      consoleError('Error submitting creative:', error);
       
       // Capture full error details
       const fullError: SubmissionError = {
