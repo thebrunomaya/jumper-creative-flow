@@ -18,8 +18,21 @@
 
 ### **🔄 Fases de Desenvolvimento**
 
-**✅ FASE 1 (COMPLETA - 2025-08-21):** Sistema de criativos completo, validação, integração Notion + **SISTEMA RESILIENTE ATIVO** + **DEPLOY EM PRODUÇÃO**  
-**🔄 FASE 2 (6-12 meses):** Dashboards, sistema de otimizações, reports automatizados, multi-plataforma  
+**✅ FASE 1 (COMPLETA - 2025-08-25):** Sistema de criativos completo, validação, integração Notion + **SISTEMA RESILIENTE ATIVO** + **DEPLOY EM PRODUÇÃO** + **SISTEMA SINCRONIZADO** + **REPORTS COMPLETOS** ⚡
+- ✅ Upload e validação de criativos
+- ✅ Sistema resiliente à prova de falhas
+- ✅ Deploy em produção (ads.jumper.studio)
+- ✅ Gestão completa de senhas
+- ✅ **Migração para arquitetura sincronizada** (2025-08-25)
+- ✅ **Performance otimizada** - Zero API calls em tempo real
+- ✅ **Dados completos** - 75 campos por conta disponíveis
+- ✅ **Sistema de Reports Profissional** (2025-08-25)
+- ✅ **Templates baseados em objetivos** (Visão Geral + Vendas + Coming Soon)
+- ✅ **Performance indicators com cores** (excellent/good/warning/critical)
+- ✅ **Design system Jumper** - Hero metrics com tema laranja
+- ✅ **Mobile-first responsive** - Cards otimizados + skeleton screens branded
+
+**🔄 FASE 2 (3-6 meses):** Multi-plataforma ads, otimizações avançadas, alerts em tempo real  
 **💎 FASE 3 (1-2 anos):** Plataforma self-service completa, democratização do tráfego, escala nacional/global
 
 ### **🔗 Ecossistema de Integrações**
@@ -96,27 +109,45 @@ Always run before committing significant changes:
 - `j_ads_creative_submissions` - Main submissions table
 - `j_ads_creative_files` - File attachments with Supabase Storage
 - `j_ads_creative_variations` - Multiple creative variations
-- `j_ads_notion_managers` - Cached manager data from Notion
 - `j_ads_error_logs` - **Sistema de error tracking estruturado** ✅
 - `j_ads_system_metrics` - Métricas de saúde do sistema ⚠️ (parcial)
 - `j_ads_fallback_submissions` - Submissões fallback para recuperação ⚠️ (parcial)
 
+**Tabelas Sincronizadas (2025-08-25):**
+- `j_ads_notion_db_managers` - **Gestores completos sincronizados** (10 campos) ✅
+- `j_ads_notion_db_accounts` - **Contas completas sincronizadas** (75 campos) ✅
+- `j_ads_notion_db_partners` - **Parceiros sincronizados** ✅
+
+**Tabelas Obsoletas (Manter para compatibilidade):**
+- `j_ads_notion_managers` - ⚠️ Substituída por `j_ads_notion_db_managers`
+- `j_ads_notion_accounts` - ⚠️ Substituída por dados sincronizados
+
 ### **Notion Integration**
-- **Clients**: Fetched from Notion "DB_Contas" database
-- **Partners**: Fetched from Notion "DB_Parceiros" database
+- **Data Sync**: Scheduled sync via `j_ads_complete_notion_sync` edge function ✅
+- **Clients**: **Synchronized** from Notion "DB_Contas" → `j_ads_notion_db_accounts` (75 campos) ✅
+- **Managers**: **Synchronized** from Notion "DB_Gerentes" → `j_ads_notion_db_managers` (10 campos) ✅
+- **Partners**: **Synchronized** from Notion "DB_Parceiros" → `j_ads_notion_db_partners` ✅
 - **Publishing**: Edge functions create Notion pages with creative data
-- **Caching**: Some Notion data cached in Supabase tables for performance
+- **Performance**: **Zero real-time API calls** - All data from synchronized tables ✅
 
 ### **Edge Functions** (Supabase)
 - `j_ads_admin_actions` - Admin operations (list, publish, delete)
 - `j_ads_manager_actions` - Manager operations (limited access)
-- `j_ads_notion_clients` - Fetch client data from Notion
-- `j_ads_notion_partners` - Fetch partner data from Notion
 - `j_ads_submit_creative` - **Process creative submissions + SISTEMA RESILIENTE** ✅
   - **Retry logic** com exponential backoff ✅
   - **Circuit breaker** para APIs externas ✅
   - **Upload transacional** com rollback ✅
   - **Fallback automático** para falhas da Notion ✅
+
+**Sync Functions (2025-08-25):**
+- `j_ads_complete_notion_sync` - **Full database synchronization** ✅
+- `j_ads_my_accounts_complete` - **User account access with full data** ✅
+- `j_ads_scheduled_notion_sync` - **Scheduled incremental sync** ✅
+
+**Obsolete Functions (Keep for compatibility):**
+- `j_ads_notion_clients` - ⚠️ Replaced by synchronized tables
+- `j_ads_notion_my_accounts` - ⚠️ Replaced by `j_ads_my_accounts_complete`
+- `j_ads_notion_partners` - ⚠️ Replaced by synchronized tables
 
 ## 🎨 Design System & UI Patterns
 
@@ -545,6 +576,150 @@ A **separação de responsabilidades** está corretamente implementada:
 
 ---
 
-**Last Updated**: 2025-08-21 (Sistema de Senha Completo - Pronto para deploy)  
+---
+
+## 📊 STATUS DA SESSÃO 2025-08-25 (Migração Tabelas Sincronizadas)
+
+### **🎯 OBJETIVOS ALCANÇADOS NESTA SESSÃO:**
+- ✅ **Migração Completa para Tabelas Sincronizadas** - Sistema migrado de chamadas diretas Notion API para tabelas Supabase sincronizadas
+- ✅ **Correção Crítica dos Objetivos de Campanha** - Objetivos agora funcionam perfeitamente no seletor
+- ✅ **Otimização de Performance** - Eliminadas chamadas em tempo real para Notion API
+- ✅ **Sistema de Permissões Mantido** - Controle de acesso por usuário preservado via email cross-reference
+- ✅ **Compatibilidade Robusta** - Sistema processa objetivos tanto como string quanto array
+
+### **🔧 ARQUIVOS MODIFICADOS NESTA SESSÃO:**
+- `src/hooks/useMyNotionAccounts.ts` - Migrado para usar `j_ads_my_accounts_complete`
+- `src/hooks/useNotionData.ts` - Refatorado para usar dados sincronizados + correção de objetivos
+- `supabase/functions/j_ads_my_accounts_complete/index.ts` - Função completa criada anteriormente agora em uso
+
+### **🗄️ ESTRUTURA DE DADOS ATUALIZADA:**
+**Tabelas Sincronizadas Ativas:**
+- `j_ads_notion_db_managers` - Gestores completos (10 campos vs 7 anteriores)
+- `j_ads_notion_db_accounts` - Contas completas (75 campos vs dados limitados)
+- `j_ads_notion_db_partners` - Parceiros sincronizados
+
+**Fluxo de Dados Atual:**
+```
+Usuário Login → Email Cross-Reference → j_ads_notion_db_managers
+    ↓
+Parsing "Contas" field → Account IDs → j_ads_notion_db_accounts  
+    ↓
+Objetivos: "Vendas, Seguidores, Engajamento" → ["Vendas", "Seguidores", "Engajamento"]
+    ↓
+Frontend: Seletor de Objetivos de Campanha Funcionando
+```
+
+### **🐛 BUG CRÍTICO RESOLVIDO:**
+**Problema**: Objetivos de campanha não apareciam no dropdown após migração
+**Causa**: Sistema processava apenas arrays, mas objetivos às vezes vinham como string
+**Solução**: Implementado parsing robusto para ambos formatos:
+```typescript
+// Handle both string and array formats for objectives
+let objectives = [];
+if (Array.isArray(account.objectives)) {
+  objectives = account.objectives;
+} else if (typeof account.objectives === 'string') {
+  objectives = account.objectives.split(', ').filter(Boolean);
+}
+```
+
+### **⚡ MELHORIAS DE PERFORMANCE:**
+- **Eliminação de API Calls**: Zero chamadas em tempo real para Notion durante navegação
+- **Dados Offline**: Sistema funciona com dados cached/sincronizados
+- **Acesso Completo**: 75 campos de conta disponíveis vs dados limitados anteriores
+- **Consistência**: Dados sincronizados regularmente via edge functions
+
+### **🛡️ SISTEMA RESILIENTE MANTIDO:**
+- **Fallback automático**: Sistema continua operacional mesmo com sync degradado
+- **Error tracking**: Todos os erros logados e monitorados
+- **Zero downtime**: Migração transparente para usuários finais
+- **Backwards compatibility**: Sistema suporta múltiples formatos de dados
+
+### **🎉 RESULTADO CRÍTICO:**
+**"SISTEMA 100% MIGRADO PARA ARQUITETURA SINCRONIZADA!"**
+
+- **Performance**: Eliminação de latência de API calls
+- **Escalabilidade**: Suporte a 75 campos de dados por conta
+- **Confiabilidade**: Dados cached com sync automático
+- **Funcionalidade**: Objetivos de campanha 100% funcionais
+- **UX**: Interface responsiva sem delays de carregamento
+
+### **🔄 PRÓXIMAS OPORTUNIDADES:**
+- [ ] **Cleanup de Código**: Remover edge functions obsoletas (`j_ads_notion_my_accounts`, `j_ads_notion_clients`)
+- [ ] **Monitoramento**: Alertas para falhas de sincronização
+- [ ] **Expansão**: Aproveitar os 75 campos adicionais para novas features
+- [ ] **Otimização**: Implementar cache inteligente baseado em frequência de uso
+
+---
+
+---
+
+## 📊 STATUS DA SESSÃO 2025-08-25 (Sistema de Reports Completo)
+
+### **🎯 OBJETIVOS ALCANÇADOS NESTA SESSÃO:**
+- ✅ **Sistema de Reports Profissional Implementado** - Templates baseados em objetivos da conta
+- ✅ **Design System Jumper Aplicado** - Hero metrics com tema laranja oficial
+- ✅ **Performance Indicators Inteligentes** - Sistema de cores baseado em thresholds da indústria
+- ✅ **UX Mobile-First** - Cards otimizados com progressive disclosure
+- ✅ **Loading States Branded** - Skeleton screens com animações Jumper
+- ✅ **Navigation Simplificada** - Header limpo e menu reorganizado
+- ✅ **Deploy em Produção** - Sistema ativo em ads.jumper.studio
+
+### **📊 COMPONENTES CRIADOS:**
+**Dashboards:**
+- `GeneralDashboard.tsx` - Visão geral da conta (últimos 30 dias)
+- `SalesDashboard.tsx` - Dashboard de vendas com funil completo (últimos 7 dias)
+- `ComingSoonTemplate.tsx` - Templates inteligentes para objetivos não implementados
+- `ReportAccessControl.tsx` - Controle de acesso baseado em contas Notion
+- `ReportsDashboard.tsx` - Gerenciador principal com seleção visual de templates
+
+**Design System:**
+- `MetricCard.tsx` - Component com performance indicators e hero styling
+- `SkeletonScreen.tsx` - Loading states branded com animações Jumper
+- `metricPerformance.ts` - Thresholds profissionais e formatação consistente
+
+### **🎨 DESIGN SYSTEM ATUALIZADO:**
+**Novos Design Tokens:**
+```css
+/* Performance Metrics Colors */
+--metric-excellent: 159 64% 42%; /* Verde */
+--metric-good: 217 91% 60%;      /* Azul */  
+--metric-warning: 38 92% 50%;    /* Amarelo */
+--metric-critical: 0 84% 60%;    /* Vermelho */
+
+/* Hero Metrics - Jumper Orange */
+--orange-hero: 14 95% 55%;       /* Laranja principal */
+--orange-subtle: 14 95% 97%;     /* Fundo sutil */
+--orange-muted: 14 45% 88%;      /* Intermediário */
+```
+
+### **⚡ PERFORMANCE THRESHOLDS IMPLEMENTADOS:**
+**Baseados em benchmarks da indústria:**
+- **CTR**: Excellent ≥2.0% | Good ≥1.5% | Warning ≥0.5%
+- **ROAS**: Excellent ≥4.0x | Good ≥2.5x | Warning ≥1.0x
+- **CPA**: Excellent ≤R$50 | Good ≤R$100 | Warning ≤R$200
+- **CPM**: Excellent ≤R$10 | Good ≤R$20 | Warning ≤R$40
+- **Conversion Rate**: Excellent ≥3.0% | Good ≥2.0% | Warning ≥0.5%
+
+### **🚀 FEATURES PRINCIPAIS:**
+1. **Template Intelligence** - Sistema detecta objetivos e oferece templates adequados
+2. **Visual Template Selector** - Painel responsivo substitui dropdown
+3. **Hero Metrics Highlighting** - KPIs principais com destaque laranja
+4. **Branded Loading Experience** - Skeleton screens com identidade Jumper
+5. **Performance Color Coding** - Feedback visual imediato da performance
+6. **Mobile Progressive Disclosure** - Informação organizada por importância
+
+### **🎉 RESULTADO CRÍTICO:**
+**"SISTEMA DE REPORTS PROFISSIONAL ATIVO EM PRODUÇÃO!"**
+
+- **Templates Inteligentes**: Baseados em objetivos da conta
+- **Design System Consistente**: Tema Jumper aplicado em toda experiência
+- **Performance Insights**: Indicadores visuais baseados em benchmarks
+- **Mobile Excellence**: Experiência otimizada para todos os dispositivos  
+- **Professional UX**: Loading states, animations e feedback adequados
+
+---
+
+**Last Updated**: 2025-08-25 (Sistema de Reports Completo - Produção Ativa)  
 **Maintained by**: Claude Code Assistant  
-**Project Status**: **FASE 1 COMPLETA** ✅ → **EM PRODUÇÃO** 🚀 → **Gestão de Senhas Ativa** 🔐
+**Project Status**: **FASE 1 COMPLETA** ✅ → **EM PRODUÇÃO** 🚀 → **REPORTS PROFISSIONAIS ATIVOS** 📊
