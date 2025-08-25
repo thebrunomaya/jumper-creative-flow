@@ -107,6 +107,21 @@
 
     /* Jumper Official Solid Colors */
     --jumper-orange-solid: 14 95% 55%;
+
+    /* Performance Metrics Colors - Jumper Design System */
+    --metric-excellent: 159 64% 42%;
+    --metric-excellent-foreground: 0 0% 100%;
+    --metric-good: 217 91% 60%;
+    --metric-good-foreground: 0 0% 100%;
+    --metric-warning: 38 92% 50%;
+    --metric-warning-foreground: 210 11% 15%;
+    --metric-critical: 0 84% 60%;
+    --metric-critical-foreground: 0 0% 100%;
+    
+    /* Subtle brand accents for reports */
+    --orange-subtle: 14 95% 97%;
+    --orange-muted: 14 45% 88%;
+    --orange-hero: 14 95% 55%;
     --jumper-purple-solid: 273 44% 46%;
 
     --radius: 0.5rem;
@@ -162,6 +177,21 @@
     
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 0%;
+    
+    /* Performance Metrics Colors - Dark Mode */
+    --metric-excellent: 159 64% 42%;
+    --metric-excellent-foreground: 0 0% 100%;
+    --metric-good: 217 91% 60%;
+    --metric-good-foreground: 0 0% 100%;
+    --metric-warning: 38 92% 50%;
+    --metric-warning-foreground: 0 0% 0%;
+    --metric-critical: 0 84% 60%;
+    --metric-critical-foreground: 0 0% 100%;
+    
+    /* Subtle brand accents for reports - Dark Mode */
+    --orange-subtle: 14 45% 12%;
+    --orange-muted: 14 45% 25%;
+    --orange-hero: 14 95% 55%;
     
     /* Borders & Inputs - subtle grays */
     --border: 240 3% 25%;
@@ -298,9 +328,6 @@
   /* Special focus for buttons and interactive elements */
   button:focus-visible,
   a:focus-visible,
-  input:focus-visible,
-  textarea:focus-visible,
-  select:focus-visible,
   [role="button"]:focus-visible,
   [tabindex]:focus-visible {
     outline: 3px solid hsl(var(--primary));
@@ -308,12 +335,18 @@
     transition: outline-offset 0.2s ease;
   }
   
-  /* Dark mode focus adjustments */
+  /* Inputs, textareas and selects use Tailwind's ring system, so no outline needed */
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
+    outline: none;
+  }
+  
+  /* Dark mode focus adjustments for elements that use outline */
   .dark button:focus-visible,
   .dark a:focus-visible,
-  .dark input:focus-visible,
-  .dark textarea:focus-visible,
-  .dark select:focus-visible {
+  .dark [role="button"]:focus-visible,
+  .dark [tabindex]:focus-visible {
     outline-color: hsl(14 95% 65%);
   }
 }
