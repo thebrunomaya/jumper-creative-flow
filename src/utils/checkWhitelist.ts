@@ -13,13 +13,16 @@ export async function checkEmailWhitelist(email: string): Promise<WhitelistCheck
   try {
     // Normalizar email
     const normalizedEmail = email.toLowerCase().trim();
+    console.log('Verificando email:', normalizedEmail);
 
     // Verificar se o email está na tabela de managers do Notion
     const { data: managers, error: managerError } = await supabase
-      .from('j_ads_notion_managers')
-      .select('email, name, role')
-      .eq('email', normalizedEmail)
+      .from('j_ads_notion_db_managers')
+      .select('*')
+      .ilike('E-Mail', normalizedEmail)
       .maybeSingle();
+
+    console.log('Resultado da busca:', { managers, error: managerError });
 
     if (managerError) {
       console.error('Erro ao buscar manager:', managerError);
@@ -28,6 +31,7 @@ export async function checkEmailWhitelist(email: string): Promise<WhitelistCheck
 
     if (!managers) {
       // Email não está na whitelist
+      console.log('Email não encontrado na whitelist:', normalizedEmail);
       return {
         authorized: false,
         hasAccount: false,
@@ -50,7 +54,7 @@ export async function checkEmailWhitelist(email: string): Promise<WhitelistCheck
     return {
       authorized: true,
       hasAccount: userExists,
-      managerName: managers.name || '',
+      managerName: managers.Nome || '',
       isFirstAccess: !userExists,
       status: 'active'
     };
