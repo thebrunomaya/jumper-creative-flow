@@ -18,6 +18,11 @@ const buttonVariants = cva(
           "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
+        // Jumper-specific variants consolidated
+        "jumper-primary": 
+          "bg-slate-700 text-white hover:bg-jumper-orange hover:shadow-md transition-all duration-200 touch-target",
+        "jumper-critical":
+          "bg-jumper-orange text-white hover:bg-jumper-orange/90 active:bg-jumper-orange/95 touch-target",
       },
       size: {
         default: "h-10 px-4 py-2",

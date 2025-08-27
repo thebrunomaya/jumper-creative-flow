@@ -44,7 +44,7 @@ const Manager: React.FC = () => {
     if (!currentUser) {
       throw new Error("Não autenticado");
     }
-    const { data, error } = await supabase.functions.invoke("j_ads_manager_actions", {
+    const { data, error } = await supabase.functions.invoke("j_ads_manager_dashboard", {
       body: {
         action: "listMy",
       },
@@ -57,7 +57,7 @@ const Manager: React.FC = () => {
   const { data: items = [], isFetching, refetch } = useQuery({ queryKey: ["manager", "my-submissions"], queryFn: fetchMy });
 
   const handleDelete = async (id: string) => {
-    const { data, error } = await supabase.functions.invoke("j_ads_manager_actions", {
+    const { data, error } = await supabase.functions.invoke("j_ads_manager_dashboard", {
       body: { action: "deleteDraft", submissionId: id },
     });
     if (error || !data?.success) {

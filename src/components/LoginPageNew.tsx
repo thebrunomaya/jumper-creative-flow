@@ -6,7 +6,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { Loader2, ArrowRight, Mail, Lock, Sparkles } from 'lucide-react';
 import { JumperLogo } from '@/components/ui/jumper-logo';
-import gradientImage from '@/assets/gradients/organic-02.png';
+import gradientImage from '@/assets/gradients-optimized/organic-02.png';
 import { checkEmailWhitelist, type WhitelistCheckResult } from '@/utils/checkWhitelist';
 import { setupTestManagers } from '@/utils/setupTestManagers';
 import { supabase } from '@/integrations/supabase/client';

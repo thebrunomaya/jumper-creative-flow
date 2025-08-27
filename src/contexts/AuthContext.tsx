@@ -41,7 +41,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Ensure the user has at least a default role after auth
   const ensureUserRole = async () => {
     try {
-      await supabase.functions.invoke('j_ads_ensure_role', { body: {} });
+      await supabase.functions.invoke('j_ads_auth_roles', { body: {} });
     } catch (e) {
       console.error('ensure-role invocation failed', e);
     }

@@ -12,6 +12,20 @@ dist
 dist-ssr
 *.local
 
+# Environment variables
+.env
+.env.local
+
+# Temporary files and debugging
+temp/
+*.tmp
+*.temp
+*.log
+*.debug
+*-temp.*
+*-backup.*
+*.bak
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

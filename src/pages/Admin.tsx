@@ -12,6 +12,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import Header from "@/components/Header";
 import { Link } from "react-router-dom";
 import { CreativeDetailsModal } from "@/components/CreativeDetailsModal";
+import { NotionSyncControl } from "@/components/NotionSyncControl";
 
 interface SubmissionRow {
   id: string;
@@ -66,7 +67,7 @@ const AdminPage: React.FC = () => {
       throw new Error('Acesso negado: apenas administradores.');
     }
 
-    const { data, error } = await supabase.functions.invoke("j_ads_admin_actions", {
+    const { data, error } = await supabase.functions.invoke("j_ads_admin_dashboard", {
       body: {
         action: "listAll",
       },
@@ -91,7 +92,7 @@ const AdminPage: React.FC = () => {
       setPublishingResult(null);
 
       // Start the publication process
-      const { data, error } = await supabase.functions.invoke("j_ads_admin_actions", {
+      const { data, error } = await supabase.functions.invoke("j_ads_admin_dashboard", {
         body: {
           action: "publish",
           submissionId,
@@ -154,7 +155,7 @@ const AdminPage: React.FC = () => {
 
   const queueMutation = useMutation({
     mutationFn: async (submissionId: string) => {
-      const { data, error } = await supabase.functions.invoke("j_ads_admin_actions", {
+      const { data, error } = await supabase.functions.invoke("j_ads_admin_dashboard", {
         body: {
           action: "queue",
           submissionId,
@@ -177,7 +178,7 @@ const AdminPage: React.FC = () => {
 
   const deleteMutation = useMutation({
     mutationFn: async (submissionId: string) => {
-      const { data, error } = await supabase.functions.invoke("j_ads_admin_actions", {
+      const { data, error } = await supabase.functions.invoke("j_ads_admin_dashboard", {
         body: {
           action: "deleteSubmission",
           submissionId,
@@ -201,7 +202,7 @@ const AdminPage: React.FC = () => {
 
   const syncNotionMutation = useMutation({
     mutationFn: async () => {
-      const { data, error } = await supabase.functions.invoke("j_ads_notion_sync");
+      const { data, error } = await supabase.functions.invoke("j_ads_notion_sync_accounts");
       if (error) throw error;
       if (!data?.ok) throw new Error(data?.error || "Falha ao sincronizar Notion");
       return data;
@@ -224,7 +225,7 @@ const AdminPage: React.FC = () => {
 
   const backfillEmailsMutation = useMutation({
     mutationFn: async () => {
-      const { data, error } = await supabase.functions.invoke("j_ads_admin_actions", {
+      const { data, error } = await supabase.functions.invoke("j_ads_admin_dashboard", {
         body: { action: "backfill_manager_emails" },
       });
       if (error) throw error;
@@ -431,6 +432,12 @@ const AdminPage: React.FC = () => {
               </Table>
             </div>
           </Card>
+        </section>
+
+        {/* Seção de Controle de Sincronização Notion */}
+        <section>
+          <h2 className="text-xl font-semibold tracking-tight text-foreground mb-4">Sincronização Notion</h2>
+          <NotionSyncControl />
         </section>
 
         <Dialog open={!!errorDetails} onOpenChange={() => setErrorDetails(null)}>

@@ -54,70 +54,36 @@ export const useManagers = () => {
 
   const fetchManagers = useCallback(async () => {
     try {
-      console.log('Fetching managers from Notion DB_Gerentes...');
+      console.log('Fetching managers from synchronized table j_ads_notion_db_managers...');
       setLoading(true);
       setError(null);
       
-      const { data, error } = await supabase.functions.invoke('j_ads_notion_managers');
+      const { data, error } = await supabase
+        .from('j_ads_notion_db_managers')
+        .select('*');
       
       if (error) {
-        console.error('Supabase function error:', error);
+        console.error('Supabase query error:', error);
         throw error;
       }
       
-      console.log('Raw Notion managers data:', data);
+      console.log('Raw synchronized managers data:', data);
       
-      if (!data || !data.success) {
-        throw new Error(data?.error || 'Invalid response format from Notion');
-      }
-      
-      if (!data.results || !Array.isArray(data.results)) {
-        console.warn('No results found in Notion response');
+      if (!data || !Array.isArray(data)) {
+        console.warn('No results found in synchronized table');
         setManagers([]);
         setError(null);
         return;
       }
       
-      const formattedManagers: Manager[] = data.results.map((item: any) => {
-        let name = 'Sem nome';
-        let email = '';
-        let password = '';
-        let accounts: string[] = [];
-        
-        // Try to find name in various properties
-        const possibleNameProperties = ['Nome', 'Name', 'Gerente', 'Manager', 'Title', 'Título'];
-        for (const propName of possibleNameProperties) {
-          if (item.properties[propName]) {
-            const extractedName = extractTextFromProperty(item.properties[propName]);
-            if (extractedName) {
-              name = extractedName;
-              break;
-            }
-          }
-        }
-        
-        // Focus specifically on E-Mail property from Notion
-        if (item.properties['E-Mail']) {
-          email = extractTextFromProperty(item.properties['E-Mail']);
-        }
-        
-        // Extract password from "Senha" property
-        if (item.properties['Senha']) {
-          password = extractTextFromProperty(item.properties['Senha']);
-        }
-        
-        // Extract accounts from "Contas" property
-        if (item.properties['Contas']) {
-          accounts = extractAccountIds(item.properties['Contas']);
-        }
-        
+      const formattedManagers: Manager[] = data.map((item: any) => {
         return {
-          id: item.id,
-          name,
-          email,
-          username: email, // Use email as username for login validation
-          password,
-          accounts
+          id: item.notion_id || item.id,
+          name: item.name || 'Sem nome',
+          email: item.email || '',
+          username: item.email || '', // Use email as username for login validation
+          password: item.password || '', // Senha from synchronized table
+          accounts: item.accounts ? (typeof item.accounts === 'string' ? item.accounts.split(',').map(s => s.trim()) : item.accounts) : []
         };
       });
       

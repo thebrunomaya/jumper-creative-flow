@@ -8,7 +8,7 @@ import { Loader2, Lock, CheckCircle } from 'lucide-react';
 import { JumperLogo } from '@/components/ui/jumper-logo';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
-import gradientImage from '@/assets/gradients/organic-02.png';
+import gradientImage from '@/assets/gradients-optimized/organic-02.png';
 
 const ResetPasswordPage: React.FC = () => {
   const [password, setPassword] = useState('');

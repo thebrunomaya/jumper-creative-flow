@@ -19,11 +19,13 @@ const DesignSystem = lazy(() => import("./pages/DesignSystem"));
 const Admin = lazy(() => import("./pages/Admin"));
 const Manager = lazy(() => import("./pages/Manager"));
 const CreativeSystem = lazy(() => import("@/components/CreativeSystem"));
+const ReportsPage = lazy(() => import("./pages/ReportsPage"));
 
-// Loading component reutilizável
+// Loading component reutilizável com acessibilidade
 const PageLoading = () => (
-  <div className="flex items-center justify-center min-h-screen">
-    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-jumper-orange"></div>
+  <div className="flex items-center justify-center min-h-screen" role="status" aria-live="polite">
+    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-jumper-orange" aria-hidden="true"></div>
+    <span className="sr-only">Carregando página...</span>
   </div>
 );
 
@@ -75,6 +77,13 @@ const App = () => {
                   <ProtectedRoute>
                     <Suspense fallback={<PageLoading />}>
                       <Manager />
+                    </Suspense>
+                  </ProtectedRoute>
+                } />
+                <Route path="/reports/:accountName" element={
+                  <ProtectedRoute>
+                    <Suspense fallback={<PageLoading />}>
+                      <ReportsPage />
                     </Suspense>
                   </ProtectedRoute>
                 } />

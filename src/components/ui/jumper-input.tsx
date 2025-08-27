@@ -25,22 +25,31 @@ export interface JumperInputProps
 }
 
 const JumperInput = React.forwardRef<HTMLInputElement, JumperInputProps>(
-  ({ className, type, label, error, onChange, ...props }, ref) => {
+  ({ className, type, label, error, onChange, id, ...props }, ref) => {
     const hasError = Boolean(error)
     const errorMessage = typeof error === 'string' ? error : undefined
+    
+    // Generate unique IDs for accessibility
+    const inputId = id || React.useId()
+    const errorId = `${inputId}-error`
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       onChange?.(e.target.value)
     }
 
     return (
-      <div className="w-full space-y-2">
+      <div className="w-full space-y-2 form-field">
         {label && (
-          <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-foreground">
+          <label 
+            htmlFor={inputId}
+            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-foreground"
+          >
             {label}
+            {props.required && <span className="text-destructive ml-1" aria-label="obrigatório">*</span>}
           </label>
         )}
         <input
+          id={inputId}
           type={type}
           className={cn(
             jumperInputVariants({ error: hasError }),
@@ -52,10 +61,19 @@ const JumperInput = React.forwardRef<HTMLInputElement, JumperInputProps>(
           )}
           ref={ref}
           onChange={handleChange}
+          aria-invalid={hasError}
+          aria-describedby={errorMessage ? errorId : undefined}
           {...props}
         />
         {errorMessage && (
-          <p className="text-sm text-destructive">{errorMessage}</p>
+          <p 
+            id={errorId}
+            className="text-sm text-destructive error-message" 
+            role="alert"
+            aria-live="polite"
+          >
+            {errorMessage}
+          </p>
         )}
       </div>
     )

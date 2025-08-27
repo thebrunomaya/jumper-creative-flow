@@ -31,13 +31,13 @@
 
 /* Gradientes Orgânicos Jumper Studio */
 :root {
-  --gradient-01: url('./assets/gradients/organic-01.png');
-  --gradient-02: url('./assets/gradients/organic-02.png');
-  --gradient-03: url('./assets/gradients/organic-03.png');
-  --gradient-04: url('./assets/gradients/organic-04.png');
-  --gradient-05: url('./assets/gradients/organic-05.png');
-  --gradient-06: url('./assets/gradients/organic-06.png');
-  --gradient-07: url('./assets/gradients/organic-07.png');
+  --gradient-01: url('./assets/gradients-optimized/organic-01.png');
+  --gradient-02: url('./assets/gradients-optimized/organic-02.png');
+  --gradient-03: url('./assets/gradients-optimized/organic-03.png');
+  --gradient-04: url('./assets/gradients-optimized/organic-04.png');
+  --gradient-05: url('./assets/gradients-optimized/organic-05.png');
+  --gradient-06: url('./assets/gradients-optimized/organic-06.png');
+  --gradient-07: url('./assets/gradients-optimized/organic-07.png');
 }
 
 /* Definition of the design system. All colors, fonts, etc should be defined here. */

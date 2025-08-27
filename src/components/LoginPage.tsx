@@ -9,7 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { Loader2, LogIn } from 'lucide-react';
 import { JumperLogo } from '@/components/ui/jumper-logo';
-import gradientImage from '@/assets/gradients/organic-02.png';
+import gradientImage from '@/assets/gradients-optimized/organic-02.png';
 
 const LoginPage: React.FC = () => {
   const [mode, setMode] = useState<'login' | 'signup'>('login');

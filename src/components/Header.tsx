@@ -3,7 +3,7 @@ import React from 'react';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 import UserMenu from './UserMenu';
 import xWhiteLogo from '../assets/logos/x-white.png';
-import logoBackground from '../assets/gradients/organic-07.png';
+import logoBackground from '../assets/gradients-optimized/organic-07.png';
 import { LazyImage } from '@/components/ui/lazy-image';
 import { Link } from 'react-router-dom';
 

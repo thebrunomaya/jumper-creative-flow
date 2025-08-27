@@ -1,73 +1,161 @@
-# Welcome to your Lovable project
+# 🚀 Jumper Creative Flow - Ad Uploader
 
-## Project info
+Sistema profissional de upload e gestão de criativos publicitários da **Jumper Studio**.
 
-**URL**: https://lovable.dev/projects/188c2eb6-3c00-40ce-adbf-d3545700036f
+## 📊 Status do Projeto
 
-## How can I edit this code?
+- **Versão**: 1.8
+- **Ambiente**: Produção ativa
+- **URL**: [ads.jumper.studio](https://ads.jumper.studio)
+- **Status**: ✅ Operacional
 
-There are several ways of editing your application.
+## 🛠️ Stack Tecnológico
 
-**Use Lovable**
+- **Frontend**: React 18 + TypeScript + Vite
+- **UI Framework**: Tailwind CSS + shadcn/ui (customizado)
+- **Backend**: Supabase (Database + Edge Functions + Auth + Storage)
+- **Deploy**: Vercel (produção automática)
+- **Integration**: Notion API para gestão de clientes e criativos
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/188c2eb6-3c00-40ce-adbf-d3545700036f) and start prompting.
+## 🚀 Desenvolvimento Local
 
-Changes made via Lovable will be committed automatically to this repo.
+### Pré-requisitos
+- Node.js 18+ ([instalar via nvm](https://github.com/nvm-sh/nvm#installing-and-updating))
+- Acesso às credenciais Supabase
 
-**Use your preferred IDE**
+### Setup
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
+```bash
+# 1. Clone o repositório
 git clone <YOUR_GIT_URL>
+cd jumper-creative-flow
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+# 2. Instale dependências
+npm install
 
-# Step 3: Install the necessary dependencies.
-npm i
+# 3. Configure variáveis de ambiente
+cp .env.template .env
+# Edite .env com suas credenciais Supabase
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# 4. Execute em desenvolvimento
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+### Scripts Disponíveis
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```bash
+npm run dev         # Servidor de desenvolvimento
+npm run build       # Build de produção
+npm run preview     # Preview do build
+npm run lint        # Validação ESLint
+npm run deploy      # Deploy para Vercel
 
-**Use GitHub Codespaces**
+# 🧹 Limpeza de arquivos temporários
+npm run clean:temp              # Remove todos os arquivos temp/
+npm run clean:temp:old          # Remove arquivos > 30 dias
+npm run clean:temp:screenshots  # Remove apenas screenshots
+npm run clean:temp:docs         # Remove apenas docs temporários
+npm run clean:all               # Limpeza completa
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## 🏗️ Arquitetura
 
-## What technologies are used for this project?
+### Frontend
+```
+src/
+├── components/     # Componentes React reutilizáveis
+├── pages/         # Páginas da aplicação
+├── hooks/         # Custom hooks
+├── utils/         # Utilitários puros
+├── contexts/      # Context providers
+└── assets/        # Recursos estáticos
+```
 
-This project is built with:
+### Backend (Supabase)
+```
+supabase/
+├── functions/     # Edge Functions (Deno/TypeScript)
+└── migrations/    # Migrações de banco
+```
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+### 🗂️ Arquivos Temporários
+```
+temp/               # 🧹 PASTA PARA ARQUIVOS TEMPORÁRIOS
+├── screenshots/    # Screenshots, prints de teste
+├── docs/          # Documentação temporária, logs
+├── html-templates/ # Templates HTML, mockups
+├── debug-files/   # Scripts debug, testes
+└── exports/       # Exports CSV/JSON temporários
+```
 
-## How can I deploy this project?
+> **💡 Dica**: Use sempre a pasta `temp/` para arquivos que podem ser deletados.  
+> Esta pasta não vai para o Git e pode ser limpa com `npm run clean:temp`.
 
-Simply open [Lovable](https://lovable.dev/projects/188c2eb6-3c00-40ce-adbf-d3545700036f) and click on Share -> Publish.
+## 👥 Tipos de Usuário
 
-## Can I connect a custom domain to my Lovable project?
+- **👑 Administrador**: Acesso total, debugging, gestão
+- **⚡ Gestor**: Gestores Jumper, edição/publicação de criativos  
+- **👥 Supervisor**: Diretores de agências parceiras
+- **📝 Gerente**: Gerentes de marketing, upload de criativos
 
-Yes, you can!
+## 🎯 Funcionalidades Principais
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+- ✅ Upload multi-formato de criativos (imagem/vídeo)
+- ✅ Validação automática por posicionamento
+- ✅ Sistema de roles e permissões
+- ✅ Integração completa com Notion
+- ✅ Dashboard de reports profissionais
+- ✅ Sistema resiliente à prova de falhas
+- ✅ Design system Jumper customizado
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+## 🔧 Configuração
+
+### Variáveis de Ambiente
+
+```bash
+# Frontend (.env)
+VITE_SUPABASE_URL=sua_url_supabase
+VITE_SUPABASE_ANON_KEY=sua_chave_anonima
+
+# Backend (Supabase Edge Functions)  
+SUPABASE_SERVICE_ROLE_KEY=chave_service_role
+NOTION_TOKEN=token_integracao_notion
+```
+
+## 🚀 Deploy
+
+### Produção
+- **Deploy automático**: Push para `main` → Vercel deploy
+- **URL de produção**: https://ads.jumper.studio
+- **Monitoramento**: Via Vercel dashboard
+
+### Manual
+```bash
+npm run deploy        # Deploy para produção
+npm run deploy:preview # Deploy preview
+```
+
+## 📚 Documentação
+
+- **[CLAUDE.md](./CLAUDE.md)** - Configuração detalhada do projeto
+- **[ROADMAP.md](./ROADMAP.md)** - Roadmap estratégico e técnico
+- **[Design System](https://ads.jumper.studio/design-system)** - Documentação visual
+
+## 🔒 Segurança
+
+- Autenticação via Supabase Auth
+- Row Level Security (RLS) no banco
+- Validação de files no upload
+- Rate limiting nas Edge Functions
+- HTTPS enforced em produção
+
+## 📞 Suporte
+
+- **Issues**: Reporte bugs via GitHub Issues
+- **Documentação**: Claude Code configuration em `CLAUDE.md`
+- **Deploy**: Vercel dashboard para logs e métricas
+
+---
+
+**Desenvolvido com ❤️ pela equipe Jumper Studio**  
+**Powered by**: React + Supabase + Vercel + Claude Code

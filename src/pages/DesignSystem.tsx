@@ -82,7 +82,7 @@ const DesignSystem = () => {
                     </div>
                     <div className="flex items-center space-x-2">
                       <div className="w-1.5 h-1.5 rounded-full bg-success"></div>
-                      <span className="text-muted-foreground">Armazenados em <code className="bg-muted/50 px-1 rounded">src/assets/gradients/</code></span>
+                      <span className="text-muted-foreground">Armazenados em <code className="bg-muted/50 px-1 rounded">src/assets/gradients-optimized/</code></span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <div className="w-1.5 h-1.5 rounded-full bg-success"></div>
@@ -409,7 +409,7 @@ const DesignSystem = () => {
                     <div>├── hooks/ <span className="text-accent-subtle"># Lógica reutilizável</span></div>
                     <div>├── utils/ <span className="text-accent-subtle"># Utilities puras</span></div>
                     <div>├── assets/ <span className="text-accent-subtle"># Recursos estáticos</span></div>
-                    <div>│   ├── gradients/ <span className="text-accent-subtle"># organic-01.png a organic-07.png</span></div>
+                    <div>│   ├── gradients-optimized/ <span className="text-accent-subtle"># organic-01.png a organic-07.png</span></div>
                     <div>│   ├── fonts/ <span className="text-accent-subtle"># Haffer Variable + Italic</span></div>
                     <div>│   └── logos/ <span className="text-accent-subtle"># Jumper PNG assets</span></div>
                     <div>└── pages/ <span className="text-accent-subtle"># Páginas da aplicação</span></div>

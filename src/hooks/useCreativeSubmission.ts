@@ -348,7 +348,7 @@ export const useCreativeSubmission = () => {
         payloadFields: Object.keys(submissionData)
       });
       
-      const { data, error } = await supabase.functions.invoke('j_ads_submit_creative', {
+      const { data, error } = await supabase.functions.invoke('j_ads_submit_ad', {
         body: { ...submissionData, submissionId: options?.submissionId }
       });
       

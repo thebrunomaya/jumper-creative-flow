@@ -47,7 +47,7 @@ export const useNotionClients = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { currentUser } = useAuth();
-  const { accountIds, loading: accountsLoading } = useMyNotionAccounts();
+  const { accounts, accountIds, loading: accountsLoading, error: accountsError } = useMyNotionAccounts();
   const [isAdmin, setIsAdmin] = useState(false);
   const [userAccessibleAccounts, setUserAccessibleAccounts] = useState<string[]>([]);
 
@@ -63,122 +63,97 @@ export const useNotionClients = () => {
   }, [currentUser?.id]);
 
   useEffect(() => {
-    if (!isAdmin && accountsLoading) {
+    if (accountsLoading) {
       setLoading(true);
       return;
     }
-    const fetchClients = async () => {
-      try {
-        console.log('Fetching clients from Notion DB_Contas...');
-        const { data, error } = await supabase.functions.invoke('j_ads_notion_clients');
-        
-        if (error) {
-          console.error('Supabase function error:', error);
-          throw error;
-        }
-        
-        console.log('Raw Notion clients data:', data);
-        
-        if (!data || !data.success) {
-          throw new Error(data?.error || 'Invalid response format from Notion');
-        }
-        
-        if (!data.results || !Array.isArray(data.results)) {
-          console.warn('No results found in Notion response');
-          setClients([]);
-          setError(null);
-          return;
-        }
-        
-        const formattedClients: Client[] = data.results.map((item: NotionClient) => {
-          // Look specifically for the "Conta" property first
-          let name = 'Sem nome';
-          
-          if (item.properties['Conta']) {
-            const extractedName = extractTextFromProperty(item.properties['Conta']);
-            if (extractedName !== 'Sem nome') {
-              name = extractedName;
-            }
-          }
-          
-          // If "Conta" doesn't work, try other common property names as fallback
-          if (name === 'Sem nome') {
-            const possibleNameProperties = ['Name', 'Nome', 'Client', 'Cliente', 'Title', 'Título'];
-            
-            for (const propName of possibleNameProperties) {
-              if (item.properties[propName]) {
-                const extractedName = extractTextFromProperty(item.properties[propName]);
-                if (extractedName !== 'Sem nome') {
-                  name = extractedName;
-                  break;
-                }
-              }
-            }
-          }
 
-          // Extract objectives from "Objetivos" property
-          let objectives: string[] = [];
-          if (item.properties['Objetivos']) {
-            const objectivesProperty = item.properties['Objetivos'];
-            if (objectivesProperty.multi_select && Array.isArray(objectivesProperty.multi_select)) {
-              objectives = objectivesProperty.multi_select.map((option: any) => option.name).filter(Boolean);
-            }
+    try {
+      console.log('🔄 Processing clients from synchronized data...');
+      
+      if (accountsError) {
+        throw new Error(accountsError);
+      }
+
+      // Store user's specifically linked accounts
+      setUserAccessibleAccounts(accountIds || []);
+      
+      let processedClients: Client[] = [];
+
+      if (!isAdmin) {
+        // Regular users: use their linked accounts from the complete data
+        processedClients = accounts.map((account: any) => {
+          // Handle both string and array formats for objectives
+          let objectives = [];
+          if (Array.isArray(account.objectives)) {
+            objectives = account.objectives;
+          } else if (typeof account.objectives === 'string') {
+            objectives = account.objectives.split(', ').filter(Boolean);
           }
-          
-          // Normalize objectives and remove duplicates
-          const normalizedObjectives = getDistinctObjectives(objectives);
           
           return {
-            id: item.id,
-            name: name,
-            objectives: normalizedObjectives
+            id: account.id,
+            name: account.name || 'Sem nome',
+            objectives,
+            metaAdsId: account.id_meta_ads || account.meta_ads_id // Include Meta Ads ID for reports
           };
         });
         
-        // Store user's specifically linked accounts for both admin and regular users
-        setUserAccessibleAccounts(accountIds || []);
         
-        // Filter clients based on role
-        let filteredClients = formattedClients;
-        if (!isAdmin) {
-          // Regular users: only their linked accounts
-          if (accountIds && accountIds.length > 0) {
-            filteredClients = formattedClients.filter(client => accountIds.includes(client.id));
-            console.log('Filtered clients for manager:', filteredClients);
-          } else {
-            filteredClients = [];
-          }
-        } else {
-          // Admin users: all clients (but we track their personal linked accounts separately)
-          console.log('Admin user - showing all clients, personal linked accounts:', accountIds);
-          filteredClients = formattedClients; // Admins see all
-        }
-        
-        console.log('Formatted clients:', filteredClients);
-        setClients(filteredClients);
-        if (!isAdmin && filteredClients.length === 0) {
+        if (processedClients.length === 0) {
           setError('Você não tem contas vinculadas no Notion.');
         } else {
           setError(null);
         }
-      } catch (err) {
-        console.error('Error fetching clients:', err);
-        setError('Erro ao carregar clientes do Notion');
-        // Fallback para dados hardcoded se a API falhar
-        setClients([
-          { id: "fallback-1", name: "Almeida Prado B2B", objectives: ["Vendas", "Tráfego"] },
-          { id: "fallback-2", name: "Almeida Prado Ecommerce", objectives: ["Conversões", "Leads"] },
-          { id: "fallback-3", name: "LEAP Lab", objectives: ["Reconhecimento", "Engajamento"] },
-          { id: "fallback-4", name: "Koko Educação", objectives: ["Leads", "Tráfego"] },
-          { id: "fallback-5", name: "Supermercadistas", objectives: ["Vendas", "Tráfego"] }
-        ]);
-      } finally {
+      } else {
+        // Admin users: fetch all accounts from the complete synchronized table
+        console.log('🔍 Admin user - fetching all accounts from synchronized table...');
+        
+        const fetchAllAccounts = async () => {
+          const { data, error } = await supabase
+            .from('j_ads_notion_db_accounts')
+            .select('notion_id, "Conta", "Objetivos", "ID Meta Ads"');
+          
+          if (error) throw error;
+          
+          processedClients = (data || []).map((account: any) => ({
+            id: account.notion_id,
+            name: account.Conta || 'Sem nome',
+            objectives: account.Objetivos ? account.Objetivos.split(', ').filter(Boolean) : [],
+            metaAdsId: account["ID Meta Ads"] // Include Meta Ads ID for reports
+          }));
+          
+          setClients(processedClients);
+          setError(null);
+        };
+        
+        fetchAllAccounts().catch((err) => {
+          console.error('Error fetching admin accounts:', err);
+          throw err;
+        });
+        
         setLoading(false);
+        return;
       }
-    };
-
-    fetchClients();
-  }, [accountIds, accountsLoading, isAdmin]); // Refetch quando contas vinculadas mudarem ou quando role/carregamento mudar
+      
+      setClients(processedClients);
+      
+    } catch (err: any) {
+      console.error('Error processing clients:', err);
+      setError('Erro ao carregar clientes do Supabase');
+      
+      // Fallback para dados hardcoded se tudo falhar
+      setClients([
+        { id: "fallback-1", name: "Almeida Prado B2B", objectives: ["Vendas", "Tráfego"] },
+        { id: "fallback-2", name: "Almeida Prado Ecommerce", objectives: ["Conversões", "Leads"] },
+        { id: "fallback-3", name: "LEAP Lab", objectives: ["Reconhecimento", "Engajamento"] },
+        { id: "fallback-4", name: "Koko Educação", objectives: ["Leads", "Tráfego"] },
+        { id: "fallback-5", name: "Supermercadistas", objectives: ["Vendas", "Tráfego"] }
+      ]);
+    } finally {
+      setLoading(false);
+    }
+  }, [accounts, accountIds, accountsLoading, accountsError, isAdmin]);
 
   return { clients, loading, error, isAdmin, userAccessibleAccounts };
 };
@@ -191,8 +166,10 @@ export const useNotionPartners = () => {
   useEffect(() => {
     const fetchPartners = async () => {
       try {
-        console.log('Fetching partners from Notion DB_Parceiros...');
-        const { data, error } = await supabase.functions.invoke('j_ads_notion_partners');
+        console.log('Fetching partners from synchronized table j_ads_notion_db_partners...');
+        const { data, error } = await supabase
+          .from('j_ads_notion_db_partners')
+          .select('*');
         
         if (error) {
           console.error('Supabase function error:', error);
