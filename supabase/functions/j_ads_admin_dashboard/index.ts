@@ -204,6 +204,9 @@ async function resolveEmail(submission: any, supabase: any): Promise<string> {
   return "";
 }
 
+// Notion DB for managers (same used in notion-managers)
+const DB_GERENTES_ID = "213db60949688003bd2dec32494bb87c";
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -219,8 +222,6 @@ Deno.serve(async (req) => {
   const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
   const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
   const NOTION_TOKEN = Deno.env.get("NOTION_API_KEY");
-  // Notion DB for managers (same used in notion-managers)
-  const DB_GERENTES_ID = "213db60949688003bd2dec32494bb87c";
 
   if (!SUPABASE_URL || !SERVICE_ROLE_KEY) {
     return new Response(JSON.stringify({ error: "Server not configured" }), {
@@ -457,7 +458,7 @@ Deno.serve(async (req) => {
 
       try {
         // Process synchronously and return detailed result
-        const result = await processSubmissionInBackground(submissionId, supabase, fetchBase64);
+        const result = await processSubmissionInBackground(submissionId, supabase, fetchBase64, authHeader);
         
         return new Response(JSON.stringify({ 
           success: true, 
@@ -502,7 +503,7 @@ Deno.serve(async (req) => {
     }
 
     // Background processing function with detailed logging
-    async function processSubmissionInBackground(submissionId: string, supabase: any, fetchBase64: any) {
+    async function processSubmissionInBackground(submissionId: string, supabase: any, fetchBase64: any, authHeader: string) {
       const logs: string[] = [];
       const startTime = new Date().toISOString();
       
@@ -639,10 +640,13 @@ Deno.serve(async (req) => {
         addLog("📤 Enviando para o Notion...");
         await updateProgress("processing", logs);
         
-        const { data: submitResult, error: submitError } = await supabase.functions.invoke('j_ads_submit_creative', {
+        const { data: submitResult, error: submitError } = await supabase.functions.invoke('j_ads_submit_ad', {
           body: {
             ...payload,
             managerEmail: managerEmail
+          },
+          headers: {
+            Authorization: authHeader
           }
         });
 

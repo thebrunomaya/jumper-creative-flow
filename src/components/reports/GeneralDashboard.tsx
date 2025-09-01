@@ -39,9 +39,10 @@ interface AccountInfo {
 interface GeneralDashboardProps {
   accountName?: string;
   accountInfo?: AccountInfo;
+  selectedPeriod?: number;
 }
 
-export function GeneralDashboard({ accountName = 'Account', accountInfo }: GeneralDashboardProps) {
+export function GeneralDashboard({ accountName = 'Account', accountInfo, selectedPeriod = 7 }: GeneralDashboardProps) {
   const [metrics, setMetrics] = useState<GeneralMetrics | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -55,14 +56,14 @@ export function GeneralDashboard({ accountName = 'Account', accountInfo }: Gener
       }
 
       const metaAdsAccountId = accountInfo.metaAdsId;
-      console.log('📊 Fetching general metrics for account:', metaAdsAccountId);
+      console.log(`📊 Fetching general metrics for account: ${metaAdsAccountId} (${selectedPeriod} days)`);
 
-      // Fetch data from last 30 days for general overview
+      // Fetch data based on selected period
       const { data: rawData, error: dataError } = await supabase
         .from('j_rep_metaads_bronze')
         .select('*')
         .eq('account_id', metaAdsAccountId)
-        .gte('date', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
+        .gte('date', new Date(Date.now() - selectedPeriod * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
         .order('date', { ascending: false });
 
       if (dataError) {
@@ -79,18 +80,18 @@ export function GeneralDashboard({ accountName = 'Account', accountInfo }: Gener
       const totalSpend = rawData.reduce((sum, row) => sum + parseFloat(row.spend || '0'), 0);
       const totalImpressions = rawData.reduce((sum, row) => sum + (row.impressions || 0), 0);
       const totalClicks = rawData.reduce((sum, row) => sum + (row.clicks || 0), 0);
-      const totalLinkClicks = rawData.reduce((sum, row) => sum + (row.actions_link_click || 0), 0);
+      const totalLinkClicks = rawData.reduce((sum, row) => sum + (row.link_clicks || 0), 0);
       const totalReach = rawData.reduce((sum, row) => sum + (row.reach || 0), 0);
       
       // Calculate averages
       const avgFrequency = totalReach > 0 ? (totalImpressions / totalReach).toFixed(2) : '0';
       const avgCPM = totalImpressions > 0 ? ((totalSpend / totalImpressions) * 1000).toFixed(2) : '0';
-      const avgCTR = totalImpressions > 0 ? ((totalClicks / totalImpressions) * 100).toFixed(2) : '0';
-      const avgCPC = totalClicks > 0 ? (totalSpend / totalClicks).toFixed(2) : '0';
+      const avgCTR = totalImpressions > 0 ? ((totalLinkClicks / totalImpressions) * 100).toFixed(2) : '0';
+      const avgCPC = totalLinkClicks > 0 ? (totalSpend / totalLinkClicks).toFixed(2) : '0';
       
       // Count unique campaigns and ad sets
       const uniqueCampaigns = new Set(rawData.map(row => row.campaign)).size;
-      const uniqueAdSets = new Set(rawData.map(row => row.adset)).size;
+      const uniqueAdSets = new Set(rawData.map(row => row.adset_name)).size;
       const uniqueDays = new Set(rawData.map(row => row.date)).size;
 
       const generalMetrics: GeneralMetrics = {
@@ -120,7 +121,7 @@ export function GeneralDashboard({ accountName = 'Account', accountInfo }: Gener
 
   useEffect(() => {
     fetchGeneralData();
-  }, [accountInfo]);
+  }, [accountInfo, selectedPeriod]);
 
   const formatCurrency = (value: string | number) => {
     const num = typeof value === 'string' ? parseFloat(value) : value;
@@ -164,7 +165,7 @@ export function GeneralDashboard({ accountName = 'Account', accountInfo }: Gener
         <div>
           <h2 className="text-2xl font-bold">Visão Geral da Conta</h2>
           <p className="text-muted-foreground">
-            Métricas gerais - Últimos 30 dias
+            Métricas gerais - Últimos {selectedPeriod} dias
           </p>
         </div>
         <Button onClick={fetchGeneralData} disabled={loading} size="sm">
@@ -201,9 +202,9 @@ export function GeneralDashboard({ accountName = 'Account', accountInfo }: Gener
         />
 
         <MetricCard
-          title="CTR"
+          title="CTR (Link)"
           value={formatPercentage(metrics.avg_ctr)}
-          subtitle="Taxa de cliques"
+          subtitle="Taxa de cliques no link"
           icon={BarChart3}
           performance={getCTRPerformance(parseFloat(metrics.avg_ctr))}
         />

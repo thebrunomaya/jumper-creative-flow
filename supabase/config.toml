@@ -4,7 +4,7 @@ project_id = "biwwowendjuzvpttyrlb"
 [functions.j_ads_ingest_creative]
 verify_jwt = true
 
-[functions.j_ads_admin_actions]
+[functions.j_ads_admin_dashboard]
 verify_jwt = true
 
 [functions.j_ads_manager_actions]

@@ -249,7 +249,7 @@ const AdminPage: React.FC = () => {
 
   const fetchSubmissionDetails = async (submissionId: string) => {
     try {
-      const { data, error } = await supabase.functions.invoke('j_ads_admin_actions', {
+      const { data, error } = await supabase.functions.invoke('j_ads_admin_dashboard', {
         body: { action: 'getDetails', submissionId }
       });
       

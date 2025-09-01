@@ -14,10 +14,23 @@ interface CreativeFile {
   variation_index: number;
 }
 
+interface CreativeSubmission {
+  id: string;
+  creative_name: string;
+  campaign_objective: string;
+  creative_type: string;
+  brief_description: string;
+  created_at: string;
+  status: string;
+  account_id: string;
+  manager_email: string;
+  [key: string]: unknown;
+}
+
 interface CreativeDetailsModalProps {
   isOpen: boolean;
   onClose: () => void;
-  submission: any;
+  submission: CreativeSubmission;
 }
 
 export const CreativeDetailsModal: React.FC<CreativeDetailsModalProps> = ({

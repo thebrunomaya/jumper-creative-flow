@@ -72,19 +72,34 @@ const SingleFileUploadSection: React.FC<SingleFileUploadSectionProps> = ({
     disabled: !enabled
   });
 
+  // Referência para o input do react-dropzone
+  const fileInputRef = useCallback((node: HTMLInputElement | null) => {
+    if (node) {
+      // Armazenar referência para uso posterior
+      (window as any).currentFileInput = node;
+    }
+  }, []);
+
   const handleUploadClick = () => {
     if (!enabled) return;
     
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'image/*,video/mp4,video/mov,video/quicktime';
-    input.onchange = (event) => {
-      const files = (event.target as HTMLInputElement).files;
-      if (files && files.length > 0) {
-        processFile(files[0]);
-      }
-    };
-    input.click();
+    // Usar o input do react-dropzone diretamente
+    const dropzoneInput = (window as any).currentFileInput as HTMLInputElement;
+    if (dropzoneInput) {
+      dropzoneInput.click();
+    } else {
+      // Fallback caso o dropzone não esteja disponível
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/*,video/mp4,video/mov,video/quicktime';
+      input.onchange = (event) => {
+        const files = (event.target as HTMLInputElement).files;
+        if (files && files.length > 0) {
+          processFile(files[0]);
+        }
+      };
+      input.click();
+    }
   };
 
   const handleReplaceClick = () => {
@@ -127,7 +142,7 @@ const SingleFileUploadSection: React.FC<SingleFileUploadSectionProps> = ({
         onRemoveClick={handleRemoveClick}
         enabled={enabled}
         getRootProps={getRootProps}
-        getInputProps={getInputProps}
+        getInputProps={() => ({ ...getInputProps(), ref: fileInputRef })}
         isDragActive={isDragActive}
         isValidating={isValidating}
       />

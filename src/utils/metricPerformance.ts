@@ -103,3 +103,41 @@ export function formatPercentage(value: string | number, decimals: number = 2): 
 export function formatNumber(value: number): string {
   return new Intl.NumberFormat('pt-BR').format(value);
 }
+
+// Generic metric formatter that handles different types
+export function formatMetric(value: number, type: 'currency' | 'percentage' | 'number' | 'decimal'): string {
+  switch (type) {
+    case 'currency':
+      return formatCurrency(value);
+    case 'percentage':
+      return formatPercentage(value);
+    case 'number':
+      return formatNumber(Math.round(value));
+    case 'decimal':
+      return value.toFixed(2);
+    default:
+      return value.toString();
+  }
+}
+
+// Generic performance evaluator
+export function getMetricPerformance(metricType: string, value: number): MetricPerformance {
+  switch (metricType.toLowerCase()) {
+    case 'ctr':
+      return getCTRPerformance(value);
+    case 'roas':
+      return getROASPerformance(value);
+    case 'cpa':
+      return getCPAPerformance(value);
+    case 'cpm':
+      return getCPMPerformance(value);
+    case 'cpc':
+      return getCPCPerformance(value);
+    case 'conversionrate':
+      return getConversionRatePerformance(value);
+    case 'frequency':
+      return getFrequencyPerformance(value);
+    default:
+      return 'neutral';
+  }
+}

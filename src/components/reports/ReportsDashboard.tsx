@@ -1,10 +1,17 @@
 import React, { useState } from 'react';
 import { SalesDashboard } from './SalesDashboard';
 import { GeneralDashboard } from './GeneralDashboard';
+import { TrafficDashboard } from './TrafficDashboard';
+import { EngagementDashboard } from './EngagementDashboard';
+import { LeadsDashboard } from './LeadsDashboard';
+import { BrandAwarenessDashboard } from './BrandAwarenessDashboard';
+import { ReachDashboard } from './ReachDashboard';
+import { VideoViewsDashboard } from './VideoViewsDashboard';
+import { ConversionsDashboard } from './ConversionsDashboard';
 import { ComingSoonTemplate } from './ComingSoonTemplate';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { AlertCircle, Target, BarChart3 } from 'lucide-react';
+import { AlertCircle, Target, BarChart3, Calendar } from 'lucide-react';
 
 interface AccountInfo {
   id: string;
@@ -19,8 +26,9 @@ interface ReportsDashboardProps {
 }
 
 export function ReportsDashboard({ accountName, accountInfo }: ReportsDashboardProps) {
-  // State for selected template
+  // State for selected template and period
   const [selectedTemplate, setSelectedTemplate] = useState<string>('geral');
+  const [selectedPeriod, setSelectedPeriod] = useState<number>(7);
 
   // Build available templates based on objectives
   const getAvailableTemplates = () => {
@@ -33,11 +41,53 @@ export function ReportsDashboard({ accountName, accountInfo }: ReportsDashboardP
       accountInfo.objectives.forEach(objective => {
         const objectiveLower = objective.toLowerCase();
         
-        if (objectiveLower.includes('vendas') || objectiveLower.includes('conversões') || objectiveLower.includes('sales')) {
+        if (objectiveLower.includes('vendas') || objectiveLower.includes('sales')) {
           templates.push({
             value: 'vendas',
             label: 'Vendas',
             description: 'Funil de conversão e vendas'
+          });
+        } else if (objectiveLower.includes('tráfego') || objectiveLower.includes('trafego') || objectiveLower.includes('traffic')) {
+          templates.push({
+            value: 'trafego',
+            label: 'Tráfego',
+            description: 'Geração de tráfego e cliques'
+          });
+        } else if (objectiveLower.includes('engajamento') || objectiveLower.includes('engagement')) {
+          templates.push({
+            value: 'engajamento',
+            label: 'Engajamento',
+            description: 'Interações e engajamento'
+          });
+        } else if (objectiveLower.includes('leads') || objectiveLower.includes('lead')) {
+          templates.push({
+            value: 'leads',
+            label: 'Leads',
+            description: 'Geração e custo de leads'
+          });
+        } else if (objectiveLower.includes('reconhecimento') || objectiveLower.includes('marca') || objectiveLower.includes('brand')) {
+          templates.push({
+            value: 'reconhecimento',
+            label: 'Reconhecimento de Marca',
+            description: 'Alcance e visibilidade'
+          });
+        } else if (objectiveLower.includes('alcance') || objectiveLower.includes('reach')) {
+          templates.push({
+            value: 'alcance',
+            label: 'Alcance',
+            description: 'Expansão de audiência'
+          });
+        } else if (objectiveLower.includes('vídeo') || objectiveLower.includes('video') || objectiveLower.includes('reproduções')) {
+          templates.push({
+            value: 'video',
+            label: 'Reproduções de Vídeo',
+            description: 'Performance de vídeos'
+          });
+        } else if (objectiveLower.includes('conversões') || objectiveLower.includes('conversoes') || objectiveLower.includes('conversions')) {
+          templates.push({
+            value: 'conversoes',
+            label: 'Conversões',
+            description: 'Conversões e ROAS'
           });
         } else {
           // For other objectives, add as "coming soon"
@@ -57,12 +107,16 @@ export function ReportsDashboard({ accountName, accountInfo }: ReportsDashboardP
 
   // Render dashboard based on selected template
   const renderDashboard = () => {
+    // Get the account's Meta Ads ID
+    const accountId = accountInfo?.metaAdsId || '';
+    
     switch (selectedTemplate) {
       case 'geral':
         return (
           <GeneralDashboard 
             accountName={accountName} 
-            accountInfo={accountInfo} 
+            accountInfo={accountInfo}
+            selectedPeriod={selectedPeriod}
           />
         );
       
@@ -70,7 +124,64 @@ export function ReportsDashboard({ accountName, accountInfo }: ReportsDashboardP
         return (
           <SalesDashboard 
             accountName={accountName} 
-            accountInfo={accountInfo} 
+            accountInfo={accountInfo}
+            selectedPeriod={selectedPeriod}
+          />
+        );
+      
+      case 'trafego':
+        return (
+          <TrafficDashboard 
+            accountId={accountId}
+            selectedPeriod={selectedPeriod}
+          />
+        );
+      
+      case 'engajamento':
+        return (
+          <EngagementDashboard 
+            accountId={accountId}
+            selectedPeriod={selectedPeriod}
+          />
+        );
+      
+      case 'leads':
+        return (
+          <LeadsDashboard 
+            accountId={accountId}
+            selectedPeriod={selectedPeriod}
+          />
+        );
+      
+      case 'reconhecimento':
+        return (
+          <BrandAwarenessDashboard 
+            accountId={accountId}
+            selectedPeriod={selectedPeriod}
+          />
+        );
+      
+      case 'alcance':
+        return (
+          <ReachDashboard 
+            accountId={accountId}
+            selectedPeriod={selectedPeriod}
+          />
+        );
+      
+      case 'video':
+        return (
+          <VideoViewsDashboard 
+            accountId={accountId}
+            selectedPeriod={selectedPeriod}
+          />
+        );
+      
+      case 'conversoes':
+        return (
+          <ConversionsDashboard 
+            accountId={accountId}
+            selectedPeriod={selectedPeriod}
           />
         );
       
@@ -102,6 +213,19 @@ export function ReportsDashboard({ accountName, accountInfo }: ReportsDashboardP
                 </CardDescription>
               </div>
               <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-5 w-5 text-muted-foreground" />
+                  <Select value={selectedPeriod.toString()} onValueChange={(value) => setSelectedPeriod(parseInt(value))}>
+                    <SelectTrigger className="w-32">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="7">7 dias</SelectItem>
+                      <SelectItem value="14">14 dias</SelectItem>
+                      <SelectItem value="30">30 dias</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
                 <div className="flex items-center gap-2">
                   <Target className="h-5 w-5 text-muted-foreground" />
                   <span className="text-sm text-muted-foreground">

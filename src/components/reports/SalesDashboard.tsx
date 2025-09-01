@@ -63,10 +63,11 @@ interface AccountInfo {
 interface SalesDashboardProps {
   accountName?: string;
   accountInfo?: AccountInfo;
+  selectedPeriod?: number;
 }
 
 
-export function SalesDashboard({ accountName = 'Sales Account', accountInfo }: SalesDashboardProps) {
+export function SalesDashboard({ accountName = 'Sales Account', accountInfo, selectedPeriod = 7 }: SalesDashboardProps) {
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
   const [dailyData, setDailyData] = useState<DailyMetrics[]>([]);
   const [campaignData, setCampaignData] = useState<CampaignMetrics[]>([]);
@@ -99,7 +100,7 @@ export function SalesDashboard({ accountName = 'Sales Account', accountInfo }: S
         .from('j_rep_metaads_bronze')
         .select('*')
         .eq('account_id', metaAdsAccountId)
-        .gte('date', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
+        .gte('date', new Date(Date.now() - selectedPeriod * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
         .order('date', { ascending: false });
 
       if (dataError) {
@@ -229,7 +230,7 @@ export function SalesDashboard({ accountName = 'Sales Account', accountInfo }: S
 
   useEffect(() => {
     fetchData();
-  }, [accountInfo]); // Re-fetch when accountInfo changes
+  }, [accountInfo, selectedPeriod]); // Re-fetch when accountInfo or selectedPeriod changes
 
   // formatCurrency and formatNumber moved to utils/metricPerformance.ts
 
@@ -268,7 +269,7 @@ export function SalesDashboard({ accountName = 'Sales Account', accountInfo }: S
             {accountInfo?.metaAdsId ? 
               `Métricas de E-commerce (ID: ${accountInfo.metaAdsId})` :
               'Métricas de E-commerce'
-            } - Últimos 7 dias
+            } - Últimos {selectedPeriod} dias
           </p>
         </div>
         <div className="flex gap-2">
@@ -320,7 +321,7 @@ export function SalesDashboard({ accountName = 'Sales Account', accountInfo }: S
       <Card>
         <CardHeader>
           <CardTitle>Funil de Conversão</CardTitle>
-          <CardDescription>Jornada do usuário nos últimos 7 dias</CardDescription>
+          <CardDescription>Jornada do usuário nos últimos {selectedPeriod} dias</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -352,7 +353,7 @@ export function SalesDashboard({ accountName = 'Sales Account', accountInfo }: S
       <Card>
         <CardHeader>
           <CardTitle>Performance Diária</CardTitle>
-          <CardDescription>Desempenho dos últimos 7 dias</CardDescription>
+          <CardDescription>Desempenho dos últimos {selectedPeriod} dias</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">

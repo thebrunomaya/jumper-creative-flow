@@ -1,6 +1,6 @@
 // Creative name generation functions
 export function generateAccountCode(accountName: string, accountId: string): string {
-  const cleanName = accountName.toUpperCase().replace(/[\s\-\_\.\,]/g, '');
+  const cleanName = accountName.toUpperCase().replace(/[\s\-_.,]/g, '');
   
   const firstLetter = cleanName[0] || 'X';
   const remainingChars = cleanName.slice(1);
