@@ -4,15 +4,18 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
 import Header from "@/components/Header";
 import { Link } from "react-router-dom";
+import { RefreshCw, Settings, ArrowLeft } from "lucide-react";
 import { CreativeDetailsModal } from "@/components/CreativeDetailsModal";
 import { NotionSyncControl } from "@/components/NotionSyncControl";
+import { StatusMetrics } from "@/components/admin/StatusMetrics";
+import { FilterBar } from "@/components/admin/FilterBar";
+import { CreativeCard } from "@/components/admin/CreativeCard";
 
 interface SubmissionRow {
   id: string;
@@ -29,14 +32,6 @@ interface SubmissionRow {
   files?: any[];
 }
 
-const statusToLabel: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
-  draft: { label: "Rascunho", variant: "outline" },
-  pending: { label: "Armazenado", variant: "secondary" },
-  queued: { label: "Na Fila", variant: "secondary" },
-  processing: { label: "Processando", variant: "secondary" },
-  processed: { label: "Publicado", variant: "default" },
-  error: { label: "Erro", variant: "destructive" },
-};
 
 const AdminPage: React.FC = () => {
   const { currentUser } = useAuth();
@@ -49,6 +44,12 @@ const AdminPage: React.FC = () => {
   const [publishingSubmission, setPublishingSubmission] = useState<string | null>(null);
   const [publishingLogs, setPublishingLogs] = useState<string[]>([]);
   const [publishingResult, setPublishingResult] = useState<any>(null);
+  
+  // New state for the improved UI
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string | null>(null);
+  const [selectedItems, setSelectedItems] = useState<string[]>([]);
+  const [showNotionSync, setShowNotionSync] = useState(false);
 
   useEffect(() => {
     document.title = "Admin • Ad Uploader";
@@ -68,15 +69,19 @@ const AdminPage: React.FC = () => {
     }
 
     const { data, error } = await supabase.functions.invoke("j_ads_admin_dashboard", {
-      body: {
-        action: "listAll",
-      },
+      body: { action: "list" },
     });
 
     if (error) throw error;
-    if (!data?.success) throw new Error(data?.error || "Falha ao carregar");
+    if (!data?.submissions) throw new Error(data?.error || "Falha ao carregar");
 
-    return (data.items || []) as SubmissionRow[];
+    // Extract creative names from payload for each submission
+    const enrichedSubmissions = data.submissions.map((sub: any) => ({
+      ...sub,
+      creative_name: sub.payload?.creativeName || null,
+    }));
+
+    return enrichedSubmissions as SubmissionRow[];
   };
 
   const { data: items = [], isFetching, refetch } = useQuery({
@@ -303,142 +308,202 @@ const AdminPage: React.FC = () => {
     return () => clearInterval(pollInterval);
   }, [publishingSubmission]);
 
-  const rows = useMemo(() => items, [items]);
+  // Filter and search logic
+  const filteredItems = useMemo(() => {
+    let filtered = items;
+    
+    // Apply search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim();
+      filtered = filtered.filter(item => 
+        (item.creative_name?.toLowerCase().includes(query)) ||
+        (item.client_name?.toLowerCase().includes(query)) ||
+        (item.manager_name?.toLowerCase().includes(query)) ||
+        (item.client?.toLowerCase().includes(query))
+      );
+    }
+    
+    // Apply status filter
+    if (statusFilter) {
+      filtered = filtered.filter(item => item.status === statusFilter);
+    }
+    
+    return filtered;
+  }, [items, searchQuery, statusFilter]);
+
+  // Selection handlers
+  const handleSelectionChange = (id: string, selected: boolean) => {
+    setSelectedItems(prev => 
+      selected 
+        ? [...prev, id]
+        : prev.filter(item => item !== id)
+    );
+  };
+
+  const handleBulkPublish = async () => {
+    if (selectedItems.length === 0) return;
+    
+    toast({
+      title: "Publicação em lote iniciada",
+      description: `Publicando ${selectedItems.length} criativo(s)...`
+    });
+    
+    // Process each selected item
+    for (const itemId of selectedItems) {
+      try {
+        await publishMutation.mutateAsync(itemId);
+      } catch (error) {
+        console.error(`Failed to publish ${itemId}:`, error);
+      }
+    }
+    
+    // Clear selection after bulk operation
+    setSelectedItems([]);
+  };
+
+  const rows = filteredItems;
 
   return (
     <>
       <Header />
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        {/* Header */}
         <section>
-          <header className="mb-4 flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-semibold tracking-tight text-foreground">Painel Administrativo</h1>
-              <p className="text-sm text-muted-foreground">Gerencie as submissões e publique no Notion.</p>
+              <h1 className="text-3xl font-bold tracking-tight text-foreground">
+                Painel Administrativo
+              </h1>
+              <p className="text-muted-foreground mt-1">
+                Gerencie submissões, publique criativos e sincronize dados
+              </p>
             </div>
-            <Link to="/">
-              <Button variant="outline" size="sm">Voltar à Home</Button>
-            </Link>
-            </header>
-
-            <Card className="p-0 overflow-hidden">
-            <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-muted/40">
-              <div className="text-sm text-muted-foreground">
-                {isFetching ? "Carregando…" : `${rows.length} criativo(s)`}
-              </div>
-               <div className="flex gap-2">
-                 <Button variant="outline" size="sm" onClick={() => refetch()}>Atualizar</Button>
-                 <Button variant="outline" size="sm" onClick={() => backfillEmailsMutation.mutate()} disabled={backfillEmailsMutation.isPending}>Corrigir Emails</Button>
-                 <Button size="sm" onClick={() => syncNotionMutation.mutate()} disabled={syncNotionMutation.isPending}>Sincronizar Notion</Button>
-               </div>
+            <div className="flex items-center gap-3">
+              <Button
+                className="bg-[#FA4721] hover:bg-[#E03E1A] text-white border-[#FA4721] hover:border-[#E03E1A]"
+                size="sm"
+                onClick={() => refetch()}
+                disabled={isFetching}
+              >
+                <RefreshCw className={`mr-2 h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} />
+                {isFetching ? 'Atualizando...' : 'Atualizar'}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowNotionSync(!showNotionSync)}
+                className="border-border text-foreground hover:bg-accent hover:text-accent-foreground"
+              >
+                <Settings className="mr-2 h-4 w-4" />
+                Configurações
+              </Button>
+              <Button variant="outline" size="sm" asChild className="border-border text-foreground hover:bg-accent hover:text-accent-foreground">
+                <Link to="/">
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Voltar
+                </Link>
+              </Button>
             </div>
+          </div>
+        </section>
 
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-[25%]">Criativo</TableHead>
-                    <TableHead className="w-[25%]">Conta</TableHead>
-                    <TableHead className="w-[20%]">Gerente</TableHead>
-                    <TableHead className="w-[15%]">Status</TableHead>
-                    <TableHead className="w-[15%]"/>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {rows.map((row) => {
-                    const statusInfo = statusToLabel[row.status] || { label: row.status, variant: "outline" };
-                    const conta = row.client_name || row.client || "—";
-                    const criativo = row.creative_name || "Sem nome";
-                    const gerente = row.manager_name || "—";
+        {/* Status Metrics */}
+        <section>
+          <StatusMetrics
+            items={items}
+            onStatusFilter={setStatusFilter}
+            activeFilter={statusFilter}
+          />
+        </section>
 
-                    return (
-                      <TableRow key={row.id}>
-                        <TableCell>
-                          <div className="flex flex-col">
-                            <span className="font-medium text-foreground truncate max-w-[200px]" title={criativo}>{criativo}</span>
-                            <span className="text-xs text-muted-foreground">ID: {row.id}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex flex-col">
-                            <span className="font-medium text-foreground truncate max-w-[200px]" title={conta}>{conta}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex flex-col">
-                            <span className="font-medium text-foreground truncate max-w-[150px]" title={gerente}>{gerente}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant={statusInfo.variant}>{statusInfo.label}</Badge>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          {row.status === "draft" ? (
-                            <div className="flex gap-1 justify-end">
-                              <Button variant="outline" size="sm" onClick={() => handleViewDetails(row)}>Detalhes</Button>
-                              <Link to={`/create/${row.id}`}>
-                                <Button variant="outline" size="sm">Editar</Button>
-                              </Link>
-                              <Button 
-                                variant="destructive" 
-                                size="sm" 
-                                onClick={() => {
-                                  if (confirm("Tem certeza que deseja excluir este rascunho?")) {
-                                    deleteMutation.mutate(row.id);
-                                  }
-                                }}
-                                disabled={deleteMutation.isPending}
-                              >
-                                Excluir
-                              </Button>
-                            </div>
-                          ) : row.status === "error" ? (
-                            <div className="flex gap-1 justify-end">
-                              <Button variant="outline" size="sm" onClick={() => handleViewDetails(row)}>Detalhes</Button>
-                              <Link to={`/create/${row.id}`}>
-                                <Button variant="outline" size="sm">Editar</Button>
-                              </Link>
-                              <Button size="sm" onClick={() => publishMutation.mutate(row.id)} disabled={publishMutation.isPending}>Publicar</Button>
-                            </div>
-                          ) : row.status === "processed" ? (
-                            <div className="flex gap-1 justify-end">
-                              <Button variant="outline" size="sm" onClick={() => handleViewDetails(row)}>Detalhes</Button>
-                            </div>
-                          ) : ["pending", "queued", "processing"].includes(row.status) ? (
-                            <div className="flex gap-1 justify-end">
-                              <Button variant="outline" size="sm" onClick={() => handleViewDetails(row)}>Detalhes</Button>
-                              <Link to={`/create/${row.id}`}>
-                                <Button variant="outline" size="sm">Editar</Button>
-                              </Link>
-                              <Button 
-                                variant="destructive" 
-                                size="sm" 
-                                onClick={() => {
-                                  if (confirm("Tem certeza que deseja excluir este criativo?")) {
-                                    deleteMutation.mutate(row.id);
-                                  }
-                                }}
-                                disabled={deleteMutation.isPending}
-                              >
-                                Excluir
-                              </Button>
-                              <Button size="sm" onClick={() => publishMutation.mutate(row.id)} disabled={publishMutation.isPending}>Publicar</Button>
-                            </div>
-                          ) : null}
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
+        {/* Main Content */}
+        <section>
+          <Card className="overflow-hidden">
+            <FilterBar
+              searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
+              selectedItems={selectedItems}
+              onBulkPublish={handleBulkPublish}
+              isPublishing={publishMutation.isPending}
+              totalItems={rows.length}
+            />
+            
+            <div className="p-6">
+              {rows.length === 0 ? (
+                <div className="text-center py-12">
+                  <div className="text-muted-foreground">
+                    {isFetching 
+                      ? "Carregando criativos..." 
+                      : searchQuery || statusFilter
+                        ? "Nenhum criativo encontrado com os filtros aplicados"
+                        : "Nenhum criativo encontrado"
+                    }
+                  </div>
+                </div>
+              ) : (
+                <div className="grid gap-4">
+                  {rows.map((submission) => (
+                    <CreativeCard
+                      key={submission.id}
+                      submission={submission}
+                      isSelected={selectedItems.includes(submission.id)}
+                      onSelectionChange={handleSelectionChange}
+                      onViewDetails={handleViewDetails}
+                      onPublish={(id) => publishMutation.mutate(id)}
+                      onDelete={(id) => deleteMutation.mutate(id)}
+                      isPublishing={publishMutation.isPending}
+                      isDeleting={deleteMutation.isPending}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
           </Card>
         </section>
 
-        {/* Seção de Controle de Sincronização Notion */}
-        <section>
-          <h2 className="text-xl font-semibold tracking-tight text-foreground mb-4">Sincronização Notion</h2>
-          <NotionSyncControl />
-        </section>
+        {/* Notion Sync Section - Collapsible */}
+        {showNotionSync && (
+          <section>
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Settings className="h-5 w-5" />
+                  Configurações Avançadas
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <h3 className="text-lg font-medium mb-2">Sincronização Notion</h3>
+                  <NotionSyncControl />
+                </div>
+                
+                <Separator />
+                
+                <div>
+                  <h3 className="text-lg font-medium mb-3">Operações de Manutenção</h3>
+                  <div className="flex flex-wrap gap-3">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => backfillEmailsMutation.mutate()} 
+                      disabled={backfillEmailsMutation.isPending}
+                    >
+                      {backfillEmailsMutation.isPending ? 'Corrigindo...' : 'Corrigir Emails'}
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => syncNotionMutation.mutate()} 
+                      disabled={syncNotionMutation.isPending}
+                    >
+                      {syncNotionMutation.isPending ? 'Sincronizando...' : 'Sincronizar Notion'}
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </section>
+        )}
 
         <Dialog open={!!errorDetails} onOpenChange={() => setErrorDetails(null)}>
           <DialogContent>

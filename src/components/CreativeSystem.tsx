@@ -71,9 +71,11 @@ const CreativeSystem: React.FC = () => {
   const { logValidation, getValidationSummary } = useValidationTracking();
   const { currentUser } = useAuth();
   
-  // Extract draft ID from query string instead of route params
+  // Extract draft ID from route params or query string
+  const { id: routeId } = useParams<{ id: string }>();
   const searchParams = new URLSearchParams(window.location.search);
-  const routeSubmissionId = searchParams.get('draft');
+  const queryDraftId = searchParams.get('draft');
+  const routeSubmissionId = routeId || queryDraftId;
 
   // Upload a single asset to Supabase Storage and return metadata for rehydration
   const uploadAsset = async (file: File, format: string) => {
