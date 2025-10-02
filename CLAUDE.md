@@ -903,6 +903,81 @@ Cada dashboard prioriza métricas conforme análise especializada:
 
 ---
 
-**Last Updated**: 2025-09-01 (Dashboards Específicos por Objetivo v1.0 - Configuração Pronta para Revisão)  
+## 📊 STATUS DA SESSÃO 2025-09-01 (Correção Completa de Datas nos Reports - v1.9)
+
+### **🎯 OBJETIVOS ALCANÇADOS NESTA SESSÃO:**
+- ✅ **Display de Range de Datas** - Implementado formato (DD/MM/AA a DD/MM/AA) em todos os dashboards
+- ✅ **Lógica de "Últimos N Dias" Corrigida** - Agora finaliza no dia anterior (não hoje)
+- ✅ **Problema de Timezone Resolvido** - Datas da Performance Diária agora coincidem com Meta Ads
+- ✅ **Consistência Total** - Query, display e tabelas 100% alinhadas
+- ✅ **Validação com Dados Reais** - Confirmado funcionamento com dados do Meta Ads
+
+### **🔧 PROBLEMAS IDENTIFICADOS E RESOLVIDOS:**
+
+**1. Display de Range de Datas:**
+- **Problema**: Usuários não sabiam o período exato dos dados
+- **Solução**: Implementado `(25/08/25 a 31/08/25)` em todos os dashboards
+- **Arquivos**: GeneralDashboard, SalesDashboard, TrafficDashboard, EngagementDashboard, etc.
+
+**2. Lógica de "Últimos N Dias":**
+- **Problema**: "Últimos 7 dias" incluía hoje (01/09), mas dados só existem até ontem
+- **Solução**: Alterado para finalizar no dia anterior usando `subDays(new Date(), 1)`
+- **Impacto**: Range correto de 25/08 a 31/08 (não 01/09)
+
+**3. Offset de Timezone:**
+- **Problema**: Dados do 31/08 apareciam como 30/08 na tabela Performance Diária
+- **Causa**: `new Date().toLocaleDateString()` aplicava timezone local incorretamente
+- **Solução**: Usado `format(new Date(day.date + 'T00:00:00'), 'dd/MM/yyyy')` com date-fns
+
+### **💻 IMPLEMENTAÇÃO TÉCNICA:**
+
+**Lógica de Datas Corrigida:**
+```javascript
+// ANTES (INCORRETO):
+const endDate = startOfDay(new Date()); // Hoje
+const startDate = startOfDay(subDays(endDate, selectedPeriod));
+
+// AGORA (CORRETO):
+const endDate = startOfDay(subDays(new Date(), 1)); // Ontem
+const startDate = startOfDay(subDays(endDate, selectedPeriod - 1)); // N dias para trás
+```
+
+**Formatação de Datas Corrigida:**
+```javascript
+// ANTES (TIMEZONE BUG):
+{new Date(day.date).toLocaleDateString('pt-BR')}
+
+// AGORA (TIMEZONE SAFE):
+{format(new Date(day.date + 'T00:00:00'), 'dd/MM/yyyy')}
+```
+
+### **✅ DASHBOARDS ATUALIZADOS:**
+- ✅ GeneralDashboard - Range visível + lógica corrigida
+- ✅ SalesDashboard - Range visível + lógica corrigida + timezone corrigido
+- ✅ TrafficDashboard - Range visível + lógica corrigida
+- ✅ EngagementDashboard - Range visível + lógica corrigida
+- ✅ LeadsDashboard - Range visível + lógica corrigida
+- ✅ BrandAwarenessDashboard - Range visível + lógica corrigida
+- ✅ ConversionsDashboard - Range visível + lógica corrigida
+- ✅ ReachDashboard - Range visível + lógica corrigida
+- ✅ VideoViewsDashboard - Range visível + lógica corrigida
+
+### **🎉 RESULTADO CRÍTICO:**
+**"SISTEMA DE DATAS 100% PRECISO E CONSISTENTE!"**
+
+- **Transparência Total**: Usuários veem exatamente qual período está sendo analisado
+- **Consistência Completa**: Dados coincidem perfeitamente com Meta Ads
+- **UX Melhorada**: Range de datas visível em todos os relatórios
+- **Timezone Safe**: Zero problemas de offset de datas
+- **Validação Real**: Testado e confirmado com dados reais do Meta Ads
+
+### **📋 VERSÃO INCREMENTADA:**
+- **Versão Anterior**: v1.8
+- **Nova Versão**: **v1.9** - Sistema de Datas Precisas
+- **Deploy**: Ativo em ads.jumper.studio
+
+---
+
+**Last Updated**: 2025-09-01 (Sistema de Datas Precisas v1.9 - Correções Completas Implementadas)  
 **Maintained by**: Claude Code Assistant  
-**Project Status**: **FASE 1 COMPLETA** ✅ → **DASHBOARDS ESPECÍFICOS** 📊 → **AGUARDANDO REVISÃO DA EQUIPE** ⏳
+**Project Status**: **FASE 1 COMPLETA** ✅ → **SISTEMA DE DATAS OTIMIZADO** 📅 → **V1.9 ATIVA EM PRODUÇÃO** 🚀

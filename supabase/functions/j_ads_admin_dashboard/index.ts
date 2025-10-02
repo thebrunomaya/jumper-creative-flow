@@ -238,6 +238,7 @@ Deno.serve(async (req) => {
   }
 
   try {
+    console.log("🔥 DEBUG: j_ads_admin_dashboard v2.0 UPDATED WITH CREATIVE NAMES!");
     const body = await req.json().catch(() => ({}));
     const action = body?.action || "list";
     const submissionId = body?.submissionId as string | undefined;
@@ -1114,9 +1115,10 @@ Deno.serve(async (req) => {
     }
 
     // Default: listAll submissions (latest first)
+    // ✅ CORREÇÃO: Simplificar consulta - não selecionar payload na consulta principal
     const { data: items, error: listErr2 } = await supabase
       .from("j_ads_creative_submissions")
-      .select("id, client, manager_id, status, error, created_at, updated_at, payload")
+      .select("id, client, manager_id, status, error, created_at, updated_at")
       .order("created_at", { ascending: false })
       .limit(100);
     if (listErr2) {
@@ -1224,7 +1226,7 @@ Deno.serve(async (req) => {
       }
     }
 
-    // 4. Map manager names to items
+    // 4. Map manager names to items and fetch creative names from payload
     const emailToItemMap = new Map();
     emailResults.forEach(result => {
       if (result.email) {
@@ -1232,6 +1234,30 @@ Deno.serve(async (req) => {
       }
     });
 
+    // ✅ CORREÇÃO: Buscar payloads em batch para performance otimizada
+    const itemIds = (items || []).map((item: any) => item.id);
+    const payloadMap: Record<string, string> = {};
+    
+    if (itemIds.length > 0) {
+      try {
+        const { data: payloadData, error: payloadErr } = await supabase
+          .from("j_ads_creative_submissions")
+          .select("id, payload")
+          .in("id", itemIds);
+        
+        if (!payloadErr && payloadData) {
+          payloadData.forEach((item: any) => {
+            if (item.payload && item.payload.creativeName) {
+              payloadMap[item.id] = item.payload.creativeName;
+            }
+          });
+        }
+      } catch (e) {
+        console.log(`⚠️ Could not fetch payloads in batch: ${e.message}`);
+        // Continue without payload data if fetch fails
+      }
+    }
+    
     const enriched = (items || []).map((r: any) => {
       const itemEmail = emailToItemMap.get(r.id);
       let managerName = null;
@@ -1244,11 +1270,16 @@ Deno.serve(async (req) => {
         ...r, 
         client_name: r.client ? clientMap[r.client] || null : null,
         manager_name: managerName,
-        creative_name: r?.payload?.managerInputName || r?.payload?.creativeName || null,
+        creative_name: payloadMap[r.id] || null,
       };
     });
 
-    return new Response(JSON.stringify({ success: true, items: enriched }), {
+    return new Response(JSON.stringify({ 
+      success: true, 
+      items: enriched,
+      version: "2.0-FIXED-CREATIVE-NAMES",
+      timestamp: new Date().toISOString()
+    }), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

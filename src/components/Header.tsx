@@ -47,7 +47,7 @@ const Header: React.FC = () => {
                   </div>
                   <div className="flex flex-col">
                     <span className="text-lg font-semibold text-foreground">Ad Uploader</span>
-                    <span className="text-xs text-muted-foreground">v1.8</span>
+                    <span className="text-xs text-muted-foreground">v1.9</span>
                   </div>
                 </Link>
               </div>

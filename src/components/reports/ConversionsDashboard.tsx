@@ -27,6 +27,11 @@ export const ConversionsDashboard: React.FC<ConversionsDashboardProps> = ({ acco
   const [metrics, setMetrics] = useState<ConversionsMetrics | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // Calculate date range for display
+  const endDate = startOfDay(new Date());
+  const startDate = startOfDay(subDays(endDate, selectedPeriod));
+  const dateRangeDisplay = `(${format(startDate, 'dd/MM/yy')} a ${format(endDate, 'dd/MM/yy')})`;
 
   useEffect(() => {
     const fetchMetrics = async () => {
@@ -117,7 +122,7 @@ export const ConversionsDashboard: React.FC<ConversionsDashboardProps> = ({ acco
     <div className="space-y-6">
       <div className="mb-6">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-          Dashboard de Conversões - Últimos {selectedPeriod} dias
+          Dashboard de Conversões - Últimos {selectedPeriod} dias {dateRangeDisplay}
         </h3>
         <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
           Análise de conversões e retorno sobre investimento

@@ -28,6 +28,11 @@ export const VideoViewsDashboard: React.FC<VideoViewsDashboardProps> = ({ accoun
   const [metrics, setMetrics] = useState<VideoViewsMetrics | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // Calculate date range for display
+  const endDate = startOfDay(new Date());
+  const startDate = startOfDay(subDays(endDate, selectedPeriod));
+  const dateRangeDisplay = `(${format(startDate, 'dd/MM/yy')} a ${format(endDate, 'dd/MM/yy')})`;
 
   useEffect(() => {
     const fetchMetrics = async () => {
@@ -121,7 +126,7 @@ export const VideoViewsDashboard: React.FC<VideoViewsDashboardProps> = ({ accoun
     <div className="space-y-6">
       <div className="mb-6">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-          Dashboard de Reproduções de Vídeo - Últimos {selectedPeriod} dias
+          Dashboard de Reproduções de Vídeo - Últimos {selectedPeriod} dias {dateRangeDisplay}
         </h3>
         <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
           Análise detalhada de performance de vídeos
@@ -153,11 +158,18 @@ export const VideoViewsDashboard: React.FC<VideoViewsDashboardProps> = ({ accoun
         />
         
         <MetricCard
+          title="Investimento Total"
+          value={formatMetric(metrics.spend, 'currency')}
+          description="Total investido no período"
+          performance="neutral"
+          isHero={true}
+        />
+        
+        <MetricCard
           title="75% Assistido"
           value={formatMetric(metrics.videoP75Watched, 'number')}
           description="Engajamento avançado"
           performance={metrics.videoP75Watched > 2000 ? 'excellent' : metrics.videoP75Watched > 1000 ? 'good' : metrics.videoP75Watched > 200 ? 'warning' : 'critical'}
-          isHero={true}
         />
         
         <MetricCard

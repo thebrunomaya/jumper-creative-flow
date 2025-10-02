@@ -8,6 +8,9 @@ import { BrandAwarenessDashboard } from './BrandAwarenessDashboard';
 import { ReachDashboard } from './ReachDashboard';
 import { VideoViewsDashboard } from './VideoViewsDashboard';
 import { ConversionsDashboard } from './ConversionsDashboard';
+import { SeguidoresDashboard } from './SeguidoresDashboard';
+import { ConversasDashboard } from './ConversasDashboard';
+import { CadastrosDashboard } from './CadastrosDashboard';
 import { ComingSoonTemplate } from './ComingSoonTemplate';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -28,7 +31,7 @@ interface ReportsDashboardProps {
 export function ReportsDashboard({ accountName, accountInfo }: ReportsDashboardProps) {
   // State for selected template and period
   const [selectedTemplate, setSelectedTemplate] = useState<string>('geral');
-  const [selectedPeriod, setSelectedPeriod] = useState<number>(7);
+  const [selectedPeriod, setSelectedPeriod] = useState<number>(30);
 
   // Build available templates based on objectives
   const getAvailableTemplates = () => {
@@ -88,6 +91,24 @@ export function ReportsDashboard({ accountName, accountInfo }: ReportsDashboardP
             value: 'conversoes',
             label: 'Conversões',
             description: 'Conversões e ROAS'
+          });
+        } else if (objectiveLower.includes('seguidores') || objectiveLower.includes('followers')) {
+          templates.push({
+            value: 'seguidores',
+            label: 'Seguidores',
+            description: 'Crescimento de base de seguidores'
+          });
+        } else if (objectiveLower.includes('conversas') || objectiveLower.includes('mensagens') || objectiveLower.includes('messages')) {
+          templates.push({
+            value: 'conversas',
+            label: 'Conversas',
+            description: 'Mensagens e conversas iniciadas'
+          });
+        } else if (objectiveLower.includes('cadastros') || objectiveLower.includes('cadastro') || objectiveLower.includes('leads')) {
+          templates.push({
+            value: 'cadastros',
+            label: 'Cadastros',
+            description: 'Geração de leads e cadastros'
           });
         } else {
           // For other objectives, add as "coming soon"
@@ -180,6 +201,30 @@ export function ReportsDashboard({ accountName, accountInfo }: ReportsDashboardP
       case 'conversoes':
         return (
           <ConversionsDashboard 
+            accountId={accountId}
+            selectedPeriod={selectedPeriod}
+          />
+        );
+      
+      case 'seguidores':
+        return (
+          <SeguidoresDashboard 
+            accountId={accountId}
+            selectedPeriod={selectedPeriod}
+          />
+        );
+      
+      case 'conversas':
+        return (
+          <ConversasDashboard 
+            accountId={accountId}
+            selectedPeriod={selectedPeriod}
+          />
+        );
+      
+      case 'cadastros':
+        return (
+          <CadastrosDashboard 
             accountId={accountId}
             selectedPeriod={selectedPeriod}
           />

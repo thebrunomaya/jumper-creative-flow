@@ -16,6 +16,8 @@ import {
   formatNumber,
   isHeroMetric 
 } from '@/utils/metricPerformance';
+import { applyObjectiveFilter } from '@/utils/dashboardObjectives';
+import { startOfDay, subDays, format } from 'date-fns';
 
 interface DashboardMetrics {
   total_spend: string;
@@ -73,6 +75,11 @@ export function SalesDashboard({ accountName = 'Sales Account', accountInfo, sel
   const [campaignData, setCampaignData] = useState<CampaignMetrics[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // Calculate date range for display - últimos N dias significa até ontem
+  const endDate = startOfDay(subDays(new Date(), 1)); // Ontem (não hoje)
+  const startDate = startOfDay(subDays(endDate, selectedPeriod - 1)); // N dias para trás
+  const dateRangeDisplay = `(${format(startDate, 'dd/MM/yy')} a ${format(endDate, 'dd/MM/yy')})`;
 
   const fetchData = async () => {
     try {
@@ -95,13 +102,25 @@ export function SalesDashboard({ accountName = 'Sales Account', accountInfo, sel
         throw new Error('ID Meta Ads não encontrado para esta conta');
       }
       
-      // NEW: Direct query using Meta Ads ID (much simpler and faster)
-      const { data: rawData, error: dataError } = await supabase
+      // CORRECTED date logic - últimos N dias significa até ontem
+      const queryEndDate = startOfDay(subDays(new Date(), 1)); // Ontem (não hoje)
+      const queryStartDate = startOfDay(subDays(queryEndDate, selectedPeriod - 1)); // N dias para trás
+      
+      console.log(`📅 Sales date range: ${format(queryStartDate, 'yyyy-MM-dd')} to ${format(queryEndDate, 'yyyy-MM-dd')}`);
+      
+      // NEW: Direct query using Meta Ads ID with objective filter for sales
+      let query = supabase
         .from('j_rep_metaads_bronze')
         .select('*')
         .eq('account_id', metaAdsAccountId)
-        .gte('date', new Date(Date.now() - selectedPeriod * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
+        .gte('date', format(queryStartDate, 'yyyy-MM-dd'))
+        .lte('date', format(queryEndDate, 'yyyy-MM-dd'))
         .order('date', { ascending: false });
+
+      // Apply sales objective filter (OUTCOME_SALES only)
+      query = applyObjectiveFilter(query, 'vendas');
+      
+      const { data: rawData, error: dataError } = await query;
 
       if (dataError) {
         console.error('Data query error:', dataError);
@@ -269,7 +288,7 @@ export function SalesDashboard({ accountName = 'Sales Account', accountInfo, sel
             {accountInfo?.metaAdsId ? 
               `Métricas de E-commerce (ID: ${accountInfo.metaAdsId})` :
               'Métricas de E-commerce'
-            } - Últimos {selectedPeriod} dias
+            } - Últimos {selectedPeriod} dias {dateRangeDisplay}
           </p>
         </div>
         <div className="flex gap-2">
@@ -372,7 +391,7 @@ export function SalesDashboard({ accountName = 'Sales Account', accountInfo, sel
                 {dailyData.map((day, index) => (
                   <tr key={index} className="border-b hover:bg-muted/50">
                     <td className="p-2 font-medium">
-                      {new Date(day.date).toLocaleDateString('pt-BR')}
+                      {format(new Date(day.date + 'T00:00:00'), 'dd/MM/yyyy')}
                     </td>
                     <td className="p-2 text-right">{formatCurrency(day.spend)}</td>
                     <td className="p-2 text-right">{formatNumber(day.impressions)}</td>

@@ -6,6 +6,7 @@ import { MetricCard } from '@/components/ui/metric-card';
 import { SkeletonDashboard } from '@/components/ui/skeleton-screen';
 import { formatMetric, getMetricPerformance } from '@/utils/metricPerformance';
 import { startOfDay, subDays, format } from 'date-fns';
+import { applyObjectiveFilter } from '@/utils/dashboardObjectives';
 
 interface TrafficDashboardProps {
   accountId: string;
@@ -27,6 +28,11 @@ export const TrafficDashboard: React.FC<TrafficDashboardProps> = ({ accountId, s
   const [metrics, setMetrics] = useState<TrafficMetrics | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // Calculate date range for display - últimos N dias significa até ontem
+  const endDate = startOfDay(subDays(new Date(), 1)); // Ontem (não hoje)
+  const startDate = startOfDay(subDays(endDate, selectedPeriod - 1)); // N dias para trás
+  const dateRangeDisplay = `(${format(startDate, 'dd/MM/yy')} a ${format(endDate, 'dd/MM/yy')})`;
 
   useEffect(() => {
     const fetchMetrics = async () => {
@@ -34,15 +40,20 @@ export const TrafficDashboard: React.FC<TrafficDashboardProps> = ({ accountId, s
       setError(null);
       
       try {
-        const endDate = startOfDay(new Date());
-        const startDate = startOfDay(subDays(endDate, selectedPeriod));
+        const queryEndDate = startOfDay(subDays(new Date(), 1)); // Ontem (não hoje)
+        const queryStartDate = startOfDay(subDays(queryEndDate, selectedPeriod - 1)); // N dias para trás
         
-        const { data, error } = await supabase
+        let query = supabase
           .from('j_rep_metaads_bronze')
           .select('*')
           .eq('account_id', accountId)
-          .gte('date', format(startDate, 'yyyy-MM-dd'))
-          .lte('date', format(endDate, 'yyyy-MM-dd'));
+          .gte('date', format(queryStartDate, 'yyyy-MM-dd'))
+          .lte('date', format(queryEndDate, 'yyyy-MM-dd'));
+
+        // Apply traffic objective filter (LINK_CLICKS only)
+        query = applyObjectiveFilter(query, 'trafego');
+        
+        const { data, error } = await query;
 
         if (error) throw error;
 
@@ -116,7 +127,7 @@ export const TrafficDashboard: React.FC<TrafficDashboardProps> = ({ accountId, s
     <div className="space-y-6">
       <div className="mb-6">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-          Dashboard de Tráfego - Últimos {selectedPeriod} dias
+          Dashboard de Tráfego - Últimos {selectedPeriod} dias {dateRangeDisplay}
         </h3>
         <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
           Análise detalhada de geração de tráfego e engajamento
@@ -167,6 +178,7 @@ export const TrafficDashboard: React.FC<TrafficDashboardProps> = ({ accountId, s
           value={formatMetric(metrics.spend, 'currency')}
           description="Total investido no período"
           performance="neutral"
+          isHero={true}
         />
         
         <MetricCard

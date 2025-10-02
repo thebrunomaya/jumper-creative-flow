@@ -14,6 +14,7 @@ import {
   formatPercentage, 
   formatNumber 
 } from '@/utils/metricPerformance';
+import { startOfDay, subDays, format } from 'date-fns';
 
 interface GeneralMetrics {
   total_spend: string;
@@ -46,6 +47,11 @@ export function GeneralDashboard({ accountName = 'Account', accountInfo, selecte
   const [metrics, setMetrics] = useState<GeneralMetrics | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // Calculate date range for display - últimos N dias significa até ontem
+  const endDate = startOfDay(subDays(new Date(), 1)); // Ontem (não hoje)
+  const startDate = startOfDay(subDays(endDate, selectedPeriod - 1)); // N dias para trás
+  const dateRangeDisplay = `(${format(startDate, 'dd/MM/yy')} a ${format(endDate, 'dd/MM/yy')})`;
 
   const fetchGeneralData = async () => {
     try {
@@ -58,12 +64,18 @@ export function GeneralDashboard({ accountName = 'Account', accountInfo, selecte
       const metaAdsAccountId = accountInfo.metaAdsId;
       console.log(`📊 Fetching general metrics for account: ${metaAdsAccountId} (${selectedPeriod} days)`);
 
-      // Fetch data based on selected period
+      // Fetch data based on selected period - últimos N dias significa até ontem
+      const queryEndDate = startOfDay(subDays(new Date(), 1)); // Ontem (não hoje)
+      const queryStartDate = startOfDay(subDays(queryEndDate, selectedPeriod - 1)); // N dias para trás
+      
+      console.log(`📅 Date range: ${format(queryStartDate, 'yyyy-MM-dd')} to ${format(queryEndDate, 'yyyy-MM-dd')}`);
+      
       const { data: rawData, error: dataError } = await supabase
         .from('j_rep_metaads_bronze')
         .select('*')
         .eq('account_id', metaAdsAccountId)
-        .gte('date', new Date(Date.now() - selectedPeriod * 24 * 60 * 60 * 1000).toISOString().split('T')[0])
+        .gte('date', format(queryStartDate, 'yyyy-MM-dd'))
+        .lte('date', format(queryEndDate, 'yyyy-MM-dd'))
         .order('date', { ascending: false });
 
       if (dataError) {
@@ -165,7 +177,7 @@ export function GeneralDashboard({ accountName = 'Account', accountInfo, selecte
         <div>
           <h2 className="text-2xl font-bold">Visão Geral da Conta</h2>
           <p className="text-muted-foreground">
-            Métricas gerais - Últimos {selectedPeriod} dias
+            Métricas gerais - Últimos {selectedPeriod} dias {dateRangeDisplay}
           </p>
         </div>
         <Button onClick={fetchGeneralData} disabled={loading} size="sm">

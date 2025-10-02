@@ -6,6 +6,7 @@ import { MetricCard } from '@/components/ui/metric-card';
 import { SkeletonDashboard } from '@/components/ui/skeleton-screen';
 import { formatMetric, getMetricPerformance } from '@/utils/metricPerformance';
 import { startOfDay, subDays, format } from 'date-fns';
+import { applyObjectiveFilter } from '@/utils/dashboardObjectives';
 
 interface BrandAwarenessDashboardProps {
   accountId: string;
@@ -26,6 +27,11 @@ export const BrandAwarenessDashboard: React.FC<BrandAwarenessDashboardProps> = (
   const [metrics, setMetrics] = useState<BrandAwarenessMetrics | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // Calculate date range for display
+  const endDate = startOfDay(new Date());
+  const startDate = startOfDay(subDays(endDate, selectedPeriod));
+  const dateRangeDisplay = `(${format(startDate, 'dd/MM/yy')} a ${format(endDate, 'dd/MM/yy')})`;
 
   useEffect(() => {
     const fetchMetrics = async () => {
@@ -36,12 +42,17 @@ export const BrandAwarenessDashboard: React.FC<BrandAwarenessDashboardProps> = (
         const endDate = startOfDay(new Date());
         const startDate = startOfDay(subDays(endDate, selectedPeriod));
         
-        const { data, error } = await supabase
+        let query = supabase
           .from('j_rep_metaads_bronze')
           .select('*')
           .eq('account_id', accountId)
           .gte('date', format(startDate, 'yyyy-MM-dd'))
           .lte('date', format(endDate, 'yyyy-MM-dd'));
+
+        // Apply brand awareness objective filter (OUTCOME_AWARENESS only)
+        query = applyObjectiveFilter(query, 'reconhecimento');
+        
+        const { data, error } = await query;
 
         if (error) throw error;
 
@@ -115,7 +126,7 @@ export const BrandAwarenessDashboard: React.FC<BrandAwarenessDashboardProps> = (
     <div className="space-y-6">
       <div className="mb-6">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-          Dashboard de Reconhecimento de Marca - Últimos {selectedPeriod} dias
+          Dashboard de Reconhecimento de Marca - Últimos {selectedPeriod} dias {dateRangeDisplay}
         </h3>
         <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
           Análise de alcance e visibilidade da marca
@@ -140,18 +151,26 @@ export const BrandAwarenessDashboard: React.FC<BrandAwarenessDashboardProps> = (
         />
         
         <MetricCard
-          title="Frequência"
-          value={formatMetric(metrics.frequency, 'decimal')}
-          description="Repetições médias por pessoa"
-          performance={metrics.frequency >= 3 && metrics.frequency <= 7 ? 'excellent' : metrics.frequency < 3 ? 'warning' : metrics.frequency <= 10 ? 'good' : 'critical'}
-          isHero={true}
-        />
-        
-        <MetricCard
           title="CPM"
           value={formatMetric(metrics.cpm, 'currency')}
           description="Custo por mil impressões"
           performance={getMetricPerformance('cpm', metrics.cpm)}
+          isHero={true}
+        />
+        
+        <MetricCard
+          title="Investimento Total"
+          value={formatMetric(metrics.spend, 'currency')}
+          description="Total investido no período"
+          performance="neutral"
+          isHero={true}
+        />
+        
+        <MetricCard
+          title="Frequência"
+          value={formatMetric(metrics.frequency, 'decimal')}
+          description="Repetições médias por pessoa"
+          performance={metrics.frequency >= 3 && metrics.frequency <= 7 ? 'excellent' : metrics.frequency < 3 ? 'warning' : metrics.frequency <= 10 ? 'good' : 'critical'}
         />
         
         <MetricCard

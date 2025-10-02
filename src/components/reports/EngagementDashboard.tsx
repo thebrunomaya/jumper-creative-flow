@@ -6,6 +6,7 @@ import { MetricCard } from '@/components/ui/metric-card';
 import { SkeletonDashboard } from '@/components/ui/skeleton-screen';
 import { formatMetric, getMetricPerformance } from '@/utils/metricPerformance';
 import { startOfDay, subDays, format } from 'date-fns';
+import { applyObjectiveFilter } from '@/utils/dashboardObjectives';
 
 interface EngagementDashboardProps {
   accountId: string;
@@ -23,12 +24,18 @@ interface EngagementMetrics {
   videoViews: number;
   videoEngagementRate: number;
   spend: number;
+  costPerEngagement: number;
 }
 
 export const EngagementDashboard: React.FC<EngagementDashboardProps> = ({ accountId, selectedPeriod }) => {
   const [metrics, setMetrics] = useState<EngagementMetrics | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // Calculate date range for display
+  const endDate = startOfDay(new Date());
+  const startDate = startOfDay(subDays(endDate, selectedPeriod));
+  const dateRangeDisplay = `(${format(startDate, 'dd/MM/yy')} a ${format(endDate, 'dd/MM/yy')})`;
 
   useEffect(() => {
     const fetchMetrics = async () => {
@@ -39,12 +46,17 @@ export const EngagementDashboard: React.FC<EngagementDashboardProps> = ({ accoun
         const endDate = startOfDay(new Date());
         const startDate = startOfDay(subDays(endDate, selectedPeriod));
         
-        const { data, error } = await supabase
+        let query = supabase
           .from('j_rep_metaads_bronze')
           .select('*')
           .eq('account_id', accountId)
           .gte('date', format(startDate, 'yyyy-MM-dd'))
           .lte('date', format(endDate, 'yyyy-MM-dd'));
+
+        // Apply engagement objective filter (OUTCOME_ENGAGEMENT only)
+        query = applyObjectiveFilter(query, 'engajamento');
+        
+        const { data, error } = await query;
 
         if (error) throw error;
 
@@ -60,6 +72,7 @@ export const EngagementDashboard: React.FC<EngagementDashboardProps> = ({ accoun
             videoViews: 0,
             videoEngagementRate: 0,
             spend: 0,
+            costPerEngagement: 0,
           });
           return;
         }
@@ -92,6 +105,7 @@ export const EngagementDashboard: React.FC<EngagementDashboardProps> = ({ accoun
         const ctr = aggregated.impressions > 0 ? (aggregated.clicks / aggregated.impressions) * 100 : 0;
         const frequency = aggregated.reachForFreq > 0 ? aggregated.frequencySum / aggregated.reachForFreq : 0;
         const videoEngagementRate = aggregated.videoViews > 0 ? (aggregated.videoP75Watched / aggregated.videoViews) * 100 : 0;
+        const costPerEngagement = aggregated.clicks > 0 ? aggregated.spend / aggregated.clicks : 0;
 
         setMetrics({
           clicks: aggregated.clicks,
@@ -104,6 +118,7 @@ export const EngagementDashboard: React.FC<EngagementDashboardProps> = ({ accoun
           videoViews: aggregated.videoViews,
           videoEngagementRate,
           spend: aggregated.spend,
+          costPerEngagement,
         });
       } catch (err) {
         console.error('Error fetching engagement metrics:', err);
@@ -130,7 +145,7 @@ export const EngagementDashboard: React.FC<EngagementDashboardProps> = ({ accoun
     <div className="space-y-6">
       <div className="mb-6">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-          Dashboard de Engajamento - Últimos {selectedPeriod} dias
+          Dashboard de Engajamento - Últimos {selectedPeriod} dias {dateRangeDisplay}
         </h3>
         <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
           Análise de interações e engajamento com conteúdo
@@ -147,11 +162,26 @@ export const EngagementDashboard: React.FC<EngagementDashboardProps> = ({ accoun
         />
         
         <MetricCard
+          title="Custo por Engajamento"
+          value={formatMetric(metrics.costPerEngagement, 'currency')}
+          description="Investimento por clique"
+          performance={getMetricPerformance('cpc', metrics.costPerEngagement)}
+          isHero={true}
+        />
+        
+        <MetricCard
+          title="Investimento Total"
+          value={formatMetric(metrics.spend, 'currency')}
+          description="Total investido no período"
+          performance="neutral"
+          isHero={true}
+        />
+        
+        <MetricCard
           title="Vídeo 50% Assistido"
           value={formatMetric(metrics.videoP50Watched, 'number')}
           description="Engajamento médio com vídeo"
           performance={metrics.videoP50Watched > 1000 ? 'excellent' : metrics.videoP50Watched > 500 ? 'good' : metrics.videoP50Watched > 100 ? 'warning' : 'critical'}
-          isHero={true}
         />
         
         <MetricCard
@@ -159,7 +189,6 @@ export const EngagementDashboard: React.FC<EngagementDashboardProps> = ({ accoun
           value={formatMetric(metrics.videoP75Watched, 'number')}
           description="Engajamento aprofundado"
           performance={metrics.videoP75Watched > 500 ? 'excellent' : metrics.videoP75Watched > 250 ? 'good' : metrics.videoP75Watched > 50 ? 'warning' : 'critical'}
-          isHero={true}
         />
         
         <MetricCard

@@ -6,6 +6,7 @@ import { MetricCard } from '@/components/ui/metric-card';
 import { SkeletonDashboard } from '@/components/ui/skeleton-screen';
 import { formatMetric, getMetricPerformance } from '@/utils/metricPerformance';
 import { startOfDay, subDays, format } from 'date-fns';
+import { applyObjectiveFilter } from '@/utils/dashboardObjectives';
 
 interface LeadsDashboardProps {
   accountId: string;
@@ -27,6 +28,11 @@ export const LeadsDashboard: React.FC<LeadsDashboardProps> = ({ accountId, selec
   const [metrics, setMetrics] = useState<LeadsMetrics | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // Calculate date range for display
+  const endDate = startOfDay(new Date());
+  const startDate = startOfDay(subDays(endDate, selectedPeriod));
+  const dateRangeDisplay = `(${format(startDate, 'dd/MM/yy')} a ${format(endDate, 'dd/MM/yy')})`;
 
   useEffect(() => {
     const fetchMetrics = async () => {
@@ -37,12 +43,17 @@ export const LeadsDashboard: React.FC<LeadsDashboardProps> = ({ accountId, selec
         const endDate = startOfDay(new Date());
         const startDate = startOfDay(subDays(endDate, selectedPeriod));
         
-        const { data, error } = await supabase
+        let query = supabase
           .from('j_rep_metaads_bronze')
           .select('*')
           .eq('account_id', accountId)
           .gte('date', format(startDate, 'yyyy-MM-dd'))
           .lte('date', format(endDate, 'yyyy-MM-dd'));
+
+        // Apply leads objective filter (OUTCOME_LEADS only)
+        query = applyObjectiveFilter(query, 'leads');
+        
+        const { data, error } = await query;
 
         if (error) throw error;
 
@@ -116,7 +127,7 @@ export const LeadsDashboard: React.FC<LeadsDashboardProps> = ({ accountId, selec
     <div className="space-y-6">
       <div className="mb-6">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-          Dashboard de Leads - Últimos {selectedPeriod} dias
+          Dashboard de Leads - Últimos {selectedPeriod} dias {dateRangeDisplay}
         </h3>
         <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
           Análise de geração e custo de leads qualificados
