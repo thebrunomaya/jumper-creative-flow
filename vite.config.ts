@@ -2,7 +2,7 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
-import viteImagemin from 'vite-plugin-imagemin';
+// import viteImagemin from 'vite-plugin-imagemin'; // Disabled due to pngquant compatibility issues
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
@@ -13,12 +13,13 @@ export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
     mode === 'development' && componentTagger(),
-    mode === 'production' && viteImagemin({
-      gifsicle: { optimizationLevel: 7 },
-      mozjpeg: { quality: 80 },
-      pngquant: { quality: [0.6, 0.8] },
-      webp: { quality: 75 }
-    })
+    // Imagemin disabled - causing build errors on some systems
+    // mode === 'production' && viteImagemin({
+    //   gifsicle: { optimizationLevel: 7 },
+    //   mozjpeg: { quality: 80 },
+    //   pngquant: { quality: [0.6, 0.8] },
+    //   webp: { quality: 75 }
+    // })
   ].filter(Boolean),
   resolve: {
     alias: {
