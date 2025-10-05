@@ -13,9 +13,7 @@ import { Link } from "react-router-dom";
 import { RefreshCw, Settings, ArrowLeft } from "lucide-react";
 import { CreativeDetailsModal } from "@/components/CreativeDetailsModal";
 import { NotionSyncControl } from "@/components/NotionSyncControl";
-import { StatusMetrics } from "@/components/admin/StatusMetrics";
-import { FilterBar } from "@/components/admin/FilterBar";
-import { CreativeCard } from "@/components/admin/CreativeCard";
+import { StatusMetrics, FilterBar, CreativeCard } from "@/components/admin";
 
 interface SubmissionRow {
   id: string;
