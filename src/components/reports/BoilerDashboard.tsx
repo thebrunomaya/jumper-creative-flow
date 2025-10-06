@@ -56,7 +56,8 @@ export function BoilerDashboard({ accountName = 'BOILER 2.0' }: BoilerDashboardP
   const fetchData = async () => {
     try {
       setLoading(true);
-      
+      setError(null);
+
       // Fetch raw data first
       const { data: rawData, error: rawError } = await supabase
         .from('j_rep_metaads_bronze')

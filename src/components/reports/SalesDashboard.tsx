@@ -84,7 +84,8 @@ export function SalesDashboard({ accountName = 'Sales Account', accountInfo, sel
   const fetchData = async () => {
     try {
       setLoading(true);
-      
+      setError(null);
+
       // Use the metaAdsId from accountInfo if available, otherwise fallback to mapping system
       let metaAdsAccountId: string | null = null;
       let accountDisplayName = accountName;
@@ -248,8 +249,10 @@ export function SalesDashboard({ accountName = 'Sales Account', accountInfo, sel
   };
 
   useEffect(() => {
-    fetchData();
-  }, [accountInfo, selectedPeriod]); // Re-fetch when accountInfo or selectedPeriod changes
+    if (accountInfo?.metaAdsId) {
+      fetchData();
+    }
+  }, [accountInfo?.metaAdsId, selectedPeriod]); // Re-fetch when Meta Ads ID or period changes
 
   // formatCurrency and formatNumber moved to utils/metricPerformance.ts
 

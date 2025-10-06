@@ -56,7 +56,8 @@ export function GeneralDashboard({ accountName = 'Account', accountInfo, selecte
   const fetchGeneralData = async () => {
     try {
       setLoading(true);
-      
+      setError(null);
+
       if (!accountInfo?.metaAdsId) {
         throw new Error(`ID Meta Ads não configurado para "${accountName}"`);
       }
@@ -132,8 +133,10 @@ export function GeneralDashboard({ accountName = 'Account', accountInfo, selecte
   };
 
   useEffect(() => {
-    fetchGeneralData();
-  }, [accountInfo, selectedPeriod]);
+    if (accountInfo?.metaAdsId) {
+      fetchGeneralData();
+    }
+  }, [accountInfo?.metaAdsId, selectedPeriod]);
 
   const formatCurrency = (value: string | number) => {
     const num = typeof value === 'string' ? parseFloat(value) : value;
