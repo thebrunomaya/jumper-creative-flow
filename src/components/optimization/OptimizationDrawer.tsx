@@ -88,14 +88,14 @@ function TranscriptionSection({
               <CheckCircle2 className="h-4 w-4 text-success" />
               Transcrição Completa
             </h3>
-            {transcript.revised_at && (
-              <Badge variant="secondary" className="text-xs">
+            {transcript.revised_at ? (
+              <Badge variant="secondary" className="text-xs flex items-center gap-1">
                 ✏️ Revisado
               </Badge>
-            )}
-            {!transcript.revised_at && (
-              <Badge variant="outline" className="text-xs">
-                🤖 Original
+            ) : (
+              <Badge variant="outline" className="text-xs flex items-center gap-1">
+                <Sparkles className="h-3 w-3" />
+                Original IA
               </Badge>
             )}
           </div>
@@ -190,7 +190,7 @@ function AnalysisSection({
   const [markdown, setMarkdown] = useState("");
 
   // Check if analysis was revised
-  const wasRevised = !!(context as any).revised_at;
+  const wasRevised = context.confidence_level === "revised" || !!(context as any).revised_at;
 
   const handleCopyAnalysis = () => {
     const md = generateAnalysisMarkdown(
@@ -214,12 +214,12 @@ function AnalysisSection({
               Extrato de Otimização
             </h3>
             {wasRevised ? (
-              <Badge variant="secondary" className="text-xs">
+              <Badge variant="secondary" className="text-xs flex items-center gap-1">
                 ✏️ Revisado
               </Badge>
             ) : (
-              <Badge variant="outline" className="text-xs">
-                <Sparkles className="h-3 w-3 mr-1" />
+              <Badge variant="outline" className="text-xs flex items-center gap-1">
+                <Sparkles className="h-3 w-3" />
                 {context.confidence_level === 'high' && 'Alta confiança'}
                 {context.confidence_level === 'medium' && 'Média confiança'}
                 {context.confidence_level === 'low' && 'Baixa confiança'}

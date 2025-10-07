@@ -108,7 +108,7 @@ export interface OptimizationContext {
   timeline: OptimizationTimeline;
 
   // Metadata
-  confidence_level?: 'high' | 'medium' | 'low'; // Confiança na extração pela IA
+  confidence_level?: 'high' | 'medium' | 'low' | 'revised'; // Confiança na extração pela IA ou revisado manualmente
   client_report_generated?: boolean;            // Relatório para cliente foi gerado?
   client_report_sent_at?: Date;
 }
@@ -225,7 +225,7 @@ export function rowToOptimizationContext(row: OptimizationContextRow): Optimizat
         date: new Date(m.date)
       }))
     },
-    confidence_level: row.confidence_level as 'high' | 'medium' | 'low' | undefined,
+    confidence_level: row.confidence_level as 'high' | 'medium' | 'low' | 'revised' | undefined,
     client_report_generated: row.client_report_generated,
     client_report_sent_at: row.client_report_sent_at ? new Date(row.client_report_sent_at) : undefined
   };

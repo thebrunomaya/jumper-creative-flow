@@ -118,6 +118,7 @@ export function UnifiedOptimizationEditorModal({
           metrics_mentioned: JSON.parse(JSON.stringify(parsedContext.metrics_mentioned || context.metrics_mentioned)),
           strategy: JSON.parse(JSON.stringify(parsedContext.strategy || context.strategy)),
           timeline: JSON.parse(JSON.stringify(parsedContext.timeline || context.timeline)),
+          confidence_level: "revised",
           revised_at: new Date().toISOString(),
         })
         .eq("id", context.id);
