@@ -13,7 +13,7 @@ import { JumperLogo } from "@/components/ui/jumper-logo";
 export default function Optimization() {
   return (
     <div className="min-h-screen relative">
-      <JumperBackground />
+      <JumperBackground overlay={false} />
       
       <div className="relative z-10">
         {/* Header */}
