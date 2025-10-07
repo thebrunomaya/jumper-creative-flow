@@ -46,12 +46,17 @@ serve(async (req) => {
       .eq('id', recording_id);
 
     // 3. Download audio from storage
+    // Remove 'optimizations/' prefix since we're already using .from('optimizations')
+    const filePath = recording.audio_file_path.replace(/^optimizations\//, '');
+    console.log('📥 Downloading from path:', filePath);
+    
     const { data: audioData, error: downloadError } = await supabase.storage
       .from('optimizations')
-      .download(recording.audio_file_path.replace('optimizations/', ''));
+      .download(filePath);
 
     if (downloadError || !audioData) {
-      throw new Error(`Failed to download audio: ${downloadError?.message}`);
+      console.error('❌ Download error:', downloadError);
+      throw new Error(`Failed to download audio: ${downloadError?.message || 'No data returned'}`);
     }
 
     console.log('✅ Audio downloaded, size:', audioData.size, 'bytes');
