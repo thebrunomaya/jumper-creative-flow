@@ -1266,6 +1266,24 @@ export type Database = {
         }
         Relationships: []
       }
+      videosmmx: {
+        Row: {
+          created_at: string
+          id: number
+          videos: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          videos?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          videos?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
