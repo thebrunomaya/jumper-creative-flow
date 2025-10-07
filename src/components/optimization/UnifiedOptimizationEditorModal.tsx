@@ -105,8 +105,6 @@ export function UnifiedOptimizationEditorModal({
     setIsSaving(true);
 
     try {
-      const userEmail = (await supabase.auth.getUser()).data.user?.email;
-
       // Parse Markdown back to OptimizationContext
       const parsedContext = parseMarkdownToContext(markdownContent);
 
@@ -121,7 +119,6 @@ export function UnifiedOptimizationEditorModal({
           strategy: JSON.parse(JSON.stringify(parsedContext.strategy || context.strategy)),
           timeline: JSON.parse(JSON.stringify(parsedContext.timeline || context.timeline)),
           revised_at: new Date().toISOString(),
-          revised_by: userEmail || 'unknown',
         })
         .eq("id", context.id);
 
