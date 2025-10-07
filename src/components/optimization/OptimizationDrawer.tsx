@@ -241,7 +241,7 @@ function AnalysisSection({
               size="sm"
             >
               <Edit className="mr-2 h-4 w-4" />
-              Ajustar
+              Editar
             </JumperButton>
             <JumperButton
               onClick={() => setRegenerateOpen(true)}
