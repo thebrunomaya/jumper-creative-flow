@@ -11,7 +11,9 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Clock, FileAudio, AlertCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Loader2, Clock, FileAudio, AlertCircle, FileText } from "lucide-react";
+import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { OptimizationRecordingRow } from "@/types/optimization";
@@ -28,6 +30,7 @@ export function OptimizationList() {
   const [recordings, setRecordings] = useState<OptimizationRecordingRow[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [audioUrls, setAudioUrls] = useState<Record<string, string>>({});
+  const [transcribing, setTranscribing] = useState<Record<string, boolean>>({});
 
   // Fetch user's accounts
   useEffect(() => {
@@ -90,6 +93,28 @@ export function OptimizationList() {
 
     setAudioUrls(urls);
     setIsLoading(false);
+  }
+
+  async function handleTranscribe(recordingId: string) {
+    setTranscribing(prev => ({ ...prev, [recordingId]: true }));
+    
+    try {
+      const { error } = await supabase.functions.invoke('j_ads_transcribe_optimization', {
+        body: { recording_id: recordingId }
+      });
+
+      if (error) throw error;
+
+      toast.success('Transcrição concluída!');
+      
+      // Reload recordings to show updated status
+      fetchRecordings();
+    } catch (error) {
+      console.error('Transcription error:', error);
+      toast.error('Erro ao transcrever áudio');
+    } finally {
+      setTranscribing(prev => ({ ...prev, [recordingId]: false }));
+    }
   }
 
   const getStatusBadge = (status: string) => {
@@ -183,9 +208,31 @@ export function OptimizationList() {
                         )}
                       </div>
 
-                      {/* Status Badges */}
+                      {/* Status Badges & Actions */}
                       <div className="flex flex-col gap-2">
-                        {getStatusBadge(recording.transcription_status)}
+                        <div className="flex items-center gap-2">
+                          {getStatusBadge(recording.transcription_status)}
+                          {recording.transcription_status === 'pending' && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleTranscribe(recording.id)}
+                              disabled={transcribing[recording.id]}
+                            >
+                              {transcribing[recording.id] ? (
+                                <>
+                                  <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+                                  Processando...
+                                </>
+                              ) : (
+                                <>
+                                  <FileText className="mr-1 h-3 w-3" />
+                                  Transcrever
+                                </>
+                              )}
+                            </Button>
+                          )}
+                        </div>
                         {getStatusBadge(recording.analysis_status)}
                       </div>
                     </div>

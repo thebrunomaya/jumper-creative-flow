@@ -887,6 +887,44 @@ export type Database = {
           },
         ]
       }
+      j_ads_optimization_transcripts: {
+        Row: {
+          confidence_score: number | null
+          created_at: string | null
+          full_text: string
+          id: string
+          language: string | null
+          recording_id: string
+          segments: Json | null
+        }
+        Insert: {
+          confidence_score?: number | null
+          created_at?: string | null
+          full_text: string
+          id?: string
+          language?: string | null
+          recording_id: string
+          segments?: Json | null
+        }
+        Update: {
+          confidence_score?: number | null
+          created_at?: string | null
+          full_text?: string
+          id?: string
+          language?: string | null
+          recording_id?: string
+          segments?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "j_ads_optimization_transcripts_recording_id_fkey"
+            columns: ["recording_id"]
+            isOneToOne: false
+            referencedRelation: "j_ads_optimization_recordings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       j_ads_user_roles: {
         Row: {
           created_at: string
