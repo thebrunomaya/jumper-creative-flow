@@ -220,19 +220,13 @@ function AnalysisSection({
                 ✏️ Revisado
               </Badge>
             ) : (
-              <>
-                {context.confidence_level && (
-                  <Badge variant="outline" className="text-xs">
-                    {context.confidence_level === 'high' && 'Alta confiança'}
-                    {context.confidence_level === 'medium' && 'Média confiança'}
-                    {context.confidence_level === 'low' && 'Baixa confiança'}
-                  </Badge>
-                )}
-                <Badge variant="outline" className="text-xs">
-                  <Sparkles className="h-3 w-3 mr-1" />
-                  Original
-                </Badge>
-              </>
+              <Badge variant="outline" className="text-xs">
+                <Sparkles className="h-3 w-3 mr-1" />
+                {context.confidence_level === 'high' && 'Alta confiança'}
+                {context.confidence_level === 'medium' && 'Média confiança'}
+                {context.confidence_level === 'low' && 'Baixa confiança'}
+                {!context.confidence_level && 'Média confiança'}
+              </Badge>
             )}
           </div>
           <div className="flex gap-2 flex-wrap">
