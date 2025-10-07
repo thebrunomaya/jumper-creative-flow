@@ -108,6 +108,20 @@ export function UnifiedOptimizationEditorModal({
     const savingToast = toast.loading("Salvando revisão...");
 
     try {
+      // 🔍 LOG 0: Verificar se temos o context.id
+      console.log("🔍 [SAVE] Context completo:", {
+        hasContext: !!context,
+        contextId: context?.id,
+        accountId: context?.account_id,
+        recordingId: recordingId,
+        fullContext: context,
+      });
+
+      if (!context?.id) {
+        console.error("❌ [SAVE] Context ID está faltando!");
+        throw new Error("ID do contexto não encontrado. Não é possível salvar.");
+      }
+
       const userEmail = (await supabase.auth.getUser()).data.user?.email;
 
       // 🔍 LOG 1: Informações antes do save
