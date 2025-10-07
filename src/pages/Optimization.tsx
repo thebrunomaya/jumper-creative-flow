@@ -273,6 +273,7 @@ export default function Optimization() {
         onAnalyze={handleAnalyze}
         isTranscribing={isTranscribing}
         isAnalyzing={isAnalyzing}
+        accountName={accountName}
       />
     </JumperBackground>
   );

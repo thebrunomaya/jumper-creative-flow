@@ -25,6 +25,7 @@ import {
   Trash2,
   CheckCircle2,
   User,
+  Download,
 } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -35,6 +36,7 @@ import {
   OptimizationContext,
 } from "@/types/optimization";
 import { OptimizationContextCard } from "@/components/OptimizationContextCard";
+import { exportOptimizationToPDF } from "@/utils/pdfExport";
 
 interface OptimizationDrawerProps {
   recording: OptimizationRecordingRow | null;
@@ -47,6 +49,7 @@ interface OptimizationDrawerProps {
   onAnalyze: () => void;
   isTranscribing: boolean;
   isAnalyzing: boolean;
+  accountName?: string;
 }
 
 export function OptimizationDrawer({
@@ -60,6 +63,7 @@ export function OptimizationDrawer({
   onAnalyze,
   isTranscribing,
   isAnalyzing,
+  accountName = "Conta",
 }: OptimizationDrawerProps) {
   if (!recording) return null;
 
@@ -91,6 +95,11 @@ export function OptimizationDrawer({
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
+  const handleExportPDF = () => {
+    exportOptimizationToPDF(recording, accountName, transcript, context);
+    toast.success("PDF gerado com sucesso!");
+  };
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="w-full sm:max-w-2xl overflow-hidden flex flex-col p-0">
@@ -107,6 +116,21 @@ export function OptimizationDrawer({
               {getStatusBadge(recording.analysis_status)}
             </div>
           </div>
+
+          {/* Export PDF Button */}
+          {transcript && (
+            <div className="pt-4">
+              <JumperButton
+                onClick={handleExportPDF}
+                variant="ghost"
+                size="sm"
+                className="w-full"
+              >
+                <Download className="mr-2 h-4 w-4" />
+                Exportar Relatório em PDF
+              </JumperButton>
+            </div>
+          )}
         </SheetHeader>
 
         <ScrollArea className="flex-1 px-6">
