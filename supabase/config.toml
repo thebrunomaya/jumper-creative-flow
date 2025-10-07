@@ -1,6 +1,8 @@
 project_id = "biwwowendjuzvpttyrlb"
 
 # J_ADS namespaced functions
+[functions.j_ads_update_optimization_context]
+verify_jwt = true
 [functions.j_ads_ingest_creative]
 verify_jwt = true
 
@@ -8,6 +10,9 @@ verify_jwt = true
 verify_jwt = true
 
 [functions.j_ads_transcribe_optimization]
+verify_jwt = true
+
+[functions.j_ads_analyze_optimization]
 verify_jwt = true
 
 [functions.j_ads_manager_actions]

@@ -429,6 +429,7 @@ export type Database = {
             | string
             | null
           Conta: string | null
+          "Contexto para Otimização": string | null
           created_at: string | null
           "Endereço da Empresa.": string | null
           "Existem perfis de clientes diferentes para cada produto/serviç":
@@ -543,6 +544,7 @@ export type Database = {
             | string
             | null
           Conta?: string | null
+          "Contexto para Otimização"?: string | null
           created_at?: string | null
           "Endereço da Empresa."?: string | null
           "Existem perfis de clientes diferentes para cada produto/serviç"?:
@@ -657,6 +659,7 @@ export type Database = {
             | string
             | null
           Conta?: string | null
+          "Contexto para Otimização"?: string | null
           created_at?: string | null
           "Endereço da Empresa."?: string | null
           "Existem perfis de clientes diferentes para cada produto/serviç"?:
@@ -843,38 +846,157 @@ export type Database = {
         }
         Relationships: []
       }
+      j_ads_optimization_context: {
+        Row: {
+          account_id: string
+          actions_taken: Json
+          client_report_generated: boolean | null
+          client_report_sent_at: string | null
+          confidence_level: string | null
+          correction_applied_at: string | null
+          correction_prompt: string | null
+          created_at: string | null
+          id: string
+          metrics_mentioned: Json
+          model_used: string | null
+          recording_id: string
+          revised_at: string | null
+          strategy: Json
+          summary: string
+          timeline: Json
+        }
+        Insert: {
+          account_id: string
+          actions_taken: Json
+          client_report_generated?: boolean | null
+          client_report_sent_at?: string | null
+          confidence_level?: string | null
+          correction_applied_at?: string | null
+          correction_prompt?: string | null
+          created_at?: string | null
+          id?: string
+          metrics_mentioned: Json
+          model_used?: string | null
+          recording_id: string
+          revised_at?: string | null
+          strategy: Json
+          summary: string
+          timeline: Json
+        }
+        Update: {
+          account_id?: string
+          actions_taken?: Json
+          client_report_generated?: boolean | null
+          client_report_sent_at?: string | null
+          confidence_level?: string | null
+          correction_applied_at?: string | null
+          correction_prompt?: string | null
+          created_at?: string | null
+          id?: string
+          metrics_mentioned?: Json
+          model_used?: string | null
+          recording_id?: string
+          revised_at?: string | null
+          strategy?: Json
+          summary?: string
+          timeline?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "j_ads_optimization_context_recording_id_fkey"
+            columns: ["recording_id"]
+            isOneToOne: true
+            referencedRelation: "j_ads_optimization_recordings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      j_ads_optimization_prompts: {
+        Row: {
+          created_at: string | null
+          edited_by: string | null
+          id: string
+          is_default: boolean | null
+          objective: string
+          platform: string
+          previous_version: string | null
+          prompt_text: string
+          prompt_type: string
+          updated_at: string | null
+          variables: Json | null
+        }
+        Insert: {
+          created_at?: string | null
+          edited_by?: string | null
+          id?: string
+          is_default?: boolean | null
+          objective: string
+          platform: string
+          previous_version?: string | null
+          prompt_text: string
+          prompt_type: string
+          updated_at?: string | null
+          variables?: Json | null
+        }
+        Update: {
+          created_at?: string | null
+          edited_by?: string | null
+          id?: string
+          is_default?: boolean | null
+          objective?: string
+          platform?: string
+          previous_version?: string | null
+          prompt_text?: string
+          prompt_type?: string
+          updated_at?: string | null
+          variables?: Json | null
+        }
+        Relationships: []
+      }
       j_ads_optimization_recordings: {
         Row: {
+          account_context: string | null
           account_id: string
           analysis_status: string | null
           audio_file_path: string | null
           created_at: string | null
           duration_seconds: number | null
           id: string
+          override_context: string | null
+          platform: string | null
           recorded_at: string | null
           recorded_by: string
+          selected_objectives: string[] | null
           transcription_status: string | null
         }
         Insert: {
+          account_context?: string | null
           account_id: string
           analysis_status?: string | null
           audio_file_path?: string | null
           created_at?: string | null
           duration_seconds?: number | null
           id?: string
+          override_context?: string | null
+          platform?: string | null
           recorded_at?: string | null
           recorded_by: string
+          selected_objectives?: string[] | null
           transcription_status?: string | null
         }
         Update: {
+          account_context?: string | null
           account_id?: string
           analysis_status?: string | null
           audio_file_path?: string | null
           created_at?: string | null
           duration_seconds?: number | null
           id?: string
+          override_context?: string | null
+          platform?: string | null
           recorded_at?: string | null
           recorded_by?: string
+          selected_objectives?: string[] | null
           transcription_status?: string | null
         }
         Relationships: [
@@ -890,36 +1012,51 @@ export type Database = {
       j_ads_optimization_transcripts: {
         Row: {
           confidence_score: number | null
+          correction_applied_at: string | null
+          correction_prompt: string | null
           created_at: string | null
           full_text: string
           id: string
           language: string | null
+          original_text: string | null
           recording_id: string
+          revised_at: string | null
+          revised_by: string | null
           segments: Json | null
         }
         Insert: {
           confidence_score?: number | null
+          correction_applied_at?: string | null
+          correction_prompt?: string | null
           created_at?: string | null
           full_text: string
           id?: string
           language?: string | null
+          original_text?: string | null
           recording_id: string
+          revised_at?: string | null
+          revised_by?: string | null
           segments?: Json | null
         }
         Update: {
           confidence_score?: number | null
+          correction_applied_at?: string | null
+          correction_prompt?: string | null
           created_at?: string | null
           full_text?: string
           id?: string
           language?: string | null
+          original_text?: string | null
           recording_id?: string
+          revised_at?: string | null
+          revised_by?: string | null
           segments?: Json | null
         }
         Relationships: [
           {
             foreignKeyName: "j_ads_optimization_transcripts_recording_id_fkey"
             columns: ["recording_id"]
-            isOneToOne: false
+            isOneToOne: true
             referencedRelation: "j_ads_optimization_recordings"
             referencedColumns: ["id"]
           },
@@ -1129,63 +1266,21 @@ export type Database = {
         }
         Relationships: []
       }
-      meta_ads_performance: {
+      videosmmx: {
         Row: {
-          account_id: string
-          clicks: number | null
-          cliente_id: string
-          cost_per_inline_link_click: number | null
-          cost_per_lead: number | null
-          cpm: number | null
-          created_at: string | null
-          data_fim: string
-          data_inicio: string
-          id: string
-          impressions: number | null
-          inline_link_click_ctr: number | null
-          inline_link_clicks: number | null
-          leads: number | null
-          periodo: string
-          spend: number
-          updated_at: string | null
+          created_at: string
+          id: number
+          videos: string | null
         }
         Insert: {
-          account_id: string
-          clicks?: number | null
-          cliente_id: string
-          cost_per_inline_link_click?: number | null
-          cost_per_lead?: number | null
-          cpm?: number | null
-          created_at?: string | null
-          data_fim: string
-          data_inicio: string
-          id?: string
-          impressions?: number | null
-          inline_link_click_ctr?: number | null
-          inline_link_clicks?: number | null
-          leads?: number | null
-          periodo: string
-          spend: number
-          updated_at?: string | null
+          created_at?: string
+          id?: number
+          videos?: string | null
         }
         Update: {
-          account_id?: string
-          clicks?: number | null
-          cliente_id?: string
-          cost_per_inline_link_click?: number | null
-          cost_per_lead?: number | null
-          cpm?: number | null
-          created_at?: string | null
-          data_fim?: string
-          data_inicio?: string
-          id?: string
-          impressions?: number | null
-          inline_link_click_ctr?: number | null
-          inline_link_clicks?: number | null
-          leads?: number | null
-          periodo?: string
-          spend?: number
-          updated_at?: string | null
+          created_at?: string
+          id?: number
+          videos?: string | null
         }
         Relationships: []
       }

@@ -202,6 +202,7 @@ function processAccountPage(page: any): any {
     "G-ADS: Saldo Em Dias": extractText(props["G-ADS: Saldo Em Dias"]),
     "G-ADS: Fim do Saldo": extractText(props["G-ADS: Fim do Saldo"]),
     "G-ADS: Última Checagem": extractText(props["G-ADS: Última Checagem"]),
+    "Contexto para Otimização": extractText(props["Contexto para Otimização"]),
   };
 }
 

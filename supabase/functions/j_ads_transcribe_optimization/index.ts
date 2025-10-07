@@ -2,6 +2,41 @@ import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.56.0';
 
+// Helper to generate account context from Notion data
+function generateAccountContext(accountData: any): string {
+  const parts: string[] = [];
+  
+  if (accountData.Conta) {
+    parts.push(`Conta: ${accountData.Conta}`);
+  }
+  
+  if (accountData['Quais são os produtos/serviços que deseja divulgar?']) {
+    const produtos = accountData['Quais são os produtos/serviços que deseja divulgar?'];
+    parts.push(`Produtos: ${produtos.substring(0, 100)}`);
+  }
+  
+  if (accountData['Quem é o cliente ideal? (Persona)']) {
+    const persona = accountData['Quem é o cliente ideal? (Persona)'];
+    parts.push(`Persona: ${persona.substring(0, 100)}`);
+  }
+  
+  if (accountData['Ticket médio atual (valor médio por venda ou contrato).']) {
+    parts.push(`Ticket: ${accountData['Ticket médio atual (valor médio por venda ou contrato).']}`);
+  }
+  
+  if (accountData['Seus principais diferenciais competitivos.']) {
+    const dif = accountData['Seus principais diferenciais competitivos.'];
+    parts.push(`Diferenciais: ${dif.substring(0, 80)}`);
+  }
+  
+  if (accountData['Quais são as maiores dores e objeções desses clientes?']) {
+    const dores = accountData['Quais são as maiores dores e objeções desses clientes?'];
+    parts.push(`Dores: ${dores.substring(0, 80)}`);
+  }
+  
+  return parts.join(' • ').substring(0, 480);
+}
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -43,6 +78,34 @@ serve(async (req) => {
 
     console.log('✅ Recording found:', recording.audio_file_path);
 
+    // 1.5. Build account context - Priority: override_context > Notion > auto-generated
+    let accountContextFinal = '';
+    
+    // Priority 1: Check if user edited context for this recording
+    if (recording.override_context) {
+      accountContextFinal = recording.override_context;
+      console.log('📝 Using override context from user');
+    } else {
+      // Fetch Notion account data
+      const { data: accountData } = await supabase
+        .from('j_ads_notion_db_accounts')
+        .select('*')
+        .eq('ID', recording.account_id)
+        .maybeSingle();
+      
+      if (accountData) {
+        // Priority 2: Use dedicated "Contexto para Otimização" column
+        if (accountData['Contexto para Otimização']) {
+          accountContextFinal = accountData['Contexto para Otimização'];
+          console.log('📝 Using context from Notion (dedicated column)');
+        } else {
+          // Priority 3: Generate automatically from existing fields
+          accountContextFinal = generateAccountContext(accountData);
+          console.log('📝 Using auto-generated context from Notion fields');
+        }
+      }
+    }
+
     // 2. Update status to processing
     await supabase
       .from('j_ads_optimization_recordings')
@@ -64,12 +127,45 @@ serve(async (req) => {
 
     console.log('✅ Audio downloaded, size:', audioData.size, 'bytes');
 
-    // 4. Convert blob to file for OpenAI
+    // 4. Fetch custom transcription prompts based on platform & objectives
+    let customPrompts = '';
+    if (recording.platform && recording.selected_objectives && recording.selected_objectives.length > 0) {
+      const { data: prompts } = await supabase
+        .from('j_ads_optimization_prompts')
+        .select('prompt_text')
+        .eq('platform', recording.platform)
+        .in('objective', recording.selected_objectives)
+        .eq('prompt_type', 'transcription');
+      
+      if (prompts && prompts.length > 0) {
+        customPrompts = prompts.map(p => p.prompt_text).join('\n');
+        console.log('📝 Using custom transcription prompts');
+      }
+    }
+
+    // 5. Build final prompt with context replacement
+    const basePrompt = `Transcrição de análise de otimização de ${recording.platform === 'google' ? 'Google Ads' : 'Meta Ads'} em português brasileiro.
+Termos técnicos comuns: CPA, CPM, CTR, ROAS, CPC, alcance, frequência, impressões, conversões, 
+campanhas, conjuntos de anúncios, criativos, pixel, remarketing, lookalike, retargeting.`;
+
+    let finalPrompt = basePrompt;
+    
+    if (customPrompts) {
+      // Replace {context} variable in custom prompts
+      const renderedPrompts = customPrompts.replace(/{context}/g, accountContextFinal || '');
+      finalPrompt = `${basePrompt}\n\n${renderedPrompts}`;
+    } else if (accountContextFinal) {
+      finalPrompt = `${basePrompt}\n\nContexto da conta:\n${accountContextFinal}`.trim();
+    }
+
+    console.log('🎯 Prompt final para Whisper:', finalPrompt);
+
     const formData = new FormData();
     formData.append('file', audioData, 'audio.webm');
     formData.append('model', 'whisper-1');
     formData.append('language', 'pt');
     formData.append('response_format', 'verbose_json'); // Get segments with timestamps
+    formData.append('prompt', finalPrompt);
 
     console.log('🔄 Sending to OpenAI Whisper...');
 
@@ -105,9 +201,12 @@ serve(async (req) => {
       .insert({
         recording_id,
         full_text: transcription.text,
+        original_text: transcription.text,
         language: transcription.language || 'pt',
         confidence_score: null, // Whisper doesn't provide overall confidence
         segments: transcription.segments || null,
+        revised_at: null,
+        revised_by: null,
       });
 
     if (insertError) {
@@ -124,6 +223,30 @@ serve(async (req) => {
       .eq('id', recording_id);
 
     console.log('✅ Transcription saved successfully');
+
+    // 8. Auto-trigger analysis after successful transcription
+    try {
+      console.log('🚀 Auto-triggering analysis...');
+      
+      const analysisResponse = await fetch(`${supabaseUrl}/functions/v1/j_ads_analyze_optimization`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${supabaseServiceKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ recording_id })
+      });
+
+      if (!analysisResponse.ok) {
+        const errorText = await analysisResponse.text();
+        console.error('❌ Auto-analysis failed:', analysisResponse.status, errorText);
+      } else {
+        console.log('✅ Auto-analysis triggered successfully');
+      }
+    } catch (autoAnalysisError) {
+      console.error('⚠️ Failed to trigger auto-analysis:', autoAnalysisError);
+      // Don't throw - transcription already succeeded
+    }
 
     return new Response(
       JSON.stringify({ 

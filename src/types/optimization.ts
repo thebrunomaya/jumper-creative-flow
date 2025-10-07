@@ -108,7 +108,7 @@ export interface OptimizationContext {
   timeline: OptimizationTimeline;
 
   // Metadata
-  confidence_level?: 'high' | 'medium' | 'low'; // Confiança na extração pela IA
+  confidence_level?: 'high' | 'medium' | 'low' | 'revised'; // Confiança na extração pela IA ou revisado manualmente
   client_report_generated?: boolean;            // Relatório para cliente foi gerado?
   client_report_sent_at?: Date;
 }
@@ -157,9 +157,12 @@ export interface OptimizationTranscriptRow {
   id: string;
   recording_id: string;
   full_text: string;
+  original_text: string | null;    // Original Whisper output
   language: string;
   confidence_score: number | null;
   segments: any | null;            // JSONB - array of {start, end, text}
+  revised_at: string | null;       // When was it last revised
+  revised_by: string | null;       // Who revised it
   created_at: string;
 }
 
@@ -222,7 +225,7 @@ export function rowToOptimizationContext(row: OptimizationContextRow): Optimizat
         date: new Date(m.date)
       }))
     },
-    confidence_level: row.confidence_level as 'high' | 'medium' | 'low' | undefined,
+    confidence_level: row.confidence_level as 'high' | 'medium' | 'low' | 'revised' | undefined,
     client_report_generated: row.client_report_generated,
     client_report_sent_at: row.client_report_sent_at ? new Date(row.client_report_sent_at) : undefined
   };

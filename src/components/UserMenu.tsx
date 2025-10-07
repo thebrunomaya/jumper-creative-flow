@@ -13,7 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { User, LogOut, PlusCircle, Shield, LayoutDashboard, Lock, BarChart3 } from 'lucide-react';
+import { User, LogOut, PlusCircle, Shield, LayoutDashboard, Lock, BarChart3, TrendingUp } from 'lucide-react';
 import { AccountSelectorModal } from '@/components/reports/AccountSelectorModal';
 
 const UserMenu: React.FC = () => {
@@ -67,6 +67,10 @@ const UserMenu: React.FC = () => {
           <DropdownMenuItem onSelect={() => setShowReportsModal(true)} className="cursor-pointer">
             <BarChart3 className="mr-2 h-4 w-4" />
             <span>Relatórios</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => navigate('/optimization')} className="cursor-pointer">
+            <TrendingUp className="mr-2 h-4 w-4" />
+            <span>Otimizações</span>
           </DropdownMenuItem>
           <DropdownMenuItem onSelect={() => navigate('/manager')} className="cursor-pointer">
             <LayoutDashboard className="mr-2 h-4 w-4" />

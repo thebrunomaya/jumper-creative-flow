@@ -1,33 +1,70 @@
 /**
- * OptimizationRecorder - Week 1 MVP Component
+ * OptimizationRecorder - Enhanced with Context & Objectives
  * 
- * Allows managers to record optimization audio narrations for Meta Ads accounts
- * Uses react-media-recorder for audio capture
- * Uploads to Supabase Storage in /optimizations/{account_id}/{timestamp}.webm
+ * Allows managers to record optimization audio narrations with:
+ * - Account context (editable for this recording only)
+ * - Platform selection (Meta/Google)
+ * - Objective selection with custom prompts
  */
 
 import { useState, useEffect } from "react";
 import { useReactMediaRecorder } from "react-media-recorder";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { Button } from "@/components/ui/button";
+import { JumperButton } from "@/components/ui/jumper-button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Mic, Square, Play, Pause, Upload, Loader2, AlertCircle } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Mic, Square, Upload, Loader2, AlertCircle, ChevronDown, Edit } from "lucide-react";
 import { toast } from "sonner";
+import { ContextEditor } from "./optimization/ContextEditor";
+import { PromptEditorModal } from "./optimization/PromptEditorModal";
+import { PlatformSelector } from "./optimization/PlatformSelector";
+import { ObjectiveCheckboxes } from "./optimization/ObjectiveCheckboxes";
+import { ProcessingOverlay, ProcessingStep } from "./optimization/ProcessingOverlay";
 
-interface Account {
-  notion_id: string;
-  Conta: string | null;
+interface OptimizationRecorderProps {
+  accountId: string;
+  accountName: string;
+  accountContext?: string;
+  notionObjectives?: string[];
+  availableObjectives?: string[];
+  onUploadComplete?: () => void;
 }
 
-export function OptimizationRecorder() {
+export function OptimizationRecorder({ 
+  accountId, 
+  accountName, 
+  accountContext = '',
+  notionObjectives = [],
+  availableObjectives = [],
+  onUploadComplete 
+}: OptimizationRecorderProps) {
   const { user } = useAuth();
-  const [selectedAccount, setSelectedAccount] = useState<string>("");
-  const [accounts, setAccounts] = useState<Account[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [recordingDuration, setRecordingDuration] = useState(0);
+  
+  // Context & Optimization state
+  const [isContextOpen, setIsContextOpen] = useState(false);
+  const [editedContext, setEditedContext] = useState(accountContext);
+  const [isContextEditorOpen, setIsContextEditorOpen] = useState(false);
+  const [platform, setPlatform] = useState<'meta' | 'google'>('meta');
+  const [selectedObjectives, setSelectedObjectives] = useState<string[]>(notionObjectives);
+  const [promptModalState, setPromptModalState] = useState<{
+    isOpen: boolean;
+    objective?: string;
+  }>({ isOpen: false });
+
+  // Processing overlay state
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [currentStep, setCurrentStep] = useState<ProcessingStep>('upload');
+  const [processingError, setProcessingError] = useState<string | null>(null);
+
+  // Update edited context when account changes
+  useEffect(() => {
+    setEditedContext(accountContext);
+    setSelectedObjectives(notionObjectives);
+  }, [accountId, accountContext, notionObjectives]);
 
   const {
     status,
@@ -40,11 +77,6 @@ export function OptimizationRecorder() {
     video: false,
     askPermissionOnMount: false,
   });
-
-  // Fetch user's accounts
-  useEffect(() => {
-    fetchAccounts();
-  }, [user]);
 
   // Track recording duration
   useEffect(() => {
@@ -59,42 +91,45 @@ export function OptimizationRecorder() {
     return () => clearInterval(interval);
   }, [status]);
 
-  async function fetchAccounts() {
-    if (!user?.email) return;
-
-    const { data, error } = await supabase
-      .from("j_ads_notion_db_accounts")
-      .select("notion_id, Conta")
-      .order("Conta", { ascending: true });
-
-    if (error) {
-      console.error("Error fetching accounts:", error);
-      toast.error("Erro ao carregar contas");
-      return;
+  const canStartRecording = () => {
+    if (!accountId) {
+      toast.error("Selecione uma conta");
+      return false;
     }
+    if (selectedObjectives.length === 0) {
+      toast.error("Selecione pelo menos um objetivo");
+      return false;
+    }
+    return true;
+  };
 
-    setAccounts(data || []);
-  }
+  const handleStartRecording = () => {
+    if (canStartRecording()) {
+      startRecording();
+    }
+  };
 
   async function handleUpload() {
-    if (!mediaBlobUrl || !selectedAccount || !user?.email) {
+    if (!mediaBlobUrl || !accountId || !user?.email) {
       toast.error("Selecione uma conta e grave um áudio primeiro");
       return;
     }
 
     setIsUploading(true);
+    setIsProcessing(true);
+    setCurrentStep('upload');
+    setProcessingError(null);
+
+    let insertedRecordingId: string | null = null;
 
     try {
-      // Fetch the blob from the URL
+      // 1. Upload audio
       const response = await fetch(mediaBlobUrl);
       const blob = await response.blob();
-
-      // Generate unique filename
       const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-      const fileName = `${selectedAccount}/${timestamp}.webm`;
+      const fileName = `${accountId}/${timestamp}.webm`;
       const filePath = `optimizations/${fileName}`;
 
-      // Upload to Supabase Storage
       const { error: uploadError } = await supabase.storage
         .from("optimizations")
         .upload(filePath, blob, {
@@ -102,38 +137,99 @@ export function OptimizationRecorder() {
           upsert: false,
         });
 
-      if (uploadError) {
-        throw uploadError;
-      }
+      if (uploadError) throw uploadError;
 
-      // Insert metadata into database
-      const { error: dbError } = await supabase
+      // 2. Insert recording
+      const { data: recording, error: dbError } = await supabase
         .from("j_ads_optimization_recordings")
         .insert({
-          account_id: selectedAccount,
+          account_id: accountId,
           recorded_by: user.email,
           audio_file_path: filePath,
           duration_seconds: recordingDuration,
           transcription_status: "pending",
           analysis_status: "pending",
-        });
+          override_context: editedContext !== accountContext ? editedContext : null,
+          platform,
+          selected_objectives: selectedObjectives,
+        })
+        .select()
+        .single();
 
       if (dbError) {
-        // Rollback: delete uploaded file
         await supabase.storage.from("optimizations").remove([filePath]);
         throw dbError;
       }
 
-      toast.success("Gravação enviada com sucesso!");
+      insertedRecordingId = recording.id;
       
-      // Reset state
+      // 3. AUTO-TRIGGER TRANSCRIPTION
+      setCurrentStep('transcribe');
+      
+      const { error: transcribeError } = await supabase.functions.invoke(
+        "j_ads_transcribe_optimization",
+        { body: { recording_id: recording.id } }
+      );
+
+      if (transcribeError) throw new Error(`Transcrição falhou: ${transcribeError.message}`);
+
+      // 4. POLL FOR ANALYSIS COMPLETION
+      setCurrentStep('analyze');
+      
+      const maxAttempts = 90; // 90 seconds max
+      let attempts = 0;
+      let analysisComplete = false;
+
+      while (attempts < maxAttempts && !analysisComplete) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        const { data: statusCheck } = await supabase
+          .from("j_ads_optimization_recordings")
+          .select("analysis_status")
+          .eq("id", recording.id)
+          .single();
+
+        if (statusCheck?.analysis_status === "completed") {
+          analysisComplete = true;
+        } else if (statusCheck?.analysis_status === "failed") {
+          throw new Error("Análise com IA falhou - verifique os logs da função");
+        }
+
+        attempts++;
+      }
+
+      if (!analysisComplete) {
+        throw new Error("Tempo esgotado aguardando análise (90s)");
+      }
+
+      // 5. SUCCESS!
+      setCurrentStep('complete');
+      toast.success("✅ Otimização processada com sucesso!");
+      
       clearBlobUrl();
-      setSelectedAccount("");
       setRecordingDuration(0);
+      setEditedContext(accountContext);
+      
+      setTimeout(() => {
+        setIsProcessing(false);
+        onUploadComplete?.();
+      }, 2000);
 
     } catch (error: any) {
-      console.error("Upload error:", error);
-      toast.error(error.message || "Erro ao enviar gravação");
+      console.error("Processing error:", error);
+      setCurrentStep('error');
+      setProcessingError(error.message || "Erro desconhecido no processamento");
+      
+      // Clean up failed recording
+      if (insertedRecordingId) {
+        await supabase
+          .from("j_ads_optimization_recordings")
+          .delete()
+          .eq("id", insertedRecordingId);
+      }
+      
+      toast.error(`Erro: ${error.message}`);
+      
     } finally {
       setIsUploading(false);
     }
@@ -145,96 +241,137 @@ export function OptimizationRecorder() {
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
-  const selectedAccountName = accounts.find(a => a.notion_id === selectedAccount)?.Conta || "";
-
   return (
-    <Card>
+    <Card className="border-primary/20">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Mic className="h-5 w-5 text-primary" />
-          Gravar Otimização
+          Nova Gravação de Otimização
         </CardTitle>
         <CardDescription>
-          Narre suas otimizações de tráfego para documentar estratégias e decisões
+          Conta: <strong>{accountName}</strong>
         </CardDescription>
       </CardHeader>
 
       <CardContent className="space-y-6">
-        {/* Account Selector */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Conta</label>
-          <Select value={selectedAccount} onValueChange={setSelectedAccount}>
-            <SelectTrigger>
-              <SelectValue placeholder="Selecione a conta..." />
-            </SelectTrigger>
-            <SelectContent>
-              {accounts.map((account) => (
-                <SelectItem key={account.notion_id} value={account.notion_id}>
-                  {account.Conta || account.notion_id}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        {/* Section 1: Account Context (Collapsible) */}
+        <Collapsible open={isContextOpen} onOpenChange={setIsContextOpen}>
+          <div className="border rounded-lg">
+            <CollapsibleTrigger className="w-full px-4 py-3 flex items-center justify-between hover:bg-accent/50 transition-colors">
+              <div className="flex items-center gap-2">
+                <span className="font-medium">📝 Contexto da Conta</span>
+                {editedContext !== accountContext && (
+                  <span className="text-xs text-primary">(Editado)</span>
+                )}
+              </div>
+              <ChevronDown className={`h-4 w-4 transition-transform ${isContextOpen ? 'rotate-180' : ''}`} />
+            </CollapsibleTrigger>
+            
+            <CollapsibleContent>
+              <div className="px-4 pb-4 space-y-3">
+                <div className="bg-muted/50 p-3 rounded-md text-sm max-h-32 overflow-y-auto">
+                  {editedContext || 'Nenhum contexto disponível'}
+                </div>
+                <JumperButton
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => setIsContextEditorOpen(true)}
+                  className="w-full"
+                >
+                  <Edit className="h-3 w-3 mr-2" />
+                  Editar Contexto (Apenas para esta gravação)
+                </JumperButton>
+              </div>
+            </CollapsibleContent>
+          </div>
+        </Collapsible>
+
+        {/* Section 2: Optimization Context */}
+        <div className="space-y-4 border rounded-lg p-4">
+          <h3 className="font-medium">🎯 Contexto da Otimização</h3>
+          
+          <PlatformSelector
+            value={platform}
+            onChange={setPlatform}
+            onEditPrompt={() => setPromptModalState({ isOpen: true })}
+          />
+
+          <ObjectiveCheckboxes
+            availableObjectives={availableObjectives}
+            selectedObjectives={selectedObjectives}
+            notionObjectives={notionObjectives}
+            onChange={setSelectedObjectives}
+            onEditPrompt={(objective) => setPromptModalState({ isOpen: true, objective })}
+          />
         </div>
 
         {/* Recording Controls */}
         <div className="space-y-4">
           {status === "idle" && (
-            <Button
-              onClick={startRecording}
-              disabled={!selectedAccount}
-              className="w-full"
-              size="lg"
-            >
-              <Mic className="mr-2 h-4 w-4" />
-              Iniciar Gravação
-            </Button>
+            <div className="flex justify-center py-8">
+              <button
+                onClick={handleStartRecording}
+                className="group relative flex items-center justify-center w-24 h-24 rounded-full bg-gradient-to-br from-primary to-primary/80 hover:from-primary/90 hover:to-primary shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
+                aria-label="Iniciar gravação"
+              >
+                <Mic className="h-10 w-10 text-white" />
+                <div className="absolute inset-0 rounded-full bg-primary/20 animate-ping opacity-0 group-hover:opacity-75" />
+              </button>
+            </div>
           )}
 
           {status === "recording" && (
-            <div className="space-y-4">
-              <div className="flex items-center justify-center gap-4 p-4 bg-destructive/10 rounded-lg border border-destructive/20">
-                <div className="flex items-center gap-2">
-                  <div className="h-3 w-3 rounded-full bg-destructive animate-pulse" />
-                  <span className="font-mono text-lg font-semibold">
+            <div className="space-y-6">
+              <div className="flex flex-col items-center justify-center py-8 gap-6">
+                <div className="relative">
+                  <div className="w-32 h-32 rounded-full bg-destructive/10 flex items-center justify-center">
+                    <div className="w-24 h-24 rounded-full bg-destructive/20 flex items-center justify-center animate-pulse">
+                      <div className="w-16 h-16 rounded-full bg-destructive flex items-center justify-center">
+                        <Mic className="h-8 w-8 text-white" />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="absolute inset-0 rounded-full border-4 border-destructive/30 animate-ping" />
+                </div>
+                
+                <div className="text-center">
+                  <div className="font-mono text-4xl font-bold tabular-nums">
                     {formatDuration(recordingDuration)}
-                  </span>
+                  </div>
+                  <p className="text-sm text-muted-foreground mt-2">Gravando...</p>
                 </div>
               </div>
 
-              <Button
+              <JumperButton
                 onClick={stopRecording}
-                variant="destructive"
+                variant="critical"
                 className="w-full"
                 size="lg"
               >
-                <Square className="mr-2 h-4 w-4" />
+                <Square className="mr-2 h-4 w-4 fill-current" />
                 Parar Gravação
-              </Button>
+              </JumperButton>
             </div>
           )}
 
           {status === "stopped" && mediaBlobUrl && (
             <div className="space-y-4">
-              <Alert>
-                <AlertCircle className="h-4 w-4" />
+              <Alert className="border-success/50 bg-success/5">
+                <AlertCircle className="h-4 w-4 text-success" />
                 <AlertDescription>
-                  Gravação concluída: {formatDuration(recordingDuration)}
-                  <br />
-                  Conta: <strong>{selectedAccountName}</strong>
+                  ✓ Gravação concluída: {formatDuration(recordingDuration)}
                 </AlertDescription>
               </Alert>
 
-              {/* Audio Preview */}
               <div className="p-4 border rounded-lg">
                 <audio controls src={mediaBlobUrl} className="w-full" />
               </div>
 
-              {/* Action Buttons */}
-              <div className="flex gap-2">
-                <Button
+              <div className="flex gap-3">
+                <JumperButton
                   onClick={handleUpload}
                   disabled={isUploading}
+                  variant="primary"
                   className="flex-1"
                   size="lg"
                 >
@@ -249,24 +386,24 @@ export function OptimizationRecorder() {
                       Enviar Gravação
                     </>
                   )}
-                </Button>
+                </JumperButton>
 
-                <Button
+                <JumperButton
                   onClick={() => {
                     clearBlobUrl();
                     setRecordingDuration(0);
                   }}
-                  variant="outline"
+                  variant="ghost"
                   disabled={isUploading}
+                  size="lg"
                 >
                   Cancelar
-                </Button>
+                </JumperButton>
               </div>
             </div>
           )}
         </div>
 
-        {/* Permission Alert */}
         {status === "acquiring_media" && (
           <Alert>
             <Loader2 className="h-4 w-4 animate-spin" />
@@ -276,6 +413,36 @@ export function OptimizationRecorder() {
           </Alert>
         )}
       </CardContent>
+
+      {/* Processing Overlay */}
+      <ProcessingOverlay
+        isOpen={isProcessing}
+        currentStep={currentStep}
+        error={processingError}
+        onRetry={handleUpload}
+        onClose={() => {
+          setIsProcessing(false);
+          setProcessingError(null);
+        }}
+      />
+
+      {/* Modals */}
+      <ContextEditor
+        isOpen={isContextEditorOpen}
+        onClose={() => setIsContextEditorOpen(false)}
+        originalContext={accountContext}
+        currentContext={editedContext}
+        onSave={setEditedContext}
+      />
+
+      <PromptEditorModal
+        isOpen={promptModalState.isOpen}
+        onClose={() => setPromptModalState({ isOpen: false })}
+        platform={platform}
+        objective={promptModalState.objective || selectedObjectives[0] || 'Vendas'}
+        accountName={accountName}
+        accountContext={editedContext}
+      />
     </Card>
   );
 }
