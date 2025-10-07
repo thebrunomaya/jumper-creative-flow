@@ -326,7 +326,7 @@ export function OptimizationDrawer({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full sm:max-w-2xl overflow-hidden flex flex-col p-0">
+      <SheetContent className="w-full sm:max-w-[50vw] overflow-hidden flex flex-col p-0">
         <SheetHeader className="px-6 pt-6 pb-4 border-b">
           <div className="flex items-start justify-between gap-4">
             <div className="space-y-1">
