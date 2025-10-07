@@ -1053,7 +1053,7 @@ export type Database = {
           {
             foreignKeyName: "j_ads_optimization_transcripts_recording_id_fkey"
             columns: ["recording_id"]
-            isOneToOne: false
+            isOneToOne: true
             referencedRelation: "j_ads_optimization_recordings"
             referencedColumns: ["id"]
           },

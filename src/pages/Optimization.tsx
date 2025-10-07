@@ -139,6 +139,12 @@ export default function Optimization() {
   }
 
   async function loadRecordingDetails(recording: OptimizationRecordingRow) {
+    console.log("🔍 Loading details for recording:", recording.id);
+    console.log("📊 Recording status:", {
+      transcription: recording.transcription_status,
+      analysis: recording.analysis_status
+    });
+
     setTranscript(null);
     setContext(null);
     setAudioUrl(null);
@@ -150,19 +156,43 @@ export default function Optimization() {
       if (signedUrl) setAudioUrl(signedUrl.signedUrl);
     }
 
-    const { data: transcriptData } = await supabase
+    const { data: transcriptData, error: transcriptError } = await supabase
       .from("j_ads_optimization_transcripts")
       .select("*")
       .eq("recording_id", recording.id)
       .maybeSingle();
-    if (transcriptData) setTranscript(transcriptData as OptimizationTranscriptRow);
+    
+    console.log("📝 Transcript query result:", { 
+      found: !!transcriptData, 
+      error: transcriptError,
+      data: transcriptData 
+    });
 
-    const { data: contextData } = await supabase
+    if (transcriptData) {
+      setTranscript(transcriptData as OptimizationTranscriptRow);
+    } else if (recording.transcription_status === "completed") {
+      console.warn("⚠️ Status is 'completed' but no transcript found!");
+      toast.error("Inconsistência detectada: transcrição marcada como completa mas não encontrada");
+    }
+
+    const { data: contextData, error: contextError } = await supabase
       .from("j_ads_optimization_context")
       .select("*")
       .eq("recording_id", recording.id)
       .maybeSingle();
-    if (contextData) setContext(rowToOptimizationContext(contextData));
+    
+    console.log("🧠 Context query result:", { 
+      found: !!contextData, 
+      error: contextError,
+      data: contextData 
+    });
+
+    if (contextData) {
+      setContext(rowToOptimizationContext(contextData));
+    } else if (recording.analysis_status === "completed") {
+      console.warn("⚠️ Status is 'completed' but no context found!");
+      toast.error("Inconsistência detectada: análise marcada como completa mas não encontrada");
+    }
   }
 
   async function handleTranscribe() {

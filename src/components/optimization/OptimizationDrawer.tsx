@@ -327,6 +327,39 @@ export function OptimizationDrawer({
               />
             )}
 
+            {recording.transcription_status === "completed" && !transcript && (
+              <div className="space-y-4">
+                <h3 className="font-semibold text-sm flex items-center gap-2">
+                  <FileText className="h-4 w-4 text-destructive" />
+                  Transcrição - Erro de Consistência
+                </h3>
+                <div className="p-6 border-2 border-destructive/50 rounded-lg bg-destructive/5">
+                  <p className="text-sm text-destructive mb-4">
+                    ⚠️ O status indica "concluído" mas a transcrição não foi encontrada no banco de dados. 
+                    Isso pode indicar um problema de sincronização.
+                  </p>
+                  <JumperButton
+                    onClick={onTranscribe}
+                    disabled={isTranscribing}
+                    variant="critical"
+                    size="sm"
+                  >
+                    {isTranscribing ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Transcrevendo...
+                      </>
+                    ) : (
+                      <>
+                        <FileText className="mr-2 h-4 w-4" />
+                        Tentar Transcrever Novamente
+                      </>
+                    )}
+                  </JumperButton>
+                </div>
+              </div>
+            )}
+
             {/* AI Analysis Section */}
             {recording.analysis_status === "completed" && context && (
               <>
@@ -343,6 +376,42 @@ export function OptimizationDrawer({
                     recordingId={recording.id}
                     onRegenerateSuccess={onRefresh}
                   />
+                </div>
+              </>
+            )}
+
+            {recording.analysis_status === "completed" && !context && transcript && (
+              <>
+                <Separator />
+                <div className="space-y-4">
+                  <h3 className="font-semibold text-sm flex items-center gap-2">
+                    <Brain className="h-4 w-4 text-destructive" />
+                    Análise com IA - Erro de Consistência
+                  </h3>
+                  <div className="p-6 border-2 border-destructive/50 rounded-lg bg-destructive/5">
+                    <p className="text-sm text-destructive mb-4">
+                      ⚠️ O status indica "concluído" mas o contexto de análise não foi encontrado no banco de dados. 
+                      Isso pode indicar um problema de sincronização.
+                    </p>
+                    <JumperButton
+                      onClick={onAnalyze}
+                      disabled={isAnalyzing}
+                      variant="critical"
+                      size="sm"
+                    >
+                      {isAnalyzing ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Analisando...
+                        </>
+                      ) : (
+                        <>
+                          <Brain className="mr-2 h-4 w-4" />
+                          Tentar Analisar Novamente
+                        </>
+                      )}
+                    </JumperButton>
+                  </div>
                 </div>
               </>
             )}
