@@ -378,7 +378,7 @@ export function OptimizationDrawer({
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="w-full sm:max-w-[50vw] overflow-hidden flex flex-col p-0">
-        <SheetHeader className="px-6 pt-6 pb-4 border-b">
+        <SheetHeader className="px-6 pt-6 pb-4 border-b space-y-3">
           <div className="flex items-start justify-between gap-4">
             <div className="space-y-1">
               <SheetTitle className="text-2xl">Detalhes da Gravação</SheetTitle>
@@ -386,20 +386,22 @@ export function OptimizationDrawer({
                 {format(new Date(recording.recorded_at), "PPP 'às' HH:mm", { locale: ptBR })}
               </SheetDescription>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="flex gap-2">
-                {getStatusBadge(recording.transcription_status)}
-                {getStatusBadge(recording.analysis_status)}
-              </div>
-              <JumperButton
-                variant="ghost"
-                size="icon"
-                onClick={handleDelete}
-                className="text-destructive hover:text-destructive hover:bg-destructive/10"
-              >
-                <Trash2 className="h-4 w-4" />
-              </JumperButton>
+            <div className="flex gap-2">
+              {getStatusBadge(recording.transcription_status)}
+              {getStatusBadge(recording.analysis_status)}
             </div>
+          </div>
+          
+          <div className="flex justify-start pt-2">
+            <JumperButton
+              variant="secondary"
+              size="sm"
+              onClick={handleDelete}
+              className="text-destructive hover:text-destructive hover:bg-destructive/10"
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Apagar Gravação
+            </JumperButton>
           </div>
         </SheetHeader>
 
