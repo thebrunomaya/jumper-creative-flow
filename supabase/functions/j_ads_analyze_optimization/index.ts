@@ -14,11 +14,14 @@ serve(async (req) => {
   }
 
   try {
-    const { recording_id } = await req.json();
+    const { recording_id, model, correction_prompt } = await req.json();
     
     if (!recording_id) {
       throw new Error('recording_id is required');
     }
+
+    const selectedModel = model || 'gpt-4o';
+    console.log(`🤖 Using model: ${selectedModel}`);
 
     // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
@@ -166,7 +169,7 @@ REGRAS:
     const platform = recording.platform === 'google' ? 'Google Ads' : 'Meta Ads';
     const objectives = recording.selected_objectives?.join(', ') || 'não especificados';
 
-    const userPrompt = `Analise esta transcrição de otimização de tráfego e extraia as informações estruturadas:
+    let userPrompt = `Analise esta transcrição de otimização de tráfego e extraia as informações estruturadas:
 
 TRANSCRIÇÃO:
 ${transcript.full_text}
@@ -177,9 +180,14 @@ CONTEXTO DA GRAVAÇÃO ATUAL:
 - Data: ${recording.recorded_at}
 - Plataforma: ${platform}
 - Objetivos da Conta: ${objectives}
-${historicalContext}
+${historicalContext}`;
 
-Retorne APENAS o JSON estruturado conforme o formato especificado.`;
+    if (correction_prompt) {
+      userPrompt += `\n\nINSTRUÇÕES ADICIONAIS DE ANÁLISE:\n${correction_prompt}`;
+      console.log('📝 Using correction prompt for analysis');
+    }
+
+    userPrompt += '\n\nRetorne APENAS o JSON estruturado conforme o formato especificado.';
 
     // Call OpenAI API
     const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -244,6 +252,9 @@ Retorne APENAS o JSON estruturado conforme o formato especificado.`;
         strategy: extractedData.strategy,
         timeline: extractedData.timeline,
         confidence_level: extractedData.confidence_level || 'medium',
+        model_used: selectedModel,
+        correction_prompt: correction_prompt || null,
+        correction_applied_at: correction_prompt ? new Date().toISOString() : null,
       });
 
     if (insertError) {

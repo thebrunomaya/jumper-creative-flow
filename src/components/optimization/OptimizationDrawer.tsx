@@ -37,6 +37,8 @@ import {
 } from "@/types/optimization";
 import { OptimizationContextCard } from "@/components/OptimizationContextCard";
 import { exportOptimizationToPDF } from "@/utils/pdfExport";
+import { TranscriptionCorrectionCard } from "./TranscriptionCorrectionCard";
+import { AnalysisRegenerationCard } from "./AnalysisRegenerationCard";
 
 interface OptimizationDrawerProps {
   recording: OptimizationRecordingRow | null;
@@ -47,6 +49,7 @@ interface OptimizationDrawerProps {
   onOpenChange: (open: boolean) => void;
   onTranscribe: () => void;
   onAnalyze: () => void;
+  onRefresh: () => void;
   isTranscribing: boolean;
   isAnalyzing: boolean;
   accountName?: string;
@@ -61,6 +64,7 @@ export function OptimizationDrawer({
   onOpenChange,
   onTranscribe,
   onAnalyze,
+  onRefresh,
   isTranscribing,
   isAnalyzing,
   accountName = "Conta",
@@ -235,6 +239,13 @@ export function OptimizationDrawer({
                   )}
                 </div>
 
+                {/* Transcription Correction Card */}
+                <TranscriptionCorrectionCard
+                  transcription={transcript.full_text}
+                  recordingId={recording.id}
+                  onRegenerateSuccess={onRefresh}
+                />
+
                 {/* Analyze Button */}
                 {recording.analysis_status === "pending" && (
                   <JumperButton
@@ -269,6 +280,12 @@ export function OptimizationDrawer({
                     Análise com IA
                   </h3>
                   <OptimizationContextCard context={context} />
+                  
+                  {/* Analysis Regeneration Card */}
+                  <AnalysisRegenerationCard
+                    recordingId={recording.id}
+                    onRegenerateSuccess={onRefresh}
+                  />
                 </div>
               </>
             )}

@@ -853,9 +853,12 @@ export type Database = {
           client_report_generated: boolean | null
           client_report_sent_at: string | null
           confidence_level: string | null
+          correction_applied_at: string | null
+          correction_prompt: string | null
           created_at: string | null
           id: string
           metrics_mentioned: Json
+          model_used: string | null
           recording_id: string
           strategy: Json
           summary: string
@@ -867,9 +870,12 @@ export type Database = {
           client_report_generated?: boolean | null
           client_report_sent_at?: string | null
           confidence_level?: string | null
+          correction_applied_at?: string | null
+          correction_prompt?: string | null
           created_at?: string | null
           id?: string
           metrics_mentioned: Json
+          model_used?: string | null
           recording_id: string
           strategy: Json
           summary: string
@@ -881,9 +887,12 @@ export type Database = {
           client_report_generated?: boolean | null
           client_report_sent_at?: string | null
           confidence_level?: string | null
+          correction_applied_at?: string | null
+          correction_prompt?: string | null
           created_at?: string | null
           id?: string
           metrics_mentioned?: Json
+          model_used?: string | null
           recording_id?: string
           strategy?: Json
           summary?: string
@@ -1000,6 +1009,8 @@ export type Database = {
       j_ads_optimization_transcripts: {
         Row: {
           confidence_score: number | null
+          correction_applied_at: string | null
+          correction_prompt: string | null
           created_at: string | null
           full_text: string
           id: string
@@ -1009,6 +1020,8 @@ export type Database = {
         }
         Insert: {
           confidence_score?: number | null
+          correction_applied_at?: string | null
+          correction_prompt?: string | null
           created_at?: string | null
           full_text: string
           id?: string
@@ -1018,6 +1031,8 @@ export type Database = {
         }
         Update: {
           confidence_score?: number | null
+          correction_applied_at?: string | null
+          correction_prompt?: string | null
           created_at?: string | null
           full_text?: string
           id?: string

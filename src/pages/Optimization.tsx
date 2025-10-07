@@ -135,7 +135,10 @@ export default function Optimization() {
   async function handleRecordingClick(recording: OptimizationRecordingRow) {
     setSelectedRecording(recording);
     setDrawerOpen(true);
+    loadRecordingDetails(recording);
+  }
 
+  async function loadRecordingDetails(recording: OptimizationRecordingRow) {
     // Load audio URL
     if (recording.audio_file_path) {
       const { data: signedUrl } = await supabase.storage
@@ -307,6 +310,7 @@ export default function Optimization() {
         onOpenChange={setDrawerOpen}
         onTranscribe={handleTranscribe}
         onAnalyze={handleAnalyze}
+        onRefresh={() => selectedRecording && loadRecordingDetails(selectedRecording)}
         isTranscribing={isTranscribing}
         isAnalyzing={isAnalyzing}
         accountName={accountName}
