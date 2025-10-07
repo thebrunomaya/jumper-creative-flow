@@ -16,7 +16,7 @@ import { Loader2, Clock, FileAudio, AlertCircle, FileText } from "lucide-react";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { OptimizationRecordingRow } from "@/types/optimization";
+import { OptimizationRecordingRow, OptimizationTranscriptRow } from "@/types/optimization";
 
 interface Account {
   notion_id: string;
@@ -31,6 +31,7 @@ export function OptimizationList() {
   const [isLoading, setIsLoading] = useState(false);
   const [audioUrls, setAudioUrls] = useState<Record<string, string>>({});
   const [transcribing, setTranscribing] = useState<Record<string, boolean>>({});
+  const [transcripts, setTranscripts] = useState<Record<string, OptimizationTranscriptRow>>({});
 
   // Fetch user's accounts
   useEffect(() => {
@@ -92,6 +93,27 @@ export function OptimizationList() {
     }
 
     setAudioUrls(urls);
+
+    // Fetch transcripts for completed transcriptions
+    const completedRecordings = (data || []).filter(
+      r => r.transcription_status === 'completed'
+    );
+    
+    if (completedRecordings.length > 0) {
+      const { data: transcriptsData } = await supabase
+        .from('j_ads_optimization_transcripts')
+        .select('*')
+        .in('recording_id', completedRecordings.map(r => r.id));
+
+      if (transcriptsData) {
+        const transcriptsMap: Record<string, OptimizationTranscriptRow> = {};
+        transcriptsData.forEach(t => {
+          transcriptsMap[t.recording_id] = t;
+        });
+        setTranscripts(transcriptsMap);
+      }
+    }
+
     setIsLoading(false);
   }
 
@@ -247,6 +269,28 @@ export function OptimizationList() {
                     {!audioUrls[recording.id] && recording.audio_file_path && (
                       <div className="p-3 bg-muted/50 rounded-lg text-sm text-muted-foreground text-center">
                         Carregando áudio...
+                      </div>
+                    )}
+
+                    {/* Transcript Display */}
+                    {recording.transcription_status === 'completed' && transcripts[recording.id] && (
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2 text-sm font-medium">
+                          <FileText className="h-4 w-4 text-primary" />
+                          Transcrição
+                        </div>
+                        <div className="p-4 bg-muted/30 rounded-lg border border-border">
+                          <p className="text-sm leading-relaxed whitespace-pre-wrap">
+                            {transcripts[recording.id].full_text}
+                          </p>
+                          {transcripts[recording.id].confidence_score && (
+                            <div className="mt-3 pt-3 border-t border-border">
+                              <p className="text-xs text-muted-foreground">
+                                Confiança: {(Number(transcripts[recording.id].confidence_score) * 100).toFixed(0)}%
+                              </p>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     )}
                   </div>
