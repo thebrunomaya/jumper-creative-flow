@@ -90,21 +90,49 @@ export function UnifiedOptimizationEditorModal({
     setIsApplyingAI(true);
 
     try {
-      const { data, error: functionError } = await supabase.functions.invoke(
+      console.log('🤖 Chamando edge function para regenerar análise...');
+      console.log('Model:', selectedModel);
+      console.log('Recording ID:', recordingId);
+      
+      // Criar uma Promise com timeout personalizado de 180 segundos (3 minutos)
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('A regeneração está demorando muito. Tente usar um modelo mais rápido como claude-3-5-haiku-20241022 ou gpt-4o-mini.')), 180000)
+      );
+
+      const invokePromise = supabase.functions.invoke(
         "j_ads_analyze_optimization",
         {
           body: {
             recording_id: recordingId,
             model: selectedModel,
-            correction_prompt: aiInstruction.trim(),
+            correction_prompt: aiInstruction.trim() || null,
           },
         }
       );
 
-      if (functionError) throw functionError;
+      const { data, error: functionError } = await Promise.race([
+        invokePromise,
+        timeoutPromise
+      ]) as any;
+
+      console.log('📊 Resposta da edge function:', data);
+
+      if (functionError) {
+        console.error('❌ Erro da edge function:', functionError);
+        throw functionError;
+      }
+
+      if (!data) {
+        throw new Error('Resposta vazia da edge function');
+      }
+
+      if (data.error) {
+        throw new Error(data.error);
+      }
 
       // Atualizar os campos de texto com o conteúdo regenerado
       if (data?.context) {
+        console.log('✅ Contexto recebido, atualizando campos...');
         setSummary(data.context.summary || "");
         setActions(formatAsText(data.context.actions_taken));
         setMetrics(formatAsText(data.context.metrics_mentioned));
@@ -113,10 +141,23 @@ export function UnifiedOptimizationEditorModal({
         setAiInstruction("");
         
         toast.success("Análise regenerada! Revise e salve quando estiver pronto.");
+      } else {
+        throw new Error('Contexto não encontrado na resposta');
       }
     } catch (err: any) {
-      console.error("AI application error:", err);
-      toast.error(err.message || "Erro ao aplicar IA");
+      console.error("❌ Erro ao aplicar IA:", err);
+      
+      // Mensagem de erro mais específica
+      let errorMessage = "Erro ao aplicar IA";
+      if (err.message?.includes('demorando muito')) {
+        errorMessage = err.message;
+      } else if (err.message?.includes('fetch')) {
+        errorMessage = "Timeout na chamada da API. Tente usar um modelo mais rápido.";
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+      
+      toast.error(errorMessage);
     } finally {
       setIsApplyingAI(false);
     }
