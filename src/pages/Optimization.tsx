@@ -139,6 +139,11 @@ export default function Optimization() {
   }
 
   async function loadRecordingDetails(recording: OptimizationRecordingRow) {
+    // Reset states
+    setTranscript(null);
+    setContext(null);
+    setAudioUrl(null);
+
     // Load audio URL
     if (recording.audio_file_path) {
       const { data: signedUrl } = await supabase.storage
@@ -150,30 +155,26 @@ export default function Optimization() {
       }
     }
 
-    // Load transcript if available
-    if (recording.transcription_status === "completed") {
-      const { data: transcriptData } = await supabase
-        .from("j_ads_optimization_transcripts")
-        .select("*")
-        .eq("recording_id", recording.id)
-        .single();
+    // Always try to load transcript (might exist even if status is not updated)
+    const { data: transcriptData } = await supabase
+      .from("j_ads_optimization_transcripts")
+      .select("*")
+      .eq("recording_id", recording.id)
+      .maybeSingle();
 
-      if (transcriptData) {
-        setTranscript(transcriptData as OptimizationTranscriptRow);
-      }
+    if (transcriptData) {
+      setTranscript(transcriptData as OptimizationTranscriptRow);
     }
 
-    // Load context if available
-    if (recording.analysis_status === "completed") {
-      const { data: contextData } = await supabase
-        .from("j_ads_optimization_context")
-        .select("*")
-        .eq("recording_id", recording.id)
-        .single();
+    // Always try to load context (might exist even if status is not updated)
+    const { data: contextData } = await supabase
+      .from("j_ads_optimization_context")
+      .select("*")
+      .eq("recording_id", recording.id)
+      .maybeSingle();
 
-      if (contextData) {
-        setContext(rowToOptimizationContext(contextData));
-      }
+    if (contextData) {
+      setContext(rowToOptimizationContext(contextData));
     }
   }
 
