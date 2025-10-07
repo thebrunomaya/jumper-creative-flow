@@ -26,7 +26,7 @@ export function AnalysisRegenerationCard({
   recordingId,
   onRegenerateSuccess,
 }: AnalysisRegenerationCardProps) {
-  const [selectedModel, setSelectedModel] = useState<string>("gpt-4o");
+  const [selectedModel, setSelectedModel] = useState<string>("gpt-4.1-2025-04-14");
   const [correctionPrompt, setCorrectionPrompt] = useState("");
   const [isRegenerating, setIsRegenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);

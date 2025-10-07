@@ -175,10 +175,13 @@ export default function Optimization() {
       toast.error("Inconsistência detectada: transcrição marcada como completa mas não encontrada");
     }
 
+    // Fetch context (get most recent if multiple exist, should not happen with unique constraint)
     const { data: contextData, error: contextError } = await supabase
       .from("j_ads_optimization_context")
       .select("*")
       .eq("recording_id", recording.id)
+      .order("created_at", { ascending: false })
+      .limit(1)
       .maybeSingle();
     
     console.log("🧠 Context query result:", { 

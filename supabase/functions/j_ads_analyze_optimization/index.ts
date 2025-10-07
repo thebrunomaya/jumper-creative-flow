@@ -275,7 +275,19 @@ ${historicalContext}`;
 
     console.log('✅ Parsed extracted data:', JSON.stringify(extractedData, null, 2));
 
-    // Insert into j_ads_optimization_context
+    // Delete any existing context for this recording to avoid unique constraint violation
+    console.log('🗑️ Deleting old context if exists...');
+    const { error: deleteError } = await supabase
+      .from('j_ads_optimization_context')
+      .delete()
+      .eq('recording_id', recording_id);
+
+    if (deleteError) {
+      console.error('⚠️ Error deleting old context (non-critical):', deleteError);
+    }
+
+    // Insert new context into j_ads_optimization_context
+    console.log('💾 Inserting new context...');
     const { error: insertError } = await supabase
       .from('j_ads_optimization_context')
       .insert({

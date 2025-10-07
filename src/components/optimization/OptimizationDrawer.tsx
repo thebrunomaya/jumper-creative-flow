@@ -38,7 +38,7 @@ import {
 import { OptimizationContextCard } from "@/components/OptimizationContextCard";
 import { exportOptimizationToPDF } from "@/utils/pdfExport";
 import { TranscriptionEditorModal } from "./TranscriptionEditorModal";
-import { AnalysisRegenerationCard } from "./AnalysisRegenerationCard";
+import { AnalysisEditorModal } from "./AnalysisEditorModal";
 
 interface OptimizationDrawerProps {
   recording: OptimizationRecordingRow | null;
@@ -174,6 +174,8 @@ export function OptimizationDrawer({
   isAnalyzing,
   accountName = "Conta",
 }: OptimizationDrawerProps) {
+  const [isAnalysisModalOpen, setIsAnalysisModalOpen] = useState(false);
+  
   if (!recording) return null;
 
   const getStatusBadge = (status: string) => {
@@ -365,17 +367,20 @@ export function OptimizationDrawer({
               <>
                 <Separator />
                 <div className="space-y-4">
-                  <h3 className="font-semibold text-sm flex items-center gap-2">
-                    <Brain className="h-4 w-4 text-primary" />
-                    Análise com IA
-                  </h3>
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-semibold text-sm flex items-center gap-2">
+                      <Brain className="h-4 w-4 text-primary" />
+                      Análise com IA
+                    </h3>
+                    <JumperButton
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => setIsAnalysisModalOpen(true)}
+                    >
+                      Regenerar Análise
+                    </JumperButton>
+                  </div>
                   <OptimizationContextCard context={context} />
-                  
-                  {/* Analysis Regeneration Card */}
-                  <AnalysisRegenerationCard
-                    recordingId={recording.id}
-                    onRegenerateSuccess={onRefresh}
-                  />
                 </div>
               </>
             )}
@@ -418,6 +423,13 @@ export function OptimizationDrawer({
           </div>
         </ScrollArea>
       </SheetContent>
+
+      <AnalysisEditorModal
+        isOpen={isAnalysisModalOpen}
+        onClose={() => setIsAnalysisModalOpen(false)}
+        recordingId={recording.id}
+        onRegenerateSuccess={onRefresh}
+      />
     </Sheet>
   );
 }
