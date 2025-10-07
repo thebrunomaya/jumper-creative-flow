@@ -12,8 +12,12 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  let reqRecordingId: string | null = null;
+
   try {
-    const { recording_id } = await req.json();
+    const body = await req.json();
+    const { recording_id } = body;
+    reqRecordingId = recording_id ?? null;
     
     if (!recording_id) {
       throw new Error('recording_id is required');
@@ -46,9 +50,8 @@ serve(async (req) => {
       .eq('id', recording_id);
 
     // 3. Download audio from storage
-    // Remove 'optimizations/' prefix since we're already using .from('optimizations')
-    const filePath = recording.audio_file_path.replace(/^optimizations\//, '');
-    console.log('📥 Downloading from path:', filePath);
+    const filePath = recording.audio_file_path as string; // Path relative to bucket root (may include nested folder "optimizations/")
+    console.log('📥 Downloading from bucket: optimizations, path:', filePath);
     
     const { data: audioData, error: downloadError } = await supabase.storage
       .from('optimizations')
@@ -140,8 +143,7 @@ serve(async (req) => {
 
     // Try to update status to failed if we have recording_id
     try {
-      const { recording_id } = await req.json();
-      if (recording_id) {
+      if (reqRecordingId) {
         const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
         const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
         const supabase = createClient(supabaseUrl, supabaseKey);
@@ -149,7 +151,7 @@ serve(async (req) => {
         await supabase
           .from('j_ads_optimization_recordings')
           .update({ transcription_status: 'failed' })
-          .eq('id', recording_id);
+          .eq('id', reqRecordingId);
       }
     } catch (updateError) {
       console.error('Failed to update error status:', updateError);
