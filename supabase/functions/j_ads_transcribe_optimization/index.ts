@@ -231,7 +231,7 @@ campanhas, conjuntos de anúncios, criativos, pixel, remarketing, lookalike, ret
       const analysisResponse = await fetch(`${supabaseUrl}/functions/v1/j_ads_analyze_optimization`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${supabaseServiceKey}`,
+          'Authorization': `Bearer ${supabaseKey}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ recording_id })
