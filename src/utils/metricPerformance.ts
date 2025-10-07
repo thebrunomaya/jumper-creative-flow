@@ -105,18 +105,19 @@ export function formatNumber(value: number): string {
 }
 
 // Generic metric formatter that handles different types
-export function formatMetric(value: number, type: 'currency' | 'percentage' | 'number' | 'decimal'): string {
+export function formatMetric(value: string | number, type: 'currency' | 'percentage' | 'number' | 'decimal'): string {
+  const num = typeof value === 'string' ? parseFloat(value) : value;
   switch (type) {
     case 'currency':
-      return formatCurrency(value);
+      return formatCurrency(num);
     case 'percentage':
-      return formatPercentage(value);
+      return formatPercentage(num);
     case 'number':
-      return formatNumber(Math.round(value));
+      return formatNumber(Math.round(num));
     case 'decimal':
-      return value.toFixed(2);
+      return num.toFixed(2);
     default:
-      return value.toString();
+      return num.toString();
   }
 }
 

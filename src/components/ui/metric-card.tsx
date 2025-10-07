@@ -9,6 +9,7 @@ interface MetricCardProps {
   title: string;
   value: string | number;
   subtitle?: string;
+  description?: string;
   icon?: LucideIcon;
   performance?: MetricPerformance;
   trend?: 'up' | 'down' | 'neutral';
@@ -44,15 +45,16 @@ const performanceStyles = {
   }
 };
 
-export function MetricCard({ 
-  title, 
-  value, 
-  subtitle, 
-  icon: Icon, 
+export function MetricCard({
+  title,
+  value,
+  subtitle,
+  description,
+  icon: Icon,
   performance = 'neutral',
   isHero = false,
   className,
-  ...props 
+  ...props
 }: MetricCardProps) {
   const styles = performanceStyles[performance];
 
@@ -95,6 +97,15 @@ export function MetricCard({
             isHero && "text-sm sm:text-base font-medium text-[hsl(var(--orange-hero)/0.8)]"
           )}>
             {subtitle}
+          </p>
+        )}
+        {description && (
+          <p className={cn(
+            "text-xs text-muted-foreground line-clamp-2 leading-tight",
+            "sm:text-sm sm:line-clamp-1",
+            isHero && "text-sm sm:text-base font-medium text-[hsl(var(--orange-hero)/0.8)]"
+          )}>
+            {description}
           </p>
         )}
       </CardContent>
