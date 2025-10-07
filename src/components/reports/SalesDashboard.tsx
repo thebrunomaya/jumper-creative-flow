@@ -6,18 +6,19 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { RefreshCw, TrendingUp, TrendingDown, DollarSign, Eye, MousePointer, ShoppingCart, Target } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { 
-  getROASPerformance, 
-  getCPAPerformance, 
-  getConversionRatePerformance, 
+import {
+  getROASPerformance,
+  getCPAPerformance,
+  getConversionRatePerformance,
   getCTRPerformance,
-  formatCurrency, 
-  formatPercentage, 
+  formatCurrency,
+  formatPercentage,
   formatNumber,
-  isHeroMetric 
+  isHeroMetric
 } from '@/utils/metricPerformance';
 import { applyObjectiveFilter } from '@/utils/dashboardObjectives';
 import { startOfDay, subDays, format } from 'date-fns';
+import { InsightPanel } from '@/components/insights/InsightPanel';
 
 interface DashboardMetrics {
   total_spend: string;
@@ -301,6 +302,15 @@ export function SalesDashboard({ accountName = 'Sales Account', accountInfo, sel
           </Button>
         </div>
       </div>
+
+      {/* Insight Panel - Comparative Analysis */}
+      <InsightPanel
+        accountId={accountInfo?.id}
+        accountName={accountInfo?.name || accountName}
+        metaAdsId={accountInfo?.metaAdsId}
+        selectedPeriod={selectedPeriod}
+        dashboardType="vendas"
+      />
 
       {/* Hero Metrics Section - Jumper Design System */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
