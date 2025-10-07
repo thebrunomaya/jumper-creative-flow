@@ -157,9 +157,12 @@ export interface OptimizationTranscriptRow {
   id: string;
   recording_id: string;
   full_text: string;
+  original_text: string | null;    // Original Whisper output
   language: string;
   confidence_score: number | null;
   segments: any | null;            // JSONB - array of {start, end, text}
+  revised_at: string | null;       // When was it last revised
+  revised_by: string | null;       // Who revised it
   created_at: string;
 }
 

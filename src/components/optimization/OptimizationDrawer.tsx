@@ -37,7 +37,7 @@ import {
 } from "@/types/optimization";
 import { OptimizationContextCard } from "@/components/OptimizationContextCard";
 import { exportOptimizationToPDF } from "@/utils/pdfExport";
-import { TranscriptionCorrectionCard } from "./TranscriptionCorrectionCard";
+import { TranscriptionEditorModal } from "./TranscriptionEditorModal";
 import { AnalysisRegenerationCard } from "./AnalysisRegenerationCard";
 
 interface OptimizationDrawerProps {
@@ -53,6 +53,111 @@ interface OptimizationDrawerProps {
   isTranscribing: boolean;
   isAnalyzing: boolean;
   accountName?: string;
+}
+
+// Extracted Transcription Section Component
+function TranscriptionSection({
+  transcript,
+  recordingId,
+  onCopy,
+  onRefresh,
+  analysisStatus,
+  onAnalyze,
+  isAnalyzing,
+}: {
+  transcript: OptimizationTranscriptRow;
+  recordingId: string;
+  onCopy: () => void;
+  onRefresh: () => void;
+  analysisStatus: string;
+  onAnalyze: () => void;
+  isAnalyzing: boolean;
+}) {
+  const [editorOpen, setEditorOpen] = useState(false);
+
+  return (
+    <>
+      <div className="space-y-4">
+        <div className="flex items-center justify-between gap-2 flex-wrap">
+          <div className="flex items-center gap-2">
+            <h3 className="font-semibold text-sm flex items-center gap-2">
+              <CheckCircle2 className="h-4 w-4 text-success" />
+              Transcrição Completa
+            </h3>
+            {transcript.revised_at && (
+              <Badge variant="secondary" className="text-xs">
+                ✏️ Revisado
+              </Badge>
+            )}
+            {!transcript.revised_at && (
+              <Badge variant="outline" className="text-xs">
+                🤖 Original
+              </Badge>
+            )}
+          </div>
+          <div className="flex gap-2">
+            <JumperButton
+              onClick={() => setEditorOpen(true)}
+              variant="ghost"
+              size="sm"
+            >
+              ✏️ Ajustar
+            </JumperButton>
+            <JumperButton
+              onClick={onCopy}
+              variant="ghost"
+              size="sm"
+            >
+              <Copy className="mr-2 h-4 w-4" />
+              Copiar
+            </JumperButton>
+          </div>
+        </div>
+        <div className="p-4 bg-muted/30 rounded-lg border max-h-96 overflow-y-auto">
+          <p className="text-sm leading-relaxed whitespace-pre-wrap">
+            {transcript.full_text}
+          </p>
+          {transcript.confidence_score && (
+            <div className="mt-4 pt-4 border-t">
+              <p className="text-xs text-muted-foreground">
+                Confiança: {(Number(transcript.confidence_score) * 100).toFixed(0)}%
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Analyze Button */}
+        {analysisStatus === "pending" && (
+          <JumperButton
+            onClick={onAnalyze}
+            disabled={isAnalyzing}
+            variant="primary"
+            className="w-full"
+          >
+            {isAnalyzing ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Analisando com IA...
+              </>
+            ) : (
+              <>
+                <Brain className="mr-2 h-4 w-4" />
+                Analisar com IA
+              </>
+            )}
+          </JumperButton>
+        )}
+      </div>
+
+      <TranscriptionEditorModal
+        recordingId={recordingId}
+        initialText={transcript.full_text}
+        open={editorOpen}
+        onOpenChange={setEditorOpen}
+        onSave={onRefresh}
+      />
+    </>
+  );
 }
 
 export function OptimizationDrawer({
@@ -211,63 +316,15 @@ export function OptimizationDrawer({
             )}
 
             {recording.transcription_status === "completed" && transcript && (
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-semibold text-sm flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-success" />
-                    Transcrição Completa
-                  </h3>
-                  <JumperButton
-                    onClick={handleCopyTranscript}
-                    variant="ghost"
-                    size="sm"
-                  >
-                    <Copy className="mr-2 h-4 w-4" />
-                    Copiar
-                  </JumperButton>
-                </div>
-                <div className="p-4 bg-muted/30 rounded-lg border max-h-96 overflow-y-auto">
-                  <p className="text-sm leading-relaxed whitespace-pre-wrap">
-                    {transcript.full_text}
-                  </p>
-                  {transcript.confidence_score && (
-                    <div className="mt-4 pt-4 border-t">
-                      <p className="text-xs text-muted-foreground">
-                        Confiança: {(Number(transcript.confidence_score) * 100).toFixed(0)}%
-                      </p>
-                    </div>
-                  )}
-                </div>
-
-                {/* Transcription Correction Card */}
-                <TranscriptionCorrectionCard
-                  transcription={transcript.full_text}
-                  recordingId={recording.id}
-                  onRegenerateSuccess={onRefresh}
-                />
-
-                {/* Analyze Button */}
-                {recording.analysis_status === "pending" && (
-                  <JumperButton
-                    onClick={onAnalyze}
-                    disabled={isAnalyzing}
-                    variant="primary"
-                    className="w-full"
-                  >
-                    {isAnalyzing ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Analisando com IA...
-                      </>
-                    ) : (
-                      <>
-                        <Brain className="mr-2 h-4 w-4" />
-                        Analisar com IA
-                      </>
-                    )}
-                  </JumperButton>
-                )}
-              </div>
+              <TranscriptionSection
+                transcript={transcript}
+                recordingId={recording.id}
+                onCopy={handleCopyTranscript}
+                onRefresh={onRefresh}
+                analysisStatus={recording.analysis_status}
+                onAnalyze={onAnalyze}
+                isAnalyzing={isAnalyzing}
+              />
             )}
 
             {/* AI Analysis Section */}

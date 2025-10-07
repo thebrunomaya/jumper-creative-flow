@@ -201,9 +201,12 @@ campanhas, conjuntos de anúncios, criativos, pixel, remarketing, lookalike, ret
       .insert({
         recording_id,
         full_text: transcription.text,
+        original_text: transcription.text,
         language: transcription.language || 'pt',
         confidence_score: null, // Whisper doesn't provide overall confidence
         segments: transcription.segments || null,
+        revised_at: null,
+        revised_by: null,
       });
 
     if (insertError) {

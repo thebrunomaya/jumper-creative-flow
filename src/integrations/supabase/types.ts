@@ -1015,7 +1015,10 @@ export type Database = {
           full_text: string
           id: string
           language: string | null
+          original_text: string | null
           recording_id: string
+          revised_at: string | null
+          revised_by: string | null
           segments: Json | null
         }
         Insert: {
@@ -1026,7 +1029,10 @@ export type Database = {
           full_text: string
           id?: string
           language?: string | null
+          original_text?: string | null
           recording_id: string
+          revised_at?: string | null
+          revised_by?: string | null
           segments?: Json | null
         }
         Update: {
@@ -1037,7 +1043,10 @@ export type Database = {
           full_text?: string
           id?: string
           language?: string | null
+          original_text?: string | null
           recording_id?: string
+          revised_at?: string | null
+          revised_by?: string | null
           segments?: Json | null
         }
         Relationships: [
