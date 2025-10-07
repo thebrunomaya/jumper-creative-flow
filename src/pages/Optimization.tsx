@@ -25,6 +25,9 @@ import {
 export default function Optimization() {
   const [selectedAccount, setSelectedAccount] = useState<string>("");
   const [accountName, setAccountName] = useState<string>("");
+  const [accountContext, setAccountContext] = useState<string>("");
+  const [notionObjectives, setNotionObjectives] = useState<string[]>([]);
+  const [availableObjectives, setAvailableObjectives] = useState<string[]>([]);
   const [stats, setStats] = useState({ total: 0, pending: 0, transcribed: 0, analyzed: 0 });
   
   // Recordings list
@@ -40,19 +43,49 @@ export default function Optimization() {
   const [isTranscribing, setIsTranscribing] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
-  // Fetch account name
+  // Fetch account data (name, context, objectives)
   useEffect(() => {
     if (selectedAccount) {
       supabase
         .from("j_ads_notion_db_accounts")
-        .select("Conta")
+        .select("Conta, \"Contexto para Otimização\", Objetivos")
         .eq("notion_id", selectedAccount)
         .single()
         .then(({ data }) => {
-          if (data) setAccountName(data.Conta || selectedAccount);
+          if (data) {
+            setAccountName(data.Conta || selectedAccount);
+            setAccountContext(data["Contexto para Otimização"] || "");
+            
+            // Parse objectives from comma-separated string
+            const objectives = data.Objetivos 
+              ? data.Objetivos.split(',').map((o: string) => o.trim())
+              : [];
+            setNotionObjectives(objectives);
+          }
         });
     }
   }, [selectedAccount]);
+
+  // Fetch all unique objectives for checkboxes
+  useEffect(() => {
+    supabase
+      .from("j_ads_notion_db_accounts")
+      .select("Objetivos")
+      .then(({ data }) => {
+        if (data) {
+          const allObjectives = new Set<string>();
+          data.forEach((row: any) => {
+            if (row.Objetivos) {
+              row.Objetivos.split(',').forEach((obj: string) => {
+                const trimmed = obj.trim();
+                if (trimmed) allObjectives.add(trimmed);
+              });
+            }
+          });
+          setAvailableObjectives(Array.from(allObjectives).sort());
+        }
+      });
+  }, []);
 
   // Fetch recordings when account changes
   useEffect(() => {
@@ -237,6 +270,9 @@ export default function Optimization() {
                 <OptimizationRecorder
                   accountId={selectedAccount}
                   accountName={accountName}
+                  accountContext={accountContext}
+                  notionObjectives={notionObjectives}
+                  availableObjectives={availableObjectives}
                   onUploadComplete={handleUploadComplete}
                 />
               </div>

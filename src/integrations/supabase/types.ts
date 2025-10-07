@@ -899,6 +899,48 @@ export type Database = {
           },
         ]
       }
+      j_ads_optimization_prompts: {
+        Row: {
+          created_at: string | null
+          edited_by: string | null
+          id: string
+          is_default: boolean | null
+          objective: string
+          platform: string
+          previous_version: string | null
+          prompt_text: string
+          prompt_type: string
+          updated_at: string | null
+          variables: Json | null
+        }
+        Insert: {
+          created_at?: string | null
+          edited_by?: string | null
+          id?: string
+          is_default?: boolean | null
+          objective: string
+          platform: string
+          previous_version?: string | null
+          prompt_text: string
+          prompt_type: string
+          updated_at?: string | null
+          variables?: Json | null
+        }
+        Update: {
+          created_at?: string | null
+          edited_by?: string | null
+          id?: string
+          is_default?: boolean | null
+          objective?: string
+          platform?: string
+          previous_version?: string | null
+          prompt_text?: string
+          prompt_type?: string
+          updated_at?: string | null
+          variables?: Json | null
+        }
+        Relationships: []
+      }
       j_ads_optimization_recordings: {
         Row: {
           account_context: string | null
@@ -908,8 +950,11 @@ export type Database = {
           created_at: string | null
           duration_seconds: number | null
           id: string
+          override_context: string | null
+          platform: string | null
           recorded_at: string | null
           recorded_by: string
+          selected_objectives: string[] | null
           transcription_status: string | null
         }
         Insert: {
@@ -920,8 +965,11 @@ export type Database = {
           created_at?: string | null
           duration_seconds?: number | null
           id?: string
+          override_context?: string | null
+          platform?: string | null
           recorded_at?: string | null
           recorded_by: string
+          selected_objectives?: string[] | null
           transcription_status?: string | null
         }
         Update: {
@@ -932,8 +980,11 @@ export type Database = {
           created_at?: string | null
           duration_seconds?: number | null
           id?: string
+          override_context?: string | null
+          platform?: string | null
           recorded_at?: string | null
           recorded_by?: string
+          selected_objectives?: string[] | null
           transcription_status?: string | null
         }
         Relationships: [

@@ -78,25 +78,31 @@ serve(async (req) => {
 
     console.log('✅ Recording found:', recording.audio_file_path);
 
-    // 1.5. Build account context from Notion data
+    // 1.5. Build account context - Priority: override_context > Notion > auto-generated
     let accountContextFinal = '';
     
-    // Fetch Notion account data
-    const { data: accountData } = await supabase
-      .from('j_ads_notion_db_accounts')
-      .select('*')
-      .eq('ID', recording.account_id)
-      .maybeSingle();
-    
-    if (accountData) {
-      // Priority 1: Use dedicated "Contexto para Otimização" column
-      if (accountData['Contexto para Otimização']) {
-        accountContextFinal = accountData['Contexto para Otimização'];
-        console.log('📝 Using context from Notion (dedicated column)');
-      } else {
-        // Priority 2: Generate automatically from existing fields
-        accountContextFinal = generateAccountContext(accountData);
-        console.log('📝 Using auto-generated context from Notion fields');
+    // Priority 1: Check if user edited context for this recording
+    if (recording.override_context) {
+      accountContextFinal = recording.override_context;
+      console.log('📝 Using override context from user');
+    } else {
+      // Fetch Notion account data
+      const { data: accountData } = await supabase
+        .from('j_ads_notion_db_accounts')
+        .select('*')
+        .eq('ID', recording.account_id)
+        .maybeSingle();
+      
+      if (accountData) {
+        // Priority 2: Use dedicated "Contexto para Otimização" column
+        if (accountData['Contexto para Otimização']) {
+          accountContextFinal = accountData['Contexto para Otimização'];
+          console.log('📝 Using context from Notion (dedicated column)');
+        } else {
+          // Priority 3: Generate automatically from existing fields
+          accountContextFinal = generateAccountContext(accountData);
+          console.log('📝 Using auto-generated context from Notion fields');
+        }
       }
     }
 
@@ -121,14 +127,36 @@ serve(async (req) => {
 
     console.log('✅ Audio downloaded, size:', audioData.size, 'bytes');
 
-    // 4. Convert blob to file for OpenAI + build prompt
-    const basePrompt = `Transcrição de análise de otimização de Meta Ads em português brasileiro.
+    // 4. Fetch custom transcription prompts based on platform & objectives
+    let customPrompts = '';
+    if (recording.platform && recording.selected_objectives && recording.selected_objectives.length > 0) {
+      const { data: prompts } = await supabase
+        .from('j_ads_optimization_prompts')
+        .select('prompt_text')
+        .eq('platform', recording.platform)
+        .in('objective', recording.selected_objectives)
+        .eq('prompt_type', 'transcription');
+      
+      if (prompts && prompts.length > 0) {
+        customPrompts = prompts.map(p => p.prompt_text).join('\n');
+        console.log('📝 Using custom transcription prompts');
+      }
+    }
+
+    // 5. Build final prompt with context replacement
+    const basePrompt = `Transcrição de análise de otimização de ${recording.platform === 'google' ? 'Google Ads' : 'Meta Ads'} em português brasileiro.
 Termos técnicos comuns: CPA, CPM, CTR, ROAS, CPC, alcance, frequência, impressões, conversões, 
 campanhas, conjuntos de anúncios, criativos, pixel, remarketing, lookalike, retargeting.`;
 
-    const finalPrompt = accountContextFinal 
-      ? `${basePrompt}\n\nContexto da conta:\n${accountContextFinal}`.trim()
-      : basePrompt;
+    let finalPrompt = basePrompt;
+    
+    if (customPrompts) {
+      // Replace {context} variable in custom prompts
+      const renderedPrompts = customPrompts.replace(/{context}/g, accountContextFinal || '');
+      finalPrompt = `${basePrompt}\n\n${renderedPrompts}`;
+    } else if (accountContextFinal) {
+      finalPrompt = `${basePrompt}\n\nContexto da conta:\n${accountContextFinal}`.trim();
+    }
 
     console.log('🎯 Prompt final para Whisper:', finalPrompt);
 

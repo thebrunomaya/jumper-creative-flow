@@ -1,9 +1,10 @@
 /**
- * OptimizationRecorder - Week 1 MVP Component
+ * OptimizationRecorder - Enhanced with Context & Objectives
  * 
- * Allows managers to record optimization audio narrations for Meta Ads accounts
- * Uses react-media-recorder for audio capture
- * Uploads to Supabase Storage in /optimizations/{account_id}/{timestamp}.webm
+ * Allows managers to record optimization audio narrations with:
+ * - Account context (editable for this recording only)
+ * - Platform selection (Meta/Google)
+ * - Objective selection with custom prompts
  */
 
 import { useState, useEffect } from "react";
@@ -13,19 +14,51 @@ import { useAuth } from "@/contexts/AuthContext";
 import { JumperButton } from "@/components/ui/jumper-button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Mic, Square, Upload, Loader2, AlertCircle } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Mic, Square, Upload, Loader2, AlertCircle, ChevronDown, Edit } from "lucide-react";
 import { toast } from "sonner";
+import { ContextEditor } from "./optimization/ContextEditor";
+import { PromptEditorModal } from "./optimization/PromptEditorModal";
+import { PlatformSelector } from "./optimization/PlatformSelector";
+import { ObjectiveCheckboxes } from "./optimization/ObjectiveCheckboxes";
 
 interface OptimizationRecorderProps {
   accountId: string;
   accountName: string;
+  accountContext?: string;
+  notionObjectives?: string[];
+  availableObjectives?: string[];
   onUploadComplete?: () => void;
 }
 
-export function OptimizationRecorder({ accountId, accountName, onUploadComplete }: OptimizationRecorderProps) {
+export function OptimizationRecorder({ 
+  accountId, 
+  accountName, 
+  accountContext = '',
+  notionObjectives = [],
+  availableObjectives = [],
+  onUploadComplete 
+}: OptimizationRecorderProps) {
   const { user } = useAuth();
   const [isUploading, setIsUploading] = useState(false);
   const [recordingDuration, setRecordingDuration] = useState(0);
+  
+  // Context & Optimization state
+  const [isContextOpen, setIsContextOpen] = useState(false);
+  const [editedContext, setEditedContext] = useState(accountContext);
+  const [isContextEditorOpen, setIsContextEditorOpen] = useState(false);
+  const [platform, setPlatform] = useState<'meta' | 'google'>('meta');
+  const [selectedObjectives, setSelectedObjectives] = useState<string[]>(notionObjectives);
+  const [promptModalState, setPromptModalState] = useState<{
+    isOpen: boolean;
+    objective?: string;
+  }>({ isOpen: false });
+
+  // Update edited context when account changes
+  useEffect(() => {
+    setEditedContext(accountContext);
+    setSelectedObjectives(notionObjectives);
+  }, [accountId, accountContext, notionObjectives]);
 
   const {
     status,
@@ -52,6 +85,24 @@ export function OptimizationRecorder({ accountId, accountName, onUploadComplete 
     return () => clearInterval(interval);
   }, [status]);
 
+  const canStartRecording = () => {
+    if (!accountId) {
+      toast.error("Selecione uma conta");
+      return false;
+    }
+    if (selectedObjectives.length === 0) {
+      toast.error("Selecione pelo menos um objetivo");
+      return false;
+    }
+    return true;
+  };
+
+  const handleStartRecording = () => {
+    if (canStartRecording()) {
+      startRecording();
+    }
+  };
+
   async function handleUpload() {
     if (!mediaBlobUrl || !accountId || !user?.email) {
       toast.error("Selecione uma conta e grave um áudio primeiro");
@@ -61,16 +112,13 @@ export function OptimizationRecorder({ accountId, accountName, onUploadComplete 
     setIsUploading(true);
 
     try {
-      // Fetch the blob from the URL
       const response = await fetch(mediaBlobUrl);
       const blob = await response.blob();
 
-      // Generate unique filename
       const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
       const fileName = `${accountId}/${timestamp}.webm`;
       const filePath = `optimizations/${fileName}`;
 
-      // Upload to Supabase Storage
       const { error: uploadError } = await supabase.storage
         .from("optimizations")
         .upload(filePath, blob, {
@@ -82,7 +130,7 @@ export function OptimizationRecorder({ accountId, accountName, onUploadComplete 
         throw uploadError;
       }
 
-      // Insert metadata into database
+      // Insert with new fields
       const { error: dbError } = await supabase
         .from("j_ads_optimization_recordings")
         .insert({
@@ -92,21 +140,22 @@ export function OptimizationRecorder({ accountId, accountName, onUploadComplete 
           duration_seconds: recordingDuration,
           transcription_status: "pending",
           analysis_status: "pending",
+          override_context: editedContext !== accountContext ? editedContext : null,
+          platform,
+          selected_objectives: selectedObjectives,
         });
 
       if (dbError) {
-        // Rollback: delete uploaded file
         await supabase.storage.from("optimizations").remove([filePath]);
         throw dbError;
       }
 
       toast.success("Gravação enviada com sucesso!");
       
-      // Reset state
       clearBlobUrl();
       setRecordingDuration(0);
+      setEditedContext(accountContext); // Reset to original
       
-      // Notify parent
       onUploadComplete?.();
 
     } catch (error: any) {
@@ -136,12 +185,63 @@ export function OptimizationRecorder({ accountId, accountName, onUploadComplete 
       </CardHeader>
 
       <CardContent className="space-y-6">
+        {/* Section 1: Account Context (Collapsible) */}
+        <Collapsible open={isContextOpen} onOpenChange={setIsContextOpen}>
+          <div className="border rounded-lg">
+            <CollapsibleTrigger className="w-full px-4 py-3 flex items-center justify-between hover:bg-accent/50 transition-colors">
+              <div className="flex items-center gap-2">
+                <span className="font-medium">📝 Contexto da Conta</span>
+                {editedContext !== accountContext && (
+                  <span className="text-xs text-primary">(Editado)</span>
+                )}
+              </div>
+              <ChevronDown className={`h-4 w-4 transition-transform ${isContextOpen ? 'rotate-180' : ''}`} />
+            </CollapsibleTrigger>
+            
+            <CollapsibleContent>
+              <div className="px-4 pb-4 space-y-3">
+                <div className="bg-muted/50 p-3 rounded-md text-sm max-h-32 overflow-y-auto">
+                  {editedContext || 'Nenhum contexto disponível'}
+                </div>
+                <JumperButton
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => setIsContextEditorOpen(true)}
+                  className="w-full"
+                >
+                  <Edit className="h-3 w-3 mr-2" />
+                  Editar Contexto (Apenas para esta gravação)
+                </JumperButton>
+              </div>
+            </CollapsibleContent>
+          </div>
+        </Collapsible>
+
+        {/* Section 2: Optimization Context */}
+        <div className="space-y-4 border rounded-lg p-4">
+          <h3 className="font-medium">🎯 Contexto da Otimização</h3>
+          
+          <PlatformSelector
+            value={platform}
+            onChange={setPlatform}
+            onEditPrompt={() => setPromptModalState({ isOpen: true })}
+          />
+
+          <ObjectiveCheckboxes
+            availableObjectives={availableObjectives}
+            selectedObjectives={selectedObjectives}
+            notionObjectives={notionObjectives}
+            onChange={setSelectedObjectives}
+            onEditPrompt={(objective) => setPromptModalState({ isOpen: true, objective })}
+          />
+        </div>
+
         {/* Recording Controls */}
         <div className="space-y-4">
           {status === "idle" && (
             <div className="flex justify-center py-8">
               <button
-                onClick={startRecording}
+                onClick={handleStartRecording}
                 className="group relative flex items-center justify-center w-24 h-24 rounded-full bg-gradient-to-br from-primary to-primary/80 hover:from-primary/90 hover:to-primary shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
                 aria-label="Iniciar gravação"
               >
@@ -153,7 +253,6 @@ export function OptimizationRecorder({ accountId, accountName, onUploadComplete 
 
           {status === "recording" && (
             <div className="space-y-6">
-              {/* Recording indicator with animated timer */}
               <div className="flex flex-col items-center justify-center py-8 gap-6">
                 <div className="relative">
                   <div className="w-32 h-32 rounded-full bg-destructive/10 flex items-center justify-center">
@@ -163,7 +262,6 @@ export function OptimizationRecorder({ accountId, accountName, onUploadComplete 
                       </div>
                     </div>
                   </div>
-                  {/* Pulse rings */}
                   <div className="absolute inset-0 rounded-full border-4 border-destructive/30 animate-ping" />
                 </div>
                 
@@ -196,12 +294,10 @@ export function OptimizationRecorder({ accountId, accountName, onUploadComplete 
                 </AlertDescription>
               </Alert>
 
-              {/* Audio Preview */}
               <div className="p-4 border rounded-lg">
                 <audio controls src={mediaBlobUrl} className="w-full" />
               </div>
 
-              {/* Action Buttons */}
               <div className="flex gap-3">
                 <JumperButton
                   onClick={handleUpload}
@@ -239,7 +335,6 @@ export function OptimizationRecorder({ accountId, accountName, onUploadComplete 
           )}
         </div>
 
-        {/* Permission Alert */}
         {status === "acquiring_media" && (
           <Alert>
             <Loader2 className="h-4 w-4 animate-spin" />
@@ -249,6 +344,24 @@ export function OptimizationRecorder({ accountId, accountName, onUploadComplete 
           </Alert>
         )}
       </CardContent>
+
+      {/* Modals */}
+      <ContextEditor
+        isOpen={isContextEditorOpen}
+        onClose={() => setIsContextEditorOpen(false)}
+        originalContext={accountContext}
+        currentContext={editedContext}
+        onSave={setEditedContext}
+      />
+
+      <PromptEditorModal
+        isOpen={promptModalState.isOpen}
+        onClose={() => setPromptModalState({ isOpen: false })}
+        platform={platform}
+        objective={promptModalState.objective || selectedObjectives[0] || 'Vendas'}
+        accountName={accountName}
+        accountContext={editedContext}
+      />
     </Card>
   );
 }

@@ -59,6 +59,23 @@ serve(async (req) => {
 
     console.log('✅ Transcript found, calling OpenAI for analysis...');
 
+    // Fetch custom analysis prompts based on platform & objectives
+    let customAnalysisGuidance = '';
+    if (recording.platform && recording.selected_objectives && recording.selected_objectives.length > 0) {
+      const { data: prompts } = await supabase
+        .from('j_ads_optimization_prompts')
+        .select('prompt_text')
+        .eq('platform', recording.platform)
+        .in('objective', recording.selected_objectives)
+        .eq('prompt_type', 'analysis');
+      
+      if (prompts && prompts.length > 0) {
+        customAnalysisGuidance = '\n\nFOCO ESPECÍFICO NOS OBJETIVOS:\n' + 
+          prompts.map(p => p.prompt_text).join('\n');
+        console.log('📝 Using custom analysis prompts');
+      }
+    }
+
     // Prepare prompt for AI analysis
     const systemPrompt = `Você é um especialista em análise de otimizações de tráfego pago (Meta Ads, Google Ads).
 Sua tarefa é extrair informações estruturadas de uma transcrição de áudio de um gestor de tráfego explicando as otimizações que realizou.
@@ -108,7 +125,10 @@ REGRAS:
 - Se não conseguir extrair alguma informação, use valores vazios apropriados ([], {}, null)
 - Para datas, use formato ISO 8601 (YYYY-MM-DD)
 - Para valores numéricos, sempre use números (não strings)
-- confidence_level deve refletir a clareza da transcrição`;
+- confidence_level deve refletir a clareza da transcrição${customAnalysisGuidance}`;
+
+    const platform = recording.platform === 'google' ? 'Google Ads' : 'Meta Ads';
+    const objectives = recording.selected_objectives?.join(', ') || 'não especificados';
 
     const userPrompt = `Analise esta transcrição de otimização de tráfego e extraia as informações estruturadas:
 
@@ -119,6 +139,8 @@ CONTEXTO:
 - Account ID: ${recording.account_id}
 - Gestor: ${recording.recorded_by}
 - Data: ${recording.recorded_at}
+- Plataforma: ${platform}
+- Objetivos da Conta: ${objectives}
 
 Retorne APENAS o JSON estruturado conforme o formato especificado.`;
 
