@@ -16,10 +16,9 @@ interface AnalysisRegenerationCardProps {
 }
 
 const AI_MODELS = [
+  { value: "claude-sonnet-4-5-20250929", label: "Claude Sonnet 4.5 (Recomendado)" },
   { value: "gpt-4.1-2025-04-14", label: "GPT-4.1 (Padrão)" },
   { value: "gpt-5-2025-08-07", label: "GPT-5 (Mais Avançado)" },
-  { value: "claude-sonnet-4-5-20250929", label: "Claude Sonnet 4.5 (Recomendado)" },
-  { value: "claude-sonnet-4-20250514", label: "Claude Sonnet 4" },
   { value: "claude-opus-4-1-20250805", label: "Claude Opus 4 (Mais Inteligente)" },
 ] as const;
 
