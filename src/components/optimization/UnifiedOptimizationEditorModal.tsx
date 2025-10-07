@@ -79,10 +79,10 @@ export function UnifiedOptimizationEditorModal({
 
       if (error) throw error;
 
-      if (data?.analysis) {
+      if (data?.context) {
         // Convert new analysis to Markdown and replace content
         const newMarkdown = generateAnalysisMarkdown(
-          data.analysis,
+          data.context,
           context.account_name || 'Conta desconhecida',
           context.recorded_by,
           context.recorded_at
