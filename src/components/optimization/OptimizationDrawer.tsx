@@ -106,7 +106,8 @@ function TranscriptionSection({
               variant="ghost"
               size="sm"
             >
-              ✏️ Ajustar
+              <Edit className="mr-2 h-4 w-4" />
+              Editar
             </JumperButton>
             <JumperButton
               onClick={onCopy}
