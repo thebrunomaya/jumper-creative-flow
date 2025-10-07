@@ -1,4 +1,4 @@
-import { OptimizationContext, OptimizationAction, OptimizationStrategy, OptimizationTimeline } from "@/types/optimization";
+import { OptimizationContext, OptimizationAction, OptimizationStrategy, OptimizationTimeline, OptimizationActionType, StrategyType } from "@/types/optimization";
 
 /**
  * Parse Markdown back to OptimizationContext
@@ -57,9 +57,12 @@ export function parseMarkdownToContext(markdown: string): Partial<OptimizationCo
           if (currentAction && currentAction.target && currentAction.reason) {
             context.actions_taken?.push(currentAction as OptimizationAction);
           }
+          // Extract action label from header (e.g., "### 1. Pausar criativo")
+          const actionMatch = line.match(/###\s+\d+\.\s+(.+)/);
+          const actionLabel = actionMatch ? actionMatch[1].trim() : 'Outro';
           // Start new action
           currentAction = {
-            type: 'other',
+            type: mapLabelToActionType(actionLabel),
             target: '',
             reason: '',
           };
@@ -140,8 +143,9 @@ export function parseMarkdownToContext(markdown: string): Partial<OptimizationCo
   // Build strategy object from collected lines
   if (Object.keys(strategyLines).length > 0) {
     const durationMatch = strategyLines['Duração']?.match(/(\d+)/);
+    const typeLabel = strategyLines['Tipo'] || 'Otimizar';
     context.strategy = {
-      type: 'optimize',
+      type: mapLabelToStrategyType(typeLabel),
       duration_days: durationMatch ? parseInt(durationMatch[1]) : 7,
       success_criteria: strategyLines['Critério de sucesso'] || '',
       hypothesis: strategyLines['Hipótese'],
@@ -155,4 +159,32 @@ export function parseMarkdownToContext(markdown: string): Partial<OptimizationCo
   }
 
   return context;
+}
+
+// Helper function to map action labels back to action types
+function mapLabelToActionType(label: string): OptimizationActionType {
+  const mapping: Record<string, OptimizationActionType> = {
+    'Pausar campanha': 'pause_campaign',
+    'Pausar criativo': 'pause_creative',
+    'Ativar campanha': 'activate_campaign',
+    'Aumentar orçamento': 'increase_budget',
+    'Diminuir orçamento': 'decrease_budget',
+    'Publicar novo criativo': 'new_creative',
+    'Ajustar público-alvo': 'audience_change',
+    'Ajustar estratégia de lance': 'bidding_change',
+    'Outro': 'other'
+  };
+  return mapping[label] || 'other';
+}
+
+// Helper function to map strategy labels back to strategy types
+function mapLabelToStrategyType(label: string): StrategyType {
+  const mapping: Record<string, StrategyType> = {
+    'Teste': 'test',
+    'Escalar': 'scale',
+    'Otimizar': 'optimize',
+    'Manter': 'maintain',
+    'Pivô': 'pivot'
+  };
+  return mapping[label] || 'optimize';
 }
