@@ -154,58 +154,37 @@ export function UnifiedOptimizationEditorModal({
         revised_at: updatePayload.revised_at,
       });
 
-      // Update only the context table, not the recording
-      const { data: updateData, error: updateError } = await supabase
-        .from("j_ads_optimization_context")
-        .update(updatePayload)
-        .eq("recording_id", recordingId)
-        .select();
+      // Chamar Edge Function para salvar com privilégios e validação
+      const { data: fnData, error: fnError } = await supabase.functions.invoke(
+        'j_ads_update_optimization_context',
+        {
+          body: {
+            recording_id: recordingId,
+            update: updatePayload,
+          },
+        }
+      );
 
-      // 🔍 LOG 3: Resposta do update
-      console.log("🔍 [SAVE] Resposta do Supabase update:", {
-        success: !updateError,
-        error: updateError,
-        updatedData: updateData,
-      });
+      console.log('🔍 [SAVE] Resposta da Edge Function:', { fnData, fnError });
 
-      if (updateError) {
-        console.error("❌ [SAVE] Erro no update:", updateError);
-        throw updateError;
+      if (fnError || !fnData?.success) {
+        console.error('❌ [SAVE] Falha na Edge Function:', fnError || fnData);
+        throw new Error(fnError?.message || fnData?.error || 'Falha ao salvar');
       }
 
-      // 🔍 VERIFICAÇÃO PÓS-SAVE: Confirmar que foi salvo corretamente
-      const { data: verifyData, error: verifyError } = await supabase
-        .from("j_ads_optimization_context")
-        .select("id, confidence_level, revised_at")
-        .eq("recording_id", recordingId)
-        .maybeSingle();
-
-      console.log("🔍 [SAVE] Verificação pós-save:", {
-        verifyData,
-        verifyError,
-      });
-
-      if (verifyError) {
-        console.error("❌ [SAVE] Erro na verificação pós-save:", verifyError);
-        throw new Error(`Erro ao verificar salvamento: ${verifyError.message}`);
-      }
-
-      if (!verifyData) {
-        console.error("❌ [SAVE] Registro não encontrado após save");
-        throw new Error("Registro não encontrado após salvamento");
-      }
+      const verifyData = fnData.updated;
 
       // Verificar se os dados foram realmente salvos
-      if (verifyData.confidence_level !== "revised" || !verifyData.revised_at) {
-        console.error("❌ [SAVE] Dados não foram salvos corretamente:", verifyData);
-        throw new Error("Os dados foram salvos mas não refletem as mudanças esperadas");
+      if (verifyData.confidence_level !== 'revised' || !verifyData.revised_at) {
+        console.error('❌ [SAVE] Dados não foram salvos corretamente:', verifyData);
+        throw new Error('Os dados foram salvos mas não refletem as mudanças esperadas');
       }
 
-      console.log("✅ [SAVE] Salvamento confirmado com sucesso!");
+      console.log('✅ [SAVE] Salvamento confirmado com sucesso!');
 
       // Atualizar toast para sucesso
-      toast.success("Análise revisada salva com sucesso!", { id: savingToast });
-      
+      toast.success('Análise revisada salva com sucesso!', { id: savingToast });
+
       // Chamar callback de sucesso para forçar refetch
       onSaveSuccess();
       onClose();
