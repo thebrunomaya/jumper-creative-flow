@@ -15,105 +15,138 @@ export function parseMarkdownToContext(markdown: string): Partial<OptimizationCo
 
   let currentSection: 'summary' | 'actions' | 'metrics' | 'strategy' | 'timeline' | null = null;
   let summaryLines: string[] = [];
+  let currentAction: Partial<OptimizationAction> | null = null;
+  let strategyLines: { [key: string]: string } = {};
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i].trim();
 
     // Detect sections
-    if (line.startsWith('## 📋') || line.startsWith('## Resumo')) {
+    if (line.startsWith('## 📋') || line.includes('Resumo')) {
       currentSection = 'summary';
       continue;
-    } else if (line.startsWith('## ⚡') || line.startsWith('## Ações')) {
+    } else if (line.startsWith('## 🎯') || line.includes('Ações')) {
       currentSection = 'actions';
       continue;
-    } else if (line.startsWith('## 📊') || line.startsWith('## Métricas')) {
+    } else if (line.startsWith('## 📊') || line.includes('Métricas')) {
       currentSection = 'metrics';
       continue;
-    } else if (line.startsWith('## 🎯') || line.startsWith('## Estratégia')) {
+    } else if (line.startsWith('## 🎲') || line.includes('Estratégia')) {
       currentSection = 'strategy';
       continue;
-    } else if (line.startsWith('## 📅') || line.startsWith('## Próximos') || line.startsWith('## Timeline')) {
+    } else if (line.startsWith('## 📅') || line.includes('Próximos')) {
       currentSection = 'timeline';
       continue;
     }
 
-    // Skip empty lines and headers
-    if (!line || line.startsWith('#')) continue;
+    // Skip headers, separators, and footers
+    if (!line || line.startsWith('#') || line.startsWith('---') || line.startsWith('_Gerado')) continue;
 
     // Parse content based on current section
     switch (currentSection) {
       case 'summary':
-        summaryLines.push(line);
+        if (!line.startsWith('**') && !line.includes('Conta:') && !line.includes('Data:')) {
+          summaryLines.push(line);
+        }
         break;
 
       case 'actions':
-        if (line.startsWith('-') || line.startsWith('•')) {
-          const actionText = line.replace(/^[-•]\s*/, '').trim();
-          // Simple action object
-          const action: OptimizationAction = {
+        // Detect new action (###)
+        if (line.startsWith('###')) {
+          // Save previous action
+          if (currentAction && currentAction.target && currentAction.reason) {
+            context.actions_taken?.push(currentAction as OptimizationAction);
+          }
+          // Start new action
+          currentAction = {
             type: 'other',
-            target: actionText,
-            reason: actionText,
+            target: '',
+            reason: '',
           };
-          context.actions_taken?.push(action);
+        } else if (currentAction && line.startsWith('-')) {
+          // Parse action fields
+          const fieldMatch = line.match(/^-\s*\*\*([^:]+):\*\*\s*(.+)/);
+          if (fieldMatch) {
+            const [, field, value] = fieldMatch;
+            if (field.includes('Alvo')) {
+              currentAction.target = value.trim();
+            } else if (field.includes('Motivo')) {
+              currentAction.reason = value.trim();
+            } else if (field.includes('Impacto')) {
+              currentAction.expected_impact = value.trim();
+            }
+          }
         }
         break;
 
       case 'metrics':
-        // Parse metric lines like "**CPA:** R$ 45,30" or "CPA: 45.30"
-        const metricMatch = line.match(/\*?\*?([^:]+):\*?\*?\s*(.+)/);
-        if (metricMatch) {
-          const [, key, value] = metricMatch;
-          const normalizedKey = key.trim().toLowerCase().replace(/\s+/g, '_');
-          
-          // Try to extract numeric value
-          const numericMatch = value.match(/[\d.,]+/);
-          if (numericMatch) {
-            const numericValue = numericMatch[0].replace(',', '.');
-            context.metrics_mentioned![normalizedKey] = parseFloat(numericValue);
-          } else {
-            // Store as string if not numeric
-            context.metrics_mentioned![normalizedKey] = value.trim() as any;
+        // Skip table headers
+        if (line.startsWith('|') && !line.includes('---')) {
+          const cells = line.split('|').map(c => c.trim()).filter(c => c);
+          if (cells.length === 2 && cells[0] !== 'Métrica') {
+            const [metric, value] = cells;
+            const numericMatch = value.match(/[\d.,]+/);
+            if (numericMatch) {
+              const numericValue = parseFloat(numericMatch[0].replace(',', '.'));
+              context.metrics_mentioned![metric] = numericValue;
+            } else {
+              context.metrics_mentioned![metric] = value as any;
+            }
           }
         }
         break;
 
       case 'strategy':
-        if (line.startsWith('-') || line.startsWith('•')) {
-          const strategyText = line.replace(/^[-•]\s*/, '').trim();
-          if (!context.strategy) {
-            context.strategy = {
-              type: 'optimize',
-              duration_days: 7,
-              success_criteria: strategyText,
-            };
-          } else {
-            // Append to success criteria
-            context.strategy.success_criteria += `\n${strategyText}`;
+        if (line.startsWith('-')) {
+          const fieldMatch = line.match(/^-\s*\*\*([^:]+):\*\*\s*(.+)/);
+          if (fieldMatch) {
+            const [, field, value] = fieldMatch;
+            strategyLines[field] = value.trim();
           }
         }
         break;
 
       case 'timeline':
-        if (line.startsWith('-') || line.startsWith('•')) {
-          const timelineText = line.replace(/^[-•]\s*/, '').trim();
+        // Parse reevaluate date
+        if (line.includes('Reavaliar em:')) {
+          const dateText = line.replace(/\*\*Reavaliar em:\*\*/, '').trim();
+          // Simple date parsing - could be improved
           if (!context.timeline) {
             context.timeline = {
-              reevaluate_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
-              milestones: [{
-                date: new Date(),
-                description: timelineText,
-              }],
+              reevaluate_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+              milestones: [],
             };
-          } else {
+          }
+        } else if (line.match(/^\d+\./)) {
+          // Parse milestone
+          const milestoneMatch = line.match(/^\d+\.\s*\*\*(.+?):\*\*\s*(.+)/);
+          if (milestoneMatch && context.timeline) {
+            const [, dateText, description] = milestoneMatch;
             context.timeline.milestones?.push({
               date: new Date(),
-              description: timelineText,
+              description: description.trim(),
             });
           }
         }
         break;
     }
+  }
+
+  // Save last action if exists
+  if (currentAction && currentAction.target && currentAction.reason) {
+    context.actions_taken?.push(currentAction as OptimizationAction);
+  }
+
+  // Build strategy object from collected lines
+  if (Object.keys(strategyLines).length > 0) {
+    const durationMatch = strategyLines['Duração']?.match(/(\d+)/);
+    context.strategy = {
+      type: 'optimize',
+      duration_days: durationMatch ? parseInt(durationMatch[1]) : 7,
+      success_criteria: strategyLines['Critério de sucesso'] || '',
+      hypothesis: strategyLines['Hipótese'],
+      target_metric: strategyLines['Métrica alvo'],
+    };
   }
 
   // Join summary lines
