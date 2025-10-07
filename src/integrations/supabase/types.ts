@@ -1266,66 +1266,6 @@ export type Database = {
         }
         Relationships: []
       }
-      meta_ads_performance: {
-        Row: {
-          account_id: string
-          clicks: number | null
-          cliente_id: string
-          cost_per_inline_link_click: number | null
-          cost_per_lead: number | null
-          cpm: number | null
-          created_at: string | null
-          data_fim: string
-          data_inicio: string
-          id: string
-          impressions: number | null
-          inline_link_click_ctr: number | null
-          inline_link_clicks: number | null
-          leads: number | null
-          periodo: string
-          spend: number
-          updated_at: string | null
-        }
-        Insert: {
-          account_id: string
-          clicks?: number | null
-          cliente_id: string
-          cost_per_inline_link_click?: number | null
-          cost_per_lead?: number | null
-          cpm?: number | null
-          created_at?: string | null
-          data_fim: string
-          data_inicio: string
-          id?: string
-          impressions?: number | null
-          inline_link_click_ctr?: number | null
-          inline_link_clicks?: number | null
-          leads?: number | null
-          periodo: string
-          spend: number
-          updated_at?: string | null
-        }
-        Update: {
-          account_id?: string
-          clicks?: number | null
-          cliente_id?: string
-          cost_per_inline_link_click?: number | null
-          cost_per_lead?: number | null
-          cpm?: number | null
-          created_at?: string | null
-          data_fim?: string
-          data_inicio?: string
-          id?: string
-          impressions?: number | null
-          inline_link_click_ctr?: number | null
-          inline_link_clicks?: number | null
-          leads?: number | null
-          periodo?: string
-          spend?: number
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
     }
     Views: {
       [_ in never]: never
