@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Test Supabase Connection</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <h1>Testing Supabase Connection</h1>
+  <button onclick="testQuery()">Test Query</button>
+  <pre id="result"></pre>
+  
+  <script>
+    const { createClient } = supabase;
+    
+    const supabaseClient = createClient(
+      'https://biwwowendjuzvpttyrlb.supabase.co',
+      'sb_publishable_5CJI2QQt8Crz60Mh1TTcrw_w4sL2TpL'
+    );
+    
+    async function testQuery() {
+      const resultEl = document.getElementById('result');
+      resultEl.textContent = 'Testing...';
+      
+      try {
+        const { data, error, count } = await supabaseClient
+          .from('j_rep_metaads_bronze')
+          .select('*', { count: 'exact' })
+          .eq('account_id', '1131403665194299')
+          .limit(5);
+        
+        if (error) {
+          resultEl.textContent = 'ERROR:\n' + JSON.stringify(error, null, 2);
+        } else {
+          resultEl.textContent = 'SUCCESS!\n' +
+            'Total records: ' + count + '\n' +
+            'Returned: ' + data.length + '\n\n' +
+            JSON.stringify(data[0], null, 2);
+        }
+      } catch (err) {
+        resultEl.textContent = 'EXCEPTION:\n' + err.message;
+      }
+    }
+  </script>
+</body>
+</html>

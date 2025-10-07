@@ -1,4 +1,3 @@
-// @ts-nocheck - Temporary: Type issues, will be fixed in main branch
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
