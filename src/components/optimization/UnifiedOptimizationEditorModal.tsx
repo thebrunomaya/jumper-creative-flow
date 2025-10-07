@@ -87,11 +87,6 @@ export function UnifiedOptimizationEditorModal({
 
   // Função para aplicar IA
   const handleApplyAI = async () => {
-    if (!aiInstruction.trim()) {
-      toast.error("Digite uma instrução para a IA");
-      return;
-    }
-
     setIsApplyingAI(true);
 
     try {

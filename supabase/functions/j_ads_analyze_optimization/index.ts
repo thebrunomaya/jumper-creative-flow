@@ -244,11 +244,23 @@ ${historicalContext}`;
       if (!openaiResponse.ok) {
         const errorText = await openaiResponse.text();
         console.error('OpenAI API error:', errorText);
-        throw new Error(`OpenAI API error: ${openaiResponse.status}`);
+        throw new Error(`OpenAI API error: ${openaiResponse.status} - ${errorText}`);
       }
 
       const openaiData = await openaiResponse.json();
+      console.log('📊 OpenAI response structure:', JSON.stringify(openaiData, null, 2));
+      
+      if (!openaiData.choices || !openaiData.choices[0] || !openaiData.choices[0].message) {
+        console.error('Invalid OpenAI response structure:', openaiData);
+        throw new Error('Invalid response structure from OpenAI API');
+      }
+      
       extractedContent = openaiData.choices[0].message.content;
+      
+      if (!extractedContent || extractedContent.trim() === '') {
+        console.error('Empty content from OpenAI:', openaiData);
+        throw new Error('OpenAI returned empty content');
+      }
     }
 
     console.log('📝 Raw AI response:', extractedContent);
