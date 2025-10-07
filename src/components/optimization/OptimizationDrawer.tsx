@@ -26,6 +26,8 @@ import {
   User,
   Download,
   Edit,
+  RotateCw,
+  Sparkles,
 } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -40,6 +42,7 @@ import { exportOptimizationToPDF } from "@/utils/pdfExport";
 import { generateAnalysisMarkdown } from "@/utils/markdownExport";
 import { TranscriptionEditorModal } from "./TranscriptionEditorModal";
 import { AnalysisEditorModal } from "./AnalysisEditorModal";
+import { AnalysisTextEditorModal } from "./AnalysisTextEditorModal";
 import { MarkdownPreviewModal } from "./MarkdownPreviewModal";
 
 interface OptimizationDrawerProps {
@@ -182,29 +185,13 @@ function AnalysisSection({
   onRefresh: () => void;
   onExportPDF: () => void;
 }) {
-  const [editorOpen, setEditorOpen] = useState(false);
+  const [textEditorOpen, setTextEditorOpen] = useState(false);
+  const [regenerateOpen, setRegenerateOpen] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [markdown, setMarkdown] = useState("");
 
-  const getConfidenceBadge = (level?: string) => {
-    const variants = {
-      high: 'default',
-      medium: 'secondary',
-      low: 'outline'
-    } as const;
-    
-    const labels = {
-      high: 'Alta confiança',
-      medium: 'Média confiança',
-      low: 'Baixa confiança'
-    };
-
-    return (
-      <Badge variant={variants[level as keyof typeof variants] || 'secondary'}>
-        {labels[level as keyof typeof labels] || 'Média confiança'}
-      </Badge>
-    );
-  };
+  // Check if analysis was revised
+  const wasRevised = !!(context as any).revised_at;
 
   const handleCopyAnalysis = () => {
     const md = generateAnalysisMarkdown(
@@ -224,19 +211,45 @@ function AnalysisSection({
         <div className="flex items-center justify-between gap-2 flex-wrap">
           <div className="flex items-center gap-2">
             <h3 className="font-semibold text-sm flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4 text-success" />
+              <Brain className="h-4 w-4 text-primary" />
               Extrato de Otimização
             </h3>
-            {getConfidenceBadge(context.confidence_level)}
+            {wasRevised ? (
+              <Badge variant="secondary" className="text-xs">
+                ✏️ Revisado
+              </Badge>
+            ) : (
+              <>
+                {context.confidence_level && (
+                  <Badge variant="outline" className="text-xs">
+                    {context.confidence_level === 'high' && 'Alta confiança'}
+                    {context.confidence_level === 'medium' && 'Média confiança'}
+                    {context.confidence_level === 'low' && 'Baixa confiança'}
+                  </Badge>
+                )}
+                <Badge variant="outline" className="text-xs">
+                  <Sparkles className="h-3 w-3 mr-1" />
+                  Original
+                </Badge>
+              </>
+            )}
           </div>
           <div className="flex gap-2 flex-wrap">
             <JumperButton
-              onClick={() => setEditorOpen(true)}
+              onClick={() => setTextEditorOpen(true)}
               variant="ghost"
               size="sm"
             >
               <Edit className="mr-2 h-4 w-4" />
               Ajustar
+            </JumperButton>
+            <JumperButton
+              onClick={() => setRegenerateOpen(true)}
+              variant="ghost"
+              size="sm"
+            >
+              <RotateCw className="mr-2 h-4 w-4" />
+              Regenerar
             </JumperButton>
             <JumperButton
               onClick={handleCopyAnalysis}
@@ -259,9 +272,16 @@ function AnalysisSection({
         <OptimizationContextCard context={context} />
       </div>
 
+      <AnalysisTextEditorModal
+        context={context}
+        open={textEditorOpen}
+        onOpenChange={setTextEditorOpen}
+        onSave={onRefresh}
+      />
+
       <AnalysisEditorModal
-        isOpen={editorOpen}
-        onClose={() => setEditorOpen(false)}
+        isOpen={regenerateOpen}
+        onClose={() => setRegenerateOpen(false)}
         recordingId={recordingId}
         onRegenerateSuccess={onRefresh}
       />

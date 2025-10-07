@@ -68,15 +68,6 @@ export function exportOptimizationToPDF(
     addText(`Duração: ${mins}:${secs.toString().padStart(2, '0')}`);
   }
 
-  // Transcription
-  if (transcript?.full_text) {
-    addSection('Transcrição');
-    addText(transcript.full_text, 10);
-    
-    if (transcript.confidence_score) {
-      addText(`Confiança da transcrição: ${(Number(transcript.confidence_score) * 100).toFixed(0)}%`, 9);
-    }
-  }
 
   // AI Analysis
   if (context) {

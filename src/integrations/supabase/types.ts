@@ -860,6 +860,7 @@ export type Database = {
           metrics_mentioned: Json
           model_used: string | null
           recording_id: string
+          revised_at: string | null
           strategy: Json
           summary: string
           timeline: Json
@@ -877,6 +878,7 @@ export type Database = {
           metrics_mentioned: Json
           model_used?: string | null
           recording_id: string
+          revised_at?: string | null
           strategy: Json
           summary: string
           timeline: Json
@@ -894,6 +896,7 @@ export type Database = {
           metrics_mentioned?: Json
           model_used?: string | null
           recording_id?: string
+          revised_at?: string | null
           strategy?: Json
           summary?: string
           timeline?: Json

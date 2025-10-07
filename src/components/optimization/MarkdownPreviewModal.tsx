@@ -54,14 +54,14 @@ export function MarkdownPreviewModal({
           </DialogDescription>
         </DialogHeader>
 
-        <Tabs defaultValue="preview" className="flex-1 flex flex-col overflow-hidden">
+        <Tabs defaultValue="preview" className="flex-1 flex flex-col">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="preview">Visualização</TabsTrigger>
             <TabsTrigger value="raw">Markdown (Raw)</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="preview" className="flex-1 mt-4 overflow-hidden">
-            <ScrollArea className="h-full border rounded-lg p-6 prose prose-sm max-w-none dark:prose-invert">
+          <TabsContent value="preview" className="mt-4">
+            <ScrollArea className="h-[50vh] border rounded-lg p-6 prose prose-sm max-w-none dark:prose-invert">
               <div
                 dangerouslySetInnerHTML={{
                   __html: markdown
@@ -85,8 +85,8 @@ export function MarkdownPreviewModal({
             </ScrollArea>
           </TabsContent>
 
-          <TabsContent value="raw" className="flex-1 mt-4 overflow-hidden">
-            <ScrollArea className="h-full">
+          <TabsContent value="raw" className="mt-4">
+            <ScrollArea className="h-[50vh]">
               <pre className="text-xs bg-muted p-4 rounded-lg overflow-x-auto">
                 <code>{markdown}</code>
               </pre>

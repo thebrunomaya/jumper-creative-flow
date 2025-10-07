@@ -58,7 +58,7 @@ export function OptimizationContextCard({ context }: OptimizationContextCardProp
 
   return (
     <Card className="border-primary/20">
-      <CardContent className="p-6 space-y-6">
+      <CardContent className="pt-6 space-y-6">
         {/* Summary */}
         <div className="space-y-2">
           <h4 className="font-medium text-sm flex items-center gap-2">
