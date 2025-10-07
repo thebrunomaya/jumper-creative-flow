@@ -3,6 +3,8 @@
  */
 
 import { useState } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import {
   Dialog,
   DialogContent,
@@ -61,27 +63,12 @@ export function MarkdownPreviewModal({
           </TabsList>
 
           <TabsContent value="preview" className="mt-4">
-            <ScrollArea className="h-[50vh] border rounded-lg p-6 prose prose-sm max-w-none dark:prose-invert">
-              <div
-                dangerouslySetInnerHTML={{
-                  __html: markdown
-                    .replace(/^### (.*$)/gim, '<h3>$1</h3>')
-                    .replace(/^## (.*$)/gim, '<h2>$1</h2>')
-                    .replace(/^# (.*$)/gim, '<h1>$1</h1>')
-                    .replace(/^\> (.*$)/gim, '<blockquote>$1</blockquote>')
-                    .replace(/\*\*(.*)\*\*/gim, '<strong>$1</strong>')
-                    .replace(/\*(.*)\*/gim, '<em>$1</em>')
-                    .replace(/\n\n/gim, '</p><p>')
-                    .replace(/^- (.*$)/gim, '<li>$1</li>')
-                    .replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>')
-                    .replace(/^\d+\. (.*$)/gim, '<li>$1</li>')
-                    .replace(/^---$/gim, '<hr />')
-                    .replace(/\|(.+)\|/g, (match) => {
-                      const cells = match.split('|').filter(c => c.trim());
-                      return `<tr>${cells.map(c => `<td>${c.trim()}</td>`).join('')}</tr>`;
-                    }),
-                }}
-              />
+            <ScrollArea className="h-[50vh] border rounded-lg p-6">
+              <article className="prose prose-sm max-w-none dark:prose-invert">
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  {markdown}
+                </ReactMarkdown>
+              </article>
             </ScrollArea>
           </TabsContent>
 
