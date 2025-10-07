@@ -164,7 +164,7 @@ export function UnifiedOptimizationEditorModal({
         .from("j_ads_optimization_context")
         .select("id, confidence_level, revised_at")
         .eq("id", context.id)
-        .single();
+        .maybeSingle();
 
       console.log("🔍 [SAVE] Verificação pós-save:", {
         verifyData,
@@ -173,7 +173,12 @@ export function UnifiedOptimizationEditorModal({
 
       if (verifyError) {
         console.error("❌ [SAVE] Erro na verificação pós-save:", verifyError);
-        throw new Error("Falha ao verificar salvamento");
+        throw new Error(`Erro ao verificar salvamento: ${verifyError.message}`);
+      }
+
+      if (!verifyData) {
+        console.error("❌ [SAVE] Registro não encontrado após save");
+        throw new Error("Registro não encontrado após salvamento");
       }
 
       // Verificar se os dados foram realmente salvos
