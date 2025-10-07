@@ -27,6 +27,7 @@ serve(async (req) => {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const openaiKey = Deno.env.get('OPENAI_API_KEY')!;
+    const anthropicKey = Deno.env.get('ANTHROPIC_API_KEY')!;
     
     const supabase = createClient(supabaseUrl, supabaseKey);
 
@@ -189,32 +190,66 @@ ${historicalContext}`;
 
     userPrompt += '\n\nRetorne APENAS o JSON estruturado conforme o formato especificado.';
 
-    // Call OpenAI API
-    const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${openaiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'gpt-4.1-2025-04-14',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt }
-        ],
-        temperature: 0.3,
-        max_tokens: 2000,
-      }),
-    });
+    // Determine if we're using Claude or OpenAI
+    const isClaudeModel = selectedModel.startsWith('claude-');
+    let extractedContent: string;
 
-    if (!openaiResponse.ok) {
-      const errorText = await openaiResponse.text();
-      console.error('OpenAI API error:', errorText);
-      throw new Error(`OpenAI API error: ${openaiResponse.status}`);
+    if (isClaudeModel) {
+      // Call Anthropic API
+      console.log('🤖 Calling Anthropic API with model:', selectedModel);
+      const anthropicResponse = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'x-api-key': anthropicKey,
+          'anthropic-version': '2023-06-01',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: selectedModel,
+          max_tokens: 4096,
+          system: systemPrompt,
+          messages: [
+            { role: 'user', content: userPrompt }
+          ],
+        }),
+      });
+
+      if (!anthropicResponse.ok) {
+        const errorText = await anthropicResponse.text();
+        console.error('Anthropic API error:', errorText);
+        throw new Error(`Anthropic API error: ${anthropicResponse.status}`);
+      }
+
+      const anthropicData = await anthropicResponse.json();
+      extractedContent = anthropicData.content[0].text;
+    } else {
+      // Call OpenAI API
+      console.log('🤖 Calling OpenAI API with model:', selectedModel);
+      const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${openaiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: selectedModel,
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: userPrompt }
+          ],
+          max_completion_tokens: 2000,
+        }),
+      });
+
+      if (!openaiResponse.ok) {
+        const errorText = await openaiResponse.text();
+        console.error('OpenAI API error:', errorText);
+        throw new Error(`OpenAI API error: ${openaiResponse.status}`);
+      }
+
+      const openaiData = await openaiResponse.json();
+      extractedContent = openaiData.choices[0].message.content;
     }
-
-    const openaiData = await openaiResponse.json();
-    const extractedContent = openaiData.choices[0].message.content;
 
     console.log('📝 Raw AI response:', extractedContent);
 
