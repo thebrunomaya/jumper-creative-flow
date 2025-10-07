@@ -31,6 +31,19 @@ export function OptimizationListCompact({
     return <Clock className="h-4 w-4 text-muted-foreground" />;
   };
 
+  const getOverallStatus = (transcriptionStatus: string, analysisStatus: string) => {
+    if (transcriptionStatus === 'processing' || analysisStatus === 'processing') {
+      return { variant: 'default' as const, label: '🟡 Processando', color: 'text-yellow-500' };
+    }
+    if (transcriptionStatus === 'failed' || analysisStatus === 'failed') {
+      return { variant: 'destructive' as const, label: '🔴 Falhou', color: 'text-destructive' };
+    }
+    if (analysisStatus === 'completed') {
+      return { variant: 'outline' as const, label: '🟢 Concluído', color: 'text-success' };
+    }
+    return { variant: 'secondary' as const, label: '⚪ Pendente', color: 'text-muted-foreground' };
+  };
+
   const getStatusBadge = (status: string, type: "transcription" | "analysis") => {
     const variants: Record<
       string,

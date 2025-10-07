@@ -59,6 +59,42 @@ serve(async (req) => {
 
     console.log('✅ Transcript found, calling OpenAI for analysis...');
 
+    // Fetch last 3 optimizations from this account for historical context
+    const { data: previousOptimizations } = await supabase
+      .from('j_ads_optimization_context')
+      .select(`
+        recording_id,
+        summary,
+        actions_taken,
+        created_at,
+        j_ads_optimization_recordings!inner(recorded_at, recorded_by)
+      `)
+      .eq('account_id', recording.account_id)
+      .neq('recording_id', recording_id)
+      .order('created_at', { ascending: false })
+      .limit(3);
+
+    let historicalContext = '';
+    if (previousOptimizations && previousOptimizations.length > 0) {
+      console.log(`📚 Including ${previousOptimizations.length} previous optimizations as context`);
+      historicalContext = '\n\n## HISTÓRICO DE OTIMIZAÇÕES RECENTES (use para contexto e continuidade):\n\n';
+      previousOptimizations.forEach((opt, idx) => {
+        const recordDate = new Date(opt.j_ads_optimization_recordings.recorded_at).toLocaleDateString('pt-BR');
+        historicalContext += `### Otimização ${idx + 1} - ${recordDate}\n`;
+        historicalContext += `**Gestor:** ${opt.j_ads_optimization_recordings.recorded_by}\n`;
+        historicalContext += `**Resumo:** ${opt.summary}\n`;
+        historicalContext += `**Ações tomadas:** ${opt.actions_taken.length} ação(ões)\n`;
+        if (opt.actions_taken && opt.actions_taken.length > 0) {
+          opt.actions_taken.forEach((action: any, actionIdx: number) => {
+            historicalContext += `  ${actionIdx + 1}. ${action.type}: ${action.target} - ${action.reason}\n`;
+          });
+        }
+        historicalContext += '\n';
+      });
+    } else {
+      console.log('📚 No previous optimizations found for this account');
+    }
+
     // Fetch custom analysis prompts based on platform & objectives
     let customAnalysisGuidance = '';
     if (recording.platform && recording.selected_objectives && recording.selected_objectives.length > 0) {
@@ -135,12 +171,13 @@ REGRAS:
 TRANSCRIÇÃO:
 ${transcript.full_text}
 
-CONTEXTO:
+CONTEXTO DA GRAVAÇÃO ATUAL:
 - Account ID: ${recording.account_id}
 - Gestor: ${recording.recorded_by}
 - Data: ${recording.recorded_at}
 - Plataforma: ${platform}
 - Objetivos da Conta: ${objectives}
+${historicalContext}
 
 Retorne APENAS o JSON estruturado conforme o formato especificado.`;
 

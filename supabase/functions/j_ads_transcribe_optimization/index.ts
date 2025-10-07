@@ -221,6 +221,30 @@ campanhas, conjuntos de anúncios, criativos, pixel, remarketing, lookalike, ret
 
     console.log('✅ Transcription saved successfully');
 
+    // 8. Auto-trigger analysis after successful transcription
+    try {
+      console.log('🚀 Auto-triggering analysis...');
+      
+      const analysisResponse = await fetch(`${supabaseUrl}/functions/v1/j_ads_analyze_optimization`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${supabaseServiceKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ recording_id })
+      });
+
+      if (!analysisResponse.ok) {
+        const errorText = await analysisResponse.text();
+        console.error('❌ Auto-analysis failed:', analysisResponse.status, errorText);
+      } else {
+        console.log('✅ Auto-analysis triggered successfully');
+      }
+    } catch (autoAnalysisError) {
+      console.error('⚠️ Failed to trigger auto-analysis:', autoAnalysisError);
+      // Don't throw - transcription already succeeded
+    }
+
     return new Response(
       JSON.stringify({ 
         success: true,

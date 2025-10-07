@@ -21,6 +21,7 @@ import { ContextEditor } from "./optimization/ContextEditor";
 import { PromptEditorModal } from "./optimization/PromptEditorModal";
 import { PlatformSelector } from "./optimization/PlatformSelector";
 import { ObjectiveCheckboxes } from "./optimization/ObjectiveCheckboxes";
+import { ProcessingOverlay, ProcessingStep } from "./optimization/ProcessingOverlay";
 
 interface OptimizationRecorderProps {
   accountId: string;
@@ -53,6 +54,11 @@ export function OptimizationRecorder({
     isOpen: boolean;
     objective?: string;
   }>({ isOpen: false });
+
+  // Processing overlay state
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [currentStep, setCurrentStep] = useState<ProcessingStep>('upload');
+  const [processingError, setProcessingError] = useState<string | null>(null);
 
   // Update edited context when account changes
   useEffect(() => {
@@ -110,11 +116,16 @@ export function OptimizationRecorder({
     }
 
     setIsUploading(true);
+    setIsProcessing(true);
+    setCurrentStep('upload');
+    setProcessingError(null);
+
+    let insertedRecordingId: string | null = null;
 
     try {
+      // 1. Upload audio
       const response = await fetch(mediaBlobUrl);
       const blob = await response.blob();
-
       const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
       const fileName = `${accountId}/${timestamp}.webm`;
       const filePath = `optimizations/${fileName}`;
@@ -126,12 +137,10 @@ export function OptimizationRecorder({
           upsert: false,
         });
 
-      if (uploadError) {
-        throw uploadError;
-      }
+      if (uploadError) throw uploadError;
 
-      // Insert with new fields
-      const { error: dbError } = await supabase
+      // 2. Insert recording
+      const { data: recording, error: dbError } = await supabase
         .from("j_ads_optimization_recordings")
         .insert({
           account_id: accountId,
@@ -143,24 +152,84 @@ export function OptimizationRecorder({
           override_context: editedContext !== accountContext ? editedContext : null,
           platform,
           selected_objectives: selectedObjectives,
-        });
+        })
+        .select()
+        .single();
 
       if (dbError) {
         await supabase.storage.from("optimizations").remove([filePath]);
         throw dbError;
       }
 
-      toast.success("Gravação enviada com sucesso!");
+      insertedRecordingId = recording.id;
+      
+      // 3. AUTO-TRIGGER TRANSCRIPTION
+      setCurrentStep('transcribe');
+      
+      const { error: transcribeError } = await supabase.functions.invoke(
+        "j_ads_transcribe_optimization",
+        { body: { recording_id: recording.id } }
+      );
+
+      if (transcribeError) throw new Error(`Transcrição falhou: ${transcribeError.message}`);
+
+      // 4. POLL FOR ANALYSIS COMPLETION
+      setCurrentStep('analyze');
+      
+      const maxAttempts = 90; // 90 seconds max
+      let attempts = 0;
+      let analysisComplete = false;
+
+      while (attempts < maxAttempts && !analysisComplete) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        const { data: statusCheck } = await supabase
+          .from("j_ads_optimization_recordings")
+          .select("analysis_status")
+          .eq("id", recording.id)
+          .single();
+
+        if (statusCheck?.analysis_status === "completed") {
+          analysisComplete = true;
+        } else if (statusCheck?.analysis_status === "failed") {
+          throw new Error("Análise com IA falhou - verifique os logs da função");
+        }
+
+        attempts++;
+      }
+
+      if (!analysisComplete) {
+        throw new Error("Tempo esgotado aguardando análise (90s)");
+      }
+
+      // 5. SUCCESS!
+      setCurrentStep('complete');
+      toast.success("✅ Otimização processada com sucesso!");
       
       clearBlobUrl();
       setRecordingDuration(0);
-      setEditedContext(accountContext); // Reset to original
+      setEditedContext(accountContext);
       
-      onUploadComplete?.();
+      setTimeout(() => {
+        setIsProcessing(false);
+        onUploadComplete?.();
+      }, 2000);
 
     } catch (error: any) {
-      console.error("Upload error:", error);
-      toast.error(error.message || "Erro ao enviar gravação");
+      console.error("Processing error:", error);
+      setCurrentStep('error');
+      setProcessingError(error.message || "Erro desconhecido no processamento");
+      
+      // Clean up failed recording
+      if (insertedRecordingId) {
+        await supabase
+          .from("j_ads_optimization_recordings")
+          .delete()
+          .eq("id", insertedRecordingId);
+      }
+      
+      toast.error(`Erro: ${error.message}`);
+      
     } finally {
       setIsUploading(false);
     }
@@ -344,6 +413,18 @@ export function OptimizationRecorder({
           </Alert>
         )}
       </CardContent>
+
+      {/* Processing Overlay */}
+      <ProcessingOverlay
+        isOpen={isProcessing}
+        currentStep={currentStep}
+        error={processingError}
+        onRetry={handleUpload}
+        onClose={() => {
+          setIsProcessing(false);
+          setProcessingError(null);
+        }}
+      />
 
       {/* Modals */}
       <ContextEditor
