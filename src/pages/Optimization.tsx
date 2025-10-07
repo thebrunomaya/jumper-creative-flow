@@ -1,54 +1,46 @@
 /**
- * Optimization Page - Week 1 MVP
- * 
- * Main page for OPTIMIZER system
- * Combines recorder and list components
+ * Optimization Page - Enhanced Layout
+ * Full-width list with drawer for details
  */
 
 import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { OptimizationRecorder } from "@/components/OptimizationRecorder";
-import { OptimizationList } from "@/components/OptimizationList";
 import { AccountSelector } from "@/components/optimization/AccountSelector";
 import { OptimizationEmptyState } from "@/components/optimization/OptimizationEmptyState";
 import { OptimizationStats } from "@/components/optimization/OptimizationStats";
+import { OptimizationListCompact } from "@/components/optimization/OptimizationListCompact";
+import { OptimizationDrawer } from "@/components/optimization/OptimizationDrawer";
 import { JumperBackground } from "@/components/ui/jumper-background";
+import { Loader2 } from "lucide-react";
 import Header from "@/components/Header";
-import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import {
+  OptimizationRecordingRow,
+  OptimizationTranscriptRow,
+  OptimizationContext,
+  rowToOptimizationContext,
+} from "@/types/optimization";
 
 export default function Optimization() {
   const [selectedAccount, setSelectedAccount] = useState<string>("");
-  const [stats, setStats] = useState({ total: 0, pending: 0, transcribed: 0, analyzed: 0 });
-  const [refreshKey, setRefreshKey] = useState(0);
-
-  // Fetch stats when account changes
-  useEffect(() => {
-    if (selectedAccount) {
-      fetchStats();
-    }
-  }, [selectedAccount, refreshKey]);
-
-  async function fetchStats() {
-    const { data } = await supabase
-      .from("j_ads_optimization_recordings")
-      .select("transcription_status, analysis_status")
-      .eq("account_id", selectedAccount);
-
-    if (data) {
-      const total = data.length;
-      const pending = data.filter(r => r.transcription_status === 'pending').length;
-      const transcribed = data.filter(r => r.transcription_status === 'completed').length;
-      const analyzed = data.filter(r => r.analysis_status === 'completed').length;
-      
-      setStats({ total, pending, transcribed, analyzed });
-    }
-  }
-
-  const handleRefresh = () => {
-    setRefreshKey(prev => prev + 1);
-  };
-
-  // Get account name for breadcrumbs
   const [accountName, setAccountName] = useState<string>("");
+  const [stats, setStats] = useState({ total: 0, pending: 0, transcribed: 0, analyzed: 0 });
+  
+  // Recordings list
+  const [recordings, setRecordings] = useState<OptimizationRecordingRow[]>([]);
+  const [isLoadingRecordings, setIsLoadingRecordings] = useState(false);
+  
+  // Drawer state
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [selectedRecording, setSelectedRecording] = useState<OptimizationRecordingRow | null>(null);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [transcript, setTranscript] = useState<OptimizationTranscriptRow | null>(null);
+  const [context, setContext] = useState<OptimizationContext | null>(null);
+  const [isTranscribing, setIsTranscribing] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+
+  // Fetch account name
   useEffect(() => {
     if (selectedAccount) {
       supabase
@@ -62,14 +54,154 @@ export default function Optimization() {
     }
   }, [selectedAccount]);
 
+  // Fetch recordings when account changes
+  useEffect(() => {
+    if (selectedAccount) {
+      fetchRecordings();
+      fetchStats();
+    } else {
+      setRecordings([]);
+    }
+  }, [selectedAccount]);
+
+  async function fetchStats() {
+    const { data } = await supabase
+      .from("j_ads_optimization_recordings")
+      .select("transcription_status, analysis_status")
+      .eq("account_id", selectedAccount);
+
+    if (data) {
+      const total = data.length;
+      const pending = data.filter((r) => r.transcription_status === "pending").length;
+      const transcribed = data.filter((r) => r.transcription_status === "completed").length;
+      const analyzed = data.filter((r) => r.analysis_status === "completed").length;
+
+      setStats({ total, pending, transcribed, analyzed });
+    }
+  }
+
+  async function fetchRecordings() {
+    setIsLoadingRecordings(true);
+
+    const { data, error } = await supabase
+      .from("j_ads_optimization_recordings")
+      .select("*")
+      .eq("account_id", selectedAccount)
+      .order("recorded_at", { ascending: false });
+
+    if (error) {
+      console.error("Error fetching recordings:", error);
+      setIsLoadingRecordings(false);
+      return;
+    }
+
+    setRecordings((data || []) as OptimizationRecordingRow[]);
+    setIsLoadingRecordings(false);
+  }
+
+  async function handleRecordingClick(recording: OptimizationRecordingRow) {
+    setSelectedRecording(recording);
+    setDrawerOpen(true);
+
+    // Load audio URL
+    if (recording.audio_file_path) {
+      const { data: signedUrl } = await supabase.storage
+        .from("optimizations")
+        .createSignedUrl(recording.audio_file_path, 3600);
+
+      if (signedUrl) {
+        setAudioUrl(signedUrl.signedUrl);
+      }
+    }
+
+    // Load transcript if available
+    if (recording.transcription_status === "completed") {
+      const { data: transcriptData } = await supabase
+        .from("j_ads_optimization_transcripts")
+        .select("*")
+        .eq("recording_id", recording.id)
+        .single();
+
+      if (transcriptData) {
+        setTranscript(transcriptData as OptimizationTranscriptRow);
+      }
+    }
+
+    // Load context if available
+    if (recording.analysis_status === "completed") {
+      const { data: contextData } = await supabase
+        .from("j_ads_optimization_context")
+        .select("*")
+        .eq("recording_id", recording.id)
+        .single();
+
+      if (contextData) {
+        setContext(rowToOptimizationContext(contextData));
+      }
+    }
+  }
+
+  async function handleTranscribe() {
+    if (!selectedRecording) return;
+    
+    setIsTranscribing(true);
+
+    try {
+      const { error } = await supabase.functions.invoke("j_ads_transcribe_optimization", {
+        body: { recording_id: selectedRecording.id },
+      });
+
+      if (error) throw error;
+
+      toast.success("Transcrição concluída!");
+      
+      // Refresh data
+      await fetchRecordings();
+      await handleRecordingClick(selectedRecording);
+    } catch (error) {
+      console.error("Transcription error:", error);
+      toast.error("Erro ao transcrever áudio");
+    } finally {
+      setIsTranscribing(false);
+    }
+  }
+
+  async function handleAnalyze() {
+    if (!selectedRecording) return;
+    
+    setIsAnalyzing(true);
+
+    try {
+      const { error } = await supabase.functions.invoke("j_ads_analyze_optimization", {
+        body: { recording_id: selectedRecording.id },
+      });
+
+      if (error) throw error;
+
+      toast.success("Análise com IA concluída!");
+      
+      // Refresh data
+      await fetchRecordings();
+      await handleRecordingClick(selectedRecording);
+    } catch (error: any) {
+      console.error("Analysis error:", error);
+      toast.error(error.message || "Erro ao analisar transcrição");
+    } finally {
+      setIsAnalyzing(false);
+    }
+  }
+
+  const handleUploadComplete = () => {
+    fetchRecordings();
+    fetchStats();
+  };
+
   return (
     <JumperBackground overlay={false}>
-      {/* Header */}
       <Header />
 
-      {/* Content */}
-      <div className="container mx-auto px-4 py-6 space-y-6">
-        {/* Page Header */}
+      <div className="w-full px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+        {/* Page Header - Full Width */}
         <div className="space-y-4">
           <div>
             <h1 className="text-3xl font-bold">Sistema de Otimização</h1>
@@ -83,9 +215,9 @@ export default function Optimization() {
             <AccountSelector value={selectedAccount} onValueChange={setSelectedAccount} />
           </div>
 
-          {/* Stats Cards */}
+          {/* Stats Cards - Full Width Grid */}
           {selectedAccount && (
-            <OptimizationStats 
+            <OptimizationStats
               total={stats.total}
               pending={stats.pending}
               transcribed={stats.transcribed}
@@ -94,28 +226,55 @@ export default function Optimization() {
           )}
         </div>
 
-        {/* Main Content */}
-        <div className="max-w-5xl space-y-6">
-          {!selectedAccount ? (
-            <OptimizationEmptyState />
-          ) : (
-            <>
-              {/* Recorder */}
-              <OptimizationRecorder 
-                accountId={selectedAccount} 
-                accountName={accountName}
-                onUploadComplete={handleRefresh}
-              />
+        {/* Main Content - Full Width */}
+        {!selectedAccount ? (
+          <OptimizationEmptyState />
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Recorder - Fixed on left */}
+            <div className="lg:col-span-1">
+              <div className="lg:sticky lg:top-6">
+                <OptimizationRecorder
+                  accountId={selectedAccount}
+                  accountName={accountName}
+                  onUploadComplete={handleUploadComplete}
+                />
+              </div>
+            </div>
 
-              {/* List */}
-              <OptimizationList 
-                accountId={selectedAccount}
-                onRefresh={handleRefresh}
+            {/* Recordings List - Takes remaining space */}
+            <div className="lg:col-span-2 space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-semibold">Gravações Recentes</h2>
+                {isLoadingRecordings && (
+                  <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                )}
+              </div>
+
+              <OptimizationListCompact
+                recordings={recordings}
+                onRecordingClick={handleRecordingClick}
+                selectedRecordingId={selectedRecording?.id}
               />
-            </>
-          )}
-        </div>
+            </div>
+          </div>
+        )}
       </div>
+
+      {/* Drawer for recording details */}
+      <OptimizationDrawer
+        recording={selectedRecording}
+        audioUrl={audioUrl}
+        transcript={transcript}
+        context={context}
+        open={drawerOpen}
+        onOpenChange={setDrawerOpen}
+        onTranscribe={handleTranscribe}
+        onAnalyze={handleAnalyze}
+        isTranscribing={isTranscribing}
+        isAnalyzing={isAnalyzing}
+      />
     </JumperBackground>
   );
 }
+
