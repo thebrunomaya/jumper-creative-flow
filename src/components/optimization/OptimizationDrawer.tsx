@@ -207,52 +207,59 @@ function AnalysisSection({
   return (
     <>
       <div className="space-y-4">
-        <div className="flex items-center justify-between gap-2 flex-wrap">
-          <div className="flex items-center gap-2">
-            <h3 className="font-semibold text-sm flex items-center gap-2">
-              <Brain className="h-4 w-4 text-primary" />
-              Extrato de Otimização
-            </h3>
-            {wasRevised ? (
-              <Badge variant="secondary" className="text-xs flex items-center gap-1">
-                ✏️ Revisado
-              </Badge>
-            ) : (
-              <Badge variant="outline" className="text-xs flex items-center gap-1">
-                <Sparkles className="h-3 w-3" />
-                {context.confidence_level === 'high' && 'Alta confiança'}
-                {context.confidence_level === 'medium' && 'Média confiança'}
-                {context.confidence_level === 'low' && 'Baixa confiança'}
-                {!context.confidence_level && 'Média confiança'}
-              </Badge>
-            )}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between gap-2 flex-wrap">
+            <div className="flex items-center gap-2">
+              <h3 className="font-semibold text-sm flex items-center gap-2">
+                <Brain className="h-4 w-4 text-primary" />
+                Extrato de Otimização
+              </h3>
+              {wasRevised ? (
+                <Badge variant="secondary" className="text-xs flex items-center gap-1">
+                  ✏️ Revisado
+                </Badge>
+              ) : (
+                <Badge variant="outline" className="text-xs flex items-center gap-1">
+                  <Sparkles className="h-3 w-3" />
+                  {context.confidence_level === 'high' && 'Alta confiança'}
+                  {context.confidence_level === 'medium' && 'Média confiança'}
+                  {context.confidence_level === 'low' && 'Baixa confiança'}
+                  {!context.confidence_level && 'Média confiança'}
+                </Badge>
+              )}
+            </div>
+            <div className="flex gap-2 flex-wrap">
+              <JumperButton
+                onClick={() => setUnifiedEditorOpen(true)}
+                variant="ghost"
+                size="sm"
+              >
+                <Edit className="mr-2 h-4 w-4" />
+                Editar
+              </JumperButton>
+              <JumperButton
+                onClick={handleCopyAnalysis}
+                variant="ghost"
+                size="sm"
+              >
+                <Copy className="mr-2 h-4 w-4" />
+                Copiar
+              </JumperButton>
+              <JumperButton
+                onClick={onExportPDF}
+                variant="ghost"
+                size="sm"
+              >
+                <Download className="mr-2 h-4 w-4" />
+                Exportar
+              </JumperButton>
+            </div>
           </div>
-          <div className="flex gap-2 flex-wrap">
-            <JumperButton
-              onClick={() => setUnifiedEditorOpen(true)}
-              variant="ghost"
-              size="sm"
-            >
-              <Edit className="mr-2 h-4 w-4" />
-              Editar
-            </JumperButton>
-            <JumperButton
-              onClick={handleCopyAnalysis}
-              variant="ghost"
-              size="sm"
-            >
-              <Copy className="mr-2 h-4 w-4" />
-              Copiar
-            </JumperButton>
-            <JumperButton
-              onClick={onExportPDF}
-              variant="ghost"
-              size="sm"
-            >
-              <Download className="mr-2 h-4 w-4" />
-              Exportar
-            </JumperButton>
-          </div>
+          {wasRevised && (context as any).revised_at && (
+            <p className="text-xs text-muted-foreground">
+              Extrato revisado em {new Date((context as any).revised_at).toLocaleString('pt-BR')}
+            </p>
+          )}
         </div>
         <OptimizationContextCard context={context} />
       </div>
