@@ -78,31 +78,25 @@ serve(async (req) => {
 
     console.log('✅ Recording found:', recording.audio_file_path);
 
-    // 1.5. Build hybrid account context for Whisper prompt
+    // 1.5. Build account context from Notion data
     let accountContextFinal = '';
     
-    // Priority 1: Use manual context from user input
-    if (recording.account_context) {
-      accountContextFinal = recording.account_context;
-      console.log('📝 Using manual context from user');
-    } else {
-      // Priority 2 & 3: Fetch Notion account data
-      const { data: accountData } = await supabase
-        .from('j_ads_notion_db_accounts')
-        .select('*')
-        .eq('ID', recording.account_id)
-        .maybeSingle();
-      
-      if (accountData) {
-        // Priority 2: Use dedicated "Contexto para Otimização" column
-        if (accountData['Contexto para Otimização']) {
-          accountContextFinal = accountData['Contexto para Otimização'];
-          console.log('📝 Using context from Notion (dedicated column)');
-        } else {
-          // Priority 3: Generate automatically from existing fields
-          accountContextFinal = generateAccountContext(accountData);
-          console.log('📝 Using auto-generated context from Notion fields');
-        }
+    // Fetch Notion account data
+    const { data: accountData } = await supabase
+      .from('j_ads_notion_db_accounts')
+      .select('*')
+      .eq('ID', recording.account_id)
+      .maybeSingle();
+    
+    if (accountData) {
+      // Priority 1: Use dedicated "Contexto para Otimização" column
+      if (accountData['Contexto para Otimização']) {
+        accountContextFinal = accountData['Contexto para Otimização'];
+        console.log('📝 Using context from Notion (dedicated column)');
+      } else {
+        // Priority 2: Generate automatically from existing fields
+        accountContextFinal = generateAccountContext(accountData);
+        console.log('📝 Using auto-generated context from Notion fields');
       }
     }
 
