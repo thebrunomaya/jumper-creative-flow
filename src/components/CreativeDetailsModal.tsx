@@ -15,6 +15,28 @@ interface CreativeFile {
   variation_index: number;
 }
 
+interface CreativePayload {
+  platform?: string;
+  campaignObjective?: string;
+  creativeType?: string;
+  creativeName?: string;
+  observations?: string;
+  mainTexts?: string[];
+  titles?: string[];
+  description?: string;
+  callToAction?: string;
+  cta?: string;
+  destinationUrl?: string;
+}
+
+interface CreativeResult {
+  success?: boolean;
+  logs?: string[];
+  createdCreatives?: any[];
+  error?: string;
+  stack?: string;
+}
+
 interface CreativeSubmission {
   id: string;
   creative_name: string;
@@ -25,7 +47,16 @@ interface CreativeSubmission {
   status: string;
   account_id: string;
   manager_email: string;
-  [key: string]: unknown;
+  client_name?: string;
+  client?: string;
+  manager_name?: string;
+  updated_at?: string;
+  platform?: string;
+  total_variations?: number;
+  error?: string;
+  payload?: CreativePayload;
+  files?: CreativeFile[];
+  result?: CreativeResult;
 }
 
 interface CreativeDetailsModalProps {
@@ -43,9 +74,9 @@ export const CreativeDetailsModal: React.FC<CreativeDetailsModalProps> = ({
 
   if (!submission) return null;
 
-  const payload = submission.payload || {};
-  const files = submission.files || [];
-  const result = submission.result || {};
+  const payload = (submission.payload || {}) as CreativePayload;
+  const files = (submission.files || []) as CreativeFile[];
+  const result = (submission.result || {}) as CreativeResult;
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleString('pt-BR');
