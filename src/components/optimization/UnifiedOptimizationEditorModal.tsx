@@ -104,35 +104,95 @@ export function UnifiedOptimizationEditorModal({
   const handleSave = async () => {
     setIsSaving(true);
 
+    // Toast de início para feedback imediato
+    const savingToast = toast.loading("Salvando revisão...");
+
     try {
       const userEmail = (await supabase.auth.getUser()).data.user?.email;
+
+      // 🔍 LOG 1: Informações antes do save
+      console.log("🔍 [SAVE] Iniciando salvamento da revisão:", {
+        contextId: context.id,
+        recordingId: recordingId,
+        userEmail,
+        currentConfidenceLevel: context.confidence_level,
+        hasRevisedAt: !!(context as any).revised_at,
+      });
 
       // Parse Markdown back to OptimizationContext
       const parsedContext = parseMarkdownToContext(markdownContent);
 
+      // Dados que serão atualizados
+      const updatePayload = {
+        summary: parsedContext.summary || context.summary,
+        actions_taken: JSON.parse(JSON.stringify(parsedContext.actions_taken || context.actions_taken)),
+        metrics_mentioned: JSON.parse(JSON.stringify(parsedContext.metrics_mentioned || context.metrics_mentioned)),
+        strategy: JSON.parse(JSON.stringify(parsedContext.strategy || context.strategy)),
+        timeline: JSON.parse(JSON.stringify(parsedContext.timeline || context.timeline)),
+        confidence_level: "revised",
+        revised_at: new Date().toISOString(),
+      };
+
+      // 🔍 LOG 2: Payload do update
+      console.log("🔍 [SAVE] Payload do update:", {
+        contextId: context.id,
+        confidence_level: updatePayload.confidence_level,
+        revised_at: updatePayload.revised_at,
+      });
+
       // Update only the context table, not the recording
-      // Convert to JSON for Supabase JSONB columns
-      const { error: updateError } = await supabase
+      const { data: updateData, error: updateError } = await supabase
         .from("j_ads_optimization_context")
-        .update({
-          summary: parsedContext.summary || context.summary,
-          actions_taken: JSON.parse(JSON.stringify(parsedContext.actions_taken || context.actions_taken)),
-          metrics_mentioned: JSON.parse(JSON.stringify(parsedContext.metrics_mentioned || context.metrics_mentioned)),
-          strategy: JSON.parse(JSON.stringify(parsedContext.strategy || context.strategy)),
-          timeline: JSON.parse(JSON.stringify(parsedContext.timeline || context.timeline)),
-          confidence_level: "revised",
-          revised_at: new Date().toISOString(),
-        })
-        .eq("id", context.id);
+        .update(updatePayload)
+        .eq("id", context.id)
+        .select();
 
-      if (updateError) throw updateError;
+      // 🔍 LOG 3: Resposta do update
+      console.log("🔍 [SAVE] Resposta do Supabase update:", {
+        success: !updateError,
+        error: updateError,
+        updatedData: updateData,
+      });
 
-      toast.success("Análise atualizada com sucesso!");
+      if (updateError) {
+        console.error("❌ [SAVE] Erro no update:", updateError);
+        throw updateError;
+      }
+
+      // 🔍 VERIFICAÇÃO PÓS-SAVE: Confirmar que foi salvo corretamente
+      const { data: verifyData, error: verifyError } = await supabase
+        .from("j_ads_optimization_context")
+        .select("id, confidence_level, revised_at")
+        .eq("id", context.id)
+        .single();
+
+      console.log("🔍 [SAVE] Verificação pós-save:", {
+        verifyData,
+        verifyError,
+      });
+
+      if (verifyError) {
+        console.error("❌ [SAVE] Erro na verificação pós-save:", verifyError);
+        throw new Error("Falha ao verificar salvamento");
+      }
+
+      // Verificar se os dados foram realmente salvos
+      if (verifyData.confidence_level !== "revised" || !verifyData.revised_at) {
+        console.error("❌ [SAVE] Dados não foram salvos corretamente:", verifyData);
+        throw new Error("Os dados foram salvos mas não refletem as mudanças esperadas");
+      }
+
+      console.log("✅ [SAVE] Salvamento confirmado com sucesso!");
+
+      // Atualizar toast para sucesso
+      toast.success("Análise revisada salva com sucesso!", { id: savingToast });
+      
+      // Chamar callback de sucesso para forçar refetch
       onSaveSuccess();
       onClose();
     } catch (err: any) {
-      console.error("Save error:", err);
-      toast.error(err.message || "Erro ao salvar análise");
+      console.error("❌ [SAVE] Erro geral no save:", err);
+      toast.error(err.message || "Erro ao salvar análise", { id: savingToast });
     } finally {
       setIsSaving(false);
     }
