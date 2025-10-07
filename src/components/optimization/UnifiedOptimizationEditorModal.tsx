@@ -169,6 +169,12 @@ export function UnifiedOptimizationEditorModal({
 
       if (fnError || !fnData?.success) {
         console.error('❌ [SAVE] Falha na Edge Function:', fnError || fnData);
+        
+        // Tratamento específico para FunctionsFetchError
+        if (fnError?.name === 'FunctionsFetchError' || fnError?.message?.includes('Failed to send a request')) {
+          throw new Error('Serviço temporariamente indisponível. Tente novamente em alguns segundos.');
+        }
+        
         throw new Error(fnError?.message || fnData?.error || 'Falha ao salvar');
       }
 
