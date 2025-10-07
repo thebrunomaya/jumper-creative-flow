@@ -366,7 +366,7 @@ export function OptimizationDrawer({
                 <User className="h-4 w-4" />
                 <span>Gravado por: <strong className="text-foreground">{recording.recorded_by}</strong></span>
               </div>
-              {recording.duration_seconds && (
+              {recording.duration_seconds != null && recording.duration_seconds > 0 && (
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Clock className="h-4 w-4" />
                   <span>Duração: <strong className="text-foreground">{formatDuration(recording.duration_seconds)}</strong></span>
