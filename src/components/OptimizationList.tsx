@@ -21,6 +21,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 
 interface OptimizationListProps {
@@ -166,6 +167,48 @@ export function OptimizationList({ accountId, onRefresh }: OptimizationListProps
     }
   }
 
+  async function handleDelete(recordingId: string) {
+    const recording = recordings.find(r => r.id === recordingId);
+    if (!recording) return;
+
+    const confirmDelete = window.confirm(
+      'Tem certeza que deseja apagar esta gravação? Esta ação não pode ser desfeita.'
+    );
+
+    if (!confirmDelete) return;
+
+    try {
+      // Delete audio file from storage if it exists
+      if (recording.audio_file_path) {
+        const { error: storageError } = await supabase.storage
+          .from('optimizations')
+          .remove([recording.audio_file_path]);
+        
+        if (storageError) {
+          console.error('Error deleting audio file:', storageError);
+          // Continue with deletion even if storage fails
+        }
+      }
+
+      // Delete recording (cascade will delete context and transcript)
+      const { error: deleteError } = await supabase
+        .from('j_ads_optimization_recordings')
+        .delete()
+        .eq('id', recordingId);
+
+      if (deleteError) throw deleteError;
+
+      toast.success('Gravação apagada com sucesso!');
+      
+      // Reload recordings
+      fetchRecordings();
+      onRefresh?.();
+    } catch (error: any) {
+      console.error('Delete error:', error);
+      toast.error(error.message || 'Erro ao apagar gravação');
+    }
+  }
+
   const getStatusBadge = (status: string) => {
     const variants: Record<string, { variant: "default" | "secondary" | "destructive" | "outline", label: string }> = {
       pending: { variant: "secondary", label: "Pendente" },
@@ -254,6 +297,14 @@ export function OptimizationList({ accountId, onRefresh }: OptimizationListProps
                                   Copiar Transcrição
                                 </DropdownMenuItem>
                               )}
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem 
+                                onClick={() => handleDelete(recording.id)}
+                                className="text-destructive focus:text-destructive"
+                              >
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                Apagar Gravação
+                              </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </div>
