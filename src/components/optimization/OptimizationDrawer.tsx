@@ -28,6 +28,7 @@ import {
   Edit,
   RotateCw,
   Sparkles,
+  Trash2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -57,6 +58,7 @@ interface OptimizationDrawerProps {
   isTranscribing: boolean;
   isAnalyzing: boolean;
   accountName?: string;
+  onDelete?: () => void;
 }
 
 // Extracted Transcription Section Component
@@ -295,8 +297,50 @@ export function OptimizationDrawer({
   isTranscribing,
   isAnalyzing,
   accountName = "Conta",
+  onDelete,
 }: OptimizationDrawerProps) {
   if (!recording) return null;
+
+  const handleDelete = async () => {
+    const confirmDelete = window.confirm(
+      'Tem certeza que deseja apagar esta gravação? Esta ação não pode ser desfeita.'
+    );
+
+    if (!confirmDelete) return;
+
+    try {
+      // Delete audio file from storage if it exists
+      if (recording.audio_file_path) {
+        const { error: storageError } = await supabase.storage
+          .from('optimizations')
+          .remove([recording.audio_file_path]);
+        
+        if (storageError) {
+          console.error('Error deleting audio file:', storageError);
+          // Continue with deletion even if storage fails
+        }
+      }
+
+      // Delete recording (cascade will delete context and transcript)
+      const { error: deleteError } = await supabase
+        .from('j_ads_optimization_recordings')
+        .delete()
+        .eq('id', recording.id);
+
+      if (deleteError) throw deleteError;
+
+      toast.success('Gravação apagada com sucesso!');
+      
+      // Close drawer
+      onOpenChange(false);
+      
+      // Refresh recordings list
+      if (onDelete) onDelete();
+    } catch (error: any) {
+      console.error('Delete error:', error);
+      toast.error(error.message || 'Erro ao apagar gravação');
+    }
+  };
 
   const getStatusBadge = (status: string) => {
     const variants: Record<
@@ -342,9 +386,19 @@ export function OptimizationDrawer({
                 {format(new Date(recording.recorded_at), "PPP 'às' HH:mm", { locale: ptBR })}
               </SheetDescription>
             </div>
-            <div className="flex gap-2">
-              {getStatusBadge(recording.transcription_status)}
-              {getStatusBadge(recording.analysis_status)}
+            <div className="flex items-center gap-2">
+              <div className="flex gap-2">
+                {getStatusBadge(recording.transcription_status)}
+                {getStatusBadge(recording.analysis_status)}
+              </div>
+              <JumperButton
+                variant="ghost"
+                size="icon"
+                onClick={handleDelete}
+                className="text-destructive hover:text-destructive hover:bg-destructive/10"
+              >
+                <Trash2 className="h-4 w-4" />
+              </JumperButton>
             </div>
           </div>
         </SheetHeader>

@@ -335,6 +335,10 @@ export default function Optimization() {
         isTranscribing={isTranscribing}
         isAnalyzing={isAnalyzing}
         accountName={accountName}
+        onDelete={() => {
+          fetchRecordings();
+          fetchStats();
+        }}
       />
     </JumperBackground>
   );
