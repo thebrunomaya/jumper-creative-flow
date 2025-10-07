@@ -41,8 +41,7 @@ import { OptimizationContextCard } from "@/components/OptimizationContextCard";
 import { exportOptimizationToPDF } from "@/utils/pdfExport";
 import { generateAnalysisMarkdown } from "@/utils/markdownExport";
 import { TranscriptionEditorModal } from "./TranscriptionEditorModal";
-import { AnalysisEditorModal } from "./AnalysisEditorModal";
-import { AnalysisTextEditorModal } from "./AnalysisTextEditorModal";
+import { UnifiedOptimizationEditorModal } from "./UnifiedOptimizationEditorModal";
 import { MarkdownPreviewModal } from "./MarkdownPreviewModal";
 
 interface OptimizationDrawerProps {
@@ -186,8 +185,7 @@ function AnalysisSection({
   onRefresh: () => void;
   onExportPDF: () => void;
 }) {
-  const [textEditorOpen, setTextEditorOpen] = useState(false);
-  const [regenerateOpen, setRegenerateOpen] = useState(false);
+  const [unifiedEditorOpen, setUnifiedEditorOpen] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [markdown, setMarkdown] = useState("");
 
@@ -231,20 +229,12 @@ function AnalysisSection({
           </div>
           <div className="flex gap-2 flex-wrap">
             <JumperButton
-              onClick={() => setTextEditorOpen(true)}
+              onClick={() => setUnifiedEditorOpen(true)}
               variant="ghost"
               size="sm"
             >
               <Edit className="mr-2 h-4 w-4" />
               Editar
-            </JumperButton>
-            <JumperButton
-              onClick={() => setRegenerateOpen(true)}
-              variant="ghost"
-              size="sm"
-            >
-              <RotateCw className="mr-2 h-4 w-4" />
-              Regenerar
             </JumperButton>
             <JumperButton
               onClick={handleCopyAnalysis}
@@ -267,18 +257,12 @@ function AnalysisSection({
         <OptimizationContextCard context={context} />
       </div>
 
-      <AnalysisTextEditorModal
+      <UnifiedOptimizationEditorModal
+        isOpen={unifiedEditorOpen}
+        onClose={() => setUnifiedEditorOpen(false)}
         context={context}
-        open={textEditorOpen}
-        onOpenChange={setTextEditorOpen}
-        onSave={onRefresh}
-      />
-
-      <AnalysisEditorModal
-        isOpen={regenerateOpen}
-        onClose={() => setRegenerateOpen(false)}
         recordingId={recordingId}
-        onRegenerateSuccess={onRefresh}
+        onSaveSuccess={onRefresh}
       />
 
       <MarkdownPreviewModal
