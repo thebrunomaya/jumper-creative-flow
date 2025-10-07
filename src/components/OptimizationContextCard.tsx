@@ -59,20 +59,6 @@ export function OptimizationContextCard({ context }: OptimizationContextCardProp
   return (
     <Card className="border-primary/20">
       <CardContent className="p-6 space-y-6">
-        {/* Header */}
-        <div className="flex items-start justify-between gap-4">
-          <div className="space-y-1">
-            <h3 className="font-semibold text-lg flex items-center gap-2">
-              <CheckCircle2 className="h-5 w-5 text-primary" />
-              Análise Concluída
-            </h3>
-            <p className="text-sm text-muted-foreground">
-              {format(context.recorded_at, "PPP 'às' HH:mm", { locale: ptBR })}
-            </p>
-          </div>
-          {getConfidenceBadge(context.confidence_level)}
-        </div>
-
         {/* Summary */}
         <div className="space-y-2">
           <h4 className="font-medium text-sm flex items-center gap-2">

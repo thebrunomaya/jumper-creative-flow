@@ -22,10 +22,10 @@ import {
   FileText,
   Brain,
   Copy,
-  Trash2,
   CheckCircle2,
   User,
   Download,
+  Edit,
 } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -37,8 +37,10 @@ import {
 } from "@/types/optimization";
 import { OptimizationContextCard } from "@/components/OptimizationContextCard";
 import { exportOptimizationToPDF } from "@/utils/pdfExport";
+import { generateAnalysisMarkdown } from "@/utils/markdownExport";
 import { TranscriptionEditorModal } from "./TranscriptionEditorModal";
 import { AnalysisEditorModal } from "./AnalysisEditorModal";
+import { MarkdownPreviewModal } from "./MarkdownPreviewModal";
 
 interface OptimizationDrawerProps {
   recording: OptimizationRecordingRow | null;
@@ -160,6 +162,120 @@ function TranscriptionSection({
   );
 }
 
+// Extracted Analysis Section Component
+function AnalysisSection({
+  context,
+  recordingId,
+  accountName,
+  recordedBy,
+  recordedAt,
+  durationSeconds,
+  onRefresh,
+  onExportPDF,
+}: {
+  context: OptimizationContext;
+  recordingId: string;
+  accountName: string;
+  recordedBy: string;
+  recordedAt: Date;
+  durationSeconds?: number;
+  onRefresh: () => void;
+  onExportPDF: () => void;
+}) {
+  const [editorOpen, setEditorOpen] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [markdown, setMarkdown] = useState("");
+
+  const getConfidenceBadge = (level?: string) => {
+    const variants = {
+      high: 'default',
+      medium: 'secondary',
+      low: 'outline'
+    } as const;
+    
+    const labels = {
+      high: 'Alta confiança',
+      medium: 'Média confiança',
+      low: 'Baixa confiança'
+    };
+
+    return (
+      <Badge variant={variants[level as keyof typeof variants] || 'secondary'}>
+        {labels[level as keyof typeof labels] || 'Média confiança'}
+      </Badge>
+    );
+  };
+
+  const handleCopyAnalysis = () => {
+    const md = generateAnalysisMarkdown(
+      context,
+      accountName,
+      recordedBy,
+      recordedAt,
+      durationSeconds
+    );
+    setMarkdown(md);
+    setPreviewOpen(true);
+  };
+
+  return (
+    <>
+      <div className="space-y-4">
+        <div className="flex items-center justify-between gap-2 flex-wrap">
+          <div className="flex items-center gap-2">
+            <h3 className="font-semibold text-sm flex items-center gap-2">
+              <CheckCircle2 className="h-4 w-4 text-success" />
+              Extrato de Otimização
+            </h3>
+            {getConfidenceBadge(context.confidence_level)}
+          </div>
+          <div className="flex gap-2 flex-wrap">
+            <JumperButton
+              onClick={() => setEditorOpen(true)}
+              variant="ghost"
+              size="sm"
+            >
+              <Edit className="mr-2 h-4 w-4" />
+              Ajustar
+            </JumperButton>
+            <JumperButton
+              onClick={handleCopyAnalysis}
+              variant="ghost"
+              size="sm"
+            >
+              <Copy className="mr-2 h-4 w-4" />
+              Copiar
+            </JumperButton>
+            <JumperButton
+              onClick={onExportPDF}
+              variant="ghost"
+              size="sm"
+            >
+              <Download className="mr-2 h-4 w-4" />
+              Exportar
+            </JumperButton>
+          </div>
+        </div>
+        <OptimizationContextCard context={context} />
+      </div>
+
+      <AnalysisEditorModal
+        isOpen={editorOpen}
+        onClose={() => setEditorOpen(false)}
+        recordingId={recordingId}
+        onRegenerateSuccess={onRefresh}
+      />
+
+      <MarkdownPreviewModal
+        open={previewOpen}
+        onOpenChange={setPreviewOpen}
+        markdown={markdown}
+        title="Preview do Extrato de Otimização"
+      />
+    </>
+  );
+}
+
 export function OptimizationDrawer({
   recording,
   audioUrl,
@@ -174,8 +290,6 @@ export function OptimizationDrawer({
   isAnalyzing,
   accountName = "Conta",
 }: OptimizationDrawerProps) {
-  const [isAnalysisModalOpen, setIsAnalysisModalOpen] = useState(false);
-  
   if (!recording) return null;
 
   const getStatusBadge = (status: string) => {
@@ -227,21 +341,6 @@ export function OptimizationDrawer({
               {getStatusBadge(recording.analysis_status)}
             </div>
           </div>
-
-          {/* Export PDF Button */}
-          {transcript && (
-            <div className="pt-4">
-              <JumperButton
-                onClick={handleExportPDF}
-                variant="ghost"
-                size="sm"
-                className="w-full"
-              >
-                <Download className="mr-2 h-4 w-4" />
-                Exportar Relatório em PDF
-              </JumperButton>
-            </div>
-          )}
         </SheetHeader>
 
         <ScrollArea className="flex-1 px-6">
@@ -366,22 +465,16 @@ export function OptimizationDrawer({
             {recording.analysis_status === "completed" && context && (
               <>
                 <Separator />
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-semibold text-sm flex items-center gap-2">
-                      <Brain className="h-4 w-4 text-primary" />
-                      Análise com IA
-                    </h3>
-                    <JumperButton
-                      variant="secondary"
-                      size="sm"
-                      onClick={() => setIsAnalysisModalOpen(true)}
-                    >
-                      Regenerar Análise
-                    </JumperButton>
-                  </div>
-                  <OptimizationContextCard context={context} />
-                </div>
+                <AnalysisSection
+                  context={context}
+                  recordingId={recording.id}
+                  accountName={accountName}
+                  recordedBy={recording.recorded_by}
+                  recordedAt={new Date(recording.recorded_at)}
+                  durationSeconds={recording.duration_seconds}
+                  onRefresh={onRefresh}
+                  onExportPDF={handleExportPDF}
+                />
               </>
             )}
 
@@ -423,13 +516,6 @@ export function OptimizationDrawer({
           </div>
         </ScrollArea>
       </SheetContent>
-
-      <AnalysisEditorModal
-        isOpen={isAnalysisModalOpen}
-        onClose={() => setIsAnalysisModalOpen(false)}
-        recordingId={recording.id}
-        onRegenerateSuccess={onRefresh}
-      />
     </Sheet>
   );
 }
