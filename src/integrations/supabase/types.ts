@@ -843,6 +843,59 @@ export type Database = {
         }
         Relationships: []
       }
+      j_ads_optimization_context: {
+        Row: {
+          account_id: string
+          actions_taken: Json
+          client_report_generated: boolean | null
+          client_report_sent_at: string | null
+          confidence_level: string | null
+          created_at: string | null
+          id: string
+          metrics_mentioned: Json
+          recording_id: string
+          strategy: Json
+          summary: string
+          timeline: Json
+        }
+        Insert: {
+          account_id: string
+          actions_taken: Json
+          client_report_generated?: boolean | null
+          client_report_sent_at?: string | null
+          confidence_level?: string | null
+          created_at?: string | null
+          id?: string
+          metrics_mentioned: Json
+          recording_id: string
+          strategy: Json
+          summary: string
+          timeline: Json
+        }
+        Update: {
+          account_id?: string
+          actions_taken?: Json
+          client_report_generated?: boolean | null
+          client_report_sent_at?: string | null
+          confidence_level?: string | null
+          created_at?: string | null
+          id?: string
+          metrics_mentioned?: Json
+          recording_id?: string
+          strategy?: Json
+          summary?: string
+          timeline?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "j_ads_optimization_context_recording_id_fkey"
+            columns: ["recording_id"]
+            isOneToOne: false
+            referencedRelation: "j_ads_optimization_recordings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       j_ads_optimization_recordings: {
         Row: {
           account_id: string

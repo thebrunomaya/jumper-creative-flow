@@ -12,11 +12,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Loader2, Clock, FileAudio, AlertCircle, FileText } from "lucide-react";
+import { Loader2, Clock, FileAudio, AlertCircle, FileText, Brain } from "lucide-react";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { OptimizationRecordingRow, OptimizationTranscriptRow } from "@/types/optimization";
+import { OptimizationRecordingRow, OptimizationTranscriptRow, OptimizationContext, rowToOptimizationContext } from "@/types/optimization";
+import { OptimizationContextCard } from "@/components/OptimizationContextCard";
 
 interface Account {
   notion_id: string;
@@ -32,6 +33,8 @@ export function OptimizationList() {
   const [audioUrls, setAudioUrls] = useState<Record<string, string>>({});
   const [transcribing, setTranscribing] = useState<Record<string, boolean>>({});
   const [transcripts, setTranscripts] = useState<Record<string, OptimizationTranscriptRow>>({});
+  const [analyzing, setAnalyzing] = useState<Record<string, boolean>>({});
+  const [contexts, setContexts] = useState<Record<string, OptimizationContext>>({});
 
   // Fetch user's accounts
   useEffect(() => {
@@ -114,6 +117,26 @@ export function OptimizationList() {
       }
     }
 
+    // Fetch contexts for completed analyses
+    const analyzedRecordings = (data || []).filter(
+      r => r.analysis_status === 'completed'
+    );
+
+    if (analyzedRecordings.length > 0) {
+      const { data: contextsData } = await supabase
+        .from('j_ads_optimization_context')
+        .select('*')
+        .in('recording_id', analyzedRecordings.map(r => r.id));
+
+      if (contextsData) {
+        const contextsMap: Record<string, OptimizationContext> = {};
+        contextsData.forEach(c => {
+          contextsMap[c.recording_id] = rowToOptimizationContext(c);
+        });
+        setContexts(contextsMap);
+      }
+    }
+
     setIsLoading(false);
   }
 
@@ -136,6 +159,28 @@ export function OptimizationList() {
       toast.error('Erro ao transcrever áudio');
     } finally {
       setTranscribing(prev => ({ ...prev, [recordingId]: false }));
+    }
+  }
+
+  async function handleAnalyze(recordingId: string) {
+    setAnalyzing(prev => ({ ...prev, [recordingId]: true }));
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('j_ads_analyze_optimization', {
+        body: { recording_id: recordingId }
+      });
+
+      if (error) throw error;
+
+      toast.success('Análise com IA concluída!');
+      
+      // Reload recordings to get updated context
+      fetchRecordings();
+    } catch (error: any) {
+      console.error('Analysis error:', error);
+      toast.error(error.message || 'Erro ao analisar transcrição');
+    } finally {
+      setAnalyzing(prev => ({ ...prev, [recordingId]: false }));
     }
   }
 
@@ -291,6 +336,35 @@ export function OptimizationList() {
                             </div>
                           )}
                         </div>
+
+                        {/* Analyze Button */}
+                        {recording.analysis_status === 'pending' && (
+                          <Button
+                            onClick={() => handleAnalyze(recording.id)}
+                            disabled={analyzing[recording.id]}
+                            size="sm"
+                            className="w-full"
+                          >
+                            {analyzing[recording.id] ? (
+                              <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                Analisando com IA...
+                              </>
+                            ) : (
+                              <>
+                                <Brain className="mr-2 h-4 w-4" />
+                                Analisar com IA
+                              </>
+                            )}
+                          </Button>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Context Display */}
+                    {recording.analysis_status === 'completed' && contexts[recording.id] && (
+                      <div className="mt-4">
+                        <OptimizationContextCard context={contexts[recording.id]} />
                       </div>
                     )}
                   </div>
