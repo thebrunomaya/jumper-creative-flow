@@ -3,12 +3,11 @@
  */
 
 import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Label } from "@/components/ui/label";
 import { Loader2, Save, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -43,15 +42,13 @@ export function UnifiedOptimizationEditorModal({
   const [strategy, setStrategy] = useState("");
   const [timeline, setTimeline] = useState("");
 
-  // Estado para regeneração
+  // Estado para IA
   const [selectedModel, setSelectedModel] = useState<string>("gpt-4.1-2025-04-14");
-  const [correctionPrompt, setCorrectionPrompt] = useState("");
+  const [aiInstruction, setAiInstruction] = useState("");
 
   // Estados de controle
   const [isSaving, setIsSaving] = useState(false);
-  const [isRegenerating, setIsRegenerating] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState("edit");
+  const [isApplyingAI, setIsApplyingAI] = useState(false);
 
   // Função auxiliar para converter array/objeto em texto com bullets
   const formatAsText = (data: any): string => {
@@ -84,17 +81,59 @@ export function UnifiedOptimizationEditorModal({
       setMetrics(formatAsText(context.metrics_mentioned));
       setStrategy(formatAsText(context.strategy));
       setTimeline(formatAsText(context.timeline));
-      setCorrectionPrompt("");
-      setError(null);
+      setAiInstruction("");
     }
   }, [isOpen, context]);
 
-  // Função para salvar edições manuais
-  const handleSave = async () => {
-    setIsSaving(true);
-    setError(null);
+  // Função para aplicar IA
+  const handleApplyAI = async () => {
+    if (!aiInstruction.trim()) {
+      toast.error("Digite uma instrução para a IA");
+      return;
+    }
+
+    setIsApplyingAI(true);
 
     try {
+      const { data, error: functionError } = await supabase.functions.invoke(
+        "j_ads_analyze_optimization",
+        {
+          body: {
+            recording_id: recordingId,
+            model: selectedModel,
+            correction_prompt: aiInstruction.trim(),
+          },
+        }
+      );
+
+      if (functionError) throw functionError;
+
+      // Atualizar os campos de texto com o conteúdo regenerado
+      if (data?.context) {
+        setSummary(data.context.summary || "");
+        setActions(formatAsText(data.context.actions_taken));
+        setMetrics(formatAsText(data.context.metrics_mentioned));
+        setStrategy(formatAsText(data.context.strategy));
+        setTimeline(formatAsText(data.context.timeline));
+        setAiInstruction("");
+        
+        toast.success("Análise regenerada! Revise e salve quando estiver pronto.");
+      }
+    } catch (err: any) {
+      console.error("AI application error:", err);
+      toast.error(err.message || "Erro ao aplicar IA");
+    } finally {
+      setIsApplyingAI(false);
+    }
+  };
+
+  // Função para salvar edições
+  const handleSave = async () => {
+    setIsSaving(true);
+
+    try {
+      const userEmail = (await supabase.auth.getUser()).data.user?.email;
+
       // Converter texto de volta para estruturas apropriadas
       const parseTextToArray = (text: string) => {
         return text
@@ -112,6 +151,7 @@ export function UnifiedOptimizationEditorModal({
           strategy: parseTextToArray(strategy),
           timeline: parseTextToArray(timeline),
           revised_at: new Date().toISOString(),
+          revised_by: userEmail || 'unknown',
         })
         .eq("id", context.id);
 
@@ -122,153 +162,88 @@ export function UnifiedOptimizationEditorModal({
       onClose();
     } catch (err: any) {
       console.error("Save error:", err);
-      const errorMessage = err.message || "Erro ao salvar análise";
-      setError(errorMessage);
-      toast.error(errorMessage);
+      toast.error(err.message || "Erro ao salvar análise");
     } finally {
       setIsSaving(false);
     }
   };
 
-  // Função para regenerar com IA
-  const handleRegenerate = async () => {
-    if (!selectedModel) {
-      toast.error("Por favor, selecione um modelo de IA");
-      return;
-    }
-
-    setIsRegenerating(true);
-    setError(null);
-
-    try {
-      const { data, error: functionError } = await supabase.functions.invoke(
-        "j_ads_analyze_optimization",
-        {
-          body: {
-            recording_id: recordingId,
-            model: selectedModel,
-            correction_prompt: correctionPrompt.trim() || undefined,
-          },
-        }
-      );
-
-      if (functionError) throw functionError;
-
-      // Atualizar os campos de texto com o conteúdo regenerado
-      if (data?.context) {
-        setSummary(data.context.summary || "");
-        setActions(formatAsText(data.context.actions_taken));
-        setMetrics(formatAsText(data.context.metrics_mentioned));
-        setStrategy(formatAsText(data.context.strategy));
-        setTimeline(formatAsText(data.context.timeline));
-        
-        toast.success("Análise regenerada! Revise o conteúdo na aba 'Editar Texto' e salve quando estiver pronto.");
-        setActiveTab("edit"); // Volta para aba de edição
-      }
-    } catch (err: any) {
-      console.error("Regeneration error:", err);
-      const errorMessage = err.message || "Erro ao regenerar análise";
-      setError(errorMessage);
-      toast.error(errorMessage);
-    } finally {
-      setIsRegenerating(false);
-    }
-  };
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-primary" />
-            Editar Extrato de Otimização
-          </DialogTitle>
-          <DialogDescription>
-            Edite o texto diretamente ou regenere com IA
-          </DialogDescription>
+          <DialogTitle>Editar Extrato de Otimização</DialogTitle>
         </DialogHeader>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="edit">📝 Editar Texto</TabsTrigger>
-            <TabsTrigger value="regenerate">🤖 Regenerar</TabsTrigger>
-          </TabsList>
+        <div className="flex-1 space-y-4 overflow-y-auto">
+          <div className="space-y-2">
+            <Label htmlFor="summary">Resumo</Label>
+            <Textarea
+              id="summary"
+              value={summary}
+              onChange={(e) => setSummary(e.target.value)}
+              rows={3}
+              className="resize-none"
+              placeholder="Resumo da otimização..."
+            />
+          </div>
 
-          <TabsContent value="edit" className="space-y-4 mt-4">
-            <div>
-              <label className="text-sm font-medium mb-2 block">
-                Resumo
-              </label>
-              <Textarea
-                value={summary}
-                onChange={(e) => setSummary(e.target.value)}
-                rows={3}
-                className="resize-none"
-                placeholder="Resumo da otimização..."
-              />
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="actions">Ações Tomadas</Label>
+            <Textarea
+              id="actions"
+              value={actions}
+              onChange={(e) => setActions(e.target.value)}
+              rows={6}
+              className="resize-none font-mono text-sm"
+              placeholder="• Ação 1&#10;• Ação 2&#10;• Ação 3"
+            />
+          </div>
 
-            <div>
-              <label className="text-sm font-medium mb-2 block">
-                Ações Tomadas
-              </label>
-              <Textarea
-                value={actions}
-                onChange={(e) => setActions(e.target.value)}
-                rows={6}
-                className="resize-none font-mono text-sm"
-                placeholder="• Ação 1&#10;• Ação 2&#10;• Ação 3"
-              />
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="metrics">Métricas Mencionadas</Label>
+            <Textarea
+              id="metrics"
+              value={metrics}
+              onChange={(e) => setMetrics(e.target.value)}
+              rows={4}
+              className="resize-none font-mono text-sm"
+              placeholder="• Métrica 1&#10;• Métrica 2"
+            />
+          </div>
 
-            <div>
-              <label className="text-sm font-medium mb-2 block">
-                Métricas Mencionadas
-              </label>
-              <Textarea
-                value={metrics}
-                onChange={(e) => setMetrics(e.target.value)}
-                rows={4}
-                className="resize-none font-mono text-sm"
-                placeholder="• Métrica 1&#10;• Métrica 2"
-              />
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="strategy">Estratégia</Label>
+            <Textarea
+              id="strategy"
+              value={strategy}
+              onChange={(e) => setStrategy(e.target.value)}
+              rows={4}
+              className="resize-none font-mono text-sm"
+              placeholder="• Ponto estratégico 1&#10;• Ponto estratégico 2"
+            />
+          </div>
 
-            <div>
-              <label className="text-sm font-medium mb-2 block">
-                Estratégia
-              </label>
-              <Textarea
-                value={strategy}
-                onChange={(e) => setStrategy(e.target.value)}
-                rows={4}
-                className="resize-none font-mono text-sm"
-                placeholder="• Ponto estratégico 1&#10;• Ponto estratégico 2"
-              />
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="timeline">Timeline</Label>
+            <Textarea
+              id="timeline"
+              value={timeline}
+              onChange={(e) => setTimeline(e.target.value)}
+              rows={3}
+              className="resize-none font-mono text-sm"
+              placeholder="• Marco 1&#10;• Marco 2"
+            />
+          </div>
 
-            <div>
-              <label className="text-sm font-medium mb-2 block">
-                Timeline
-              </label>
-              <Textarea
-                value={timeline}
-                onChange={(e) => setTimeline(e.target.value)}
-                rows={3}
-                className="resize-none font-mono text-sm"
-                placeholder="• Marco 1&#10;• Marco 2"
-              />
-            </div>
-          </TabsContent>
-
-          <TabsContent value="regenerate" className="space-y-4 mt-4">
-            <div>
-              <label className="text-sm font-medium mb-2 block">
-                Modelo de IA *
-              </label>
+          <div className="space-y-3 p-4 border rounded-lg bg-muted/30">
+            <Label>Regenerar com IA (Opcional)</Label>
+            
+            <div className="space-y-2">
+              <Label htmlFor="model-select" className="text-sm">Modelo de IA</Label>
               <Select value={selectedModel} onValueChange={setSelectedModel}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione um modelo" />
+                <SelectTrigger id="model-select">
+                  <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   {AI_MODELS.map((model) => (
@@ -280,64 +255,54 @@ export function UnifiedOptimizationEditorModal({
               </Select>
             </div>
 
-            <div>
-              <label className="text-sm font-medium mb-2 block">
-                Prompt Corretivo (Opcional)
-              </label>
+            <div className="space-y-2">
+              <Label htmlFor="ai-instruction" className="text-sm">Instrução para IA (Opcional)</Label>
               <Textarea
-                placeholder="Exemplo: Dê mais ênfase às métricas de conversão. Analise melhor a estratégia de segmentação..."
-                value={correctionPrompt}
-                onChange={(e) => setCorrectionPrompt(e.target.value)}
-                rows={6}
-                className="resize-none"
+                id="ai-instruction"
+                value={aiInstruction}
+                onChange={(e) => setAiInstruction(e.target.value)}
+                placeholder="Ex: Seja mais específico nas ações tomadas. Dê ênfase às métricas de ROI..."
+                rows={3}
+                className="resize-none text-sm"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && e.ctrlKey) {
+                    e.preventDefault();
+                    handleApplyAI();
+                  }
+                }}
               />
-              <p className="text-xs text-muted-foreground mt-2">
-                Use este campo para dar instruções específicas sobre como a IA deve melhorar a análise.
+              <p className="text-xs text-muted-foreground">
+                Deixe em branco para regeneração completa ou adicione instruções específicas
               </p>
             </div>
 
             <Button
-              onClick={handleRegenerate}
-              disabled={isRegenerating || !selectedModel}
+              onClick={handleApplyAI}
+              disabled={isApplyingAI}
+              variant="secondary"
+              size="sm"
               className="w-full"
             >
-              {isRegenerating ? (
+              {isApplyingAI ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Regenerando...
+                  Aplicando IA...
                 </>
               ) : (
                 <>
                   <Sparkles className="mr-2 h-4 w-4" />
-                  Regenerar Análise
+                  Aplicar IA
                 </>
               )}
             </Button>
+          </div>
+        </div>
 
-            <p className="text-xs text-muted-foreground">
-              💡 Após regenerar, o conteúdo será atualizado na aba "Editar Texto" para você revisar antes de salvar.
-            </p>
-          </TabsContent>
-        </Tabs>
-
-        {error && (
-          <Alert variant="destructive">
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
-
-        <div className="flex justify-end gap-2 pt-4 border-t">
-          <Button
-            variant="outline"
-            onClick={onClose}
-            disabled={isSaving || isRegenerating}
-          >
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose} disabled={isSaving || isApplyingAI}>
             Cancelar
           </Button>
-          <Button
-            onClick={handleSave}
-            disabled={isSaving || isRegenerating}
-          >
+          <Button onClick={handleSave} disabled={isSaving || isApplyingAI}>
             {isSaving ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -350,7 +315,7 @@ export function UnifiedOptimizationEditorModal({
               </>
             )}
           </Button>
-        </div>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
