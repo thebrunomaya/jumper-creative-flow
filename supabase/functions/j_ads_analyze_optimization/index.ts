@@ -237,7 +237,7 @@ ${historicalContext}`;
             { role: 'system', content: systemPrompt },
             { role: 'user', content: userPrompt }
           ],
-          max_completion_tokens: 2000,
+          max_completion_tokens: 8192,
         }),
       });
 
