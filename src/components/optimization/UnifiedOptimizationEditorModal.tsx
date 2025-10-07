@@ -158,7 +158,7 @@ export function UnifiedOptimizationEditorModal({
       const { data: updateData, error: updateError } = await supabase
         .from("j_ads_optimization_context")
         .update(updatePayload)
-        .eq("id", context.id)
+        .eq("recording_id", recordingId)
         .select();
 
       // 🔍 LOG 3: Resposta do update
@@ -177,7 +177,7 @@ export function UnifiedOptimizationEditorModal({
       const { data: verifyData, error: verifyError } = await supabase
         .from("j_ads_optimization_context")
         .select("id, confidence_level, revised_at")
-        .eq("id", context.id)
+        .eq("recording_id", recordingId)
         .maybeSingle();
 
       console.log("🔍 [SAVE] Verificação pós-save:", {
