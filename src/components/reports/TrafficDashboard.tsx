@@ -7,10 +7,19 @@ import { SkeletonDashboard } from '@/components/ui/skeleton-screen';
 import { formatMetric, getMetricPerformance } from '@/utils/metricPerformance';
 import { startOfDay, subDays, format } from 'date-fns';
 import { applyObjectiveFilter } from '@/utils/dashboardObjectives';
+import { InsightPanel } from '@/components/insights/InsightPanel';
+
+interface AccountInfo {
+  id: string;
+  name: string;
+  metaAdsId?: string;
+}
 
 interface TrafficDashboardProps {
   accountId: string;
   selectedPeriod: number;
+  accountInfo?: AccountInfo;
+  accountName?: string;
 }
 
 interface TrafficMetrics {
@@ -24,7 +33,12 @@ interface TrafficMetrics {
   conversionRate: number;
 }
 
-export const TrafficDashboard: React.FC<TrafficDashboardProps> = ({ accountId, selectedPeriod }) => {
+export const TrafficDashboard: React.FC<TrafficDashboardProps> = ({
+  accountId,
+  selectedPeriod,
+  accountInfo,
+  accountName
+}) => {
   const [metrics, setMetrics] = useState<TrafficMetrics | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -133,6 +147,15 @@ export const TrafficDashboard: React.FC<TrafficDashboardProps> = ({ accountId, s
           Análise detalhada de geração de tráfego e engajamento
         </p>
       </div>
+
+      {/* Comparative Insights Panel */}
+      <InsightPanel
+        accountId={accountInfo?.id}
+        accountName={accountInfo?.name || accountName}
+        metaAdsId={accountId}
+        selectedPeriod={selectedPeriod}
+        dashboardType="trafego"
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <MetricCard

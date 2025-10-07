@@ -7,10 +7,19 @@ import { SkeletonDashboard } from '@/components/ui/skeleton-screen';
 import { formatMetric, getMetricPerformance } from '@/utils/metricPerformance';
 import { startOfDay, subDays, format } from 'date-fns';
 import { applyObjectiveFilter } from '@/utils/dashboardObjectives';
+import { InsightPanel } from '@/components/insights/InsightPanel';
+
+interface AccountInfo {
+  id: string;
+  name: string;
+  metaAdsId?: string;
+}
 
 interface BrandAwarenessDashboardProps {
   accountId: string;
   selectedPeriod: number;
+  accountInfo?: AccountInfo;
+  accountName?: string;
 }
 
 interface BrandAwarenessMetrics {
@@ -23,7 +32,12 @@ interface BrandAwarenessMetrics {
   spend: number;
 }
 
-export const BrandAwarenessDashboard: React.FC<BrandAwarenessDashboardProps> = ({ accountId, selectedPeriod }) => {
+export const BrandAwarenessDashboard: React.FC<BrandAwarenessDashboardProps> = ({
+  accountId,
+  selectedPeriod,
+  accountInfo,
+  accountName
+}) => {
   const [metrics, setMetrics] = useState<BrandAwarenessMetrics | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -132,6 +146,15 @@ export const BrandAwarenessDashboard: React.FC<BrandAwarenessDashboardProps> = (
           Análise de alcance e visibilidade da marca
         </p>
       </div>
+
+      {/* Comparative Insights Panel */}
+      <InsightPanel
+        accountId={accountInfo?.id}
+        accountName={accountInfo?.name || accountName}
+        metaAdsId={accountId}
+        selectedPeriod={selectedPeriod}
+        dashboardType="reconhecimento"
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <MetricCard

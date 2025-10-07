@@ -152,57 +152,71 @@ export function ReportsDashboard({ accountName, accountInfo }: ReportsDashboardP
       
       case 'trafego':
         return (
-          <TrafficDashboard 
+          <TrafficDashboard
             accountId={accountId}
             selectedPeriod={selectedPeriod}
+            accountInfo={accountInfo}
+            accountName={accountName}
           />
         );
       
       case 'engajamento':
         return (
-          <EngagementDashboard 
+          <EngagementDashboard
             accountId={accountId}
             selectedPeriod={selectedPeriod}
+            accountInfo={accountInfo}
+            accountName={accountName}
           />
         );
       
       case 'leads':
         return (
-          <LeadsDashboard 
+          <LeadsDashboard
             accountId={accountId}
             selectedPeriod={selectedPeriod}
+            accountInfo={accountInfo}
+            accountName={accountName}
           />
         );
       
       case 'reconhecimento':
         return (
-          <BrandAwarenessDashboard 
+          <BrandAwarenessDashboard
             accountId={accountId}
             selectedPeriod={selectedPeriod}
+            accountInfo={accountInfo}
+            accountName={accountName}
           />
         );
       
       case 'alcance':
         return (
-          <ReachDashboard 
+          <ReachDashboard
             accountId={accountId}
             selectedPeriod={selectedPeriod}
+            accountInfo={accountInfo}
+            accountName={accountName}
           />
         );
       
       case 'video':
         return (
-          <VideoViewsDashboard 
+          <VideoViewsDashboard
             accountId={accountId}
             selectedPeriod={selectedPeriod}
+            accountInfo={accountInfo}
+            accountName={accountName}
           />
         );
       
       case 'conversoes':
         return (
-          <ConversionsDashboard 
+          <ConversionsDashboard
             accountId={accountId}
             selectedPeriod={selectedPeriod}
+            accountInfo={accountInfo}
+            accountName={accountName}
           />
         );
       

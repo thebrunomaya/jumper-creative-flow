@@ -6,10 +6,19 @@ import { MetricCard } from '@/components/ui/metric-card';
 import { SkeletonDashboard } from '@/components/ui/skeleton-screen';
 import { formatMetric, getMetricPerformance } from '@/utils/metricPerformance';
 import { startOfDay, subDays, format } from 'date-fns';
+import { InsightPanel } from '@/components/insights/InsightPanel';
+
+interface AccountInfo {
+  id: string;
+  name: string;
+  metaAdsId?: string;
+}
 
 interface ReachDashboardProps {
   accountId: string;
   selectedPeriod: number;
+  accountInfo?: AccountInfo;
+  accountName?: string;
 }
 
 interface ReachMetrics {
@@ -20,7 +29,12 @@ interface ReachMetrics {
   spend: number;
 }
 
-export const ReachDashboard: React.FC<ReachDashboardProps> = ({ accountId, selectedPeriod }) => {
+export const ReachDashboard: React.FC<ReachDashboardProps> = ({
+  accountId,
+  selectedPeriod,
+  accountInfo,
+  accountName
+}) => {
   const [metrics, setMetrics] = useState<ReachMetrics | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -117,6 +131,15 @@ export const ReachDashboard: React.FC<ReachDashboardProps> = ({ accountId, selec
           Análise de expansão e cobertura de audiência
         </p>
       </div>
+
+      {/* Comparative Insights Panel */}
+      <InsightPanel
+        accountId={accountInfo?.id}
+        accountName={accountInfo?.name || accountName}
+        metaAdsId={accountId}
+        selectedPeriod={selectedPeriod}
+        dashboardType="alcance"
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <MetricCard

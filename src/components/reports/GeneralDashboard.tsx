@@ -5,16 +5,17 @@ import { SkeletonDashboard } from '@/components/ui/skeleton-screen';
 import { Button } from '@/components/ui/button';
 import { RefreshCw, DollarSign, Eye, MousePointer, Users, BarChart3, Clock } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { 
-  getCTRPerformance, 
-  getCPMPerformance, 
-  getCPCPerformance, 
+import {
+  getCTRPerformance,
+  getCPMPerformance,
+  getCPCPerformance,
   getFrequencyPerformance,
-  formatCurrency, 
-  formatPercentage, 
-  formatNumber 
+  formatCurrency,
+  formatPercentage,
+  formatNumber
 } from '@/utils/metricPerformance';
 import { startOfDay, subDays, format } from 'date-fns';
+import { InsightPanel } from '@/components/insights/InsightPanel';
 
 interface GeneralMetrics {
   total_spend: string;
@@ -188,6 +189,15 @@ export function GeneralDashboard({ accountName = 'Account', accountInfo, selecte
           Atualizar
         </Button>
       </div>
+
+      {/* Comparative Insights Panel */}
+      <InsightPanel
+        accountId={accountInfo?.id}
+        accountName={accountInfo?.name || accountName}
+        metaAdsId={accountInfo?.metaAdsId}
+        selectedPeriod={selectedPeriod}
+        dashboardType="geral"
+      />
 
       {/* General Metrics Cards - Jumper Design System */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
