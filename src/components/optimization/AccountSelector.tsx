@@ -33,6 +33,7 @@ export function AccountSelector({ value, onValueChange }: AccountSelectorProps) 
     const { data, error } = await supabase
       .from("j_ads_notion_db_accounts")
       .select("notion_id, Conta")
+      .in("Status", ["Ativo", "Offboarding", "Onboarding"])
       .order("Conta", { ascending: true });
 
     if (error) {
