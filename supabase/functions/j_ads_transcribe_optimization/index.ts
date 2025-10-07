@@ -2,6 +2,41 @@ import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.56.0';
 
+// Helper to generate account context from Notion data
+function generateAccountContext(accountData: any): string {
+  const parts: string[] = [];
+  
+  if (accountData.Conta) {
+    parts.push(`Conta: ${accountData.Conta}`);
+  }
+  
+  if (accountData['Quais são os produtos/serviços que deseja divulgar?']) {
+    const produtos = accountData['Quais são os produtos/serviços que deseja divulgar?'];
+    parts.push(`Produtos: ${produtos.substring(0, 100)}`);
+  }
+  
+  if (accountData['Quem é o cliente ideal? (Persona)']) {
+    const persona = accountData['Quem é o cliente ideal? (Persona)'];
+    parts.push(`Persona: ${persona.substring(0, 100)}`);
+  }
+  
+  if (accountData['Ticket médio atual (valor médio por venda ou contrato).']) {
+    parts.push(`Ticket: ${accountData['Ticket médio atual (valor médio por venda ou contrato).']}`);
+  }
+  
+  if (accountData['Seus principais diferenciais competitivos.']) {
+    const dif = accountData['Seus principais diferenciais competitivos.'];
+    parts.push(`Diferenciais: ${dif.substring(0, 80)}`);
+  }
+  
+  if (accountData['Quais são as maiores dores e objeções desses clientes?']) {
+    const dores = accountData['Quais são as maiores dores e objeções desses clientes?'];
+    parts.push(`Dores: ${dores.substring(0, 80)}`);
+  }
+  
+  return parts.join(' • ').substring(0, 480);
+}
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -43,6 +78,34 @@ serve(async (req) => {
 
     console.log('✅ Recording found:', recording.audio_file_path);
 
+    // 1.5. Build hybrid account context for Whisper prompt
+    let accountContextFinal = '';
+    
+    // Priority 1: Use manual context from user input
+    if (recording.account_context) {
+      accountContextFinal = recording.account_context;
+      console.log('📝 Using manual context from user');
+    } else {
+      // Priority 2 & 3: Fetch Notion account data
+      const { data: accountData } = await supabase
+        .from('j_ads_notion_db_accounts')
+        .select('*')
+        .eq('ID', recording.account_id)
+        .maybeSingle();
+      
+      if (accountData) {
+        // Priority 2: Use dedicated "Contexto para Otimização" column
+        if (accountData['Contexto para Otimização']) {
+          accountContextFinal = accountData['Contexto para Otimização'];
+          console.log('📝 Using context from Notion (dedicated column)');
+        } else {
+          // Priority 3: Generate automatically from existing fields
+          accountContextFinal = generateAccountContext(accountData);
+          console.log('📝 Using auto-generated context from Notion fields');
+        }
+      }
+    }
+
     // 2. Update status to processing
     await supabase
       .from('j_ads_optimization_recordings')
@@ -64,12 +127,23 @@ serve(async (req) => {
 
     console.log('✅ Audio downloaded, size:', audioData.size, 'bytes');
 
-    // 4. Convert blob to file for OpenAI
+    // 4. Convert blob to file for OpenAI + build prompt
+    const basePrompt = `Transcrição de análise de otimização de Meta Ads em português brasileiro.
+Termos técnicos comuns: CPA, CPM, CTR, ROAS, CPC, alcance, frequência, impressões, conversões, 
+campanhas, conjuntos de anúncios, criativos, pixel, remarketing, lookalike, retargeting.`;
+
+    const finalPrompt = accountContextFinal 
+      ? `${basePrompt}\n\nContexto da conta:\n${accountContextFinal}`.trim()
+      : basePrompt;
+
+    console.log('🎯 Prompt final para Whisper:', finalPrompt);
+
     const formData = new FormData();
     formData.append('file', audioData, 'audio.webm');
     formData.append('model', 'whisper-1');
     formData.append('language', 'pt');
     formData.append('response_format', 'verbose_json'); // Get segments with timestamps
+    formData.append('prompt', finalPrompt);
 
     console.log('🔄 Sending to OpenAI Whisper...');
 

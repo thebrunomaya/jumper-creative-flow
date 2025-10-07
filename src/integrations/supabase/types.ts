@@ -898,6 +898,7 @@ export type Database = {
       }
       j_ads_optimization_recordings: {
         Row: {
+          account_context: string | null
           account_id: string
           analysis_status: string | null
           audio_file_path: string | null
@@ -909,6 +910,7 @@ export type Database = {
           transcription_status: string | null
         }
         Insert: {
+          account_context?: string | null
           account_id: string
           analysis_status?: string | null
           audio_file_path?: string | null
@@ -920,6 +922,7 @@ export type Database = {
           transcription_status?: string | null
         }
         Update: {
+          account_context?: string | null
           account_id?: string
           analysis_status?: string | null
           audio_file_path?: string | null

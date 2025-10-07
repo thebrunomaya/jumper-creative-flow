@@ -13,8 +13,10 @@ import { useAuth } from "@/contexts/AuthContext";
 import { JumperButton } from "@/components/ui/jumper-button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Mic, Square, Upload, Loader2, AlertCircle } from "lucide-react";
+import { Mic, Square, Upload, Loader2, AlertCircle, ChevronDown, ChevronUp } from "lucide-react";
 import { toast } from "sonner";
+import { Textarea } from "@/components/ui/textarea";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 interface OptimizationRecorderProps {
   accountId: string;
@@ -26,6 +28,8 @@ export function OptimizationRecorder({ accountId, accountName, onUploadComplete 
   const { user } = useAuth();
   const [isUploading, setIsUploading] = useState(false);
   const [recordingDuration, setRecordingDuration] = useState(0);
+  const [accountContext, setAccountContext] = useState("");
+  const [isContextOpen, setIsContextOpen] = useState(false);
 
   const {
     status,
@@ -92,6 +96,7 @@ export function OptimizationRecorder({ accountId, accountName, onUploadComplete 
           duration_seconds: recordingDuration,
           transcription_status: "pending",
           analysis_status: "pending",
+          account_context: accountContext.trim() || null,
         });
 
       if (dbError) {
@@ -105,6 +110,7 @@ export function OptimizationRecorder({ accountId, accountName, onUploadComplete 
       // Reset state
       clearBlobUrl();
       setRecordingDuration(0);
+      setAccountContext("");
       
       // Notify parent
       onUploadComplete?.();
@@ -136,6 +142,33 @@ export function OptimizationRecorder({ accountId, accountName, onUploadComplete 
       </CardHeader>
 
       <CardContent className="space-y-6">
+        {/* Optional Account Context */}
+        <Collapsible open={isContextOpen} onOpenChange={setIsContextOpen}>
+          <CollapsibleTrigger className="flex items-center justify-between w-full p-3 rounded-lg hover:bg-muted/50 transition-colors">
+            <div className="flex items-center gap-2 text-sm font-medium">
+              <span>Contexto da Conta</span>
+              <span className="text-xs text-muted-foreground">(opcional)</span>
+            </div>
+            {isContextOpen ? (
+              <ChevronUp className="h-4 w-4 text-muted-foreground" />
+            ) : (
+              <ChevronDown className="h-4 w-4 text-muted-foreground" />
+            )}
+          </CollapsibleTrigger>
+          <CollapsibleContent className="pt-3">
+            <Textarea
+              value={accountContext}
+              onChange={(e) => setAccountContext(e.target.value)}
+              placeholder="Ex: Produtos específicos, termos técnicos, nomes de campanhas ou criativos que você vai mencionar..."
+              className="min-h-[100px] resize-y"
+              maxLength={500}
+            />
+            <p className="text-xs text-muted-foreground mt-2">
+              Ajuda a melhorar a precisão da transcrição com termos específicos desta conta.
+            </p>
+          </CollapsibleContent>
+        </Collapsible>
+
         {/* Recording Controls */}
         <div className="space-y-4">
           {status === "idle" && (
