@@ -20,6 +20,7 @@ const Admin = lazy(() => import("./pages/Admin"));
 const Manager = lazy(() => import("./pages/Manager"));
 const CreativeSystem = lazy(() => import("@/components/CreativeSystem"));
 const ReportsPage = lazy(() => import("./pages/ReportsPage"));
+const Optimization = lazy(() => import("./pages/Optimization"));
 
 // Loading component reutilizável com acessibilidade
 const PageLoading = () => (
@@ -84,6 +85,13 @@ const App = () => {
                   <ProtectedRoute>
                     <Suspense fallback={<PageLoading />}>
                       <ReportsPage />
+                    </Suspense>
+                  </ProtectedRoute>
+                } />
+                <Route path="/optimization" element={
+                  <ProtectedRoute>
+                    <Suspense fallback={<PageLoading />}>
+                      <Optimization />
                     </Suspense>
                   </ProtectedRoute>
                 } />
