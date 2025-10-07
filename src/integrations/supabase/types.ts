@@ -429,6 +429,7 @@ export type Database = {
             | string
             | null
           Conta: string | null
+          "Contexto para Otimização": string | null
           created_at: string | null
           "Endereço da Empresa.": string | null
           "Existem perfis de clientes diferentes para cada produto/serviç":
@@ -543,6 +544,7 @@ export type Database = {
             | string
             | null
           Conta?: string | null
+          "Contexto para Otimização"?: string | null
           created_at?: string | null
           "Endereço da Empresa."?: string | null
           "Existem perfis de clientes diferentes para cada produto/serviç"?:
@@ -657,6 +659,7 @@ export type Database = {
             | string
             | null
           Conta?: string | null
+          "Contexto para Otimização"?: string | null
           created_at?: string | null
           "Endereço da Empresa."?: string | null
           "Existem perfis de clientes diferentes para cada produto/serviç"?:
