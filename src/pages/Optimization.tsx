@@ -3,7 +3,7 @@
  * Full-width list with drawer for details
  */
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { OptimizationRecorder } from "@/components/OptimizationRecorder";
 import { AccountSelector } from "@/components/optimization/AccountSelector";
@@ -11,8 +11,9 @@ import { OptimizationEmptyState } from "@/components/optimization/OptimizationEm
 import { OptimizationStats } from "@/components/optimization/OptimizationStats";
 import { OptimizationListCompact } from "@/components/optimization/OptimizationListCompact";
 import { OptimizationDrawer } from "@/components/optimization/OptimizationDrawer";
+import { OptimizationFilters, FilterStatus, SortBy } from "@/components/optimization/OptimizationFilters";
+import { RecorderSkeleton, RecordingsListSkeleton, StatsSkeleton } from "@/components/optimization/OptimizationSkeleton";
 import { JumperBackground } from "@/components/ui/jumper-background";
-import { Loader2 } from "lucide-react";
 import Header from "@/components/Header";
 import { toast } from "sonner";
 import {
@@ -27,9 +28,14 @@ export default function Optimization() {
   const [accountName, setAccountName] = useState<string>("");
   const [stats, setStats] = useState({ total: 0, pending: 0, transcribed: 0, analyzed: 0 });
   
+  // Filter and sort state
+  const [filterStatus, setFilterStatus] = useState<FilterStatus>("all");
+  const [sortBy, setSortBy] = useState<SortBy>("newest");
+  
   // Recordings list
   const [recordings, setRecordings] = useState<OptimizationRecordingRow[]>([]);
   const [isLoadingRecordings, setIsLoadingRecordings] = useState(false);
+  const [isLoadingStats, setIsLoadingStats] = useState(false);
   
   // Drawer state
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -64,7 +70,44 @@ export default function Optimization() {
     }
   }, [selectedAccount]);
 
+  // Filter and sort recordings
+  const filteredAndSortedRecordings = useMemo(() => {
+    let filtered = [...recordings];
+
+    // Apply filter
+    switch (filterStatus) {
+      case "pending":
+        filtered = filtered.filter((r) => r.transcription_status === "pending");
+        break;
+      case "transcribed":
+        filtered = filtered.filter((r) => r.transcription_status === "completed");
+        break;
+      case "analyzed":
+        filtered = filtered.filter((r) => r.analysis_status === "completed");
+        break;
+      default:
+        break;
+    }
+
+    // Apply sort
+    switch (sortBy) {
+      case "oldest":
+        filtered.sort((a, b) => new Date(a.recorded_at).getTime() - new Date(b.recorded_at).getTime());
+        break;
+      case "duration":
+        filtered.sort((a, b) => (b.duration_seconds || 0) - (a.duration_seconds || 0));
+        break;
+      case "newest":
+      default:
+        filtered.sort((a, b) => new Date(b.recorded_at).getTime() - new Date(a.recorded_at).getTime());
+        break;
+    }
+
+    return filtered;
+  }, [recordings, filterStatus, sortBy]);
+
   async function fetchStats() {
+    setIsLoadingStats(true);
     const { data } = await supabase
       .from("j_ads_optimization_recordings")
       .select("transcription_status, analysis_status")
@@ -78,6 +121,7 @@ export default function Optimization() {
 
       setStats({ total, pending, transcribed, analyzed });
     }
+    setIsLoadingStats(false);
   }
 
   async function fetchRecordings() {
@@ -217,12 +261,18 @@ export default function Optimization() {
 
           {/* Stats Cards - Full Width Grid */}
           {selectedAccount && (
-            <OptimizationStats
-              total={stats.total}
-              pending={stats.pending}
-              transcribed={stats.transcribed}
-              analyzed={stats.analyzed}
-            />
+            <>
+              {isLoadingStats ? (
+                <StatsSkeleton />
+              ) : (
+                <OptimizationStats
+                  total={stats.total}
+                  pending={stats.pending}
+                  transcribed={stats.transcribed}
+                  analyzed={stats.analyzed}
+                />
+              )}
+            </>
           )}
         </div>
 
@@ -234,28 +284,41 @@ export default function Optimization() {
             {/* Recorder - Fixed on left */}
             <div className="lg:col-span-1">
               <div className="lg:sticky lg:top-6">
-                <OptimizationRecorder
-                  accountId={selectedAccount}
-                  accountName={accountName}
-                  onUploadComplete={handleUploadComplete}
-                />
+                {isLoadingRecordings && recordings.length === 0 ? (
+                  <RecorderSkeleton />
+                ) : (
+                  <OptimizationRecorder
+                    accountId={selectedAccount}
+                    accountName={accountName}
+                    onUploadComplete={handleUploadComplete}
+                  />
+                )}
               </div>
             </div>
 
             {/* Recordings List - Takes remaining space */}
             <div className="lg:col-span-2 space-y-4">
-              <div className="flex items-center justify-between">
-                <h2 className="text-xl font-semibold">Gravações Recentes</h2>
-                {isLoadingRecordings && (
-                  <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-                )}
-              </div>
+              {/* Filters and sorting */}
+              {recordings.length > 0 && (
+                <OptimizationFilters
+                  filterStatus={filterStatus}
+                  sortBy={sortBy}
+                  onFilterChange={setFilterStatus}
+                  onSortChange={setSortBy}
+                  totalCount={recordings.length}
+                  filteredCount={filteredAndSortedRecordings.length}
+                />
+              )}
 
-              <OptimizationListCompact
-                recordings={recordings}
-                onRecordingClick={handleRecordingClick}
-                selectedRecordingId={selectedRecording?.id}
-              />
+              {isLoadingRecordings ? (
+                <RecordingsListSkeleton count={3} />
+              ) : (
+                <OptimizationListCompact
+                  recordings={filteredAndSortedRecordings}
+                  onRecordingClick={handleRecordingClick}
+                  selectedRecordingId={selectedRecording?.id}
+                />
+              )}
             </div>
           </div>
         )}
