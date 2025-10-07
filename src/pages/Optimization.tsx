@@ -139,43 +139,30 @@ export default function Optimization() {
   }
 
   async function loadRecordingDetails(recording: OptimizationRecordingRow) {
-    // Reset states
     setTranscript(null);
     setContext(null);
     setAudioUrl(null);
 
-    // Load audio URL
     if (recording.audio_file_path) {
       const { data: signedUrl } = await supabase.storage
         .from("optimizations")
         .createSignedUrl(recording.audio_file_path, 3600);
-
-      if (signedUrl) {
-        setAudioUrl(signedUrl.signedUrl);
-      }
+      if (signedUrl) setAudioUrl(signedUrl.signedUrl);
     }
 
-    // Always try to load transcript (might exist even if status is not updated)
     const { data: transcriptData } = await supabase
       .from("j_ads_optimization_transcripts")
       .select("*")
       .eq("recording_id", recording.id)
       .maybeSingle();
+    if (transcriptData) setTranscript(transcriptData as OptimizationTranscriptRow);
 
-    if (transcriptData) {
-      setTranscript(transcriptData as OptimizationTranscriptRow);
-    }
-
-    // Always try to load context (might exist even if status is not updated)
     const { data: contextData } = await supabase
       .from("j_ads_optimization_context")
       .select("*")
       .eq("recording_id", recording.id)
       .maybeSingle();
-
-    if (contextData) {
-      setContext(rowToOptimizationContext(contextData));
-    }
+    if (contextData) setContext(rowToOptimizationContext(contextData));
   }
 
   async function handleTranscribe() {
