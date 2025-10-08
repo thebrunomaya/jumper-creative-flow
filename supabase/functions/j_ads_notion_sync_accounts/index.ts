@@ -88,10 +88,44 @@ function extractPeopleEmails(prop: any): string {
 function extractRelation(prop: any): string {
   if (!prop) return "";
   if (prop.relation && Array.isArray(prop.relation)) {
-    // For now, return the IDs. In future, we could resolve these to names
+    // Return IDs - will be resolved to names later
     return prop.relation.map((r: any) => r.id).filter(Boolean).join(", ");
   }
   return extractText(prop);
+}
+
+// Helper to fetch page names from Notion by IDs
+async function resolveRelationNames(relationIds: string, notionToken: string): Promise<string> {
+  if (!relationIds) return "";
+
+  const ids = relationIds.split(",").map(id => id.trim()).filter(Boolean);
+  if (ids.length === 0) return "";
+
+  const names: string[] = [];
+
+  for (const pageId of ids) {
+    try {
+      const response = await fetch(`https://api.notion.com/v1/pages/${pageId}`, {
+        headers: {
+          "Authorization": `Bearer ${notionToken}`,
+          "Notion-Version": "2022-06-28",
+        },
+      });
+
+      if (response.ok) {
+        const page = await response.json();
+        // Extract title from page properties
+        const titleProp = Object.values(page.properties).find((prop: any) => prop.type === 'title');
+        if (titleProp && titleProp.title && titleProp.title[0]) {
+          names.push(titleProp.title[0].plain_text);
+        }
+      }
+    } catch (error) {
+      console.error(`Error fetching page ${pageId}:`, error);
+    }
+  }
+
+  return names.join(", ");
 }
 
 function extractEmail(prop: any): string {
@@ -347,13 +381,22 @@ serve(async (req) => {
 
     console.log(`Processed ${accountsData.length} valid accounts`);
 
+    // Resolve Gerente relation IDs to names
+    console.log('Resolving Gerente names from Notion...');
+    for (const account of accountsData) {
+      if (account["Gerente"]) {
+        const gerenteName = await resolveRelationNames(account["Gerente"], NOTION_TOKEN);
+        account["Gerente"] = gerenteName || account["Gerente"]; // Fallback to ID if resolution fails
+      }
+    }
+
     // Fazer upsert na tabela
     let upsertResult;
     if (accountsData.length > 0) {
       const { data, error: upsertErr } = await service
         .from('j_ads_notion_db_accounts')
         .upsert(accountsData, { onConflict: 'notion_id' });
-      
+
       if (upsertErr) {
         console.error('Upsert error:', upsertErr);
         throw upsertErr;
