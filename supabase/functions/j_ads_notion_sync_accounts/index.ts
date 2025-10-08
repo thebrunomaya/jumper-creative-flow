@@ -60,19 +60,29 @@ function extractMultiSelect(prop: any): string {
 function extractPeople(prop: any): string {
   if (!prop) return "";
   if (prop.people && Array.isArray(prop.people)) {
-    // CRITICAL: Extract emails instead of names for Notion OAuth matching
+    // Extract names for display purposes
     // Notion returns: { id, name, person: { email } }
     return prop.people
       .map((p: any) => {
-        // Try to get email first (for OAuth matching)
-        if (p.person?.email) return p.person.email;
-        // Fallback to name or id
-        return p.name || p.id;
+        // Use name for display
+        return p.name || p.person?.email || p.id;
       })
       .filter(Boolean)
       .join(", ");
   }
   return extractText(prop);
+}
+
+// NEW: Extract emails separately for OAuth matching
+function extractPeopleEmails(prop: any): string {
+  if (!prop) return "";
+  if (prop.people && Array.isArray(prop.people)) {
+    return prop.people
+      .map((p: any) => p.person?.email)
+      .filter(Boolean)
+      .join(", ");
+  }
+  return "";
 }
 
 function extractRelation(prop: any): string {
@@ -146,8 +156,10 @@ function processAccountPage(page: any): any {
     "Objetivos": extractMultiSelect(props["Objetivos"]),
     "Plataformas": extractMultiSelect(props["Plataformas"]),
     "Rastreamento": extractMultiSelect(props["Rastreamento"]),
-    "Gestor": extractPeople(props["Gestor"]),
-    "Supervisor": extractPeople(props["Supervisor"]),
+    "Gestor": extractPeople(props["Gestor"]), // Names for display
+    "Gestor Email": extractPeopleEmails(props["Gestor"]), // Emails for OAuth matching
+    "Supervisor": extractPeople(props["Supervisor"]), // Names for display
+    "Supervisor Email": extractPeopleEmails(props["Supervisor"]), // Emails for OAuth matching
     "Parceiro": extractRelation(props["Parceiro"]),
     "Gerente": extractRelation(props["Gerente"]),
     "Canal SoWork": extractText(props["Canal SoWork"]),

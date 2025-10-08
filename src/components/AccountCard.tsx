@@ -17,6 +17,7 @@ interface AccountCardProps {
     objectives?: string[];
     gestor?: string;
     supervisor?: string;
+    gerente?: string;
   };
   accessReason: AccessReason;
   className?: string;
@@ -119,6 +120,12 @@ export function AccountCard({ account, accessReason, className }: AccountCardPro
             <div>
               <span className="font-medium">Supervisor:</span>{' '}
               <span className="truncate block">{account.supervisor}</span>
+            </div>
+          )}
+          {account.gerente && (
+            <div>
+              <span className="font-medium">Gerente:</span>{' '}
+              <span className="truncate block">{account.gerente}</span>
             </div>
           )}
         </div>

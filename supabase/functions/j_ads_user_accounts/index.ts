@@ -73,12 +73,12 @@ serve(async (req) => {
 
     if (isNotionOAuth) {
       // NOTION OAUTH PATH: Find accounts where user is Gestor or Supervisor
-      console.log('🎯 Notion OAuth detected - searching by Gestor/Supervisor fields');
+      console.log('🎯 Notion OAuth detected - searching by Gestor/Supervisor Email fields');
 
       const { data: accountsData, error: accountsError } = await service
         .from('j_ads_notion_db_accounts')
-        .select('notion_id, "Gestor", "Supervisor"')
-        .or(`"Gestor".ilike.%${targetEmail}%,"Supervisor".ilike.%${targetEmail}%`);
+        .select('notion_id, "Gestor Email", "Supervisor Email"')
+        .or(`"Gestor Email".ilike.%${targetEmail}%,"Supervisor Email".ilike.%${targetEmail}%`);
 
       if (accountsError) {
         console.error('Error finding accounts by Gestor/Supervisor:', accountsError);
@@ -161,8 +161,11 @@ serve(async (req) => {
       // Include other fields that might be useful
       status: account["Status"],
       tier: account["Tier"],
-      gestor: account["Gestor"],
-      supervisor: account["Supervisor"],
+      gestor: account["Gestor"], // Names for display
+      gestor_email: account["Gestor Email"], // Emails for OAuth
+      supervisor: account["Supervisor"], // Names for display
+      supervisor_email: account["Supervisor Email"], // Emails for OAuth
+      gerente: account["Gerente"], // Relation ID (could be resolved to name later)
       canal_sowork: account["Canal SoWork"],
       id_meta_ads: account["ID Meta Ads"],
       meta_ads_id: account["ID Meta Ads"], // Add duplicate key for consistency

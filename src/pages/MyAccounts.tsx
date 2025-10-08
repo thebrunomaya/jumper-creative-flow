@@ -25,12 +25,13 @@ function getAccessReason(
 ): AccessReason {
   if (userRole === 'admin') return 'ADMIN';
 
-  const gestor = account.gestor?.toLowerCase() || '';
-  const supervisor = account.supervisor?.toLowerCase() || '';
+  // Use email fields for matching (gestor_email, supervisor_email)
+  const gestorEmail = account.gestor_email?.toLowerCase() || '';
+  const supervisorEmail = account.supervisor_email?.toLowerCase() || '';
   const email = userEmail.toLowerCase();
 
-  if (gestor.includes(email)) return 'GESTOR';
-  if (supervisor.includes(email)) return 'SUPERVISOR';
+  if (gestorEmail.includes(email)) return 'GESTOR';
+  if (supervisorEmail.includes(email)) return 'SUPERVISOR';
 
   return 'GERENTE';
 }
