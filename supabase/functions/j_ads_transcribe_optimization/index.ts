@@ -195,15 +195,58 @@ campanhas, conjuntos de anúncios, criativos, pixel, remarketing, lookalike, ret
     console.log('📝 Text length:', transcription.text?.length || 0);
     console.log('🔢 Segments:', transcription.segments?.length || 0);
 
-    // 6. Store transcription in database
+
+    // 7. Process transcription into organized topics using GPT-4
+    console.log('📝 Processing transcription into topics...');
+    
+    let processedText = null;
+    try {
+      const gptResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${openaiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o',
+          messages: [
+            {
+              role: 'system',
+              content: 'Você é um assistente especializado em organizar transcrições de análises de tráfego pago em tópicos estruturados e claros.'
+            },
+            {
+              role: 'user',
+              content: `Organize a seguinte transcrição em tópicos claros e estruturados, mantendo todas as informações relevantes. Use bullet points e formatação markdown quando apropriado:
+
+${transcription.text}`
+            }
+          ],
+          temperature: 0.3,
+        }),
+      });
+
+      if (gptResponse.ok) {
+        const gptData = await gptResponse.json();
+        processedText = gptData.choices[0]?.message?.content || null;
+        console.log('✅ Transcription processed into topics');
+      } else {
+        console.warn('⚠️ Failed to process transcription into topics, will save raw text only');
+      }
+    } catch (processError) {
+      console.warn('⚠️ Error processing transcription:', processError);
+      // Continue without processed text
+    }
+
+    // 8. Store transcription in database (both raw and processed)
     const { error: insertError } = await supabase
       .from('j_ads_optimization_transcripts')
       .insert({
         recording_id,
         full_text: transcription.text,
+        processed_text: processedText,
         original_text: transcription.text,
         language: transcription.language || 'pt',
-        confidence_score: null, // Whisper doesn't provide overall confidence
+        confidence_score: null,
         segments: transcription.segments || null,
         revised_at: null,
         revised_by: null,
@@ -213,40 +256,16 @@ campanhas, conjuntos de anúncios, criativos, pixel, remarketing, lookalike, ret
       throw new Error(`Failed to save transcript: ${insertError.message}`);
     }
 
-    // 7. Update recording status to completed
+    // 9. Update recording status to completed (analysis remains 'pending')
     await supabase
       .from('j_ads_optimization_recordings')
       .update({ 
         transcription_status: 'completed',
-        analysis_status: 'pending' // Ready for AI analysis next
+        analysis_status: 'pending' // User will manually trigger analysis
       })
       .eq('id', recording_id);
 
     console.log('✅ Transcription saved successfully');
-
-    // 8. Auto-trigger analysis after successful transcription
-    try {
-      console.log('🚀 Auto-triggering analysis...');
-      
-      const analysisResponse = await fetch(`${supabaseUrl}/functions/v1/j_ads_analyze_optimization`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${supabaseKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ recording_id })
-      });
-
-      if (!analysisResponse.ok) {
-        const errorText = await analysisResponse.text();
-        console.error('❌ Auto-analysis failed:', analysisResponse.status, errorText);
-      } else {
-        console.log('✅ Auto-analysis triggered successfully');
-      }
-    } catch (autoAnalysisError) {
-      console.error('⚠️ Failed to trigger auto-analysis:', autoAnalysisError);
-      // Don't throw - transcription already succeeded
-    }
 
     return new Response(
       JSON.stringify({ 
