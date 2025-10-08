@@ -18,6 +18,7 @@ import { Suspense, lazy } from "react";
 const DesignSystem = lazy(() => import("./pages/DesignSystem"));
 const Admin = lazy(() => import("./pages/Admin"));
 const Manager = lazy(() => import("./pages/Manager"));
+const MyAccounts = lazy(() => import("./pages/MyAccounts"));
 const CreativeSystem = lazy(() => import("@/components/CreativeSystem"));
 const ReportsPage = lazy(() => import("./pages/ReportsPage"));
 const Optimization = lazy(() => import("./pages/Optimization"));
@@ -78,6 +79,13 @@ const App = () => {
                   <ProtectedRoute>
                     <Suspense fallback={<PageLoading />}>
                       <Manager />
+                    </Suspense>
+                  </ProtectedRoute>
+                } />
+                <Route path="/my-accounts" element={
+                  <ProtectedRoute>
+                    <Suspense fallback={<PageLoading />}>
+                      <MyAccounts />
                     </Suspense>
                   </ProtectedRoute>
                 } />
