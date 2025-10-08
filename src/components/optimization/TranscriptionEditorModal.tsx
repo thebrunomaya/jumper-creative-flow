@@ -10,6 +10,7 @@ import { Loader2, Sparkles, Save } from "lucide-react";
 
 interface TranscriptionEditorModalProps {
   recordingId: string;
+  transcriptType: 'raw' | 'processed';
   initialText: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -18,6 +19,7 @@ interface TranscriptionEditorModalProps {
 
 export function TranscriptionEditorModal({
   recordingId,
+  transcriptType,
   initialText,
   open,
   onOpenChange,
@@ -68,10 +70,14 @@ export function TranscriptionEditorModal({
     try {
       const userEmail = (await supabase.auth.getUser()).data.user?.email;
 
+      const updateData = transcriptType === 'raw' 
+        ? { full_text: editedText }
+        : { processed_text: editedText };
+
       const { error } = await supabase
         .from('j_ads_optimization_transcripts')
         .update({
-          full_text: editedText,
+          ...updateData,
           revised_at: new Date().toISOString(),
           revised_by: userEmail || 'unknown',
         })
@@ -95,7 +101,9 @@ export function TranscriptionEditorModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col">
         <DialogHeader>
-          <DialogTitle>Editar Transcrição</DialogTitle>
+          <DialogTitle>
+            Editar Transcrição {transcriptType === 'processed' ? '(Processada)' : '(Bruta)'}
+          </DialogTitle>
         </DialogHeader>
 
         <div className="flex-1 space-y-4 overflow-y-auto">
