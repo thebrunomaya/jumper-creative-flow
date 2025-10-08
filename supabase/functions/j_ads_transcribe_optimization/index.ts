@@ -246,7 +246,26 @@ Termos técnicos: ${platformTerms}.`;
 
       const systemPrompt = 'Você é um assistente especializado em organizar transcrições de análises de tráfego pago (media buying) em relatórios estruturados e contextualizados.';
 
-      const userPrompt = `Organize a seguinte transcrição de otimização em um relatório estruturado com markdown.
+      const userPrompt = `TAREFA: Organizar transcrição de otimização em relatório estruturado.
+
+FORMATO OBRIGATÓRIO - Seu relatório DEVE seguir esta estrutura exata:
+
+## Contexto da Conta
+- **Conta:** [nome]
+- **Plataforma:** [plataforma]
+- **Gestor:** [gestor]
+- **Gerente:** [gerente]
+- **Parceiro:** [parceiro]
+- **Objetivos:** [objetivos]
+- **Data:** [data]
+- **Gravado por:** [email]
+
+${accountContextFinal ? `## Sobre a Conta\n[informações da conta]\n\n` : ''}## Otimizações
+[Organize a transcrição em tópicos claros com: horário, o que foi feito, métricas citadas, motivo/contexto]
+
+---
+
+CONTEÚDO PARA PROCESSAR:
 
 ## Contexto da Conta
 - **Conta:** ${accountName}
@@ -259,10 +278,7 @@ Termos técnicos: ${platformTerms}.`;
 - **Gravado por:** ${recording.recorded_by}
 
 ${accountContextFinal ? `## Sobre a Conta\n${accountContextFinal}\n\n` : ''}## Transcrição
-${transcription.text}
-
----
-IMPORTANTE: Mantenha as seções "Contexto da Conta" e "Sobre a Conta" no início do relatório. Depois, organize as otimizações em tópicos claros, destacando métricas, ações tomadas e próximos passos.`;
+${transcription.text}`;
 
       console.log('🎯 Prompt para Claude Sonnet 4.5:', userPrompt.substring(0, 500) + '...');
       console.log('📏 Tamanho do prompt do Claude:', userPrompt.length, 'caracteres');
