@@ -88,7 +88,7 @@ serve(async (req) => {
     const { data: accountData } = await supabase
       .from('j_ads_notion_db_accounts')
       .select('*')
-      .eq('ID', recording.account_id)
+      .eq('notion_id', recording.account_id)
       .maybeSingle();
 
     if (accountData) {
