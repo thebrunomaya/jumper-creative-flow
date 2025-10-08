@@ -7,7 +7,7 @@
  * - Objective selection with custom prompts
  */
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useReactMediaRecorder } from "react-media-recorder";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -15,13 +15,14 @@ import { JumperButton } from "@/components/ui/jumper-button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Mic, Square, Upload, Loader2, AlertCircle, ChevronDown, Edit } from "lucide-react";
+import { Mic, Square, Upload, Loader2, AlertCircle, ChevronDown, Edit, FileAudio } from "lucide-react";
 import { toast } from "sonner";
 import { ContextEditor } from "./optimization/ContextEditor";
 import { PromptEditorModal } from "./optimization/PromptEditorModal";
 import { PlatformSelector } from "./optimization/PlatformSelector";
 import { ObjectiveCheckboxes } from "./optimization/ObjectiveCheckboxes";
 import { ProcessingOverlay, ProcessingStep } from "./optimization/ProcessingOverlay";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface OptimizationRecorderProps {
   accountId: string;
@@ -60,6 +61,11 @@ export function OptimizationRecorder({
   const [currentStep, setCurrentStep] = useState<ProcessingStep>('upload');
   const [processingError, setProcessingError] = useState<string | null>(null);
   const [currentRecordingId, setCurrentRecordingId] = useState<string | null>(null);
+
+  // File upload state
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [uploadedFileUrl, setUploadedFileUrl] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Update edited context when account changes
   useEffect(() => {
@@ -106,13 +112,59 @@ export function OptimizationRecorder({
 
   const handleStartRecording = () => {
     if (canStartRecording()) {
+      // Clear any uploaded file when starting recording
+      setUploadedFile(null);
+      if (uploadedFileUrl) {
+        URL.revokeObjectURL(uploadedFileUrl);
+        setUploadedFileUrl(null);
+      }
       startRecording();
     }
   };
 
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type (audio only)
+    if (!file.type.startsWith('audio/')) {
+      toast.error("Por favor, selecione um arquivo de áudio válido");
+      return;
+    }
+
+    // Validate file size (max 50MB)
+    const maxSize = 50 * 1024 * 1024; // 50MB
+    if (file.size > maxSize) {
+      toast.error("Arquivo muito grande. Tamanho máximo: 50MB");
+      return;
+    }
+
+    // Clear any existing recording
+    if (mediaBlobUrl) {
+      clearBlobUrl();
+      setRecordingDuration(0);
+    }
+
+    setUploadedFile(file);
+    const url = URL.createObjectURL(file);
+    setUploadedFileUrl(url);
+    toast.success(`Arquivo selecionado: ${file.name}`);
+  };
+
+  const handleClearFile = () => {
+    setUploadedFile(null);
+    if (uploadedFileUrl) {
+      URL.revokeObjectURL(uploadedFileUrl);
+      setUploadedFileUrl(null);
+    }
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
   async function handleUpload() {
-    if (!mediaBlobUrl || !accountId || !user?.email) {
-      toast.error("Selecione uma conta e grave um áudio primeiro");
+    if ((!mediaBlobUrl && !uploadedFile) || !accountId || !user?.email) {
+      toast.error("Selecione uma conta e grave ou envie um áudio primeiro");
       return;
     }
 
@@ -125,16 +177,31 @@ export function OptimizationRecorder({
 
     try {
       // 1. Upload audio
-      const response = await fetch(mediaBlobUrl);
-      const blob = await response.blob();
+      let blob: Blob;
+      let contentType: string;
+      let fileExtension: string;
+
+      if (uploadedFile) {
+        // Use uploaded file
+        blob = uploadedFile;
+        contentType = uploadedFile.type;
+        fileExtension = uploadedFile.name.split('.').pop() || 'audio';
+      } else {
+        // Use recorded audio
+        const response = await fetch(mediaBlobUrl!);
+        blob = await response.blob();
+        contentType = "audio/webm";
+        fileExtension = "webm";
+      }
+
       const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-      const fileName = `${accountId}/${timestamp}.webm`;
+      const fileName = `${accountId}/${timestamp}.${fileExtension}`;
       const filePath = `optimizations/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from("optimizations")
         .upload(filePath, blob, {
-          contentType: "audio/webm",
+          contentType,
           upsert: false,
         });
 
@@ -220,6 +287,7 @@ export function OptimizationRecorder({
       toast.success("✅ Transcrição processada! Revise no drawer antes de analisar com IA");
       
       clearBlobUrl();
+      handleClearFile();
       setRecordingDuration(0);
       setEditedContext(accountContext);
       
@@ -381,113 +449,202 @@ export function OptimizationRecorder({
           />
         </div>
 
-        {/* Recording Controls */}
-        <div className="space-y-4">
-          {status === "idle" && (
-            <div className="flex justify-center py-8">
-              <button
-                onClick={handleStartRecording}
-                className="group relative flex items-center justify-center w-24 h-24 rounded-full bg-gradient-to-br from-primary to-primary/80 hover:from-primary/90 hover:to-primary shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
-                aria-label="Iniciar gravação"
-              >
-                <Mic className="h-10 w-10 text-white" />
-                <div className="absolute inset-0 rounded-full bg-primary/20 animate-ping opacity-0 group-hover:opacity-75" />
-              </button>
-            </div>
-          )}
+        {/* Recording/Upload Controls */}
+        <Tabs defaultValue="record" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="record" className="gap-2">
+              <Mic className="h-4 w-4" />
+              Gravar Áudio
+            </TabsTrigger>
+            <TabsTrigger value="upload" className="gap-2">
+              <FileAudio className="h-4 w-4" />
+              Enviar Arquivo
+            </TabsTrigger>
+          </TabsList>
 
-          {status === "recording" && (
-            <div className="space-y-6">
-              <div className="flex flex-col items-center justify-center py-8 gap-6">
-                <div className="relative">
-                  <div className="w-32 h-32 rounded-full bg-destructive/10 flex items-center justify-center">
-                    <div className="w-24 h-24 rounded-full bg-destructive/20 flex items-center justify-center animate-pulse">
-                      <div className="w-16 h-16 rounded-full bg-destructive flex items-center justify-center">
-                        <Mic className="h-8 w-8 text-white" />
+          <TabsContent value="record" className="space-y-4 mt-4">
+            {status === "idle" && (
+              <div className="flex justify-center py-8">
+                <button
+                  onClick={handleStartRecording}
+                  className="group relative flex items-center justify-center w-24 h-24 rounded-full bg-gradient-to-br from-primary to-primary/80 hover:from-primary/90 hover:to-primary shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
+                  aria-label="Iniciar gravação"
+                >
+                  <Mic className="h-10 w-10 text-white" />
+                  <div className="absolute inset-0 rounded-full bg-primary/20 animate-ping opacity-0 group-hover:opacity-75" />
+                </button>
+              </div>
+            )}
+
+            {status === "recording" && (
+              <div className="space-y-6">
+                <div className="flex flex-col items-center justify-center py-8 gap-6">
+                  <div className="relative">
+                    <div className="w-32 h-32 rounded-full bg-destructive/10 flex items-center justify-center">
+                      <div className="w-24 h-24 rounded-full bg-destructive/20 flex items-center justify-center animate-pulse">
+                        <div className="w-16 h-16 rounded-full bg-destructive flex items-center justify-center">
+                          <Mic className="h-8 w-8 text-white" />
+                        </div>
                       </div>
                     </div>
+                    <div className="absolute inset-0 rounded-full border-4 border-destructive/30 animate-ping" />
                   </div>
-                  <div className="absolute inset-0 rounded-full border-4 border-destructive/30 animate-ping" />
+                  
+                  <div className="text-center">
+                    <div className="font-mono text-4xl font-bold tabular-nums">
+                      {formatDuration(recordingDuration)}
+                    </div>
+                    <p className="text-sm text-muted-foreground mt-2">Gravando...</p>
+                  </div>
                 </div>
-                
-                <div className="text-center">
-                  <div className="font-mono text-4xl font-bold tabular-nums">
-                    {formatDuration(recordingDuration)}
-                  </div>
-                  <p className="text-sm text-muted-foreground mt-2">Gravando...</p>
+
+                <JumperButton
+                  onClick={stopRecording}
+                  variant="critical"
+                  className="w-full"
+                  size="lg"
+                >
+                  <Square className="mr-2 h-4 w-4 fill-current" />
+                  Parar Gravação
+                </JumperButton>
+              </div>
+            )}
+
+            {status === "stopped" && mediaBlobUrl && (
+              <div className="space-y-4">
+                <Alert className="border-success/50 bg-success/5">
+                  <AlertCircle className="h-4 w-4 text-success" />
+                  <AlertDescription>
+                    ✓ Gravação concluída: {formatDuration(recordingDuration)}
+                  </AlertDescription>
+                </Alert>
+
+                <div className="p-4 border rounded-lg">
+                  <audio controls src={mediaBlobUrl} className="w-full" />
+                </div>
+
+                <div className="flex gap-3">
+                  <JumperButton
+                    onClick={handleUpload}
+                    disabled={isUploading}
+                    variant="primary"
+                    className="flex-1"
+                    size="lg"
+                  >
+                    {isUploading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Enviando...
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="mr-2 h-4 w-4" />
+                        Enviar Gravação
+                      </>
+                    )}
+                  </JumperButton>
+
+                  <JumperButton
+                    onClick={() => {
+                      clearBlobUrl();
+                      setRecordingDuration(0);
+                    }}
+                    variant="ghost"
+                    disabled={isUploading}
+                    size="lg"
+                  >
+                    Cancelar
+                  </JumperButton>
                 </div>
               </div>
+            )}
 
-              <JumperButton
-                onClick={stopRecording}
-                variant="critical"
-                className="w-full"
-                size="lg"
-              >
-                <Square className="mr-2 h-4 w-4 fill-current" />
-                Parar Gravação
-              </JumperButton>
-            </div>
-          )}
-
-          {status === "stopped" && mediaBlobUrl && (
-            <div className="space-y-4">
-              <Alert className="border-success/50 bg-success/5">
-                <AlertCircle className="h-4 w-4 text-success" />
+            {status === "acquiring_media" && (
+              <Alert>
+                <Loader2 className="h-4 w-4 animate-spin" />
                 <AlertDescription>
-                  ✓ Gravação concluída: {formatDuration(recordingDuration)}
+                  Aguardando permissão do microfone...
                 </AlertDescription>
               </Alert>
+            )}
+          </TabsContent>
 
-              <div className="p-4 border rounded-lg">
-                <audio controls src={mediaBlobUrl} className="w-full" />
-              </div>
-
-              <div className="flex gap-3">
-                <JumperButton
-                  onClick={handleUpload}
-                  disabled={isUploading}
-                  variant="primary"
-                  className="flex-1"
-                  size="lg"
+          <TabsContent value="upload" className="space-y-4 mt-4">
+            <div className="space-y-4">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="audio/*"
+                onChange={handleFileSelect}
+                className="hidden"
+                id="audio-file-upload"
+              />
+              
+              {!uploadedFile ? (
+                <label
+                  htmlFor="audio-file-upload"
+                  className="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed border-primary/30 rounded-lg cursor-pointer hover:border-primary/50 hover:bg-accent/5 transition-colors"
                 >
-                  {isUploading ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Enviando...
-                    </>
-                  ) : (
-                    <>
-                      <Upload className="mr-2 h-4 w-4" />
-                      Enviar Gravação
-                    </>
+                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                    <FileAudio className="h-12 w-12 text-primary/50 mb-3" />
+                    <p className="mb-2 text-sm font-medium">
+                      Clique para selecionar um arquivo de áudio
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      MP3, WAV, M4A, WEBM ou outros formatos (máx. 50MB)
+                    </p>
+                  </div>
+                </label>
+              ) : (
+                <div className="space-y-4">
+                  <Alert className="border-success/50 bg-success/5">
+                    <AlertCircle className="h-4 w-4 text-success" />
+                    <AlertDescription>
+                      ✓ Arquivo selecionado: {uploadedFile.name} ({(uploadedFile.size / 1024 / 1024).toFixed(2)} MB)
+                    </AlertDescription>
+                  </Alert>
+
+                  {uploadedFileUrl && (
+                    <div className="p-4 border rounded-lg">
+                      <audio controls src={uploadedFileUrl} className="w-full" />
+                    </div>
                   )}
-                </JumperButton>
 
-                <JumperButton
-                  onClick={() => {
-                    clearBlobUrl();
-                    setRecordingDuration(0);
-                  }}
-                  variant="ghost"
-                  disabled={isUploading}
-                  size="lg"
-                >
-                  Cancelar
-                </JumperButton>
-              </div>
+                  <div className="flex gap-3">
+                    <JumperButton
+                      onClick={handleUpload}
+                      disabled={isUploading}
+                      variant="primary"
+                      className="flex-1"
+                      size="lg"
+                    >
+                      {isUploading ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Enviando...
+                        </>
+                      ) : (
+                        <>
+                          <Upload className="mr-2 h-4 w-4" />
+                          Enviar Arquivo
+                        </>
+                      )}
+                    </JumperButton>
+
+                    <JumperButton
+                      onClick={handleClearFile}
+                      variant="ghost"
+                      disabled={isUploading}
+                      size="lg"
+                    >
+                      Cancelar
+                    </JumperButton>
+                  </div>
+                </div>
+              )}
             </div>
-          )}
-        </div>
-
-        {status === "acquiring_media" && (
-          <Alert>
-            <Loader2 className="h-4 w-4 animate-spin" />
-            <AlertDescription>
-              Aguardando permissão do microfone...
-            </AlertDescription>
-          </Alert>
-        )}
+          </TabsContent>
+        </Tabs>
       </CardContent>
 
       {/* Processing Overlay */}
