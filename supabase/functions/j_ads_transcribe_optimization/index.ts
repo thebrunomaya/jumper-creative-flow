@@ -196,41 +196,45 @@ campanhas, conjuntos de anúncios, criativos, pixel, remarketing, lookalike, ret
     console.log('🔢 Segments:', transcription.segments?.length || 0);
 
 
-    // 7. Process transcription into organized topics using GPT-4
-    console.log('📝 Processing transcription into topics...');
+    // 7. Process transcription into organized topics using Claude Sonnet 4.5
+    console.log('📝 Processing transcription into topics with Claude Sonnet 4.5...');
     
     let processedText = null;
     try {
-      const gptResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+      const anthropicKey = Deno.env.get('ANTHROPIC_API_KEY');
+      if (!anthropicKey) {
+        throw new Error('ANTHROPIC_API_KEY not configured');
+      }
+
+      const systemPrompt = 'Você é um assistente especializado em organizar transcrições de análises de tráfego pago em tópicos estruturados e claros.';
+      const userPrompt = `Organize a seguinte transcrição em tópicos claros e estruturados, mantendo todas as informações relevantes. Use bullet points e formatação markdown quando apropriado:
+
+${transcription.text}`;
+
+      const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${openaiKey}`,
+          'x-api-key': anthropicKey,
+          'anthropic-version': '2023-06-01',
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'gpt-4o',
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 4096,
+          system: systemPrompt,
           messages: [
-            {
-              role: 'system',
-              content: 'Você é um assistente especializado em organizar transcrições de análises de tráfego pago em tópicos estruturados e claros.'
-            },
-            {
-              role: 'user',
-              content: `Organize a seguinte transcrição em tópicos claros e estruturados, mantendo todas as informações relevantes. Use bullet points e formatação markdown quando apropriado:
-
-${transcription.text}`
-            }
+            { role: 'user', content: userPrompt }
           ],
-          temperature: 0.3,
         }),
       });
 
-      if (gptResponse.ok) {
-        const gptData = await gptResponse.json();
-        processedText = gptData.choices[0]?.message?.content || null;
+      if (claudeResponse.ok) {
+        const claudeData = await claudeResponse.json();
+        processedText = claudeData.content[0]?.text || null;
         console.log('✅ Transcription processed into topics');
       } else {
-        console.warn('⚠️ Failed to process transcription into topics, will save raw text only');
+        const errorText = await claudeResponse.text();
+        console.warn('⚠️ Failed to process transcription into topics:', errorText);
       }
     } catch (processError) {
       console.warn('⚠️ Error processing transcription:', processError);
