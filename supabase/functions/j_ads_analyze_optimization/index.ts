@@ -20,7 +20,7 @@ serve(async (req) => {
       throw new Error('recording_id is required');
     }
 
-    const selectedModel = model || 'gpt-4o';
+    const selectedModel = model || 'claude-sonnet-4-20250514';
     console.log(`🤖 Using model: ${selectedModel}`);
 
     // Initialize Supabase client
