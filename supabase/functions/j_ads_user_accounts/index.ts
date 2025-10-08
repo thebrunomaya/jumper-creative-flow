@@ -48,9 +48,26 @@ serve(async (req) => {
 
     console.log('🔍 Finding accounts for user:', targetEmail);
 
+    // DEBUG: Log full user structure to understand where provider comes from
+    console.log('📋 User metadata DEBUG:', JSON.stringify({
+      app_metadata: user.app_metadata,
+      user_metadata: user.user_metadata,
+      identities: user.identities?.map(i => ({ provider: i.provider, id: i.id }))
+    }, null, 2));
+
     // DUAL ACCESS LOGIC: Detect if login came from Notion OAuth or Email/Password
-    const isNotionOAuth = user.app_metadata?.provider === 'notion';
+    // Check multiple possible locations for provider info
+    const isNotionOAuth =
+      user.app_metadata?.provider === 'notion' ||
+      user.app_metadata?.providers?.includes('notion') ||
+      user.identities?.some(identity => identity.provider === 'notion');
+
     console.log('🔐 Login method:', isNotionOAuth ? 'Notion OAuth' : 'Email/Password');
+    console.log('🔍 Detection details:', {
+      'app_metadata.provider': user.app_metadata?.provider,
+      'app_metadata.providers': user.app_metadata?.providers,
+      'identities': user.identities?.map(i => i.provider)
+    });
 
     let accountIds: string[] = [];
 
