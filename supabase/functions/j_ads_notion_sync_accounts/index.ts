@@ -115,13 +115,20 @@ async function resolveRelationNames(relationIds: string, notionToken: string): P
       if (response.ok) {
         const page = await response.json();
         // Extract title from page properties
-        const titleProp = Object.values(page.properties).find((prop: any) => prop.type === 'title');
-        if (titleProp && titleProp.title && titleProp.title[0]) {
+        const titleProp = Object.values(page.properties || {}).find((prop: any) => prop?.type === 'title');
+        if (titleProp && titleProp.title && Array.isArray(titleProp.title) && titleProp.title[0]?.plain_text) {
           names.push(titleProp.title[0].plain_text);
+        } else {
+          // Fallback: keep the ID if we can't find the title
+          names.push(pageId);
         }
+      } else {
+        console.error(`Failed to fetch page ${pageId}: ${response.status} ${response.statusText}`);
+        names.push(pageId); // Fallback to ID
       }
     } catch (error) {
       console.error(`Error fetching page ${pageId}:`, error);
+      names.push(pageId); // Fallback to ID on error
     }
   }
 
@@ -385,8 +392,13 @@ serve(async (req) => {
     console.log('Resolving Gerente names from Notion...');
     for (const account of accountsData) {
       if (account["Gerente"]) {
-        const gerenteName = await resolveRelationNames(account["Gerente"], NOTION_TOKEN);
-        account["Gerente"] = gerenteName || account["Gerente"]; // Fallback to ID if resolution fails
+        try {
+          const gerenteName = await resolveRelationNames(account["Gerente"], NOTION_TOKEN);
+          account["Gerente"] = gerenteName || account["Gerente"]; // Fallback to ID if resolution fails
+        } catch (error) {
+          console.error(`Failed to resolve Gerente for account ${account.notion_id}:`, error);
+          // Keep original ID on error
+        }
       }
     }
 
