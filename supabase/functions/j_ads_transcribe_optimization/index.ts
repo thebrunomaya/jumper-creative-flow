@@ -149,22 +149,20 @@ serve(async (req) => {
     // 5. Build optimized Whisper prompt (max ~1000 chars)
     const platformName = recording.platform === 'google' ? 'Google Ads' : 'Meta Ads';
 
-    // Platform-specific terms
+    // Platform-specific terms (only English/technical terms)
     const platformTerms = recording.platform === 'google'
-      ? 'Google Ads, Performance Max, pMax, palavras-chave, índice de qualidade, rede de pesquisa, rede de display'
-      : 'Meta Ads, pixel do Meta, públicos personalizados, feed, stories, reels, CBO';
+      ? 'Performance Max, pMax, landing page'
+      : 'pixel, remarketing, lookalike, feed, stories, reels, CBO, landing page';
 
-    // Build structured prompt with account name at the top
-    let finalPrompt = `Transcrição em português brasileiro sobre ${platformName}.
+    // Build minimal prompt with essential context
+    let finalPrompt = `Transcrição de análise de tráfego pago (media buying) em português brasileiro.
 
 Conta: ${accountName}
+Plataforma: ${platformName}
 
-Siglas em MAIÚSCULAS:
-ROAS (retorno sobre investimento), CPA (custo por aquisição), CTR (taxa de cliques), CPM (custo por mil), CPC (custo por clique), CVR, CPL, AOV, LTV, MER.
+Siglas de métricas: ROAS, CPA, CTR, CPM, CPC, CVR, CPL, AOV, LTV, MER.
 
-Termos: otimização, impressões, alcance, frequência, conversões, cliques, campanhas, conjuntos de anúncios, criativos, landing page, pixel, remarketing, lookalike, segmentação, público.
-
-${platformTerms}.`;
+Termos técnicos: ${platformTerms}.`;
 
     // Add context if available (with size control)
     if (customPrompts) {
