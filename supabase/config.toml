@@ -13,7 +13,7 @@ verify_jwt = true
 verify_jwt = true
 
 [functions.j_ads_analyze_optimization]
-verify_jwt = true
+verify_jwt = false
 
 [functions.j_ads_manager_actions]
 verify_jwt = true
