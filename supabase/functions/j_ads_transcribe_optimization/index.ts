@@ -151,18 +151,18 @@ serve(async (req) => {
 
     // Platform-specific terms
     const platformTerms = recording.platform === 'google'
-      ? 'Google Ads, Google Analytics, Performance Max, pMax, palavras-chave, correspondência, termos de pesquisa, índice de qualidade, lance, rede de pesquisa, rede de display, extensões de anúncio'
-      : 'Meta Business Suite, pixel do Meta, públicos personalizados, públicos semelhantes, conjunto de anúncios, feed, stories, reels, otimização de orçamento de campanha (CBO)';
+      ? 'Google Ads, Performance Max, pMax, palavras-chave, índice de qualidade, rede de pesquisa, rede de display'
+      : 'Meta Ads, pixel do Meta, públicos personalizados, feed, stories, reels, CBO';
 
     // Build structured prompt with account name at the top
     let finalPrompt = `Transcrição em português brasileiro sobre ${platformName}.
 
 Conta: ${accountName}
 
-Métricas principais (manter siglas em MAIÚSCULAS):
-ROAS (retorno sobre investimento em anúncios), CPA (custo por aquisição), CTR (taxa de cliques), CPM (custo por mil impressões), CPC (custo por clique), CVR (taxa de conversão), CPL (custo por lead), AOV (ticket médio), LTV (valor vitalício).
+Siglas em MAIÚSCULAS:
+ROAS (retorno sobre investimento), CPA (custo por aquisição), CTR (taxa de cliques), CPM (custo por mil), CPC (custo por clique), CVR, CPL, AOV, LTV, MER.
 
-Termos técnicos: impressões, alcance, frequência, conversões, cliques, campanhas, conjuntos de anúncios, grupos de anúncios, criativos, anúncios, landing page, pixel, tag, evento, remarketing, retargeting, lookalike, segmentação, público, audiência.
+Termos: otimização, impressões, alcance, frequência, conversões, cliques, campanhas, conjuntos de anúncios, criativos, landing page, pixel, remarketing, lookalike, segmentação, público.
 
 ${platformTerms}.`;
 
