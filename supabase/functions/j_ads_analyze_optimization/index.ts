@@ -61,6 +61,24 @@ serve(async (req) => {
       throw new Error('Transcript not found');
     }
 
+    // Guard: transcript too short for meaningful analysis
+    const textLength = (transcript.full_text || '').trim().length;
+    if (textLength < 50) {
+      console.warn(`🛑 Transcript too short for analysis (len=${textLength}). Marking as failed.`);
+      await supabase
+        .from('j_ads_optimization_recordings')
+        .update({ analysis_status: 'failed' })
+        .eq('id', recording_id);
+
+      return new Response(
+        JSON.stringify({
+          error: 'Transcrição muito curta para análise automática. Edite a transcrição ou grave novamente.',
+          details: { textLength }
+        }),
+        { status: 422, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     console.log('✅ Transcript found, calling OpenAI for analysis...');
 
     // Fetch last 3 optimizations from this account for historical context
@@ -237,7 +255,9 @@ ${historicalContext}`;
             { role: 'system', content: systemPrompt },
             { role: 'user', content: userPrompt }
           ],
-          max_completion_tokens: 8192,
+          ...(selectedModel.startsWith('gpt-5')
+            ? { max_completion_tokens: 8192 }
+            : { max_tokens: 1024, temperature: 0.2 })
         }),
       });
 
