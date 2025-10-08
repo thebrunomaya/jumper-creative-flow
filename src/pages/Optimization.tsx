@@ -200,7 +200,7 @@ export default function Optimization() {
 
   async function handleTranscribe() {
     if (!selectedRecording) return;
-    
+
     setIsTranscribing(true);
 
     try {
@@ -211,10 +211,23 @@ export default function Optimization() {
       if (error) throw error;
 
       toast.success("Transcrição concluída!");
-      
-      // Refresh data
+
+      // Small delay to ensure DB writes are committed
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      // Refresh list to get updated recording
       await fetchRecordings();
-      await handleRecordingClick(selectedRecording);
+
+      // Fetch the updated recording from the list to get fresh status
+      const { data: updatedRecording } = await supabase
+        .from("j_ads_optimization_recordings")
+        .select("*")
+        .eq("id", selectedRecording.id)
+        .single();
+
+      if (updatedRecording) {
+        await handleRecordingClick(updatedRecording as OptimizationRecordingRow);
+      }
     } catch (error) {
       console.error("Transcription error:", error);
       toast.error("Erro ao transcrever áudio");
@@ -225,7 +238,7 @@ export default function Optimization() {
 
   async function handleAnalyze() {
     if (!selectedRecording) return;
-    
+
     setIsAnalyzing(true);
 
     try {
@@ -236,10 +249,23 @@ export default function Optimization() {
       if (error) throw error;
 
       toast.success("Análise com IA concluída!");
-      
-      // Refresh data
+
+      // Small delay to ensure DB writes are committed
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      // Refresh list to get updated recording
       await fetchRecordings();
-      await handleRecordingClick(selectedRecording);
+
+      // Fetch the updated recording from the list to get fresh status
+      const { data: updatedRecording } = await supabase
+        .from("j_ads_optimization_recordings")
+        .select("*")
+        .eq("id", selectedRecording.id)
+        .single();
+
+      if (updatedRecording) {
+        await handleRecordingClick(updatedRecording as OptimizationRecordingRow);
+      }
     } catch (error: any) {
       console.error("Analysis error:", error);
       toast.error(error.message || "Erro ao analisar transcrição");

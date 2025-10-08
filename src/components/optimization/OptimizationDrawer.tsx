@@ -84,83 +84,47 @@ function TranscriptionSection({
     setEditModalOpen(true);
   };
 
+  const handleExportTranscription = () => {
+    const textToExport = transcript.processed_text || transcript.full_text;
+    const type = transcript.processed_text ? 'processada' : 'bruta';
+
+    // Create a simple text file download
+    const blob = new Blob([textToExport], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `transcricao-${type}-${recordingId}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    toast.success('Transcrição exportada!');
+  };
+
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between gap-2 flex-wrap">
-        <h3 className="font-semibold text-sm flex items-center gap-2">
-          <CheckCircle2 className="h-4 w-4 text-success" />
-          Transcrição Completa
-        </h3>
-        {transcript.revised_at ? (
-          <Badge variant="secondary" className="text-xs flex items-center gap-1">
-            ✏️ Revisado
-          </Badge>
-        ) : (
-          <Badge variant="outline" className="text-xs flex items-center gap-1">
-            <Sparkles className="h-3 w-3" />
-            Original IA
-          </Badge>
-        )}
-      </div>
-
-      <Tabs defaultValue={transcript.processed_text ? "processed" : "raw"} className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="processed" disabled={!transcript.processed_text}>
-            Processada
-          </TabsTrigger>
-          <TabsTrigger value="raw">
-            Bruta
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="processed" className="space-y-3">
-          {transcript.processed_text ? (
-            <>
-              <Textarea
-                value={transcript.processed_text}
-                readOnly
-                className="min-h-[400px] font-mono text-sm"
-                placeholder="Transcrição organizada em tópicos..."
-              />
-              <div className="flex gap-2">
-                <JumperButton
-                  onClick={() => handleEdit('processed')}
-                  size="sm"
-                >
-                  <Edit className="mr-2 h-4 w-4" />
-                  Editar
-                </JumperButton>
-                <JumperButton
-                  onClick={() => {
-                    navigator.clipboard.writeText(transcript.processed_text || '');
-                    toast.success('Copiado!');
-                  }}
-                  variant="ghost"
-                  size="sm"
-                >
-                  <Copy className="mr-2 h-4 w-4" />
-                  Copiar
-                </JumperButton>
-              </div>
-            </>
-          ) : (
-            <div className="p-8 text-center text-muted-foreground">
-              <FileText className="h-12 w-12 mx-auto mb-3 opacity-20" />
-              <p className="text-sm">Nenhuma transcrição processada disponível</p>
-            </div>
-          )}
-        </TabsContent>
-
-        <TabsContent value="raw" className="space-y-3">
-          <Textarea
-            value={transcript.full_text}
-            readOnly
-            className="min-h-[400px] font-mono text-sm"
-            placeholder="Transcrição bruta do Whisper..."
-          />
-          <div className="flex gap-2">
+      <div className="space-y-2">
+        <div className="flex items-center justify-between gap-2 flex-wrap">
+          <div className="flex items-center gap-2">
+            <h3 className="font-semibold text-sm flex items-center gap-2">
+              <CheckCircle2 className="h-4 w-4 text-success" />
+              Transcrição Completa
+            </h3>
+            {transcript.revised_at ? (
+              <Badge variant="secondary" className="text-xs flex items-center gap-1">
+                ✏️ Revisado
+              </Badge>
+            ) : (
+              <Badge variant="outline" className="text-xs flex items-center gap-1">
+                <Sparkles className="h-3 w-3" />
+                Original IA
+              </Badge>
+            )}
+          </div>
+          <div className="flex gap-2 flex-wrap">
             <JumperButton
-              onClick={() => handleEdit('raw')}
+              onClick={() => handleEdit(transcript.processed_text ? 'processed' : 'raw')}
+              variant="ghost"
               size="sm"
             >
               <Edit className="mr-2 h-4 w-4" />
@@ -174,9 +138,58 @@ function TranscriptionSection({
               <Copy className="mr-2 h-4 w-4" />
               Copiar
             </JumperButton>
+            <JumperButton
+              onClick={handleExportTranscription}
+              variant="ghost"
+              size="sm"
+            >
+              <Download className="mr-2 h-4 w-4" />
+              Exportar
+            </JumperButton>
           </div>
+        </div>
+        {transcript.revised_at && (
+          <p className="text-xs text-muted-foreground">
+            Transcrição revisada em {new Date(transcript.revised_at).toLocaleString('pt-BR')}
+          </p>
+        )}
+      </div>
+
+      <Tabs defaultValue={transcript.processed_text ? "processed" : "raw"} className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="processed" disabled={!transcript.processed_text}>
+            Processada
+          </TabsTrigger>
+          <TabsTrigger value="raw">
+            Bruta
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="processed">
+          {transcript.processed_text ? (
+            <Textarea
+              value={transcript.processed_text}
+              readOnly
+              className="min-h-[400px] font-mono text-sm"
+              placeholder="Transcrição organizada em tópicos..."
+            />
+          ) : (
+            <div className="p-8 text-center text-muted-foreground">
+              <FileText className="h-12 w-12 mx-auto mb-3 opacity-20" />
+              <p className="text-sm">Nenhuma transcrição processada disponível</p>
+            </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="raw">
+          <Textarea
+            value={transcript.full_text}
+            readOnly
+            className="min-h-[400px] font-mono text-sm"
+            placeholder="Transcrição bruta do Whisper..."
+          />
           {transcript.confidence_score && (
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-muted-foreground mt-2">
               Confiança: {(Number(transcript.confidence_score) * 100).toFixed(0)}%
             </p>
           )}
