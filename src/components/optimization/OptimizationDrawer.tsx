@@ -16,6 +16,8 @@ import { Badge } from "@/components/ui/badge";
 import { JumperButton } from "@/components/ui/jumper-button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Loader2,
   Clock,
@@ -29,6 +31,7 @@ import {
   RotateCw,
   Sparkles,
   Trash2,
+  Save,
 } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -61,7 +64,7 @@ interface OptimizationDrawerProps {
   onDelete?: () => void;
 }
 
-// Extracted Transcription Section Component
+// Extracted Transcription Section Component with Tabs
 function TranscriptionSection({
   transcript,
   recordingId,
@@ -79,36 +82,145 @@ function TranscriptionSection({
   onAnalyze: () => void;
   isAnalyzing: boolean;
 }) {
-  const [editorOpen, setEditorOpen] = useState(false);
+  const [rawText, setRawText] = useState(transcript.full_text);
+  const [processedText, setProcessedText] = useState(transcript.processed_text || '');
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleSaveRaw = async () => {
+    setIsSaving(true);
+    try {
+      const { error } = await supabase
+        .from('j_ads_optimization_transcripts')
+        .update({ 
+          full_text: rawText,
+          revised_at: new Date().toISOString(),
+          revised_by: 'user'
+        })
+        .eq('recording_id', recordingId);
+
+      if (error) throw error;
+      toast.success('Transcrição bruta salva!');
+      onRefresh();
+    } catch (error: any) {
+      toast.error(error.message || 'Erro ao salvar');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleSaveProcessed = async () => {
+    setIsSaving(true);
+    try {
+      const { error } = await supabase
+        .from('j_ads_optimization_transcripts')
+        .update({ 
+          processed_text: processedText,
+          revised_at: new Date().toISOString(),
+          revised_by: 'user'
+        })
+        .eq('recording_id', recordingId);
+
+      if (error) throw error;
+      toast.success('Transcrição processada salva!');
+      onRefresh();
+    } catch (error: any) {
+      toast.error(error.message || 'Erro ao salvar');
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   return (
-    <>
-      <div className="space-y-4">
-        <div className="flex items-center justify-between gap-2 flex-wrap">
-          <div className="flex items-center gap-2">
-            <h3 className="font-semibold text-sm flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4 text-success" />
-              Transcrição Completa
-            </h3>
-            {transcript.revised_at ? (
-              <Badge variant="secondary" className="text-xs flex items-center gap-1">
-                ✏️ Revisado
-              </Badge>
-            ) : (
-              <Badge variant="outline" className="text-xs flex items-center gap-1">
-                <Sparkles className="h-3 w-3" />
-                Original IA
-              </Badge>
-            )}
-          </div>
+    <div className="space-y-4">
+      <div className="flex items-center justify-between gap-2 flex-wrap">
+        <h3 className="font-semibold text-sm flex items-center gap-2">
+          <CheckCircle2 className="h-4 w-4 text-success" />
+          Transcrição Completa
+        </h3>
+        {transcript.revised_at ? (
+          <Badge variant="secondary" className="text-xs flex items-center gap-1">
+            ✏️ Revisado
+          </Badge>
+        ) : (
+          <Badge variant="outline" className="text-xs flex items-center gap-1">
+            <Sparkles className="h-3 w-3" />
+            Original IA
+          </Badge>
+        )}
+      </div>
+
+      <Tabs defaultValue={processedText ? "processed" : "raw"} className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="processed" disabled={!processedText}>
+            Processada (Tópicos)
+          </TabsTrigger>
+          <TabsTrigger value="raw">
+            Bruta (Original)
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="processed" className="space-y-3">
+          {processedText ? (
+            <>
+              <Textarea
+                value={processedText}
+                onChange={(e) => setProcessedText(e.target.value)}
+                className="min-h-[400px] font-mono text-sm"
+                placeholder="Transcrição organizada em tópicos..."
+              />
+              <div className="flex gap-2">
+                <JumperButton
+                  onClick={handleSaveProcessed}
+                  disabled={isSaving}
+                  size="sm"
+                >
+                  {isSaving ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <Save className="mr-2 h-4 w-4" />
+                  )}
+                  Salvar Edições
+                </JumperButton>
+                <JumperButton
+                  onClick={() => {
+                    navigator.clipboard.writeText(processedText);
+                    toast.success('Copiado!');
+                  }}
+                  variant="ghost"
+                  size="sm"
+                >
+                  <Copy className="mr-2 h-4 w-4" />
+                  Copiar
+                </JumperButton>
+              </div>
+            </>
+          ) : (
+            <div className="p-8 text-center text-muted-foreground">
+              <FileText className="h-12 w-12 mx-auto mb-3 opacity-20" />
+              <p className="text-sm">Nenhuma transcrição processada disponível</p>
+            </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="raw" className="space-y-3">
+          <Textarea
+            value={rawText}
+            onChange={(e) => setRawText(e.target.value)}
+            className="min-h-[400px] font-mono text-sm"
+            placeholder="Transcrição bruta do Whisper..."
+          />
           <div className="flex gap-2">
             <JumperButton
-              onClick={() => setEditorOpen(true)}
-              variant="ghost"
+              onClick={handleSaveRaw}
+              disabled={isSaving}
               size="sm"
             >
-              <Edit className="mr-2 h-4 w-4" />
-              Editar
+              {isSaving ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Save className="mr-2 h-4 w-4" />
+              )}
+              Salvar Edições
             </JumperButton>
             <JumperButton
               onClick={onCopy}
@@ -119,22 +231,22 @@ function TranscriptionSection({
               Copiar
             </JumperButton>
           </div>
-        </div>
-        <div className="p-4 bg-muted/30 rounded-lg border max-h-96 overflow-y-auto">
-          <p className="text-sm leading-relaxed whitespace-pre-wrap">
-            {transcript.full_text}
-          </p>
           {transcript.confidence_score && (
-            <div className="mt-4 pt-4 border-t">
-              <p className="text-xs text-muted-foreground">
-                Confiança: {(Number(transcript.confidence_score) * 100).toFixed(0)}%
-              </p>
-            </div>
+            <p className="text-xs text-muted-foreground">
+              Confiança: {(Number(transcript.confidence_score) * 100).toFixed(0)}%
+            </p>
           )}
-        </div>
+        </TabsContent>
+      </Tabs>
 
-        {/* Analyze Button */}
-        {analysisStatus === "pending" && (
+      {/* Analyze Button - Only appears in drawer now */}
+      <Separator />
+      <div className="space-y-2">
+        <h4 className="text-sm font-semibold flex items-center gap-2">
+          <Brain className="h-4 w-4" />
+          Análise Estruturada
+        </h4>
+        {analysisStatus === "pending" ? (
           <JumperButton
             onClick={onAnalyze}
             disabled={isAnalyzing}
@@ -148,22 +260,22 @@ function TranscriptionSection({
               </>
             ) : (
               <>
-                <Brain className="mr-2 h-4 w-4" />
+                <Sparkles className="mr-2 h-4 w-4" />
                 Analisar com IA
               </>
             )}
           </JumperButton>
+        ) : analysisStatus === "completed" ? (
+          <p className="text-sm text-muted-foreground">
+            ✅ Análise já concluída (veja abaixo)
+          </p>
+        ) : (
+          <p className="text-sm text-muted-foreground">
+            Status: {analysisStatus}
+          </p>
         )}
       </div>
-
-      <TranscriptionEditorModal
-        recordingId={recordingId}
-        initialText={transcript.full_text}
-        open={editorOpen}
-        onOpenChange={setEditorOpen}
-        onSave={onRefresh}
-      />
-    </>
+    </div>
   );
 }
 

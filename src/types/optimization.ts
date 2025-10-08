@@ -157,6 +157,7 @@ export interface OptimizationTranscriptRow {
   id: string;
   recording_id: string;
   full_text: string;
+  processed_text: string | null;   // AI-organized transcript with topics
   original_text: string | null;    // Original Whisper output
   language: string;
   confidence_score: number | null;

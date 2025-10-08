@@ -9,7 +9,7 @@ import { JumperLoading } from "@/components/ui/jumper-loading";
 import { ProgressFeedback, ErrorMessage } from "@/components/ui/feedback";
 import { CheckCircle2, Loader2, XCircle } from "lucide-react";
 
-export type ProcessingStep = 'upload' | 'transcribe' | 'analyze' | 'complete' | 'error';
+export type ProcessingStep = 'upload' | 'transcribe' | 'processing_transcript' | 'complete' | 'error';
 
 interface ProcessingOverlayProps {
   isOpen: boolean;
@@ -31,7 +31,7 @@ export function ProcessingOverlay({
   const steps = [
     { key: 'upload', label: 'Upload do áudio' },
     { key: 'transcribe', label: 'Transcrevendo com Whisper' },
-    { key: 'analyze', label: 'Analisando com IA' },
+    { key: 'processing_transcript', label: 'Organizando em tópicos' },
   ];
 
   const getStepStatus = (stepKey: string) => {
@@ -69,7 +69,7 @@ export function ProcessingOverlay({
     : currentStep === 'error' ? 0
     : currentStep === 'upload' ? 33
     : currentStep === 'transcribe' ? 66
-    : currentStep === 'analyze' ? 90
+    : currentStep === 'processing_transcript' ? 90
     : 0;
 
   return (
@@ -161,7 +161,7 @@ export function ProcessingOverlay({
                 <p className="text-xs text-muted-foreground">
                   {currentStep === 'upload' && 'Enviando áudio para o servidor...'}
                   {currentStep === 'transcribe' && 'Convertendo áudio em texto com Whisper AI...'}
-                  {currentStep === 'analyze' && 'Extraindo insights com GPT-4...'}
+                  {currentStep === 'processing_transcript' && 'Organizando transcrição em tópicos...'}
                 </p>
               </div>
             </div>

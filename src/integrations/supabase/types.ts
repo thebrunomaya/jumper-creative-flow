@@ -1019,6 +1019,7 @@ export type Database = {
           id: string
           language: string | null
           original_text: string | null
+          processed_text: string | null
           recording_id: string
           revised_at: string | null
           revised_by: string | null
@@ -1033,6 +1034,7 @@ export type Database = {
           id?: string
           language?: string | null
           original_text?: string | null
+          processed_text?: string | null
           recording_id: string
           revised_at?: string | null
           revised_by?: string | null
@@ -1047,6 +1049,7 @@ export type Database = {
           id?: string
           language?: string | null
           original_text?: string | null
+          processed_text?: string | null
           recording_id?: string
           revised_at?: string | null
           revised_by?: string | null

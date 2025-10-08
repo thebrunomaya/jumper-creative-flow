@@ -175,38 +175,49 @@ export function OptimizationRecorder({
 
       if (transcribeError) throw new Error(`Transcrição falhou: ${transcribeError.message}`);
 
-      // 4. POLL FOR ANALYSIS COMPLETION
-      setCurrentStep('analyze');
+      // 4. AUTO-TRIGGER TRANSCRIPT PROCESSING
+      setCurrentStep('processing_transcript');
       
-      const maxAttempts = 90; // 90 seconds max
-      let attempts = 0;
-      let analysisComplete = false;
+      const { error: processError } = await supabase.functions.invoke(
+        "j_ads_process_transcript",
+        { body: { recording_id: recording.id } }
+      );
 
-      while (attempts < maxAttempts && !analysisComplete) {
+      if (processError) {
+        console.warn('Processamento de transcrição falhou:', processError);
+        // Don't throw - raw transcript is still usable
+      }
+
+      // 5. POLL FOR COMPLETION
+      const maxAttempts = 60; // 60 seconds max
+      let attempts = 0;
+      let processingComplete = false;
+
+      while (attempts < maxAttempts && !processingComplete) {
         await new Promise(resolve => setTimeout(resolve, 1000));
         
         const { data: statusCheck } = await supabase
           .from("j_ads_optimization_recordings")
-          .select("analysis_status")
+          .select("transcription_status")
           .eq("id", recording.id)
           .single();
 
-        if (statusCheck?.analysis_status === "completed") {
-          analysisComplete = true;
-        } else if (statusCheck?.analysis_status === "failed") {
-          throw new Error("Análise com IA falhou - verifique os logs da função");
+        if (statusCheck?.transcription_status === "completed") {
+          processingComplete = true;
+        } else if (statusCheck?.transcription_status === "failed") {
+          throw new Error("Processamento falhou - verifique os logs");
         }
 
         attempts++;
       }
 
-      if (!analysisComplete) {
-        throw new Error("Tempo esgotado aguardando análise (90s)");
+      if (!processingComplete) {
+        console.warn("Timeout no processamento - usando transcrição bruta");
       }
 
-      // 5. SUCCESS!
+      // 6. SUCCESS!
       setCurrentStep('complete');
-      toast.success("✅ Otimização processada com sucesso!");
+      toast.success("✅ Transcrição processada! Revise no drawer antes de analisar com IA");
       
       clearBlobUrl();
       setRecordingDuration(0);
@@ -237,54 +248,54 @@ export function OptimizationRecorder({
     }
   }
 
-  async function handleRetryAnalysis() {
+  async function handleRetryProcessing() {
     if (!currentRecordingId) {
       toast.error("Nenhuma gravação para reprocessar");
       return;
     }
 
     setIsProcessing(true);
-    setCurrentStep('analyze');
+    setCurrentStep('processing_transcript');
     setProcessingError(null);
 
     try {
-      // Poll for analysis completion
-      const maxAttempts = 90;
-      let attempts = 0;
-      let analysisComplete = false;
-
-      // Trigger analysis
-      const { error: analyzeError } = await supabase.functions.invoke(
-        "j_ads_analyze_optimization",
+      // Trigger processing
+      const { error: processError } = await supabase.functions.invoke(
+        "j_ads_process_transcript",
         { body: { recording_id: currentRecordingId } }
       );
 
-      if (analyzeError) throw new Error(`Análise falhou: ${analyzeError.message}`);
+      if (processError) throw new Error(`Processamento falhou: ${processError.message}`);
 
-      while (attempts < maxAttempts && !analysisComplete) {
+      // Poll for completion
+      const maxAttempts = 60;
+      let attempts = 0;
+      let processingComplete = false;
+
+      while (attempts < maxAttempts && !processingComplete) {
         await new Promise(resolve => setTimeout(resolve, 1000));
         
         const { data: statusCheck } = await supabase
           .from("j_ads_optimization_recordings")
-          .select("analysis_status")
+          .select("transcription_status")
           .eq("id", currentRecordingId)
           .single();
 
-        if (statusCheck?.analysis_status === "completed") {
-          analysisComplete = true;
-        } else if (statusCheck?.analysis_status === "failed") {
-          throw new Error("Análise com IA falhou - verifique os logs da função");
+        if (statusCheck?.transcription_status === "completed") {
+          processingComplete = true;
+        } else if (statusCheck?.transcription_status === "failed") {
+          throw new Error("Processamento falhou");
         }
 
         attempts++;
       }
 
-      if (!analysisComplete) {
-        throw new Error("Tempo esgotado aguardando análise (90s)");
+      if (!processingComplete) {
+        throw new Error("Tempo esgotado aguardando processamento");
       }
 
       setCurrentStep('complete');
-      toast.success("✅ Análise concluída com sucesso!");
+      toast.success("✅ Transcrição processada com sucesso!");
       
       setTimeout(() => {
         setIsProcessing(false);
@@ -484,7 +495,7 @@ export function OptimizationRecorder({
         isOpen={isProcessing}
         currentStep={currentStep}
         error={processingError}
-        onRetry={currentStep === 'analyze' ? handleRetryAnalysis : handleUpload}
+        onRetry={currentStep === 'processing_transcript' ? handleRetryProcessing : handleUpload}
         onClose={() => {
           setIsProcessing(false);
           setProcessingError(null);

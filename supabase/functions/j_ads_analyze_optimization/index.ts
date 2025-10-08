@@ -61,8 +61,11 @@ serve(async (req) => {
       throw new Error('Transcript not found');
     }
 
+    // Use processed_text if available, fallback to full_text
+    const transcriptText = transcript.processed_text || transcript.full_text;
+    
     // Guard: transcript too short for meaningful analysis
-    const textLength = (transcript.full_text || '').trim().length;
+    const textLength = transcriptText.trim().length;
     if (textLength < 50) {
       console.warn(`🛑 Transcript too short for analysis (len=${textLength}). Marking as failed.`);
       await supabase
@@ -191,7 +194,7 @@ REGRAS:
     let userPrompt = `Analise esta transcrição de otimização de tráfego e extraia as informações estruturadas:
 
 TRANSCRIÇÃO:
-${transcript.full_text}
+${transcriptText}
 
 CONTEXTO DA GRAVAÇÃO ATUAL:
 - Account ID: ${recording.account_id}
