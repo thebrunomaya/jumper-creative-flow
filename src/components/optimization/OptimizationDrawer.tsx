@@ -106,10 +106,10 @@ function TranscriptionSection({
       <Tabs defaultValue={transcript.processed_text ? "processed" : "raw"} className="w-full">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="processed" disabled={!transcript.processed_text}>
-            Processada (Tópicos)
+            Processada
           </TabsTrigger>
           <TabsTrigger value="raw">
-            Bruta (Original)
+            Bruta
           </TabsTrigger>
         </TabsList>
 
