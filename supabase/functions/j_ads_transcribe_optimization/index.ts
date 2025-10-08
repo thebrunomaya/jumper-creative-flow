@@ -244,10 +244,25 @@ Termos técnicos: ${platformTerms}.`;
         throw new Error('ANTHROPIC_API_KEY not configured');
       }
 
-      const systemPrompt = 'Você é um assistente especializado em organizar transcrições de análises de tráfego pago em tópicos estruturados e claros.';
-      const userPrompt = `Organize a seguinte transcrição em tópicos claros e estruturados, mantendo todas as informações relevantes. Use bullet points e formatação markdown quando apropriado:
+      const systemPrompt = 'Você é um assistente especializado em organizar transcrições de análises de tráfego pago (media buying) em relatórios estruturados e contextualizados.';
 
-${transcription.text}`;
+      const userPrompt = `Organize a seguinte transcrição de otimização em um relatório estruturado com markdown.
+
+## Contexto da Conta
+- **Conta:** ${accountName}
+- **Plataforma:** ${platformName}
+- **Gestor:** ${accountData?.Gestor || 'Não informado'}
+- **Gerente:** ${accountData?.Gerente || 'Não informado'}
+- **Parceiro:** ${accountData?.Parceiro || 'Não informado'}
+- **Objetivos:** ${recording.selected_objectives?.join(', ') || 'Não especificado'}
+- **Data:** ${new Date(recording.recorded_at).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}
+- **Gravado por:** ${recording.recorded_by}
+
+${accountContextFinal ? `## Sobre a Conta\n${accountContextFinal}\n\n` : ''}## Transcrição
+${transcription.text}
+
+---
+Organize as otimizações em tópicos claros, destacando métricas, ações tomadas e próximos passos.`;
 
       const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
