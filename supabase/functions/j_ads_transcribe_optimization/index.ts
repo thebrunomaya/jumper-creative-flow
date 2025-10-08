@@ -5,36 +5,32 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.56.0';
 // Helper to generate account context from Notion data
 function generateAccountContext(accountData: any): string {
   const parts: string[] = [];
-  
-  if (accountData.Conta) {
-    parts.push(`Conta: ${accountData.Conta}`);
-  }
-  
+
   if (accountData['Quais são os produtos/serviços que deseja divulgar?']) {
     const produtos = accountData['Quais são os produtos/serviços que deseja divulgar?'];
     parts.push(`Produtos: ${produtos.substring(0, 100)}`);
   }
-  
+
   if (accountData['Quem é o cliente ideal? (Persona)']) {
     const persona = accountData['Quem é o cliente ideal? (Persona)'];
     parts.push(`Persona: ${persona.substring(0, 100)}`);
   }
-  
+
   if (accountData['Ticket médio atual (valor médio por venda ou contrato).']) {
     parts.push(`Ticket: ${accountData['Ticket médio atual (valor médio por venda ou contrato).']}`);
   }
-  
+
   if (accountData['Seus principais diferenciais competitivos.']) {
     const dif = accountData['Seus principais diferenciais competitivos.'];
     parts.push(`Diferenciais: ${dif.substring(0, 80)}`);
   }
-  
+
   if (accountData['Quais são as maiores dores e objeções desses clientes?']) {
     const dores = accountData['Quais são as maiores dores e objeções desses clientes?'];
     parts.push(`Dores: ${dores.substring(0, 80)}`);
   }
-  
-  return parts.join(' • ').substring(0, 480);
+
+  return parts.join(', ').substring(0, 500);
 }
 
 const corsHeaders = {
@@ -80,20 +76,27 @@ serve(async (req) => {
 
     // 1.5. Build account context - Priority: override_context > Notion > auto-generated
     let accountContextFinal = '';
-    
+    let accountName = 'Conta não identificada';
+
     // Priority 1: Check if user edited context for this recording
     if (recording.override_context) {
       accountContextFinal = recording.override_context;
       console.log('📝 Using override context from user');
-    } else {
-      // Fetch Notion account data
-      const { data: accountData } = await supabase
-        .from('j_ads_notion_db_accounts')
-        .select('*')
-        .eq('ID', recording.account_id)
-        .maybeSingle();
-      
-      if (accountData) {
+    }
+
+    // Fetch Notion account data for name and context
+    const { data: accountData } = await supabase
+      .from('j_ads_notion_db_accounts')
+      .select('*')
+      .eq('ID', recording.account_id)
+      .maybeSingle();
+
+    if (accountData) {
+      // Extract account name (always needed for prompt)
+      accountName = accountData.Conta || accountName;
+
+      // If no override context, get from Notion
+      if (!recording.override_context) {
         // Priority 2: Use dedicated "Contexto para Otimização" column
         if (accountData['Contexto para Otimização']) {
           accountContextFinal = accountData['Contexto para Otimização'];
@@ -143,22 +146,59 @@ serve(async (req) => {
       }
     }
 
-    // 5. Build final prompt with context replacement
-    const basePrompt = `Transcrição de análise de otimização de ${recording.platform === 'google' ? 'Google Ads' : 'Meta Ads'} em português brasileiro.
-Termos técnicos comuns: CPA, CPM, CTR, ROAS, CPC, alcance, frequência, impressões, conversões, 
-campanhas, conjuntos de anúncios, criativos, pixel, remarketing, lookalike, retargeting.`;
+    // 5. Build optimized Whisper prompt (max ~1000 chars)
+    const platformName = recording.platform === 'google' ? 'Google Ads' : 'Meta Ads';
 
-    let finalPrompt = basePrompt;
-    
+    // Platform-specific terms
+    const platformTerms = recording.platform === 'google'
+      ? 'Google Ads, Google Analytics, Performance Max, pMax, palavras-chave, correspondência, termos de pesquisa, índice de qualidade, lance, rede de pesquisa, rede de display, extensões de anúncio'
+      : 'Meta Business Suite, pixel do Meta, públicos personalizados, públicos semelhantes, conjunto de anúncios, feed, stories, reels, otimização de orçamento de campanha (CBO)';
+
+    // Build structured prompt with account name at the top
+    let finalPrompt = `Transcrição em português brasileiro sobre ${platformName}.
+
+Conta: ${accountName}
+
+Métricas principais (manter siglas em MAIÚSCULAS):
+ROAS (retorno sobre investimento em anúncios), CPA (custo por aquisição), CTR (taxa de cliques), CPM (custo por mil impressões), CPC (custo por clique), CVR (taxa de conversão), CPL (custo por lead), AOV (ticket médio), LTV (valor vitalício).
+
+Termos técnicos: impressões, alcance, frequência, conversões, cliques, campanhas, conjuntos de anúncios, grupos de anúncios, criativos, anúncios, landing page, pixel, tag, evento, remarketing, retargeting, lookalike, segmentação, público, audiência.
+
+${platformTerms}.`;
+
+    // Add context if available (with size control)
     if (customPrompts) {
       // Replace {context} variable in custom prompts
       const renderedPrompts = customPrompts.replace(/{context}/g, accountContextFinal || '');
-      finalPrompt = `${basePrompt}\n\n${renderedPrompts}`;
+      const contextSection = `\n\n${renderedPrompts}`;
+
+      // Control total size (~1000 chars max)
+      if ((finalPrompt.length + contextSection.length) <= 1000) {
+        finalPrompt += contextSection;
+      } else {
+        // Truncate context to fit
+        const availableSpace = 1000 - finalPrompt.length - 12; // Reserve for "\n\nContexto: "
+        if (availableSpace > 50) {
+          finalPrompt += `\n\nContexto: ${renderedPrompts.substring(0, availableSpace)}`;
+        }
+      }
     } else if (accountContextFinal) {
-      finalPrompt = `${basePrompt}\n\nContexto da conta:\n${accountContextFinal}`.trim();
+      const contextSection = `\n\nContexto: ${accountContextFinal}`;
+
+      // Control total size (~1000 chars max)
+      if ((finalPrompt.length + contextSection.length) <= 1000) {
+        finalPrompt += contextSection;
+      } else {
+        // Truncate context to fit
+        const availableSpace = 1000 - finalPrompt.length - 12; // Reserve for "\n\nContexto: "
+        if (availableSpace > 50) {
+          finalPrompt += `\n\nContexto: ${accountContextFinal.substring(0, availableSpace)}`;
+        }
+      }
     }
 
     console.log('🎯 Prompt final para Whisper:', finalPrompt);
+    console.log('📏 Tamanho do prompt:', finalPrompt.length, 'caracteres');
 
     const formData = new FormData();
     formData.append('file', audioData, 'audio.webm');
