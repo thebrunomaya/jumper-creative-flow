@@ -74,7 +74,7 @@ export const TrafficDashboard: React.FC<TrafficDashboardProps> = ({ accountId, s
         // Aggregate metrics
         const aggregated = data.reduce((acc, row) => {
           acc.linkClicks += row.link_clicks || 0;
-          acc.spend += parseFloat(row.spend || 0);
+          acc.spend += parseFloat(String(row.spend || 0));
           acc.impressions += row.impressions || 0;
           acc.reach += row.reach || 0;
           acc.clicks += row.clicks || 0;

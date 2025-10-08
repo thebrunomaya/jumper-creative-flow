@@ -165,76 +165,20 @@ export const useNotionPartners = () => {
   useEffect(() => {
     const fetchPartners = async () => {
       try {
-        console.log('Fetching partners from synchronized table j_ads_notion_db_partners...');
-        const { data, error } = await supabase
-          .from('j_ads_notion_db_partners')
-          .select('*');
+        console.log('Partners functionality disabled - using fallback data');
         
-        if (error) {
-          console.error('Supabase function error:', error);
-          throw error;
-        }
-        
-        console.log('Raw Notion partners data:', data);
-        
-        if (!data || !data.success) {
-          throw new Error(data?.error || 'Invalid response format from Notion');
-        }
-        
-        if (!data.results || !Array.isArray(data.results)) {
-          console.warn('No results found in Notion response');
-          setPartners([]);
-          setError(null);
-          return;
-        }
-        
-        const formattedPartners: Partner[] = data.results.map((item: NotionPartner) => {
-          // Try to find a name property - check common property names
-          let name = 'Sem nome';
-          
-          // Check for common property names in order of preference
-          const possibleNameProperties = ['Name', 'Nome', 'Partner', 'Parceiro', 'Title', 'Título'];
-          
-          for (const propName of possibleNameProperties) {
-            if (item.properties[propName]) {
-              const extractedName = extractTextFromProperty(item.properties[propName]);
-              if (extractedName !== 'Sem nome') {
-                name = extractedName;
-                break;
-              }
-            }
-          }
-          
-          // If no name found, try the first text property
-          if (name === 'Sem nome') {
-            for (const [key, value] of Object.entries(item.properties)) {
-              const extractedName = extractTextFromProperty(value);
-              if (extractedName !== 'Sem nome') {
-                name = extractedName;
-                break;
-              }
-            }
-          }
-          
-          return {
-            id: item.id,
-            name: name
-          };
-        });
-        
-        console.log('Formatted partners:', formattedPartners);
-        setPartners(formattedPartners);
-        setError(null);
-      } catch (err) {
-        console.error('Error fetching partners:', err);
-        setError('Erro ao carregar parceiros do Notion');
-        // Fallback para dados hardcoded se a API falhar
+        // Fallback para dados hardcoded
         setPartners([
           { id: "fallback-1", name: "Roberta - LEAP Lab" },
           { id: "fallback-2", name: "Murilo - Agência Koko" },
           { id: "fallback-3", name: "Carlos - Almeida Prado" },
           { id: "fallback-4", name: "Ana - Supermercadistas" }
         ]);
+        setError(null);
+      } catch (err) {
+        console.error('Error setting up partners:', err);
+        setError('Erro ao carregar parceiros');
+        setPartners([]);
       } finally {
         setLoading(false);
       }

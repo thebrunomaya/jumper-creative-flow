@@ -69,14 +69,14 @@ export function BoilerDashboard({ accountName = 'BOILER 2.0' }: BoilerDashboardP
       
       // Calculate metrics client-side
       if (rawData && rawData.length > 0) {
-        const totalSpend = rawData.reduce((sum, row) => sum + parseFloat(row.spend || '0'), 0);
+        const totalSpend = rawData.reduce((sum, row) => sum + parseFloat(String(row.spend || 0)), 0);
         const totalImpressions = rawData.reduce((sum, row) => sum + (row.impressions || 0), 0);
         const totalClicks = rawData.reduce((sum, row) => sum + (row.clicks || 0), 0);
         const totalPurchases = rawData.reduce((sum, row) => sum + (row.actions_purchase || 0), 0);
         const totalAddToCart = rawData.reduce((sum, row) => sum + (row.actions_add_to_cart || 0), 0);
         const totalCheckout = rawData.reduce((sum, row) => sum + (row.actions_initiate_checkout || 0), 0);
         const totalViewContent = rawData.reduce((sum, row) => sum + (row.actions_view_content || 0), 0);
-        const totalRevenue = rawData.reduce((sum, row) => sum + parseFloat(row.action_values_omni_purchase || '0'), 0);
+        const totalRevenue = rawData.reduce((sum, row) => sum + parseFloat(String(row.action_values_omni_purchase || 0)), 0);
 
         const avgCtr = totalImpressions > 0 ? ((totalClicks / totalImpressions) * 100).toFixed(2) : '0';
         const avgCpa = totalPurchases > 0 ? (totalSpend / totalPurchases).toFixed(2) : null;
@@ -120,11 +120,11 @@ export function BoilerDashboard({ accountName = 'BOILER 2.0' }: BoilerDashboardP
           });
         }
         const day = dailyMap.get(date);
-        day.spend += parseFloat(row.spend || '0');
+        day.spend += parseFloat(String(row.spend || 0));
         day.impressions += row.impressions || 0;
         day.clicks += row.clicks || 0;
         day.purchases += row.actions_purchase || 0;
-        day.revenue += parseFloat(row.action_values_omni_purchase || '0');
+        day.revenue += parseFloat(String(row.action_values_omni_purchase || 0));
       });
 
       const dailyArray = Array.from(dailyMap.values())
@@ -151,7 +151,7 @@ export function BoilerDashboard({ accountName = 'BOILER 2.0' }: BoilerDashboardP
           });
         }
         const camp = campaignMap.get(campaign);
-        camp.spend += parseFloat(row.spend || '0');
+        camp.spend += parseFloat(String(row.spend || 0));
         camp.impressions += row.impressions || 0;
         camp.clicks += row.clicks || 0;
         camp.purchases += row.actions_purchase || 0;

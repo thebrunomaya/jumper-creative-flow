@@ -61,15 +61,15 @@ export const SeguidoresDashboard: React.FC<SeguidoresDashboardProps> = ({
         } else {
           // Cálculos das métricas baseados no config
           const totalPageLikes = data.reduce((sum, row) => 
-            sum + (parseFloat(row.actions_like) || 0), 0
+            sum + (parseFloat(String(row.actions_like || 0))), 0
           );
           
           const totalSpend = data.reduce((sum, row) => 
-            sum + (parseFloat(row.spend) || 0), 0
+            sum + (parseFloat(String(row.spend || 0))), 0
           );
           
           const totalReach = data.reduce((sum, row) => 
-            sum + (parseFloat(row.reach) || 0), 0
+            sum + (parseFloat(String(row.reach || 0))), 0
           );
 
           // Métricas calculadas

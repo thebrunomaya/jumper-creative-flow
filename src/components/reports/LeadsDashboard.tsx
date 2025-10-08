@@ -73,9 +73,9 @@ export const LeadsDashboard: React.FC<LeadsDashboardProps> = ({ accountId, selec
 
         // Aggregate metrics
         const aggregated = data.reduce((acc, row) => {
-          acc.conversions += row.conversions || 0;
+          acc.conversions += row.actions_lead || 0;
           acc.linkClicks += row.link_clicks || 0;
-          acc.spend += parseFloat(row.spend || 0);
+          acc.spend += parseFloat(String(row.spend || 0));
           acc.impressions += row.impressions || 0;
           acc.reach += row.reach || 0;
           return acc;

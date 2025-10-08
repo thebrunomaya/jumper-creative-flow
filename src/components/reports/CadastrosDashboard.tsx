@@ -63,19 +63,19 @@ export const CadastrosDashboard: React.FC<CadastrosDashboardProps> = ({
         } else {
           // Cálculos das métricas baseados no config
           const totalLeads = data.reduce((sum, row) => 
-            sum + (parseFloat(row.actions_lead) || 0), 0
+            sum + (parseFloat(String(row.actions_lead || 0))), 0
           );
           
           const totalRegistrosCompletos = data.reduce((sum, row) => 
-            sum + (parseFloat(row.actions_complete_registration) || 0), 0
+            sum + (parseFloat(String(row.actions_complete_registration || 0))), 0
           );
           
           const totalSpend = data.reduce((sum, row) => 
-            sum + (parseFloat(row.spend) || 0), 0
+            sum + (parseFloat(String(row.spend || 0))), 0
           );
           
           const totalLinkClicks = data.reduce((sum, row) => 
-            sum + (parseFloat(row.link_clicks) || 0), 0
+            sum + (parseFloat(String(row.link_clicks || 0))), 0
           );
 
           // Métricas calculadas conforme config

@@ -90,7 +90,7 @@ export function GeneralDashboard({ accountName = 'Account', accountInfo, selecte
       console.log(`✅ Found ${rawData.length} records for general metrics`);
 
       // Calculate general metrics
-      const totalSpend = rawData.reduce((sum, row) => sum + parseFloat(row.spend || '0'), 0);
+      const totalSpend = rawData.reduce((sum, row) => sum + parseFloat(String(row.spend || 0)), 0);
       const totalImpressions = rawData.reduce((sum, row) => sum + (row.impressions || 0), 0);
       const totalClicks = rawData.reduce((sum, row) => sum + (row.clicks || 0), 0);
       const totalLinkClicks = rawData.reduce((sum, row) => sum + (row.link_clicks || 0), 0);

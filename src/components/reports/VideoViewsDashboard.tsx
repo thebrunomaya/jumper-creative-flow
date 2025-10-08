@@ -74,7 +74,7 @@ export const VideoViewsDashboard: React.FC<VideoViewsDashboardProps> = ({ accoun
           acc.videoP50Watched += row.video_p50_watched_actions_video_view || 0;
           acc.videoP75Watched += row.video_p75_watched_actions_video_view || 0;
           acc.videoP100Watched += row.video_p100_watched_actions_video_view || 0;
-          acc.spend += parseFloat(row.spend || 0);
+          acc.spend += parseFloat(String(row.spend || 0));
           return acc;
         }, {
           videoViews: 0,

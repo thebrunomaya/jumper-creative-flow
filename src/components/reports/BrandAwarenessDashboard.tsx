@@ -74,8 +74,8 @@ export const BrandAwarenessDashboard: React.FC<BrandAwarenessDashboardProps> = (
           acc.reach += row.reach || 0;
           acc.impressions += row.impressions || 0;
           acc.clicks += row.clicks || 0;
-          acc.spend += parseFloat(row.spend || 0);
-          acc.frequencySum += (parseFloat(row.frequency || 0)) * (row.reach || 0);
+          acc.spend += parseFloat(String(row.spend || 0));
+          acc.frequencySum += (parseFloat(String(row.frequency || 0))) * (row.reach || 0);
           acc.reachForFreq += row.reach || 0;
           return acc;
         }, {

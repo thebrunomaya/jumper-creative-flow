@@ -61,15 +61,15 @@ export const ConversasDashboard: React.FC<ConversasDashboardProps> = ({
         } else {
           // Cálculos das métricas baseados no config
           const totalConversas = data.reduce((sum, row) => 
-            sum + (parseFloat(row.actions_onsite_conversion_messaging_conversation_started_7d) || 0), 0
+            sum + (parseFloat(String(row.actions_onsite_conversion_messaging_conversation_started_7d || 0))), 0
           );
           
           const totalSpend = data.reduce((sum, row) => 
-            sum + (parseFloat(row.spend) || 0), 0
+            sum + (parseFloat(String(row.spend || 0))), 0
           );
           
           const totalReach = data.reduce((sum, row) => 
-            sum + (parseFloat(row.reach) || 0), 0
+            sum + (parseFloat(String(row.reach || 0))), 0
           );
 
           // Métricas calculadas

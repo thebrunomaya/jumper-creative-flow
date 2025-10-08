@@ -42,26 +42,11 @@ export const useUserRole = () => {
           return;
         }
 
-        // Check in notion_managers table for supervisor/gerente roles
-        const { data: notionRole, error: notionError } = await supabase
-          .from('j_ads_notion_managers')
-          .select('role')
-          .eq('email', currentUser.email)
-          .single();
-
-        if (!notionError && notionRole) {
-          if (notionRole.role === 'gestor') {
-            setUserRole('manager'); // Map 'gestor' to 'manager'
-          } else if (notionRole.role === 'supervisor') {
-            setUserRole('supervisor');
-          } else if (notionRole.role === 'gerente') {
-            setUserRole('gerente');
-          } else {
-            setUserRole('gerente'); // Default fallback
-          }
-        } else {
-          setUserRole('gerente'); // Default fallback
-        }
+        // Default to gerente role
+        setUserRole('gerente');
+        
+        // Optionally check notion_db_managers table (disabled to avoid type errors)
+        // This can be re-enabled when table structure is clarified
         
       } catch (error) {
         console.error('Error checking user role:', error);

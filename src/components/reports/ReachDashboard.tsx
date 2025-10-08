@@ -63,8 +63,8 @@ export const ReachDashboard: React.FC<ReachDashboardProps> = ({ accountId, selec
         const aggregated = data.reduce((acc, row) => {
           acc.reach += row.reach || 0;
           acc.impressions += row.impressions || 0;
-          acc.spend += parseFloat(row.spend || 0);
-          acc.frequencySum += (parseFloat(row.frequency || 0)) * (row.reach || 0);
+          acc.spend += parseFloat(String(row.spend || 0));
+          acc.frequencySum += (parseFloat(String(row.frequency || 0))) * (row.reach || 0);
           acc.reachForFreq += row.reach || 0;
           return acc;
         }, {

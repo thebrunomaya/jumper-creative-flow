@@ -68,9 +68,9 @@ export const ConversionsDashboard: React.FC<ConversionsDashboardProps> = ({ acco
         // Aggregate metrics
         const aggregated = data.reduce((acc, row) => {
           acc.conversions += row.actions_onsite_conversion_post_save || 0;
-          acc.revenue += parseFloat(row.action_values_omni_purchase || 0);
+          acc.revenue += parseFloat(String(row.action_values_omni_purchase || 0));
           acc.linkClicks += row.link_clicks || 0;
-          acc.spend += parseFloat(row.spend || 0);
+          acc.spend += parseFloat(String(row.spend || 0));
           acc.impressions += row.impressions || 0;
           return acc;
         }, {
