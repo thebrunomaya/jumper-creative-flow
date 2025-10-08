@@ -262,7 +262,7 @@ ${accountContextFinal ? `## Sobre a Conta\n${accountContextFinal}\n\n` : ''}## T
 ${transcription.text}
 
 ---
-Organize as otimizações em tópicos claros, destacando métricas, ações tomadas e próximos passos.`;
+IMPORTANTE: Mantenha as seções "Contexto da Conta" e "Sobre a Conta" no início do relatório. Depois, organize as otimizações em tópicos claros, destacando métricas, ações tomadas e próximos passos.`;
 
       console.log('🎯 Prompt para Claude Sonnet 4.5:', userPrompt.substring(0, 500) + '...');
       console.log('📏 Tamanho do prompt do Claude:', userPrompt.length, 'caracteres');
