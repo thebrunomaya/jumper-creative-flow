@@ -18,6 +18,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<{ error?: any }>;
   signup: (email: string, password: string) => Promise<{ error?: any }>;
   loginWithMagicLink: (email: string) => Promise<{ error?: any }>;
+  loginWithNotion: () => Promise<{ error?: any }>;
   resetPassword: (email: string) => Promise<{ error?: any }>;
   logout: () => Promise<void>;
   // Legacy field for backward compatibility
@@ -101,6 +102,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return { error };
   };
 
+  const loginWithNotion = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'notion',
+      options: {
+        redirectTo: `${window.location.origin}/`,
+      }
+    });
+    if (!error) {
+      setTimeout(() => { ensureUserRole(); }, 0);
+    }
+    return { error };
+  };
+
   const resetPassword = async (email: string) => {
     const redirectUrl = `${window.location.origin}/`;
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
@@ -130,6 +144,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     login,
     signup,
     loginWithMagicLink,
+    loginWithNotion,
     resetPassword,
     logout,
     currentUser,

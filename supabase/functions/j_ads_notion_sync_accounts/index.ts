@@ -60,7 +60,17 @@ function extractMultiSelect(prop: any): string {
 function extractPeople(prop: any): string {
   if (!prop) return "";
   if (prop.people && Array.isArray(prop.people)) {
-    return prop.people.map((p: any) => p.name || p.id).filter(Boolean).join(", ");
+    // CRITICAL: Extract emails instead of names for Notion OAuth matching
+    // Notion returns: { id, name, person: { email } }
+    return prop.people
+      .map((p: any) => {
+        // Try to get email first (for OAuth matching)
+        if (p.person?.email) return p.person.email;
+        // Fallback to name or id
+        return p.name || p.id;
+      })
+      .filter(Boolean)
+      .join(", ");
   }
   return extractText(prop);
 }

@@ -48,51 +48,73 @@ serve(async (req) => {
 
     console.log('🔍 Finding accounts for user:', targetEmail);
 
-    // Step 1: Find manager by email in the complete managers table
-    const { data: managerData, error: managerError } = await service
-      .from('j_ads_notion_db_managers')
-      .select('"E-Mail", "Contas", notion_id')
-      .ilike('"E-Mail"', targetEmail)
-      .maybeSingle();
+    // DUAL ACCESS LOGIC: Detect if login came from Notion OAuth or Email/Password
+    const isNotionOAuth = user.app_metadata?.provider === 'notion';
+    console.log('🔐 Login method:', isNotionOAuth ? 'Notion OAuth' : 'Email/Password');
 
-    if (managerError) {
-      console.error('Error finding manager:', managerError);
-      return new Response(JSON.stringify({ success: false, error: 'Error finding manager data' }), {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+    let accountIds: string[] = [];
+
+    if (isNotionOAuth) {
+      // NOTION OAUTH PATH: Find accounts where user is Gestor or Supervisor
+      console.log('🎯 Notion OAuth detected - searching by Gestor/Supervisor fields');
+
+      const { data: accountsData, error: accountsError } = await service
+        .from('j_ads_notion_db_accounts')
+        .select('notion_id, "Gestor", "Supervisor"')
+        .or(`"Gestor".ilike.%${targetEmail}%,"Supervisor".ilike.%${targetEmail}%`);
+
+      if (accountsError) {
+        console.error('Error finding accounts by Gestor/Supervisor:', accountsError);
+        return new Response(JSON.stringify({ success: false, error: 'Error finding accounts' }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      accountIds = (accountsData || []).map((acc: any) => acc.notion_id);
+      console.log(`✅ Found ${accountIds.length} accounts via Gestor/Supervisor`);
+
+    } else {
+      // EMAIL/PASSWORD PATH: Use existing logic (DB_Gerentes)
+      console.log('📧 Email/Password detected - searching in DB_Gerentes');
+
+      const { data: managerData, error: managerError } = await service
+        .from('j_ads_notion_db_managers')
+        .select('"E-Mail", "Contas", notion_id')
+        .ilike('"E-Mail"', targetEmail)
+        .maybeSingle();
+
+      if (managerError) {
+        console.error('Error finding manager:', managerError);
+        return new Response(JSON.stringify({ success: false, error: 'Error finding manager data' }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      if (managerData) {
+        console.log('✅ Manager found:', managerData);
+        const contasField = managerData["Contas"] || "";
+        accountIds = contasField
+          ? contasField.split(',').map((id: string) => id.trim()).filter(Boolean)
+          : [];
+        console.log('📋 Account IDs from manager:', accountIds);
+      } else {
+        console.log('❌ No manager found for email:', targetEmail);
+      }
     }
 
-    if (!managerData) {
-      console.log('❌ No manager found for email:', targetEmail);
-      return new Response(
-        JSON.stringify({ 
-          success: true, 
-          accounts: [], 
-          email: targetEmail, 
-          note: 'No manager entry found for user email' 
-        }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    console.log('✅ Manager found:', managerData);
-
-    // Step 2: Parse account IDs from "Contas" field (comma-separated relation IDs)
-    const contasField = managerData["Contas"] || "";
-    const accountIds: string[] = contasField 
-      ? contasField.split(',').map((id: string) => id.trim()).filter(Boolean)
-      : [];
-
-    console.log('📋 Account IDs from manager:', accountIds);
-
+    // If no accounts found, return empty result
     if (accountIds.length === 0) {
       return new Response(
-        JSON.stringify({ 
-          success: true, 
-          accounts: [], 
+        JSON.stringify({
+          success: true,
+          accounts: [],
           email: targetEmail,
-          note: 'Manager has no linked accounts' 
+          login_method: isNotionOAuth ? 'notion_oauth' : 'email_password',
+          note: isNotionOAuth
+            ? 'No accounts found where user is Gestor or Supervisor'
+            : 'No manager entry found or manager has no linked accounts'
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
@@ -133,11 +155,12 @@ serve(async (req) => {
     console.log('📊 Formatted accounts:', formattedAccounts);
 
     return new Response(
-      JSON.stringify({ 
-        success: true, 
+      JSON.stringify({
+        success: true,
         accounts: formattedAccounts,
         account_ids: accountIds, // Also return raw IDs for compatibility
         email: targetEmail,
+        login_method: isNotionOAuth ? 'notion_oauth' : 'email_password',
         source: 'complete_sync'
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

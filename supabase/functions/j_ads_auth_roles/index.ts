@@ -72,10 +72,75 @@ Deno.serve(async (req: Request) => {
       })
     }
 
-    // Assign default role 'manager'
+    // AUTOMATIC ROLE DETECTION based on login method and Notion data
+    const isNotionOAuth = user.app_metadata?.provider === 'notion'
+    const targetEmail = (user.email || '').toLowerCase()
+    let roleToAssign: 'admin' | 'manager' | 'supervisor' | 'gerente' = 'gerente'
+
+    console.log('🔐 Detecting role for:', targetEmail, '| OAuth:', isNotionOAuth)
+
+    if (isNotionOAuth) {
+      // NOTION OAUTH: Detect role from Gestor/Supervisor fields
+      console.log('🎯 Notion OAuth login - checking Gestor/Supervisor fields')
+
+      // Check if user is Gestor in any account
+      const { data: gestorAccounts } = await admin
+        .from('j_ads_notion_db_accounts')
+        .select('notion_id')
+        .ilike('"Gestor"', `%${targetEmail}%`)
+        .limit(1)
+
+      if (gestorAccounts && gestorAccounts.length > 0) {
+        roleToAssign = 'manager'
+        console.log('✅ Found user as Gestor → role: manager')
+      } else {
+        // Check if user is Supervisor in any account
+        const { data: supervisorAccounts } = await admin
+          .from('j_ads_notion_db_accounts')
+          .select('notion_id')
+          .ilike('"Supervisor"', `%${targetEmail}%`)
+          .limit(1)
+
+        if (supervisorAccounts && supervisorAccounts.length > 0) {
+          roleToAssign = 'supervisor'
+          console.log('✅ Found user as Supervisor → role: supervisor')
+        } else {
+          console.log('ℹ️ User not found as Gestor/Supervisor → role: gerente (default)')
+        }
+      }
+    } else {
+      // EMAIL/PASSWORD: Check DB_Gerentes for role
+      console.log('📧 Email/Password login - checking DB_Gerentes')
+
+      const { data: managerData } = await admin
+        .from('j_ads_notion_db_managers')
+        .select('"Função"')
+        .ilike('"E-Mail"', targetEmail)
+        .maybeSingle()
+
+      if (managerData && managerData["Função"]) {
+        const funcao = managerData["Função"].toLowerCase()
+        console.log('📋 Found Função:', funcao)
+
+        if (funcao.includes('admin')) {
+          roleToAssign = 'admin'
+        } else if (funcao.includes('gestor') || funcao.includes('manager')) {
+          roleToAssign = 'manager'
+        } else if (funcao.includes('supervisor')) {
+          roleToAssign = 'supervisor'
+        } else {
+          roleToAssign = 'gerente'
+        }
+        console.log(`✅ Role from DB_Gerentes → role: ${roleToAssign}`)
+      } else {
+        console.log('ℹ️ User not in DB_Gerentes → role: gerente (default)')
+      }
+    }
+
+    // Assign detected role
     const { error: insertError } = await admin
       .from('j_ads_user_roles')
-      .insert({ user_id: user.id, role: 'manager' })
+      .insert({ user_id: user.id, role: roleToAssign })
 
     if (insertError) {
       console.error('ensure-role: insertError', insertError)
@@ -86,7 +151,7 @@ Deno.serve(async (req: Request) => {
       })
     }
 
-    return new Response(JSON.stringify({ ok: true, message: 'Role assigned: manager' }), {
+    return new Response(JSON.stringify({ ok: true, message: `Role assigned: ${roleToAssign}` }), {
       status: 200,
       headers: { 'Content-Type': 'application/json', ...corsHeaders },
     })
