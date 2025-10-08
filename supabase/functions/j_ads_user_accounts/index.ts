@@ -73,12 +73,30 @@ serve(async (req) => {
 
     if (isNotionOAuth) {
       // NOTION OAUTH PATH: Find accounts where user is Gestor or Supervisor
-      console.log('🎯 Notion OAuth detected - searching by Gestor/Supervisor Email fields');
+      console.log('🎯 Notion OAuth detected - searching by Gestor/Supervisor fields');
 
-      const { data: accountsData, error: accountsError } = await service
+      // Try email fields first (new schema), fallback to name fields (old schema)
+      let accountsData, accountsError;
+
+      // Attempt 1: Try new email fields
+      const emailResult = await service
         .from('j_ads_notion_db_accounts')
-        .select('notion_id, "Gestor Email", "Supervisor Email"')
+        .select('notion_id')
         .or(`"Gestor Email".ilike.%${targetEmail}%,"Supervisor Email".ilike.%${targetEmail}%`);
+
+      // If email fields don't exist, fall back to old name fields
+      if (emailResult.error && emailResult.error.message?.includes('column')) {
+        console.log('⚠️ Email fields not found, falling back to Gestor/Supervisor name fields');
+        const nameResult = await service
+          .from('j_ads_notion_db_accounts')
+          .select('notion_id')
+          .or(`"Gestor".ilike.%${targetEmail}%,"Supervisor".ilike.%${targetEmail}%`);
+        accountsData = nameResult.data;
+        accountsError = nameResult.error;
+      } else {
+        accountsData = emailResult.data;
+        accountsError = emailResult.error;
+      }
 
       if (accountsError) {
         console.error('Error finding accounts by Gestor/Supervisor:', accountsError);
