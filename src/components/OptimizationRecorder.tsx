@@ -59,6 +59,7 @@ export function OptimizationRecorder({
   const [isProcessing, setIsProcessing] = useState(false);
   const [currentStep, setCurrentStep] = useState<ProcessingStep>('upload');
   const [processingError, setProcessingError] = useState<string | null>(null);
+  const [currentRecordingId, setCurrentRecordingId] = useState<string | null>(null);
 
   // Update edited context when account changes
   useEffect(() => {
@@ -162,6 +163,7 @@ export function OptimizationRecorder({
       }
 
       insertedRecordingId = recording.id;
+      setCurrentRecordingId(recording.id);
       
       // 3. AUTO-TRIGGER TRANSCRIPTION
       setCurrentStep('transcribe');
@@ -232,6 +234,69 @@ export function OptimizationRecorder({
       
     } finally {
       setIsUploading(false);
+    }
+  }
+
+  async function handleRetryAnalysis() {
+    if (!currentRecordingId) {
+      toast.error("Nenhuma gravação para reprocessar");
+      return;
+    }
+
+    setIsProcessing(true);
+    setCurrentStep('analyze');
+    setProcessingError(null);
+
+    try {
+      // Poll for analysis completion
+      const maxAttempts = 90;
+      let attempts = 0;
+      let analysisComplete = false;
+
+      // Trigger analysis
+      const { error: analyzeError } = await supabase.functions.invoke(
+        "j_ads_analyze_optimization",
+        { body: { recording_id: currentRecordingId } }
+      );
+
+      if (analyzeError) throw new Error(`Análise falhou: ${analyzeError.message}`);
+
+      while (attempts < maxAttempts && !analysisComplete) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        const { data: statusCheck } = await supabase
+          .from("j_ads_optimization_recordings")
+          .select("analysis_status")
+          .eq("id", currentRecordingId)
+          .single();
+
+        if (statusCheck?.analysis_status === "completed") {
+          analysisComplete = true;
+        } else if (statusCheck?.analysis_status === "failed") {
+          throw new Error("Análise com IA falhou - verifique os logs da função");
+        }
+
+        attempts++;
+      }
+
+      if (!analysisComplete) {
+        throw new Error("Tempo esgotado aguardando análise (90s)");
+      }
+
+      setCurrentStep('complete');
+      toast.success("✅ Análise concluída com sucesso!");
+      
+      setTimeout(() => {
+        setIsProcessing(false);
+        setCurrentRecordingId(null);
+        onUploadComplete?.();
+      }, 2000);
+
+    } catch (error: any) {
+      console.error("Analysis retry error:", error);
+      setCurrentStep('error');
+      setProcessingError(error.message || "Erro desconhecido na análise");
+      toast.error(`Erro: ${error.message}`);
     }
   }
 
@@ -419,10 +484,11 @@ export function OptimizationRecorder({
         isOpen={isProcessing}
         currentStep={currentStep}
         error={processingError}
-        onRetry={handleUpload}
+        onRetry={currentStep === 'analyze' ? handleRetryAnalysis : handleUpload}
         onClose={() => {
           setIsProcessing(false);
           setProcessingError(null);
+          setCurrentRecordingId(null);
         }}
       />
 
