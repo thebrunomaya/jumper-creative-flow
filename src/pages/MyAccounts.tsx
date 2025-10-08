@@ -25,7 +25,7 @@ function getAccessReason(
 ): AccessReason {
   if (userRole === 'admin') return 'ADMIN';
 
-  // Use email fields for matching (gestor_email, supervisor_email)
+  // Use email fields for OAuth matching (gestor_email, supervisor_email)
   const gestorEmail = account.gestor_email?.toLowerCase() || '';
   const supervisorEmail = account.supervisor_email?.toLowerCase() || '';
   const email = userEmail.toLowerCase();

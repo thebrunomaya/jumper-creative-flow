@@ -109,6 +109,43 @@ npm run deploy:preview    # Deploy preview to Vercel
 
 ---
 
+## 🖥️ CLI Usage Policy
+
+**CRITICAL: Always prefer CLI tools over web interfaces**
+
+Claude Code deve **SEMPRE** usar as ferramentas CLI disponíveis:
+
+- ✅ **Supabase CLI**: `npx supabase` para functions, migrations, database
+- ✅ **GitHub CLI**: `gh` para issues, PRs, releases
+- ✅ **Git CLI**: `git` para version control
+- ✅ **npm/npx**: para package management e tools
+
+### Handling CLI Errors
+
+**Se um comando CLI falhar:**
+
+1. **NUNCA** tente fazer a operação manualmente via web
+2. **SEMPRE** informe o usuário do erro completo
+3. **SEMPRE** sugira ao usuário verificar:
+   - Autenticação (`gh auth status`, `supabase login`)
+   - Configuração local
+   - Permissões de acesso
+4. **SEMPRE** mostre o comando exato que falhou para o usuário debugar
+
+**Exemplo de erro:**
+```
+❌ CLI Error: `gh pr create` failed
+→ User action needed: Run `gh auth login` to authenticate
+→ Command attempted: gh pr create --title "..." --body "..."
+```
+
+**Jamais substitua CLI por:**
+- ❌ Instruções para usar Supabase Dashboard
+- ❌ Instruções para usar GitHub web interface
+- ❌ Soluções manuais que contornem o CLI
+
+---
+
 ## 🗄️ Database Structure (Core Tables)
 
 **Creative Management:**

@@ -75,28 +75,11 @@ serve(async (req) => {
       // NOTION OAUTH PATH: Find accounts where user is Gestor or Supervisor
       console.log('🎯 Notion OAuth detected - searching by Gestor/Supervisor fields');
 
-      // Try email fields first (new schema), fallback to name fields (old schema)
-      let accountsData, accountsError;
-
-      // Attempt 1: Try new email fields
-      const emailResult = await service
+      // Search in Gestor and Supervisor fields (which contain emails)
+      const { data: accountsData, error: accountsError } = await service
         .from('j_ads_notion_db_accounts')
         .select('notion_id')
-        .or(`"Gestor Email".ilike.%${targetEmail}%,"Supervisor Email".ilike.%${targetEmail}%`);
-
-      // If email fields don't exist, fall back to old name fields
-      if (emailResult.error && emailResult.error.message?.includes('column')) {
-        console.log('⚠️ Email fields not found, falling back to Gestor/Supervisor name fields');
-        const nameResult = await service
-          .from('j_ads_notion_db_accounts')
-          .select('notion_id')
-          .or(`"Gestor".ilike.%${targetEmail}%,"Supervisor".ilike.%${targetEmail}%`);
-        accountsData = nameResult.data;
-        accountsError = nameResult.error;
-      } else {
-        accountsData = emailResult.data;
-        accountsError = emailResult.error;
-      }
+        .or(`"Gestor".ilike.%${targetEmail}%,"Supervisor".ilike.%${targetEmail}%`);
 
       if (accountsError) {
         console.error('Error finding accounts by Gestor/Supervisor:', accountsError);
@@ -171,26 +154,115 @@ serve(async (req) => {
 
     console.log(`✅ Found ${accountsData?.length || 0} accounts`);
 
-    // Step 4: Format accounts data for the frontend
-    const formattedAccounts = (accountsData || []).map((account: any) => ({
-      id: account.notion_id,
-      name: account["Conta"] || 'Sem nome',
-      objectives: account["Objetivos"] ? account["Objetivos"].split(', ').filter(Boolean) : [],
-      // Include other fields that might be useful
-      status: account["Status"],
-      tier: account["Tier"],
-      gestor: account["Gestor"], // Names for display
-      gestor_email: account["Gestor Email"], // Emails for OAuth
-      supervisor: account["Supervisor"], // Names for display
-      supervisor_email: account["Supervisor Email"], // Emails for OAuth
-      gerente: account["Gerente"], // Relation ID (could be resolved to name later)
-      canal_sowork: account["Canal SoWork"],
-      id_meta_ads: account["ID Meta Ads"],
-      meta_ads_id: account["ID Meta Ads"], // Add duplicate key for consistency
-      id_google_ads: account["ID Google Ads"],
-    }));
+    // Step 4: Resolve names for Gestor, Supervisor, and Gerente
+    // Collect all unique emails and notion_ids to lookup
+    const gestorEmails = new Set<string>();
+    const supervisorEmails = new Set<string>();
+    const gerenteIds = new Set<string>();
 
-    console.log('📊 Formatted accounts:', formattedAccounts);
+    (accountsData || []).forEach((account: any) => {
+      if (account["Gestor"]) {
+        account["Gestor"].split(',').forEach((email: string) => {
+          const trimmed = email.trim();
+          if (trimmed) gestorEmails.add(trimmed);
+        });
+      }
+      if (account["Supervisor"]) {
+        account["Supervisor"].split(',').forEach((email: string) => {
+          const trimmed = email.trim();
+          if (trimmed) supervisorEmails.add(trimmed);
+        });
+      }
+      if (account["Gerente"]) {
+        account["Gerente"].split(',').forEach((id: string) => {
+          const trimmed = id.trim();
+          if (trimmed) gerenteIds.add(trimmed);
+        });
+      }
+    });
+
+    // Fetch all managers at once
+    const allEmails = [...gestorEmails, ...supervisorEmails];
+    const allIds = [...gerenteIds];
+
+    // Build OR filter for emails and IDs
+    let managersQuery = service
+      .from('j_ads_notion_db_managers')
+      .select('notion_id, "E-Mail", "Nome"');
+
+    if (allEmails.length > 0 && allIds.length > 0) {
+      // Both emails and IDs exist
+      managersQuery = managersQuery.or(`"E-Mail".in.(${allEmails.join(',')}),notion_id.in.(${allIds.join(',')})`);
+    } else if (allEmails.length > 0) {
+      // Only emails
+      managersQuery = managersQuery.in('"E-Mail"', allEmails);
+    } else if (allIds.length > 0) {
+      // Only IDs
+      managersQuery = managersQuery.in('notion_id', allIds);
+    }
+
+    const { data: managersData } = await managersQuery;
+
+    // Create lookup maps
+    const emailToName = new Map<string, string>();
+    const idToName = new Map<string, string>();
+
+    (managersData || []).forEach((manager: any) => {
+      if (manager["E-Mail"] && manager["Nome"]) {
+        emailToName.set(manager["E-Mail"].toLowerCase().trim(), manager["Nome"]);
+      }
+      if (manager.notion_id && manager["Nome"]) {
+        idToName.set(manager.notion_id, manager["Nome"]);
+      }
+    });
+
+    console.log('📋 Manager lookups created:', {
+      emailToName: emailToName.size,
+      idToName: idToName.size
+    });
+
+    // Step 5: Format accounts data with resolved names
+    const formattedAccounts = (accountsData || []).map((account: any) => {
+      // Resolve Gestor emails to names
+      const gestorNames = account["Gestor"]
+        ? account["Gestor"].split(',')
+            .map((email: string) => emailToName.get(email.trim().toLowerCase()) || email.trim())
+            .join(', ')
+        : undefined;
+
+      // Resolve Supervisor emails to names
+      const supervisorNames = account["Supervisor"]
+        ? account["Supervisor"].split(',')
+            .map((email: string) => emailToName.get(email.trim().toLowerCase()) || email.trim())
+            .join(', ')
+        : undefined;
+
+      // Resolve Gerente notion_ids to names
+      const gerenteNames = account["Gerente"]
+        ? account["Gerente"].split(',')
+            .map((id: string) => idToName.get(id.trim()) || id.trim())
+            .join(', ')
+        : undefined;
+
+      return {
+        id: account.notion_id,
+        name: account["Conta"] || 'Sem nome',
+        objectives: account["Objetivos"] ? account["Objetivos"].split(', ').filter(Boolean) : [],
+        status: account["Status"],
+        tier: account["Tier"],
+        gestor: gestorNames, // Names resolved from emails
+        supervisor: supervisorNames, // Names resolved from emails
+        gerente: gerenteNames, // Names resolved from notion_ids
+        gestor_email: account["Gestor"], // Keep original emails for matching
+        supervisor_email: account["Supervisor"], // Keep original emails for matching
+        canal_sowork: account["Canal SoWork"],
+        id_meta_ads: account["ID Meta Ads"],
+        meta_ads_id: account["ID Meta Ads"],
+        id_google_ads: account["ID Google Ads"],
+      };
+    });
+
+    console.log('📊 Formatted accounts with names:', formattedAccounts);
 
     return new Response(
       JSON.stringify({

@@ -60,29 +60,17 @@ function extractMultiSelect(prop: any): string {
 function extractPeople(prop: any): string {
   if (!prop) return "";
   if (prop.people && Array.isArray(prop.people)) {
-    // Extract names for display purposes
+    // Extract emails for OAuth matching
     // Notion returns: { id, name, person: { email } }
     return prop.people
       .map((p: any) => {
-        // Use name for display
-        return p.name || p.person?.email || p.id;
+        // Use email for matching (email first!)
+        return p.person?.email || p.name || p.id;
       })
       .filter(Boolean)
       .join(", ");
   }
   return extractText(prop);
-}
-
-// NEW: Extract emails separately for OAuth matching
-function extractPeopleEmails(prop: any): string {
-  if (!prop) return "";
-  if (prop.people && Array.isArray(prop.people)) {
-    return prop.people
-      .map((p: any) => p.person?.email)
-      .filter(Boolean)
-      .join(", ");
-  }
-  return "";
 }
 
 function extractRelation(prop: any): string {
@@ -197,10 +185,8 @@ function processAccountPage(page: any): any {
     "Objetivos": extractMultiSelect(props["Objetivos"]),
     "Plataformas": extractMultiSelect(props["Plataformas"]),
     "Rastreamento": extractMultiSelect(props["Rastreamento"]),
-    "Gestor": extractPeople(props["Gestor"]), // Names for display
-    "Gestor Email": extractPeopleEmails(props["Gestor"]), // Emails for OAuth matching
-    "Supervisor": extractPeople(props["Supervisor"]), // Names for display
-    "Supervisor Email": extractPeopleEmails(props["Supervisor"]), // Emails for OAuth matching
+    "Gestor": extractPeople(props["Gestor"]), // Emails for OAuth matching
+    "Supervisor": extractPeople(props["Supervisor"]), // Emails for OAuth matching
     "Parceiro": extractRelation(props["Parceiro"]),
     "Gerente": extractRelation(props["Gerente"]),
     "Canal SoWork": extractText(props["Canal SoWork"]),
@@ -363,8 +349,8 @@ serve(async (req) => {
     await service.from('j_ads_notion_sync_logs').insert({
       sync_type: 'complete_sync',
       status: 'started',
-      message: 'Complete Notion sync started',
-      timestamp: syncStartTime
+      started_at: syncStartTime,
+      records_processed: 0
     });
 
     // Buscar dados do Notion
@@ -409,12 +395,14 @@ serve(async (req) => {
 
     // Log do sucesso
     const syncEndTime = new Date().toISOString();
+    const executionTime = new Date(syncEndTime).getTime() - new Date(syncStartTime).getTime();
     await service.from('j_ads_notion_sync_logs').insert({
       sync_type: 'complete_sync',
       status: 'completed',
-      message: `Sync completed: ${accountsData.length} accounts processed`,
-      timestamp: syncEndTime,
-      accounts_processed: accountsData.length
+      started_at: syncStartTime,
+      completed_at: syncEndTime,
+      records_processed: accountsData.length,
+      execution_time_ms: executionTime
     });
 
     const result = {
@@ -439,11 +427,18 @@ serve(async (req) => {
     if (SUPABASE_URL && SERVICE_ROLE_KEY) {
       try {
         const service = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
+        const errorTime = new Date().toISOString();
         await service.from('j_ads_notion_sync_logs').insert({
           sync_type: 'complete_sync',
           status: 'error',
-          message: err?.message || 'Unknown error',
-          timestamp: new Date().toISOString()
+          started_at: errorTime,
+          completed_at: errorTime,
+          error_details: {
+            message: err?.message || 'Unknown error',
+            stack: err?.stack,
+            name: err?.name
+          },
+          errors_count: 1
         });
       } catch (logErr) {
         console.error('Failed to log error:', logErr);
