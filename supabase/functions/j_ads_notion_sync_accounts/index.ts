@@ -388,19 +388,10 @@ serve(async (req) => {
 
     console.log(`Processed ${accountsData.length} valid accounts`);
 
-    // Resolve Gerente relation IDs to names
-    console.log('Resolving Gerente names from Notion...');
-    for (const account of accountsData) {
-      if (account["Gerente"]) {
-        try {
-          const gerenteName = await resolveRelationNames(account["Gerente"], NOTION_TOKEN);
-          account["Gerente"] = gerenteName || account["Gerente"]; // Fallback to ID if resolution fails
-        } catch (error) {
-          console.error(`Failed to resolve Gerente for account ${account.notion_id}:`, error);
-          // Keep original ID on error
-        }
-      }
-    }
+    // TODO: Resolve Gerente relation IDs to names
+    // Disabled temporarily to avoid sync timeout
+    // Will implement as separate background job
+    console.log('Skipping Gerente name resolution (keeping IDs for now)');
 
     // Fazer upsert na tabela
     let upsertResult;
