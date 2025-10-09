@@ -79,57 +79,93 @@ work_in_progress:
 
 # Context for next session
 next_session_context: |
-  ✅ SESSION 2025-10-09 COMPLETED: Inactive filter + Database cleanup
+  ✅ SESSION 2025-10-10 COMPLETED: Database Cleanup Planning
 
   What was done today:
-    - ✅ Fixed inactive accounts filter ('Inativo' working correctly)
-    - ✅ Resolved has_role() function conflict (dropped app_role version)
-    - ✅ Added RLS policies for j_ads_notion_db_managers
-    - ✅ Fixed 406 error with .maybeSingle() in AuthContext
-    - ✅ Cleaned 10 obsolete migrations (n8n, old accounts, etc)
-    - ✅ Removed "X de Y contas" badge from UI
-    - ✅ All changes committed and pushed to main (commit ca86613)
+    - ✅ Complete database audit (20 tables identified)
+    - ✅ Identified 7 obsolete tables to remove
+    - ✅ Updated CLAUDE.md with j_rep_metaads_bronze documentation
+    - ✅ Created migration: 20251010000000_cleanup_obsolete_tables.sql
+    - ✅ Created migration: 20251010000001_add_rls_metaads_bronze.sql
+    - ✅ Plan documented and ready for execution
 
-  System status:
-    - Admin toggle: Working ✅
-    - Inactive filter: Working ✅ (43 → 25 accounts)
-    - Role detection: Working ✅
-    - MyAccounts page: Fully functional ✅
+  🚨 CRITICAL TASK FOR NEXT SESSION: Execute Database Cleanup
 
-  🚨 CRITICAL TASK FOR NEXT SESSION:
+  DATABASE STATE (20 tables total):
 
-    Database Cleanup Audit
-    ----------------------
-    Bruno identified that there are obsolete tables still in Supabase database.
+  ✅ KEEP (14 tables):
+    - j_ads_creative_files/submissions/variations
+    - j_ads_error_logs, j_ads_metrics
+    - j_ads_notion_db_accounts/managers
+    - j_ads_notion_sync_logs
+    - j_ads_optimization_* (4 tables)
+    - j_ads_users
+    - j_rep_metaads_bronze ⚠️ (needs RLS!)
 
-    Action plan:
-    1. List all tables in Supabase (psql or dashboard)
-    2. Search entire codebase for references to obsolete tables
-    3. Find patterns: n8n_*, old 'accounts', 'notion_managers', 'user_roles'
-    4. Replace old references with j_ads_* tables
-    5. Drop obsolete tables from database
+  ❌ REMOVE (7 tables):
+    - creative_files, creative_submissions, creative_variations (duplicatas)
+    - notion_managers, notion_manager_accounts (antigas)
+    - user_roles (antiga)
+    - videosmmx (se existir - verificar)
 
-    Expected: Only j_ads_* tables should exist
-    Actual: Unknown - needs audit
+  EXECUTION PLAN (next session):
 
-    This is important for:
-    - Reducing database clutter
-    - Preventing accidental use of old tables
-    - Clear separation of concerns
-    - Avoiding future confusion
+  🔍 PHASE 1: Verify Code References (5 min)
+    ```bash
+    # Check for obsolete table usage
+    grep -r "FROM creative_submissions\|FROM creative_files" supabase/ src/
+    grep -r "notion_managers\|user_roles" supabase/ src/
+    ```
+    → If found: update to j_ads_* before proceeding
+    → If not found: proceed to Phase 2
+
+  🗑️ PHASE 2: Apply Cleanup Migration (2 min)
+    ```bash
+    npx supabase db push --linked
+    ```
+    → Applies: 20251010000000_cleanup_obsolete_tables.sql
+    → Removes: 6 obsolete tables
+
+  🔐 PHASE 3: Apply RLS Migration (2 min)
+    ```bash
+    # Already applied in Phase 2 (same push)
+    ```
+    → Applies: 20251010000001_add_rls_metaads_bronze.sql
+    → Secures: j_rep_metaads_bronze with RLS
+
+  🔄 PHASE 4: Regenerate Types (1 min)
+    ```bash
+    npx supabase gen types typescript --linked > src/integrations/supabase/types.ts
+    ```
+    → Should show only 14 tables (j_ads_* + j_rep_*)
+
+  ✅ PHASE 5: Validation (5 min)
+    - Check table count: should be 14
+    - Test MyAccounts page: should work
+    - Test Reports dashboards: should respect RLS
+    - Commit changes
+
+  SECURITY FIX INCLUDED:
+    ⚠️ j_rep_metaads_bronze currently has NO RLS
+    ✅ Migration adds RLS policies:
+       - Users see only their account data
+       - Admins see all data
+       - Staff see managed accounts
+       - Clients see assigned accounts
 
   Known issues (non-blocking):
-    - User name still shows email in cards (bruno@jumper.studio vs "Bruno Maya")
-    - This is cosmetic, can be addressed later
+    - User name still shows email in cards (cosmetic)
 
-  All changes deployed and working in production ✅
+  All planning completed, ready for execution! ✅
 
 # TODOs pending
 pending_todos:
-  - "🚨 CRITICAL: Database cleanup - Audit all tables, find obsolete references, drop old tables"
-  - "🚨 Search codebase for references to: n8n_*, accounts (old), notion_managers, user_roles"
+  - "🚨 PHASE 1: Verify code references to obsolete tables (grep creative_submissions, notion_managers, user_roles)"
+  - "🚨 PHASE 2: Apply cleanup migration (npx supabase db push --linked)"
+  - "🚨 PHASE 3: RLS already included in Phase 2 push"
+  - "🚨 PHASE 4: Regenerate types.ts (npx supabase gen types)"
+  - "🚨 PHASE 5: Validate and test (14 tables, RLS working, commit)"
   - "Populate nome field for bruno@jumper.studio in j_ads_users (optional)"
-  - "Test account filtering for admin/staff/client roles"
 
 # Recently completed (for reference)
 completed_recently:

@@ -268,7 +268,7 @@ Next Claude will know exactly where we left off! 🎯
 
 ## 🗄️ Database Structure (Other Core Tables)
 
-**Creative Management:**
+**Creative Management (j_ads_*):**
 - `j_ads_creative_submissions` - Main submissions table
 - `j_ads_creative_files` - File attachments with Supabase Storage
 - `j_ads_creative_variations` - Multiple creative variations
@@ -278,10 +278,24 @@ Next Claude will know exactly where we left off! 🎯
 - `j_ads_notion_db_accounts` - Contas (75 campos) ✅
 - `j_ads_notion_db_partners` - Parceiros ✅
 
+**Reports System (j_rep_*):**
+- `j_rep_metaads_bronze` - Dados Meta Ads sincronizados (fonte dos 9 dashboards) ⚠️ TODO: RLS
+
+**Optimization System:**
+- `j_ads_optimization_recordings` - Gravações de áudio (otimizações)
+- `j_ads_optimization_transcripts` - Transcrições via Whisper
+- `j_ads_optimization_context` - Contexto extraído por IA
+- `j_ads_optimization_prompts` - Prompts de análise
+
 **System Health:**
 - `j_ads_error_logs` - Error tracking estruturado ✅
-- `j_ads_system_metrics` - Métricas de saúde (parcial)
-- `j_ads_fallback_submissions` - Fallback para recuperação (parcial)
+- `j_ads_metrics` - Métricas de sistema
+- `j_ads_notion_sync_logs` - Logs de sincronização
+
+**❌ OBSOLETE TABLES (to be removed):**
+- `creative_submissions`, `creative_files`, `creative_variations` - Duplicatas sem prefixo
+- `notion_managers`, `notion_manager_accounts` - Antigas, substituídas por j_ads_notion_db_*
+- `user_roles` - Antiga, substituída por j_ads_users
 
 > 📖 Ver [ARCHITECTURE.md](docs/ARCHITECTURE.md) para detalhes completos
 
