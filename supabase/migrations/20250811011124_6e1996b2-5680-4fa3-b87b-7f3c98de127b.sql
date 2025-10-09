@@ -31,7 +31,8 @@ CREATE INDEX IF NOT EXISTS creative_variations_submission_idx
 ALTER TABLE public.creative_variations ENABLE ROW LEVEL SECURITY;
 
 -- RLS: users can read variations of their own submissions
-CREATE POLICY IF NOT EXISTS "Users can view variations of their submissions"
+DROP POLICY IF EXISTS "Users can view variations of their submissions" ON public.creative_variations;
+CREATE POLICY "Users can view variations of their submissions"
 ON public.creative_variations
 FOR SELECT
 USING (
@@ -43,7 +44,8 @@ USING (
 );
 
 -- RLS: users can insert variations for their own submissions (optional for client-side usage)
-CREATE POLICY IF NOT EXISTS "Users can insert variations of their submissions"
+DROP POLICY IF EXISTS "Users can insert variations of their submissions" ON public.creative_variations;
+CREATE POLICY "Users can insert variations of their submissions"
 ON public.creative_variations
 FOR INSERT
 WITH CHECK (

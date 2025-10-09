@@ -44,6 +44,7 @@ CREATE INDEX IF NOT EXISTS idx_recordings_status ON j_ads_optimization_recording
 ALTER TABLE j_ads_optimization_recordings ENABLE ROW LEVEL SECURITY;
 
 -- Users can insert their own recordings
+DROP POLICY IF EXISTS "Users can insert their own recordings" ON j_ads_optimization_recordings;
 CREATE POLICY "Users can insert their own recordings"
 ON j_ads_optimization_recordings
 FOR INSERT
@@ -52,6 +53,7 @@ WITH CHECK (
 );
 
 -- Users can view recordings they created
+DROP POLICY IF EXISTS "Users can view their own recordings" ON j_ads_optimization_recordings;
 CREATE POLICY "Users can view their own recordings"
 ON j_ads_optimization_recordings
 FOR SELECT
@@ -60,19 +62,27 @@ USING (
 );
 
 -- Admins can view all recordings
+DROP POLICY IF EXISTS "Admins can view all recordings" ON j_ads_optimization_recordings;
 CREATE POLICY "Admins can view all recordings"
 ON j_ads_optimization_recordings
 FOR SELECT
 USING (
-  has_role(auth.uid(), 'admin'::app_role)
+  EXISTS (
+    SELECT 1 FROM j_ads_users
+    WHERE id = auth.uid() AND role = 'admin'
+  )
 );
 
 -- Admins can update recordings (for processing status)
+DROP POLICY IF EXISTS "Admins can update recordings" ON j_ads_optimization_recordings;
 CREATE POLICY "Admins can update recordings"
 ON j_ads_optimization_recordings
 FOR UPDATE
 USING (
-  has_role(auth.uid(), 'admin'::app_role)
+  EXISTS (
+    SELECT 1 FROM j_ads_users
+    WHERE id = auth.uid() AND role = 'admin'
+  )
 );
 
 -- ============================================================================
@@ -80,6 +90,7 @@ USING (
 -- ============================================================================
 
 -- Users can upload audio to their own folder
+DROP POLICY IF EXISTS "Users can upload their own optimization audio" ON storage.objects;
 CREATE POLICY "Users can upload their own optimization audio"
 ON storage.objects
 FOR INSERT
@@ -89,6 +100,7 @@ WITH CHECK (
 );
 
 -- Users can view their own recordings
+DROP POLICY IF EXISTS "Users can view their own optimization audio" ON storage.objects;
 CREATE POLICY "Users can view their own optimization audio"
 ON storage.objects
 FOR SELECT
@@ -98,6 +110,7 @@ USING (
 );
 
 -- Users can delete their own recordings
+DROP POLICY IF EXISTS "Users can delete their own optimization audio" ON storage.objects;
 CREATE POLICY "Users can delete their own optimization audio"
 ON storage.objects
 FOR DELETE
@@ -107,10 +120,14 @@ USING (
 );
 
 -- Admins can view all optimization audio
+DROP POLICY IF EXISTS "Admins can view all optimization audio" ON storage.objects;
 CREATE POLICY "Admins can view all optimization audio"
 ON storage.objects
 FOR SELECT
 USING (
   bucket_id = 'optimizations' AND
-  has_role(auth.uid(), 'admin'::app_role)
+  EXISTS (
+    SELECT 1 FROM j_ads_users
+    WHERE id = auth.uid() AND role = 'admin'
+  )
 );

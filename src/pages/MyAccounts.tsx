@@ -17,23 +17,56 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { cn } from '@/lib/utils';
 
-function getAccessReason(
+// Retorna TODAS as badges do usuário (acumulativas)
+function getAccessReasons(
   account: any,
   userEmail: string,
   userRole: UserRole
-): AccessReason {
-  if (userRole === 'admin') return 'ADMIN';
-
-  // Use email fields for OAuth matching (gestor_email, supervisor_email)
-  const gestorEmail = account.gestor_email?.toLowerCase() || '';
-  const supervisorEmail = account.supervisor_email?.toLowerCase() || '';
+): AccessReason[] {
+  const reasons: AccessReason[] = [];
   const email = userEmail.toLowerCase();
+  const gestorEmail = account.gestor_email?.toLowerCase() || '';
+  const atendimentoEmail = account.atendimento_email?.toLowerCase() || '';
 
-  if (gestorEmail.includes(email)) return 'GESTOR';
-  if (supervisorEmail.includes(email)) return 'SUPERVISOR';
 
-  return 'GERENTE';
+  // Acumular TODAS as relações (não substituir)
+  if (gestorEmail.includes(email)) {
+    reasons.push('GESTOR');
+  }
+  if (atendimentoEmail.includes(email)) {
+    reasons.push('SUPERVISOR'); // Badge label mantém "SUPERVISOR" para UX
+  }
+
+  // TODO: Adicionar lógica para GERENTE quando tivermos o campo
+  // if (gerenteField matches userEmail or notionManagerId) {
+  //   reasons.push('GERENTE');
+  // }
+
+  // Admin sempre aparece se o usuário for admin
+  if (userRole === 'admin') {
+    reasons.push('ADMIN');
+  }
+
+  // Se não tem nenhuma badge, usar GERENTE como fallback
+  if (reasons.length === 0) {
+    reasons.push('GERENTE');
+  }
+
+  // Ordenar por prioridade: GESTOR → SUPERVISOR → GERENTE → ADMIN
+  return reasons.sort((a, b) => getAccessPriority(a) - getAccessPriority(b));
+}
+
+// Helper function to get sort priority for access reason
+function getAccessPriority(reason: AccessReason): number {
+  switch (reason) {
+    case 'GESTOR': return 1;
+    case 'SUPERVISOR': return 2;
+    case 'GERENTE': return 3;
+    case 'ADMIN': return 4; // Admin access (no direct assignment) goes last
+    default: return 999;
+  }
 }
 
 const MyAccounts: React.FC = () => {
@@ -45,6 +78,7 @@ const MyAccounts: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [tierFilter, setTierFilter] = useState<string>('all');
   const [sortBy, setSortBy] = useState<string>('name');
+  const [hideInactive, setHideInactive] = useState(true); // Toggle state
 
   useEffect(() => {
     document.title = 'Minhas Contas • Jumper Ads Platform';
@@ -52,6 +86,13 @@ const MyAccounts: React.FC = () => {
 
   const filteredAndSortedAccounts = useMemo(() => {
     let filtered = accounts;
+
+    // Hide inactive toggle (independent of status filter)
+    if (hideInactive) {
+      filtered = filtered.filter(
+        (acc) => acc.status?.toLowerCase() !== 'inativo'
+      );
+    }
 
     // Search filter
     if (searchTerm) {
@@ -72,8 +113,21 @@ const MyAccounts: React.FC = () => {
       filtered = filtered.filter((acc) => acc.tier === tierFilter);
     }
 
-    // Sorting
+    // Sorting with access priority FIRST
     const sorted = [...filtered].sort((a, b) => {
+      // Get access reasons for both accounts (usa primeira badge para ordenar)
+      const reasonsA = getAccessReasons(a, currentUser?.email || '', userRole);
+      const reasonsB = getAccessReasons(b, currentUser?.email || '', userRole);
+
+      // Primary sort: by access priority (Gestor → Supervisor → Gerente → Admin)
+      const priorityA = getAccessPriority(reasonsA[0]);
+      const priorityB = getAccessPriority(reasonsB[0]);
+
+      if (priorityA !== priorityB) {
+        return priorityA - priorityB;
+      }
+
+      // Secondary sort: by user's chosen sorting preference
       switch (sortBy) {
         case 'name':
           return (a.name || '').localeCompare(b.name || '');
@@ -87,7 +141,7 @@ const MyAccounts: React.FC = () => {
     });
 
     return sorted;
-  }, [accounts, searchTerm, statusFilter, tierFilter, sortBy]);
+  }, [accounts, searchTerm, statusFilter, tierFilter, sortBy, currentUser?.email, userRole, hideInactive]);
 
   // Extract unique values for filters
   const uniqueStatuses = useMemo(
@@ -143,19 +197,36 @@ const MyAccounts: React.FC = () => {
       >
         {/* Header Section */}
         <header className="mb-8 space-y-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-[hsl(var(--orange-subtle))]">
-              <Users className="h-6 w-6 text-[hsl(var(--orange-hero))]" />
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-[hsl(var(--orange-subtle))]">
+                <Users className="h-6 w-6 text-[hsl(var(--orange-hero))]" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold tracking-tight text-foreground">
+                  Minhas Contas
+                </h1>
+                <p className="text-sm text-muted-foreground">
+                  {filteredAndSortedAccounts.length} {filteredAndSortedAccounts.length === 1 ? 'conta' : 'contas'} {hideInactive ? 'ativas' : 'no total'}
+                </p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight text-foreground">
-                Minhas Contas
-              </h1>
-              <p className="text-sm text-muted-foreground">
-                {accounts.length} {accounts.length === 1 ? 'conta' : 'contas'} sob
-                sua gestão
-              </p>
-            </div>
+
+            {/* Admin-only: Toggle to show/hide inactive accounts */}
+            {userRole === 'admin' && (
+              <Badge
+                variant={hideInactive ? "outline" : "default"}
+                className={cn(
+                  "cursor-pointer transition-all select-none",
+                  hideInactive
+                    ? "hover:bg-muted"
+                    : "bg-foreground text-background hover:bg-foreground/90"
+                )}
+                onClick={() => setHideInactive(!hideInactive)}
+              >
+                {hideInactive ? 'Mostrar Inativas' : '✓ Mostrar Inativas'}
+              </Badge>
+            )}
           </div>
 
           {/* Filters Section */}
@@ -238,15 +309,6 @@ const MyAccounts: React.FC = () => {
           </Card>
         </header>
 
-        {/* Results Count */}
-        {filteredAndSortedAccounts.length !== accounts.length && (
-          <div className="mb-4">
-            <Badge variant="secondary">
-              {filteredAndSortedAccounts.length} de {accounts.length} contas
-            </Badge>
-          </div>
-        )}
-
         {/* Accounts Grid */}
         {filteredAndSortedAccounts.length === 0 ? (
           <Card className="p-12">
@@ -266,7 +328,7 @@ const MyAccounts: React.FC = () => {
               <AccountCard
                 key={account.id}
                 account={account}
-                accessReason={getAccessReason(
+                accessReasons={getAccessReasons(
                   account,
                   currentUser?.email || '',
                   userRole

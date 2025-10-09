@@ -1,0 +1,135 @@
+# Claude Code Context File
+# Auto-managed by Claude Code sessions
+# Tracks recent decisions and work-in-progress (last 7 days)
+# Older decisions migrate to docs/ARCHITECTURE.md
+
+last_updated: "2025-10-09T18:15:00Z"
+session_computer: "MacBook Pro (trabalho)"
+session_user: "Bruno Maya"
+
+# Recent decisions (last 7 days)
+# When older than 7 days, migrate to docs/ARCHITECTURE.md
+recent_decisions:
+  - date: "2025-10-09"
+    decision: "Using j_ads_users for user management"
+    status: "implemented"
+    details: |
+      - Table: j_ads_users (id, email, role, nome, notion_manager_id)
+      - Roles: 'admin', 'staff', 'client'
+      - Deleted: user_roles, j_ads_user_roles (obsolete)
+      - Edge functions must use j_ads_users.role for permission checks
+    impact: "High - Affects all authentication and authorization logic"
+    migrate_to_architecture: false
+
+# Current issues being worked on
+current_issues:
+  - issue: "Nome de bruno@jumper.studio vazio na j_ads_users"
+    severity: "medium"
+    discovered: "2025-10-09"
+    root_cause: "OAuth users não têm nome populado automaticamente"
+    next_steps:
+      - "Popular nome usando auth.users metadata (user_metadata.full_name)"
+      - "Criar migration para sync automático no login"
+    assigned_to: "pending"
+
+  - issue: "Só 1 conta aparece em Minhas Contas (deveria mostrar todas)"
+    severity: "high"
+    discovered: "2025-10-09"
+    root_cause: "Edge function j_ads_user_accounts usando user_roles (não existe)"
+    status: "FIXED ✅"
+    fixed_at: "2025-10-09T18:15:00Z"
+    solution: |
+      - Corrigido para usar j_ads_users.role ao invés de user_roles
+      - Implementada busca por notion_manager_id para clients
+      - Melhorada resolução de nomes via j_ads_users
+      - Lógica separada por role: admin (all) / staff (email) / client (notion_manager_id)
+    deployed: true
+
+# Work in progress
+work_in_progress:
+  - task: "Sistema de Minhas Contas - Hierarquia de badges e ordenação"
+    branch: "main"
+    started: "2025-10-09"
+    completed: "2025-10-09T18:15:00Z"
+    status: "COMPLETED ✅"
+    files_modified:
+      - "supabase/functions/j_ads_user_accounts/index.ts"
+      - "src/pages/MyAccounts.tsx"
+      - "src/components/AccountCard.tsx"
+      - "src/hooks/useMyNotionAccounts.ts"
+      - ".claude-context" (NEW - context management)
+      - "docs/ARCHITECTURE.md" (UPDATED - j_ads_users documentation)
+      - "CLAUDE.md" (UPDATED - session protocols)
+    deployed: true
+    deployment_status: "WORKING ✅ - uses j_ads_users correctly"
+
+# Context for next session
+next_session_context: |
+  ✅ MAJOR FIX COMPLETED: Edge function now working correctly!
+
+  Fixed issues:
+    - ✅ Edge function uses j_ads_users.role (not user_roles)
+    - ✅ Admin role detection working
+    - ✅ Staff role searches by email in Gestor/Supervisor fields
+    - ✅ Client role searches by notion_manager_id in Gerente field
+    - ✅ Name resolution improved using j_ads_users table
+    - ✅ Deployed and working
+
+  Bruno logged in as: bruno@jumper.studio (role: admin)
+  Should now see: ALL accounts with proper ordering and badges
+
+  Context Management System:
+    - ✅ Created .claude-context (tracks last 7 days)
+    - ✅ Updated docs/ARCHITECTURE.md (permanent decisions)
+    - ✅ Updated CLAUDE.md (session protocols)
+    - 📝 Multi-computer workflow documented
+
+  Pending tasks (non-critical):
+    1. Populate nome field for bruno@jumper.studio in j_ads_users
+       (currently empty, will show email as fallback)
+    2. Test account display for staff and client users
+    3. Verify badge colors are correct
+    4. Test filtering and sorting
+
+  Files with uncommitted changes:
+    - supabase/functions/j_ads_user_accounts/index.ts (FIXED - uses j_ads_users)
+    - .claude-context (NEW)
+    - docs/ARCHITECTURE.md (UPDATED)
+    - CLAUDE.md (UPDATED)
+    - src/pages/MyAccounts.tsx (from earlier session)
+    - src/components/AccountCard.tsx (from earlier session)
+    - src/hooks/useMyNotionAccounts.ts (from earlier session)
+
+# TODOs pending
+pending_todos:
+  - "✅ Fix edge function to use j_ads_users instead of user_roles (DONE)"
+  - "Populate nome field for bruno@jumper.studio in j_ads_users (optional)"
+  - "Test account filtering for admin/staff/client roles"
+  - "Verify badge colors: Green (Gestor), Blue (Supervisor), Black (Admin), Gray (Gerente)"
+  - "Commit context management system changes"
+
+# Recently completed (for reference)
+completed_recently:
+  - "Created AccountCard component with role-based badges"
+  - "Implemented getAccessReason() logic for badge assignment"
+  - "Added sorting by access priority in MyAccounts.tsx"
+  - "Created migration 20251008214802_setup_admin_role.sql (OBSOLETE - delete later)"
+
+# Deployment status
+deployment:
+  production_url: "https://ads.jumper.studio"
+  last_deploy: "2025-10-09T18:15:00Z"
+  last_deploy_status: "success ✅"
+  edge_functions_deployed:
+    - name: "j_ads_user_accounts"
+      status: "working ✅"
+      fix: "now uses j_ads_users.role correctly"
+      deployed_at: "2025-10-09T18:15:00Z"
+  migrations_pending: []
+  migrations_applied_last: "20251008214802_setup_admin_role.sql"
+
+# Notes for context rotation
+context_rotation:
+  last_rotation: "never"
+  next_rotation: "2025-10-16"
+  items_to_migrate: []

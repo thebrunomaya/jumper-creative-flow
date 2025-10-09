@@ -6,15 +6,96 @@
 
 ## 📑 Índice
 
-1. [Estrutura de Pastas](#-estrutura-de-pastas)
-2. [Database Schema](#-database-schema)
-3. [Edge Functions](#-edge-functions)
-4. [Autenticação e Permissões](#-autenticação-e-permissões)
-5. [Integração Notion](#-integração-notion)
-6. [Sistema de Resiliência](#-sistema-de-resiliência)
-7. [Supabase Integration](#-supabase-integration)
-8. [UI/UX Patterns](#-uiux-patterns)
-9. [Performance](#-performance)
+1. [User Management System](#-user-management-system) ⭐ **NOVO**
+2. [Estrutura de Pastas](#-estrutura-de-pastas)
+3. [Database Schema](#-database-schema)
+4. [Edge Functions](#-edge-functions)
+5. [Autenticação e Permissões](#-autenticação-e-permissões)
+6. [Integração Notion](#-integração-notion)
+7. [Sistema de Resiliência](#-sistema-de-resiliência)
+8. [Supabase Integration](#-supabase-integration)
+9. [UI/UX Patterns](#-uiux-patterns)
+10. [Performance](#-performance)
+
+---
+
+## 👥 User Management System
+
+> ⚠️ **CRITICAL:** `j_ads_users` is the PRIMARY table for all user data and roles
+> ❌ **DEPRECATED:** `user_roles` and `j_ads_user_roles` - DO NOT USE
+
+### **`j_ads_users` - Single Source of Truth**
+
+**Purpose:** Unified user management consolidating auth, roles, and profile data
+
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| `id` | UUID | PRIMARY KEY | References `auth.users(id)` |
+| `email` | TEXT | UNIQUE, NOT NULL | User email |
+| `role` | TEXT | NOT NULL | `'admin'` \| `'staff'` \| `'client'` |
+| `nome` | TEXT | | Full name (from OAuth or Notion) |
+| `telefone` | TEXT | | Phone number |
+| `organizacao` | TEXT | | Organization name |
+| `avatar_url` | TEXT | | Profile picture URL |
+| `notion_manager_id` | UUID | | Links to `j_ads_notion_db_managers.notion_id` |
+| `created_at` | TIMESTAMPTZ | DEFAULT now() | Creation timestamp |
+| `updated_at` | TIMESTAMPTZ | DEFAULT now() | Last update |
+| `last_login_at` | TIMESTAMPTZ | | Last login timestamp |
+
+**Indexes:**
+```sql
+CREATE INDEX idx_j_ads_users_email ON j_ads_users(email);
+CREATE INDEX idx_j_ads_users_role ON j_ads_users(role);
+CREATE INDEX idx_j_ads_users_notion_manager_id ON j_ads_users(notion_manager_id);
+```
+
+### **Roles & Access Levels**
+
+| Role | Description | Users | Access |
+|------|-------------|-------|--------|
+| `admin` | System administrators | bruno@jumper.studio | ALL accounts (unrestricted) |
+| `staff` | Traffic managers (Gestores) | pedro@jumper.studio | Accounts where assigned as Gestor/Supervisor |
+| `client` | Client managers (Gerentes) | External users | Accounts where assigned as Gerente (via notion_manager_id) |
+
+### **User Lookup Strategy**
+
+```typescript
+// Check user role
+SELECT role FROM j_ads_users WHERE id = <auth.uid()>;
+
+// Get user's accessible accounts (admin)
+IF role = 'admin':
+  SELECT * FROM j_ads_notion_db_accounts; // ALL accounts
+
+// Get user's accessible accounts (staff - OAuth)
+IF role = 'staff':
+  SELECT * FROM j_ads_notion_db_accounts
+  WHERE "Gestor" ILIKE '%' || (SELECT email FROM j_ads_users WHERE id = <auth.uid()>) || '%'
+     OR "Supervisor" ILIKE '%' || (SELECT email FROM j_ads_users WHERE id = <auth.uid()>) || '%';
+
+// Get user's accessible accounts (client)
+IF role = 'client':
+  SELECT a.* FROM j_ads_notion_db_accounts a
+  JOIN j_ads_users u ON a."Gerente" ILIKE '%' || u.notion_manager_id || '%'
+  WHERE u.id = <auth.uid()>;
+```
+
+### **Name Resolution**
+
+Names are resolved using this priority order:
+
+1. **`j_ads_users.nome`** (cached from OAuth or Notion) ⭐ PRIMARY
+2. **`auth.users.user_metadata.full_name`** (OAuth users)
+3. **`j_ads_notion_db_managers."Nome"`** (Client users)
+4. **Email fallback** (last resort)
+
+### **⚠️ DEPRECATED Tables**
+
+**DO NOT USE these tables in new code:**
+
+- ❌ **`user_roles`** - Deleted 2025-10-09 (replaced by `j_ads_users.role`)
+- ❌ **`j_ads_user_roles`** - Never existed in production
+- ❌ Any code referencing these tables MUST be updated to use `j_ads_users`
 
 ---
 
@@ -403,35 +484,78 @@ const { data } = await supabase.functions.invoke('j_ads_complete_notion_sync');
 
 ### **Authentication System**
 - **Provider**: Supabase Auth
-- **Methods**: Email/password + Magic links
+- **Methods**: Email/password + Magic links + OAuth (Notion)
 - **Session**: JWT tokens (auto-refresh)
+- **User Table**: `j_ads_users` (PRIMARY - single source of truth)
 
 ### **Role-Based Access Control (RBAC)**
 
-**RPC Function:**
+**✅ CURRENT Implementation (uses j_ads_users):**
+
 ```sql
-CREATE OR REPLACE FUNCTION has_role(user_email TEXT, required_role TEXT)
+-- Check if user has specific role
+CREATE OR REPLACE FUNCTION has_role(_user_id UUID, _role TEXT)
 RETURNS BOOLEAN AS $$
 BEGIN
   RETURN EXISTS (
-    SELECT 1 FROM j_ads_notion_db_managers
-    WHERE email = user_email AND tipo = required_role AND ativo = true
+    SELECT 1 FROM j_ads_users
+    WHERE id = _user_id AND role = _role
   );
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 ```
 
+**❌ DEPRECATED Implementation (DO NOT USE):**
+```sql
+-- OLD VERSION - uses user_roles table that doesn't exist
+-- If you see this in code, REPLACE with j_ads_users version above
+```
+
 **Roles:**
-- `admin` - Acesso total (5% dos usuários)
-- `gestor` - Publicar criativos, dashboards (10%)
-- `supervisor` - Supervisão agências (15%)
-- `gerente` - Upload criativos, visualização (70%)
+- `admin` - Full system access, all accounts (5% - bruno@jumper.studio)
+- `staff` - Traffic managers, edit/publish (10% - pedro@jumper.studio)
+- `client` - Client managers, upload only (85% - external users)
+
+**Access Control Matrix:**
+
+| Feature | Admin | Staff | Client |
+|---------|-------|-------|--------|
+| View ALL accounts | ✅ | ❌ | ❌ |
+| View assigned accounts | ✅ | ✅ | ✅ |
+| Upload creatives | ✅ | ✅ | ✅ |
+| Publish creatives | ✅ | ✅ | ❌ |
+| Delete creatives | ✅ | ✅ | ❌ |
+| Admin panel | ✅ | ❌ | ❌ |
+| Notion sync | ✅ | ❌ | ❌ |
 
 **Protected Routes:**
 ```typescript
+// src/components/ProtectedRoute.tsx
+import { useUserRole } from '@/hooks/useUserRole';
+
 <ProtectedRoute requireRole="admin">
   <AdminDashboard />
 </ProtectedRoute>
+
+// useUserRole implementation
+export function useUserRole() {
+  const { user } = useAuth();
+  const [role, setRole] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!user?.id) return;
+
+    // Query j_ads_users for role
+    supabase
+      .from('j_ads_users')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+      .then(({ data }) => setRole(data?.role || null));
+  }, [user?.id]);
+
+  return { role, isAdmin: role === 'admin', isStaff: role === 'staff' };
+}
 ```
 
 ### **Password Management**

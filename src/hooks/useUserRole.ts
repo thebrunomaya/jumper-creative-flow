@@ -19,11 +19,11 @@ export const useUserRole = () => {
 
       try {
         // Check for admin role first (highest priority)
-        const { data: isAdmin, error: adminError } = await supabase.rpc('has_role', { 
-          _user_id: currentUser.id, 
-          _role: 'admin' 
+        const { data: isAdmin, error: adminError } = await supabase.rpc('has_role', {
+          _user_id: currentUser.id,
+          _role: 'admin'
         });
-        
+
         if (!adminError && isAdmin) {
           setUserRole('admin');
           setIsLoading(false);
@@ -44,10 +44,10 @@ export const useUserRole = () => {
 
         // Default to gerente role
         setUserRole('gerente');
-        
+
         // Optionally check notion_db_managers table (disabled to avoid type errors)
         // This can be re-enabled when table structure is clarified
-        
+
       } catch (error) {
         console.error('Error checking user role:', error);
         setUserRole('gerente'); // Default fallback on error

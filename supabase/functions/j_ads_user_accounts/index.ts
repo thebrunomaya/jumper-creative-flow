@@ -48,53 +48,114 @@ serve(async (req) => {
 
     console.log('🔍 Finding accounts for user:', targetEmail);
 
-    // DEBUG: Log full user structure to understand where provider comes from
-    console.log('📋 User metadata DEBUG:', JSON.stringify({
-      app_metadata: user.app_metadata,
-      user_metadata: user.user_metadata,
-      identities: user.identities?.map(i => ({ provider: i.provider, id: i.id }))
-    }, null, 2));
+    // Get user data from j_ads_users (role, nome, notion_manager_id)
+    const { data: userData, error: userError } = await service
+      .from('j_ads_users')
+      .select('role, nome, notion_manager_id')
+      .eq('id', user.id)
+      .maybeSingle();
 
-    // DUAL ACCESS LOGIC: Detect if login came from Notion OAuth or Email/Password
-    // Check multiple possible locations for provider info
-    const isNotionOAuth =
-      user.app_metadata?.provider === 'notion' ||
-      user.app_metadata?.providers?.includes('notion') ||
-      user.identities?.some(identity => identity.provider === 'notion');
+    if (userError) {
+      console.error('Error fetching user data:', userError);
+      return new Response(JSON.stringify({ success: false, error: 'Error fetching user data' }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
 
-    console.log('🔐 Login method:', isNotionOAuth ? 'Notion OAuth' : 'Email/Password');
-    console.log('🔍 Detection details:', {
-      'app_metadata.provider': user.app_metadata?.provider,
-      'app_metadata.providers': user.app_metadata?.providers,
-      'identities': user.identities?.map(i => i.provider)
+    const userRole = userData?.role || 'client';
+    const userName = userData?.nome;
+    const notionManagerId = userData?.notion_manager_id;
+    const isAdmin = userRole === 'admin';
+    const isStaff = userRole === 'staff';
+    const isClient = userRole === 'client';
+
+    console.log('👤 User data:', { role: userRole, nome: userName, notion_manager_id: notionManagerId });
+    console.log('👑 Is Admin:', isAdmin);
+
+    // Log user metadata for debugging
+    console.log('📋 User metadata:', {
+      provider: user.app_metadata?.provider,
+      identities: user.identities?.map(i => i.provider)
     });
 
     let accountIds: string[] = [];
 
-    if (isNotionOAuth) {
-      // NOTION OAUTH PATH: Find accounts where user is Gestor or Supervisor
-      console.log('🎯 Notion OAuth detected - searching by Gestor/Supervisor fields');
+    // ADMIN PATH: If user is admin, get ALL accounts
+    if (isAdmin) {
+      console.log('👑 Admin detected - fetching ALL accounts');
 
-      // Search in Gestor and Supervisor fields (which contain emails)
-      const { data: accountsData, error: accountsError } = await service
+      const { data: allAccountsData, error: allAccountsError } = await service
         .from('j_ads_notion_db_accounts')
-        .select('notion_id')
-        .or(`"Gestor".ilike.%${targetEmail}%,"Supervisor".ilike.%${targetEmail}%`);
+        .select('notion_id');
 
-      if (accountsError) {
-        console.error('Error finding accounts by Gestor/Supervisor:', accountsError);
+      if (allAccountsError) {
+        console.error('Error finding all accounts:', allAccountsError);
         return new Response(JSON.stringify({ success: false, error: 'Error finding accounts' }), {
           status: 500,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
 
-      accountIds = (accountsData || []).map((acc: any) => acc.notion_id);
-      console.log(`✅ Found ${accountIds.length} accounts via Gestor/Supervisor`);
+      accountIds = (allAccountsData || []).map((acc: any) => acc.notion_id);
+      console.log(`✅ Found ${accountIds.length} accounts (ADMIN ACCESS)`);
+
+    } else if (isStaff) {
+      // STAFF PATH: Find accounts where user is Gestor or Atendimento
+      console.log('⚡ Staff detected - searching by Gestor/Atendimento fields');
+
+      // Search in Gestor field
+      const { data: gestorAccounts, error: gestorError } = await service
+        .from('j_ads_notion_db_accounts')
+        .select('notion_id, "Gestor"')
+        .ilike('"Gestor"', `%${targetEmail}%`);
+
+      if (gestorError) {
+        console.error('Error finding accounts by Gestor:', gestorError);
+      }
+
+      // Search in Atendimento field (renamed from Supervisor)
+      const { data: atendimentoAccounts, error: atendimentoError } = await service
+        .from('j_ads_notion_db_accounts')
+        .select('notion_id, "Atendimento"')
+        .ilike('"Atendimento"', `%${targetEmail}%`);
+
+      if (atendimentoError) {
+        console.error('Error finding accounts by Atendimento:', atendimentoError);
+      }
+
+      console.log('🔍 Gestor accounts found:', gestorAccounts?.length || 0);
+      console.log('🔍 Atendimento accounts found:', atendimentoAccounts?.length || 0);
+
+      // Combine results and remove duplicates
+      const allAccountIds = new Set<string>();
+      (gestorAccounts || []).forEach((acc: any) => allAccountIds.add(acc.notion_id));
+      (atendimentoAccounts || []).forEach((acc: any) => allAccountIds.add(acc.notion_id));
+
+      accountIds = Array.from(allAccountIds);
+      console.log(`✅ Found ${accountIds.length} unique accounts via Gestor/Atendimento`);
+
+    } else if (isClient && notionManagerId) {
+      // CLIENT PATH: Find accounts by notion_manager_id in Gerente field
+      console.log('📝 Client detected - searching by notion_manager_id:', notionManagerId);
+
+      const { data: gerenteAccounts, error: gerenteError } = await service
+        .from('j_ads_notion_db_accounts')
+        .select('notion_id, "Gerente"')
+        .ilike('"Gerente"', `%${notionManagerId}%`);
+
+      if (gerenteError) {
+        console.error('Error finding accounts by Gerente:', gerenteError);
+      }
+
+      console.log('🔍 Gerente accounts found:', gerenteAccounts?.length || 0);
+
+      accountIds = (gerenteAccounts || []).map((acc: any) => acc.notion_id);
+      console.log(`✅ Found ${accountIds.length} accounts via Gerente (notion_manager_id)`);
 
     } else {
-      // EMAIL/PASSWORD PATH: Use existing logic (DB_Gerentes)
-      console.log('📧 Email/Password detected - searching in DB_Gerentes');
+      // FALLBACK: Try to find in DB_Gerentes by email (legacy clients)
+      console.log('📧 Fallback - searching in DB_Gerentes by email');
 
       const { data: managerData, error: managerError } = await service
         .from('j_ads_notion_db_managers')
@@ -102,37 +163,32 @@ serve(async (req) => {
         .ilike('"E-Mail"', targetEmail)
         .maybeSingle();
 
-      if (managerError) {
-        console.error('Error finding manager:', managerError);
-        return new Response(JSON.stringify({ success: false, error: 'Error finding manager data' }), {
-          status: 500,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
-
-      if (managerData) {
-        console.log('✅ Manager found:', managerData);
+      if (!managerError && managerData) {
+        console.log('✅ Manager found in DB_Gerentes:', managerData);
         const contasField = managerData["Contas"] || "";
         accountIds = contasField
           ? contasField.split(',').map((id: string) => id.trim()).filter(Boolean)
           : [];
         console.log('📋 Account IDs from manager:', accountIds);
       } else {
-        console.log('❌ No manager found for email:', targetEmail);
+        console.log('❌ No accounts found for user');
       }
     }
 
-    // If no accounts found, return empty result
+    // If no accounts found, return empty result (unless admin - that would be weird)
     if (accountIds.length === 0) {
       return new Response(
         JSON.stringify({
           success: true,
           accounts: [],
           email: targetEmail,
-          login_method: isNotionOAuth ? 'notion_oauth' : 'email_password',
-          note: isNotionOAuth
-            ? 'No accounts found where user is Gestor or Supervisor'
-            : 'No manager entry found or manager has no linked accounts'
+          is_admin: isAdmin,
+          user_role: userRole,
+          note: isAdmin
+            ? 'No accounts in database (unexpected for admin)'
+            : isStaff
+              ? 'No accounts found where user is Gestor or Atendimento'
+              : 'No manager entry found or manager has no linked accounts'
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
@@ -154,10 +210,10 @@ serve(async (req) => {
 
     console.log(`✅ Found ${accountsData?.length || 0} accounts`);
 
-    // Step 4: Resolve names for Gestor, Supervisor, and Gerente
+    // Step 4: Resolve names for Gestor, Atendimento, and Gerente
     // Collect all unique emails and notion_ids to lookup
     const gestorEmails = new Set<string>();
-    const supervisorEmails = new Set<string>();
+    const atendimentoEmails = new Set<string>();
     const gerenteIds = new Set<string>();
 
     (accountsData || []).forEach((account: any) => {
@@ -167,10 +223,10 @@ serve(async (req) => {
           if (trimmed) gestorEmails.add(trimmed);
         });
       }
-      if (account["Supervisor"]) {
-        account["Supervisor"].split(',').forEach((email: string) => {
+      if (account["Atendimento"]) {
+        account["Atendimento"].split(',').forEach((email: string) => {
           const trimmed = email.trim();
-          if (trimmed) supervisorEmails.add(trimmed);
+          if (trimmed) atendimentoEmails.add(trimmed);
         });
       }
       if (account["Gerente"]) {
@@ -182,7 +238,7 @@ serve(async (req) => {
     });
 
     // Fetch all managers at once
-    const allEmails = [...gestorEmails, ...supervisorEmails];
+    const allEmails = [...gestorEmails, ...atendimentoEmails];
     const allIds = [...gerenteIds];
 
     // Build OR filter for emails and IDs
@@ -221,32 +277,26 @@ serve(async (req) => {
       idToName: idToName.size
     });
 
-    // Step 4.5: For emails not found in managers table, lookup in auth.users (OAuth users like Gestors)
+    // Step 4.5: For emails not found in managers table, lookup in j_ads_users
     const missingEmails = allEmails.filter(email => !emailToName.has(email.toLowerCase().trim()));
 
     if (missingEmails.length > 0) {
-      console.log('🔍 Looking up missing emails in auth.users:', missingEmails);
+      console.log('🔍 Looking up missing emails in j_ads_users:', missingEmails.length);
 
-      // Query auth.users for OAuth users
-      const { data: authUsers } = await service.auth.admin.listUsers();
+      // Query j_ads_users for missing names (OAuth users like Gestors/Atendimento)
+      const { data: usersData } = await service
+        .from('j_ads_users')
+        .select('email, nome')
+        .in('email', missingEmails);
 
-      authUsers?.users?.forEach((authUser: any) => {
-        const authEmail = authUser.email?.toLowerCase().trim();
-        if (authEmail && missingEmails.some(email => email.toLowerCase().trim() === authEmail)) {
-          // Try to get name from OAuth metadata
-          const name = authUser.user_metadata?.full_name
-            || authUser.user_metadata?.name
-            || authUser.user_metadata?.display_name
-            || authUser.identities?.[0]?.identity_data?.name;
-
-          if (name) {
-            emailToName.set(authEmail, name);
-            console.log(`✅ Found name for ${authEmail}: ${name}`);
-          }
+      (usersData || []).forEach((u: any) => {
+        if (u.email && u.nome) {
+          emailToName.set(u.email.toLowerCase().trim(), u.nome);
+          console.log(`✅ Found name in j_ads_users for ${u.email}: ${u.nome}`);
         }
       });
 
-      console.log('📋 Updated emailToName with OAuth users:', emailToName.size);
+      console.log('📋 Updated emailToName with j_ads_users data:', emailToName.size);
     }
 
     // Step 5: Format accounts data with resolved names
@@ -258,9 +308,9 @@ serve(async (req) => {
             .join(', ')
         : undefined;
 
-      // Resolve Supervisor emails to names
-      const supervisorNames = account["Supervisor"]
-        ? account["Supervisor"].split(',')
+      // Resolve Atendimento emails to names
+      const atendimentoNames = account["Atendimento"]
+        ? account["Atendimento"].split(',')
             .map((email: string) => emailToName.get(email.trim().toLowerCase()) || email.trim())
             .join(', ')
         : undefined;
@@ -279,10 +329,10 @@ serve(async (req) => {
         status: account["Status"],
         tier: account["Tier"],
         gestor: gestorNames, // Names resolved from emails
-        supervisor: supervisorNames, // Names resolved from emails
+        atendimento: atendimentoNames, // Names resolved from emails (renamed from supervisor)
         gerente: gerenteNames, // Names resolved from notion_ids
         gestor_email: account["Gestor"], // Keep original emails for matching
-        supervisor_email: account["Supervisor"], // Keep original emails for matching
+        atendimento_email: account["Atendimento"], // Keep original emails for matching (renamed from supervisor_email)
         canal_sowork: account["Canal SoWork"],
         id_meta_ads: account["ID Meta Ads"],
         meta_ads_id: account["ID Meta Ads"],
@@ -298,7 +348,8 @@ serve(async (req) => {
         accounts: formattedAccounts,
         account_ids: accountIds, // Also return raw IDs for compatibility
         email: targetEmail,
-        login_method: isNotionOAuth ? 'notion_oauth' : 'email_password',
+        is_admin: isAdmin, // Flag to indicate admin access
+        user_role: userRole, // User role from j_ads_users
         source: 'complete_sync'
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

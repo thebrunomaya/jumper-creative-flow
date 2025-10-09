@@ -16,29 +16,42 @@ interface AccountCardProps {
     tier?: string;
     objectives?: string[];
     gestor?: string;
-    supervisor?: string;
+    atendimento?: string; // Renamed from supervisor
     gerente?: string;
   };
-  accessReason: AccessReason;
+  accessReasons: AccessReason[]; // Multiple badges (cumulative)
   className?: string;
 }
 
+// Liquid Glass Design System (referência: StatusMetrics.tsx)
 const accessReasonStyles = {
   ADMIN: {
-    badge: 'bg-[hsl(var(--orange-hero))] text-white hover:bg-[hsl(var(--orange-hero)/0.9)]',
-    border: 'border-l-4 border-l-[hsl(var(--orange-hero))]',
+    label: 'ADMIN',
+    color: 'text-foreground',
+    bgColor: 'bg-foreground/5 hover:bg-foreground/10 backdrop-blur-sm',
+    borderColor: 'border-foreground/20',
+    borderLeft: 'border-l-4 border-l-foreground',
   },
   GESTOR: {
-    badge: 'bg-[hsl(var(--metric-excellent))] text-white hover:bg-[hsl(var(--metric-excellent)/0.9)]',
-    border: 'border-l-4 border-l-[hsl(var(--metric-excellent))]',
+    label: 'GESTOR',
+    color: 'text-[#2AA876]',
+    bgColor: 'bg-[#2AA876]/5 hover:bg-[#2AA876]/10 backdrop-blur-sm',
+    borderColor: 'border-[#2AA876]/20',
+    borderLeft: 'border-l-4 border-l-[#2AA876]',
   },
   SUPERVISOR: {
-    badge: 'bg-[hsl(var(--metric-good))] text-white hover:bg-[hsl(var(--metric-good)/0.9)]',
-    border: 'border-l-4 border-l-[hsl(var(--metric-good))]',
+    label: 'ATENDIMENTO',
+    color: 'text-blue-500',
+    bgColor: 'bg-blue-500/5 hover:bg-blue-500/10 backdrop-blur-sm',
+    borderColor: 'border-blue-500/20',
+    borderLeft: 'border-l-4 border-l-blue-500',
   },
   GERENTE: {
-    badge: 'bg-muted text-muted-foreground hover:bg-muted/80',
-    border: 'border-l-4 border-l-muted',
+    label: 'GERENTE',
+    color: 'text-muted-foreground',
+    bgColor: 'bg-muted/30 hover:bg-muted/40 backdrop-blur-sm',
+    borderColor: 'border-border/50',
+    borderLeft: 'border-l-4 border-l-muted',
   },
 };
 
@@ -54,8 +67,11 @@ const statusStyles = {
   inativa: 'text-muted-foreground',
 };
 
-export function AccountCard({ account, accessReason, className }: AccountCardProps) {
-  const styles = accessReasonStyles[accessReason];
+export function AccountCard({ account, accessReasons, className }: AccountCardProps) {
+  // Use primeira badge para border-left (maior prioridade)
+  const primaryReason = accessReasons[0] || 'GERENTE';
+  const primaryStyle = accessReasonStyles[primaryReason];
+
   const statusKey = account.status?.toLowerCase() || 'ativa';
   const StatusIcon = statusIcons[statusKey as keyof typeof statusIcons] || CheckCircle2;
 
@@ -63,15 +79,33 @@ export function AccountCard({ account, accessReason, className }: AccountCardPro
     <Card
       className={cn(
         'transition-all duration-200 hover:shadow-lg hover:scale-[1.02]',
-        styles.border,
+        primaryStyle.borderLeft,
         className
       )}
     >
       <CardHeader className="space-y-3">
-        <div className="flex items-start justify-between gap-2">
-          <Badge className={cn('text-xs font-semibold', styles.badge)}>
-            {accessReason}
-          </Badge>
+        <div className="flex items-start justify-between gap-2 flex-wrap">
+          {/* Múltiplas badges acumulativas (Liquid Glass design) */}
+          <div className="flex gap-1.5">
+            {accessReasons.map((reason) => {
+              const style = accessReasonStyles[reason];
+              return (
+                <Badge
+                  key={reason}
+                  variant="outline"
+                  className={cn(
+                    'text-xs font-semibold border',
+                    style.color,
+                    style.bgColor,
+                    style.borderColor
+                  )}
+                >
+                  {style.label}
+                </Badge>
+              );
+            })}
+          </div>
+
           {account.tier && (
             <Badge variant="outline" className="text-xs">
               {account.tier}
@@ -116,10 +150,10 @@ export function AccountCard({ account, accessReason, className }: AccountCardPro
               <span className="truncate block">{account.gestor}</span>
             </div>
           )}
-          {account.supervisor && (
+          {account.atendimento && (
             <div>
-              <span className="font-semibold text-foreground">Supervisor:</span>{' '}
-              <span className="truncate block">{account.supervisor}</span>
+              <span className="font-semibold text-foreground">Atendimento:</span>{' '}
+              <span className="truncate block">{account.atendimento}</span>
             </div>
           )}
           {account.gerente && (

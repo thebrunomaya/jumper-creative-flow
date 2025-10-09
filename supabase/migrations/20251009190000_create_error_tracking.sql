@@ -36,15 +36,40 @@ CREATE TABLE IF NOT EXISTS j_ads_error_logs (
     admin_notes TEXT
 );
 
--- Indexes for efficient querying
+-- Indexes for efficient querying (only create if columns exist)
 CREATE INDEX IF NOT EXISTS idx_error_logs_created_at ON j_ads_error_logs(created_at DESC);
-CREATE INDEX IF NOT EXISTS idx_error_logs_severity ON j_ads_error_logs(severity);
-CREATE INDEX IF NOT EXISTS idx_error_logs_category ON j_ads_error_logs(category);
-CREATE INDEX IF NOT EXISTS idx_error_logs_context ON j_ads_error_logs(context);
-CREATE INDEX IF NOT EXISTS idx_error_logs_submission_id ON j_ads_error_logs(submission_id);
-CREATE INDEX IF NOT EXISTS idx_error_logs_manager_id ON j_ads_error_logs(manager_id);
-CREATE INDEX IF NOT EXISTS idx_error_logs_unresolved ON j_ads_error_logs(created_at DESC) WHERE resolved_at IS NULL;
-CREATE INDEX IF NOT EXISTS idx_error_logs_admin_review ON j_ads_error_logs(created_at DESC) WHERE admin_viewed = FALSE;
+
+DO $$
+BEGIN
+  -- Create indexes only if the columns exist
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'j_ads_error_logs' AND column_name = 'severity') THEN
+    CREATE INDEX IF NOT EXISTS idx_error_logs_severity ON j_ads_error_logs(severity);
+  END IF;
+
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'j_ads_error_logs' AND column_name = 'category') THEN
+    CREATE INDEX IF NOT EXISTS idx_error_logs_category ON j_ads_error_logs(category);
+  END IF;
+
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'j_ads_error_logs' AND column_name = 'context') THEN
+    CREATE INDEX IF NOT EXISTS idx_error_logs_context ON j_ads_error_logs(context);
+  END IF;
+
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'j_ads_error_logs' AND column_name = 'submission_id') THEN
+    CREATE INDEX IF NOT EXISTS idx_error_logs_submission_id ON j_ads_error_logs(submission_id);
+  END IF;
+
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'j_ads_error_logs' AND column_name = 'manager_id') THEN
+    CREATE INDEX IF NOT EXISTS idx_error_logs_manager_id ON j_ads_error_logs(manager_id);
+  END IF;
+
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'j_ads_error_logs' AND column_name = 'resolved_at') THEN
+    CREATE INDEX IF NOT EXISTS idx_error_logs_unresolved ON j_ads_error_logs(created_at DESC) WHERE resolved_at IS NULL;
+  END IF;
+
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'j_ads_error_logs' AND column_name = 'admin_viewed') THEN
+    CREATE INDEX IF NOT EXISTS idx_error_logs_admin_review ON j_ads_error_logs(created_at DESC) WHERE admin_viewed = FALSE;
+  END IF;
+END $$;
 
 -- System metrics table for tracking overall health
 CREATE TABLE IF NOT EXISTS j_ads_system_metrics (

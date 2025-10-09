@@ -146,7 +146,127 @@ Claude Code deve **SEMPRE** usar as ferramentas CLI disponíveis:
 
 ---
 
+## 🔄 Context Management (Multi-Computer Workflow)
+
+> **CRITICAL:** When working across multiple computers, context MUST be maintained through documentation
+
+### **Context Files Hierarchy**
+
+1. **`.claude-context`** (Temporary - Last 7 days)
+   - Recent decisions and work-in-progress
+   - Current issues and TODOs
+   - Next session context
+   - **Auto-rotates:** Decisions >7 days migrate to ARCHITECTURE.md
+
+2. **`docs/ARCHITECTURE.md`** (Permanent)
+   - Permanent architecture decisions
+   - Database schema documentation
+   - System patterns and conventions
+
+3. **`CLAUDE.md`** (This file)
+   - Project overview and instructions
+   - Essential commands and workflows
+
+---
+
+## 🚀 Session Start Protocol
+
+**MANDATORY:** When starting a new Claude Code session:
+
+1. **Read `.claude-context` FIRST**
+   ```bash
+   # Claude should automatically read this file at session start
+   ```
+
+2. **Understand current state:**
+   - What was done in last session?
+   - What issues are pending?
+   - What files were modified?
+   - What's the deployment status?
+
+3. **Confirm with user:**
+   ```
+   "I've read the context file. Last session was working on: [X].
+   Current critical issues: [Y].
+
+   Should I continue from there, or do you have a different priority?"
+   ```
+
+4. **Read `docs/ARCHITECTURE.md` for permanent decisions**
+   - Table schemas
+   - Naming conventions
+   - Deprecated patterns to avoid
+
+---
+
+## 🔚 Session End Protocol
+
+**MANDATORY:** When user says "vamos encerrar", "acabou", "tchau", or similar:
+
+### **Update `.claude-context` automatically:**
+
+```yaml
+# Tasks to complete before ending session:
+
+1. Set last_updated to current timestamp
+2. Add today's decisions to recent_decisions
+3. Update current_issues with latest status
+4. Update work_in_progress with modified files
+5. Write next_session_context with critical info
+6. Mark deployment status (deployed/pending/broken)
+```
+
+### **Rotation Logic (>7 days):**
+
+If any decision in `.claude-context` is >7 days old:
+- Move to `docs/ARCHITECTURE.md` (permanent section)
+- Remove from `.claude-context`
+- Keep context file lean
+
+### **Pre-End Checklist:**
+
+- [ ] All decisions documented
+- [ ] Critical issues flagged with severity
+- [ ] Modified files listed
+- [ ] Deploy status noted
+- [ ] Next steps clearly written
+- [ ] Uncommitted changes mentioned
+
+### **Example End Message:**
+
+```
+✅ Context updated successfully!
+
+Summary of this session:
+- Fixed edge function to use j_ads_users (deployed ✅)
+- Pending: Populate missing names in j_ads_users
+- Next session: Test account filtering for all roles
+
+Next Claude will know exactly where we left off! 🎯
+```
+
+---
+
 ## 🗄️ Database Structure (Core Tables)
+
+**⚠️ CRITICAL - Read this before ANY database operations:**
+
+### **User Management (PRIMARY TABLE)**
+
+**✅ USE THIS:**
+- **`j_ads_users`** - Single source of truth for user data
+  - Fields: id, email, role, nome, notion_manager_id
+  - Roles: 'admin', 'staff', 'client'
+
+**❌ NEVER USE:**
+- `user_roles` - DELETED (2025-10-09)
+- `j_ads_user_roles` - Never existed
+
+**See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#user-management-system) for complete schema**
+
+---
+
+## 🗄️ Database Structure (Other Core Tables)
 
 **Creative Management:**
 - `j_ads_creative_submissions` - Main submissions table

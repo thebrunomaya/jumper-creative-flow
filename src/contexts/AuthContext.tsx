@@ -80,7 +80,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           .select('"Nome"')  // Campo com letra maiúscula e aspas
           .ilike('"E-Mail"', user.email)  // Campo "E-Mail" com hífen
           .limit(1)
-          .single();
+          .maybeSingle();  // Aceita 0 ou 1 resultado (evita erro 406)
 
         if (!error && data?.Nome) {
           console.log('✅ Nome encontrado no banco:', data.Nome);

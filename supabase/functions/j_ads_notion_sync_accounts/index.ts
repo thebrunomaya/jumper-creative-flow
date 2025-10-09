@@ -186,7 +186,7 @@ function processAccountPage(page: any): any {
     "Plataformas": extractMultiSelect(props["Plataformas"]),
     "Rastreamento": extractMultiSelect(props["Rastreamento"]),
     "Gestor": extractPeople(props["Gestor"]), // Emails for OAuth matching
-    "Supervisor": extractPeople(props["Supervisor"]), // Emails for OAuth matching
+    "Atendimento": extractPeople(props["Atendimento"]), // Emails for OAuth matching (renamed from Supervisor)
     "Parceiro": extractRelation(props["Parceiro"]),
     "Gerente": extractRelation(props["Gerente"]),
     "Canal SoWork": extractText(props["Canal SoWork"]),
