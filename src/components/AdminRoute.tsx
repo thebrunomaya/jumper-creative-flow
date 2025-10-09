@@ -17,20 +17,38 @@ const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
 
   useEffect(() => {
     const checkRole = async () => {
+      console.log('🔍 [AdminRoute] Starting role check...');
+      console.log('🔍 [AdminRoute] isAuthenticated:', isAuthenticated);
+      console.log('🔍 [AdminRoute] currentUser:', currentUser);
+
       if (!isAuthenticated) {
+        console.log('❌ [AdminRoute] Not authenticated');
         setIsAdmin(false);
         return;
       }
+
       try {
         const { data: authData } = await supabase.auth.getUser();
+        console.log('🔍 [AdminRoute] authData:', authData);
+
         const userId = currentUser?.id || authData?.user?.id || null;
+        console.log('🔍 [AdminRoute] userId:', userId);
+
         if (!userId) {
+          console.log('❌ [AdminRoute] No userId found');
           setIsAdmin(false);
           return;
         }
+
+        console.log('🔍 [AdminRoute] Calling has_role RPC with:', { _user_id: userId, _role: 'admin' });
         const { data, error } = await supabase.rpc('has_role', { _user_id: userId, _role: 'admin' });
-        setIsAdmin(!error && !!data);
-      } catch {
+        console.log('🔍 [AdminRoute] has_role result:', { data, error });
+
+        const isAdminUser = !error && !!data;
+        console.log(isAdminUser ? '✅ [AdminRoute] User IS admin' : '❌ [AdminRoute] User is NOT admin');
+        setIsAdmin(isAdminUser);
+      } catch (err) {
+        console.error('❌ [AdminRoute] Exception during role check:', err);
         setIsAdmin(false);
       }
     };
