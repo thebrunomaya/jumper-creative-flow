@@ -3,7 +3,7 @@
 # Tracks recent decisions and work-in-progress (last 7 days)
 # Older decisions migrate to docs/ARCHITECTURE.md
 
-last_updated: "2025-10-09T18:15:00Z"
+last_updated: "2025-10-09T20:30:00Z"
 session_computer: "MacBook Pro (trabalho)"
 session_user: "Bruno Maya"
 
@@ -19,6 +19,20 @@ recent_decisions:
       - Deleted: user_roles, j_ads_user_roles (obsolete)
       - Edge functions must use j_ads_users.role for permission checks
     impact: "High - Affects all authentication and authorization logic"
+    migrate_to_architecture: false
+
+  - date: "2025-10-09"
+    decision: "Fixed inactive accounts filter and cleaned obsolete migrations"
+    status: "completed ✅"
+    details: |
+      - Fixed filter to use 'Inativo' (masculine) instead of 'inativa'
+      - Resolved has_role() function conflict (removed app_role version)
+      - Added RLS policies for j_ads_notion_db_managers
+      - Fixed 406 error with .maybeSingle() in AuthContext
+      - Deleted 10 obsolete migrations (n8n_*, old accounts tables)
+      - Created new migrations with proper naming convention
+      - Removed "X de Y contas" badge from UI
+    impact: "Medium - Improved filtering and database cleanup"
     migrate_to_architecture: false
 
 # Current issues being worked on
@@ -65,48 +79,57 @@ work_in_progress:
 
 # Context for next session
 next_session_context: |
-  ✅ MAJOR FIX COMPLETED: Edge function now working correctly!
+  ✅ SESSION 2025-10-09 COMPLETED: Inactive filter + Database cleanup
 
-  Fixed issues:
-    - ✅ Edge function uses j_ads_users.role (not user_roles)
-    - ✅ Admin role detection working
-    - ✅ Staff role searches by email in Gestor/Supervisor fields
-    - ✅ Client role searches by notion_manager_id in Gerente field
-    - ✅ Name resolution improved using j_ads_users table
-    - ✅ Deployed and working
+  What was done today:
+    - ✅ Fixed inactive accounts filter ('Inativo' working correctly)
+    - ✅ Resolved has_role() function conflict (dropped app_role version)
+    - ✅ Added RLS policies for j_ads_notion_db_managers
+    - ✅ Fixed 406 error with .maybeSingle() in AuthContext
+    - ✅ Cleaned 10 obsolete migrations (n8n, old accounts, etc)
+    - ✅ Removed "X de Y contas" badge from UI
+    - ✅ All changes committed and pushed to main (commit ca86613)
 
-  Bruno logged in as: bruno@jumper.studio (role: admin)
-  Should now see: ALL accounts with proper ordering and badges
+  System status:
+    - Admin toggle: Working ✅
+    - Inactive filter: Working ✅ (43 → 25 accounts)
+    - Role detection: Working ✅
+    - MyAccounts page: Fully functional ✅
 
-  Context Management System:
-    - ✅ Created .claude-context (tracks last 7 days)
-    - ✅ Updated docs/ARCHITECTURE.md (permanent decisions)
-    - ✅ Updated CLAUDE.md (session protocols)
-    - 📝 Multi-computer workflow documented
+  🚨 CRITICAL TASK FOR NEXT SESSION:
 
-  Pending tasks (non-critical):
-    1. Populate nome field for bruno@jumper.studio in j_ads_users
-       (currently empty, will show email as fallback)
-    2. Test account display for staff and client users
-    3. Verify badge colors are correct
-    4. Test filtering and sorting
+    Database Cleanup Audit
+    ----------------------
+    Bruno identified that there are obsolete tables still in Supabase database.
 
-  Files with uncommitted changes:
-    - supabase/functions/j_ads_user_accounts/index.ts (FIXED - uses j_ads_users)
-    - .claude-context (NEW)
-    - docs/ARCHITECTURE.md (UPDATED)
-    - CLAUDE.md (UPDATED)
-    - src/pages/MyAccounts.tsx (from earlier session)
-    - src/components/AccountCard.tsx (from earlier session)
-    - src/hooks/useMyNotionAccounts.ts (from earlier session)
+    Action plan:
+    1. List all tables in Supabase (psql or dashboard)
+    2. Search entire codebase for references to obsolete tables
+    3. Find patterns: n8n_*, old 'accounts', 'notion_managers', 'user_roles'
+    4. Replace old references with j_ads_* tables
+    5. Drop obsolete tables from database
+
+    Expected: Only j_ads_* tables should exist
+    Actual: Unknown - needs audit
+
+    This is important for:
+    - Reducing database clutter
+    - Preventing accidental use of old tables
+    - Clear separation of concerns
+    - Avoiding future confusion
+
+  Known issues (non-blocking):
+    - User name still shows email in cards (bruno@jumper.studio vs "Bruno Maya")
+    - This is cosmetic, can be addressed later
+
+  All changes deployed and working in production ✅
 
 # TODOs pending
 pending_todos:
-  - "✅ Fix edge function to use j_ads_users instead of user_roles (DONE)"
+  - "🚨 CRITICAL: Database cleanup - Audit all tables, find obsolete references, drop old tables"
+  - "🚨 Search codebase for references to: n8n_*, accounts (old), notion_managers, user_roles"
   - "Populate nome field for bruno@jumper.studio in j_ads_users (optional)"
   - "Test account filtering for admin/staff/client roles"
-  - "Verify badge colors: Green (Gestor), Blue (Supervisor), Black (Admin), Gray (Gerente)"
-  - "Commit context management system changes"
 
 # Recently completed (for reference)
 completed_recently:
@@ -118,15 +141,17 @@ completed_recently:
 # Deployment status
 deployment:
   production_url: "https://ads.jumper.studio"
-  last_deploy: "2025-10-09T18:15:00Z"
+  last_deploy: "2025-10-09T20:30:00Z"
   last_deploy_status: "success ✅"
+  last_commit: "ca86613 - feat: fix inactive accounts filter, admin role detection, and cleanup migrations"
   edge_functions_deployed:
     - name: "j_ads_user_accounts"
       status: "working ✅"
       fix: "now uses j_ads_users.role correctly"
       deployed_at: "2025-10-09T18:15:00Z"
   migrations_pending: []
-  migrations_applied_last: "20251008214802_setup_admin_role.sql"
+  migrations_applied_last: "20251009190000_create_error_tracking.sql"
+  migrations_deleted: "10 obsolete migrations (n8n, old accounts)"
 
 # Notes for context rotation
 context_rotation:

@@ -449,6 +449,29 @@ Next Claude will know exactly where we left off! 🎯
 
 ---
 
+## 🔧 Pending Tasks (Next Session)
+
+### **🚨 CRITICAL: Database Cleanup**
+
+**Task:** Audit and clean obsolete tables in Supabase
+
+**Steps:**
+1. List all existing tables in Supabase database
+2. Search entire codebase for references to obsolete tables
+3. Replace old table references with new standardized tables (j_ads_*)
+4. Drop obsolete tables from database
+
+**Context:**
+During migration cleanup (2025-10-09), we deleted obsolete migrations referencing old tables (n8n_*, accounts, notion_managers, etc). However, there may still be:
+- References in code to old table names
+- Actual tables in Supabase that are no longer used
+- Edge Functions querying deprecated tables
+
+**Expected tables pattern:** `j_ads_*` (standardized prefix)
+**Obsolete patterns to find:** `n8n_*`, `accounts`, `notion_managers`, `user_roles`, etc.
+
+---
+
 ## 📚 Key Dependencies
 
 **Core:**
