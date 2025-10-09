@@ -17,47 +17,47 @@ interface StatusMetricsProps {
 }
 
 const statusConfig = {
-  draft: { 
-    label: "Rascunhos", 
-    icon: FileText, 
-    color: "text-slate-700 dark:text-slate-300",
-    bgColor: "bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700",
-    borderColor: "border-slate-200 dark:border-slate-600"
+  draft: {
+    label: "Rascunhos",
+    icon: FileText,
+    color: "text-muted-foreground",
+    bgColor: "bg-muted/30 hover:bg-muted/40 backdrop-blur-sm",
+    borderColor: "border-border/50"
   },
-  pending: { 
-    label: "Pendentes", 
-    icon: Clock, 
-    color: "text-[#FA4721] dark:text-orange-400",
-    bgColor: "bg-orange-50 hover:bg-orange-100 dark:bg-orange-900/30 dark:hover:bg-orange-800/40",
-    borderColor: "border-orange-200 dark:border-orange-700"
+  pending: {
+    label: "Pendentes",
+    icon: Clock,
+    color: "text-[#FA4721]",
+    bgColor: "bg-[#FA4721]/5 hover:bg-[#FA4721]/10 backdrop-blur-sm",
+    borderColor: "border-[#FA4721]/20"
   },
-  queued: { 
-    label: "Na Fila", 
-    icon: Archive, 
-    color: "text-[#FA4721] dark:text-orange-400",
-    bgColor: "bg-orange-50 hover:bg-orange-100 dark:bg-orange-900/30 dark:hover:bg-orange-800/40",
-    borderColor: "border-orange-200 dark:border-orange-700"
+  queued: {
+    label: "Na Fila",
+    icon: Archive,
+    color: "text-[#FA4721]",
+    bgColor: "bg-[#FA4721]/5 hover:bg-[#FA4721]/10 backdrop-blur-sm",
+    borderColor: "border-[#FA4721]/20"
   },
-  processing: { 
-    label: "Processando", 
-    icon: Loader2, 
-    color: "text-[#FA4721] dark:text-orange-400",
-    bgColor: "bg-orange-50 hover:bg-orange-100 dark:bg-orange-900/30 dark:hover:bg-orange-800/40",
-    borderColor: "border-orange-200 dark:border-orange-700"
+  processing: {
+    label: "Processando",
+    icon: Loader2,
+    color: "text-blue-500",
+    bgColor: "bg-blue-500/5 hover:bg-blue-500/10 backdrop-blur-sm",
+    borderColor: "border-blue-500/20"
   },
-  processed: { 
-    label: "Publicados", 
-    icon: CheckCircle, 
-    color: "text-green-700 dark:text-green-400",
-    bgColor: "bg-green-50 hover:bg-green-100 dark:bg-green-900/30 dark:hover:bg-green-800/40",
-    borderColor: "border-green-200 dark:border-green-700"
+  processed: {
+    label: "Publicados",
+    icon: CheckCircle,
+    color: "text-[#2AA876]",
+    bgColor: "bg-[#2AA876]/5 hover:bg-[#2AA876]/10 backdrop-blur-sm",
+    borderColor: "border-[#2AA876]/20"
   },
-  error: { 
-    label: "Erros", 
-    icon: AlertCircle, 
-    color: "text-red-700 dark:text-red-400",
-    bgColor: "bg-red-50 hover:bg-red-100 dark:bg-red-900/30 dark:hover:bg-red-800/40",
-    borderColor: "border-red-200 dark:border-red-700"
+  error: {
+    label: "Erros",
+    icon: AlertCircle,
+    color: "text-[#F04438]",
+    bgColor: "bg-[#F04438]/5 hover:bg-[#F04438]/10 backdrop-blur-sm",
+    borderColor: "border-[#F04438]/20"
   },
 };
 
@@ -102,17 +102,15 @@ export const StatusMetrics: React.FC<StatusMetricsProps> = ({
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
-                  <Icon 
-                    className={`h-4 w-4 ${config.color} ${
-                      status === 'processing' ? 'animate-spin' : ''
-                    }`} 
+                  <Icon
+                    className={`h-4 w-4 ${config.color}`}
                   />
                   <span className="text-sm font-medium text-foreground">
                     {config.label}
                   </span>
                 </div>
-                <Badge 
-                  variant="outline" 
+                <Badge
+                  variant="outline"
                   className={`${config.color} border-current`}
                 >
                   {count}

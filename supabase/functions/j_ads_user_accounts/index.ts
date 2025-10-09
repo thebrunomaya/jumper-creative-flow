@@ -221,6 +221,34 @@ serve(async (req) => {
       idToName: idToName.size
     });
 
+    // Step 4.5: For emails not found in managers table, lookup in auth.users (OAuth users like Gestors)
+    const missingEmails = allEmails.filter(email => !emailToName.has(email.toLowerCase().trim()));
+
+    if (missingEmails.length > 0) {
+      console.log('🔍 Looking up missing emails in auth.users:', missingEmails);
+
+      // Query auth.users for OAuth users
+      const { data: authUsers } = await service.auth.admin.listUsers();
+
+      authUsers?.users?.forEach((authUser: any) => {
+        const authEmail = authUser.email?.toLowerCase().trim();
+        if (authEmail && missingEmails.some(email => email.toLowerCase().trim() === authEmail)) {
+          // Try to get name from OAuth metadata
+          const name = authUser.user_metadata?.full_name
+            || authUser.user_metadata?.name
+            || authUser.user_metadata?.display_name
+            || authUser.identities?.[0]?.identity_data?.name;
+
+          if (name) {
+            emailToName.set(authEmail, name);
+            console.log(`✅ Found name for ${authEmail}: ${name}`);
+          }
+        }
+      });
+
+      console.log('📋 Updated emailToName with OAuth users:', emailToName.size);
+    }
+
     // Step 5: Format accounts data with resolved names
     const formattedAccounts = (accountsData || []).map((account: any) => {
       // Resolve Gestor emails to names

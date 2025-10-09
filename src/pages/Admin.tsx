@@ -10,7 +10,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import Header from "@/components/Header";
 import { Link } from "react-router-dom";
-import { RefreshCw, Settings, ArrowLeft } from "lucide-react";
+import { RefreshCw, ArrowLeft } from "lucide-react";
 import { CreativeDetailsModal } from "@/components/CreativeDetailsModal";
 import { NotionSyncControl } from "@/components/NotionSyncControl";
 import { StatusMetrics, FilterBar, CreativeCard } from "@/components/admin";
@@ -47,7 +47,6 @@ const AdminPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
-  const [showNotionSync, setShowNotionSync] = useState(false);
 
   useEffect(() => {
     document.title = "Admin • Ad Uploader";
@@ -203,52 +202,6 @@ const AdminPage: React.FC = () => {
     },
   });
 
-  const syncNotionMutation = useMutation({
-    mutationFn: async () => {
-      const { data, error } = await supabase.functions.invoke("j_ads_notion_sync_accounts");
-      if (error) throw error;
-      if (!data?.ok) throw new Error(data?.error || "Falha ao sincronizar Notion");
-      return data;
-    },
-    onMutate: () => {
-      toast({ title: "Sincronizando…", description: "Buscando dados do Notion e atualizando o Supabase." });
-    },
-    onSuccess: async (data: any) => {
-      const s = data?.synced || {};
-      toast({
-        title: "Sincronizado",
-        description: `Contas: ${s.accounts || 0} | Gerentes: ${s.managers || 0} | Vínculos: ${s.links || 0}`,
-      });
-      await qc.invalidateQueries({ queryKey: ["admin", "submissions"] });
-    },
-    onError: (err: any) => {
-      toast({ title: "Falha ao sincronizar", description: err?.message || "Tente novamente.", variant: "destructive" });
-    },
-  });
-
-  const backfillEmailsMutation = useMutation({
-    mutationFn: async () => {
-      const { data, error } = await supabase.functions.invoke("j_ads_admin_dashboard", {
-        body: { action: "backfill_manager_emails" },
-      });
-      if (error) throw error;
-      if (!data?.success) throw new Error(data?.error || "Falha ao preencher emails");
-      return data;
-    },
-    onMutate: () => {
-      toast({ title: "Preenchendo emails…", description: "Corrigindo emails de gerentes em submissões antigas." });
-    },
-    onSuccess: async (data: any) => {
-      toast({
-        title: "Emails preenchidos",
-        description: `${data.updated || 0} de ${data.total || 0} submissões atualizadas`,
-      });
-      await qc.invalidateQueries({ queryKey: ["admin", "submissions"] });
-    },
-    onError: (err: any) => {
-      toast({ title: "Falha ao preencher emails", description: err?.message || "Tente novamente.", variant: "destructive" });
-    },
-  });
 
   const fetchSubmissionDetails = async (submissionId: string) => {
     try {
@@ -378,22 +331,13 @@ const AdminPage: React.FC = () => {
             </div>
             <div className="flex items-center gap-3">
               <Button
-                className="bg-[#FA4721] hover:bg-[#E03E1A] text-white border-[#FA4721] hover:border-[#E03E1A]"
+                className="bg-[#FA4721] hover:bg-[#E03E1A] text-white"
                 size="sm"
                 onClick={() => refetch()}
                 disabled={isFetching}
               >
                 <RefreshCw className={`mr-2 h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} />
                 {isFetching ? 'Atualizando...' : 'Atualizar'}
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowNotionSync(!showNotionSync)}
-                className="border-border text-foreground hover:bg-accent hover:text-accent-foreground"
-              >
-                <Settings className="mr-2 h-4 w-4" />
-                Configurações
               </Button>
               <Button variant="outline" size="sm" asChild className="border-border text-foreground hover:bg-accent hover:text-accent-foreground">
                 <Link to="/">
@@ -414,24 +358,28 @@ const AdminPage: React.FC = () => {
           />
         </section>
 
-        {/* Main Content */}
+        {/* Main Content - Single Card with Gray Header */}
         <section>
           <Card className="overflow-hidden">
-            <FilterBar
-              searchQuery={searchQuery}
-              onSearchChange={setSearchQuery}
-              selectedItems={selectedItems}
-              onBulkPublish={handleBulkPublish}
-              isPublishing={publishMutation.isPending}
-              totalItems={rows.length}
-            />
-            
-            <div className="p-6">
+            {/* Gray Header - Search Bar */}
+            <div className="bg-muted/30 px-6 py-4 border-b">
+              <FilterBar
+                searchQuery={searchQuery}
+                onSearchChange={setSearchQuery}
+                selectedItems={selectedItems}
+                onBulkPublish={handleBulkPublish}
+                isPublishing={publishMutation.isPending}
+                totalItems={rows.length}
+              />
+            </div>
+
+            {/* Black/Dark Content - Creatives List */}
+            <CardContent className="p-6">
               {rows.length === 0 ? (
                 <div className="text-center py-12">
                   <div className="text-muted-foreground">
-                    {isFetching 
-                      ? "Carregando criativos..." 
+                    {isFetching
+                      ? "Carregando criativos..."
                       : searchQuery || statusFilter
                         ? "Nenhum criativo encontrado com os filtros aplicados"
                         : "Nenhum criativo encontrado"
@@ -455,53 +403,21 @@ const AdminPage: React.FC = () => {
                   ))}
                 </div>
               )}
-            </div>
+            </CardContent>
           </Card>
         </section>
 
-        {/* Notion Sync Section - Collapsible */}
-        {showNotionSync && (
-          <section>
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Settings className="h-5 w-5" />
-                  Configurações Avançadas
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <h3 className="text-lg font-medium mb-2">Sincronização Notion</h3>
-                  <NotionSyncControl />
-                </div>
-                
-                <Separator />
-                
-                <div>
-                  <h3 className="text-lg font-medium mb-3">Operações de Manutenção</h3>
-                  <div className="flex flex-wrap gap-3">
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={() => backfillEmailsMutation.mutate()} 
-                      disabled={backfillEmailsMutation.isPending}
-                    >
-                      {backfillEmailsMutation.isPending ? 'Corrigindo...' : 'Corrigir Emails'}
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={() => syncNotionMutation.mutate()} 
-                      disabled={syncNotionMutation.isPending}
-                    >
-                      {syncNotionMutation.isPending ? 'Sincronizando...' : 'Sincronizar Notion'}
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </section>
-        )}
+        {/* Notion Sync Section - Always Visible */}
+        <section>
+          <Card>
+            <CardHeader>
+              <CardTitle>Sincronização Notion</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <NotionSyncControl />
+            </CardContent>
+          </Card>
+        </section>
 
         <Dialog open={!!errorDetails} onOpenChange={() => setErrorDetails(null)}>
           <DialogContent>

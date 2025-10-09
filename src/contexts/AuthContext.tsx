@@ -38,6 +38,7 @@ export const useAuth = () => {
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
+  const [managerName, setManagerName] = useState<string | null>(null);
 
   // Ensure the user has at least a default role after auth
   const ensureUserRole = async () => {
@@ -64,6 +65,37 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       subscription.unsubscribe();
     };
   }, []);
+
+  // Fetch manager name from database when user changes
+  useEffect(() => {
+    const fetchManagerName = async () => {
+      if (!user?.email) {
+        setManagerName(null);
+        return;
+      }
+
+      try {
+        const { data, error } = await supabase
+          .from('j_ads_notion_db_managers')
+          .select('"Nome"')  // Campo com letra maiúscula e aspas
+          .ilike('"E-Mail"', user.email)  // Campo "E-Mail" com hífen
+          .limit(1)
+          .single();
+
+        if (!error && data?.Nome) {
+          console.log('✅ Nome encontrado no banco:', data.Nome);
+          setManagerName(data.Nome);
+        } else if (error) {
+          console.log('⚠️ Erro ao buscar nome:', error.message);
+        }
+      } catch (e) {
+        // Silently fail - will use metadata fallback
+        console.debug('Could not fetch manager name from database:', e);
+      }
+    };
+
+    fetchManagerName();
+  }, [user?.email]);
 
   const login = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
@@ -107,6 +139,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       provider: 'notion',
       options: {
         redirectTo: `${window.location.origin}/`,
+        scopes: 'email', // Request email scope to get user info
       }
     });
     if (!error) {
@@ -127,7 +160,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const currentUser: ManagerCompat | null = useMemo(() => {
     if (!user) return null;
     const email = user.email || '';
-    const name = email ? email.split('@')[0] : 'Usuário';
+
+    // Debug: Log what we have
+    console.log('👤 User metadata:', {
+      full_name: user.user_metadata?.full_name,
+      name: user.user_metadata?.name,
+      display_name: user.user_metadata?.display_name,
+      identity_name: user.identities?.[0]?.identity_data?.name,
+      managerName: managerName,
+    });
+
+    // Try to get name from various sources in order of preference:
+    // 1. user_metadata.full_name (OAuth - Notion has this as "Bruno Maya") ⭐
+    // 2. user_metadata.name (OAuth - Notion also has this)
+    // 3. managerName (from j_ads_notion_db_managers table - only for Gerentes)
+    // 4. user_metadata.display_name (other providers)
+    // 5. identities[0].identity_data.name (raw OAuth data)
+    // 6. email split as fallback
+    const rawName = user.user_metadata?.full_name
+      || user.user_metadata?.name
+      || managerName
+      || user.user_metadata?.display_name
+      || user.identities?.[0]?.identity_data?.name
+      || user.email?.split('@')[0]
+      || 'Usuário';
+
+    // Capitalize first letter only if it's from email split
+    const needsCapitalization = rawName === user.email?.split('@')[0];
+    const name = needsCapitalization
+      ? rawName.charAt(0).toUpperCase() + rawName.slice(1)
+      : rawName;
+
+    console.log('✅ Nome final usado:', name);
+
     return {
       id: user.id,
       name,
@@ -135,7 +200,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       password: undefined,
       accounts: [],
     };
-  }, [user]);
+  }, [user, managerName]);
 
   const value: AuthContextType = {
     user,

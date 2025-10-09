@@ -359,7 +359,7 @@ const LoginPageNew: React.FC = () => {
                 <Button
                   type="button"
                   variant="outline"
-                  className="w-full h-12 border-white/20 text-white hover:bg-white/10 transition-all duration-200 flex items-center justify-center gap-2"
+                  className="w-full h-12 bg-white/5 border-white/30 text-white hover:bg-white/10 hover:border-white/40 transition-all duration-200 flex items-center justify-center gap-2"
                   onClick={async () => {
                     setIsNotionLoading(true);
                     const { error } = await loginWithNotion();

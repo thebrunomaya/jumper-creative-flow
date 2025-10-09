@@ -37,7 +37,10 @@ const UserMenu: React.FC = () => {
 
   if (!currentUser) return null;
 
+  console.log('🔍 UserMenu - currentUser:', currentUser);
+
   const formatUserName = (name: string) => {
+    console.log('🔍 UserMenu - formatUserName input:', name);
     return name.split(' ')
       .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
       .join(' ');
