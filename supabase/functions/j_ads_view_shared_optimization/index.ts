@@ -71,18 +71,9 @@ Deno.serve(async (req) => {
     }
 
     // Validate password
-    console.log('DEBUG - Password validation:', {
-      providedPasswordLength: password.length,
-      storedHashLength: recording.password_hash?.length || 0,
-      hashPreview: recording.password_hash?.substring(0, 20) + '...',
-    });
-
     const passwordMatch = await verifyPassword(password, recording.password_hash);
 
-    console.log('DEBUG - Password match result:', passwordMatch);
-
     if (!passwordMatch) {
-      console.error('Password validation failed');
       return new Response(JSON.stringify({ error: 'Invalid password' }), {
         status: 401,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
