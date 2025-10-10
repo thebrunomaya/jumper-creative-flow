@@ -1,7 +1,7 @@
 /**
  * SharedOptimization Page
- * Public page for viewing shared optimization recordings
- * Requires password authentication
+ * Public page for viewing shared optimization extracts
+ * Access via unique slug link
  */
 
 import { useState, useEffect } from 'react';
@@ -105,7 +105,7 @@ export default function SharedOptimization() {
             setError('Este link expirou');
             toast.error('Link expirado');
           } else {
-            throw new Error(errorMsg || 'Erro ao carregar análise');
+            throw new Error(errorMsg || 'Erro ao carregar otimização');
           }
           return;
         }
@@ -114,8 +114,8 @@ export default function SharedOptimization() {
         setData(result);
       } catch (error: any) {
         console.error('Error loading optimization:', error);
-        setError(error.message || 'Erro ao acessar análise');
-        toast.error('Erro ao carregar análise');
+        setError(error.message || 'Erro ao acessar otimização');
+        toast.error('Erro ao carregar otimização');
       } finally {
         setIsLoading(false);
       }
@@ -154,7 +154,7 @@ export default function SharedOptimization() {
         <div className="min-h-screen flex flex-col items-center justify-center p-4">
           <JumperLogo variant="full" className="h-12 mb-8" />
           <Loader2 className="h-8 w-8 animate-spin text-orange-hero" />
-          <p className="mt-4 text-sm text-muted-foreground">Carregando análise...</p>
+          <p className="mt-4 text-sm text-muted-foreground">Carregando extrato...</p>
         </div>
       </JumperBackground>
     );
@@ -174,7 +174,7 @@ export default function SharedOptimization() {
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground mb-4">
-                Não foi possível carregar esta análise. Verifique se o link está correto ou entre em contato com seu gestor.
+                Não foi possível carregar este extrato. Verifique se o link está correto ou entre em contato com seu gestor.
               </p>
               <JumperButton onClick={() => navigate('/')} variant="outline" className="w-full">
                 Voltar ao Início
@@ -195,7 +195,7 @@ export default function SharedOptimization() {
             <JumperLogo variant="full" className="h-8" />
             <Badge variant="outline" className="gap-2">
               <Lock className="h-3 w-3" />
-              Análise Compartilhada
+              Extrato Compartilhado
             </Badge>
           </div>
         </header>
@@ -233,12 +233,12 @@ export default function SharedOptimization() {
             </CardContent>
           </Card>
 
-          {/* AI Analysis */}
+          {/* Optimization Extract */}
           {data.context && (
             <div className="mb-8">
               <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
                 <FileText className="h-5 w-5 text-orange-hero" />
-                Análise de IA
+                Extrato de Otimização
               </h2>
               <OptimizationContextCard
                 context={data.context}
