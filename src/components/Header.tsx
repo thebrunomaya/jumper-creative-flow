@@ -74,7 +74,7 @@ const Header: React.FC = () => {
                       key={link.to}
                       to={link.to}
                       className={cn(
-                        'flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors',
+                        'flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors no-underline',
                         isActive
                           ? 'bg-[hsl(var(--orange-hero)/0.1)] text-[hsl(var(--orange-hero))]'
                           : 'text-muted-foreground hover:text-foreground hover:bg-muted'
