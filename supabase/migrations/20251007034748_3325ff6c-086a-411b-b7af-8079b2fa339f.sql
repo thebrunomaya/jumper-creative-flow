@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS public.j_ads_optimization_transcripts (
 );
 
 -- Create index for faster lookups
-CREATE INDEX idx_optimization_transcripts_recording_id 
+CREATE INDEX IF NOT EXISTS idx_optimization_transcripts_recording_id
 ON public.j_ads_optimization_transcripts(recording_id);
 
 -- Enable RLS

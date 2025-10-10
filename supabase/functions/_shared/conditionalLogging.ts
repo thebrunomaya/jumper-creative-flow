@@ -25,7 +25,7 @@ export async function shouldLogForUser(supabase: SupabaseClient, userId: string,
       return true;
     }
 
-    // Check in notion_managers table for gestor role
+    // Check in j_ads_notion_db_managers table for gestor role
     if (userEmail) {
       const { data: notionRole, error: notionError } = await supabase
         .from('j_ads_notion_db_managers')

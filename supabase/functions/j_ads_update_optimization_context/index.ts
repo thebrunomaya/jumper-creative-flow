@@ -80,9 +80,9 @@ serve(async (req) => {
 
     // Verifica se é admin
     const { data: role, error: roleErr } = await admin
-      .from('j_ads_user_roles')
+      .from('j_ads_users')
       .select('role')
-      .eq('user_id', userId)
+      .eq('id', userId)
       .maybeSingle();
 
     const isAdmin = role?.role === 'admin';

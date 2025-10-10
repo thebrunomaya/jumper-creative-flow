@@ -52,9 +52,9 @@ Deno.serve(async (req: Request) => {
 
     // Check if user already has any role
     const { data: roles, error: rolesError } = await admin
-      .from('j_ads_user_roles')
-      .select('id, role')
-      .eq('user_id', user.id)
+      .from('j_ads_users')
+      .select('role')
+      .eq('id', user.id)
       .limit(1)
 
     if (rolesError) {
@@ -139,8 +139,8 @@ Deno.serve(async (req: Request) => {
 
     // Assign detected role
     const { error: insertError } = await admin
-      .from('j_ads_user_roles')
-      .insert({ user_id: user.id, role: roleToAssign })
+      .from('j_ads_users')
+      .insert({ id: user.id, email: user.email, role: roleToAssign })
 
     if (insertError) {
       console.error('ensure-role: insertError', insertError)
