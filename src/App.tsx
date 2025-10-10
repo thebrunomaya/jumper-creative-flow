@@ -22,6 +22,7 @@ const MyAccounts = lazy(() => import("./pages/MyAccounts"));
 const CreativeSystem = lazy(() => import("@/components/CreativeSystem"));
 const ReportsPage = lazy(() => import("./pages/ReportsPage"));
 const Optimization = lazy(() => import("./pages/Optimization"));
+const SharedOptimization = lazy(() => import("./pages/SharedOptimization"));
 
 // Loading component reutilizável com acessibilidade
 const PageLoading = () => (
@@ -102,6 +103,12 @@ const App = () => {
                       <Optimization />
                     </Suspense>
                   </ProtectedRoute>
+                } />
+                {/* Public route for shared optimizations (password protected within component) */}
+                <Route path="/optimization/:slug" element={
+                  <Suspense fallback={<PageLoading />}>
+                    <SharedOptimization />
+                  </Suspense>
                 } />
                 <Route path="/reset-password" element={<ResetPasswordPage />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

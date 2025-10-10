@@ -32,6 +32,7 @@ import {
   Sparkles,
   Trash2,
   Save,
+  Share2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -47,6 +48,7 @@ import { generateAnalysisMarkdown } from "@/utils/markdownExport";
 import { TranscriptionEditorModal } from "./TranscriptionEditorModal";
 import { UnifiedOptimizationEditorModal } from "./UnifiedOptimizationEditorModal";
 import { MarkdownPreviewModal } from "./MarkdownPreviewModal";
+import { ShareOptimizationModal } from "./ShareOptimizationModal";
 
 interface OptimizationDrawerProps {
   recording: OptimizationRecordingRow | null;
@@ -218,6 +220,7 @@ function AnalysisSection({
   durationSeconds,
   onRefresh,
   onExportPDF,
+  onShare,
 }: {
   context: OptimizationContext;
   recordingId: string;
@@ -227,6 +230,7 @@ function AnalysisSection({
   durationSeconds?: number;
   onRefresh: () => void;
   onExportPDF: () => void;
+  onShare: () => void;
 }) {
   const [unifiedEditorOpen, setUnifiedEditorOpen] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
@@ -289,12 +293,20 @@ function AnalysisSection({
                 Copiar
               </JumperButton>
               <JumperButton
+                onClick={onShare}
+                variant="ghost"
+                size="sm"
+              >
+                <Share2 className="mr-2 h-4 w-4" />
+                Compartilhar
+              </JumperButton>
+              <JumperButton
                 onClick={onExportPDF}
                 variant="ghost"
                 size="sm"
               >
                 <Download className="mr-2 h-4 w-4" />
-                Exportar
+                PDF
               </JumperButton>
             </div>
           </div>
@@ -414,6 +426,12 @@ export function OptimizationDrawer({
   const handleExportPDF = () => {
     exportOptimizationToPDF(recording, accountName, transcript, context);
     toast.success("PDF gerado com sucesso!");
+  };
+
+  const [shareModalOpen, setShareModalOpen] = useState(false);
+
+  const handleShare = () => {
+    setShareModalOpen(true);
   };
 
   return (
@@ -616,6 +634,7 @@ export function OptimizationDrawer({
                   durationSeconds={recording.duration_seconds}
                   onRefresh={onRefresh}
                   onExportPDF={handleExportPDF}
+                  onShare={handleShare}
                 />
               </>
             )}
@@ -658,6 +677,15 @@ export function OptimizationDrawer({
           </div>
         </ScrollArea>
       </SheetContent>
+
+      {/* Share Optimization Modal */}
+      <ShareOptimizationModal
+        open={shareModalOpen}
+        onOpenChange={setShareModalOpen}
+        recordingId={recording.id}
+        accountName={accountName}
+        recordedAt={recording.recorded_at}
+      />
     </Sheet>
   );
 }
