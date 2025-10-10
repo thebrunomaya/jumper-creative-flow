@@ -53,7 +53,7 @@ Deno.serve(async (req: Request) => {
     // Check if user already has any role
     const { data: roles, error: rolesError } = await admin
       .from('j_ads_users')
-      .select('role')
+      .select('role, nome')
       .eq('id', user.id)
       .limit(1)
 
@@ -66,6 +66,27 @@ Deno.serve(async (req: Request) => {
     }
 
     if (roles && roles.length > 0) {
+      // User exists, but check if nome is empty
+      const currentUser = roles[0]
+      if (!currentUser.nome || currentUser.nome.trim() === '') {
+        console.log('⚠️ User exists but nome is empty - updating...')
+        const nome = user.user_metadata?.full_name
+          || user.user_metadata?.name
+          || user.email?.split('@')[0]
+          || 'Usuário'
+
+        const { error: updateError } = await admin
+          .from('j_ads_users')
+          .update({ nome })
+          .eq('id', user.id)
+
+        if (updateError) {
+          console.error('ensure-role: updateError', updateError)
+        } else {
+          console.log('✅ Nome updated successfully:', nome)
+        }
+      }
+
       return new Response(JSON.stringify({ ok: true, message: 'Role already set' }), {
         status: 200,
         headers: { 'Content-Type': 'application/json', ...corsHeaders },
@@ -137,10 +158,18 @@ Deno.serve(async (req: Request) => {
       }
     }
 
+    // Extract nome from user metadata
+    const nome = user.user_metadata?.full_name
+      || user.user_metadata?.name
+      || user.email?.split('@')[0]
+      || 'Usuário'
+
+    console.log('📝 Assigning role with nome:', nome)
+
     // Assign detected role
     const { error: insertError } = await admin
       .from('j_ads_users')
-      .insert({ id: user.id, email: user.email, role: roleToAssign })
+      .insert({ id: user.id, email: user.email, role: roleToAssign, nome })
 
     if (insertError) {
       console.error('ensure-role: insertError', insertError)
