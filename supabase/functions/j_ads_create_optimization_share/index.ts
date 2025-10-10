@@ -20,26 +20,28 @@ interface CreateShareRequest {
 }
 
 function generatePassword(): string {
-  // More complex password: 16 characters with uppercase, lowercase, numbers, and special chars
+  // Secure password: 12 characters with uppercase, lowercase, and numbers
+  // (No special chars to avoid encoding issues)
   const lowercase = 'abcdefghijklmnopqrstuvwxyz';
   const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
   const numbers = '0123456789';
-  const special = '!@#$%&*';
 
-  // Ensure at least one of each type
+  // Ensure at least 2 of each type
   let password = '';
   password += lowercase.charAt(Math.floor(Math.random() * lowercase.length));
+  password += lowercase.charAt(Math.floor(Math.random() * lowercase.length));
+  password += uppercase.charAt(Math.floor(Math.random() * uppercase.length));
   password += uppercase.charAt(Math.floor(Math.random() * uppercase.length));
   password += numbers.charAt(Math.floor(Math.random() * numbers.length));
-  password += special.charAt(Math.floor(Math.random() * special.length));
+  password += numbers.charAt(Math.floor(Math.random() * numbers.length));
 
-  // Fill remaining 12 characters with random mix
-  const allChars = lowercase + uppercase + numbers + special;
-  for (let i = 0; i < 12; i++) {
+  // Fill remaining 6 characters with random mix
+  const allChars = lowercase + uppercase + numbers;
+  for (let i = 0; i < 6; i++) {
     password += allChars.charAt(Math.floor(Math.random() * allChars.length));
   }
 
-  // Shuffle to randomize position of guaranteed characters
+  // Shuffle to randomize position
   return password.split('').sort(() => Math.random() - 0.5).join('');
 }
 
@@ -134,6 +136,12 @@ Deno.serve(async (req) => {
     // Generate or use provided password
     const plainPassword = userPassword || generatePassword();
     const passwordHash = await hashPassword(plainPassword);
+
+    console.log('DEBUG - Password creation:', {
+      passwordLength: plainPassword.length,
+      hashLength: passwordHash.length,
+      hashPreview: passwordHash.substring(0, 20) + '...',
+    });
 
     // Generate unique slug
     const accountName = recording.j_ads_notion_db_accounts?.["Conta"] || 'optimization';
