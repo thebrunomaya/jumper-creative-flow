@@ -95,22 +95,16 @@ export function ShareOptimizationModal({
         requestBody.expires_days = parseInt(expirationDays);
       }
 
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/j_ads_create_optimization_share`,
+      // Use Supabase client to invoke function (correct URL handling)
+      const { data: result, error: invokeError } = await supabase.functions.invoke(
+        'j_ads_create_optimization_share',
         {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${session.access_token}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(requestBody),
+          body: requestBody,
         }
       );
 
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.error || 'Erro ao criar link de compartilhamento');
+      if (invokeError) {
+        throw new Error(invokeError.message || 'Erro ao criar link de compartilhamento');
       }
 
       setShareData({

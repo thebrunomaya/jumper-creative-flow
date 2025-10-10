@@ -70,35 +70,52 @@ export default function SharedOptimization() {
     setError(null);
 
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/j_ads_view_shared_optimization`,
+      // Use Supabase client to invoke function (correct URL handling)
+      const { data: result, error: invokeError } = await supabase.functions.invoke(
+        'j_ads_view_shared_optimization',
         {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
-          },
-          body: JSON.stringify({
+          body: {
             slug: slug,
             password: password.trim(),
-          }),
+          },
         }
       );
 
-      const result = await response.json();
+      // Handle errors from Edge Function
+      if (invokeError) {
+        const errorMsg = invokeError.message || '';
 
-      if (!response.ok) {
-        if (response.status === 401) {
+        if (errorMsg.includes('Invalid password') || errorMsg.includes('401')) {
           setError('Senha incorreta');
           toast.error('Senha incorreta');
-        } else if (response.status === 404) {
+        } else if (errorMsg.includes('not found') || errorMsg.includes('404')) {
           setError('Link não encontrado ou desativado');
           toast.error('Link não encontrado');
-        } else if (response.status === 403) {
+        } else if (errorMsg.includes('expired') || errorMsg.includes('403')) {
           setError('Este link expirou');
           toast.error('Link expirado');
         } else {
-          throw new Error(result.error || 'Erro ao validar senha');
+          throw new Error(errorMsg || 'Erro ao validar senha');
+        }
+        return;
+      }
+
+      // Check if result has error property (from Edge Function response)
+      if (result?.error) {
+        const errorMsg = result.error;
+
+        if (errorMsg.includes('Invalid password')) {
+          setError('Senha incorreta');
+          toast.error('Senha incorreta');
+        } else if (errorMsg.includes('not found')) {
+          setError('Link não encontrado ou desativado');
+          toast.error('Link não encontrado');
+        } else if (errorMsg.includes('expired')) {
+          setError('Este link expirou');
+          toast.error('Link expirado');
+        } else {
+          setError(errorMsg);
+          toast.error(errorMsg);
         }
         return;
       }
