@@ -5,7 +5,7 @@
  */
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import * as bcrypt from 'https://deno.land/x/bcrypt@v0.4.1/mod.ts';
+import { hashPassword } from '../_shared/password-utils.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -118,7 +118,7 @@ Deno.serve(async (req) => {
 
     // Generate or use provided password
     const plainPassword = userPassword || generatePassword();
-    const passwordHash = await bcrypt.hash(plainPassword);
+    const passwordHash = await hashPassword(plainPassword);
 
     // Generate unique slug
     const accountName = recording.j_ads_notion_db_accounts?.["Conta"] || 'optimization';
