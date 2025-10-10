@@ -52,86 +52,77 @@ export default function SharedOptimization() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
 
-  const [password, setPassword] = useState('');
-  const [isValidating, setIsValidating] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [data, setData] = useState<OptimizationData | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const handlePasswordSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  useEffect(() => {
+    const loadOptimization = async () => {
+      if (!slug) return;
 
-    if (!password.trim()) {
-      toast.error('Digite a senha');
-      return;
-    }
+      setIsLoading(true);
+      setError(null);
 
-    setIsValidating(true);
-    setError(null);
+      try {
+        // Make direct fetch to Edge Function (public, no auth required)
+        const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+        const response = await fetch(
+          `${SUPABASE_URL}/functions/v1/j_ads_view_shared_optimization`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              slug: slug,
+            }),
+          }
+        );
 
-    try {
-      // Make direct fetch to Edge Function (public, no auth required)
-      const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-      const response = await fetch(
-        `${SUPABASE_URL}/functions/v1/j_ads_view_shared_optimization`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            slug: slug,
-            password: password.trim(),
-          }),
+        // Check if response has content
+        const contentType = response.headers.get('content-type');
+        if (!contentType?.includes('application/json')) {
+          console.error('Invalid response type:', contentType);
+          throw new Error('Resposta inválida do servidor');
         }
-      );
 
-      // Check if response has content
-      const contentType = response.headers.get('content-type');
-      if (!contentType?.includes('application/json')) {
-        console.error('Invalid response type:', contentType);
-        throw new Error('Resposta inválida do servidor');
-      }
-
-      const text = await response.text();
-      if (!text) {
-        console.error('Empty response from server');
-        throw new Error('Resposta vazia do servidor');
-      }
-
-      const result = JSON.parse(text);
-
-      // Handle error responses
-      if (!response.ok || result?.error) {
-        const errorMsg = result?.error || '';
-
-        if (errorMsg.includes('Invalid password') || response.status === 401) {
-          setError('Senha incorreta');
-          toast.error('Senha incorreta');
-        } else if (errorMsg.includes('not found') || response.status === 404) {
-          setError('Link não encontrado ou desativado');
-          toast.error('Link não encontrado');
-        } else if (errorMsg.includes('expired') || response.status === 403) {
-          setError('Este link expirou');
-          toast.error('Link expirado');
-        } else {
-          throw new Error(errorMsg || 'Erro ao validar senha');
+        const text = await response.text();
+        if (!text) {
+          console.error('Empty response from server');
+          throw new Error('Resposta vazia do servidor');
         }
-        return;
-      }
 
-      // Authentication successful
-      setData(result);
-      setIsAuthenticated(true);
-      toast.success('Acesso autorizado!');
-    } catch (error: any) {
-      console.error('Error validating password:', error);
-      setError(error.message || 'Erro ao acessar análise');
-      toast.error('Erro ao validar senha');
-    } finally {
-      setIsValidating(false);
-    }
-  };
+        const result = JSON.parse(text);
+
+        // Handle error responses
+        if (!response.ok || result?.error) {
+          const errorMsg = result?.error || '';
+
+          if (errorMsg.includes('not found') || response.status === 404) {
+            setError('Link não encontrado ou desativado');
+            toast.error('Link não encontrado');
+          } else if (errorMsg.includes('expired') || response.status === 403) {
+            setError('Este link expirou');
+            toast.error('Link expirado');
+          } else {
+            throw new Error(errorMsg || 'Erro ao carregar análise');
+          }
+          return;
+        }
+
+        // Load successful
+        setData(result);
+      } catch (error: any) {
+        console.error('Error loading optimization:', error);
+        setError(error.message || 'Erro ao acessar análise');
+        toast.error('Erro ao carregar análise');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadOptimization();
+  }, [slug]);
 
   if (!slug) {
     return (
@@ -156,101 +147,42 @@ export default function SharedOptimization() {
     );
   }
 
-  // Password protection screen
-  if (!isAuthenticated) {
+  // Loading state
+  if (isLoading) {
     return (
       <JumperBackground>
         <div className="min-h-screen flex flex-col items-center justify-center p-4">
-          <div className="w-full max-w-md space-y-6">
-            {/* Logo */}
-            <div className="flex justify-center mb-8">
-              <JumperLogo variant="full" className="h-12" />
-            </div>
-
-            {/* Password Form */}
-            <Card className="border-2">
-              <CardHeader className="space-y-1">
-                <div className="flex items-center justify-center mb-4">
-                  <div className="rounded-full bg-orange-hero/10 p-4">
-                    <Lock className="h-8 w-8 text-orange-hero" />
-                  </div>
-                </div>
-                <CardTitle className="text-center text-2xl">
-                  Análise Protegida
-                </CardTitle>
-                <p className="text-center text-sm text-muted-foreground">
-                  Digite a senha para acessar esta otimização
-                </p>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handlePasswordSubmit} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="password">Senha de Acesso</Label>
-                    <Input
-                      id="password"
-                      type="text"
-                      placeholder="Digite a senha fornecida"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      disabled={isValidating}
-                      className="text-center font-mono text-lg tracking-wider"
-                      autoComplete="off"
-                      autoFocus
-                    />
-                  </div>
-
-                  {error && (
-                    <div className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive flex items-start gap-2">
-                      <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
-                      <span>{error}</span>
-                    </div>
-                  )}
-
-                  <JumperButton
-                    type="submit"
-                    disabled={isValidating}
-                    className="w-full"
-                  >
-                    {isValidating ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Validando...
-                      </>
-                    ) : (
-                      <>
-                        <Shield className="mr-2 h-4 w-4" />
-                        Acessar Análise
-                      </>
-                    )}
-                  </JumperButton>
-                </form>
-
-                <Separator className="my-6" />
-
-                <div className="text-center text-xs text-muted-foreground">
-                  Powered by{' '}
-                  <span className="font-semibold text-orange-hero">Jumper Studio</span>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Info */}
-            <div className="text-center text-xs text-muted-foreground">
-              <p>Essa é uma análise de otimização de tráfego pago</p>
-              <p>Caso não tenha a senha, entre em contato com seu gestor</p>
-            </div>
-          </div>
+          <JumperLogo variant="full" className="h-12 mb-8" />
+          <Loader2 className="h-8 w-8 animate-spin text-orange-hero" />
+          <p className="mt-4 text-sm text-muted-foreground">Carregando análise...</p>
         </div>
       </JumperBackground>
     );
   }
 
-  // Authenticated - Show optimization data
-  if (!data) {
+  // Error state
+  if (error || !data) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-orange-hero" />
-      </div>
+      <JumperBackground>
+        <div className="min-h-screen flex items-center justify-center p-4">
+          <Card className="max-w-md">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-destructive">
+                <AlertCircle className="h-5 w-5" />
+                {error || 'Link não encontrado'}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground mb-4">
+                Não foi possível carregar esta análise. Verifique se o link está correto ou entre em contato com seu gestor.
+              </p>
+              <JumperButton onClick={() => navigate('/')} variant="outline" className="w-full">
+                Voltar ao Início
+              </JumperButton>
+            </CardContent>
+          </Card>
+        </div>
+      </JumperBackground>
     );
   }
 

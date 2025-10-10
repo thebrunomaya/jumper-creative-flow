@@ -53,14 +53,10 @@ export function ShareOptimizationModal({
   const [isCreating, setIsCreating] = useState(false);
   const [shareData, setShareData] = useState<{
     url: string;
-    password: string;
     expires_at: string | null;
   } | null>(null);
   const [copiedUrl, setCopiedUrl] = useState(false);
-  const [copiedPassword, setCopiedPassword] = useState(false);
   const [copiedMessage, setCopiedMessage] = useState(false);
-  const [customPassword, setCustomPassword] = useState('');
-  const [useCustomPassword, setUseCustomPassword] = useState(false);
   const [expirationDays, setExpirationDays] = useState<string>('never');
 
   const handleCreateShare = async () => {
@@ -76,20 +72,10 @@ export function ShareOptimizationModal({
 
       const requestBody: {
         recording_id: string;
-        password?: string;
         expires_days?: number;
       } = {
         recording_id: recordingId,
       };
-
-      // Add custom password if provided
-      if (useCustomPassword && customPassword.trim()) {
-        if (customPassword.length < 6) {
-          toast.error('A senha deve ter pelo menos 6 caracteres');
-          return;
-        }
-        requestBody.password = customPassword.trim();
-      }
 
       // Add expiration if selected
       if (expirationDays !== 'never') {
@@ -110,11 +96,10 @@ export function ShareOptimizationModal({
 
       setShareData({
         url: result.url,
-        password: result.password,
         expires_at: result.expires_at,
       });
 
-      toast.success('Link de compartilhamento criado!');
+      toast.success('Link público criado!');
     } catch (error: any) {
       console.error('Error creating share:', error);
       toast.error(error.message || 'Erro ao criar link');
@@ -123,17 +108,12 @@ export function ShareOptimizationModal({
     }
   };
 
-  const copyToClipboard = async (text: string, type: 'url' | 'password') => {
+  const copyToClipboard = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text);
-      if (type === 'url') {
-        setCopiedUrl(true);
-        setTimeout(() => setCopiedUrl(false), 2000);
-      } else {
-        setCopiedPassword(true);
-        setTimeout(() => setCopiedPassword(false), 2000);
-      }
-      toast.success(type === 'url' ? 'Link copiado!' : 'Senha copiada!');
+      setCopiedUrl(true);
+      setTimeout(() => setCopiedUrl(false), 2000);
+      toast.success('Link copiado!');
     } catch (error) {
       toast.error('Erro ao copiar');
     }
@@ -150,15 +130,14 @@ export function ShareOptimizationModal({
 
     const message = `Olá! 👋
 
-Segue o link protegido para visualizar a análise de otimização da conta *${accountName}* do dia ${formattedDate}:
+Segue o link público para visualizar a análise de otimização da conta *${accountName}* do dia ${formattedDate}:
 
 🔗 *Link de Acesso:*
 ${shareData.url}
 
-🔐 *Senha:*
-${shareData.password}
+${shareData.expires_at ? `⏰ Este link expira em ${new Date(shareData.expires_at).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })}\n\n` : ''}Basta clicar no link para visualizar a análise completa.
 
-${shareData.expires_at ? `⏰ Este link expira em ${new Date(shareData.expires_at).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })}\n\n` : ''}Qualquer dúvida, estou à disposição!`;
+Qualquer dúvida, estou à disposição!`;
 
     try {
       await navigator.clipboard.writeText(message);
@@ -173,11 +152,8 @@ ${shareData.expires_at ? `⏰ Este link expira em ${new Date(shareData.expires_a
   const handleClose = () => {
     // Reset state when closing
     setShareData(null);
-    setCustomPassword('');
-    setUseCustomPassword(false);
     setExpirationDays('never');
     setCopiedUrl(false);
-    setCopiedPassword(false);
     setCopiedMessage(false);
     onOpenChange(false);
   };
@@ -191,7 +167,7 @@ ${shareData.expires_at ? `⏰ Este link expira em ${new Date(shareData.expires_a
             Compartilhar Otimização
           </DialogTitle>
           <DialogDescription>
-            Crie um link público protegido por senha para compartilhar esta análise
+            Crie um link público para compartilhar esta análise
           </DialogDescription>
         </DialogHeader>
 
@@ -214,43 +190,6 @@ ${shareData.expires_at ? `⏰ Este link expira em ${new Date(shareData.expires_a
             // Configuration form
             <>
               <Separator />
-
-              {/* Password Configuration */}
-              <div className="space-y-3">
-                <Label className="flex items-center gap-2">
-                  <Lock className="h-4 w-4" />
-                  Senha de Acesso
-                </Label>
-
-                <div className="flex items-center gap-2">
-                  <JumperButton
-                    variant={useCustomPassword ? 'outline' : 'default'}
-                    size="sm"
-                    onClick={() => setUseCustomPassword(false)}
-                    type="button"
-                  >
-                    Gerar automática
-                  </JumperButton>
-                  <JumperButton
-                    variant={useCustomPassword ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setUseCustomPassword(true)}
-                    type="button"
-                  >
-                    Senha personalizada
-                  </JumperButton>
-                </div>
-
-                {useCustomPassword && (
-                  <Input
-                    type="text"
-                    placeholder="Digite uma senha (mín. 6 caracteres)"
-                    value={customPassword}
-                    onChange={(e) => setCustomPassword(e.target.value)}
-                    className="font-mono"
-                  />
-                )}
-              </div>
 
               {/* Expiration */}
               <div className="space-y-2">
@@ -317,35 +256,9 @@ ${shareData.expires_at ? `⏰ Este link expira em ${new Date(shareData.expires_a
                   <JumperButton
                     size="sm"
                     variant="outline"
-                    onClick={() => copyToClipboard(shareData.url, 'url')}
+                    onClick={() => copyToClipboard(shareData.url)}
                   >
                     {copiedUrl ? (
-                      <CheckCircle2 className="h-4 w-4 text-green-500" />
-                    ) : (
-                      <Copy className="h-4 w-4" />
-                    )}
-                  </JumperButton>
-                </div>
-              </div>
-
-              {/* Password */}
-              <div className="space-y-2">
-                <Label className="flex items-center gap-2 text-xs font-semibold uppercase text-muted-foreground">
-                  <Lock className="h-3 w-3" />
-                  Senha de Acesso
-                </Label>
-                <div className="flex gap-2">
-                  <Input
-                    readOnly
-                    value={shareData.password}
-                    className="font-mono text-lg font-bold tracking-wider"
-                  />
-                  <JumperButton
-                    size="sm"
-                    variant="outline"
-                    onClick={() => copyToClipboard(shareData.password, 'password')}
-                  >
-                    {copiedPassword ? (
                       <CheckCircle2 className="h-4 w-4 text-green-500" />
                     ) : (
                       <Copy className="h-4 w-4" />
@@ -402,8 +315,8 @@ ${shareData.expires_at ? `⏰ Este link expira em ${new Date(shareData.expires_a
               <div className="rounded-lg bg-muted/30 p-3 text-xs text-muted-foreground space-y-2">
                 <p className="font-semibold">📋 Instruções para o cliente:</p>
                 <ol className="list-decimal list-inside space-y-1">
-                  <li>Envie o link e a senha separadamente (WhatsApp, email, etc.)</li>
-                  <li>O cliente acessará o link e digitará a senha</li>
+                  <li>Envie o link para o cliente (WhatsApp, email, etc.)</li>
+                  <li>O cliente acessa diretamente - sem senha necessária</li>
                   <li>A análise será exibida em uma página bonita com branding Jumper</li>
                 </ol>
               </div>

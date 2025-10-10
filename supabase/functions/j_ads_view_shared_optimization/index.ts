@@ -4,7 +4,6 @@
  */
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { verifyPassword } from '../_shared/password-utils.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -14,8 +13,8 @@ const corsHeaders = {
 
 interface ViewShareRequest {
   slug: string;
-  password: string;
 }
+
 
 Deno.serve(async (req) => {
   // Handle CORS preflight
@@ -33,10 +32,12 @@ Deno.serve(async (req) => {
 
     // Parse request body
     const body: ViewShareRequest = await req.json();
-    const { slug, password } = body;
+    const { slug } = body;
 
-    if (!slug || !password) {
-      return new Response(JSON.stringify({ error: 'slug and password are required' }), {
+    console.log('[DEBUG] Request received:', { slug });
+
+    if (!slug) {
+      return new Response(JSON.stringify({ error: 'slug is required' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
@@ -56,6 +57,11 @@ Deno.serve(async (req) => {
       .eq('share_enabled', true)
       .single();
 
+    console.log('[DEBUG] Recording lookup:', {
+      found: !!recording,
+      error: recordingError?.message
+    });
+
     if (recordingError || !recording) {
       return new Response(JSON.stringify({ error: 'Share link not found or disabled' }), {
         status: 404,
@@ -74,17 +80,7 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Validate password
-    const passwordMatch = await verifyPassword(password, recording.password_hash);
-
-    if (!passwordMatch) {
-      return new Response(JSON.stringify({ error: 'Invalid password' }), {
-        status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
-    // Password is correct - fetch ONLY AI analysis (not transcript or audio)
+    // Fetch ONLY AI analysis (not transcript or audio)
     // Get context (AI analysis) - this is the only data shared publicly
     const { data: contextData } = await supabase
       .from('j_ads_optimization_context')

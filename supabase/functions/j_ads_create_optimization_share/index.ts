@@ -5,7 +5,6 @@
  */
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { hashPassword } from '../_shared/password-utils.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -15,17 +14,7 @@ const corsHeaders = {
 
 interface CreateShareRequest {
   recording_id: string;
-  password?: string; // If not provided, will generate random
   expires_days?: number; // null = never expires
-}
-
-function generatePassword(): string {
-  const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  let password = '';
-  for (let i = 0; i < 8; i++) {
-    password += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return password;
 }
 
 function generateSlug(accountName: string, recordedAt: string): string {
@@ -80,7 +69,7 @@ Deno.serve(async (req) => {
 
     // Parse request body
     const body: CreateShareRequest = await req.json();
-    const { recording_id, password: userPassword, expires_days } = body;
+    const { recording_id, expires_days } = body;
 
     if (!recording_id) {
       return new Response(JSON.stringify({ error: 'recording_id is required' }), {
@@ -120,10 +109,6 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Generate or use provided password
-    const plainPassword = userPassword || generatePassword();
-    const passwordHash = await hashPassword(plainPassword);
-
     // Generate unique slug
     const accountName = recording.j_ads_notion_db_accounts?.["Conta"] || 'optimization';
     const slug = generateSlug(accountName, recording.recorded_at);
@@ -141,7 +126,7 @@ Deno.serve(async (req) => {
       .from('j_ads_optimization_recordings')
       .update({
         public_slug: slug,
-        password_hash: passwordHash,
+        password_hash: null,
         share_enabled: true,
         share_expires_at: expiresAt,
         share_created_at: new Date().toISOString(),
@@ -156,7 +141,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Return success with URL and password
+    // Return success with URL
     const baseUrl = Deno.env.get('SITE_URL') || 'https://ads.jumper.studio';
     const publicUrl = `${baseUrl}/optimization/${slug}`;
 
@@ -165,7 +150,6 @@ Deno.serve(async (req) => {
         success: true,
         url: publicUrl,
         slug: slug,
-        password: plainPassword, // Only returned once!
         expires_at: expiresAt,
       }),
       {
