@@ -70,52 +70,39 @@ export default function SharedOptimization() {
     setError(null);
 
     try {
-      // Use Supabase client to invoke function (correct URL handling)
-      const { data: result, error: invokeError } = await supabase.functions.invoke(
-        'j_ads_view_shared_optimization',
+      // Make direct fetch to Edge Function (public, no auth required)
+      const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+      const response = await fetch(
+        `${SUPABASE_URL}/functions/v1/j_ads_view_shared_optimization`,
         {
-          body: {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
             slug: slug,
             password: password.trim(),
-          },
+          }),
         }
       );
 
-      // Handle errors from Edge Function
-      if (invokeError) {
-        const errorMsg = invokeError.message || '';
+      const result = await response.json();
 
-        if (errorMsg.includes('Invalid password') || errorMsg.includes('401')) {
+      // Handle error responses
+      if (!response.ok || result?.error) {
+        const errorMsg = result?.error || '';
+
+        if (errorMsg.includes('Invalid password') || response.status === 401) {
           setError('Senha incorreta');
           toast.error('Senha incorreta');
-        } else if (errorMsg.includes('not found') || errorMsg.includes('404')) {
+        } else if (errorMsg.includes('not found') || response.status === 404) {
           setError('Link não encontrado ou desativado');
           toast.error('Link não encontrado');
-        } else if (errorMsg.includes('expired') || errorMsg.includes('403')) {
+        } else if (errorMsg.includes('expired') || response.status === 403) {
           setError('Este link expirou');
           toast.error('Link expirado');
         } else {
           throw new Error(errorMsg || 'Erro ao validar senha');
-        }
-        return;
-      }
-
-      // Check if result has error property (from Edge Function response)
-      if (result?.error) {
-        const errorMsg = result.error;
-
-        if (errorMsg.includes('Invalid password')) {
-          setError('Senha incorreta');
-          toast.error('Senha incorreta');
-        } else if (errorMsg.includes('not found')) {
-          setError('Link não encontrado ou desativado');
-          toast.error('Link não encontrado');
-        } else if (errorMsg.includes('expired')) {
-          setError('Este link expirou');
-          toast.error('Link expirado');
-        } else {
-          setError(errorMsg);
-          toast.error(errorMsg);
         }
         return;
       }
