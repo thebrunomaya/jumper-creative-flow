@@ -43,9 +43,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Ensure the user has at least a default role after auth
   const ensureUserRole = async () => {
     try {
-      await supabase.functions.invoke('j_ads_auth_roles', { body: {} });
+      // Get current session to ensure JWT is included
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        console.warn('ensure-role: No session/token available yet');
+        return;
+      }
+
+      // Explicitly pass Authorization header with JWT
+      const { data, error } = await supabase.functions.invoke('j_ads_auth_roles', {
+        body: {},
+        headers: {
+          Authorization: `Bearer ${session.access_token}`
+        }
+      });
+
+      if (error) {
+        console.error('ensure-role invocation failed:', error);
+      } else {
+        console.log('✅ ensure-role succeeded:', data);
+      }
     } catch (e) {
-      console.error('ensure-role invocation failed', e);
+      console.error('ensure-role unexpected error:', e);
     }
   };
   useEffect(() => {
