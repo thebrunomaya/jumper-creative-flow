@@ -88,10 +88,10 @@ export function ReportAccessControl({ children }: ReportAccessControlProps) {
                 Voltar
               </Button>
               <Button
-                onClick={() => navigate('/manager')}
+                onClick={() => navigate('/creatives')}
                 className="flex-1"
               >
-                Ir para Meus Criativos
+                Ir para Criativos
               </Button>
             </div>
           </CardContent>

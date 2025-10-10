@@ -76,7 +76,7 @@ const App = () => {
                     </Suspense>
                   </AdminRoute>
                 } />
-                <Route path="/manager" element={
+                <Route path="/creatives" element={
                   <ProtectedRoute>
                     <Suspense fallback={<PageLoading />}>
                       <Manager />

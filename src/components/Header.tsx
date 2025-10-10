@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 import UserMenu from './UserMenu';
 import xWhiteLogo from '../assets/logos/x-white.png';
@@ -7,14 +7,18 @@ import logoBackground from '../assets/gradients-optimized/organic-07.png';
 import { LazyImage } from '@/components/ui/lazy-image';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { Users, LayoutDashboard, Settings } from 'lucide-react';
+import { Users, LayoutDashboard, TrendingUp, BarChart3 } from 'lucide-react';
+import { AccountSelectorModal } from '@/components/reports/AccountSelectorModal';
+import { Button } from '@/components/ui/button';
 
 const Header: React.FC = () => {
   const location = useLocation();
+  const [showReportsModal, setShowReportsModal] = useState(false);
 
   const navLinks = [
-    { to: '/', label: 'Dashboard', icon: LayoutDashboard },
-    { to: '/my-accounts', label: 'Minhas Contas', icon: Users },
+    { to: '/my-accounts', label: 'Contas', icon: Users },
+    { to: '/creatives', label: 'Criativos', icon: LayoutDashboard },
+    { to: '/optimization', label: 'Otimizações', icon: TrendingUp },
   ];
 
   return (
@@ -81,6 +85,20 @@ const Header: React.FC = () => {
                     </Link>
                   );
                 })}
+
+                {/* Reports Button (opens modal instead of navigating) */}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowReportsModal(true)}
+                  className={cn(
+                    'flex items-center gap-2 px-3 py-2 text-sm font-medium transition-colors',
+                    'text-muted-foreground hover:text-foreground hover:bg-muted'
+                  )}
+                >
+                  <BarChart3 className="h-4 w-4" />
+                  <span>Relatórios</span>
+                </Button>
               </nav>
             </div>
 
@@ -91,6 +109,11 @@ const Header: React.FC = () => {
         </div>
       </div>
     </header>
+
+      <AccountSelectorModal
+        isOpen={showReportsModal}
+        onClose={() => setShowReportsModal(false)}
+      />
     </>
   );
 };

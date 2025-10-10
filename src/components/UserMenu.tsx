@@ -13,8 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { User, LogOut, PlusCircle, Shield, LayoutDashboard, Lock, BarChart3, TrendingUp } from 'lucide-react';
-import { AccountSelectorModal } from '@/components/reports/AccountSelectorModal';
+import { User, LogOut, Shield, Lock } from 'lucide-react';
 
 const UserMenu: React.FC = () => {
   const { currentUser, logout } = useAuth();
@@ -22,7 +21,6 @@ const UserMenu: React.FC = () => {
   const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
-  const [showReportsModal, setShowReportsModal] = useState(false);
 
   useEffect(() => {
     const checkRole = async () => {
@@ -62,28 +60,14 @@ const UserMenu: React.FC = () => {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-56">
           {isAdmin && (
-            <DropdownMenuItem onSelect={() => navigate('/admin')} className="cursor-pointer">
-              <Shield className="mr-2 h-4 w-4" />
-              <span>Painel de Admin</span>
-            </DropdownMenuItem>
+            <>
+              <DropdownMenuItem onSelect={() => navigate('/admin')} className="cursor-pointer">
+                <Shield className="mr-2 h-4 w-4" />
+                <span>Painel de Admin</span>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+            </>
           )}
-          <DropdownMenuItem onSelect={() => setShowReportsModal(true)} className="cursor-pointer">
-            <BarChart3 className="mr-2 h-4 w-4" />
-            <span>Relatórios</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => navigate('/optimization')} className="cursor-pointer">
-            <TrendingUp className="mr-2 h-4 w-4" />
-            <span>Otimizações</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => navigate('/manager')} className="cursor-pointer">
-            <LayoutDashboard className="mr-2 h-4 w-4" />
-            <span>Meus Criativos</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => navigate('/create')} className="cursor-pointer">
-            <PlusCircle className="mr-2 h-4 w-4" />
-            <span>Novo Criativo</span>
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
           <DropdownMenuItem onSelect={() => setShowPasswordModal(true)} className="cursor-pointer">
             <Lock className="mr-2 h-4 w-4" />
             <span>Criar/Redefinir Senha</span>
@@ -95,14 +79,9 @@ const UserMenu: React.FC = () => {
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <PasswordModal 
+      <PasswordModal
         isOpen={showPasswordModal}
         onClose={() => setShowPasswordModal(false)}
-      />
-      
-      <AccountSelectorModal
-        isOpen={showReportsModal}
-        onClose={() => setShowReportsModal(false)}
       />
     </>
   );
