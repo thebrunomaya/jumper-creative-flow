@@ -20,12 +20,27 @@ interface CreateShareRequest {
 }
 
 function generatePassword(): string {
-  const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  // More complex password: 16 characters with uppercase, lowercase, numbers, and special chars
+  const lowercase = 'abcdefghijklmnopqrstuvwxyz';
+  const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const numbers = '0123456789';
+  const special = '!@#$%&*';
+
+  // Ensure at least one of each type
   let password = '';
-  for (let i = 0; i < 8; i++) {
-    password += chars.charAt(Math.floor(Math.random() * chars.length));
+  password += lowercase.charAt(Math.floor(Math.random() * lowercase.length));
+  password += uppercase.charAt(Math.floor(Math.random() * uppercase.length));
+  password += numbers.charAt(Math.floor(Math.random() * numbers.length));
+  password += special.charAt(Math.floor(Math.random() * special.length));
+
+  // Fill remaining 12 characters with random mix
+  const allChars = lowercase + uppercase + numbers + special;
+  for (let i = 0; i < 12; i++) {
+    password += allChars.charAt(Math.floor(Math.random() * allChars.length));
   }
-  return password;
+
+  // Shuffle to randomize position of guaranteed characters
+  return password.split('').sort(() => Math.random() - 0.5).join('');
 }
 
 function generateSlug(accountName: string, recordedAt: string): string {

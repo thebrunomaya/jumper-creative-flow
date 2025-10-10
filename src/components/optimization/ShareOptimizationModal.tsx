@@ -58,6 +58,7 @@ export function ShareOptimizationModal({
   } | null>(null);
   const [copiedUrl, setCopiedUrl] = useState(false);
   const [copiedPassword, setCopiedPassword] = useState(false);
+  const [copiedMessage, setCopiedMessage] = useState(false);
   const [customPassword, setCustomPassword] = useState('');
   const [useCustomPassword, setUseCustomPassword] = useState(false);
   const [expirationDays, setExpirationDays] = useState<string>('never');
@@ -138,6 +139,37 @@ export function ShareOptimizationModal({
     }
   };
 
+  const copyFormattedMessage = async () => {
+    if (!shareData) return;
+
+    const formattedDate = new Date(recordedAt).toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric',
+    });
+
+    const message = `Olá! 👋
+
+Segue o link protegido para visualizar a análise de otimização da conta *${accountName}* do dia ${formattedDate}:
+
+🔗 *Link de Acesso:*
+${shareData.url}
+
+🔐 *Senha:*
+${shareData.password}
+
+${shareData.expires_at ? `⏰ Este link expira em ${new Date(shareData.expires_at).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })}\n\n` : ''}Qualquer dúvida, estou à disposição!`;
+
+    try {
+      await navigator.clipboard.writeText(message);
+      setCopiedMessage(true);
+      setTimeout(() => setCopiedMessage(false), 2000);
+      toast.success('Mensagem copiada! Cole no WhatsApp ou email');
+    } catch (error) {
+      toast.error('Erro ao copiar mensagem');
+    }
+  };
+
   const handleClose = () => {
     // Reset state when closing
     setShareData(null);
@@ -146,6 +178,7 @@ export function ShareOptimizationModal({
     setExpirationDays('never');
     setCopiedUrl(false);
     setCopiedPassword(false);
+    setCopiedMessage(false);
     onOpenChange(false);
   };
 
@@ -319,6 +352,32 @@ export function ShareOptimizationModal({
                     )}
                   </JumperButton>
                 </div>
+              </div>
+
+              <Separator />
+
+              {/* Copy Formatted Message Button */}
+              <div className="space-y-2">
+                <JumperButton
+                  onClick={copyFormattedMessage}
+                  className="w-full"
+                  size="lg"
+                >
+                  {copiedMessage ? (
+                    <>
+                      <CheckCircle2 className="mr-2 h-5 w-5 text-green-500" />
+                      Mensagem Copiada!
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="mr-2 h-5 w-5" />
+                      Copiar Mensagem Completa para Cliente
+                    </>
+                  )}
+                </JumperButton>
+                <p className="text-xs text-center text-muted-foreground">
+                  📱 Pronto para colar no WhatsApp ou email
+                </p>
               </div>
 
               {/* Expiration Info */}
