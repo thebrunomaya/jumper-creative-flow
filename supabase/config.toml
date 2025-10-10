@@ -46,3 +46,9 @@ verify_jwt = false
 
 [functions.j_ads_submit_creative]
 verify_jwt = true
+
+[functions.j_ads_view_shared_optimization]
+verify_jwt = false
+
+[functions.j_ads_create_optimization_share]
+verify_jwt = true
