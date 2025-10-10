@@ -86,7 +86,20 @@ export default function SharedOptimization() {
         }
       );
 
-      const result = await response.json();
+      // Check if response has content
+      const contentType = response.headers.get('content-type');
+      if (!contentType?.includes('application/json')) {
+        console.error('Invalid response type:', contentType);
+        throw new Error('Resposta inválida do servidor');
+      }
+
+      const text = await response.text();
+      if (!text) {
+        console.error('Empty response from server');
+        throw new Error('Resposta vazia do servidor');
+      }
+
+      const result = JSON.parse(text);
 
       // Handle error responses
       if (!response.ok || result?.error) {

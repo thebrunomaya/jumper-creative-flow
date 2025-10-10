@@ -52,10 +52,11 @@ function generateSlug(accountName: string, recordedAt: string): string {
 }
 
 Deno.serve(async (req) => {
+  // Handle CORS preflight
   if (req.method === 'OPTIONS') {
-    return new Response(null, {
+    return new Response(JSON.stringify({ ok: true }), {
       status: 200,
-      headers: corsHeaders
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
   }
 
