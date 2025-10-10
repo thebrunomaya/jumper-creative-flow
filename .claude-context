@@ -3,13 +3,57 @@
 # Tracks recent decisions and work-in-progress (last 7 days)
 # Older decisions migrate to docs/ARCHITECTURE.md
 
-last_updated: "2025-10-09T20:30:00Z"
+last_updated: "2025-10-10T16:30:00Z"
 session_computer: "MacBook Pro (trabalho)"
 session_user: "Bruno Maya"
 
 # Recent decisions (last 7 days)
 # When older than 7 days, migrate to docs/ARCHITECTURE.md
 recent_decisions:
+  - date: "2025-10-10"
+    decision: "Removed password authentication from shared optimizations"
+    status: "completed ✅"
+    details: |
+      PROBLEM: Password-protected sharing wasn't working - always returned 401
+
+      ROOT CAUSE DISCOVERY:
+      - Edge function j_ads_view_shared_optimization was NOT in config.toml
+      - Supabase blocked ALL requests with 401 "Missing authorization header"
+      - Function code NEVER executed - blocking happened before
+      - Spent hours debugging password hash/PBKDF2/Base64 (red herring!)
+      - Real issue: Missing verify_jwt = false configuration
+
+      SOLUTION:
+      - Removed password validation from j_ads_view_shared_optimization
+      - Removed password generation from j_ads_create_optimization_share
+      - Added verify_jwt = false in config.toml for public access
+      - Added verify_jwt = true for create function (auth required)
+      - Security via unique random slug only
+
+      LESSON LEARNED: Always check config.toml FIRST when edge function returns 401!
+    impact: "High - Simplified sharing, removed complexity"
+    files_changed:
+      - "supabase/functions/j_ads_view_shared_optimization/index.ts"
+      - "supabase/functions/j_ads_create_optimization_share/index.ts"
+      - "src/components/optimization/ShareOptimizationModal.tsx"
+      - "src/pages/SharedOptimization.tsx"
+      - "supabase/config.toml"
+    migrate_to_architecture: false
+
+  - date: "2025-10-10"
+    decision: "Changed terminology from AI to client-friendly language"
+    status: "completed ✅"
+    details: |
+      - "Análise de IA" → "Extrato de Otimização"
+      - "Análise Compartilhada" → "Extrato Compartilhado"
+      - All error/loading messages: "análise" → "otimização/extrato"
+      - Removed all AI references from client-facing content
+      - Professional, neutral language for clients
+    impact: "Low - UX improvement, better client perception"
+    files_changed:
+      - "src/pages/SharedOptimization.tsx"
+    migrate_to_architecture: false
+
   - date: "2025-10-09"
     decision: "Using j_ads_users for user management"
     status: "implemented"
@@ -38,156 +82,137 @@ recent_decisions:
 # Current issues being worked on
 current_issues:
   - issue: "Nome de bruno@jumper.studio vazio na j_ads_users"
-    severity: "medium"
+    severity: "low"
     discovered: "2025-10-09"
     root_cause: "OAuth users não têm nome populado automaticamente"
+    status: "pending (non-blocking)"
     next_steps:
       - "Popular nome usando auth.users metadata (user_metadata.full_name)"
       - "Criar migration para sync automático no login"
     assigned_to: "pending"
 
-  - issue: "Só 1 conta aparece em Minhas Contas (deveria mostrar todas)"
-    severity: "high"
-    discovered: "2025-10-09"
-    root_cause: "Edge function j_ads_user_accounts usando user_roles (não existe)"
-    status: "FIXED ✅"
-    fixed_at: "2025-10-09T18:15:00Z"
-    solution: |
-      - Corrigido para usar j_ads_users.role ao invés de user_roles
-      - Implementada busca por notion_manager_id para clients
-      - Melhorada resolução de nomes via j_ads_users
-      - Lógica separada por role: admin (all) / staff (email) / client (notion_manager_id)
-    deployed: true
-
 # Work in progress
 work_in_progress:
-  - task: "Sistema de Minhas Contas - Hierarquia de badges e ordenação"
+  - task: "Shared Optimization Links - Password Removal & Terminology Update"
     branch: "main"
-    started: "2025-10-09"
-    completed: "2025-10-09T18:15:00Z"
+    started: "2025-10-10"
+    completed: "2025-10-10T16:30:00Z"
     status: "COMPLETED ✅"
     files_modified:
-      - "supabase/functions/j_ads_user_accounts/index.ts"
-      - "src/pages/MyAccounts.tsx"
-      - "src/components/AccountCard.tsx"
-      - "src/hooks/useMyNotionAccounts.ts"
-      - ".claude-context" (NEW - context management)
-      - "docs/ARCHITECTURE.md" (UPDATED - j_ads_users documentation)
-      - "CLAUDE.md" (UPDATED - session protocols)
+      - "supabase/functions/j_ads_view_shared_optimization/index.ts"
+      - "supabase/functions/j_ads_create_optimization_share/index.ts"
+      - "src/components/optimization/ShareOptimizationModal.tsx"
+      - "src/pages/SharedOptimization.tsx"
+      - "supabase/config.toml"
     deployed: true
-    deployment_status: "WORKING ✅ - uses j_ads_users correctly"
+    deployment_status: "WORKING ✅ - public links work without password"
 
 # Context for next session
 next_session_context: |
-  ✅ SESSION 2025-10-10 COMPLETED: Database Cleanup Planning
+  ✅ SESSION 2025-10-10 COMPLETED: Shared Optimization Links Fixed
 
   What was done today:
-    - ✅ Complete database audit (20 tables identified)
-    - ✅ Identified 7 obsolete tables to remove
-    - ✅ Updated CLAUDE.md with j_rep_metaads_bronze documentation
-    - ✅ Created migration: 20251010000000_cleanup_obsolete_tables.sql
-    - ✅ Created migration: 20251010000001_add_rls_metaads_bronze.sql
-    - ✅ Plan documented and ready for execution
+    - ✅ Fixed shared optimization links (401 error resolved)
+    - ✅ Removed password authentication (simplified workflow)
+    - ✅ Added verify_jwt config to supabase/config.toml
+    - ✅ Changed UI terminology: "Análise de IA" → "Extrato de Otimização"
+    - ✅ Deployed all changes (edge functions + frontend)
 
-  🚨 CRITICAL TASK FOR NEXT SESSION: Execute Database Cleanup
+  🎯 KEY DISCOVERY:
+    The password system was NEVER the problem!
+    - Real issue: Missing verify_jwt = false in config.toml
+    - Supabase blocked requests BEFORE code execution
+    - 401 error made us think password validation was broken
+    - Spent hours debugging PBKDF2/Base64 (unnecessary)
+    - Fix: Added 3 lines to config.toml ✅
 
-  DATABASE STATE (20 tables total):
+  📊 SHARED OPTIMIZATION SYSTEM STATUS:
 
-  ✅ KEEP (14 tables):
-    - j_ads_creative_files/submissions/variations
-    - j_ads_error_logs, j_ads_metrics
-    - j_ads_notion_db_accounts/managers
-    - j_ads_notion_sync_logs
-    - j_ads_optimization_* (4 tables)
-    - j_ads_users
-    - j_rep_metaads_bronze ⚠️ (needs RLS!)
+    ✅ WORKING FEATURES:
+      - Create share link (authenticated users only)
+      - Public view via unique slug (no auth needed)
+      - Expiration dates (optional)
+      - WhatsApp/email formatted message copy
+      - Client-friendly UI (no AI mentions)
 
-  ❌ REMOVE (7 tables):
-    - creative_files, creative_submissions, creative_variations (duplicatas)
-    - notion_managers, notion_manager_accounts (antigas)
-    - user_roles (antiga)
-    - videosmmx (se existir - verificar)
+    🔧 HOW IT WORKS NOW:
+      1. Gestor clicks "Compartilhar" on optimization
+      2. Choose expiration (or "Nunca expira")
+      3. System generates unique slug (e.g., clinica-seven-10out2025-bafu1b)
+      4. Copy link: https://ads.jumper.studio/optimization/{slug}
+      5. Client accesses directly - no password needed
+      6. Security via random slug + optional expiration
 
-  EXECUTION PLAN (next session):
+    📁 EDGE FUNCTIONS:
+      - j_ads_create_optimization_share (verify_jwt = true)
+      - j_ads_view_shared_optimization (verify_jwt = false)
 
-  🔍 PHASE 1: Verify Code References (5 min)
-    ```bash
-    # Check for obsolete table usage
-    grep -r "FROM creative_submissions\|FROM creative_files" supabase/ src/
-    grep -r "notion_managers\|user_roles" supabase/ src/
-    ```
-    → If found: update to j_ads_* before proceeding
-    → If not found: proceed to Phase 2
+    🗂️ FRONTEND:
+      - ShareOptimizationModal: Create/configure shares
+      - SharedOptimization page: Public view (slug-based)
 
-  🗑️ PHASE 2: Apply Cleanup Migration (2 min)
-    ```bash
-    npx supabase db push --linked
-    ```
-    → Applies: 20251010000000_cleanup_obsolete_tables.sql
-    → Removes: 6 obsolete tables
+  🚨 PENDING TASKS FROM PREVIOUS SESSION:
+    Database cleanup was planned but NOT executed yet!
 
-  🔐 PHASE 3: Apply RLS Migration (2 min)
-    ```bash
-    # Already applied in Phase 2 (same push)
-    ```
-    → Applies: 20251010000001_add_rls_metaads_bronze.sql
-    → Secures: j_rep_metaads_bronze with RLS
+    PHASE 1: Verify Code References (5 min)
+      ```bash
+      grep -r "FROM creative_submissions\|FROM creative_files" supabase/ src/
+      grep -r "notion_managers\|user_roles" supabase/ src/
+      ```
 
-  🔄 PHASE 4: Regenerate Types (1 min)
-    ```bash
-    npx supabase gen types typescript --linked > src/integrations/supabase/types.ts
-    ```
-    → Should show only 14 tables (j_ads_* + j_rep_*)
-
-  ✅ PHASE 5: Validation (5 min)
-    - Check table count: should be 14
-    - Test MyAccounts page: should work
-    - Test Reports dashboards: should respect RLS
-    - Commit changes
-
-  SECURITY FIX INCLUDED:
-    ⚠️ j_rep_metaads_bronze currently has NO RLS
-    ✅ Migration adds RLS policies:
-       - Users see only their account data
-       - Admins see all data
-       - Staff see managed accounts
-       - Clients see assigned accounts
+    PHASE 2-5: Apply migrations and validate
+      - Migration ready: 20251010000000_cleanup_obsolete_tables.sql
+      - Migration ready: 20251010000001_add_rls_metaads_bronze.sql
+      - Run: npx supabase db push --linked
+      - Regenerate types
+      - Validate
 
   Known issues (non-blocking):
-    - User name still shows email in cards (cosmetic)
+    - User name still shows email in some cards (cosmetic)
 
-  All planning completed, ready for execution! ✅
+  All systems operational! ✅
 
 # TODOs pending
 pending_todos:
-  - "🚨 PHASE 1: Verify code references to obsolete tables (grep creative_submissions, notion_managers, user_roles)"
-  - "🚨 PHASE 2: Apply cleanup migration (npx supabase db push --linked)"
-  - "🚨 PHASE 3: RLS already included in Phase 2 push"
-  - "🚨 PHASE 4: Regenerate types.ts (npx supabase gen types)"
-  - "🚨 PHASE 5: Validate and test (14 tables, RLS working, commit)"
-  - "Populate nome field for bruno@jumper.studio in j_ads_users (optional)"
+  - "🔍 PHASE 1: Verify code references to obsolete tables (NOT DONE YET)"
+  - "🗑️ PHASE 2: Apply cleanup migration (NOT DONE YET)"
+  - "🔐 PHASE 3: Apply RLS migration (NOT DONE YET)"
+  - "🔄 PHASE 4: Regenerate types.ts (NOT DONE YET)"
+  - "✅ PHASE 5: Validate and test (NOT DONE YET)"
+  - "Populate nome field for bruno@jumper.studio (optional, low priority)"
 
 # Recently completed (for reference)
 completed_recently:
-  - "Created AccountCard component with role-based badges"
-  - "Implemented getAccessReason() logic for badge assignment"
-  - "Added sorting by access priority in MyAccounts.tsx"
-  - "Created migration 20251008214802_setup_admin_role.sql (OBSOLETE - delete later)"
+  - "✅ Fixed shared optimization links - removed password auth"
+  - "✅ Added verify_jwt = false to config.toml"
+  - "✅ Changed UI terminology to client-friendly language"
+  - "✅ Created AccountCard component with role-based badges"
+  - "✅ Implemented getAccessReason() logic for badge assignment"
+  - "✅ Added sorting by access priority in MyAccounts.tsx"
 
 # Deployment status
 deployment:
   production_url: "https://ads.jumper.studio"
-  last_deploy: "2025-10-09T20:30:00Z"
+  last_deploy: "2025-10-10T16:30:00Z"
   last_deploy_status: "success ✅"
-  last_commit: "ca86613 - feat: fix inactive accounts filter, admin role detection, and cleanup migrations"
+  last_commit: "4e0c980 - refactor: Change terminology from AI analysis to optimization extract"
   edge_functions_deployed:
+    - name: "j_ads_view_shared_optimization"
+      status: "working ✅"
+      fix: "verify_jwt = false allows public access"
+      deployed_at: "2025-10-10T16:00:00Z"
+    - name: "j_ads_create_optimization_share"
+      status: "working ✅"
+      fix: "verify_jwt = true requires auth"
+      deployed_at: "2025-10-10T16:00:00Z"
     - name: "j_ads_user_accounts"
       status: "working ✅"
-      fix: "now uses j_ads_users.role correctly"
+      fix: "uses j_ads_users.role correctly"
       deployed_at: "2025-10-09T18:15:00Z"
-  migrations_pending: []
+  migrations_pending:
+    - "20251010000000_cleanup_obsolete_tables.sql (ready to apply)"
+    - "20251010000001_add_rls_metaads_bronze.sql (ready to apply)"
   migrations_applied_last: "20251009190000_create_error_tracking.sql"
-  migrations_deleted: "10 obsolete migrations (n8n, old accounts)"
 
 # Notes for context rotation
 context_rotation:
