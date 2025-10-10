@@ -93,13 +93,66 @@ Deno.serve(async (req) => {
     const supabase = adminClient;
 
     if (action === "listMy") {
-      // ✅ CORREÇÃO CRÍTICA: Filtrar por user_id (quem criou), não manager_id
-      const { data, error } = await supabase
+      // Get user accessible accounts (same logic as j_ads_user_accounts)
+      const targetEmail = (user.email || '').toLowerCase();
+      const { data: userData } = await supabase
+        .from('j_ads_users')
+        .select('role, notion_manager_id')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      const userRole = userData?.role || 'client';
+      const notionManagerId = userData?.notion_manager_id;
+      let accountIds: string[] = [];
+
+      if (isAdmin) {
+        // Admin: Get ALL accounts
+        const { data: allAccountsData } = await supabase
+          .from('j_ads_notion_db_accounts')
+          .select('notion_id');
+        accountIds = (allAccountsData || []).map((acc: any) => acc.notion_id);
+      } else if (isManager || userRole === 'staff') {
+        // Manager/Staff: Get accounts where user is Gestor or Atendimento
+        const { data: gestorAccounts } = await supabase
+          .from('j_ads_notion_db_accounts')
+          .select('notion_id')
+          .ilike('"Gestor"', `%${targetEmail}%`);
+
+        const { data: atendimentoAccounts } = await supabase
+          .from('j_ads_notion_db_accounts')
+          .select('notion_id')
+          .ilike('"Atendimento"', `%${targetEmail}%`);
+
+        const allAccountIds = new Set<string>();
+        (gestorAccounts || []).forEach((acc: any) => allAccountIds.add(acc.notion_id));
+        (atendimentoAccounts || []).forEach((acc: any) => allAccountIds.add(acc.notion_id));
+        accountIds = Array.from(allAccountIds);
+      } else if (notionManagerId) {
+        // Client: Get accounts where notion_manager_id is in Gerente field
+        const { data: gerenteAccounts } = await supabase
+          .from('j_ads_notion_db_accounts')
+          .select('notion_id')
+          .ilike('"Gerente"', `%${notionManagerId}%`);
+
+        accountIds = (gerenteAccounts || []).map((acc: any) => acc.notion_id);
+      }
+
+      // Now fetch submissions from those accounts
+      let query = supabase
         .from("j_ads_creative_submissions")
         .select("id, client, manager_id, status, created_at, updated_at, result, payload, user_id")
-        .eq("user_id", managerId) // managerId aqui é o user.id do JWT
         .order("created_at", { ascending: false })
         .limit(200);
+
+      // Filter by client (account) if not empty
+      if (accountIds.length > 0) {
+        query = query.in("client", accountIds);
+      } else {
+        // No accounts = no submissions visible (unless admin with zero accounts)
+        query = query.eq("client", "IMPOSSIBLE_ID_NO_MATCH");
+      }
+
+      const { data, error } = await query;
 
       if (error) {
         return new Response(JSON.stringify({ error: error.message }), {

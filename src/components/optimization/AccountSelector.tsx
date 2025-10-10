@@ -6,6 +6,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useMyNotionAccounts } from "@/hooks/useMyNotionAccounts";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Building2 } from "lucide-react";
 
@@ -21,18 +22,28 @@ interface AccountSelectorProps {
 
 export function AccountSelector({ value, onValueChange }: AccountSelectorProps) {
   const { user } = useAuth();
+  const { accounts: userAccounts, loading } = useMyNotionAccounts();
   const [accounts, setAccounts] = useState<Account[]>([]);
 
   useEffect(() => {
-    fetchAccounts();
-  }, [user]);
+    if (!loading && userAccounts.length > 0) {
+      // Filter only active accounts that user has access to
+      const accessibleAccountIds = userAccounts.map(acc => acc.id);
 
-  async function fetchAccounts() {
-    if (!user?.email) return;
+      fetchAccounts(accessibleAccountIds);
+    }
+  }, [userAccounts, loading, user]);
+
+  async function fetchAccounts(accessibleIds: string[]) {
+    if (!user?.email || accessibleIds.length === 0) {
+      setAccounts([]);
+      return;
+    }
 
     const { data, error } = await supabase
       .from("j_ads_notion_db_accounts")
       .select("notion_id, Conta")
+      .in("notion_id", accessibleIds)
       .in("Status", ["Ativo", "Offboarding", "Onboarding"])
       .order("Conta", { ascending: true });
 
