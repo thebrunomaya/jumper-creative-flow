@@ -17,6 +17,7 @@ import { Suspense, lazy } from "react";
 // Lazy load das páginas principais para reduzir bundle inicial
 const DesignSystem = lazy(() => import("./pages/DesignSystem"));
 const Admin = lazy(() => import("./pages/Admin"));
+const AdminUsers = lazy(() => import("./pages/AdminUsers"));
 const Manager = lazy(() => import("./pages/Manager"));
 const MyAccounts = lazy(() => import("./pages/MyAccounts"));
 const CreativeSystem = lazy(() => import("@/components/CreativeSystem"));
@@ -73,6 +74,13 @@ const App = () => {
                   <AdminRoute>
                     <Suspense fallback={<PageLoading />}>
                       <Admin />
+                    </Suspense>
+                  </AdminRoute>
+                } />
+                <Route path="/admin/users" element={
+                  <AdminRoute>
+                    <Suspense fallback={<PageLoading />}>
+                      <AdminUsers />
                     </Suspense>
                   </AdminRoute>
                 } />

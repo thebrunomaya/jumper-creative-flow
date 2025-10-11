@@ -10,7 +10,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import Header from "@/components/Header";
 import { Link } from "react-router-dom";
-import { RefreshCw, ArrowLeft } from "lucide-react";
+import { RefreshCw, ArrowLeft, Users } from "lucide-react";
 import { CreativeDetailsModal } from "@/components/CreativeDetailsModal";
 import { NotionSyncControl } from "@/components/NotionSyncControl";
 import { StatusMetrics, FilterBar, CreativeCard } from "@/components/admin";
@@ -330,6 +330,12 @@ const AdminPage: React.FC = () => {
               </p>
             </div>
             <div className="flex items-center gap-3">
+              <Button variant="outline" size="sm" asChild className="border-border text-foreground hover:bg-accent hover:text-accent-foreground">
+                <Link to="/admin/users">
+                  <Users className="mr-2 h-4 w-4" />
+                  Gerenciar Usuários
+                </Link>
+              </Button>
               <Button
                 className="bg-[#FA4721] hover:bg-[#E03E1A] text-white"
                 size="sm"
