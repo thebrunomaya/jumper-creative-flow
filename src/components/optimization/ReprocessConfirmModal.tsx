@@ -38,7 +38,7 @@ export function ReprocessConfirmModal({
         <AlertDialogHeader>
           <AlertDialogTitle className="flex items-center gap-2">
             <RotateCw className="h-5 w-5" />
-            Reprocessar Bullets com IA?
+            Recriar Bullets com IA?
           </AlertDialogTitle>
           <AlertDialogDescription className="space-y-3">
             <p>
@@ -72,7 +72,7 @@ export function ReprocessConfirmModal({
             disabled={isProcessing}
           >
             <RotateCw className="mr-2 h-4 w-4" />
-            {isProcessing ? 'Reprocessando...' : 'Reprocessar'}
+            {isProcessing ? 'Recriando...' : 'Recriar'}
           </JumperButton>
         </AlertDialogFooter>
       </AlertDialogContent>

@@ -27,7 +27,7 @@ export function RetranscribeConfirmModal({
     <AlertDialog open={isOpen} onOpenChange={onClose}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Re-gerar Transcrição?</AlertDialogTitle>
+          <AlertDialogTitle>Recriar Transcrição?</AlertDialogTitle>
           <AlertDialogDescription className="space-y-2">
             <p>
               Isso irá chamar o Whisper novamente com o áudio original e substituir
@@ -47,7 +47,7 @@ export function RetranscribeConfirmModal({
             {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Re-gerando...
+                Recriando...
               </>
             ) : (
               'Confirmar'

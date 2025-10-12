@@ -146,7 +146,7 @@ export function AIImprovementsModal({
                 ) : (
                   <>
                     <Sparkles className="mr-2 h-4 w-4" />
-                    Processar com IA
+                    Ajustar com IA
                   </>
                 )}
               </Button>

@@ -277,12 +277,12 @@ export default function OptimizationEditor() {
 
       if (error) throw error;
 
-      toast.success('Transcrição regerada com sucesso!');
+      toast.success('Transcrição recriada com sucesso!');
       setRetranscribeModalOpen(false);
       await loadRecording();
     } catch (error: any) {
       console.error('Retranscribe error:', error);
-      toast.error('Erro ao re-gerar transcrição');
+      toast.error('Erro ao recriar transcrição');
     } finally {
       setIsRetranscribing(false);
     }
@@ -611,7 +611,7 @@ export default function OptimizationEditor() {
                     disabled={isRetranscribing}
                   >
                     <RotateCw className="mr-2 h-4 w-4" />
-                    Re-gerar
+                    Recriar
                   </JumperButton>
 
                   {/* Undo button (only if previous version exists) */}
@@ -717,7 +717,7 @@ export default function OptimizationEditor() {
                     disabled={isReprocessing}
                   >
                     <RotateCw className="mr-2 h-4 w-4" />
-                    Reprocessar
+                    Recriar
                   </JumperButton>
 
                   {/* Undo button (only if previous version exists) */}
@@ -798,7 +798,7 @@ export default function OptimizationEditor() {
                 <div className="flex gap-2 flex-wrap">
                   <JumperButton variant="ghost" onClick={() => handleAnalyze(true)} disabled={isAnalyzing}>
                     <RotateCw className="mr-2 h-4 w-4" />
-                    Regenerar
+                    Recriar
                   </JumperButton>
                   <JumperButton variant="outline" onClick={handleShare}>
                     <Share2 className="mr-2 h-4 w-4" />
