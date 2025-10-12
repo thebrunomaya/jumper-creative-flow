@@ -146,6 +146,113 @@ Claude Code deve **SEMPRE** usar as ferramentas CLI disponíveis:
 
 ---
 
+## 🐳 Supabase Local Development Workflow
+
+**STATUS:** ✅ Supabase CLI instalado (v2.48.3) + Docker disponível
+
+### **Mudança de Fluxo (Outubro 2024)**
+
+**ANTES (Sem Docker/Supabase Local):**
+- Testávamos migrations e edge functions diretamente na nuvem
+- Alto risco de quebrar produção
+- Deploy manual via comandos Supabase
+
+**AGORA (Com Supabase Local):**
+- Testamos tudo localmente antes de fazer push
+- Zero risco para produção
+- Deploy automático via GitHub Integration
+
+### **Workflow Atual**
+
+**Claude Code (AI) faz:**
+1. ✅ Cria migrations em `supabase/migrations/YYYYMMDDHHMMSS_nome.sql`
+2. ✅ Cria edge functions em `supabase/functions/nome/index.ts`
+3. ✅ Cria arquivos de configuração (`deno.json`, etc.)
+4. ✅ Faz commits com mensagens descritivas
+
+**Bruno (Humano) faz:**
+1. 🧪 **Testa localmente:**
+   ```bash
+   # Iniciar Supabase local (se não estiver rodando)
+   supabase start
+
+   # Aplicar migrations
+   supabase db reset
+
+   # Testar edge functions
+   supabase functions serve
+   ```
+
+2. 🚀 **Faz deploy para produção:**
+   ```bash
+   git push origin branch-name
+   # GitHub Integration faz deploy automático
+   ```
+
+### **O que Claude Code NÃO faz**
+
+❌ **Comandos que Claude NÃO deve executar:**
+- `supabase start` - Apenas o usuário inicia quando quiser testar
+- `supabase stop` - Apenas o usuário para
+- `supabase db reset` - Apenas o usuário aplica migrations localmente
+- `supabase functions serve` - Apenas o usuário serve functions localmente
+- `supabase db push` - Deploy direto para produção (perigoso)
+- `supabase functions deploy` - Deploy direto para produção (perigoso)
+
+### **Vantagens do Novo Fluxo**
+
+✅ **Segurança:** Testar tudo localmente antes de produção
+✅ **Velocidade:** Iteração rápida sem afetar usuários
+✅ **Confiança:** Validar migrations antes de aplicar em prod
+✅ **Debugging:** Logs locais mais fáceis de analisar
+✅ **Automação:** GitHub Integration cuida do deploy
+
+### **Estrutura de Testes Locais**
+
+```
+┌─────────────────────────────────────────────────┐
+│  1. Claude cria migration + edge function       │
+└────────────────┬────────────────────────────────┘
+                 │
+                 ▼
+┌─────────────────────────────────────────────────┐
+│  2. Bruno testa localmente                      │
+│     $ supabase start                            │
+│     $ supabase db reset                         │
+│     $ supabase functions serve                  │
+└────────────────┬────────────────────────────────┘
+                 │
+                 ▼
+┌─────────────────────────────────────────────────┐
+│  3. Bruno valida que está funcionando           │
+│     - Migrations aplicadas ✅                   │
+│     - Edge functions respondendo ✅             │
+│     - Nenhum erro de TypeScript ✅              │
+└────────────────┬────────────────────────────────┘
+                 │
+                 ▼
+┌─────────────────────────────────────────────────┐
+│  4. Claude faz commit                           │
+│     $ git add .                                 │
+│     $ git commit -m "..."                       │
+└────────────────┬────────────────────────────────┘
+                 │
+                 ▼
+┌─────────────────────────────────────────────────┐
+│  5. Bruno faz push                              │
+│     $ git push origin branch-name               │
+└────────────────┬────────────────────────────────┘
+                 │
+                 ▼
+┌─────────────────────────────────────────────────┐
+│  6. GitHub Integration faz deploy automático    │
+│     - Migrations aplicadas em prod              │
+│     - Edge functions deployed                   │
+└─────────────────────────────────────────────────┘
+```
+
+---
+
 ## 🔄 Context Management (Multi-Computer Workflow)
 
 > **CRITICAL:** When working across multiple computers, context MUST be maintained through documentation
