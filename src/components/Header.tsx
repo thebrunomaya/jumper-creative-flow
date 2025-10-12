@@ -40,7 +40,7 @@ const Header: React.FC = () => {
               <Link
                 to="/"
                 className="flex items-center space-x-3 no-underline"
-                aria-label="Ad Uploader - Página inicial"
+                aria-label="Jumper Hub - Página inicial"
               >
                 <div
                   className="relative w-10 h-10 rounded-lg flex items-center justify-center shadow-md bg-cover bg-center"
@@ -48,7 +48,7 @@ const Header: React.FC = () => {
                     backgroundImage: `url(${logoBackground})`
                   }}
                   role="img"
-                  aria-label="Logo Jumper Studio"
+                  aria-label="Logo Jumper Hub"
                 >
                   <img
                     src={xWhiteLogo}
@@ -58,8 +58,8 @@ const Header: React.FC = () => {
                   />
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-lg font-semibold text-foreground">Ad Uploader</span>
-                  <span className="text-xs text-muted-foreground">v1.97</span>
+                  <span className="text-lg font-semibold text-foreground">Jumper Hub</span>
+                  <span className="text-xs text-muted-foreground">v2.0</span>
                 </div>
               </Link>
 
