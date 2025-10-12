@@ -289,8 +289,7 @@ Next Claude will know exactly where we left off! 🎯
 
 **System Health:**
 - `j_ads_error_logs` - Error tracking estruturado ✅
-- `j_ads_metrics` - Métricas de sistema
-- `j_ads_notion_sync_logs` - Logs de sincronização
+- `j_hub_notion_sync_logs` - Logs de sincronização
 
 **❌ OBSOLETE TABLES (to be removed):**
 - `creative_submissions`, `creative_files`, `creative_variations` - Duplicatas sem prefixo

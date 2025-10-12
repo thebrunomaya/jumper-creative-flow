@@ -84,6 +84,7 @@ export type Database = {
           total_variations: number
           updated_at: string
           user_id: string
+          validation_overrides: Json | null
         }
         Insert: {
           campaign_objective?: string | null
@@ -104,6 +105,7 @@ export type Database = {
           total_variations?: number
           updated_at?: string
           user_id: string
+          validation_overrides?: Json | null
         }
         Update: {
           campaign_objective?: string | null
@@ -124,6 +126,7 @@ export type Database = {
           total_variations?: number
           updated_at?: string
           user_id?: string
+          validation_overrides?: Json | null
         }
         Relationships: []
       }
@@ -399,6 +402,327 @@ export type Database = {
         }
         Relationships: []
       }
+      j_ads_optimization_api_logs: {
+        Row: {
+          created_at: string | null
+          error_message: string | null
+          id: string
+          input_preview: string | null
+          latency_ms: number | null
+          model_used: string | null
+          output_preview: string | null
+          prompt_sent: string | null
+          recording_id: string
+          step: string
+          success: boolean | null
+          tokens_used: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          error_message?: string | null
+          id?: string
+          input_preview?: string | null
+          latency_ms?: number | null
+          model_used?: string | null
+          output_preview?: string | null
+          prompt_sent?: string | null
+          recording_id: string
+          step: string
+          success?: boolean | null
+          tokens_used?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          error_message?: string | null
+          id?: string
+          input_preview?: string | null
+          latency_ms?: number | null
+          model_used?: string | null
+          output_preview?: string | null
+          prompt_sent?: string | null
+          recording_id?: string
+          step?: string
+          success?: boolean | null
+          tokens_used?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "j_ads_optimization_api_logs_recording_id_fkey"
+            columns: ["recording_id"]
+            isOneToOne: false
+            referencedRelation: "j_ads_optimization_recordings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      j_ads_optimization_context: {
+        Row: {
+          account_id: string
+          actions_taken: Json
+          client_report_generated: boolean | null
+          client_report_sent_at: string | null
+          confidence_level: string | null
+          correction_applied_at: string | null
+          correction_prompt: string | null
+          created_at: string | null
+          id: string
+          metrics_mentioned: Json
+          model_used: string | null
+          recording_id: string
+          revised_at: string | null
+          strategy: Json
+          summary: string
+          timeline: Json
+        }
+        Insert: {
+          account_id: string
+          actions_taken: Json
+          client_report_generated?: boolean | null
+          client_report_sent_at?: string | null
+          confidence_level?: string | null
+          correction_applied_at?: string | null
+          correction_prompt?: string | null
+          created_at?: string | null
+          id?: string
+          metrics_mentioned: Json
+          model_used?: string | null
+          recording_id: string
+          revised_at?: string | null
+          strategy: Json
+          summary: string
+          timeline: Json
+        }
+        Update: {
+          account_id?: string
+          actions_taken?: Json
+          client_report_generated?: boolean | null
+          client_report_sent_at?: string | null
+          confidence_level?: string | null
+          correction_applied_at?: string | null
+          correction_prompt?: string | null
+          created_at?: string | null
+          id?: string
+          metrics_mentioned?: Json
+          model_used?: string | null
+          recording_id?: string
+          revised_at?: string | null
+          strategy?: Json
+          summary?: string
+          timeline?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "j_ads_optimization_context_recording_id_fkey"
+            columns: ["recording_id"]
+            isOneToOne: true
+            referencedRelation: "j_ads_optimization_recordings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      j_ads_optimization_prompts: {
+        Row: {
+          created_at: string | null
+          edited_by: string | null
+          id: string
+          is_default: boolean | null
+          objective: string
+          platform: string
+          previous_version: string | null
+          prompt_text: string
+          prompt_type: string
+          updated_at: string | null
+          variables: string[] | null
+        }
+        Insert: {
+          created_at?: string | null
+          edited_by?: string | null
+          id?: string
+          is_default?: boolean | null
+          objective: string
+          platform: string
+          previous_version?: string | null
+          prompt_text: string
+          prompt_type: string
+          updated_at?: string | null
+          variables?: string[] | null
+        }
+        Update: {
+          created_at?: string | null
+          edited_by?: string | null
+          id?: string
+          is_default?: boolean | null
+          objective?: string
+          platform?: string
+          previous_version?: string | null
+          prompt_text?: string
+          prompt_type?: string
+          updated_at?: string | null
+          variables?: string[] | null
+        }
+        Relationships: []
+      }
+      j_ads_optimization_recordings: {
+        Row: {
+          account_context: string | null
+          account_id: string
+          analysis_status: string | null
+          audio_file_path: string | null
+          created_at: string | null
+          duration_seconds: number | null
+          id: string
+          override_context: string | null
+          password_hash: string | null
+          platform: string | null
+          processing_status: string | null
+          public_slug: string | null
+          recorded_at: string | null
+          recorded_by: string
+          selected_objectives: string[] | null
+          share_created_at: string | null
+          share_enabled: boolean | null
+          share_expires_at: string | null
+          transcription_status: string | null
+        }
+        Insert: {
+          account_context?: string | null
+          account_id: string
+          analysis_status?: string | null
+          audio_file_path?: string | null
+          created_at?: string | null
+          duration_seconds?: number | null
+          id?: string
+          override_context?: string | null
+          password_hash?: string | null
+          platform?: string | null
+          processing_status?: string | null
+          public_slug?: string | null
+          recorded_at?: string | null
+          recorded_by: string
+          selected_objectives?: string[] | null
+          share_created_at?: string | null
+          share_enabled?: boolean | null
+          share_expires_at?: string | null
+          transcription_status?: string | null
+        }
+        Update: {
+          account_context?: string | null
+          account_id?: string
+          analysis_status?: string | null
+          audio_file_path?: string | null
+          created_at?: string | null
+          duration_seconds?: number | null
+          id?: string
+          override_context?: string | null
+          password_hash?: string | null
+          platform?: string | null
+          processing_status?: string | null
+          public_slug?: string | null
+          recorded_at?: string | null
+          recorded_by?: string
+          selected_objectives?: string[] | null
+          share_created_at?: string | null
+          share_enabled?: boolean | null
+          share_expires_at?: string | null
+          transcription_status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "j_ads_optimization_recordings_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "j_ads_notion_db_accounts"
+            referencedColumns: ["notion_id"]
+          },
+          {
+            foreignKeyName: "j_ads_optimization_recordings_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "j_hub_notion_db_accounts"
+            referencedColumns: ["notion_id"]
+          },
+        ]
+      }
+      j_ads_optimization_transcripts: {
+        Row: {
+          confidence_score: number | null
+          correction_applied_at: string | null
+          correction_prompt: string | null
+          created_at: string | null
+          edit_count: number | null
+          full_text: string
+          id: string
+          language: string | null
+          last_edited_at: string | null
+          last_edited_by: string | null
+          original_text: string | null
+          previous_version: string | null
+          processed_edit_count: number | null
+          processed_last_edited_at: string | null
+          processed_last_edited_by: string | null
+          processed_previous_version: string | null
+          processed_text: string | null
+          recording_id: string
+          revised_at: string | null
+          revised_by: string | null
+          segments: Json | null
+        }
+        Insert: {
+          confidence_score?: number | null
+          correction_applied_at?: string | null
+          correction_prompt?: string | null
+          created_at?: string | null
+          edit_count?: number | null
+          full_text: string
+          id?: string
+          language?: string | null
+          last_edited_at?: string | null
+          last_edited_by?: string | null
+          original_text?: string | null
+          previous_version?: string | null
+          processed_edit_count?: number | null
+          processed_last_edited_at?: string | null
+          processed_last_edited_by?: string | null
+          processed_previous_version?: string | null
+          processed_text?: string | null
+          recording_id: string
+          revised_at?: string | null
+          revised_by?: string | null
+          segments?: Json | null
+        }
+        Update: {
+          confidence_score?: number | null
+          correction_applied_at?: string | null
+          correction_prompt?: string | null
+          created_at?: string | null
+          edit_count?: number | null
+          full_text?: string
+          id?: string
+          language?: string | null
+          last_edited_at?: string | null
+          last_edited_by?: string | null
+          original_text?: string | null
+          previous_version?: string | null
+          processed_edit_count?: number | null
+          processed_last_edited_at?: string | null
+          processed_last_edited_by?: string | null
+          processed_previous_version?: string | null
+          processed_text?: string | null
+          recording_id?: string
+          revised_at?: string | null
+          revised_by?: string | null
+          segments?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "j_ads_optimization_transcripts_recording_id_fkey"
+            columns: ["recording_id"]
+            isOneToOne: true
+            referencedRelation: "j_ads_optimization_recordings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       j_hub_notion_db_accounts: {
         Row: {
           "(Projeto) E-mail profissional do responsável pelo projeto.":
@@ -423,6 +747,7 @@ export type Database = {
             | null
           "✅ Tarefas": string | null
           "Antecedência (Boleto)": string | null
+          Atendimento: string | null
           "Canal Slack": string | null
           "Canal SoWork": string | null
           "Como os clientes pesquisam esses produtos/serviços no Google?":
@@ -430,6 +755,7 @@ export type Database = {
             | null
           Conta: string | null
           "Contexto para Otimização": string | null
+          "Contexto para Transcrição": string | null
           created_at: string | null
           "Endereço da Empresa.": string | null
           "Existem perfis de clientes diferentes para cada produto/serviç":
@@ -500,7 +826,6 @@ export type Database = {
           "Seus principais diferenciais competitivos.": string | null
           "Site Oficial": string | null
           Status: string | null
-          Supervisor: string | null
           "Tem alguma meta de marketing clara (KPIs)?": string | null
           "Ticket médio atual (valor médio por venda ou contrato).":
             | string
@@ -538,6 +863,7 @@ export type Database = {
             | null
           "✅ Tarefas"?: string | null
           "Antecedência (Boleto)"?: string | null
+          Atendimento?: string | null
           "Canal Slack"?: string | null
           "Canal SoWork"?: string | null
           "Como os clientes pesquisam esses produtos/serviços no Google?"?:
@@ -545,6 +871,7 @@ export type Database = {
             | null
           Conta?: string | null
           "Contexto para Otimização"?: string | null
+          "Contexto para Transcrição"?: string | null
           created_at?: string | null
           "Endereço da Empresa."?: string | null
           "Existem perfis de clientes diferentes para cada produto/serviç"?:
@@ -615,7 +942,6 @@ export type Database = {
           "Seus principais diferenciais competitivos."?: string | null
           "Site Oficial"?: string | null
           Status?: string | null
-          Supervisor?: string | null
           "Tem alguma meta de marketing clara (KPIs)?"?: string | null
           "Ticket médio atual (valor médio por venda ou contrato)."?:
             | string
@@ -653,6 +979,7 @@ export type Database = {
             | null
           "✅ Tarefas"?: string | null
           "Antecedência (Boleto)"?: string | null
+          Atendimento?: string | null
           "Canal Slack"?: string | null
           "Canal SoWork"?: string | null
           "Como os clientes pesquisam esses produtos/serviços no Google?"?:
@@ -660,6 +987,7 @@ export type Database = {
             | null
           Conta?: string | null
           "Contexto para Otimização"?: string | null
+          "Contexto para Transcrição"?: string | null
           created_at?: string | null
           "Endereço da Empresa."?: string | null
           "Existem perfis de clientes diferentes para cada produto/serviç"?:
@@ -730,7 +1058,6 @@ export type Database = {
           "Seus principais diferenciais competitivos."?: string | null
           "Site Oficial"?: string | null
           Status?: string | null
-          Supervisor?: string | null
           "Tem alguma meta de marketing clara (KPIs)?"?: string | null
           "Ticket médio atual (valor médio por venda ou contrato)."?:
             | string
@@ -846,248 +1173,142 @@ export type Database = {
         }
         Relationships: []
       }
-      j_ads_optimization_context: {
+      j_hub_user_audit_log: {
         Row: {
-          account_id: string
-          actions_taken: Json
-          client_report_generated: boolean | null
-          client_report_sent_at: string | null
-          confidence_level: string | null
-          correction_applied_at: string | null
-          correction_prompt: string | null
+          action: string
+          admin_email: string | null
+          admin_id: string | null
           created_at: string | null
           id: string
-          metrics_mentioned: Json
-          model_used: string | null
-          recording_id: string
-          revised_at: string | null
-          strategy: Json
-          summary: string
-          timeline: Json
+          new_value: Json | null
+          old_value: Json | null
+          reason: string | null
+          user_email: string | null
+          user_id: string | null
         }
         Insert: {
-          account_id: string
-          actions_taken: Json
-          client_report_generated?: boolean | null
-          client_report_sent_at?: string | null
-          confidence_level?: string | null
-          correction_applied_at?: string | null
-          correction_prompt?: string | null
+          action: string
+          admin_email?: string | null
+          admin_id?: string | null
           created_at?: string | null
           id?: string
-          metrics_mentioned: Json
-          model_used?: string | null
-          recording_id: string
-          revised_at?: string | null
-          strategy: Json
-          summary: string
-          timeline: Json
+          new_value?: Json | null
+          old_value?: Json | null
+          reason?: string | null
+          user_email?: string | null
+          user_id?: string | null
         }
         Update: {
-          account_id?: string
-          actions_taken?: Json
-          client_report_generated?: boolean | null
-          client_report_sent_at?: string | null
-          confidence_level?: string | null
-          correction_applied_at?: string | null
-          correction_prompt?: string | null
+          action?: string
+          admin_email?: string | null
+          admin_id?: string | null
           created_at?: string | null
           id?: string
-          metrics_mentioned?: Json
-          model_used?: string | null
-          recording_id?: string
-          revised_at?: string | null
-          strategy?: Json
-          summary?: string
-          timeline?: Json
+          new_value?: Json | null
+          old_value?: Json | null
+          reason?: string | null
+          user_email?: string | null
+          user_id?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "j_ads_optimization_context_recording_id_fkey"
-            columns: ["recording_id"]
-            isOneToOne: true
-            referencedRelation: "j_ads_optimization_recordings"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      j_ads_optimization_prompts: {
-        Row: {
-          created_at: string | null
-          edited_by: string | null
-          id: string
-          is_default: boolean | null
-          objective: string
-          platform: string
-          previous_version: string | null
-          prompt_text: string
-          prompt_type: string
-          updated_at: string | null
-          variables: Json | null
-        }
-        Insert: {
-          created_at?: string | null
-          edited_by?: string | null
-          id?: string
-          is_default?: boolean | null
-          objective: string
-          platform: string
-          previous_version?: string | null
-          prompt_text: string
-          prompt_type: string
-          updated_at?: string | null
-          variables?: Json | null
-        }
-        Update: {
-          created_at?: string | null
-          edited_by?: string | null
-          id?: string
-          is_default?: boolean | null
-          objective?: string
-          platform?: string
-          previous_version?: string | null
-          prompt_text?: string
-          prompt_type?: string
-          updated_at?: string | null
-          variables?: Json | null
-        }
-        Relationships: []
-      }
-      j_ads_optimization_recordings: {
-        Row: {
-          account_context: string | null
-          account_id: string
-          analysis_status: string | null
-          audio_file_path: string | null
-          created_at: string | null
-          duration_seconds: number | null
-          id: string
-          override_context: string | null
-          platform: string | null
-          recorded_at: string | null
-          recorded_by: string
-          selected_objectives: string[] | null
-          transcription_status: string | null
-        }
-        Insert: {
-          account_context?: string | null
-          account_id: string
-          analysis_status?: string | null
-          audio_file_path?: string | null
-          created_at?: string | null
-          duration_seconds?: number | null
-          id?: string
-          override_context?: string | null
-          platform?: string | null
-          recorded_at?: string | null
-          recorded_by: string
-          selected_objectives?: string[] | null
-          transcription_status?: string | null
-        }
-        Update: {
-          account_context?: string | null
-          account_id?: string
-          analysis_status?: string | null
-          audio_file_path?: string | null
-          created_at?: string | null
-          duration_seconds?: number | null
-          id?: string
-          override_context?: string | null
-          platform?: string | null
-          recorded_at?: string | null
-          recorded_by?: string
-          selected_objectives?: string[] | null
-          transcription_status?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "j_ads_optimization_recordings_account_id_fkey"
-            columns: ["account_id"]
+            foreignKeyName: "j_ads_user_audit_log_admin_id_fkey"
+            columns: ["admin_id"]
             isOneToOne: false
-            referencedRelation: "j_hub_notion_db_accounts"
-            referencedColumns: ["notion_id"]
+            referencedRelation: "j_ads_users"
+            referencedColumns: ["id"]
           },
-        ]
-      }
-      j_ads_optimization_transcripts: {
-        Row: {
-          confidence_score: number | null
-          correction_applied_at: string | null
-          correction_prompt: string | null
-          created_at: string | null
-          full_text: string
-          id: string
-          language: string | null
-          original_text: string | null
-          processed_text: string | null
-          recording_id: string
-          revised_at: string | null
-          revised_by: string | null
-          segments: Json | null
-        }
-        Insert: {
-          confidence_score?: number | null
-          correction_applied_at?: string | null
-          correction_prompt?: string | null
-          created_at?: string | null
-          full_text: string
-          id?: string
-          language?: string | null
-          original_text?: string | null
-          processed_text?: string | null
-          recording_id: string
-          revised_at?: string | null
-          revised_by?: string | null
-          segments?: Json | null
-        }
-        Update: {
-          confidence_score?: number | null
-          correction_applied_at?: string | null
-          correction_prompt?: string | null
-          created_at?: string | null
-          full_text?: string
-          id?: string
-          language?: string | null
-          original_text?: string | null
-          processed_text?: string | null
-          recording_id?: string
-          revised_at?: string | null
-          revised_by?: string | null
-          segments?: Json | null
-        }
-        Relationships: [
           {
-            foreignKeyName: "j_ads_optimization_transcripts_recording_id_fkey"
-            columns: ["recording_id"]
-            isOneToOne: true
-            referencedRelation: "j_ads_optimization_recordings"
+            foreignKeyName: "j_ads_user_audit_log_admin_id_fkey"
+            columns: ["admin_id"]
+            isOneToOne: false
+            referencedRelation: "j_hub_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "j_hub_user_audit_log_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "j_ads_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "j_hub_user_audit_log_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "j_hub_users"
             referencedColumns: ["id"]
           },
         ]
       }
-      j_ads_user_roles: {
+      j_hub_users: {
         Row: {
+          avatar_url: string | null
           created_at: string
+          deactivated_at: string | null
+          deactivated_by: string | null
+          email: string
           id: string
-          role: Database["public"]["Enums"]["app_role"]
+          is_active: boolean | null
+          last_login_at: string | null
+          login_count: number | null
+          nome: string | null
+          notion_manager_id: string | null
+          organizacao: string | null
+          role: string
+          telefone: string | null
           updated_at: string
-          user_id: string
         }
         Insert: {
+          avatar_url?: string | null
           created_at?: string
-          id?: string
-          role: Database["public"]["Enums"]["app_role"]
+          deactivated_at?: string | null
+          deactivated_by?: string | null
+          email: string
+          id: string
+          is_active?: boolean | null
+          last_login_at?: string | null
+          login_count?: number | null
+          nome?: string | null
+          notion_manager_id?: string | null
+          organizacao?: string | null
+          role: string
+          telefone?: string | null
           updated_at?: string
-          user_id: string
         }
         Update: {
+          avatar_url?: string | null
           created_at?: string
+          deactivated_at?: string | null
+          deactivated_by?: string | null
+          email?: string
           id?: string
-          role?: Database["public"]["Enums"]["app_role"]
+          is_active?: boolean | null
+          last_login_at?: string | null
+          login_count?: number | null
+          nome?: string | null
+          notion_manager_id?: string | null
+          organizacao?: string | null
+          role?: string
+          telefone?: string | null
           updated_at?: string
-          user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "j_ads_users_deactivated_by_fkey"
+            columns: ["deactivated_by"]
+            isOneToOne: false
+            referencedRelation: "j_ads_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "j_ads_users_deactivated_by_fkey"
+            columns: ["deactivated_by"]
+            isOneToOne: false
+            referencedRelation: "j_hub_users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       j_rep_metaads_bronze: {
         Row: {
@@ -1269,39 +1490,629 @@ export type Database = {
         }
         Relationships: []
       }
-      videosmmx: {
+    }
+    Views: {
+      j_ads_notion_db_accounts: {
         Row: {
-          created_at: string
-          id: number
-          videos: string | null
+          "(Projeto) E-mail profissional do responsável pelo projeto.":
+            | string
+            | null
+          "(Projeto) Telefone ou WhatsApp do responsável pelo projeto.":
+            | string
+            | null
+          "(Projetos) Cargo do responsável pelo projeto.": string | null
+          "(Projetos) Nome do responsável pelo projeto.": string | null
+          "(Venda)E-mail profissional do responsável pela área comercial":
+            | string
+            | null
+          "(Vendas) Cargo do responsável pela área comercial/vendas.":
+            | string
+            | null
+          "(Vendas) Nome do responsável pela área comercial/vendas.":
+            | string
+            | null
+          "(Vendas)Telefone ou WhatsApp do responsável pela área comerci":
+            | string
+            | null
+          "✅ Tarefas": string | null
+          "Antecedência (Boleto)": string | null
+          Atendimento: string | null
+          "Canal Slack": string | null
+          "Canal SoWork": string | null
+          "Como os clientes pesquisam esses produtos/serviços no Google?":
+            | string
+            | null
+          Conta: string | null
+          "Contexto para Otimização": string | null
+          "Contexto para Transcrição": string | null
+          created_at: string | null
+          "Endereço da Empresa.": string | null
+          "Existem perfis de clientes diferentes para cada produto/serviç":
+            | string
+            | null
+          "Existem perfis diferentes para cada produto/serviço? Quais?":
+            | string
+            | null
+          "G-ADS: Fim do Saldo": string | null
+          "G-ADS: Saldo": string | null
+          "G-ADS: Saldo Em Dias": string | null
+          "G-ADS: Última Checagem": string | null
+          "G-ADS: Verba Mensal": string | null
+          Gerente: string | null
+          Gestor: string | null
+          "História e Propósito": string | null
+          id: string | null
+          ID: string | null
+          "ID Google Ads": string | null
+          "ID Google Analytics": string | null
+          "ID Meta Ads": string | null
+          "ID Tiktok Ads": string | null
+          "Já anunciaram antes? Onde e como foi?": string | null
+          "Já possuem banco de imagens, vídeos ou portfólio?": string | null
+          "Já possuem identidade visual e logo?": string | null
+          "Link da logo ": string | null
+          "Link da pasta do Google Drive com criativos e materiais.":
+            | string
+            | null
+          "Link do Instagram da empresa.": string | null
+          "Link Meta": string | null
+          "Meta do Mês": string | null
+          "META: Fim do Saldo": string | null
+          "META: Fim do Saldo (1)": string | null
+          "META: Saldo": string | null
+          "META: Saldo Em Dias": string | null
+          "META: Última Checagem": string | null
+          "META: Verba Mensal": string | null
+          "Método de Pagamento": string | null
+          Nicho: string | null
+          notion_id: string | null
+          "O que normalmente impede esse cliente de fechar com você?":
+            | string
+            | null
+          Objetivos: string | null
+          Parceiro: string | null
+          Plataformas: string | null
+          "Possuem lista de contatos para remarketing ou e-mail marketing?":
+            | string
+            | null
+          "Principais concorrentes (Nomes ou links)": string | null
+          "Quais estratégias anteriores funcionaram melhor?": string | null
+          "Quais são as maiores dores e objeções desses clientes?":
+            | string
+            | null
+          "Quais são os produtos/serviços que deseja divulgar?": string | null
+          "Qual a principal meta da empresa para os próximos 12 meses?":
+            | string
+            | null
+          "Qual é a transformação ou resultado que esse cliente busca a":
+            | string
+            | null
+          "Qual o investimento mensal disponível para anúncios?": string | null
+          "Quem é o cliente ideal? (Persona)": string | null
+          Rastreamento: string | null
+          "Regiões onde deseja atrair clientes?": string | null
+          "Segmento de atuação": string | null
+          "Seus principais diferenciais competitivos.": string | null
+          "Site Oficial": string | null
+          Status: string | null
+          "Tem alguma meta de marketing clara (KPIs)?": string | null
+          "Ticket médio atual (valor médio por venda ou contrato).":
+            | string
+            | null
+          Tier: number | null
+          "TIK: Verba Mensal": string | null
+          updated_at: string | null
+          "Vencimento Ideal (Boleto)": string | null
+          "Vocês usam alguma ferramenta de CRM ou automação de marketin":
+            | string
+            | null
+          "Woo Consumer Key": string | null
+          "Woo Consumer Secret": string | null
         }
         Insert: {
-          created_at?: string
-          id?: number
-          videos?: string | null
+          "(Projeto) E-mail profissional do responsável pelo projeto."?:
+            | string
+            | null
+          "(Projeto) Telefone ou WhatsApp do responsável pelo projeto."?:
+            | string
+            | null
+          "(Projetos) Cargo do responsável pelo projeto."?: string | null
+          "(Projetos) Nome do responsável pelo projeto."?: string | null
+          "(Venda)E-mail profissional do responsável pela área comercial"?:
+            | string
+            | null
+          "(Vendas) Cargo do responsável pela área comercial/vendas."?:
+            | string
+            | null
+          "(Vendas) Nome do responsável pela área comercial/vendas."?:
+            | string
+            | null
+          "(Vendas)Telefone ou WhatsApp do responsável pela área comerci"?:
+            | string
+            | null
+          "✅ Tarefas"?: string | null
+          "Antecedência (Boleto)"?: string | null
+          Atendimento?: string | null
+          "Canal Slack"?: string | null
+          "Canal SoWork"?: string | null
+          "Como os clientes pesquisam esses produtos/serviços no Google?"?:
+            | string
+            | null
+          Conta?: string | null
+          "Contexto para Otimização"?: string | null
+          "Contexto para Transcrição"?: string | null
+          created_at?: string | null
+          "Endereço da Empresa."?: string | null
+          "Existem perfis de clientes diferentes para cada produto/serviç"?:
+            | string
+            | null
+          "Existem perfis diferentes para cada produto/serviço? Quais?"?:
+            | string
+            | null
+          "G-ADS: Fim do Saldo"?: string | null
+          "G-ADS: Saldo"?: string | null
+          "G-ADS: Saldo Em Dias"?: string | null
+          "G-ADS: Última Checagem"?: string | null
+          "G-ADS: Verba Mensal"?: string | null
+          Gerente?: string | null
+          Gestor?: string | null
+          "História e Propósito"?: string | null
+          id?: string | null
+          ID?: string | null
+          "ID Google Ads"?: string | null
+          "ID Google Analytics"?: string | null
+          "ID Meta Ads"?: string | null
+          "ID Tiktok Ads"?: string | null
+          "Já anunciaram antes? Onde e como foi?"?: string | null
+          "Já possuem banco de imagens, vídeos ou portfólio?"?: string | null
+          "Já possuem identidade visual e logo?"?: string | null
+          "Link da logo "?: string | null
+          "Link da pasta do Google Drive com criativos e materiais."?:
+            | string
+            | null
+          "Link do Instagram da empresa."?: string | null
+          "Link Meta"?: string | null
+          "Meta do Mês"?: string | null
+          "META: Fim do Saldo"?: string | null
+          "META: Fim do Saldo (1)"?: string | null
+          "META: Saldo"?: string | null
+          "META: Saldo Em Dias"?: string | null
+          "META: Última Checagem"?: string | null
+          "META: Verba Mensal"?: string | null
+          "Método de Pagamento"?: string | null
+          Nicho?: string | null
+          notion_id?: string | null
+          "O que normalmente impede esse cliente de fechar com você?"?:
+            | string
+            | null
+          Objetivos?: string | null
+          Parceiro?: string | null
+          Plataformas?: string | null
+          "Possuem lista de contatos para remarketing ou e-mail marketing?"?:
+            | string
+            | null
+          "Principais concorrentes (Nomes ou links)"?: string | null
+          "Quais estratégias anteriores funcionaram melhor?"?: string | null
+          "Quais são as maiores dores e objeções desses clientes?"?:
+            | string
+            | null
+          "Quais são os produtos/serviços que deseja divulgar?"?: string | null
+          "Qual a principal meta da empresa para os próximos 12 meses?"?:
+            | string
+            | null
+          "Qual é a transformação ou resultado que esse cliente busca a"?:
+            | string
+            | null
+          "Qual o investimento mensal disponível para anúncios?"?: string | null
+          "Quem é o cliente ideal? (Persona)"?: string | null
+          Rastreamento?: string | null
+          "Regiões onde deseja atrair clientes?"?: string | null
+          "Segmento de atuação"?: string | null
+          "Seus principais diferenciais competitivos."?: string | null
+          "Site Oficial"?: string | null
+          Status?: string | null
+          "Tem alguma meta de marketing clara (KPIs)?"?: string | null
+          "Ticket médio atual (valor médio por venda ou contrato)."?:
+            | string
+            | null
+          Tier?: number | null
+          "TIK: Verba Mensal"?: string | null
+          updated_at?: string | null
+          "Vencimento Ideal (Boleto)"?: string | null
+          "Vocês usam alguma ferramenta de CRM ou automação de marketin"?:
+            | string
+            | null
+          "Woo Consumer Key"?: string | null
+          "Woo Consumer Secret"?: string | null
         }
         Update: {
-          created_at?: string
-          id?: number
-          videos?: string | null
+          "(Projeto) E-mail profissional do responsável pelo projeto."?:
+            | string
+            | null
+          "(Projeto) Telefone ou WhatsApp do responsável pelo projeto."?:
+            | string
+            | null
+          "(Projetos) Cargo do responsável pelo projeto."?: string | null
+          "(Projetos) Nome do responsável pelo projeto."?: string | null
+          "(Venda)E-mail profissional do responsável pela área comercial"?:
+            | string
+            | null
+          "(Vendas) Cargo do responsável pela área comercial/vendas."?:
+            | string
+            | null
+          "(Vendas) Nome do responsável pela área comercial/vendas."?:
+            | string
+            | null
+          "(Vendas)Telefone ou WhatsApp do responsável pela área comerci"?:
+            | string
+            | null
+          "✅ Tarefas"?: string | null
+          "Antecedência (Boleto)"?: string | null
+          Atendimento?: string | null
+          "Canal Slack"?: string | null
+          "Canal SoWork"?: string | null
+          "Como os clientes pesquisam esses produtos/serviços no Google?"?:
+            | string
+            | null
+          Conta?: string | null
+          "Contexto para Otimização"?: string | null
+          "Contexto para Transcrição"?: string | null
+          created_at?: string | null
+          "Endereço da Empresa."?: string | null
+          "Existem perfis de clientes diferentes para cada produto/serviç"?:
+            | string
+            | null
+          "Existem perfis diferentes para cada produto/serviço? Quais?"?:
+            | string
+            | null
+          "G-ADS: Fim do Saldo"?: string | null
+          "G-ADS: Saldo"?: string | null
+          "G-ADS: Saldo Em Dias"?: string | null
+          "G-ADS: Última Checagem"?: string | null
+          "G-ADS: Verba Mensal"?: string | null
+          Gerente?: string | null
+          Gestor?: string | null
+          "História e Propósito"?: string | null
+          id?: string | null
+          ID?: string | null
+          "ID Google Ads"?: string | null
+          "ID Google Analytics"?: string | null
+          "ID Meta Ads"?: string | null
+          "ID Tiktok Ads"?: string | null
+          "Já anunciaram antes? Onde e como foi?"?: string | null
+          "Já possuem banco de imagens, vídeos ou portfólio?"?: string | null
+          "Já possuem identidade visual e logo?"?: string | null
+          "Link da logo "?: string | null
+          "Link da pasta do Google Drive com criativos e materiais."?:
+            | string
+            | null
+          "Link do Instagram da empresa."?: string | null
+          "Link Meta"?: string | null
+          "Meta do Mês"?: string | null
+          "META: Fim do Saldo"?: string | null
+          "META: Fim do Saldo (1)"?: string | null
+          "META: Saldo"?: string | null
+          "META: Saldo Em Dias"?: string | null
+          "META: Última Checagem"?: string | null
+          "META: Verba Mensal"?: string | null
+          "Método de Pagamento"?: string | null
+          Nicho?: string | null
+          notion_id?: string | null
+          "O que normalmente impede esse cliente de fechar com você?"?:
+            | string
+            | null
+          Objetivos?: string | null
+          Parceiro?: string | null
+          Plataformas?: string | null
+          "Possuem lista de contatos para remarketing ou e-mail marketing?"?:
+            | string
+            | null
+          "Principais concorrentes (Nomes ou links)"?: string | null
+          "Quais estratégias anteriores funcionaram melhor?"?: string | null
+          "Quais são as maiores dores e objeções desses clientes?"?:
+            | string
+            | null
+          "Quais são os produtos/serviços que deseja divulgar?"?: string | null
+          "Qual a principal meta da empresa para os próximos 12 meses?"?:
+            | string
+            | null
+          "Qual é a transformação ou resultado que esse cliente busca a"?:
+            | string
+            | null
+          "Qual o investimento mensal disponível para anúncios?"?: string | null
+          "Quem é o cliente ideal? (Persona)"?: string | null
+          Rastreamento?: string | null
+          "Regiões onde deseja atrair clientes?"?: string | null
+          "Segmento de atuação"?: string | null
+          "Seus principais diferenciais competitivos."?: string | null
+          "Site Oficial"?: string | null
+          Status?: string | null
+          "Tem alguma meta de marketing clara (KPIs)?"?: string | null
+          "Ticket médio atual (valor médio por venda ou contrato)."?:
+            | string
+            | null
+          Tier?: number | null
+          "TIK: Verba Mensal"?: string | null
+          updated_at?: string | null
+          "Vencimento Ideal (Boleto)"?: string | null
+          "Vocês usam alguma ferramenta de CRM ou automação de marketin"?:
+            | string
+            | null
+          "Woo Consumer Key"?: string | null
+          "Woo Consumer Secret"?: string | null
         }
         Relationships: []
       }
-    }
-    Views: {
-      [_ in never]: never
+      j_ads_notion_db_managers: {
+        Row: {
+          Contas: string | null
+          created_at: string | null
+          "E-Mail": string | null
+          Função: string | null
+          id: string | null
+          Nome: string | null
+          notion_id: string | null
+          Organização: string | null
+          Senha: string | null
+          "Softr Date Created": string | null
+          "Softr Last Login": string | null
+          "Softr Link": string | null
+          Telefone: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          Contas?: string | null
+          created_at?: string | null
+          "E-Mail"?: string | null
+          Função?: string | null
+          id?: string | null
+          Nome?: string | null
+          notion_id?: string | null
+          Organização?: string | null
+          Senha?: string | null
+          "Softr Date Created"?: string | null
+          "Softr Last Login"?: string | null
+          "Softr Link"?: string | null
+          Telefone?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          Contas?: string | null
+          created_at?: string | null
+          "E-Mail"?: string | null
+          Função?: string | null
+          id?: string | null
+          Nome?: string | null
+          notion_id?: string | null
+          Organização?: string | null
+          Senha?: string | null
+          "Softr Date Created"?: string | null
+          "Softr Last Login"?: string | null
+          "Softr Link"?: string | null
+          Telefone?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      j_ads_notion_sync_logs: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          error_details: Json | null
+          errors_count: number | null
+          execution_time_ms: number | null
+          id: string | null
+          metadata: Json | null
+          records_created: number | null
+          records_processed: number | null
+          records_updated: number | null
+          started_at: string | null
+          status: string | null
+          sync_type: string | null
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          error_details?: Json | null
+          errors_count?: number | null
+          execution_time_ms?: number | null
+          id?: string | null
+          metadata?: Json | null
+          records_created?: number | null
+          records_processed?: number | null
+          records_updated?: number | null
+          started_at?: string | null
+          status?: string | null
+          sync_type?: string | null
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          error_details?: Json | null
+          errors_count?: number | null
+          execution_time_ms?: number | null
+          id?: string | null
+          metadata?: Json | null
+          records_created?: number | null
+          records_processed?: number | null
+          records_updated?: number | null
+          started_at?: string | null
+          status?: string | null
+          sync_type?: string | null
+        }
+        Relationships: []
+      }
+      j_ads_user_audit_log: {
+        Row: {
+          action: string | null
+          admin_email: string | null
+          admin_id: string | null
+          created_at: string | null
+          id: string | null
+          new_value: Json | null
+          old_value: Json | null
+          reason: string | null
+          user_email: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action?: string | null
+          admin_email?: string | null
+          admin_id?: string | null
+          created_at?: string | null
+          id?: string | null
+          new_value?: Json | null
+          old_value?: Json | null
+          reason?: string | null
+          user_email?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string | null
+          admin_email?: string | null
+          admin_id?: string | null
+          created_at?: string | null
+          id?: string | null
+          new_value?: Json | null
+          old_value?: Json | null
+          reason?: string | null
+          user_email?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "j_ads_user_audit_log_admin_id_fkey"
+            columns: ["admin_id"]
+            isOneToOne: false
+            referencedRelation: "j_ads_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "j_ads_user_audit_log_admin_id_fkey"
+            columns: ["admin_id"]
+            isOneToOne: false
+            referencedRelation: "j_hub_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "j_hub_user_audit_log_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "j_ads_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "j_hub_user_audit_log_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "j_hub_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      j_ads_users: {
+        Row: {
+          avatar_url: string | null
+          created_at: string | null
+          deactivated_at: string | null
+          deactivated_by: string | null
+          email: string | null
+          id: string | null
+          is_active: boolean | null
+          last_login_at: string | null
+          login_count: number | null
+          nome: string | null
+          notion_manager_id: string | null
+          organizacao: string | null
+          role: string | null
+          telefone: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string | null
+          deactivated_at?: string | null
+          deactivated_by?: string | null
+          email?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          last_login_at?: string | null
+          login_count?: number | null
+          nome?: string | null
+          notion_manager_id?: string | null
+          organizacao?: string | null
+          role?: string | null
+          telefone?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string | null
+          deactivated_at?: string | null
+          deactivated_by?: string | null
+          email?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          last_login_at?: string | null
+          login_count?: number | null
+          nome?: string | null
+          notion_manager_id?: string | null
+          organizacao?: string | null
+          role?: string | null
+          telefone?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "j_ads_users_deactivated_by_fkey"
+            columns: ["deactivated_by"]
+            isOneToOne: false
+            referencedRelation: "j_ads_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "j_ads_users_deactivated_by_fkey"
+            columns: ["deactivated_by"]
+            isOneToOne: false
+            referencedRelation: "j_hub_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       cleanup_old_error_logs: {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      get_user_role: {
+        Args: { _user_id: string }
+        Returns: string
+      }
       has_role: {
-        Args: {
-          _role: Database["public"]["Enums"]["app_role"]
-          _user_id: string
-        }
+        Args: { _role: string; _user_id: string }
         Returns: boolean
+      }
+      log_user_action: {
+        Args: {
+          p_action: string
+          p_admin_email: string
+          p_admin_id: string
+          p_new_value?: Json
+          p_old_value?: Json
+          p_reason?: string
+          p_user_email: string
+          p_user_id: string
+        }
+        Returns: string
+      }
+      save_processed_edit: {
+        Args: { p_new_text: string; p_recording_id: string; p_user_id: string }
+        Returns: undefined
+      }
+      save_transcript_edit: {
+        Args: { p_new_text: string; p_recording_id: string; p_user_id: string }
+        Returns: undefined
       }
       set_user_role: {
         Args: {
