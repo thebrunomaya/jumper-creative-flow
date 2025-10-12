@@ -1,0 +1,1427 @@
+# 🔮 STEP 3 REENGINEERING - ORACLE FRAMEWORK PROPOSAL
+## Three Oracles System for Client Report Generation
+
+**Document:** Final Proposal for Step 3 Optimization Reports  
+**Date:** 2025-10-12  
+**Authors:** Bruno Maya (Jumper Studio) + Claude (Anthropic)  
+**Status:** 🟢 Ready for Implementation  
+**Replaces:** STEP3-REENGENHARIA-PROPOSAL.md (visual multi-page approach)
+
+---
+
+## 📋 Table of Contents
+
+1. [Executive Summary](#1-executive-summary)
+2. [Problem Statement](#2-problem-statement)
+3. [Solution: The Oracle Framework](#3-solution-the-oracle-framework)
+4. [The Three Oracles](#4-the-three-oracles)
+5. [Technical Architecture](#5-technical-architecture)
+6. [Prompt Engineering Strategy](#6-prompt-engineering-strategy)
+7. [Implementation Plan](#7-implementation-plan)
+8. [Success Metrics](#8-success-metrics)
+9. [Appendix: Prompt Templates](#9-appendix-prompt-templates)
+
+---
+
+## 1. Executive Summary
+
+### 1.1 Core Insight
+
+After extensive discussion, we identified that the **root problem is not visual design** but **communication clarity**. Marketing managers don't understand optimization reports because they lack proper explanation frameworks adapted to their expertise level - not because they lack visual polish.
+
+**Key Realization:**
+> "The biggest problem is the Marketing Manager's understanding" - Bruno Maya
+
+This insight fundamentally changed our approach from building complex visual interfaces to creating intelligent communication frameworks.
+
+### 1.2 Solution Approach
+
+Instead of building a complex 6-page visual report system (estimated 3 weeks, high complexity), we're implementing **3 Oracle Frameworks** - intelligent prompt-based systems that transform the same structured context into 3 different communication styles:
+
+| Oracle | Target Audience | Communication Style | Length |
+|--------|----------------|---------------------|---------|
+| **🏛️ DELFOS** | Experienced marketers / Internal team | Technical, direct, bullet points | 300-400 words |
+| **🎵 ORFEU** | Business owners / Non-technical clients | Narrative, educational, storytelling | 600-800 words |
+| **📜 NOSTRADAMUS** | Analytical managers / Stakeholders | Data-rich, comparative, visual tables | 800-1000 words |
+
+### 1.3 Why This Approach Wins
+
+**Comparison with Original Proposal:**
+
+| Aspect | Original (Visual) | New (Oracles) |
+|--------|------------------|---------------|
+| **Implementation Time** | 3 weeks | 5-7 days |
+| **Complexity** | High (6 components, navigation, PDF) | Low (3 prompts, 1 edge function) |
+| **Core Value** | Visual impact | Communication clarity |
+| **Maintenance** | Hard (UI changes require dev) | Easy (prompt iteration) |
+| **Flexibility** | Fixed format | Adaptable to client needs |
+| **Cost per Report** | N/A (upfront dev cost) | ~$0.01-0.03 |
+
+**Strategic Benefits:**
+- ✅ Solves the actual problem (understanding)
+- ✅ 80% faster to implement
+- ✅ Easy to iterate and improve
+- ✅ Leverages AI strength (language transformation)
+- ✅ Can add visual layer later if needed
+
+---
+
+## 2. Problem Statement
+
+### 2.1 Current State Analysis
+
+**Step 1 & 2: Working Well ✅**
+- Audio recording → Whisper transcription (Step 1)
+- Transcription → Structured bullet list (Step 2)
+
+**Step 3: Needs Improvement ⚠️**
+
+Currently generates structured JSON context:
+```json
+{
+  "summary": "Brief summary text...",
+  "actions_taken": [{
+    "type": "pause_campaign",
+    "target": "Campaign Name",
+    "reason": "High CPA...",
+    "expected_impact": "Reduce waste..."
+  }],
+  "metrics_mentioned": {"cpa": 450, "roas": 2.5},
+  "strategy": {...},
+  "timeline": {...}
+}
+```
+
+**Problems:**
+1. **Visual presentation is weak** - Current `OptimizationContextCard.tsx` looks like a data dump
+2. **Not adapted to audience** - Same format for technical manager and business owner
+3. **Lacks narrative** - Hard to understand "the story" of what happened
+4. **No engagement** - Doesn't demonstrate value of Jumper's work
+5. **Manager confusion** - Clients ask "what does this mean for my business?"
+
+### 2.2 Real Example: Clínica Seven
+
+**What the manager sees today:**
+```
+Summary: Campaign restructured, Mix 2 paused, weekend budget reduced...
+Actions: [3 technical actions with jargon]
+Metrics: CPA: 1373, Conversions: 59, ...
+```
+
+**What the manager needs:**
+- Non-technical client: "Why did you pause that campaign? Is that good or bad?"
+- Technical client: "Show me the numbers and next steps"
+- Analytical client: "Give me data comparisons and benchmarks"
+
+---
+
+## 3. Solution: The Oracle Framework
+
+### 3.1 Conceptual Foundation
+
+**Metaphor: Ancient Oracles**
+
+In ancient civilizations, oracles interpreted signs and communicated divine messages. Each oracle had their own style:
+- Some gave direct yes/no answers
+- Some told elaborate stories
+- Some provided detailed prophecies with context
+
+**Our Implementation:**
+
+Three AI-powered "oracles" that read the same structured context but communicate it differently based on the recipient's needs.
+
+```
+                    ┌─────────────────┐
+                    │  Optimization   │
+                    │    Context      │
+                    │   (Structured)  │
+                    └────────┬────────┘
+                             │
+            ┌────────────────┼────────────────┐
+            │                │                │
+            ▼                ▼                ▼
+     ┌───────────┐    ┌───────────┐   ┌───────────┐
+     │  🏛️ DELFOS │    │  🎵 ORFEU │   │📜 NOSTRA- │
+     │           │    │           │   │   DAMUS   │
+     │ Technical │    │Storytelling│   │ Analytical│
+     └─────┬─────┘    └─────┬─────┘   └─────┬─────┘
+           │                │                │
+           ▼                ▼                ▼
+     [Direct]         [Narrative]       [Data-rich]
+     [Bullets]        [Analogies]       [Tables]
+     [Fast read]      [Emotional]       [Comparisons]
+```
+
+### 3.2 Why "Oracles"?
+
+**Branding Benefits:**
+- **Memorable:** Clients will say "send me the Orfeu report"
+- **Distinctive:** No other agency uses this terminology
+- **Scalable:** Can add 4th, 5th oracle in future
+- **Internal culture:** "Let me Delfos this" becomes jargon
+
+**Cultural Unity:**
+All three names come from prophecy/divination tradition, creating a cohesive system.
+
+---
+
+## 4. The Three Oracles
+
+### 4.1 🏛️ DELFOS (The Direct Oracle)
+
+**Concept:**
+Oracle of Delphi - the most famous oracle of antiquity. Direct, precise answers without poetry. "Know thyself" inscribed at the temple = self-knowledge through data.
+
+**Metaphor:**
+> "You ask, Delfos answers. No poetry, just truth."
+
+**Target Audience:**
+- Experienced marketing managers
+- Internal Jumper traffic managers
+- Anyone who speaks the language of metrics
+
+**Communication Style:**
+- Technical terminology (CPA, ROAS, CTR, etc.)
+- Bullet points for scannability
+- Objective tone, no fluff
+- Metrics with visual status (✅ ⚠️ ❌)
+- Action → Reason → Impact structure
+
+**Use Cases:**
+- Internal communication between Jumper managers
+- Client handover documentation
+- Quick status updates
+- Technical client reports
+
+**Length:** 300-400 words  
+**Read Time:** 30-60 seconds  
+**Tone:** Professional, technical, objective
+
+**Sample Structure:**
+```
+🏛️ DELFOS - [Account Name] | [Date]
+
+SITUATION:
+[One clear sentence of the main issue/context]
+
+ACTIONS:
+• [Action] → [Reason] → [Impact]
+• [Action] → [Reason] → [Impact]
+• [Action] → [Reason] → [Impact]
+
+METRICS:
+• CPA: R$ 450 ⚠️ 75% above target
+• ROAS: 2.5x ✅ On target
+• CTR: 1.2% ❌ Below benchmark
+
+NEXT CHECKPOINT: [Date] - [What will be evaluated]
+```
+
+---
+
+### 4.2 🎵 ORFEU (The Storyteller Oracle)
+
+**Concept:**
+Orpheus - Greek poet and musician who enchanted with his lyre. His music moved stones and tamed beasts. Narrative that transforms complexity into understandable beauty.
+
+**Metaphor:**
+> "Orfeu transforms data into a song everyone understands."
+
+**Target Audience:**
+- Business owners without technical knowledge
+- Clients who need to understand "why"
+- Decision-makers who value context over metrics
+
+**Communication Style:**
+- No jargon or technical terms
+- Real-world analogies (hiring a salesperson, testing a recipe)
+- Numbered sections with "Why?" explanations
+- Focus on business impact, not metrics
+- Educational and empathetic tone
+
+**Use Cases:**
+- New clients (first 3-6 months)
+- Small business owners without marketing team
+- Results presentations
+- Client education and retention
+
+**Length:** 600-800 words  
+**Read Time:** 2-3 minutes  
+**Tone:** Conversational, educational, narrative
+
+**Sample Structure:**
+```
+🎵 ORFEU - [Account Name] | [Date]
+
+CONTEXT: WHAT HAPPENED
+[Narrative setting the scene, no jargon]
+
+DECISIONS WE MADE
+
+1️⃣ [Action in simple language]
+   🤔 Why? 
+   [Explanation using real-world analogies]
+   
+   💰 What this means for you:
+   [Business impact, not metrics]
+
+2️⃣ [Next action...]
+   🤔 Why?
+   [Explanation...]
+   
+   💰 What this means for you:
+   [Impact...]
+
+WHAT TO EXPECT NOW:
+[Clear timeline with checkpoints in plain language]
+```
+
+---
+
+### 4.3 📜 NOSTRADAMUS (The Analytical Oracle)
+
+**Concept:**
+Nostradamus - prophet who saw patterns where others saw chaos. Detailed, precise quatrains. Deep data analysis revealing what's to come.
+
+**Metaphor:**
+> "Nostradamus sees in data what others cannot."
+
+**Target Audience:**
+- Analytical marketing managers
+- Stakeholders and executives
+- Data-driven decision makers
+- Board presentations
+
+**Communication Style:**
+- Rich data tables and comparisons
+- Before/after metrics
+- Visual ASCII tables
+- Technical precision with context
+- Benchmark comparisons (when available)
+
+**Use Cases:**
+- Monthly/quarterly reviews
+- Executive presentations
+- Performance audits
+- Strategic planning sessions
+
+**Length:** 800-1000 words  
+**Read Time:** 3-5 minutes  
+**Tone:** Analytical, data-rich, strategic
+
+**Sample Structure:**
+```
+📜 NOSTRADAMUS - [Account Name] | [Date]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📊 PERIOD OVERVIEW
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Day 10/10 (Thursday)
+├─ Invested: R$ 81,000
+├─ Conversions: 59 (Meta) | 58 (Gator)
+├─ Avg CPA: R$ 1,373
+└─ Status: 🟡 Improving throughout day
+
+Day 11/10 (Friday)
+├─ Invested: R$ 64,000 (projected)
+├─ CPA at 1pm: R$ 1,413
+└─ Strategy: Weekend reduction
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⚙️ STRUCTURAL CHANGES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔄 Jumper Campaign: Complete Restructure
+
+BEFORE:
+├─ Format: ABO (manual budget per set)
+├─ Creatives: all in 1 set
+└─ CPA: R$ 7,000 (start of day)
+
+AFTER:
+├─ Format: CBO (automatic budget)
+├─ Creatives: 4 separate mixes
+└─ CPA: R$ 1,875 (end of day)
+
+📊 Impact: -73% CPA reduction
+✅ Reason: Intelligent budget distribution
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📈 DETAILED METRICS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[Grid of metrics with comparisons and benchmarks]
+[Tables with performance by campaign/mix]
+[Timeline with milestones and checkpoints]
+```
+
+---
+
+## 5. Technical Architecture
+
+### 5.1 System Overview
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  OptimizationEditor.tsx (Main Page)                     │
+│                                                          │
+│  Step 3: Analysis Complete ✅                           │
+│  [Context structured data displayed]                    │
+│                                                          │
+│  ┌────────────────────────────────────────────────┐    │
+│  │  📊 GENERATE CLIENT REPORT                     │    │
+│  │                                                  │    │
+│  │  Choose format:                                 │    │
+│  │  ┌──────────┐ ┌──────────┐ ┌──────────┐       │    │
+│  │  │ 🏛️       │ │ 🎵       │ │ 📜       │       │    │
+│  │  │ DELFOS   │ │ ORFEU    │ │NOSTRADA- │       │    │
+│  │  │          │ │          │ │  MUS     │       │    │
+│  │  │ Technical│ │Narrative │ │Analytical│       │    │
+│  │  │          │ │          │ │          │       │    │
+│  │  │ [Select] │ │ [Select] │ │ [Select] │       │    │
+│  │  └──────────┘ └──────────┘ └──────────┘       │    │
+│  └────────────────────────────────────────────────┘    │
+│                                                          │
+│  [After generation → Display result]                    │
+│  [Actions: Copy | Export PDF | Share | Regenerate]     │
+└─────────────────────────────────────────────────────────┘
+```
+
+### 5.2 Data Flow
+
+```
+┌─────────────────────────────────────────────────────────┐
+│ 1. User clicks "Generate Report" + selects oracle      │
+└────────────────┬────────────────────────────────────────┘
+                 │
+                 ▼
+┌─────────────────────────────────────────────────────────┐
+│ 2. Frontend calls Edge Function                         │
+│    POST /j_hub_optimization_generate_oracle_report      │
+│    {                                                     │
+│      context_id: "uuid",                                │
+│      oracle: "delfos" | "orfeu" | "nostradamus",       │
+│      account_name: "Cliente X"                          │
+│    }                                                     │
+└────────────────┬────────────────────────────────────────┘
+                 │
+                 ▼
+┌─────────────────────────────────────────────────────────┐
+│ 3. Edge Function fetches context from DB                │
+│    SELECT * FROM j_hub_optimization_context             │
+│    WHERE id = context_id                                │
+└────────────────┬────────────────────────────────────────┘
+                 │
+                 ▼
+┌─────────────────────────────────────────────────────────┐
+│ 4. Select appropriate prompt template                   │
+│    const prompt = ORACLE_PROMPTS[oracle]                │
+└────────────────┬────────────────────────────────────────┘
+                 │
+                 ▼
+┌─────────────────────────────────────────────────────────┐
+│ 5. Call Claude API (Sonnet 4.5)                        │
+│    anthropic.messages.create({                          │
+│      model: "claude-sonnet-4-5-20250929",              │
+│      messages: [{                                       │
+│        role: "user",                                    │
+│        content: prompt + JSON.stringify(context)        │
+│      }]                                                 │
+│    })                                                   │
+└────────────────┬────────────────────────────────────────┘
+                 │
+                 ▼
+┌─────────────────────────────────────────────────────────┐
+│ 6. Save generated report to DB                         │
+│    UPDATE j_hub_optimization_context                    │
+│    SET generated_reports = {                            │
+│      "delfos": "...",                                   │
+│      "orfeu": "...",                                    │
+│      "nostradamus": "...",                              │
+│      "generated_at": "2025-10-12T..."                   │
+│    }                                                    │
+└────────────────┬────────────────────────────────────────┘
+                 │
+                 ▼
+┌─────────────────────────────────────────────────────────┐
+│ 7. Return report to frontend                           │
+│    { report: "🏛️ DELFOS - Cliente X...", oracle: ... } │
+└─────────────────────────────────────────────────────────┘
+```
+
+### 5.3 Database Schema Changes
+
+**Add column to existing table:**
+
+```sql
+-- Migration: Add generated_reports column
+ALTER TABLE j_hub_optimization_context
+ADD COLUMN generated_reports JSONB DEFAULT '{}';
+
+-- Structure:
+{
+  "delfos": "🏛️ DELFOS - Cliente X...",
+  "orfeu": "🎵 ORFEU - Cliente X...",
+  "nostradamus": "📜 NOSTRADAMUS - Cliente X...",
+  "generated_at": "2025-10-12T10:30:00Z",
+  "last_oracle_used": "orfeu"
+}
+```
+
+**Benefits:**
+- ✅ Caches generated reports (no need to regenerate)
+- ✅ Allows comparison of all 3 formats
+- ✅ Tracks which oracle was last used
+- ✅ Historical record of generated reports
+
+### 5.4 New Edge Function
+
+**File:** `supabase/functions/j_hub_optimization_generate_oracle_report/index.ts`
+
+```typescript
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import Anthropic from 'https://esm.sh/@anthropic-ai/sdk@0.24.3'
+
+// Oracle prompt templates (imported from separate file)
+import { ORACLE_PROMPTS } from './prompts.ts'
+
+serve(async (req) => {
+  try {
+    const { context_id, oracle, account_name } = await req.json()
+    
+    // Validate oracle type
+    if (!['delfos', 'orfeu', 'nostradamus'].includes(oracle)) {
+      throw new Error('Invalid oracle type')
+    }
+    
+    // Initialize Supabase client
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+    )
+    
+    // Fetch context
+    const { data: context, error } = await supabase
+      .from('j_hub_optimization_context')
+      .select('*')
+      .eq('id', context_id)
+      .single()
+    
+    if (error || !context) {
+      throw new Error('Context not found')
+    }
+    
+    // Check if report already exists
+    if (context.generated_reports?.[oracle]) {
+      return new Response(
+        JSON.stringify({
+          report: context.generated_reports[oracle],
+          cached: true,
+          oracle
+        }),
+        { headers: { 'Content-Type': 'application/json' } }
+      )
+    }
+    
+    // Initialize Anthropic client
+    const anthropic = new Anthropic({
+      apiKey: Deno.env.get('ANTHROPIC_API_KEY')
+    })
+    
+    // Build prompt
+    const prompt = ORACLE_PROMPTS[oracle]
+      .replace('{{ACCOUNT_NAME}}', account_name)
+      .replace('{{CONTEXT}}', JSON.stringify(context, null, 2))
+    
+    // Call Claude
+    const message = await anthropic.messages.create({
+      model: 'claude-sonnet-4-5-20250929',
+      max_tokens: 4000,
+      temperature: 0.7,
+      messages: [{
+        role: 'user',
+        content: prompt
+      }]
+    })
+    
+    const report = message.content[0].text
+    
+    // Save to database
+    const updatedReports = {
+      ...context.generated_reports,
+      [oracle]: report,
+      generated_at: new Date().toISOString(),
+      last_oracle_used: oracle
+    }
+    
+    await supabase
+      .from('j_hub_optimization_context')
+      .update({ generated_reports: updatedReports })
+      .eq('id', context_id)
+    
+    return new Response(
+      JSON.stringify({
+        report,
+        cached: false,
+        oracle
+      }),
+      { headers: { 'Content-Type': 'application/json' } }
+    )
+    
+  } catch (error) {
+    return new Response(
+      JSON.stringify({ error: error.message }),
+      { status: 500, headers: { 'Content-Type': 'application/json' } }
+    )
+  }
+})
+```
+
+### 5.5 Frontend Components
+
+**New Component:** `src/components/OracleReportGenerator.tsx`
+
+```typescript
+interface OracleReportGeneratorProps {
+  contextId: string;
+  accountName: string;
+}
+
+export const OracleReportGenerator = ({ 
+  contextId, 
+  accountName 
+}: OracleReportGeneratorProps) => {
+  const [selectedOracle, setSelectedOracle] = useState<string | null>(null)
+  const [generatedReport, setGeneratedReport] = useState<string | null>(null)
+  const [isGenerating, setIsGenerating] = useState(false)
+  
+  const oracles = [
+    {
+      id: 'delfos',
+      icon: '🏛️',
+      name: 'DELFOS',
+      subtitle: 'Technical',
+      description: 'Direct, precise, for experienced marketers',
+      color: 'red'
+    },
+    {
+      id: 'orfeu',
+      icon: '🎵',
+      name: 'ORFEU',
+      subtitle: 'Narrative',
+      description: 'Storytelling for non-technical clients',
+      color: 'blue'
+    },
+    {
+      id: 'nostradamus',
+      icon: '📜',
+      name: 'NOSTRADAMUS',
+      subtitle: 'Analytical',
+      description: 'Data-rich for analytical managers',
+      color: 'orange'
+    }
+  ]
+  
+  const generateReport = async (oracle: string) => {
+    setIsGenerating(true)
+    setSelectedOracle(oracle)
+    
+    try {
+      const response = await fetch(
+        '/functions/v1/j_hub_optimization_generate_oracle_report',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            context_id: contextId, 
+            oracle,
+            account_name: accountName
+          })
+        }
+      )
+      
+      const data = await response.json()
+      setGeneratedReport(data.report)
+      
+    } catch (error) {
+      toast.error('Failed to generate report')
+    } finally {
+      setIsGenerating(false)
+    }
+  }
+  
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>📊 Generate Client Report</CardTitle>
+        <CardDescription>
+          Choose the oracle format based on your client's profile
+        </CardDescription>
+      </CardHeader>
+      
+      <CardContent>
+        {!generatedReport ? (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {oracles.map(oracle => (
+              <OracleCard
+                key={oracle.id}
+                {...oracle}
+                onSelect={() => generateReport(oracle.id)}
+                isLoading={isGenerating && selectedOracle === oracle.id}
+              />
+            ))}
+          </div>
+        ) : (
+          <div>
+            <ReportViewer report={generatedReport} oracle={selectedOracle!} />
+            <div className="flex gap-2 mt-4">
+              <Button onClick={handleCopy}>Copy</Button>
+              <Button onClick={handleExportPDF}>Export PDF</Button>
+              <Button onClick={handleShare}>Share</Button>
+              <Button onClick={() => setGeneratedReport(null)}>
+                Generate Another
+              </Button>
+            </div>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  )
+}
+```
+
+---
+
+## 6. Prompt Engineering Strategy
+
+### 6.1 Prompt Structure
+
+Each oracle prompt follows this structure:
+
+```xml
+<system>
+[Oracle identity and personality]
+</system>
+
+<instructions>
+[Step-by-step generation instructions]
+</instructions>
+
+<examples>
+[2-3 few-shot examples of good outputs]
+</examples>
+
+<context>
+[JSON context from database]
+</context>
+
+<output_requirements>
+[Specific formatting and content requirements]
+</output_requirements>
+
+<language>
+Output language: Portuguese (Brazil)
+Maintain professional tone throughout.
+</language>
+```
+
+### 6.2 Key Prompt Engineering Techniques
+
+**1. Few-Shot Learning**
+- Include 2-3 complete examples per oracle
+- Show variety (different strategies, metrics, scenarios)
+- Demonstrate desired tone and structure
+
+**2. Chain-of-Thought**
+```xml
+<thinking_process>
+Before writing the report, analyze:
+1. What are the 3 most important insights?
+2. What does the client need to understand most?
+3. What action should they take after reading?
+</thinking_process>
+```
+
+**3. XML Tags for Structure**
+Force consistent output format:
+```xml
+<output>
+  <header>[Oracle emoji + name + date]</header>
+  <section name="situation">[...]</section>
+  <section name="actions">[...]</section>
+  <section name="metrics">[...]</section>
+  <section name="next_steps">[...]</section>
+</output>
+```
+
+**4. Persona Reinforcement**
+Throughout prompt, remind the model:
+- "Remember, you are Delfos - be direct and precise"
+- "As Orfeu, use analogies that business owners understand"
+- "Like Nostradamus, provide data comparisons"
+
+**5. Negative Examples**
+Show what NOT to do:
+```xml
+<bad_example>
+Don't do this: "The CPA was high."
+Do this instead: "CPA reached R$ 450, which is 75% above our target of R$ 100"
+</bad_example>
+```
+
+### 6.3 Handling Edge Cases
+
+**Missing Data:**
+```xml
+<handling_missing_data>
+If a metric is not mentioned in the context:
+- Don't make up numbers
+- Don't say "data not available" 
+- Simply focus on metrics that ARE present
+</handling_missing_data>
+```
+
+**Multiple Strategies:**
+```xml
+<handling_multiple_strategies>
+If context shows multiple strategy types (test + optimize):
+- Identify the PRIMARY strategy
+- Mention secondary strategies briefly
+- Don't confuse the narrative
+</handling_multiple_strategies>
+```
+
+**Low Confidence:**
+```xml
+<handling_low_confidence>
+If confidence_level is "low" or "revised":
+- Acknowledge uncertainty appropriately
+- Focus on what IS known
+- Set expectations for follow-up
+</handling_low_confidence>
+```
+
+### 6.4 Output Quality Control
+
+**Built-in validation within prompt:**
+
+```xml
+<self_check>
+Before finalizing, verify:
+✓ Word count within range (300-400 / 600-800 / 800-1000)
+✓ All sections present
+✓ Correct oracle emoji used (🏛️ / 🎵 / 📜)
+✓ Date formatted correctly (DD/MM/YYYY or DD Mon YYYY)
+✓ No English words (except technical terms if needed)
+✓ Professional tone maintained
+✓ Actionable next steps included
+</self_check>
+```
+
+---
+
+## 7. Implementation Plan
+
+### 7.1 Phase 1: Prompt Development & Testing (2-3 days)
+
+**Day 1: DELFOS**
+- [ ] Write complete DELFOS prompt template
+- [ ] Create 3 few-shot examples
+- [ ] Test manually with Clínica Seven context
+- [ ] Iterate based on output quality
+- [ ] Document edge cases found
+
+**Day 2: ORFEU**
+- [ ] Write complete ORFEU prompt template
+- [ ] Create 3 few-shot examples (different from DELFOS)
+- [ ] Test manually with multiple contexts
+- [ ] Validate analogies work for non-technical audience
+- [ ] Iterate based on feedback
+
+**Day 3: NOSTRADAMUS**
+- [ ] Write complete NOSTRADAMUS prompt template
+- [ ] Create 3 few-shot examples with rich data
+- [ ] Test table formatting (ASCII art)
+- [ ] Ensure comparisons are clear
+- [ ] Final iteration
+
+**Deliverable:** 3 production-ready prompt templates
+
+---
+
+### 7.2 Phase 2: Backend Implementation (2 days)
+
+**Day 4: Edge Function**
+- [ ] Create edge function file structure
+- [ ] Implement main logic (fetch, generate, save)
+- [ ] Add error handling
+- [ ] Add caching logic
+- [ ] Test with Postman/curl
+- [ ] Deploy to Supabase
+
+**Day 5: Database & Testing**
+- [ ] Run migration (add `generated_reports` column)
+- [ ] Test edge function with real data
+- [ ] Verify caching works
+- [ ] Load testing (simulate 10 concurrent requests)
+- [ ] Monitor costs (Anthropic API usage)
+
+**Deliverable:** Working edge function in production
+
+---
+
+### 7.3 Phase 3: Frontend Integration (2-3 days)
+
+**Day 6: UI Components**
+- [ ] Create `OracleReportGenerator.tsx`
+- [ ] Create `OracleCard.tsx` (selection cards)
+- [ ] Create `ReportViewer.tsx` (display generated report)
+- [ ] Add to `OptimizationEditor.tsx`
+- [ ] Implement loading states
+
+**Day 7: Actions & Polish**
+- [ ] Implement Copy to Clipboard
+- [ ] Implement Share (create public URL)
+- [ ] Implement Export PDF (basic markdown → PDF)
+- [ ] Add regenerate functionality
+- [ ] Mobile responsive testing
+
+**Optional Day 8: Visual Enhancements**
+- [ ] Improve markdown rendering (syntax highlighting)
+- [ ] Add oracle-specific color schemes
+- [ ] Smooth animations
+- [ ] Dark mode support
+
+**Deliverable:** Complete user-facing feature
+
+---
+
+### 7.4 Phase 4: Validation & Iteration (1-2 days)
+
+**Day 9: Internal Testing**
+- [ ] Generate reports for 5-10 different clients
+- [ ] Have Jumper team review quality
+- [ ] Collect feedback on each oracle
+- [ ] Identify prompt improvements needed
+
+**Day 10: Client Testing (Optional)**
+- [ ] Send ORFEU reports to 3 non-technical clients
+- [ ] Send DELFOS reports to 3 technical clients
+- [ ] Send NOSTRADAMUS to 1 analytical client
+- [ ] Gather feedback via form or call
+- [ ] Iterate prompts based on feedback
+
+**Deliverable:** Validated, production-ready system
+
+---
+
+### 7.5 Timeline Summary
+
+| Phase | Duration | Days |
+|-------|----------|------|
+| Phase 1: Prompt Development | 2-3 days | Day 1-3 |
+| Phase 2: Backend | 2 days | Day 4-5 |
+| Phase 3: Frontend | 2-3 days | Day 6-8 |
+| Phase 4: Validation | 1-2 days | Day 9-10 |
+| **TOTAL** | **7-10 days** | **~2 weeks max** |
+
+**vs Original Proposal:** 3 weeks → **60% faster**
+
+---
+
+## 8. Success Metrics
+
+### 8.1 Quantitative Metrics
+
+**Adoption:**
+- [ ] **Target:** 80% of optimizations generate at least one oracle report
+- [ ] **Measure:** `COUNT(*)` where `generated_reports IS NOT NULL`
+
+**Usage Distribution:**
+- [ ] Track which oracle is most used
+- [ ] Hypothesis: ORFEU will be most common (most clients are non-technical)
+
+**Performance:**
+- [ ] **Target:** < 5 seconds generation time (95th percentile)
+- [ ] **Measure:** Edge function execution time
+
+**Cost:**
+- [ ] **Target:** < $0.05 per report
+- [ ] **Measure:** Anthropic API costs / number of reports
+
+**Client Satisfaction:**
+- [ ] **Target:** NPS improvement by 10 points after implementation
+- [ ] **Measure:** Follow-up NPS survey
+
+### 8.2 Qualitative Metrics
+
+**Client Feedback:**
+- [ ] "I actually understood what you did this time"
+- [ ] "This report is much clearer than before"
+- [ ] "Can you send these every week?"
+
+**Internal Feedback:**
+- [ ] Time saved on client communication
+- [ ] Reduced follow-up questions from clients
+- [ ] Manager confidence in sharing reports
+
+**Quality Assessment:**
+- [ ] Score 10 random reports (1-10 scale)
+- [ ] **Target:** Average score > 7.5
+
+---
+
+## 9. Appendix: Prompt Templates
+
+### 9.1 DELFOS Prompt Template (Outline)
+
+```xml
+<system>
+You are DELFOS 🏛️, the Oracle of Delphi - the most prestigious oracle of ancient Greece.
+
+Your communication style:
+- Direct and precise, like the Delphic maxim "Know thyself"
+- Technical language (you speak to experienced marketers)
+- Bullet points for maximum scannability
+- No fluff, no poetry - just truth
+- Metrics with clear visual status indicators
+
+Your audience:
+- Experienced marketing managers who understand CPA, ROAS, CTR, etc.
+- Internal Jumper Studio traffic managers
+- Anyone who "speaks the language" of paid traffic
+
+Your mission:
+Transform optimization context into a concise, technical report that allows quick decision-making.
+</system>
+
+<instructions>
+1. Read the context JSON carefully
+2. Identify the PRIMARY situation/problem addressed
+3. List 2-4 key actions taken (focus on most impactful)
+4. Present 3-5 critical metrics with status
+5. Define clear next checkpoint with date
+6. Keep total length: 300-400 words
+7. Use Portuguese (Brazil) throughout
+</instructions>
+
+<examples>
+[Include 2-3 complete examples here - see separate document]
+</examples>
+
+<context>
+Account Name: {{ACCOUNT_NAME}}
+Optimization Context:
+{{CONTEXT}}
+</context>
+
+<output_requirements>
+Format:
+🏛️ DELFOS - [Account Name] | [Date]
+
+SITUATION:
+[One clear sentence of main issue/context]
+
+ACTIONS:
+• [Action 1] → [Reason] → [Expected Impact]
+• [Action 2] → [Reason] → [Expected Impact]
+• [Action 3] → [Reason] → [Expected Impact]
+
+METRICS:
+• [Metric 1]: [Value] [Status emoji ✅⚠️❌] [Context]
+• [Metric 2]: [Value] [Status emoji] [Context]
+• [Metric 3]: [Value] [Status emoji] [Context]
+
+NEXT CHECKPOINT: [Date] - [What will be evaluated]
+
+Status indicators:
+✅ = Good / On target
+⚠️ = Attention / Needs monitoring  
+❌ = Critical / Action needed
+
+Word count: 300-400 words
+Language: Portuguese (Brazil)
+</output_requirements>
+
+<self_check>
+Before submitting, verify:
+✓ Used 🏛️ emoji in header
+✓ Word count 300-400
+✓ All sections present
+✓ Metrics have status indicators
+✓ Next checkpoint has specific date
+✓ Technical terms used appropriately
+✓ No English (except unavoidable acronyms)
+</self_check>
+```
+
+**Note:** Complete prompts with full examples will be in separate files:
+- `prompts/delfos.txt`
+- `prompts/orfeu.txt`
+- `prompts/nostradamus.txt`
+
+---
+
+### 9.2 ORFEU Prompt Template (Outline)
+
+```xml
+<system>
+You are ORFEU 🎵, the legendary poet and musician of Greek mythology whose lyre could charm all living things and even move stones.
+
+Your communication style:
+- Narrative and storytelling
+- Zero jargon - translate everything to plain language
+- Real-world analogies (hiring staff, testing recipes, etc.)
+- Empathetic and educational tone
+- Focus on "what this means for your business"
+
+Your audience:
+- Business owners without marketing expertise
+- Clients who ask "why?" and "what does this mean?"
+- People who make decisions based on business impact, not metrics
+
+Your mission:
+Transform technical optimization data into a story that ANY business owner can understand and act upon.
+</system>
+
+<instructions>
+1. Read the context JSON
+2. Create a narrative: What happened → Why we acted → What to expect
+3. For each action, explain WHY in business terms
+4. Use numbered sections (1️⃣ 2️⃣ 3️⃣) for structure
+5. Include "🤔 Why?" and "💰 What this means for you" subsections
+6. Keep total length: 600-800 words
+7. Use Portuguese (Brazil) throughout
+</instructions>
+
+<examples>
+[Include 2-3 complete examples - see separate document]
+</examples>
+
+<context>
+Account Name: {{ACCOUNT_NAME}}
+Optimization Context:
+{{CONTEXT}}
+</context>
+
+<output_requirements>
+Format:
+🎵 ORFEU - [Account Name] | [Date]
+
+CONTEXT: WHAT HAPPENED
+[Narrative explanation of the situation - 2-3 paragraphs, no jargon]
+
+DECISIONS WE MADE
+
+1️⃣ [Action in simple language]
+   🤔 Why?
+   [Explanation using real-world analogies]
+   
+   💰 What this means for you:
+   [Business impact in plain language]
+
+2️⃣ [Action 2]
+   🤔 Why?
+   [...]
+   
+   💰 What this means for you:
+   [...]
+
+[Repeat for 2-4 main actions]
+
+WHAT TO EXPECT NOW:
+[Clear timeline with milestones in plain language]
+
+Translation rules:
+- CPA → "cost to acquire each client"
+- ROAS → "return on investment" 
+- CTR → "how many people clicked"
+- Campaign → "advertisement group"
+- Creative → "ad design/video"
+- Budget → "investment" or "spending"
+
+Word count: 600-800 words
+Language: Portuguese (Brazil)
+Tone: Conversational, like explaining to a friend
+</output_requirements>
+
+<self_check>
+Before submitting, verify:
+✓ Used 🎵 emoji in header
+✓ Word count 600-800
+✓ No jargon (or translated when unavoidable)
+✓ Used at least 1 real-world analogy
+✓ Each action has "Why?" and "What this means"
+✓ Numbered sections (1️⃣ 2️⃣ etc.)
+✓ Timeline is clear and actionable
+</self_check>
+```
+
+---
+
+### 9.3 NOSTRADAMUS Prompt Template (Outline)
+
+```xml
+<system>
+You are NOSTRADAMUS 📜, the 16th-century prophet known for his detailed quatrains and ability to see patterns in chaos.
+
+Your communication style:
+- Data-rich with context
+- ASCII tables and visual comparisons
+- Before/after metrics
+- Technical precision with business context
+- Analytical and strategic tone
+
+Your audience:
+- Analytical marketing managers
+- Executives and stakeholders
+- Data-driven decision makers
+- People preparing for board meetings
+
+Your mission:
+Transform optimization context into a comprehensive analytical report with deep data insights and strategic recommendations.
+</system>
+
+<instructions>
+1. Read the context JSON thoroughly
+2. Create data-rich sections with ASCII tables
+3. Show before/after comparisons for all major changes
+4. Calculate percentages and trends
+5. Use visual separators (━━━) between sections
+6. Use tree structure (├─ └─) for hierarchical data
+7. Keep total length: 800-1000 words
+8. Use Portuguese (Brazil) throughout
+</instructions>
+
+<examples>
+[Include 2-3 complete examples - see separate document]
+</examples>
+
+<context>
+Account Name: {{ACCOUNT_NAME}}
+Optimization Context:
+{{CONTEXT}}
+</context>
+
+<output_requirements>
+Format:
+📜 NOSTRADAMUS - [Account Name] | [Date]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📊 PERIOD OVERVIEW
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[Time period 1]
+├─ Invested: R$ X
+├─ Conversions: Y
+├─ CPA: R$ Z
+└─ Status: [emoji + description]
+
+[Time period 2]
+├─ Invested: R$ X
+├─ Conversions: Y  
+├─ CPA: R$ Z
+└─ Status: [emoji + description]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⚙️ STRUCTURAL CHANGES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔄 [Campaign/Action Name]
+
+BEFORE:
+├─ [Metric 1]
+├─ [Metric 2]
+└─ [Metric 3]
+
+AFTER:
+├─ [Metric 1]
+├─ [Metric 2]
+└─ [Metric 3]
+
+📊 Impact: [Percentage or delta]
+✅ Reason: [Technical explanation]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📈 DETAILED METRICS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+[Grid of all metrics with comparisons]
+
+Visual elements:
+- Use ━━━ for section separators
+- Use ├─ and └─ for tree structure
+- Use 📊 📈 📉 🔄 ⚙️ emojis
+- Show percentages for all comparisons
+- Include status emojis (✅🟡🔴)
+
+Word count: 800-1000 words
+Language: Portuguese (Brazil)
+Tone: Analytical, strategic, data-driven
+</output_requirements>
+
+<self_check>
+Before submitting, verify:
+✓ Used 📜 emoji in header
+✓ Word count 800-1000
+✓ At least 2 ASCII tables or tree structures
+✓ All sections separated with ━━━
+✓ Before/after comparisons included
+✓ Percentages calculated correctly
+✓ Technical terms used with context
+✓ Data is accurate (not fabricated)
+</self_check>
+```
+
+---
+
+## 10. Conclusion
+
+### 10.1 Summary
+
+This proposal presents a **pragmatic, AI-native solution** to the Step 3 optimization report problem:
+
+**Instead of building:**
+- 6 visual components
+- Complex navigation system
+- PDF generation pipeline
+- 3 weeks of development
+
+**We're building:**
+- 3 intelligent prompt systems
+- 1 edge function
+- Simple UI for oracle selection
+- 7-10 days of development
+
+### 10.2 Key Success Factors
+
+1. **Prompt Quality** - The entire system depends on well-crafted prompts
+2. **Few-Shot Examples** - Good examples = consistent outputs
+3. **Iterative Testing** - Test with real data, iterate quickly
+4. **User Feedback** - Listen to both internal team and clients
+
+### 10.3 Risk Mitigation
+
+| Risk | Mitigation |
+|------|------------|
+| Prompts produce inconsistent results | Extensive few-shot examples + validation testing |
+| Generated reports have errors | Built-in self-check in prompts + human review step |
+| Costs higher than expected | Caching + monitoring + optimization |
+| Clients don't understand reports | User testing + iteration + fallback to simpler formats |
+
+### 10.4 Next Steps
+
+**Immediate (This Week):**
+1. ✅ Approve this proposal
+2. Create first DELFOS prompt
+3. Test manually with Clínica Seven context
+4. Iterate until quality is good
+
+**Short-term (Next 2 Weeks):**
+1. Complete all 3 prompts
+2. Implement edge function
+3. Build UI
+4. Deploy to production
+
+**Medium-term (First Month):**
+1. Gather usage data
+2. Collect client feedback
+3. Iterate on prompts
+4. Add PDF export if needed
+
+**Long-term (Months 2-3):**
+1. Consider adding 4th oracle for specific use case
+2. Explore automated sending (email/WhatsApp)
+3. Integrate with presentation tools
+4. White-label version for partners
+
+---
+
+## 11. Appendix: Additional Resources
+
+### 11.1 Files to Create
+
+```
+project/
+├── supabase/
+│   └── functions/
+│       └── j_hub_optimization_generate_oracle_report/
+│           ├── index.ts                    # Main edge function
+│           ├── prompts/
+│           │   ├── delfos.ts              # DELFOS prompt
+│           │   ├── orfeu.ts               # ORFEU prompt
+│           │   └── nostradamus.ts         # NOSTRADAMUS prompt
+│           └── examples/
+│               ├── delfos-examples.ts      # Few-shot examples
+│               ├── orfeu-examples.ts       # Few-shot examples
+│               └── nostradamus-examples.ts # Few-shot examples
+│
+├── src/
+│   └── components/
+│       ├── OracleReportGenerator.tsx      # Main component
+│       ├── OracleCard.tsx                 # Selection card
+│       └── ReportViewer.tsx               # Display component
+│
+└── docs/
+    ├── ORACLE-FRAMEWORK-GUIDE.md          # User documentation
+    └── PROMPT-ITERATION-LOG.md            # Track prompt changes
+```
+
+### 11.2 Testing Checklist
+
+**Prompt Testing:**
+- [ ] Test with 5 different optimization contexts
+- [ ] Test with missing data scenarios
+- [ ] Test with multiple strategies
+- [ ] Test with low confidence contexts
+- [ ] Validate word counts
+- [ ] Validate format consistency
+
+**Edge Function Testing:**
+- [ ] Test with valid inputs
+- [ ] Test with invalid oracle type
+- [ ] Test with non-existent context_id
+- [ ] Test caching behavior
+- [ ] Load test with 10 concurrent requests
+- [ ] Monitor API costs
+
+**UI Testing:**
+- [ ] Test oracle selection
+- [ ] Test loading states
+- [ ] Test error states
+- [ ] Test copy functionality
+- [ ] Test regenerate functionality
+- [ ] Mobile responsive testing
+
+### 11.3 Monitoring & Observability
+
+**Metrics to Track:**
+```sql
+-- Usage analytics
+SELECT 
+  oracle,
+  COUNT(*) as usage_count,
+  AVG(generation_time_ms) as avg_time,
+  SUM(api_cost_usd) as total_cost
+FROM oracle_report_logs
+WHERE created_at > NOW() - INTERVAL '30 days'
+GROUP BY oracle;
+
+-- Quality metrics (if we add feedback)
+SELECT 
+  oracle,
+  AVG(user_rating) as avg_rating,
+  COUNT(CASE WHEN user_rating >= 4 THEN 1 END) as positive_count
+FROM oracle_report_feedback
+GROUP BY oracle;
+```
+
+---
+
+**END OF DOCUMENT**
+
+*This proposal is ready for implementation. Questions or feedback should be directed to Bruno Maya or the development team.*
+
+*Last updated: 2025-10-12*
