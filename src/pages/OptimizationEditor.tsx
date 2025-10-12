@@ -29,6 +29,7 @@ import {
   rowToOptimizationContext,
 } from "@/types/optimization";
 import {
+  AlertCircle,
   ChevronDown,
   ChevronLeft,
   Mic,
@@ -661,6 +662,39 @@ export default function OptimizationEditor() {
                     <>
                       <Sparkles className="mr-2 h-4 w-4" />
                       Organizar em Tópicos
+                    </>
+                  )}
+                </JumperButton>
+              </div>
+            )}
+
+            {/* Failed State */}
+            {recording.processing_status === 'failed' && (
+              <div className="text-center py-8 space-y-4">
+                <AlertCircle className="h-12 w-12 mx-auto text-destructive opacity-70" />
+                <div className="space-y-2">
+                  <p className="text-destructive font-medium">
+                    Falha ao processar transcrição
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Verifique se a transcrição tem conteúdo suficiente (mínimo 50 caracteres).
+                  </p>
+                </div>
+                <JumperButton
+                  onClick={() => handleProcess()}
+                  disabled={isProcessing || !transcript?.full_text}
+                  variant="default"
+                  size="lg"
+                >
+                  {isProcessing ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Tentando novamente...
+                    </>
+                  ) : (
+                    <>
+                      <RotateCw className="mr-2 h-4 w-4" />
+                      Tentar Novamente
                     </>
                   )}
                 </JumperButton>
