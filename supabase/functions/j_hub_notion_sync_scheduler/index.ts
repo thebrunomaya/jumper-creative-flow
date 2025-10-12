@@ -182,7 +182,7 @@ function processNotionAccount(page: any): any {
 async function logSyncEvent(supabase: any, type: 'start' | 'success' | 'error', message: string, details?: any) {
   try {
     await supabase
-      .from('j_ads_notion_sync_logs')
+      .from('j_hub_notion_sync_logs')
       .insert({
         event_type: type,
         message,
@@ -265,7 +265,7 @@ serve(async (req) => {
 
     // Clear existing data and insert fresh data
     const { error: deleteErr } = await service
-      .from('j_ads_notion_db_accounts')
+      .from('j_hub_notion_db_accounts')
       .delete()
       .neq('id', '00000000-0000-0000-0000-000000000000'); // Delete all
     
@@ -281,7 +281,7 @@ serve(async (req) => {
       for (let i = 0; i < accountsToUpsert.length; i += batchSize) {
         const batch = accountsToUpsert.slice(i, i + batchSize);
         const { error: insertErr, count } = await service
-          .from('j_ads_notion_db_accounts')
+          .from('j_hub_notion_db_accounts')
           .insert(batch, { count: 'exact' });
         
         if (insertErr) {

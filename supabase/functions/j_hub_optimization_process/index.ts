@@ -68,7 +68,7 @@ serve(async (req) => {
 
     // Fetch account context with Transcription Context
     const { data: accountData } = await supabase
-      .from('j_ads_notion_db_accounts')
+      .from('j_hub_notion_db_accounts')
       .select('Conta, Objetivos, "Contexto para Transcrição", "Contexto para Otimização"')
       .eq('notion_id', recording.account_id)
       .maybeSingle();

@@ -17,7 +17,7 @@ export async function checkEmailWhitelist(email: string): Promise<WhitelistCheck
 
     // Verificar se o email está na tabela de managers do Notion
     const { data: managers, error: managerError } = await supabase
-      .from('j_ads_notion_db_managers')
+      .from('j_hub_notion_db_managers')
       .select('*')
       .ilike('E-Mail', normalizedEmail)
       .maybeSingle();

@@ -180,7 +180,7 @@ serve(async (req) => {
 
     // Log do início da sincronização
     const syncStartTime = new Date().toISOString();
-    await service.from('j_ads_notion_sync_logs').insert({
+    await service.from('j_hub_notion_sync_logs').insert({
       sync_type: 'complete_managers_sync',
       status: 'started',
       message: 'Complete Managers sync started',
@@ -212,7 +212,7 @@ serve(async (req) => {
     let upsertResult;
     if (managersData.length > 0) {
       const { data, error: upsertErr } = await service
-        .from('j_ads_notion_db_managers')
+        .from('j_hub_notion_db_managers')
         .upsert(managersData, { onConflict: 'notion_id' });
       
       if (upsertErr) {
@@ -224,7 +224,7 @@ serve(async (req) => {
 
     // Log do sucesso
     const syncEndTime = new Date().toISOString();
-    await service.from('j_ads_notion_sync_logs').insert({
+    await service.from('j_hub_notion_sync_logs').insert({
       sync_type: 'complete_managers_sync',
       status: 'completed',
       message: `Managers sync completed: ${managersData.length} managers processed`,
@@ -254,7 +254,7 @@ serve(async (req) => {
     if (SUPABASE_URL && SERVICE_ROLE_KEY) {
       try {
         const service = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
-        await service.from('j_ads_notion_sync_logs').insert({
+        await service.from('j_hub_notion_sync_logs').insert({
           sync_type: 'complete_managers_sync',
           status: 'error',
           message: err?.message || 'Unknown error',

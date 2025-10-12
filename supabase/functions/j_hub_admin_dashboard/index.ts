@@ -90,9 +90,9 @@ async function getManagerNameByEmail(email: string, supabase: any, notionToken: 
   }
 
   try {
-    // 1st attempt: Query j_ads_notion_db_managers table (fast)
+    // 1st attempt: Query j_hub_notion_db_managers table (fast)
     const { data: managerData, error: dbErr } = await supabase
-      .from("j_ads_notion_db_managers")
+      .from("j_hub_notion_db_managers")
       .select("name")
       .eq("email", email)
       .maybeSingle();
@@ -1166,11 +1166,11 @@ Deno.serve(async (req) => {
     const emailResults = await Promise.all(emailPromises);
     const uniqueEmails = Array.from(new Set(emailResults.map(r => r.email).filter(Boolean))).slice(0, 50);
     
-    // 2. Batch query j_ads_notion_db_managers table first
+    // 2. Batch query j_hub_notion_db_managers table first
     if (uniqueEmails.length > 0) {
       try {
         const { data: managerData, error: dbErr } = await supabase
-          .from("j_ads_notion_db_managers")
+          .from("j_hub_notion_db_managers")
           .select("email, name")
           .in("email", uniqueEmails);
         

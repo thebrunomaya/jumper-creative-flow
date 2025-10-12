@@ -95,7 +95,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       try {
         const { data, error } = await supabase
-          .from('j_ads_notion_db_managers')
+          .from('j_hub_notion_db_managers')
           .select('"Nome"')  // Campo com letra maiúscula e aspas
           .ilike('"E-Mail"', user.email)  // Campo "E-Mail" com hífen
           .limit(1)
@@ -192,7 +192,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Try to get name from various sources in order of preference:
     // 1. user_metadata.full_name (OAuth - Notion has this as "Bruno Maya") ⭐
     // 2. user_metadata.name (OAuth - Notion also has this)
-    // 3. managerName (from j_ads_notion_db_managers table - only for Gerentes)
+    // 3. managerName (from j_hub_notion_db_managers table - only for Gerentes)
     // 4. user_metadata.display_name (other providers)
     // 5. identities[0].identity_data.name (raw OAuth data)
     // 6. email split as fallback

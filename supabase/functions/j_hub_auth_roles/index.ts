@@ -106,7 +106,7 @@ Deno.serve(async (req: Request) => {
 
       // Check if user is Gestor in any account
       const { data: gestorAccounts } = await admin
-        .from('j_ads_notion_db_accounts')
+        .from('j_hub_notion_db_accounts')
         .select('notion_id')
         .ilike('"Gestor"', `%${targetEmail}%`)
         .limit(1)
@@ -117,7 +117,7 @@ Deno.serve(async (req: Request) => {
       } else {
         // Check if user is Supervisor in any account
         const { data: supervisorAccounts } = await admin
-          .from('j_ads_notion_db_accounts')
+          .from('j_hub_notion_db_accounts')
           .select('notion_id')
           .ilike('"Supervisor"', `%${targetEmail}%`)
           .limit(1)
@@ -134,7 +134,7 @@ Deno.serve(async (req: Request) => {
       console.log('📧 Email/Password login - checking DB_Gerentes')
 
       const { data: managerData } = await admin
-        .from('j_ads_notion_db_managers')
+        .from('j_hub_notion_db_managers')
         .select('"Função"')
         .ilike('"E-Mail"', targetEmail)
         .maybeSingle()

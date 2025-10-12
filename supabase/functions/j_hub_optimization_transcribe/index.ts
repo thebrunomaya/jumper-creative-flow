@@ -52,7 +52,7 @@ serve(async (req) => {
 
     // Fetch Notion account data for name and context
     const { data: accountData } = await supabase
-      .from('j_ads_notion_db_accounts')
+      .from('j_hub_notion_db_accounts')
       .select('*')
       .eq('notion_id', recording.account_id)
       .maybeSingle();

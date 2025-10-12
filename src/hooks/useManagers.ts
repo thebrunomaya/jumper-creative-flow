@@ -54,12 +54,12 @@ export const useManagers = () => {
 
   const fetchManagers = useCallback(async () => {
     try {
-      console.log('Fetching managers from synchronized table j_ads_notion_db_managers...');
+      console.log('Fetching managers from synchronized table j_hub_notion_db_managers...');
       setLoading(true);
       setError(null);
       
       const { data, error } = await supabase
-        .from('j_ads_notion_db_managers')
+        .from('j_hub_notion_db_managers')
         .select('*');
       
       if (error) {

@@ -126,7 +126,7 @@ export default function OptimizationEditor() {
 
       // Fetch account name
       const { data: accountData } = await supabase
-        .from('j_ads_notion_db_accounts')
+        .from('j_hub_notion_db_accounts')
         .select('Conta')
         .eq('notion_id', recordingData.account_id)
         .maybeSingle();

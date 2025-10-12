@@ -41,7 +41,7 @@ export function AccountSelector({ value, onValueChange }: AccountSelectorProps) 
     }
 
     const { data, error } = await supabase
-      .from("j_ads_notion_db_accounts")
+      .from("j_hub_notion_db_accounts")
       .select("notion_id, Conta")
       .in("notion_id", accessibleIds)
       .in("Status", ["Ativo", "Offboarding", "Onboarding"])

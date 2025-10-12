@@ -171,7 +171,7 @@ async function handleList(admin: any, corsHeaders: any) {
     users.map(async (user: any) => {
       // Count accessible accounts (from Notion sync)
       const { count: accountCount } = await admin
-        .from('j_ads_notion_db_accounts')
+        .from('j_hub_notion_db_accounts')
         .select('*', { count: 'exact', head: true })
         .or(`"Gestor".ilike.%${user.email}%,"Supervisor".ilike.%${user.email}%,"Gerente".ilike.%${user.email}%`)
 
@@ -212,7 +212,7 @@ async function handleGetDetails(admin: any, userId: string, corsHeaders: any) {
 
   // Get accessible accounts
   const { data: accounts } = await admin
-    .from('j_ads_notion_db_accounts')
+    .from('j_hub_notion_db_accounts')
     .select('"Nome", "Gestor", "Supervisor", "Gerente"')
     .or(`"Gestor".ilike.%${user.email}%,"Supervisor".ilike.%${user.email}%,"Gerente".ilike.%${user.email}%`)
 

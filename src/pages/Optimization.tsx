@@ -36,7 +36,7 @@ export default function Optimization() {
   useEffect(() => {
     if (selectedAccount) {
       supabase
-        .from("j_ads_notion_db_accounts")
+        .from("j_hub_notion_db_accounts")
         .select("Conta, \"Contexto para Otimização\", Objetivos")
         .eq("notion_id", selectedAccount)
         .single()
@@ -58,7 +58,7 @@ export default function Optimization() {
   // Fetch all unique objectives for checkboxes
   useEffect(() => {
     supabase
-      .from("j_ads_notion_db_accounts")
+      .from("j_hub_notion_db_accounts")
       .select("Objetivos")
       .then(({ data }) => {
         if (data) {

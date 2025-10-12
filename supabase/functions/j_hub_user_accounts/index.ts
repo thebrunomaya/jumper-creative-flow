@@ -86,7 +86,7 @@ serve(async (req) => {
       console.log('👑 Admin detected - fetching ALL accounts');
 
       const { data: allAccountsData, error: allAccountsError } = await service
-        .from('j_ads_notion_db_accounts')
+        .from('j_hub_notion_db_accounts')
         .select('notion_id');
 
       if (allAccountsError) {
@@ -106,7 +106,7 @@ serve(async (req) => {
 
       // Search in Gestor field
       const { data: gestorAccounts, error: gestorError } = await service
-        .from('j_ads_notion_db_accounts')
+        .from('j_hub_notion_db_accounts')
         .select('notion_id, "Gestor"')
         .ilike('"Gestor"', `%${targetEmail}%`);
 
@@ -116,7 +116,7 @@ serve(async (req) => {
 
       // Search in Atendimento field (renamed from Supervisor)
       const { data: atendimentoAccounts, error: atendimentoError } = await service
-        .from('j_ads_notion_db_accounts')
+        .from('j_hub_notion_db_accounts')
         .select('notion_id, "Atendimento"')
         .ilike('"Atendimento"', `%${targetEmail}%`);
 
@@ -140,7 +140,7 @@ serve(async (req) => {
       console.log('📝 Client detected - searching by notion_manager_id:', notionManagerId);
 
       const { data: gerenteAccounts, error: gerenteError } = await service
-        .from('j_ads_notion_db_accounts')
+        .from('j_hub_notion_db_accounts')
         .select('notion_id, "Gerente"')
         .ilike('"Gerente"', `%${notionManagerId}%`);
 
@@ -158,7 +158,7 @@ serve(async (req) => {
       console.log('📧 Fallback - searching in DB_Gerentes by email');
 
       const { data: managerData, error: managerError } = await service
-        .from('j_ads_notion_db_managers')
+        .from('j_hub_notion_db_managers')
         .select('"E-Mail", "Contas", notion_id')
         .ilike('"E-Mail"', targetEmail)
         .maybeSingle();
@@ -196,7 +196,7 @@ serve(async (req) => {
 
     // Step 3: Get complete account data from the synchronized accounts table
     const { data: accountsData, error: accountsError } = await service
-      .from('j_ads_notion_db_accounts')
+      .from('j_hub_notion_db_accounts')
       .select('*')
       .in('notion_id', accountIds);
 
@@ -243,7 +243,7 @@ serve(async (req) => {
 
     // Build OR filter for emails and IDs
     let managersQuery = service
-      .from('j_ads_notion_db_managers')
+      .from('j_hub_notion_db_managers')
       .select('notion_id, "E-Mail", "Nome"');
 
     if (allEmails.length > 0 && allIds.length > 0) {

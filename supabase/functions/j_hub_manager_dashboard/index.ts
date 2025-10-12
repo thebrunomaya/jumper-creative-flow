@@ -108,18 +108,18 @@ Deno.serve(async (req) => {
       if (isAdmin) {
         // Admin: Get ALL accounts
         const { data: allAccountsData } = await supabase
-          .from('j_ads_notion_db_accounts')
+          .from('j_hub_notion_db_accounts')
           .select('notion_id');
         accountIds = (allAccountsData || []).map((acc: any) => acc.notion_id);
       } else if (isManager || userRole === 'staff') {
         // Manager/Staff: Get accounts where user is Gestor or Atendimento
         const { data: gestorAccounts } = await supabase
-          .from('j_ads_notion_db_accounts')
+          .from('j_hub_notion_db_accounts')
           .select('notion_id')
           .ilike('"Gestor"', `%${targetEmail}%`);
 
         const { data: atendimentoAccounts } = await supabase
-          .from('j_ads_notion_db_accounts')
+          .from('j_hub_notion_db_accounts')
           .select('notion_id')
           .ilike('"Atendimento"', `%${targetEmail}%`);
 
@@ -130,7 +130,7 @@ Deno.serve(async (req) => {
       } else if (notionManagerId) {
         // Client: Get accounts where notion_manager_id is in Gerente field
         const { data: gerenteAccounts } = await supabase
-          .from('j_ads_notion_db_accounts')
+          .from('j_hub_notion_db_accounts')
           .select('notion_id')
           .ilike('"Gerente"', `%${notionManagerId}%`);
 

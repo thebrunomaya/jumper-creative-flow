@@ -119,7 +119,7 @@ export const NotionSyncControl: React.FC = () => {
   const loadSyncLogs = async () => {
     try {
       const { data, error } = await supabase
-        .from('j_ads_notion_sync_logs')
+        .from('j_hub_notion_sync_logs')
         .select('*')
         .order('started_at', { ascending: false })
         .limit(10);

@@ -48,7 +48,7 @@ Deno.serve(async (req) => {
       .from('j_ads_optimization_recordings')
       .select(`
         *,
-        j_ads_notion_db_accounts!inner(
+        j_hub_notion_db_accounts!inner(
           notion_id,
           "Conta"
         )
@@ -94,7 +94,7 @@ Deno.serve(async (req) => {
         success: true,
         recording: {
           id: recording.id,
-          account_name: recording.j_ads_notion_db_accounts?.["Conta"] || 'N/A',
+          account_name: recording.j_hub_notion_db_accounts?.["Conta"] || 'N/A',
           recorded_at: recording.recorded_at,
           recorded_by: recording.recorded_by,
           objectives: recording.objectives,

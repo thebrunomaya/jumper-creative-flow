@@ -81,7 +81,7 @@ Deno.serve(async (req) => {
     // Check if user has permission to this recording (must be owner or admin)
     const { data: recording, error: recordingError } = await supabase
       .from('j_ads_optimization_recordings')
-      .select('*, j_ads_notion_db_accounts!inner(notion_id, "Conta")')
+      .select('*, j_hub_notion_db_accounts!inner(notion_id, "Conta")')
       .eq('id', recording_id)
       .single();
 
@@ -110,7 +110,7 @@ Deno.serve(async (req) => {
     }
 
     // Generate unique slug
-    const accountName = recording.j_ads_notion_db_accounts?.["Conta"] || 'optimization';
+    const accountName = recording.j_hub_notion_db_accounts?.["Conta"] || 'optimization';
     const slug = generateSlug(accountName, recording.recorded_at);
 
     // Calculate expiration date

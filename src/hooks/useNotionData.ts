@@ -110,7 +110,7 @@ export const useNotionClients = () => {
         
         const fetchAllAccounts = async () => {
           const { data, error } = await supabase
-            .from('j_ads_notion_db_accounts')
+            .from('j_hub_notion_db_accounts')
             .select('notion_id, "Conta", "Objetivos", "ID Meta Ads"');
           
           if (error) throw error;

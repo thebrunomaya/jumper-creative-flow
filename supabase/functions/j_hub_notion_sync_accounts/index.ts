@@ -364,7 +364,7 @@ serve(async (req) => {
 
     // Log do início da sincronização
     const syncStartTime = new Date().toISOString();
-    await service.from('j_ads_notion_sync_logs').insert({
+    await service.from('j_hub_notion_sync_logs').insert({
       sync_type: 'complete_sync',
       status: 'started',
       started_at: syncStartTime,
@@ -401,7 +401,7 @@ serve(async (req) => {
     let upsertResult;
     if (accountsData.length > 0) {
       const { data, error: upsertErr } = await service
-        .from('j_ads_notion_db_accounts')
+        .from('j_hub_notion_db_accounts')
         .upsert(accountsData, { onConflict: 'notion_id' });
 
       if (upsertErr) {
@@ -414,7 +414,7 @@ serve(async (req) => {
     // Log do sucesso
     const syncEndTime = new Date().toISOString();
     const executionTime = new Date(syncEndTime).getTime() - new Date(syncStartTime).getTime();
-    await service.from('j_ads_notion_sync_logs').insert({
+    await service.from('j_hub_notion_sync_logs').insert({
       sync_type: 'complete_sync',
       status: 'completed',
       started_at: syncStartTime,
@@ -446,7 +446,7 @@ serve(async (req) => {
       try {
         const service = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
         const errorTime = new Date().toISOString();
-        await service.from('j_ads_notion_sync_logs').insert({
+        await service.from('j_hub_notion_sync_logs').insert({
           sync_type: 'complete_sync',
           status: 'error',
           started_at: errorTime,

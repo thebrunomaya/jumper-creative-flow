@@ -399,7 +399,7 @@ export type Database = {
         }
         Relationships: []
       }
-      j_ads_notion_db_accounts: {
+      j_hub_notion_db_accounts: {
         Row: {
           "(Projeto) E-mail profissional do responsável pelo projeto.":
             | string
@@ -747,7 +747,7 @@ export type Database = {
         }
         Relationships: []
       }
-      j_ads_notion_db_managers: {
+      j_hub_notion_db_managers: {
         Row: {
           Contas: string | null
           created_at: string | null
@@ -798,7 +798,7 @@ export type Database = {
         }
         Relationships: []
       }
-      j_ads_notion_sync_logs: {
+      j_hub_notion_sync_logs: {
         Row: {
           completed_at: string | null
           created_at: string
@@ -1004,7 +1004,7 @@ export type Database = {
             foreignKeyName: "j_ads_optimization_recordings_account_id_fkey"
             columns: ["account_id"]
             isOneToOne: false
-            referencedRelation: "j_ads_notion_db_accounts"
+            referencedRelation: "j_hub_notion_db_accounts"
             referencedColumns: ["notion_id"]
           },
         ]
