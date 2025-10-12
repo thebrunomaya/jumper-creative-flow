@@ -264,14 +264,11 @@ export default function OptimizationEditor() {
         p_user_id: user.id,
       });
 
-      // Call retranscribe action
+      // Call transcribe function directly (same as initial transcription)
       const { error } = await supabase.functions.invoke(
-        'j_hub_optimization_improve_transcript',
+        'j_hub_optimization_transcribe',
         {
-          body: {
-            recording_id: recordingId,
-            action: 'retranscribe',
-          },
+          body: { recording_id: recordingId }
         }
       );
 
