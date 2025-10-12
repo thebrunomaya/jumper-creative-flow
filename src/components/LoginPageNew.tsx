@@ -276,11 +276,11 @@ const LoginPageNew: React.FC = () => {
 
       {/* Lado Direito - Formulário */}
       <div className="flex-1 lg:w-1/2 flex flex-col min-h-screen bg-black text-white">
-        {/* Header - Logo */}
-        <div className="p-6 lg:p-8">
-          <JumperLogo 
-            size="sm" 
-            theme="dark" 
+        {/* Header - Logo (apenas desktop) */}
+        <div className="hidden lg:block p-6 lg:p-8">
+          <JumperLogo
+            size="sm"
+            theme="dark"
             showText={true}
           />
         </div>
@@ -288,21 +288,21 @@ const LoginPageNew: React.FC = () => {
         {/* Centro - Formulário */}
         <div className="flex-1 flex items-center justify-center px-6 lg:px-12">
           <div className="w-full max-w-sm space-y-8">
-            {/* Logo mobile */}
-            <div className="lg:hidden text-center mb-8">
-              <JumperLogo 
-                size="lg" 
-                theme="dark" 
-                showText={true}
-                className="mx-auto mb-4"
-              />
-            </div>
+            {/* Logo + Título (mobile: logo centralizado, desktop: esconde logo) */}
+            <div className="text-center space-y-3">
+              <div className="lg:hidden mb-6">
+                <JumperLogo
+                  size="lg"
+                  theme="dark"
+                  showText={true}
+                  className="mx-auto"
+                />
+              </div>
 
-            {/* Título */}
-            <div className="text-center space-y-2">
               <h1 className="text-2xl lg:text-3xl font-bold text-white">
                 Jumper Hub
               </h1>
+              <p className="text-xs text-white/40">v2.0</p>
             </div>
 
             {/* Step: Email */}
