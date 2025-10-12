@@ -3,7 +3,7 @@
 # Tracks recent decisions and work-in-progress (last 7 days)
 # Older decisions migrate to docs/ARCHITECTURE.md
 
-last_updated: "2025-10-12T00:00:00Z"
+last_updated: "2025-10-12T03:00:00Z"
 session_computer: "MacBook Pro (trabalho)"
 session_user: "Bruno Maya"
 
@@ -11,8 +11,86 @@ session_user: "Bruno Maya"
 # When older than 7 days, migrate to docs/ARCHITECTURE.md
 recent_decisions:
   - date: "2025-10-12"
-    decision: "Jumper Hub v2.0 - Optimization Tables Migration (j_ads → j_hub)"
+    decision: "Database cleanup - Remove backwards compatibility VIEWs and obsolete tables"
     status: "completed ✅"
+    details: |
+      🧹 DATABASE CLEANUP: Removed unnecessary backwards compatibility VIEWs and obsolete j_ads_metrics table
+
+      ## Critical Discovery:
+      **PRODUCTION WAS BROKEN**: The migration to rename j_ads_optimization_* → j_hub_optimization_* tables NEVER actually ran!
+      - Edge functions were calling j_hub_optimization_* (renamed in previous session)
+      - Database still had j_ads_optimization_* tables (migration not applied)
+      - System was non-functional for optimization features
+
+      ## Emergency Fix:
+      User manually executed SQL in Supabase Dashboard:
+      - Renamed 5 optimization tables (j_ads_optimization_* → j_hub_optimization_*)
+      - Dropped obsolete j_ads_metrics table (never used in codebase)
+      - Removed backwards compatibility VIEWs (j_ads_users, j_ads_user_audit_log, etc.)
+
+      ## Final Schema State:
+      - 15 tables (all necessary)
+      - 0 optimization-related VIEWs
+      - Clean schema with j_hub_* naming consistency
+
+      ## Why Migration Failed:
+      - Supabase CLI showed "duplicate key" error (migration already applied)
+      - But tables were never actually renamed in database
+      - CLI state was out of sync with actual database state
+      - Workaround: Manual SQL execution
+    impact: "CRITICAL - Fixed broken production optimization system"
+    files_changed:
+      - "supabase/migrations/20251012020000_cleanup_optimization_views_and_metrics.sql (created but not applied via CLI)"
+    deployed: true
+    deployment_method: "Manual SQL execution in Supabase Dashboard"
+    migrate_to_architecture: false
+
+  - date: "2025-10-12"
+    decision: "Step 3 Optimization Reengineering - Comprehensive Proposal Created"
+    status: "proposal created - awaiting approval 📋"
+    details: |
+      📄 STEP 3 REENGINEERING PROPOSAL: Created comprehensive technical proposal for complete redesign
+
+      ## User Request:
+      - Satisfied with Steps 1 & 2 of optimization system
+      - Step 3 "ainda está longe de estar bom"
+      - Requested complete reengineering if starting from zero
+      - Goal: Two deliverables with "WOW effect" for clients
+
+      ## Proposal Document (docs/STEP3-REENGENHARIA-PROPOSAL.md):
+      **600+ lines covering:**
+      1. Context and Motivation
+      2. Current State Analysis (edge functions, components, PDF export)
+      3. Problems Identified (UX/UI, functional, business)
+      4. Vision of Solution - Two Deliverables:
+         - **Executive Summary**: Compact internal card (400px, 10-15s scan)
+         - **Visual Report**: 6-page client-facing report with navigation
+      5. Technical Architecture (20 components, utilities, types)
+      6. Design System (colors, typography, visual components)
+      7. Implementation Plan (6 phases, 14 days)
+      8. Use Cases and Workflows
+      9. Open Questions (10 decision points)
+
+      ## Key Architectural Decisions:
+      - Two separate components (internal vs client-facing)
+      - Visual design system with Jumper branding
+      - Paginated report with navigation (6 pages)
+      - Enhanced PDF export with visual design
+      - Reusable metric cards, timelines, progress gauges
+
+      ## Next Steps:
+      - User will discuss proposal with Claude (chat interface)
+      - Refinement based on feedback
+      - Implementation in Claude Code after approval
+    impact: "HIGH - Major UX improvement for optimization system"
+    files_changed:
+      - "docs/STEP3-REENGENHARIA-PROPOSAL.md (created)"
+    deployed: false
+    migrate_to_architecture: false
+
+  - date: "2025-10-12"
+    decision: "Jumper Hub v2.0 - Optimization Tables Migration (j_ads → j_hub)"
+    status: "completed ✅ (with critical issues resolved)"
     details: |
       🔄 OPTIMIZATION TABLES MIGRATION: Completed renaming of all optimization tables to match v2.0 rebrand
 
@@ -208,126 +286,156 @@ recent_decisions:
 
 # Current issues being worked on
 current_issues:
-  - issue: "None - all tasks completed"
-    severity: "none"
-    status: "resolved ✅"
+  - issue: "Step 3 Optimization System - Awaiting User Approval"
+    severity: "medium"
+    status: "blocked - awaiting feedback 📋"
+    details: |
+      Proposal document created for complete Step 3 reengineering.
+      User needs to review docs/STEP3-REENGENHARIA-PROPOSAL.md and discuss with Claude (chat).
+      Implementation blocked until user provides feedback and answers open questions.
 
 # Work in progress
 work_in_progress:
-  - task: "Session 2025-10-12 (Late Evening) - Domain Migration & UI Polish"
+  - task: "Session 2025-10-12 (Early Morning) - Database Cleanup & Step 3 Proposal"
     branch: "main"
-    started: "2025-10-12T22:00:00Z"
-    completed: "2025-10-12T23:30:00Z"
+    started: "2025-10-12T02:00:00Z"
+    completed: "2025-10-12T03:00:00Z"
     status: "COMPLETED ✅"
     summary: |
-      ✅ Domain migration: ads.jumper.studio → hub.jumper.studio
-      ✅ Visual branding: "Ad Uploader" → "Jumper Hub v2.0"
-      ✅ Mobile UI optimization: Clean login layout
-      ✅ Edge functions deployed with new domain
-      ✅ Environment variables configured
-      ✅ All changes pushed to GitHub (11 commits)
+      ✅ Database cleanup: Removed backwards compatibility VIEWs
+      ✅ Emergency fix: Renamed optimization tables (production was broken)
+      ✅ Removed obsolete j_ads_metrics table
+      ✅ Created Step 3 reengineering proposal (600+ lines)
     files_modified:
-      - "11 files (domain migration)"
-      - "8 files (visual branding)"
-      - "2 files (mobile UI)"
+      - "docs/STEP3-REENGENHARIA-PROPOSAL.md (created)"
+      - "supabase/migrations/20251012020000_cleanup_optimization_views_and_metrics.sql (created)"
     deployed: true
-    deployment_status: "FULLY DEPLOYED ✅"
+    deployment_status: "DATABASE FIXED via manual SQL ✅"
+    notes: |
+      Critical discovery: Previous migration never ran, production optimization system was broken.
+      Fixed by manually executing SQL to rename tables j_ads_optimization_* → j_hub_optimization_*
 
 # Context for next session
 next_session_context: |
-  🎉 SESSION 2025-10-12 (LATE EVENING) COMPLETED: Domain Migration & UI Polish
+  🧹 SESSION 2025-10-12 (EARLY MORNING) COMPLETED: Database Cleanup & Step 3 Proposal
 
-  ## MAJOR ACHIEVEMENTS - Jumper Hub v2.0 Finalization
+  ## CRITICAL FIXES - Production Optimization System
 
-  ### 1. Domain Migration (ads → hub.jumper.studio) ✅
-  **What was done:**
-  - Updated 11 files with new domain references
-  - Deployed 2 edge functions (j_hub_admin_users, j_hub_optimization_create_share)
-  - Configured SITE_URL environment variable in Supabase
-  - User completed: DNS, Vercel, Supabase Auth, Notion OAuth, 301 redirect
+  ### 🚨 Emergency Database Fix ✅
+  **CRITICAL DISCOVERY:**
+  Production optimization system was BROKEN! Previous migration to rename tables never actually ran.
 
-  **Result:**
-  - Production URL: https://hub.jumper.studio ✅
-  - Old URL redirects: https://ads.jumper.studio → hub.jumper.studio (301) ✅
-  - Zero downtime migration ✅
+  **Problem:**
+  - Edge functions calling j_hub_optimization_* (renamed in previous session)
+  - Database still had j_ads_optimization_* tables
+  - Optimization features completely non-functional
 
-  ### 2. Visual Branding Update ✅
-  **What was done:**
-  - Renamed platform from "Ad Uploader" to "Jumper Hub"
-  - Updated package.json to "jumper-hub" v2.0.0
-  - Updated all page titles and metadata
-  - Updated login screens and header component
-
-  **Result:**
-  - Complete visual rebrand across all pages ✅
-  - Consistent "Jumper Hub v2.0" branding ✅
-
-  ### 3. Mobile Login UI Optimization ✅
-  **What was done:**
-  - Reduced branding repetition (3x "Jumper" → 1x logo + 1x title)
-  - Simplified mobile title from "Jumper Hub" to "Hub"
-  - Positioned logo in top-left corner (consistent with desktop)
-  - Added v2.0 badge below title
-
-  **Result:**
-  - Clean, modern mobile interface ✅
-  - Professional app-like design ✅
-  - Consistent positioning across devices ✅
-
-  ## Git Summary (11 commits):
-  ```
-  487311a - Logo top-left (consistent mobile/desktop)
-  785dd50 - Logo top-right (mobile experiment)
-  5b4be87 - Simplify title to "Hub" (mobile)
-  1038f4c - Remove branding repetition
-  a2adfce - Domain migration (ads → hub)
-  ca332e0 - Login screen branding update
-  9441c49 - Visual branding to Jumper Hub v2.0
+  **Fix Applied (Manual SQL):**
+  ```sql
+  ALTER TABLE j_ads_optimization_recordings RENAME TO j_hub_optimization_recordings;
+  ALTER TABLE j_ads_optimization_transcripts RENAME TO j_hub_optimization_transcripts;
+  ALTER TABLE j_ads_optimization_context RENAME TO j_hub_optimization_context;
+  ALTER TABLE j_ads_optimization_api_logs RENAME TO j_hub_optimization_api_logs;
+  ALTER TABLE j_ads_optimization_prompts RENAME TO j_hub_optimization_prompts;
+  DROP TABLE IF EXISTS j_ads_metrics CASCADE;
   ```
 
-  ## Production Status:
-  - ✅ Domain: https://hub.jumper.studio (LIVE)
-  - ✅ Branding: Jumper Hub v2.0 (COMPLETE)
-  - ✅ Mobile UI: Optimized (DEPLOYED)
-  - ✅ Edge Functions: Updated and deployed
-  - ✅ Environment: Production-ready
+  **Result:**
+  - ✅ All 5 optimization tables renamed
+  - ✅ Obsolete j_ads_metrics table removed
+  - ✅ Backwards compatibility VIEWs removed (j_ads_users, etc.)
+  - ✅ Clean schema: 15 tables, 0 unnecessary VIEWs
+  - ✅ Production optimization system FIXED
+
+  ### 📄 Step 3 Reengineering Proposal Created ✅
+
+  **User Request:**
+  > "Step 3 ainda está longe de estar bom"
+  > Complete reengineering to produce TWO deliverables with "WOW effect"
+
+  **Document Created:** `docs/STEP3-REENGENHARIA-PROPOSAL.md` (600+ lines)
+
+  **Proposal Highlights:**
+  1. **Executive Summary** - Compact internal card (400px height, 10-15s scan)
+     - For gestors to quickly review optimizations
+     - Key metrics highlighted with performance colors
+     - Action summary in visual timeline
+
+  2. **Visual Report** - 6-page client-facing report
+     - Cover page with branding
+     - Summary page with key metrics
+     - Actions page with visual timeline
+     - Strategy page with progress gauges
+     - Metrics page with before/after comparisons
+     - Footer page with next steps
+
+  **Architecture:**
+  - 20+ new components (ExecutiveSummary, ReportViewer, pages, visual components)
+  - Design system with Jumper branding
+  - Enhanced PDF export with visual design
+  - Reusable metric cards, timelines, progress gauges
+
+  **Implementation Plan:** 6 phases, 14 days
 
   ## Next Session Tasks:
 
-  ⚡ Platform is 100% PRODUCTION READY - no critical tasks
+  ⚠️ **BLOCKED - Awaiting User Approval**
 
-  Monitoring & Optional:
-  - [ ] Monitor domain migration (24-48h)
-  - [ ] Monitor mobile UI feedback from users
-  - [ ] Consider A/B testing login variations (optional)
+  **Step 1:** User needs to:
+  1. Read `docs/STEP3-REENGENHARIA-PROPOSAL.md`
+  2. Discuss proposal with Claude (chat interface)
+  3. Answer 10 open questions in proposal
+  4. Provide feedback and refinements
+
+  **Step 2:** After approval, implement in Claude Code:
+  - FASE 0: Preparation (2h)
+  - FASE 1: Executive Summary (3h)
+  - FASE 2: Report base (3h)
+  - FASE 3: Report content pages (4h)
+  - FASE 4: Footer and polish (2h)
+  - FASE 5: PDF export (3h)
+  - FASE 6: Integration (3h)
+  Total: ~20 hours over 14 days
+
+  ## Production Status:
+  - ✅ Database: Clean schema, all tables renamed correctly
+  - ✅ Optimization System: FIXED and functional
+  - ✅ Domain: https://hub.jumper.studio (LIVE)
+  - 📋 Step 3: Proposal ready for review
 
   ## Known Issues:
-  None - all migrations successful ✅
+  None - production stable ✅
 
 # TODOs pending
 pending_todos:
+  - "📋 CRITICAL: Review and approve Step 3 reengineering proposal (docs/STEP3-REENGENHARIA-PROPOSAL.md)"
+  - "📋 Discuss Step 3 proposal with Claude (chat) and answer 10 open questions"
   - "📊 Monitor domain migration in production (24-48h)"
   - "📱 Monitor mobile UI feedback from users"
   - "🧪 Optional: A/B test login layout variations"
 
 # Recently completed (for reference)
 completed_recently:
+  - "✅ CRITICAL FIX: Renamed optimization tables (j_ads_* → j_hub_*) - production was broken"
+  - "✅ Database cleanup: Removed backwards compatibility VIEWs"
+  - "✅ Removed obsolete j_ads_metrics table"
+  - "✅ Created Step 3 reengineering proposal (600+ lines)"
   - "✅ Domain migration: ads.jumper.studio → hub.jumper.studio"
   - "✅ Visual branding: Ad Uploader → Jumper Hub v2.0"
   - "✅ Mobile login UI optimization (4 iterations)"
   - "✅ Edge functions deployed with new domain"
   - "✅ Environment variables configured (SITE_URL)"
-  - "✅ 11 commits pushed to GitHub"
   - "✅ Jumper Hub v2.0 - Database rebrand (previous session)"
-  - "✅ Comprehensive test suite (29/29 tests)"
 
 # Deployment status
 deployment:
   production_url: "https://hub.jumper.studio"
   old_url_redirect: "https://ads.jumper.studio → hub.jumper.studio (301)"
-  last_deploy: "2025-10-12T23:30:00Z"
-  last_deploy_status: "success ✅"
-  last_commit: "487311a - refactor(ui): Move mobile logo to top-left corner"
+  last_deploy: "2025-10-12T03:00:00Z"
+  last_deploy_status: "database fix via manual SQL ✅"
+  last_deploy_type: "emergency database fix (no code deploy)"
+  last_commit: "57a7e54 - chore: Update context file with session wrap-up"
+  database_status: "FIXED - optimization tables renamed, VIEWs removed, schema clean ✅"
   edge_functions_deployed:
     - name: "j_hub_admin_dashboard"
       status: "deployed ✅"
