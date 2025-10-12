@@ -39,7 +39,7 @@ export function AnalysisRegenerationCard({
       const { supabase } = await import("@/integrations/supabase/client");
       
       const { error: functionError } = await supabase.functions.invoke(
-        "j_ads_analyze_optimization",
+        "j_hub_optimization_analyze",
         {
           body: {
             recording_id: recordingId,

@@ -125,7 +125,7 @@ export function OptimizationList({ accountId, onRefresh }: OptimizationListProps
     setTranscribing(prev => ({ ...prev, [recordingId]: true }));
     
     try {
-      const { error } = await supabase.functions.invoke('j_ads_transcribe_optimization', {
+      const { error } = await supabase.functions.invoke('j_hub_optimization_transcribe', {
         body: { recording_id: recordingId }
       });
 
@@ -148,7 +148,7 @@ export function OptimizationList({ accountId, onRefresh }: OptimizationListProps
     setAnalyzing(prev => ({ ...prev, [recordingId]: true }));
     
     try {
-      const { data, error } = await supabase.functions.invoke('j_ads_analyze_optimization', {
+      const { data, error } = await supabase.functions.invoke('j_hub_optimization_analyze', {
         body: { recording_id: recordingId }
       });
 

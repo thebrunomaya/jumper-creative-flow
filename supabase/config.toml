@@ -1,54 +1,53 @@
 project_id = "biwwowendjuzvpttyrlb"
 
-# J_ADS namespaced functions
-[functions.j_ads_process_transcript]
-verify_jwt = false
-[functions.j_ads_update_optimization_context]
-verify_jwt = true
-[functions.j_ads_ingest_creative]
-verify_jwt = true
-
+# Active edge functions
 [functions.j_ads_admin_dashboard]
 verify_jwt = true
 
-[functions.j_ads_transcribe_optimization]
+[functions.j_ads_admin_users]
 verify_jwt = true
 
-[functions.j_ads_analyze_optimization]
+[functions.j_ads_auth_roles]
+verify_jwt = true
+
+[functions.j_ads_create_optimization_share]
+verify_jwt = true
+
+[functions.j_ads_manager_dashboard]
+verify_jwt = true
+
+[functions.j_ads_notion_sync_accounts]
+verify_jwt = true
+
+[functions.j_ads_notion_sync_managers]
+verify_jwt = true
+
+[functions.j_ads_notion_sync_scheduler]
 verify_jwt = false
 
-[functions.j_ads_manager_actions]
+[functions.j_ads_submit_ad]
 verify_jwt = true
 
-[functions.j_ads_ensure_role]
+[functions.j_ads_update_optimization_context]
 verify_jwt = true
 
-[functions.j_ads_notion_my_accounts]
-verify_jwt = true
-
-[functions.j_ads_notion_clients]
-verify_jwt = true
-
-[functions.j_ads_notion_partners]
-verify_jwt = true
-
-[functions.j_ads_notion_managers]
-verify_jwt = true
-
-[functions.j_ads_notion_sync]
-verify_jwt = true
-
-[functions.j_ads_notion_sync_cron]
-verify_jwt = false
-
-[functions.j_ads_process_submissions]
-verify_jwt = false
-
-[functions.j_ads_submit_creative]
+[functions.j_ads_user_accounts]
 verify_jwt = true
 
 [functions.j_ads_view_shared_optimization]
 verify_jwt = false
 
-[functions.j_ads_create_optimization_share]
+[functions.j_hub_optimization_analyze]
+verify_jwt = true
+
+[functions.j_hub_optimization_improve_processed]
+verify_jwt = true
+
+[functions.j_hub_optimization_improve_transcript]
+verify_jwt = true
+
+[functions.j_hub_optimization_process]
+verify_jwt = true
+
+[functions.j_hub_optimization_transcribe]
 verify_jwt = true

@@ -40,7 +40,7 @@ export function TranscriptionEditorModal({
     try {
       console.log('🤖 Applying AI correction with instruction:', aiInstruction);
       
-      const { data, error } = await supabase.functions.invoke('j_ads_correct_transcription', {
+      const { data, error } = await supabase.functions.invoke('j_hub_optimization_improve_transcript', {
         body: {
           recording_id: recordingId,
           instruction: aiInstruction,

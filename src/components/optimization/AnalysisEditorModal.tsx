@@ -56,7 +56,7 @@ export function AnalysisEditorModal({
 
     try {
       const { error: functionError } = await supabase.functions.invoke(
-        "j_ads_analyze_optimization",
+        "j_hub_optimization_analyze",
         {
           body: {
             recording_id: recordingId,

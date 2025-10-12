@@ -15,6 +15,23 @@ const DB_CONTAS_ID = "162db6094968808bbcbed40fef7370d1";    // Accounts
 function extractText(prop: any): string {
   if (!prop) return "";
   if (typeof prop === "string") return prop;
+
+  // Handle formula type (fórmulas calculadas do Notion)
+  if (prop.formula) {
+    if (prop.formula.type === "string" && prop.formula.string) {
+      return String(prop.formula.string);
+    }
+    if (prop.formula.type === "number" && typeof prop.formula.number === "number") {
+      return String(prop.formula.number);
+    }
+    if (prop.formula.type === "boolean" && typeof prop.formula.boolean === "boolean") {
+      return String(prop.formula.boolean);
+    }
+    if (prop.formula.type === "date" && prop.formula.date?.start) {
+      return String(prop.formula.date.start);
+    }
+  }
+
   if (prop.title && Array.isArray(prop.title) && prop.title.length > 0) {
     return String(prop.title[0]?.plain_text || "");
   }
@@ -252,6 +269,7 @@ function processAccountPage(page: any): any {
     "G-ADS: Fim do Saldo": extractText(props["G-ADS: Fim do Saldo"]),
     "G-ADS: Última Checagem": extractText(props["G-ADS: Última Checagem"]),
     "Contexto para Otimização": extractText(props["Contexto para Otimização"]),
+    "Contexto para Transcrição": extractText(props["Contexto para Transcrição"]),
   };
 }
 

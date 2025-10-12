@@ -69,7 +69,7 @@ export function UnifiedOptimizationEditorModal({
     setAiError(null);
 
     try {
-      const { data, error } = await supabase.functions.invoke("j_ads_analyze_optimization", {
+      const { data, error } = await supabase.functions.invoke("j_hub_optimization_analyze", {
         body: {
           recording_id: recordingId, // Use snake_case to match edge function
           model: selectedModel,
