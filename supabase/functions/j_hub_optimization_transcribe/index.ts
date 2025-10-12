@@ -164,9 +164,10 @@ OUTPUT: Transcribe in Brazilian Portuguese.`;
     console.log('✅ [TRANSCRIBE] Completed:', transcription.text?.length || 0, 'chars,', latency, 'ms');
 
     // 6. Store transcription in database (RAW ONLY - no processing)
-    const { error: insertError } = await supabase
+    // Using UPSERT to allow re-transcription without DELETE
+    const { error: upsertError } = await supabase
       .from('j_hub_optimization_transcripts')
-      .insert({
+      .upsert({
         recording_id,
         full_text: transcription.text,
         processed_text: null, // Processing is now Step 2 (separate function)
@@ -176,10 +177,13 @@ OUTPUT: Transcribe in Brazilian Portuguese.`;
         segments: transcription.segments || null,
         revised_at: null,
         revised_by: null,
+      }, {
+        onConflict: 'recording_id',
+        ignoreDuplicates: false, // Always update if exists
       });
 
-    if (insertError) {
-      throw new Error(`Failed to save transcript: ${insertError.message}`);
+    if (upsertError) {
+      throw new Error(`Failed to save transcript: ${upsertError.message}`);
     }
 
     // 7. Update recording status to completed
