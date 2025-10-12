@@ -165,12 +165,13 @@ OUTPUT: Transcribe in Brazilian Portuguese.`;
 
     // 6. Store transcription in database (RAW ONLY - no processing)
     // Using UPSERT to allow re-transcription without DELETE
+    // NOTE: processed_text is NOT included here to preserve Step 2 work
     const { error: upsertError } = await supabase
       .from('j_hub_optimization_transcripts')
       .upsert({
         recording_id,
         full_text: transcription.text,
-        processed_text: null, // Processing is now Step 2 (separate function)
+        // processed_text is omitted - maintains existing value on UPDATE, NULL on INSERT
         original_text: transcription.text,
         language: transcription.language || 'pt',
         confidence_score: null,
