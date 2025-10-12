@@ -824,6 +824,41 @@ export default function OptimizationEditor() {
               </div>
             )}
 
+            {/* Failed State */}
+            {recording.analysis_status === 'failed' && (
+              <div className="text-center py-8 space-y-4">
+                <AlertCircle className="h-12 w-12 mx-auto text-destructive opacity-70" />
+                <div className="space-y-2">
+                  <p className="text-destructive font-medium">
+                    Falha ao analisar transcrição
+                  </p>
+                  {isAdmin && (
+                    <p className="text-xs text-muted-foreground">
+                      Use o ícone de debug acima para ver detalhes do erro
+                    </p>
+                  )}
+                </div>
+                <JumperButton
+                  onClick={() => handleAnalyze()}
+                  disabled={isAnalyzing || !transcript?.processed_text}
+                  variant="default"
+                  size="lg"
+                >
+                  {isAnalyzing ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Tentando novamente...
+                    </>
+                  ) : (
+                    <>
+                      <RotateCw className="mr-2 h-4 w-4" />
+                      Tentar Novamente
+                    </>
+                  )}
+                </JumperButton>
+              </div>
+            )}
+
             {/* Completed State */}
             {recording.analysis_status === 'completed' && context && (
               <div className="space-y-4">
