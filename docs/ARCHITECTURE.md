@@ -528,6 +528,96 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 | Admin panel | ✅ | ❌ | ❌ |
 | Notion sync | ✅ | ❌ | ❌ |
 
+### **React Hooks for Authentication & Roles**
+
+> ⚠️ **CRITICAL:** Always use the correct hook for each purpose!
+
+#### **`useAuth()` - Session & User Data Only**
+**Location:** `/src/contexts/AuthContext.tsx`
+
+**Purpose:** Authentication state and session management
+
+**Returns:**
+```typescript
+{
+  user: User | null,              // Supabase auth user object
+  session: Session | null,        // Current session with JWT
+  isAuthenticated: boolean,       // Is user logged in?
+  login: (email, password) => Promise,
+  logout: () => Promise,
+  // ... other auth methods
+}
+```
+
+**Use when:**
+- ✅ Checking if user is logged in (`isAuthenticated`)
+- ✅ Getting user email (`user.email`)
+- ✅ Performing login/logout operations
+- ✅ Accessing JWT token (`session.access_token`)
+
+**❌ DO NOT use for:**
+- ❌ Checking user role (use `useUserRole()` instead)
+- ❌ Permission checks (use `useUserRole()` instead)
+
+#### **`useUserRole()` - Role Checking & Permissions**
+**Location:** `/src/hooks/useUserRole.ts`
+
+**Purpose:** User role detection and permission helpers
+
+**Returns:**
+```typescript
+{
+  userRole: 'admin' | 'manager' | 'supervisor' | 'gerente' | null,
+  isLoading: boolean,
+
+  // Boolean helpers (ready to use)
+  isAdmin: boolean,               // userRole === 'admin'
+  isManager: boolean,             // userRole === 'manager'
+  isSupervisor: boolean,          // userRole === 'supervisor'
+  isGerente: boolean,             // userRole === 'gerente'
+
+  // Functions
+  shouldShowDebugLogs: () => boolean,    // admin or manager
+  isPrivilegedUser: () => boolean,       // admin or manager
+}
+```
+
+**How it works:**
+1. Uses Supabase RPC `has_role()` to check roles in `j_ads_users`
+2. Checks in priority order: `admin` → `manager` → default (`gerente`)
+3. Returns boolean helpers for easy permission checks
+
+**Use when:**
+- ✅ Checking user permissions (`isAdmin`, `isManager`)
+- ✅ Showing/hiding features based on role
+- ✅ Conditional rendering of admin-only UI
+- ✅ Enabling/disabling edit capabilities
+
+**Examples:**
+
+```typescript
+// ❌ WRONG - useAuth doesn't have userRole
+import { useAuth } from '@/contexts/AuthContext';
+const { userRole } = useAuth();  // userRole will be undefined!
+
+// ✅ CORRECT - use useUserRole
+import { useUserRole } from '@/hooks/useUserRole';
+const { isAdmin, isManager } = useUserRole();
+
+// Admin-only features
+if (isAdmin) {
+  return <AdminPanel />;
+}
+
+// Privileged users (admin + manager)
+if (isAdmin || isManager) {
+  return <AdvancedFeatures />;
+}
+
+// Disable editing for non-admins
+<Textarea disabled={!isAdmin} />
+```
+
 **Protected Routes:**
 ```typescript
 // src/components/ProtectedRoute.tsx
@@ -536,26 +626,17 @@ import { useUserRole } from '@/hooks/useUserRole';
 <ProtectedRoute requireRole="admin">
   <AdminDashboard />
 </ProtectedRoute>
+```
 
-// useUserRole implementation
-export function useUserRole() {
-  const { user } = useAuth();
-  const [role, setRole] = useState<string | null>(null);
+**Common Mistake to Avoid:**
+```typescript
+// ❌ WRONG - This was the bug we fixed!
+const { user, userRole } = useAuth();  // userRole is undefined
+const isAdmin = userRole === 'admin';  // Always false!
 
-  useEffect(() => {
-    if (!user?.id) return;
-
-    // Query j_ads_users for role
-    supabase
-      .from('j_ads_users')
-      .select('role')
-      .eq('id', user.id)
-      .single()
-      .then(({ data }) => setRole(data?.role || null));
-  }, [user?.id]);
-
-  return { role, isAdmin: role === 'admin', isStaff: role === 'staff' };
-}
+// ✅ CORRECT
+const { user } = useAuth();            // Only for auth state
+const { isAdmin } = useUserRole();     // For role checking
 ```
 
 ### **Password Management**

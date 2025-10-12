@@ -1,5 +1,5 @@
 /**
- * j_ads_create_optimization_share
+ * j_hub_optimization_create_share
  * Creates a public shareable link for an optimization recording
  * Generates unique slug and hashes password
  */
@@ -94,7 +94,7 @@ Deno.serve(async (req) => {
 
     // Check user role (only Gestors/Admins can create shares)
     const { data: userData } = await supabase
-      .from('j_ads_users')
+      .from('j_hub_users')
       .select('role')
       .eq('id', user.id)
       .single();

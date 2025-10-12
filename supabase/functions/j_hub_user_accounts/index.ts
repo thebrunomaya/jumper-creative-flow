@@ -48,9 +48,9 @@ serve(async (req) => {
 
     console.log('🔍 Finding accounts for user:', targetEmail);
 
-    // Get user data from j_ads_users (role, nome, notion_manager_id)
+    // Get user data from j_hub_users (role, nome, notion_manager_id)
     const { data: userData, error: userError } = await service
-      .from('j_ads_users')
+      .from('j_hub_users')
       .select('role, nome, notion_manager_id')
       .eq('id', user.id)
       .maybeSingle();
@@ -277,26 +277,26 @@ serve(async (req) => {
       idToName: idToName.size
     });
 
-    // Step 4.5: For emails not found in managers table, lookup in j_ads_users
+    // Step 4.5: For emails not found in managers table, lookup in j_hub_users
     const missingEmails = allEmails.filter(email => !emailToName.has(email.toLowerCase().trim()));
 
     if (missingEmails.length > 0) {
-      console.log('🔍 Looking up missing emails in j_ads_users:', missingEmails.length);
+      console.log('🔍 Looking up missing emails in j_hub_users:', missingEmails.length);
 
-      // Query j_ads_users for missing names (OAuth users like Gestors/Atendimento)
+      // Query j_hub_users for missing names (OAuth users like Gestors/Atendimento)
       const { data: usersData } = await service
-        .from('j_ads_users')
+        .from('j_hub_users')
         .select('email, nome')
         .in('email', missingEmails);
 
       (usersData || []).forEach((u: any) => {
         if (u.email && u.nome) {
           emailToName.set(u.email.toLowerCase().trim(), u.nome);
-          console.log(`✅ Found name in j_ads_users for ${u.email}: ${u.nome}`);
+          console.log(`✅ Found name in j_hub_users for ${u.email}: ${u.nome}`);
         }
       });
 
-      console.log('📋 Updated emailToName with j_ads_users data:', emailToName.size);
+      console.log('📋 Updated emailToName with j_hub_users data:', emailToName.size);
     }
 
     // Step 5: Format accounts data with resolved names
@@ -349,7 +349,7 @@ serve(async (req) => {
         account_ids: accountIds, // Also return raw IDs for compatibility
         email: targetEmail,
         is_admin: isAdmin, // Flag to indicate admin access
-        user_role: userRole, // User role from j_ads_users
+        user_role: userRole, // User role from j_hub_users
         source: 'complete_sync'
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

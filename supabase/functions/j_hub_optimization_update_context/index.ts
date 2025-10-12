@@ -1,4 +1,4 @@
-// j_ads_update_optimization_context - Atualiza contexto de otimização marcando como revisado
+// j_hub_optimization_update_context - Atualiza contexto de otimização marcando como revisado
 // Usa service role para contornar RLS, mas valida autorização do usuário (admin ou autor da gravação)
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
@@ -9,7 +9,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-console.log('✅ [BOOT] j_ads_update_optimization_context function started');
+console.log('✅ [BOOT] j_hub_optimization_update_context function started');
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -80,7 +80,7 @@ serve(async (req) => {
 
     // Verifica se é admin
     const { data: role, error: roleErr } = await admin
-      .from('j_ads_users')
+      .from('j_hub_users')
       .select('role')
       .eq('id', userId)
       .maybeSingle();

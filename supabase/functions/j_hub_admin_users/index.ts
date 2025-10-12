@@ -1,5 +1,5 @@
 // ============================================
-// EDGE FUNCTION: j_ads_admin_users
+// EDGE FUNCTION: j_hub_admin_users
 // Admin panel for user management
 // ============================================
 
@@ -67,7 +67,7 @@ Deno.serve(async (req: Request) => {
 
     // Check if user is admin
     const { data: adminUser, error: roleError } = await admin
-      .from('j_ads_users')
+      .from('j_hub_users')
       .select('role, email')
       .eq('id', user.id)
       .single()
@@ -155,7 +155,7 @@ Deno.serve(async (req: Request) => {
 async function handleList(admin: any, corsHeaders: any) {
   // Get all users with activity stats
   const { data: users, error } = await admin
-    .from('j_ads_users')
+    .from('j_hub_users')
     .select('*')
     .order('created_at', { ascending: false })
 
@@ -198,7 +198,7 @@ async function handleList(admin: any, corsHeaders: any) {
 async function handleGetDetails(admin: any, userId: string, corsHeaders: any) {
   // Get user details
   const { data: user, error: userError } = await admin
-    .from('j_ads_users')
+    .from('j_hub_users')
     .select('*')
     .eq('id', userId)
     .single()
@@ -240,7 +240,7 @@ async function handleGetDetails(admin: any, userId: string, corsHeaders: any) {
 
   // Get audit history
   const { data: auditHistory } = await admin
-    .from('j_ads_user_audit_log')
+    .from('j_hub_user_audit_log')
     .select('*')
     .eq('user_id', userId)
     .order('created_at', { ascending: false })
@@ -280,7 +280,7 @@ async function handleChangeRole(
 
   // Get current user data
   const { data: currentUser, error: fetchError } = await admin
-    .from('j_ads_users')
+    .from('j_hub_users')
     .select('role, email')
     .eq('id', userId)
     .single()
@@ -295,7 +295,7 @@ async function handleChangeRole(
   // Prevent removing last admin
   if (currentUser.role === 'admin' && newRole !== 'admin') {
     const { count: adminCount } = await admin
-      .from('j_ads_users')
+      .from('j_hub_users')
       .select('*', { count: 'exact', head: true })
       .eq('role', 'admin')
 
@@ -309,7 +309,7 @@ async function handleChangeRole(
 
   // Update role
   const { error: updateError } = await admin
-    .from('j_ads_users')
+    .from('j_hub_users')
     .update({ role: newRole, updated_at: new Date().toISOString() })
     .eq('id', userId)
 
@@ -348,7 +348,7 @@ async function handleToggleStatus(
 ) {
   // Get current user status
   const { data: currentUser, error: fetchError } = await admin
-    .from('j_ads_users')
+    .from('j_hub_users')
     .select('is_active, email')
     .eq('id', userId)
     .single()
@@ -378,7 +378,7 @@ async function handleToggleStatus(
   }
 
   const { error: updateError } = await admin
-    .from('j_ads_users')
+    .from('j_hub_users')
     .update(updateData)
     .eq('id', userId)
 
@@ -416,7 +416,7 @@ async function handleResetPassword(
 ) {
   // Get user email
   const { data: user, error: fetchError } = await admin
-    .from('j_ads_users')
+    .from('j_hub_users')
     .select('email')
     .eq('id', userId)
     .single()
@@ -467,7 +467,7 @@ async function handleForceLogout(
 ) {
   // Get user email
   const { data: user, error: fetchError } = await admin
-    .from('j_ads_users')
+    .from('j_hub_users')
     .select('email')
     .eq('id', userId)
     .single()

@@ -52,7 +52,7 @@ Deno.serve(async (req: Request) => {
 
     // Check if user already has any role
     const { data: roles, error: rolesError } = await admin
-      .from('j_ads_users')
+      .from('j_hub_users')
       .select('role, nome')
       .eq('id', user.id)
       .limit(1)
@@ -76,7 +76,7 @@ Deno.serve(async (req: Request) => {
           || 'Usuário'
 
         const { error: updateError } = await admin
-          .from('j_ads_users')
+          .from('j_hub_users')
           .update({ nome })
           .eq('id', user.id)
 
@@ -168,7 +168,7 @@ Deno.serve(async (req: Request) => {
 
     // Assign detected role
     const { error: insertError } = await admin
-      .from('j_ads_users')
+      .from('j_hub_users')
       .insert({ id: user.id, email: user.email, role: roleToAssign, nome })
 
     if (insertError) {

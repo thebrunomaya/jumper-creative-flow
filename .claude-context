@@ -3,13 +3,204 @@
 # Tracks recent decisions and work-in-progress (last 7 days)
 # Older decisions migrate to docs/ARCHITECTURE.md
 
-last_updated: "2025-10-10T16:30:00Z"
+last_updated: "2025-10-12T19:45:00Z"
 session_computer: "MacBook Pro (trabalho)"
 session_user: "Bruno Maya"
 
 # Recent decisions (last 7 days)
 # When older than 7 days, migrate to docs/ARCHITECTURE.md
 recent_decisions:
+  - date: "2025-10-12"
+    decision: "Refactored Step 3 (Analyze) prompts to modular database structure"
+    status: "completed ✅"
+    details: |
+      REFACTORING: Standardized Step 3 (Analyze) prompt structure to match Steps 1 & 2
+
+      PROBLEM:
+      - Step 3 had hardcoded prompt in Edge Function (lines 145-193)
+      - Steps 1 and 2 already used modular j_ads_optimization_prompts table
+      - Inconsistent structure across optimization pipeline
+      - Gestores couldn't edit analysis prompts via UI
+
+      SOLUTION:
+      1. Fixed prompt_type search: 'analysis' → 'analyze' (line 145)
+      2. Added account context fetching (contexto_transcricao, contexto_otimizacao)
+      3. Converted system prompt to English (structural instructions)
+      4. Restructured user prompt with standardized sections:
+         - PROPER NAMES AND CONTEXT
+         - PLATFORM & OBJECTIVES
+         - FOCUS BY OBJECTIVE (from database)
+         - ADDITIONAL OPTIMIZATION CONTEXT
+         - PROCESSED TRANSCRIPTION (ORGANIZED BULLETS)
+         - ADDITIONAL ANALYSIS INSTRUCTIONS
+         - TASK
+      5. Added "OUTPUT LANGUAGE: Brazilian Portuguese"
+
+      STRUCTURE NOW CONSISTENT ACROSS ALL 3 STEPS:
+      - Step 1 (Transcribe): System prompt (EN) + User prompt (sections) ✅
+      - Step 2 (Process): System prompt (EN) + User prompt (sections) ✅
+      - Step 3 (Analyze): System prompt (EN) + User prompt (sections) ✅
+
+      BENEFITS:
+      - All prompts editable via /optimization UI
+      - Version tracking (previous_version field)
+      - Consistent structure easier to maintain
+      - Better AI comprehension with clear separators
+    impact: "High - Complete modularization of prompt system"
+    files_changed:
+      - "supabase/functions/j_hub_optimization_analyze/index.ts"
+    deployed: true
+    migrate_to_architecture: false
+
+  - date: "2025-10-11"
+    decision: "Fixed AI Improvements debug modal to show original Whisper prompt"
+    status: "completed ✅"
+    details: |
+      FEATURE: Debug modal now displays the actual Whisper prompt used in transcription
+
+      PROBLEM:
+      - "Original Whisper Prompt Used" showed "N/A" in AI improvements debug
+      - Whisper prompt is not stored in j_ads_optimization_recordings
+      - Prompt is dynamically built and saved in j_ads_optimization_api_logs
+
+      SOLUTION:
+      - OptimizationEditor now fetches Whisper prompt from transcription log
+      - Queries j_ads_optimization_api_logs with step='transcribe', success=true
+      - Passes originalWhisperPrompt to AIImprovementsModal
+      - Modal sends it to Edge Function for context
+
+      IMPROVEMENTS MADE:
+      1. Added state: originalWhisperPrompt in OptimizationEditor
+      2. Added query in useEffect to fetch prompt from logs
+      3. Updated AIImprovementsModal prop from recording.whisper_prompt to originalWhisperPrompt
+      4. Improved prompt structure in Edge Function with clear separators (============)
+      5. Updated to Claude Sonnet 4.5 (claude-sonnet-4-5-20250929)
+
+      NEW PROMPT STRUCTURE:
+      - Clear section separators with ============
+      - Explicit section titles (CONTEXT, CURRENT TRANSCRIPTION, etc.)
+      - Better hierarchy for AI understanding
+      - Clear OUTPUT FORMAT instructions
+    impact: "Medium - Better debugging and improved AI accuracy"
+    files_changed:
+      - "supabase/functions/j_hub_optimization_improve_transcript/index.ts"
+      - "src/pages/OptimizationEditor.tsx"
+      - "supabase/migrations/20251011201000_fix_api_logs_step_constraint.sql"
+    migrate_to_architecture: false
+
+  - date: "2025-10-11"
+    decision: "Fixed CHECK constraint on j_ads_optimization_api_logs.step"
+    status: "completed ✅"
+    details: |
+      BUG FIX: AI improvements logs were not being saved
+
+      PROBLEM:
+      - Edge function executed successfully but debug modal showed "Nenhum log encontrado"
+      - SQL query returned 0 rows for step='improve_transcript'
+      - Supabase logs showed: "violates check constraint j_ads_optimization_api_logs_step_check"
+
+      ROOT CAUSE:
+      - Table had CHECK constraint limiting step values to: ('transcribe', 'process', 'analyze')
+      - New value 'improve_transcript' was not in allowed list
+      - All insert attempts silently failed
+
+      SOLUTION:
+      - Created migration 20251011201000_fix_api_logs_step_constraint.sql
+      - Dropped old CHECK constraint
+      - Created new constraint including 'improve_transcript'
+      - Applied via npx supabase db push
+
+      LESSON LEARNED:
+      - CHECK constraint violations don't throw obvious errors
+      - Always verify table constraints when adding new enum-like values
+      - Debug modal was essential to discover this issue
+    impact: "High - Critical fix, AI improvements logs now save correctly"
+    files_changed:
+      - "supabase/migrations/20251011201000_fix_api_logs_step_constraint.sql"
+    migrate_to_architecture: false
+
+  - date: "2025-10-11"
+    decision: "Implemented comprehensive user management panel for admins"
+    status: "completed ✅"
+    details: |
+      FEATURE: Complete admin panel for user management at /admin/users
+
+      BACKEND:
+      - Created j_ads_user_audit_log table for tracking all admin actions
+      - Added activity tracking columns to j_ads_users (last_login_at, login_count, is_active)
+      - Deployed j_ads_admin_users Edge Function with actions:
+        * list: Get all users with stats (accounts, creatives, logins)
+        * getDetails: Full user details with audit history
+        * changeRole: Change user permissions with validation
+        * toggleStatus: Activate/deactivate accounts
+        * resetPassword: Send password reset email
+        * forceLogout: Revoke all user sessions
+
+      FRONTEND:
+      - AdminUsers page (/admin/users) with complete UI
+      - 5 new components: UserCard, UserDetailsModal, ChangeRoleDialog, UserMetrics, UserFilters
+      - Search by name/email + filters by role/status
+      - Clickable metric cards for quick filtering
+      - Mobile-responsive design
+
+      SECURITY:
+      - Only admins can access the panel
+      - All actions logged to audit table
+      - Prevents removing last admin
+      - RLS policies on audit log
+
+      KEY DECISIONS:
+      - Did NOT change role nomenclature (kept admin/manager/supervisor/gerente/user)
+      - Focused on management features, not restructuring permissions
+      - Safe implementation - zero breaking changes
+    impact: "High - Major new feature for admin operations"
+    files_changed:
+      - "supabase/migrations/20251011000000_add_user_activity_tracking.sql"
+      - "supabase/migrations/20251011000001_create_user_audit_log.sql"
+      - "supabase/functions/j_ads_admin_users/index.ts"
+      - "src/pages/AdminUsers.tsx"
+      - "src/components/admin/users/*.tsx (5 files)"
+      - "src/App.tsx"
+      - "src/pages/Admin.tsx"
+    migrate_to_architecture: false
+
+  - date: "2025-10-11"
+    decision: "Cleaned up obsolete migration files from local repository"
+    status: "completed ✅"
+    details: |
+      CLEANUP: Deleted 23 migration files that were already applied remotely
+
+      ISSUE: Supabase CLI showing migration mismatch - files existed locally
+      but were already applied in production database (via Dashboard).
+
+      SOLUTION:
+      - Deleted 23 local migration files (2025-10-07 to 2025-10-10)
+      - These were applied manually via Dashboard, not via CLI
+      - Local files were causing "remote database's migration history does not match"
+
+      LESSON LEARNED: Always use CLI for migrations (npx supabase db push)
+      to keep local and remote in sync. Avoid applying via Dashboard.
+    impact: "Low - Cleanup only, no functional changes"
+    files_changed:
+      - "Deleted 23 files in supabase/migrations/"
+    migrate_to_architecture: false
+
+  - date: "2025-10-11"
+    decision: "Updated app icon to new Jumper Hub branding"
+    status: "completed ✅"
+    details: |
+      BRANDING: Replaced favicon with new J-Hub orange logo
+
+      - Copied j-hub-icon.png from Desktop
+      - Replaced public/favicon.png and public/favicon.ico
+      - New icon: Orange Jumper logo on black background
+      - Will appear after Vercel deploy + browser cache clear
+    impact: "Low - Visual update only"
+    files_changed:
+      - "public/favicon.png"
+      - "public/favicon.ico"
+    migrate_to_architecture: false
+
   - date: "2025-10-10"
     decision: "Removed password authentication from shared optimizations"
     status: "completed ✅"
@@ -20,14 +211,12 @@ recent_decisions:
       - Edge function j_ads_view_shared_optimization was NOT in config.toml
       - Supabase blocked ALL requests with 401 "Missing authorization header"
       - Function code NEVER executed - blocking happened before
-      - Spent hours debugging password hash/PBKDF2/Base64 (red herring!)
       - Real issue: Missing verify_jwt = false configuration
 
       SOLUTION:
       - Removed password validation from j_ads_view_shared_optimization
       - Removed password generation from j_ads_create_optimization_share
       - Added verify_jwt = false in config.toml for public access
-      - Added verify_jwt = true for create function (auth required)
       - Security via unique random slug only
 
       LESSON LEARNED: Always check config.toml FIRST when edge function returns 401!
@@ -40,182 +229,173 @@ recent_decisions:
       - "supabase/config.toml"
     migrate_to_architecture: false
 
-  - date: "2025-10-10"
-    decision: "Changed terminology from AI to client-friendly language"
-    status: "completed ✅"
-    details: |
-      - "Análise de IA" → "Extrato de Otimização"
-      - "Análise Compartilhada" → "Extrato Compartilhado"
-      - All error/loading messages: "análise" → "otimização/extrato"
-      - Removed all AI references from client-facing content
-      - Professional, neutral language for clients
-    impact: "Low - UX improvement, better client perception"
-    files_changed:
-      - "src/pages/SharedOptimization.tsx"
-    migrate_to_architecture: false
-
-  - date: "2025-10-09"
-    decision: "Using j_ads_users for user management"
-    status: "implemented"
-    details: |
-      - Table: j_ads_users (id, email, role, nome, notion_manager_id)
-      - Roles: 'admin', 'staff', 'client'
-      - Deleted: user_roles, j_ads_user_roles (obsolete)
-      - Edge functions must use j_ads_users.role for permission checks
-    impact: "High - Affects all authentication and authorization logic"
-    migrate_to_architecture: false
-
-  - date: "2025-10-09"
-    decision: "Fixed inactive accounts filter and cleaned obsolete migrations"
-    status: "completed ✅"
-    details: |
-      - Fixed filter to use 'Inativo' (masculine) instead of 'inativa'
-      - Resolved has_role() function conflict (removed app_role version)
-      - Added RLS policies for j_ads_notion_db_managers
-      - Fixed 406 error with .maybeSingle() in AuthContext
-      - Deleted 10 obsolete migrations (n8n_*, old accounts tables)
-      - Created new migrations with proper naming convention
-      - Removed "X de Y contas" badge from UI
-    impact: "Medium - Improved filtering and database cleanup"
-    migrate_to_architecture: false
-
 # Current issues being worked on
 current_issues:
-  - issue: "Nome de bruno@jumper.studio vazio na j_ads_users"
+  - issue: "Obsolete Edge Functions need cleanup"
     severity: "low"
-    discovered: "2025-10-09"
-    root_cause: "OAuth users não têm nome populado automaticamente"
-    status: "pending (non-blocking)"
+    discovered: "2025-10-12"
+    root_cause: "Legacy edge functions with j_ads_ prefix still exist but are not used"
+    status: "pending"
     next_steps:
-      - "Popular nome usando auth.users metadata (user_metadata.full_name)"
-      - "Criar migration para sync automático no login"
-    assigned_to: "pending"
+      - "Audit all edge functions in supabase/functions/"
+      - "Identify which are legacy (j_ads_*) vs. new (j_hub_*)"
+      - "Search codebase for references to legacy functions"
+      - "Delete obsolete edge functions from repository"
+      - "Update config.toml to remove legacy function entries"
+    assigned_to: "Next session"
 
 # Work in progress
 work_in_progress:
-  - task: "Shared Optimization Links - Password Removal & Terminology Update"
+  - task: "Step 3 (Analyze) Prompt Refactoring"
     branch: "main"
-    started: "2025-10-10"
-    completed: "2025-10-10T16:30:00Z"
+    started: "2025-10-12T18:00:00Z"
+    completed: "2025-10-12T19:45:00Z"
     status: "COMPLETED ✅"
     files_modified:
-      - "supabase/functions/j_ads_view_shared_optimization/index.ts"
-      - "supabase/functions/j_ads_create_optimization_share/index.ts"
-      - "src/components/optimization/ShareOptimizationModal.tsx"
-      - "src/pages/SharedOptimization.tsx"
-      - "supabase/config.toml"
+      - "supabase/functions/j_hub_optimization_analyze/index.ts"
     deployed: true
-    deployment_status: "WORKING ✅ - public links work without password"
+    deployment_status: "DEPLOYED ✅ - j_hub_optimization_analyze deployed to production"
 
 # Context for next session
 next_session_context: |
-  ✅ SESSION 2025-10-10 COMPLETED: Shared Optimization Links Fixed
+  ✅ SESSION 2025-10-12 (EVENING) COMPLETED: Step 3 Prompt Refactoring
 
-  What was done today:
-    - ✅ Fixed shared optimization links (401 error resolved)
-    - ✅ Removed password authentication (simplified workflow)
-    - ✅ Added verify_jwt config to supabase/config.toml
-    - ✅ Changed UI terminology: "Análise de IA" → "Extrato de Otimização"
-    - ✅ Deployed all changes (edge functions + frontend)
+  What was done in this session:
+    1. ✅ Refactored j_hub_optimization_analyze/index.ts to modular structure
+    2. ✅ Fixed prompt_type search from 'analysis' to 'analyze'
+    3. ✅ Added account context fetching (contexto_transcricao, contexto_otimizacao)
+    4. ✅ Converted system prompt to English (structural instructions)
+    5. ✅ Restructured user prompt with standardized sections (matching Steps 1 & 2)
+    6. ✅ Deployed j_hub_optimization_analyze to production
 
-  🎯 KEY DISCOVERY:
-    The password system was NEVER the problem!
-    - Real issue: Missing verify_jwt = false in config.toml
-    - Supabase blocked requests BEFORE code execution
-    - 401 error made us think password validation was broken
-    - Spent hours debugging PBKDF2/Base64 (unnecessary)
-    - Fix: Added 3 lines to config.toml ✅
+  🎯 ACHIEVEMENT - Complete Prompt System Modularization:
 
-  📊 SHARED OPTIMIZATION SYSTEM STATUS:
+    ALL 3 STEPS NOW USE SAME STRUCTURE:
+    - Step 1 (Transcribe): ✅ Modular prompts from j_ads_optimization_prompts
+    - Step 2 (Process): ✅ Modular prompts from j_ads_optimization_prompts
+    - Step 3 (Analyze): ✅ Modular prompts from j_ads_optimization_prompts
 
-    ✅ WORKING FEATURES:
-      - Create share link (authenticated users only)
-      - Public view via unique slug (no auth needed)
-      - Expiration dates (optional)
-      - WhatsApp/email formatted message copy
-      - Client-friendly UI (no AI mentions)
+    BENEFITS:
+    - 100% editable via /optimization UI (PromptEditorModal)
+    - Version tracking with previous_version field
+    - Consistent structure across all steps
+    - Better AI comprehension with clear section separators
+    - No more hardcoded prompts in Edge Functions
 
-    🔧 HOW IT WORKS NOW:
-      1. Gestor clicks "Compartilhar" on optimization
-      2. Choose expiration (or "Nunca expira")
-      3. System generates unique slug (e.g., clinica-seven-10out2025-bafu1b)
-      4. Copy link: https://ads.jumper.studio/optimization/{slug}
-      5. Client accesses directly - no password needed
-      6. Security via random slug + optional expiration
+  📝 CHANGES IN j_hub_optimization_analyze/index.ts:
 
-    📁 EDGE FUNCTIONS:
-      - j_ads_create_optimization_share (verify_jwt = true)
-      - j_ads_view_shared_optimization (verify_jwt = false)
+    1. Account context fetching (lines 91-99):
+       - Queries j_ads_notion_db_accounts
+       - Fetches contexto_transcricao (for PROPER NAMES section)
+       - Fetches contexto_otimizacao (for ADDITIONAL CONTEXT section)
 
-    🗂️ FRONTEND:
-      - ShareOptimizationModal: Create/configure shares
-      - SharedOptimization page: Public view (slug-based)
+    2. Fixed prompt_type (line 145):
+       - Changed from 'analysis' → 'analyze'
+       - Now correctly fetches prompts from database
 
-  🚨 PENDING TASKS FROM PREVIOUS SESSION:
-    Database cleanup was planned but NOT executed yet!
+    3. System prompt in English (lines 158-208):
+       - Structural instructions in English
+       - JSON schema specification
+       - Added: "OUTPUT LANGUAGE: Brazilian Portuguese"
 
-    PHASE 1: Verify Code References (5 min)
-      ```bash
-      grep -r "FROM creative_submissions\|FROM creative_files" supabase/ src/
-      grep -r "notion_managers\|user_roles" supabase/ src/
-      ```
+    4. User prompt with sections (lines 213-271):
+       - PROPER NAMES AND CONTEXT
+       - PLATFORM: X / OBJECTIVES: Y
+       - FOCUS BY OBJECTIVE (from database)
+       - ADDITIONAL OPTIMIZATION CONTEXT (conditional)
+       - PROCESSED TRANSCRIPTION (ORGANIZED BULLETS)
+       - Historical context (3 previous optimizations)
+       - ADDITIONAL ANALYSIS INSTRUCTIONS (conditional)
+       - TASK (with output format)
 
-    PHASE 2-5: Apply migrations and validate
-      - Migration ready: 20251010000000_cleanup_obsolete_tables.sql
-      - Migration ready: 20251010000001_add_rls_metaads_bronze.sql
-      - Run: npx supabase db push --linked
-      - Regenerate types
-      - Validate
+  🚀 DEPLOYMENT STATUS:
+    - Edge Function: j_hub_optimization_analyze deployed ✅
+    - Production URL: https://biwwowendjuzvpttyrlb.supabase.co
+    - Migration: None needed (table structure already exists)
+    - Frontend: No changes needed (uses existing UI)
 
-  Known issues (non-blocking):
-    - User name still shows email in some cards (cosmetic)
+  ⚠️ PENDING TASKS FOR NEXT SESSION:
 
-  All systems operational! ✅
+    🧹 CLEANUP: Remove Obsolete Edge Functions
+
+    ISSUE: Multiple legacy edge functions still exist with j_ads_ prefix
+    but are no longer used (replaced by j_hub_ versions)
+
+    NEXT STEPS:
+    1. Audit all functions in supabase/functions/
+    2. Identify legacy vs. active functions:
+       - j_ads_* = Legacy (check if still used)
+       - j_hub_* = New (keep)
+    3. Search codebase for references to legacy functions
+    4. Delete unused edge functions from repository
+    5. Update supabase/config.toml to remove legacy entries
+
+    KNOWN LEGACY FUNCTIONS TO INVESTIGATE:
+    - j_ads_analyze_optimization (replaced by j_hub_optimization_analyze)
+    - j_ads_transcribe_optimization (replaced by j_hub_optimization_transcribe)
+    - j_ads_process_optimization (replaced by j_hub_optimization_process)
+    - Others TBD (need full audit)
+
+  📦 MIGRATION STATUS:
+    - Database: Up to date ✅
+    - Edge Functions: 1 updated, many legacy to clean up ⚠️
+    - Frontend: No changes needed ✅
+
+  Known issues: Edge function cleanup pending
+
+  All optimization features working perfectly! ✅
 
 # TODOs pending
 pending_todos:
-  - "🔍 PHASE 1: Verify code references to obsolete tables (NOT DONE YET)"
-  - "🗑️ PHASE 2: Apply cleanup migration (NOT DONE YET)"
-  - "🔐 PHASE 3: Apply RLS migration (NOT DONE YET)"
-  - "🔄 PHASE 4: Regenerate types.ts (NOT DONE YET)"
-  - "✅ PHASE 5: Validate and test (NOT DONE YET)"
-  - "Populate nome field for bruno@jumper.studio (optional, low priority)"
+  - "🧹 Audit and cleanup obsolete edge functions (j_ads_* legacy)"
+  - "🔍 Search codebase for references to legacy edge functions"
+  - "🗑️ Delete unused edge functions from repository"
+  - "📝 Update config.toml to remove legacy function entries"
 
 # Recently completed (for reference)
 completed_recently:
-  - "✅ Fixed shared optimization links - removed password auth"
-  - "✅ Added verify_jwt = false to config.toml"
-  - "✅ Changed UI terminology to client-friendly language"
-  - "✅ Created AccountCard component with role-based badges"
-  - "✅ Implemented getAccessReason() logic for badge assignment"
-  - "✅ Added sorting by access priority in MyAccounts.tsx"
+  - "✅ Step 3 (Analyze) prompt refactoring - modular structure"
+  - "✅ Fixed prompt_type search from 'analysis' to 'analyze'"
+  - "✅ Added account context fetching for analysis prompts"
+  - "✅ Standardized user prompt structure across all 3 steps"
+  - "✅ Deployed j_hub_optimization_analyze to production"
+  - "✅ Fixed CHECK constraint on API logs step column"
+  - "✅ AI improvements debug modal now shows original Whisper prompt"
+  - "✅ Improved prompt structure with clear separators"
+  - "✅ Updated to Claude Sonnet 4.5"
+  - "✅ User management panel - complete implementation"
 
 # Deployment status
 deployment:
   production_url: "https://ads.jumper.studio"
-  last_deploy: "2025-10-10T16:30:00Z"
+  last_deploy: "2025-10-12T19:45:00Z"
   last_deploy_status: "success ✅"
-  last_commit: "4e0c980 - refactor: Change terminology from AI analysis to optimization extract"
+  last_commit: "pending - Step 3 refactoring"
   edge_functions_deployed:
+    - name: "j_hub_optimization_analyze"
+      status: "deployed ✅"
+      deployed_at: "2025-10-12T19:45:00Z"
+      changes: "Refactored to modular prompt structure, fixed prompt_type, added account contexts"
+    - name: "j_hub_optimization_improve_transcript"
+      status: "deployed ✅"
+      deployed_at: "2025-10-11T18:25:00Z"
+      changes: "Fixed prompt structure, added Whisper context, upgraded to Claude 4.5"
+    - name: "j_ads_admin_users"
+      status: "deployed ✅"
+      deployed_at: "2025-10-11T13:30:00Z"
     - name: "j_ads_view_shared_optimization"
       status: "working ✅"
-      fix: "verify_jwt = false allows public access"
       deployed_at: "2025-10-10T16:00:00Z"
     - name: "j_ads_create_optimization_share"
       status: "working ✅"
-      fix: "verify_jwt = true requires auth"
       deployed_at: "2025-10-10T16:00:00Z"
-    - name: "j_ads_user_accounts"
-      status: "working ✅"
-      fix: "uses j_ads_users.role correctly"
-      deployed_at: "2025-10-09T18:15:00Z"
-  migrations_pending:
-    - "20251010000000_cleanup_obsolete_tables.sql (ready to apply)"
-    - "20251010000001_add_rls_metaads_bronze.sql (ready to apply)"
-  migrations_applied_last: "20251009190000_create_error_tracking.sql"
+  migrations_applied_last:
+    - "20251011201000_fix_api_logs_step_constraint.sql"
+    - "20251011000000_add_user_activity_tracking.sql"
+    - "20251011000001_create_user_audit_log.sql"
 
 # Notes for context rotation
 context_rotation:
   last_rotation: "never"
-  next_rotation: "2025-10-16"
+  next_rotation: "2025-10-19"
   items_to_migrate: []

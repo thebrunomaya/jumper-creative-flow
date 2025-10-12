@@ -93,10 +93,10 @@ Deno.serve(async (req) => {
     const supabase = adminClient;
 
     if (action === "listMy") {
-      // Get user accessible accounts (same logic as j_ads_user_accounts)
+      // Get user accessible accounts (same logic as j_hub_user_accounts)
       const targetEmail = (user.email || '').toLowerCase();
       const { data: userData } = await supabase
-        .from('j_ads_users')
+        .from('j_hub_users')
         .select('role, notion_manager_id')
         .eq('id', user.id)
         .maybeSingle();
