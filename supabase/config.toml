@@ -10,9 +10,6 @@ verify_jwt = true
 [functions.j_ads_auth_roles]
 verify_jwt = true
 
-[functions.j_ads_create_optimization_share]
-verify_jwt = true
-
 [functions.j_ads_manager_dashboard]
 verify_jwt = true
 
@@ -32,6 +29,9 @@ verify_jwt = true
 verify_jwt = true
 
 [functions.j_hub_optimization_analyze]
+verify_jwt = true
+
+[functions.j_hub_optimization_create_share]
 verify_jwt = true
 
 [functions.j_hub_optimization_improve_processed]

@@ -84,7 +84,7 @@ export function ShareOptimizationModal({
 
       // Use Supabase client to invoke function (correct URL handling)
       const { data: result, error: invokeError } = await supabase.functions.invoke(
-        'j_ads_create_optimization_share',
+        'j_hub_optimization_create_share',
         {
           body: requestBody,
         }
