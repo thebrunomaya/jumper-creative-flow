@@ -866,36 +866,45 @@ export default function OptimizationEditor() {
                 {/* Structured Context (for admins/debug) */}
                 <OptimizationContextCard context={context} />
 
-                {/* Divider */}
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t" />
-                  </div>
-                  <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-background px-2 text-muted-foreground">
-                      Relatório para Cliente
-                    </span>
-                  </div>
-                </div>
+                {/* Oracle Report Generator - ADMIN ONLY */}
+                {isAdmin && (
+                  <>
+                    {/* Divider */}
+                    <div className="relative">
+                      <div className="absolute inset-0 flex items-center">
+                        <span className="w-full border-t" />
+                      </div>
+                      <div className="relative flex justify-center text-xs uppercase">
+                        <span className="bg-background px-2 text-muted-foreground">
+                          Relatório para Cliente
+                        </span>
+                      </div>
+                    </div>
 
-                {/* Oracle Report Generator */}
-                <OracleReportGenerator
-                  contextId={context.id}
-                  accountName={accountName}
-                  recordingId={recordingId!}
-                  existingReports={context.generated_reports || {}}
-                />
+                    {/* Oracle Report Generator */}
+                    <OracleReportGenerator
+                      contextId={context.id}
+                      accountName={accountName}
+                      recordingId={recordingId!}
+                      existingReports={context.generated_reports || {}}
+                    />
+                  </>
+                )}
 
                 {/* Action Buttons */}
                 <div className="flex gap-2 flex-wrap pt-4 border-t">
-                  <JumperButton variant="ghost" onClick={() => handleAnalyze(true)} disabled={isAnalyzing}>
-                    <RotateCw className="mr-2 h-4 w-4" />
-                    Recriar Análise
-                  </JumperButton>
-                  <JumperButton variant="outline" onClick={handleShare}>
-                    <Share2 className="mr-2 h-4 w-4" />
-                    Compartilhar
-                  </JumperButton>
+                  {isAdmin && (
+                    <>
+                      <JumperButton variant="ghost" onClick={() => handleAnalyze(true)} disabled={isAnalyzing}>
+                        <RotateCw className="mr-2 h-4 w-4" />
+                        Recriar Análise
+                      </JumperButton>
+                      <JumperButton variant="outline" onClick={handleShare}>
+                        <Share2 className="mr-2 h-4 w-4" />
+                        Compartilhar
+                      </JumperButton>
+                    </>
+                  )}
                   <JumperButton variant="outline" onClick={handleExportPDF}>
                     <Download className="mr-2 h-4 w-4" />
                     Exportar PDF
