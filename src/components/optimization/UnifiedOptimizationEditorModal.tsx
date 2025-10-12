@@ -156,7 +156,7 @@ export function UnifiedOptimizationEditorModal({
 
       // Chamar Edge Function para salvar com privilégios e validação
       const { data: fnData, error: fnError } = await supabase.functions.invoke(
-        'j_ads_update_optimization_context',
+        'j_hub_optimization_update_context',
         {
           body: {
             recording_id: recordingId,

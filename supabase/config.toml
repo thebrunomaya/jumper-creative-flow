@@ -28,14 +28,8 @@ verify_jwt = false
 [functions.j_ads_submit_ad]
 verify_jwt = true
 
-[functions.j_ads_update_optimization_context]
-verify_jwt = true
-
 [functions.j_ads_user_accounts]
 verify_jwt = true
-
-[functions.j_ads_view_shared_optimization]
-verify_jwt = false
 
 [functions.j_hub_optimization_analyze]
 verify_jwt = true
@@ -51,3 +45,9 @@ verify_jwt = true
 
 [functions.j_hub_optimization_transcribe]
 verify_jwt = true
+
+[functions.j_hub_optimization_update_context]
+verify_jwt = true
+
+[functions.j_hub_optimization_view_shared]
+verify_jwt = false

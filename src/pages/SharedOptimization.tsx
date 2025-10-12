@@ -67,7 +67,7 @@ export default function SharedOptimization() {
         // Make direct fetch to Edge Function (public, no auth required)
         const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
         const response = await fetch(
-          `${SUPABASE_URL}/functions/v1/j_ads_view_shared_optimization`,
+          `${SUPABASE_URL}/functions/v1/j_hub_optimization_view_shared`,
           {
             method: 'POST',
             headers: {
