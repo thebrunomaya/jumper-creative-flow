@@ -49,7 +49,7 @@ const AdminPage: React.FC = () => {
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
 
   useEffect(() => {
-    document.title = "Admin • Ad Uploader";
+    document.title = "Admin • Jumper Hub";
   }, []);
 
   const fetchSubmissions = async (): Promise<SubmissionRow[]> => {

@@ -37,7 +37,7 @@ const Manager: React.FC = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    document.title = "Meus Criativos • Ad Uploader";
+    document.title = "Meus Criativos • Jumper Hub";
   }, []);
 
   const fetchMy = async (): Promise<Row[]> => {

@@ -47,7 +47,7 @@ const AdminUsersPage: React.FC = () => {
   const [changeRoleUser, setChangeRoleUser] = useState<User | null>(null);
 
   useEffect(() => {
-    document.title = 'Gerenciamento de Usuários • Ad Uploader';
+    document.title = 'Gerenciamento de Usuários • Jumper Hub';
   }, []);
 
   // Fetch users list

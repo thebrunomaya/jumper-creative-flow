@@ -141,10 +141,10 @@ const LoginPage: React.FC = () => {
               />
             </div>
 
-            {/* Título Ad Uploader */}
+            {/* Título Jumper Hub */}
             <div className="text-center">
               <h1 className="text-2xl lg:text-3xl font-bold text-white">
-                Ad Uploader
+                Jumper Hub
               </h1>
             </div>
 
@@ -227,7 +227,7 @@ const LoginPage: React.FC = () => {
               </div>
 
               <p className="text-xs text-white/50">
-                Aviso: senhas do Notion não funcionam aqui. Use sua senha do Ad Uploader.
+                Aviso: senhas do Notion não funcionam aqui. Use sua senha do Jumper Hub.
               </p>
             </form>
           </div>

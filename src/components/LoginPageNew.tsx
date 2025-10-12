@@ -93,7 +93,7 @@ const LoginPageNew: React.FC = () => {
         if (!error) {
           setAuthStep('magic-link-sent');
           toast({
-            title: "Bem-vindo(a) ao Ad Uploader!",
+            title: "Bem-vindo(a) ao Jumper Hub!",
             description: "Enviamos um link de acesso para seu email. É seu primeiro acesso!",
           });
         } else {
@@ -301,11 +301,8 @@ const LoginPageNew: React.FC = () => {
             {/* Título */}
             <div className="text-center space-y-2">
               <h1 className="text-2xl lg:text-3xl font-bold text-white">
-                Ad Uploader
+                Jumper Hub
               </h1>
-              <p className="text-white/60 text-sm">
-                Plataforma exclusiva para gerentes autorizados
-              </p>
             </div>
 
             {/* Step: Email */}
@@ -391,7 +388,7 @@ const LoginPageNew: React.FC = () => {
                 </Button>
 
                 <p className="text-xs text-white/40 text-center">
-                  Gestores e Supervisores: use Notion OAuth
+                  Acesso via Notion para Staff Jumper
                 </p>
 
               </form>
