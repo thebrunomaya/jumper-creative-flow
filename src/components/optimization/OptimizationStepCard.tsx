@@ -14,6 +14,7 @@ interface OptimizationStepCardProps {
   title: string;
   description: string;
   status: string | undefined;
+  badge?: string; // Optional badge text (e.g., "Beta", "Preview")
   onDebug?: () => void;
   children: ReactNode;
 }
@@ -38,6 +39,7 @@ export function OptimizationStepCard({
   title,
   description,
   status,
+  badge,
   onDebug,
   children
 }: OptimizationStepCardProps) {
@@ -53,7 +55,14 @@ export function OptimizationStepCard({
 
             {/* Title & Description */}
             <div>
-              <CardTitle className="text-xl">{title}</CardTitle>
+              <CardTitle className="text-xl flex items-center gap-2">
+                {title}
+                {badge && (
+                  <Badge variant="secondary" className="text-xs font-normal">
+                    {badge}
+                  </Badge>
+                )}
+              </CardTitle>
               <CardDescription className="mt-1">{description}</CardDescription>
             </div>
           </div>

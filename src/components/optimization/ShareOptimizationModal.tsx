@@ -41,8 +41,6 @@ interface ShareOptimizationModalProps {
   recordingId: string;
   accountName: string;
   recordedAt: string;
-  contextId: string; // Context ID for oracle generation
-  generatedReports?: Record<string, string>; // Existing oracle reports
 }
 
 export function ShareOptimizationModal({
@@ -51,8 +49,6 @@ export function ShareOptimizationModal({
   recordingId,
   accountName,
   recordedAt,
-  contextId,
-  generatedReports = {},
 }: ShareOptimizationModalProps) {
   const [isCreating, setIsCreating] = useState(false);
   const [shareData, setShareData] = useState<{
@@ -62,11 +58,6 @@ export function ShareOptimizationModal({
   const [copiedUrl, setCopiedUrl] = useState(false);
   const [copiedMessage, setCopiedMessage] = useState(false);
   const [expirationDays, setExpirationDays] = useState<string>('never');
-
-  // Oracle selection states
-  type OracleType = 'delfos' | 'orfeu' | 'nostradamus';
-  const [selectedOracle, setSelectedOracle] = useState<OracleType | null>(null);
-  const [isGeneratingOracle, setIsGeneratingOracle] = useState(false);
 
   const handleCreateShare = async () => {
     setIsCreating(true);
@@ -82,7 +73,6 @@ export function ShareOptimizationModal({
       const requestBody: {
         recording_id: string;
         expires_days?: number;
-        selected_oracle?: 'delfos' | 'orfeu' | 'nostradamus';
       } = {
         recording_id: recordingId,
       };
@@ -90,11 +80,6 @@ export function ShareOptimizationModal({
       // Add expiration if selected
       if (expirationDays !== 'never') {
         requestBody.expires_days = parseInt(expirationDays);
-      }
-
-      // Add selected oracle
-      if (selectedOracle) {
-        requestBody.selected_oracle = selectedOracle;
       }
 
       // Use Supabase client to invoke function (correct URL handling)
@@ -164,52 +149,12 @@ Qualquer dúvida, estou à disposição!`;
     }
   };
 
-  const handleSelectOracle = async (oracle: OracleType) => {
-    setIsGeneratingOracle(true);
-
-    try {
-      // Check if oracle report already exists
-      if (generatedReports[oracle]) {
-        console.log('📦 Oracle report already exists in cache');
-        setSelectedOracle(oracle);
-        toast.success(`Relatório ${oracle.toUpperCase()} selecionado`);
-        setIsGeneratingOracle(false);
-        return;
-      }
-
-      // Generate oracle report first
-      console.log(`🔮 Generating ${oracle} report before sharing...`);
-      const { data, error } = await supabase.functions.invoke(
-        'j_hub_optimization_generate_oracle_report',
-        {
-          body: {
-            context_id: contextId,
-            oracle,
-            account_name: accountName,
-          },
-        }
-      );
-
-      if (error) throw error;
-
-      setSelectedOracle(oracle);
-      toast.success(`Relatório ${oracle.toUpperCase()} gerado com sucesso!`);
-    } catch (error: any) {
-      console.error('Error generating oracle:', error);
-      toast.error(error.message || 'Erro ao gerar relatório');
-    } finally {
-      setIsGeneratingOracle(false);
-    }
-  };
-
   const handleClose = () => {
     // Reset state when closing
     setShareData(null);
     setExpirationDays('never');
     setCopiedUrl(false);
     setCopiedMessage(false);
-    setSelectedOracle(null);
-    setIsGeneratingOracle(false);
     onOpenChange(false);
   };
 
@@ -244,111 +189,46 @@ Qualquer dúvida, estou à disposição!`;
           {!shareData ? (
             // Configuration form
             <>
-              {!selectedOracle ? (
-                // Step 1: Oracle Selection
-                <>
-                  <Separator />
-                  <div className="space-y-3">
-                    <Label className="text-sm font-semibold">
-                      Escolha o formato do relatório:
-                    </Label>
-                    <div className="grid grid-cols-1 gap-3">
-                      {[
-                        { id: 'orfeu', icon: '🎵', name: 'ORFEU', desc: 'Narrativo - Para clientes não-técnicos', color: 'blue' },
-                        { id: 'delfos', icon: '🏛️', name: 'DELFOS', desc: 'Técnico - Para gestores experientes', color: 'red' },
-                        { id: 'nostradamus', icon: '📜', name: 'NOSTRADAMUS', desc: 'Analítico - Para stakeholders', color: 'orange' },
-                      ].map((oracle) => (
-                        <JumperButton
-                          key={oracle.id}
-                          variant="outline"
-                          className="justify-start h-auto p-4 hover:bg-muted/50"
-                          onClick={() => handleSelectOracle(oracle.id as OracleType)}
-                          disabled={isGeneratingOracle}
-                        >
-                          <div className="flex items-center gap-3 w-full">
-                            <span className="text-2xl">{oracle.icon}</span>
-                            <div className="text-left flex-1">
-                              <div className="font-semibold">{oracle.name}</div>
-                              <div className="text-xs text-muted-foreground">{oracle.desc}</div>
-                            </div>
-                            {generatedReports[oracle.id] && (
-                              <CheckCircle2 className="h-5 w-5 text-green-500" />
-                            )}
-                          </div>
-                        </JumperButton>
-                      ))}
-                    </div>
-                    <p className="text-xs text-muted-foreground text-center">
-                      💡 Recomendamos ORFEU para a maioria dos clientes
-                    </p>
-                  </div>
-                </>
-              ) : (
-                // Step 2: Expiration & Create Share
-                <>
-                  <Separator />
+              <Separator />
 
-                  {/* Selected Oracle Badge */}
-                  <div className="flex items-center justify-between bg-muted/30 p-3 rounded-lg">
-                    <div className="flex items-center gap-2">
-                      <span className="text-lg">
-                        {selectedOracle === 'delfos' ? '🏛️' : selectedOracle === 'orfeu' ? '🎵' : '📜'}
-                      </span>
-                      <span className="text-sm font-medium">
-                        Formato: {selectedOracle.toUpperCase()}
-                      </span>
-                    </div>
-                    <JumperButton
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setSelectedOracle(null)}
-                    >
-                      Trocar
-                    </JumperButton>
-                  </div>
+              {/* Expiration */}
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4" />
+                  Expiração
+                </Label>
+                <Select value={expirationDays} onValueChange={setExpirationDays}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="never">Nunca expira</SelectItem>
+                    <SelectItem value="7">Expira em 7 dias</SelectItem>
+                    <SelectItem value="30">Expira em 30 dias</SelectItem>
+                    <SelectItem value="90">Expira em 90 dias</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-                  <Separator />
+              <Separator />
 
-                  {/* Expiration */}
-                  <div className="space-y-2">
-                    <Label className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4" />
-                      Expiração
-                    </Label>
-                    <Select value={expirationDays} onValueChange={setExpirationDays}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="never">Nunca expira</SelectItem>
-                        <SelectItem value="7">Expira em 7 dias</SelectItem>
-                        <SelectItem value="30">Expira em 30 dias</SelectItem>
-                        <SelectItem value="90">Expira em 90 dias</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <Separator />
-
-                  <JumperButton
-                    onClick={handleCreateShare}
-                    disabled={isCreating}
-                    className="w-full"
-                  >
-                    {isCreating ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Criando link...
-                      </>
-                    ) : (
-                      <>
-                        <LinkIcon className="mr-2 h-4 w-4" />
-                        Criar Link de Compartilhamento
-                      </>
-                    )}
-                  </JumperButton>
-                </>
-              )}
+              <JumperButton
+                onClick={handleCreateShare}
+                disabled={isCreating}
+                className="w-full"
+              >
+                {isCreating ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Criando link...
+                  </>
+                ) : (
+                  <>
+                    <LinkIcon className="mr-2 h-4 w-4" />
+                    Criar Link de Compartilhamento
+                  </>
+                )}
+              </JumperButton>
             </>
           ) : (
             // Share created successfully

@@ -48,6 +48,7 @@ import { toast } from "sonner";
 import { exportOptimizationToPDF } from "@/utils/pdfExport";
 import { ShareOptimizationModal } from "@/components/optimization/ShareOptimizationModal";
 import { OracleReportGenerator } from "@/components/optimization/OracleReportGenerator";
+import { ExtractEditorModal } from "@/components/optimization/ExtractEditorModal";
 
 const AI_MODELS = [
   { value: "claude-sonnet-4-5-20250929", label: "Claude Sonnet 4.5 (Recomendado)" },
@@ -88,6 +89,9 @@ export default function OptimizationEditor() {
 
   // Share modal
   const [shareModalOpen, setShareModalOpen] = useState(false);
+
+  // Extract editor modal
+  const [extractEditorModalOpen, setExtractEditorModalOpen] = useState(false);
 
   // AI improvements modal
   const [aiImprovementsModalOpen, setAiImprovementsModalOpen] = useState(false);
@@ -478,6 +482,15 @@ export default function OptimizationEditor() {
     setShareModalOpen(true);
   }
 
+  function handleEditExtract() {
+    setExtractEditorModalOpen(true);
+  }
+
+  function handleExtractSaved(updatedContext: OptimizationContext) {
+    setContext(updatedContext);
+    toast.success('Extrato atualizado! Recarregue a página para ver as alterações.');
+  }
+
   if (isLoadingData) {
     return (
       <JumperBackground overlay={false}>
@@ -863,48 +876,23 @@ export default function OptimizationEditor() {
             {/* Completed State */}
             {recording.analysis_status === 'completed' && context && (
               <div className="space-y-6">
-                {/* Structured Context (for admins/debug) */}
+                {/* Structured Context */}
                 <OptimizationContextCard context={context} />
-
-                {/* Oracle Report Generator - ADMIN ONLY */}
-                {isAdmin && (
-                  <>
-                    {/* Divider */}
-                    <div className="relative">
-                      <div className="absolute inset-0 flex items-center">
-                        <span className="w-full border-t" />
-                      </div>
-                      <div className="relative flex justify-center text-xs uppercase">
-                        <span className="bg-background px-2 text-muted-foreground">
-                          Relatório para Cliente
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Oracle Report Generator */}
-                    <OracleReportGenerator
-                      contextId={context.id}
-                      accountName={accountName}
-                      recordingId={recordingId!}
-                      existingReports={context.generated_reports || {}}
-                    />
-                  </>
-                )}
 
                 {/* Action Buttons */}
                 <div className="flex gap-2 flex-wrap pt-4 border-t">
-                  {isAdmin && (
-                    <>
-                      <JumperButton variant="ghost" onClick={() => handleAnalyze(true)} disabled={isAnalyzing}>
-                        <RotateCw className="mr-2 h-4 w-4" />
-                        Recriar Análise
-                      </JumperButton>
-                      <JumperButton variant="outline" onClick={handleShare}>
-                        <Share2 className="mr-2 h-4 w-4" />
-                        Compartilhar
-                      </JumperButton>
-                    </>
-                  )}
+                  <JumperButton variant="outline" onClick={handleEditExtract}>
+                    <Edit className="mr-2 h-4 w-4" />
+                    Editar Extrato
+                  </JumperButton>
+                  <JumperButton variant="ghost" onClick={() => handleAnalyze(true)} disabled={isAnalyzing}>
+                    <RotateCw className="mr-2 h-4 w-4" />
+                    Recriar Análise
+                  </JumperButton>
+                  <JumperButton variant="outline" onClick={handleShare}>
+                    <Share2 className="mr-2 h-4 w-4" />
+                    Compartilhar
+                  </JumperButton>
                   <JumperButton variant="outline" onClick={handleExportPDF}>
                     <Download className="mr-2 h-4 w-4" />
                     Exportar PDF
@@ -913,6 +901,31 @@ export default function OptimizationEditor() {
               </div>
             )}
           </OptimizationStepCard>
+
+          {/* Spacer arrow */}
+          {recording.analysis_status === 'completed' && isAdmin && context && (
+            <div className="flex justify-center py-4">
+              <ChevronDown className="h-8 w-8 text-muted-foreground animate-bounce" />
+            </div>
+          )}
+
+          {/* SEÇÃO 4: ORACLE FRAMEWORK (ADMIN ONLY) */}
+          {isAdmin && recording.analysis_status === 'completed' && context && (
+            <OptimizationStepCard
+              stepNumber={4}
+              title="Oracle Framework"
+              description="Relatórios adaptados por perfil de cliente"
+              status="completed"
+              badge="Beta"
+            >
+              <OracleReportGenerator
+                contextId={context.id}
+                accountName={accountName}
+                recordingId={recordingId!}
+                existingReports={context.generated_reports || {}}
+              />
+            </OptimizationStepCard>
+          )}
 
         </div>
       </ScrollArea>
@@ -931,9 +944,16 @@ export default function OptimizationEditor() {
         recordingId={recordingId!}
         accountName={accountName}
         recordedAt={recording.recorded_at}
-        contextId={context?.id || ''}
-        generatedReports={context?.generated_reports || {}}
       />
+
+      {context && (
+        <ExtractEditorModal
+          open={extractEditorModalOpen}
+          onOpenChange={setExtractEditorModalOpen}
+          context={context}
+          onSave={handleExtractSaved}
+        />
+      )}
 
       <AIImprovementsModal
         isOpen={aiImprovementsModalOpen}
