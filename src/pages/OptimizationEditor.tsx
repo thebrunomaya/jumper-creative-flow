@@ -893,20 +893,22 @@ export default function OptimizationEditor() {
                 <OptimizationContextCard context={context} />
 
                 {/* Action Buttons */}
-                <div className="flex gap-2 flex-wrap pt-4 border-t">
-                  <JumperButton variant="outline" onClick={handleEditExtract}>
-                    <Edit className="mr-2 h-4 w-4" />
-                    Editar Extrato
-                  </JumperButton>
-                  <JumperButton variant="outline" onClick={handleAdjustWithAI}>
-                    <Sparkles className="mr-2 h-4 w-4" />
-                    Ajustar com IA
-                  </JumperButton>
-                  <JumperButton onClick={() => handleAnalyze(true)} disabled={isAnalyzing}>
-                    <RotateCw className="mr-2 h-4 w-4" />
-                    Recriar
-                  </JumperButton>
-                  <JumperButton variant="outline" onClick={handleShare}>
+                <div className="flex items-center justify-between flex-wrap gap-2 pt-4 border-t">
+                  <div className="flex gap-2 flex-wrap">
+                    <JumperButton variant="outline" onClick={handleEditExtract}>
+                      <Edit className="mr-2 h-4 w-4" />
+                      Editar Extrato
+                    </JumperButton>
+                    <JumperButton variant="outline" onClick={handleAdjustWithAI}>
+                      <Sparkles className="mr-2 h-4 w-4" />
+                      Ajustar com IA
+                    </JumperButton>
+                    <JumperButton variant="outline" onClick={() => handleAnalyze(true)} disabled={isAnalyzing}>
+                      <RotateCw className="mr-2 h-4 w-4" />
+                      Recriar
+                    </JumperButton>
+                  </div>
+                  <JumperButton onClick={handleShare}>
                     <Share2 className="mr-2 h-4 w-4" />
                     Compartilhar
                   </JumperButton>
