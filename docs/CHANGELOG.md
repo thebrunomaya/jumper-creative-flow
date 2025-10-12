@@ -348,7 +348,7 @@ Frontend: Seletor funcionando
 ### **🚀 Infraestrutura:**
 
 **Frontend (Vercel):**
-- Domínio: ads.jumper.studio
+- Domínio: hub.jumper.studio
 - Deploy automático: Push main → Vercel
 - Environment Variables configuradas
 - Branding: 100% Jumper Studio

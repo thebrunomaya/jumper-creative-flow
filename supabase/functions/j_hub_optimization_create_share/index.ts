@@ -142,7 +142,7 @@ Deno.serve(async (req) => {
     }
 
     // Return success with URL
-    const baseUrl = Deno.env.get('SITE_URL') || 'https://ads.jumper.studio';
+    const baseUrl = Deno.env.get('SITE_URL') || 'https://hub.jumper.studio';
     const publicUrl = `${baseUrl}/optimization/${slug}`;
 
     return new Response(

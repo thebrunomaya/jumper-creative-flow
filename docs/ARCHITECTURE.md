@@ -680,7 +680,7 @@ const handlePasswordChange = async (newPassword) => {
 ```javascript
 // LoginPageNew.tsx
 await supabase.auth.resetPasswordForEmail(email, {
-  redirectTo: 'https://ads.jumper.studio/reset-password'
+  redirectTo: 'https://hub.jumper.studio/reset-password'
 });
 ```
 
@@ -711,7 +711,7 @@ await supabase.auth.resetPasswordForEmail(email, {
            ↓
 ┌─────────────────────┐
 │  React Frontend     │
-│  (ads.jumper.studio)│
+│  (hub.jumper.studio)│
 └─────────────────────┘
 ```
 

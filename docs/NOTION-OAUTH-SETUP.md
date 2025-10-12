@@ -7,7 +7,7 @@
 
 ## 📋 Resumo
 
-Este documento detalha o processo de configuração do Notion OAuth para permitir que **Gestores e Supervisores** acessem o sistema ads.jumper.studio usando suas contas do Notion workspace, sem necessidade de cadastro manual em DB_Gerentes.
+Este documento detalha o processo de configuração do Notion OAuth para permitir que **Gestores e Supervisores** acessem o sistema hub.jumper.studio usando suas contas do Notion workspace, sem necessidade de cadastro manual em DB_Gerentes.
 
 ---
 
@@ -119,7 +119,7 @@ Cole as credenciais copiadas do Notion:
 Se você é admin, pode chamar diretamente no console do navegador:
 
 ```javascript
-// Abrir ads.jumper.studio
+// Abrir hub.jumper.studio
 // F12 → Console
 // Colar e executar:
 
@@ -150,11 +150,11 @@ Se ainda estiver com nomes, a API do Notion pode não estar retornando emails. N
 - Aparece no campo "Gestor" de pelo menos uma conta
 
 **Passos:**
-1. Acesse: https://ads.jumper.studio
+1. Acesse: https://hub.jumper.studio
 2. Clique em **"Entrar com Notion"**
 3. Será redirecionado para Notion
 4. Autorize o acesso
-5. Retorna para ads.jumper.studio
+5. Retorna para hub.jumper.studio
 6. **Resultado esperado:** Dashboard com contas vinculadas
 
 **Verificar:**
@@ -183,7 +183,7 @@ Se ainda estiver com nomes, a API do Notion pode não estar retornando emails. N
 - Tem contas vinculadas no campo "Contas"
 
 **Passos:**
-1. Acesse: https://ads.jumper.studio
+1. Acesse: https://hub.jumper.studio
 2. Digite email e senha (fluxo normal)
 3. **Resultado esperado:** Login funciona como antes
 

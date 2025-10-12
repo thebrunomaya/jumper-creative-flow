@@ -6,7 +6,7 @@ Sistema profissional de upload e gestão de criativos publicitários da **Jumper
 
 - **Versão**: 1.8
 - **Ambiente**: Produção ativa
-- **URL**: [ads.jumper.studio](https://ads.jumper.studio)
+- **URL**: [hub.jumper.studio](https://hub.jumper.studio)
 - **Status**: ✅ Operacional
 
 ## 🛠️ Stack Tecnológico
@@ -126,7 +126,7 @@ NOTION_TOKEN=token_integracao_notion
 
 ### Produção
 - **Deploy automático**: Push para `main` → Vercel deploy
-- **URL de produção**: https://ads.jumper.studio
+- **URL de produção**: https://hub.jumper.studio
 - **Monitoramento**: Via Vercel dashboard
 
 ### Manual
@@ -139,7 +139,7 @@ npm run deploy:preview # Deploy preview
 
 - **[CLAUDE.md](./CLAUDE.md)** - Configuração detalhada do projeto
 - **[ROADMAP.md](./ROADMAP.md)** - Roadmap estratégico e técnico
-- **[Design System](https://ads.jumper.studio/design-system)** - Documentação visual
+- **[Design System](https://hub.jumper.studio/design-system)** - Documentação visual
 
 ## 🔒 Segurança
 

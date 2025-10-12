@@ -430,7 +430,7 @@ async function handleResetPassword(
 
   // Send password reset email
   const { error: resetError } = await admin.auth.resetPasswordForEmail(user.email, {
-    redirectTo: `${Deno.env.get('SITE_URL') || 'https://ads.jumper.studio'}/reset-password`,
+    redirectTo: `${Deno.env.get('SITE_URL') || 'https://hub.jumper.studio'}/reset-password`,
   })
 
   if (resetError) {

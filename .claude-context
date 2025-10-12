@@ -224,7 +224,7 @@ completed_recently:
 
 # Deployment status
 deployment:
-  production_url: "https://ads.jumper.studio"
+  production_url: "https://hub.jumper.studio"
   last_deploy: "2025-10-12T21:00:00Z"
   last_deploy_status: "success ✅"
   last_commit: "7936203 - docs(v2.0): Update ARCHITECTURE.md"

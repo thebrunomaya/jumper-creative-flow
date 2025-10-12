@@ -31,7 +31,7 @@
 **✅ FASE 1 (COMPLETA - Set/2024):**
 - Upload e validação de criativos
 - Sistema resiliente à prova de falhas
-- Deploy em produção (ads.jumper.studio)
+- Deploy em produção (hub.jumper.studio)
 - Gestão completa de senhas
 - Migração para arquitetura sincronizada
 - Performance otimizada - Zero API calls em tempo real
@@ -56,7 +56,7 @@
 ## 🔗 Ecossistema de Integrações
 
 ```
-Jumper Ads (ads.jumper.studio)
+Jumper Ads (hub.jumper.studio)
     ↕️
 NOTION (Hub Central - Single Source of Truth)
     ├── DB_Contas (clientes e objetivos)
@@ -80,7 +80,7 @@ PLATAFORMAS DE ADS (Futuro):
 - **Framework**: React 18 + Vite + TypeScript
 - **Styling**: Tailwind CSS + shadcn/ui design system
 - **Backend**: Supabase (Auth + Database + Edge Functions)
-- **Hosting**: Vercel (Production: ads.jumper.studio)
+- **Hosting**: Vercel (Production: hub.jumper.studio)
 - **Integration**: Notion API para gestão de clientes
 - **State Management**: React Query (@tanstack/react-query)
 
@@ -357,7 +357,7 @@ Next Claude will know exactly where we left off! 🎯
 - **Main branch**: `main` (production) ✅
 - **Development**: Feature branches → merge para main
 - **Deploy automático**: Push para main = deploy no Vercel
-- **Production URL**: https://ads.jumper.studio
+- **Production URL**: https://hub.jumper.studio
 
 **Branch ativa atual:** `reports` (Sistema de insights comparativos)
 

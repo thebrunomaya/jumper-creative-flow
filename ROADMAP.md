@@ -3,7 +3,7 @@
 ## 📊 Status Atual do Projeto
 **Última Atualização:** 2025-08-26  
 **Versão:** 1.8  
-**Ambiente:** Produção (ads.jumper.studio)  
+**Ambiente:** Produção (hub.jumper.studio)  
 **Status:** ✅ Operacional
 
 ---
@@ -97,7 +97,7 @@
 - **Reports System**: Templates inteligentes + performance indicators
 - **Sync Migration**: Zero calls em tempo real para Notion API
 - **Asset Optimization**: Gradientes otimizados, lazy loading
-- **Deploy Infrastructure**: Produção ativa (ads.jumper.studio)
+- **Deploy Infrastructure**: Produção ativa (hub.jumper.studio)
 
 ### 🔄 Próximas Otimizações (Opcional)
 - **Redis Cache**: $2-5/mês (baixa prioridade - sync tables superaram)
@@ -150,7 +150,7 @@
 ## 🔗 Referências
 - [Relatório de Teste UX](./TEST-REPORT-UX-DESIGN.md)
 - [Documentação Claude](./CLAUDE.md)
-- [Design System](https://ads.jumper.studio/design-system)
+- [Design System](https://hub.jumper.studio/design-system)
 
 ---
 
