@@ -88,6 +88,10 @@ Deno.serve(async (req) => {
       .eq('recording_id', recording.id)
       .maybeSingle();
 
+    // Extract oracle report based on shared_oracle_type
+    const oracleType = recording.shared_oracle_type || 'orfeu';
+    const oracleReport = contextData?.generated_reports?.[oracleType] || null;
+
     // Return only public-facing data (NO transcript, NO audio)
     return new Response(
       JSON.stringify({
@@ -108,6 +112,11 @@ Deno.serve(async (req) => {
           timeline: contextData.timeline,
           confidence_level: contextData.confidence_level,
         } : null,
+        oracle: {
+          type: oracleType,
+          report: oracleReport,
+          generated_at: contextData?.generated_reports?.generated_at || null,
+        },
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

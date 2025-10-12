@@ -15,6 +15,7 @@ const corsHeaders = {
 interface CreateShareRequest {
   recording_id: string;
   expires_days?: number; // null = never expires
+  selected_oracle?: 'delfos' | 'orfeu' | 'nostradamus'; // Oracle format for public view
 }
 
 function generateSlug(accountName: string, recordedAt: string): string {
@@ -69,7 +70,7 @@ Deno.serve(async (req) => {
 
     // Parse request body
     const body: CreateShareRequest = await req.json();
-    const { recording_id, expires_days } = body;
+    const { recording_id, expires_days, selected_oracle } = body;
 
     if (!recording_id) {
       return new Response(JSON.stringify({ error: 'recording_id is required' }), {
@@ -130,6 +131,7 @@ Deno.serve(async (req) => {
         share_enabled: true,
         share_expires_at: expiresAt,
         share_created_at: new Date().toISOString(),
+        shared_oracle_type: selected_oracle || 'orfeu', // Default: narrative format
       })
       .eq('id', recording_id);
 

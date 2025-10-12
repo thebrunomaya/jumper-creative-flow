@@ -16,6 +16,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { OptimizationContextCard } from '@/components/OptimizationContextCard';
+import { ReportViewer } from '@/components/optimization/ReportViewer';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -46,6 +47,11 @@ interface OptimizationData {
     timeline: any;
     confidence_level: string;
   } | null;
+  oracle: {
+    type: 'delfos' | 'orfeu' | 'nostradamus';
+    report: string | null;
+    generated_at: string | null;
+  };
 }
 
 export default function SharedOptimization() {
@@ -234,20 +240,36 @@ export default function SharedOptimization() {
           </Card>
 
           {/* Optimization Extract */}
-          {data.context && (
-            <div className="mb-8">
-              <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                <FileText className="h-5 w-5 text-orange-hero" />
-                Extrato de Otimização
-              </h2>
+          <div className="mb-8">
+            <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+              <FileText className="h-5 w-5 text-orange-hero" />
+              {data.oracle.report ? 'Relatório de Otimização' : 'Extrato de Otimização'}
+            </h2>
+
+            {data.oracle.report ? (
+              // Show Oracle Report (preferred)
+              <ReportViewer
+                report={data.oracle.report}
+                oracle={data.oracle.type}
+                generatedAt={data.oracle.generated_at || undefined}
+              />
+            ) : data.context ? (
+              // Fallback: Show structured context
               <OptimizationContextCard
                 context={data.context}
                 accountName={data.recording.account_name}
                 recordedBy={data.recording.recorded_by}
                 recordedAt={new Date(data.recording.recorded_at)}
               />
-            </div>
-          )}
+            ) : (
+              // No data available
+              <Card>
+                <CardContent className="py-12 text-center text-muted-foreground">
+                  <p>Análise em processamento...</p>
+                </CardContent>
+              </Card>
+            )}
+          </div>
 
           {/* Footer */}
           <div className="mt-12 pt-8 border-t text-center text-xs text-muted-foreground">
