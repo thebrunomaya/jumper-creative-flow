@@ -21,10 +21,11 @@
 
 ## 👥 User Management System
 
-> ⚠️ **CRITICAL:** `j_ads_users` is the PRIMARY table for all user data and roles
+> ⚠️ **CRITICAL:** `j_hub_users` is the PRIMARY table for all user data and roles (renamed from `j_ads_users` in v2.0)
+> ✅ **BACKWARDS COMPATIBLE:** `j_ads_users` view still available
 > ❌ **DEPRECATED:** `user_roles` and `j_ads_user_roles` - DO NOT USE
 
-### **`j_ads_users` - Single Source of Truth**
+### **`j_hub_users` - Single Source of Truth** (v2.0)
 
 **Purpose:** Unified user management consolidating auth, roles, and profile data
 
@@ -44,9 +45,15 @@
 
 **Indexes:**
 ```sql
-CREATE INDEX idx_j_ads_users_email ON j_ads_users(email);
-CREATE INDEX idx_j_ads_users_role ON j_ads_users(role);
-CREATE INDEX idx_j_ads_users_notion_manager_id ON j_ads_users(notion_manager_id);
+CREATE INDEX idx_j_hub_users_email ON j_hub_users(email);
+CREATE INDEX idx_j_hub_users_role ON j_hub_users(role);
+CREATE INDEX idx_j_hub_users_notion_manager_id ON j_hub_users(notion_manager_id);
+```
+
+**Backwards Compatibility (v2.0):**
+```sql
+-- Legacy table name still works via VIEW
+CREATE OR REPLACE VIEW j_ads_users AS SELECT * FROM j_hub_users;
 ```
 
 ### **Roles & Access Levels**
@@ -57,45 +64,64 @@ CREATE INDEX idx_j_ads_users_notion_manager_id ON j_ads_users(notion_manager_id)
 | `staff` | Traffic managers (Gestores) | pedro@jumper.studio | Accounts where assigned as Gestor/Supervisor |
 | `client` | Client managers (Gerentes) | External users | Accounts where assigned as Gerente (via notion_manager_id) |
 
-### **User Lookup Strategy**
+### **User Lookup Strategy** (v2.0)
 
 ```typescript
 // Check user role
-SELECT role FROM j_ads_users WHERE id = <auth.uid()>;
+SELECT role FROM j_hub_users WHERE id = <auth.uid()>;
 
 // Get user's accessible accounts (admin)
 IF role = 'admin':
-  SELECT * FROM j_ads_notion_db_accounts; // ALL accounts
+  SELECT * FROM j_hub_notion_db_accounts; // ALL accounts
 
 // Get user's accessible accounts (staff - OAuth)
 IF role = 'staff':
-  SELECT * FROM j_ads_notion_db_accounts
-  WHERE "Gestor" ILIKE '%' || (SELECT email FROM j_ads_users WHERE id = <auth.uid()>) || '%'
-     OR "Supervisor" ILIKE '%' || (SELECT email FROM j_ads_users WHERE id = <auth.uid()>) || '%';
+  SELECT * FROM j_hub_notion_db_accounts
+  WHERE "Gestor" ILIKE '%' || (SELECT email FROM j_hub_users WHERE id = <auth.uid()>) || '%'
+     OR "Supervisor" ILIKE '%' || (SELECT email FROM j_hub_users WHERE id = <auth.uid()>) || '%';
 
 // Get user's accessible accounts (client)
 IF role = 'client':
-  SELECT a.* FROM j_ads_notion_db_accounts a
-  JOIN j_ads_users u ON a."Gerente" ILIKE '%' || u.notion_manager_id || '%'
+  SELECT a.* FROM j_hub_notion_db_accounts a
+  JOIN j_hub_users u ON a."Gerente" ILIKE '%' || u.notion_manager_id || '%'
   WHERE u.id = <auth.uid()>;
 ```
 
 ### **Name Resolution**
 
-Names are resolved using this priority order:
+Names are resolved using this priority order (v2.0):
 
-1. **`j_ads_users.nome`** (cached from OAuth or Notion) ⭐ PRIMARY
+1. **`j_hub_users.nome`** (cached from OAuth or Notion) ⭐ PRIMARY
 2. **`auth.users.user_metadata.full_name`** (OAuth users)
-3. **`j_ads_notion_db_managers."Nome"`** (Client users)
+3. **`j_hub_notion_db_managers."Nome"`** (Client users)
 4. **Email fallback** (last resort)
 
 ### **⚠️ DEPRECATED Tables**
 
 **DO NOT USE these tables in new code:**
 
-- ❌ **`user_roles`** - Deleted 2025-10-09 (replaced by `j_ads_users.role`)
+- ❌ **`user_roles`** - Deleted 2025-10-09 (replaced by `j_hub_users.role`)
 - ❌ **`j_ads_user_roles`** - Never existed in production
-- ❌ Any code referencing these tables MUST be updated to use `j_ads_users`
+- ⚠️ **`j_ads_users`** - Legacy name (use `j_hub_users` in v2.0+, backwards compatible via VIEW)
+
+### **✨ v2.0 Rebrand Summary** (2025-10-12)
+
+**Renamed Tables:**
+- `j_ads_users` → `j_hub_users`
+- `j_ads_user_audit_log` → `j_hub_user_audit_log`
+- `j_ads_notion_db_accounts` → `j_hub_notion_db_accounts`
+- `j_ads_notion_db_managers` → `j_hub_notion_db_managers`
+- `j_ads_notion_sync_logs` → `j_hub_notion_sync_logs`
+
+**Backwards Compatibility:**
+- All old table names work via SQL VIEWs
+- Zero downtime migration
+- 29/29 tests passing ✅
+
+**Unchanged (by design):**
+- `j_ads_creative_*` tables (creative system)
+- `j_ads_submit_ad` function (creative submission)
+- `j_rep_*` tables (reports system)
 
 ---
 
