@@ -65,7 +65,7 @@ serve(async (req) => {
 
     // Carrega gravação para validar propriedade
     const { data: rec, error: recErr } = await admin
-      .from('j_ads_optimization_recordings')
+      .from('j_hub_optimization_recordings')
       .select('recorded_by')
       .eq('id', recording_id)
       .maybeSingle();
@@ -107,7 +107,7 @@ serve(async (req) => {
     console.log('📝 [EDGE] Atualizando contexto:', { recording_id, keys: Object.keys(payload) });
 
     const { data: updated, error: updErr } = await admin
-      .from('j_ads_optimization_context')
+      .from('j_hub_optimization_context')
       .update(payload)
       .eq('recording_id', recording_id)
       .select('id, confidence_level, revised_at')

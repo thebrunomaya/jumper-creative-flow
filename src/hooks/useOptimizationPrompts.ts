@@ -24,7 +24,7 @@ export const useOptimizationPrompts = () => {
     try {
       setLoading(true);
       const { data, error } = await supabase
-        .from('j_ads_optimization_prompts')
+        .from('j_hub_optimization_prompts')
         .select('*')
         .order('platform', { ascending: true })
         .order('objective', { ascending: true });
@@ -77,7 +77,7 @@ export const useOptimizationPrompts = () => {
       const currentPrompt = prompts.find(p => p.id === id);
       
       const { error } = await supabase
-        .from('j_ads_optimization_prompts')
+        .from('j_hub_optimization_prompts')
         .update({
           prompt_text: newText,
           edited_by: userEmail,

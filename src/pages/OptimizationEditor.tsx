@@ -116,7 +116,7 @@ export default function OptimizationEditor() {
     try {
       // Fetch recording
       const { data: recordingData, error: recordingError } = await supabase
-        .from('j_ads_optimization_recordings')
+        .from('j_hub_optimization_recordings')
         .select('*')
         .eq('id', recordingId)
         .single();
@@ -143,7 +143,7 @@ export default function OptimizationEditor() {
 
       // Fetch transcript
       const { data: transcriptData } = await supabase
-        .from('j_ads_optimization_transcripts')
+        .from('j_hub_optimization_transcripts')
         .select('*')
         .eq('recording_id', recordingId)
         .maybeSingle();
@@ -156,7 +156,7 @@ export default function OptimizationEditor() {
 
       // Fetch context
       const { data: contextData } = await supabase
-        .from('j_ads_optimization_context')
+        .from('j_hub_optimization_context')
         .select('*')
         .eq('recording_id', recordingId)
         .maybeSingle();
@@ -167,7 +167,7 @@ export default function OptimizationEditor() {
 
       // Fetch original Whisper prompt from transcribe log
       const { data: transcribeLog } = await supabase
-        .from('j_ads_optimization_api_logs')
+        .from('j_hub_optimization_api_logs')
         .select('prompt_sent')
         .eq('recording_id', recordingId)
         .eq('step', 'transcribe')
@@ -294,7 +294,7 @@ export default function OptimizationEditor() {
 
     try {
       const { error } = await supabase
-        .from('j_ads_optimization_transcripts')
+        .from('j_hub_optimization_transcripts')
         .update({
           full_text: transcript.previous_version,
           previous_version: null,
@@ -420,7 +420,7 @@ export default function OptimizationEditor() {
 
     try {
       const { error } = await supabase
-        .from('j_ads_optimization_transcripts')
+        .from('j_hub_optimization_transcripts')
         .update({
           processed_text: transcript.processed_previous_version,
           processed_previous_version: null,

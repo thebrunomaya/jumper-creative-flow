@@ -75,7 +75,7 @@ export function TranscriptionEditorModal({
         : { processed_text: editedText };
 
       const { error } = await supabase
-        .from('j_ads_optimization_transcripts')
+        .from('j_hub_optimization_transcripts')
         .update({
           ...updateData,
           revised_at: new Date().toISOString(),

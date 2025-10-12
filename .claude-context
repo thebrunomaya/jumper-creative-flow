@@ -3,13 +3,53 @@
 # Tracks recent decisions and work-in-progress (last 7 days)
 # Older decisions migrate to docs/ARCHITECTURE.md
 
-last_updated: "2025-10-12T23:30:00Z"
+last_updated: "2025-10-12T00:00:00Z"
 session_computer: "MacBook Pro (trabalho)"
 session_user: "Bruno Maya"
 
 # Recent decisions (last 7 days)
 # When older than 7 days, migrate to docs/ARCHITECTURE.md
 recent_decisions:
+  - date: "2025-10-12"
+    decision: "Jumper Hub v2.0 - Optimization Tables Migration (j_ads → j_hub)"
+    status: "completed ✅"
+    details: |
+      🔄 OPTIMIZATION TABLES MIGRATION: Completed renaming of all optimization tables to match v2.0 rebrand
+
+      ## Migration Summary:
+
+      ### Database Tables Renamed (5 tables):
+      - j_ads_optimization_recordings → j_hub_optimization_recordings
+      - j_ads_optimization_transcripts → j_hub_optimization_transcripts
+      - j_ads_optimization_context → j_hub_optimization_context
+      - j_ads_optimization_api_logs → j_hub_optimization_api_logs
+      - j_ads_optimization_prompts → j_hub_optimization_prompts
+
+      ### Backwards Compatibility:
+      - Created SQL VIEWs for all old table names (j_ads_*)
+      - Zero downtime migration
+      - All old code works via views
+
+      ### Files Updated (22 arquivos):
+      - 1 migration SQL (20251012000000_rename_optimization_tables_to_hub.sql)
+      - 8 edge functions (58 referências atualizadas)
+      - 10 React components/hooks (21 referências atualizadas)
+      - 1 TypeScript types file (comentários de docs)
+      - 3 documentation files (CLAUDE.md, ARCHITECTURE.md, OPTIMIZER-CONTRACT.md)
+
+      ### Strategic Consistency:
+      - Edge functions já eram j_hub_optimization_* (renomeadas antes)
+      - Agora tabelas também são j_hub_optimization_*
+      - Sistema 100% consistente com v2.0 rebrand
+
+      ### Git Commit:
+      - [pending]: feat(v2.0): Complete optimization tables migration (j_ads → j_hub)
+    impact: "HIGH - Complete optimization system rebrand consistency"
+    files_changed:
+      - "22 files total (migrations, edge functions, React components, types, docs)"
+    deployed: false
+    migrate_to_architecture: false
+
   - date: "2025-10-12"
     decision: "Jumper Hub v2.0 - Domain migration from ads.jumper.studio to hub.jumper.studio"
     status: "completed ✅"

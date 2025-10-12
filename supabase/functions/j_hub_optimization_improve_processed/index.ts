@@ -121,7 +121,7 @@ Return the adjusted organized bullets as markdown text (preserve ###, **, emojis
 
       // Log API call for admin debug
       const { error: logError } = await supabase
-        .from('j_ads_optimization_api_logs')
+        .from('j_hub_optimization_api_logs')
         .insert({
           recording_id,
           step: 'improve_processed',
@@ -167,7 +167,7 @@ Return the adjusted organized bullets as markdown text (preserve ###, **, emojis
         const supabase = createClient(supabaseUrl, supabaseKey);
 
         await supabase
-          .from('j_ads_optimization_api_logs')
+          .from('j_hub_optimization_api_logs')
           .insert({
             recording_id: reqRecordingId,
             step: 'improve_processed',

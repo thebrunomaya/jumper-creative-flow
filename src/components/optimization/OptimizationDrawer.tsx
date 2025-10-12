@@ -376,7 +376,7 @@ export function OptimizationDrawer({
 
       // Delete recording (cascade will delete context and transcript)
       const { error: deleteError } = await supabase
-        .from('j_ads_optimization_recordings')
+        .from('j_hub_optimization_recordings')
         .delete()
         .eq('id', recording.id);
 

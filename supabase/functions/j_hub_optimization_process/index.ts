@@ -34,13 +34,13 @@ serve(async (req) => {
 
     // Update status to processing
     await supabase
-      .from('j_ads_optimization_recordings')
+      .from('j_hub_optimization_recordings')
       .update({ processing_status: 'processing' })
       .eq('id', recording_id);
 
     // Fetch recording
     const { data: recording, error: recError } = await supabase
-      .from('j_ads_optimization_recordings')
+      .from('j_hub_optimization_recordings')
       .select('*')
       .eq('id', recording_id)
       .single();
@@ -51,7 +51,7 @@ serve(async (req) => {
 
     // Fetch transcript
     const { data: transcript, error: transError } = await supabase
-      .from('j_ads_optimization_transcripts')
+      .from('j_hub_optimization_transcripts')
       .select('*')
       .eq('recording_id', recording_id)
       .single();
@@ -84,7 +84,7 @@ serve(async (req) => {
     let objectivePrompts = '';
     if (recording.selected_objectives && recording.selected_objectives.length > 0) {
       const { data: prompts } = await supabase
-        .from('j_ads_optimization_prompts')
+        .from('j_hub_optimization_prompts')
         .select('prompt_text')
         .eq('platform', recording.platform)
         .in('objective', recording.selected_objectives)
@@ -191,7 +191,7 @@ Markdown with emojis, structured bullet points, all cited metrics, chronological
 
     // Update transcript with processed text
     const { error: updateError } = await supabase
-      .from('j_ads_optimization_transcripts')
+      .from('j_hub_optimization_transcripts')
       .update({ processed_text: processedText })
       .eq('recording_id', recording_id);
 
@@ -202,14 +202,14 @@ Markdown with emojis, structured bullet points, all cited metrics, chronological
 
     // Update recording status to completed
     await supabase
-      .from('j_ads_optimization_recordings')
+      .from('j_hub_optimization_recordings')
       .update({ processing_status: 'completed' })
       .eq('id', recording_id);
 
     // Log API call for debugging (admin only)
     try {
       await supabase
-        .from('j_ads_optimization_api_logs')
+        .from('j_hub_optimization_api_logs')
         .insert({
           recording_id,
           step: 'process',
@@ -248,13 +248,13 @@ Markdown with emojis, structured bullet points, all cited metrics, chronological
         const supabase = createClient(supabaseUrl, supabaseKey);
 
         await supabase
-          .from('j_ads_optimization_recordings')
+          .from('j_hub_optimization_recordings')
           .update({ processing_status: 'failed' })
           .eq('id', reqRecordingId);
 
         // Log error
         await supabase
-          .from('j_ads_optimization_api_logs')
+          .from('j_hub_optimization_api_logs')
           .insert({
             recording_id: reqRecordingId,
             step: 'process',

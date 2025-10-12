@@ -136,7 +136,7 @@ export interface QuickNote {
 // ============================================================================
 
 /**
- * Row from j_ads_optimization_recordings table
+ * Row from j_hub_optimization_recordings table
  */
 export interface OptimizationRecordingRow {
   id: string;
@@ -151,7 +151,7 @@ export interface OptimizationRecordingRow {
 }
 
 /**
- * Row from j_ads_optimization_transcripts table
+ * Row from j_hub_optimization_transcripts table
  */
 export interface OptimizationTranscriptRow {
   id: string;
@@ -168,7 +168,7 @@ export interface OptimizationTranscriptRow {
 }
 
 /**
- * Row from j_ads_optimization_context table
+ * Row from j_hub_optimization_context table
  * This is the main table REPORTS will query
  */
 export interface OptimizationContextRow {

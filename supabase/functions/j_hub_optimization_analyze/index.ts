@@ -38,7 +38,7 @@ serve(async (req) => {
 
     // Fetch recording
     const { data: recording, error: recError } = await supabase
-      .from('j_ads_optimization_recordings')
+      .from('j_hub_optimization_recordings')
       .select('*')
       .eq('id', recording_id)
       .single();
@@ -49,13 +49,13 @@ serve(async (req) => {
 
     // Update analysis status to processing
     await supabase
-      .from('j_ads_optimization_recordings')
+      .from('j_hub_optimization_recordings')
       .update({ analysis_status: 'processing' })
       .eq('id', recording_id);
 
     // Fetch transcript
     const { data: transcript, error: transError } = await supabase
-      .from('j_ads_optimization_transcripts')
+      .from('j_hub_optimization_transcripts')
       .select('*')
       .eq('recording_id', recording_id)
       .single();
@@ -72,7 +72,7 @@ serve(async (req) => {
     if (textLength < 50) {
       console.warn(`🛑 [ANALYZE] Transcript too short for analysis (len=${textLength}). Marking as failed.`);
       await supabase
-        .from('j_ads_optimization_recordings')
+        .from('j_hub_optimization_recordings')
         .update({ analysis_status: 'failed' })
         .eq('id', recording_id);
 
@@ -100,13 +100,13 @@ serve(async (req) => {
 
     // Fetch last 3 optimizations from this account for historical context
     const { data: previousOptimizations } = await supabase
-      .from('j_ads_optimization_context')
+      .from('j_hub_optimization_context')
       .select(`
         recording_id,
         summary,
         actions_taken,
         created_at,
-        j_ads_optimization_recordings!inner(recorded_at, recorded_by)
+        j_hub_optimization_recordings!inner(recorded_at, recorded_by)
       `)
       .eq('account_id', recording.account_id)
       .neq('recording_id', recording_id)
@@ -118,9 +118,9 @@ serve(async (req) => {
       console.log(`📚 [ANALYZE] Including ${previousOptimizations.length} previous optimizations as context`);
       historicalContext = '\n\n## HISTÓRICO DE OTIMIZAÇÕES RECENTES (use para contexto e continuidade):\n\n';
       previousOptimizations.forEach((opt, idx) => {
-        const recordDate = new Date(opt.j_ads_optimization_recordings.recorded_at).toLocaleDateString('pt-BR');
+        const recordDate = new Date(opt.j_hub_optimization_recordings.recorded_at).toLocaleDateString('pt-BR');
         historicalContext += `### Otimização ${idx + 1} - ${recordDate}\n`;
-        historicalContext += `**Gestor:** ${opt.j_ads_optimization_recordings.recorded_by}\n`;
+        historicalContext += `**Gestor:** ${opt.j_hub_optimization_recordings.recorded_by}\n`;
         historicalContext += `**Resumo:** ${opt.summary}\n`;
         historicalContext += `**Ações tomadas:** ${opt.actions_taken.length} ação(ões)\n`;
         if (opt.actions_taken && opt.actions_taken.length > 0) {
@@ -138,7 +138,7 @@ serve(async (req) => {
     let objectiveGuidance = '';
     if (recording.platform && recording.selected_objectives && recording.selected_objectives.length > 0) {
       const { data: prompts } = await supabase
-        .from('j_ads_optimization_prompts')
+        .from('j_hub_optimization_prompts')
         .select('prompt_text')
         .eq('platform', recording.platform)
         .in('objective', recording.selected_objectives)
@@ -381,7 +381,7 @@ Valid JSON following the specified structure. OUTPUT IN BRAZILIAN PORTUGUESE.`;
     // Delete any existing context for this recording to avoid unique constraint violation
     console.log('🗑️ [ANALYZE] Deleting old context if exists...');
     const { error: deleteError } = await supabase
-      .from('j_ads_optimization_context')
+      .from('j_hub_optimization_context')
       .delete()
       .eq('recording_id', recording_id);
 
@@ -389,10 +389,10 @@ Valid JSON following the specified structure. OUTPUT IN BRAZILIAN PORTUGUESE.`;
       console.warn('⚠️ [ANALYZE] Error deleting old context (non-critical):', deleteError);
     }
 
-    // Insert new context into j_ads_optimization_context
+    // Insert new context into j_hub_optimization_context
     console.log('💾 [ANALYZE] Inserting new context...');
     const { error: insertError } = await supabase
-      .from('j_ads_optimization_context')
+      .from('j_hub_optimization_context')
       .insert({
         recording_id: recording_id,
         account_id: recording.account_id,
@@ -414,14 +414,14 @@ Valid JSON following the specified structure. OUTPUT IN BRAZILIAN PORTUGUESE.`;
 
     // Update analysis status to completed
     await supabase
-      .from('j_ads_optimization_recordings')
+      .from('j_hub_optimization_recordings')
       .update({ analysis_status: 'completed' })
       .eq('id', recording_id);
 
     // Log API call for debugging (admin only)
     try {
       await supabase
-        .from('j_ads_optimization_api_logs')
+        .from('j_hub_optimization_api_logs')
         .insert({
           recording_id,
           step: 'analyze',
@@ -460,13 +460,13 @@ Valid JSON following the specified structure. OUTPUT IN BRAZILIAN PORTUGUESE.`;
         const supabase = createClient(supabaseUrl, supabaseKey);
 
         await supabase
-          .from('j_ads_optimization_recordings')
+          .from('j_hub_optimization_recordings')
           .update({ analysis_status: 'failed' })
           .eq('id', reqRecordingId);
 
         // Log error
         await supabase
-          .from('j_ads_optimization_api_logs')
+          .from('j_hub_optimization_api_logs')
           .insert({
             recording_id: reqRecordingId,
             step: 'analyze',

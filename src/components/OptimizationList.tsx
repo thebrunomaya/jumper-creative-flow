@@ -49,7 +49,7 @@ export function OptimizationList({ accountId, onRefresh }: OptimizationListProps
     setIsLoading(true);
 
     const { data, error } = await supabase
-      .from("j_ads_optimization_recordings")
+      .from("j_hub_optimization_recordings")
       .select("*")
       .eq("account_id", accountId)
       .order("recorded_at", { ascending: false });
@@ -85,7 +85,7 @@ export function OptimizationList({ accountId, onRefresh }: OptimizationListProps
     
     if (completedRecordings.length > 0) {
       const { data: transcriptsData } = await supabase
-        .from('j_ads_optimization_transcripts')
+        .from('j_hub_optimization_transcripts')
         .select('*')
         .in('recording_id', completedRecordings.map(r => r.id));
 
@@ -105,7 +105,7 @@ export function OptimizationList({ accountId, onRefresh }: OptimizationListProps
 
     if (analyzedRecordings.length > 0) {
       const { data: contextsData } = await supabase
-        .from('j_ads_optimization_context')
+        .from('j_hub_optimization_context')
         .select('*')
         .in('recording_id', analyzedRecordings.map(r => r.id));
 
@@ -192,7 +192,7 @@ export function OptimizationList({ accountId, onRefresh }: OptimizationListProps
 
       // Delete recording (cascade will delete context and transcript)
       const { error: deleteError } = await supabase
-        .from('j_ads_optimization_recordings')
+        .from('j_hub_optimization_recordings')
         .delete()
         .eq('id', recordingId);
 

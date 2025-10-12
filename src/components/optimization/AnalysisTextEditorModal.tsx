@@ -46,7 +46,7 @@ export function AnalysisTextEditorModal({
       }
 
       const { error } = await supabase
-        .from('j_ads_optimization_context')
+        .from('j_hub_optimization_context')
         .update({
           summary: editedSummary,
           actions_taken: actions,

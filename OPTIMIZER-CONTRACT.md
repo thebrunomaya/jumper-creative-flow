@@ -10,12 +10,12 @@ Este documento define o **contrato** entre os branches **OPTIMIZER** (desenvolvi
 
 ## 🗄️ Schemas de Banco de Dados
 
-### **Tabela 1: j_ads_optimization_recordings**
+### **Tabela 1: j_hub_optimization_recordings**
 
 Armazena metadados das gravações de áudio.
 
 ```sql
-CREATE TABLE j_ads_optimization_recordings (
+CREATE TABLE j_hub_optimization_recordings (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   account_id TEXT NOT NULL,
   recorded_by TEXT NOT NULL,           -- Email do gestor que gravou
@@ -35,20 +35,20 @@ CREATE TABLE j_ads_optimization_recordings (
 );
 
 -- Indexes para performance
-CREATE INDEX idx_recordings_account ON j_ads_optimization_recordings(account_id);
-CREATE INDEX idx_recordings_date ON j_ads_optimization_recordings(recorded_at DESC);
+CREATE INDEX idx_recordings_account ON j_hub_optimization_recordings(account_id);
+CREATE INDEX idx_recordings_date ON j_hub_optimization_recordings(recorded_at DESC);
 ```
 
 ---
 
-### **Tabela 2: j_ads_optimization_transcripts**
+### **Tabela 2: j_hub_optimization_transcripts**
 
 Armazena transcrições do Whisper.
 
 ```sql
-CREATE TABLE j_ads_optimization_transcripts (
+CREATE TABLE j_hub_optimization_transcripts (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  recording_id UUID REFERENCES j_ads_optimization_recordings(id) ON DELETE CASCADE,
+  recording_id UUID REFERENCES j_hub_optimization_recordings(id) ON DELETE CASCADE,
 
   -- Transcription data
   full_text TEXT NOT NULL,             -- Texto completo transcrito
@@ -61,19 +61,19 @@ CREATE TABLE j_ads_optimization_transcripts (
   created_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_transcripts_recording ON j_ads_optimization_transcripts(recording_id);
+CREATE INDEX idx_transcripts_recording ON j_hub_optimization_transcripts(recording_id);
 ```
 
 ---
 
-### **Tabela 3: j_ads_optimization_context** ⭐ **MAIS IMPORTANTE**
+### **Tabela 3: j_hub_optimization_context** ⭐ **MAIS IMPORTANTE**
 
 **Esta é a tabela que o REPORTS vai consumir!**
 
 ```sql
-CREATE TABLE j_ads_optimization_context (
+CREATE TABLE j_hub_optimization_context (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  recording_id UUID REFERENCES j_ads_optimization_recordings(id) ON DELETE CASCADE,
+  recording_id UUID REFERENCES j_hub_optimization_recordings(id) ON DELETE CASCADE,
   account_id TEXT NOT NULL,
 
   -- Extracted structured data
@@ -97,8 +97,8 @@ CREATE TABLE j_ads_optimization_context (
   FOREIGN KEY (account_id) REFERENCES j_ads_notion_db_accounts(notion_id)
 );
 
-CREATE INDEX idx_context_account ON j_ads_optimization_context(account_id);
-CREATE INDEX idx_context_date ON j_ads_optimization_context(created_at DESC);
+CREATE INDEX idx_context_account ON j_hub_optimization_context(account_id);
+CREATE INDEX idx_context_date ON j_hub_optimization_context(created_at DESC);
 ```
 
 ---
@@ -253,7 +253,7 @@ O branch REPORTS vai **consultar** os dados assim:
 ```typescript
 // Query example
 const { data: optimizations, error } = await supabase
-  .from('j_ads_optimization_context')
+  .from('j_hub_optimization_context')
   .select('*')
   .eq('account_id', accountId)
   .order('created_at', { ascending: false })
@@ -277,19 +277,19 @@ Para testar a integração, use este exemplo:
 
 ```sql
 -- Insert test recording
-INSERT INTO j_ads_optimization_recordings (account_id, recorded_by, audio_file_path, duration_seconds)
+INSERT INTO j_hub_optimization_recordings (account_id, recorded_by, audio_file_path, duration_seconds)
 VALUES ('notion_account_id_here', 'gestor@jumper.studio', 'optimizations/test-2025-10-07.mp3', 180);
 
 -- Insert test transcript
-INSERT INTO j_ads_optimization_transcripts (recording_id, full_text, confidence_score)
+INSERT INTO j_hub_optimization_transcripts (recording_id, full_text, confidence_score)
 VALUES (
-  (SELECT id FROM j_ads_optimization_recordings ORDER BY created_at DESC LIMIT 1),
+  (SELECT id FROM j_hub_optimization_recordings ORDER BY created_at DESC LIMIT 1),
   'Hoje pausei a campanha de retargeting porque o CPA estava em R$200...',
   0.95
 );
 
 -- Insert test context
-INSERT INTO j_ads_optimization_context (
+INSERT INTO j_hub_optimization_context (
   recording_id,
   account_id,
   summary,
@@ -300,7 +300,7 @@ INSERT INTO j_ads_optimization_context (
   confidence_level
 )
 VALUES (
-  (SELECT id FROM j_ads_optimization_recordings ORDER BY created_at DESC LIMIT 1),
+  (SELECT id FROM j_hub_optimization_recordings ORDER BY created_at DESC LIMIT 1),
   'notion_account_id_here',
   'Pausei campanha com CPA alto (R$200) e aumentei budget da campanha de alta performance (ROAS 4.2x). Esperado economia de R$2.5k/semana e +30 vendas.',
   '[
@@ -341,20 +341,20 @@ VALUES (
 ### Semana 1: MVP
 - [ ] Criar interface de gravação de áudio
 - [ ] Upload para Supabase Storage (`/optimizations/{account_id}/{timestamp}.mp3`)
-- [ ] Inserir row em `j_ads_optimization_recordings`
+- [ ] Inserir row em `j_hub_optimization_recordings`
 - [ ] Mostrar lista de gravações por conta
 
 ### Semana 2: Transcrição
 - [ ] Integrar Whisper API
 - [ ] Processar áudio automaticamente (via trigger ou edge function)
-- [ ] Inserir transcrição em `j_ads_optimization_transcripts`
+- [ ] Inserir transcrição em `j_hub_optimization_transcripts`
 - [ ] Atualizar `transcription_status` para 'completed'
 
 ### Semana 3: Análise IA
 - [ ] Integrar Claude/GPT API
 - [ ] Processar transcrição com prompt estruturado
 - [ ] Validar JSON retornado pela IA
-- [ ] Inserir contexto em `j_ads_optimization_context`
+- [ ] Inserir contexto em `j_hub_optimization_context`
 - [ ] Atualizar `analysis_status` para 'completed'
 
 ### Semana 4: Validação

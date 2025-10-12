@@ -125,7 +125,7 @@ Return the corrected transcription as plain text (no markdown formatting, no exp
 
       // Log API call for admin debug
       const { error: logError } = await supabase
-        .from('j_ads_optimization_api_logs')
+        .from('j_hub_optimization_api_logs')
         .insert({
           recording_id,
           step: 'improve_transcript',
@@ -210,7 +210,7 @@ Return the corrected transcription as plain text (no markdown formatting, no exp
         const supabase = createClient(supabaseUrl, supabaseKey);
 
         await supabase
-          .from('j_ads_optimization_api_logs')
+          .from('j_hub_optimization_api_logs')
           .insert({
             recording_id: reqRecordingId,
             step: 'improve_transcript',

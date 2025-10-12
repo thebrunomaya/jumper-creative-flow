@@ -207,7 +207,7 @@ export function OptimizationRecorder({
 
       // 2. Insert recording
       const { data: recording, error: dbError } = await supabase
-        .from("j_ads_optimization_recordings")
+        .from("j_hub_optimization_recordings")
         .insert({
           account_id: accountId,
           recorded_by: user.email,
@@ -249,7 +249,7 @@ export function OptimizationRecorder({
         await new Promise(resolve => setTimeout(resolve, 1000));
 
         const { data: statusCheck } = await supabase
-          .from("j_ads_optimization_recordings")
+          .from("j_hub_optimization_recordings")
           .select("transcription_status")
           .eq("id", recording.id)
           .single();
@@ -289,7 +289,7 @@ export function OptimizationRecorder({
       // Clean up failed recording
       if (insertedRecordingId) {
         await supabase
-          .from("j_ads_optimization_recordings")
+          .from("j_hub_optimization_recordings")
           .delete()
           .eq("id", insertedRecordingId);
       }

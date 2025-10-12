@@ -45,7 +45,7 @@ Deno.serve(async (req) => {
 
     // Find recording by slug
     const { data: recording, error: recordingError } = await supabase
-      .from('j_ads_optimization_recordings')
+      .from('j_hub_optimization_recordings')
       .select(`
         *,
         j_hub_notion_db_accounts!inner(
@@ -83,7 +83,7 @@ Deno.serve(async (req) => {
     // Fetch ONLY AI analysis (not transcript or audio)
     // Get context (AI analysis) - this is the only data shared publicly
     const { data: contextData } = await supabase
-      .from('j_ads_optimization_context')
+      .from('j_hub_optimization_context')
       .select('*')
       .eq('recording_id', recording.id)
       .maybeSingle();

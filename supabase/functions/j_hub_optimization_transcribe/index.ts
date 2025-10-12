@@ -32,7 +32,7 @@ serve(async (req) => {
 
     // 1. Get recording details
     const { data: recording, error: recordingError } = await supabase
-      .from('j_ads_optimization_recordings')
+      .from('j_hub_optimization_recordings')
       .select('*')
       .eq('id', recording_id)
       .single();
@@ -76,7 +76,7 @@ serve(async (req) => {
 
     // 2. Update status to processing
     await supabase
-      .from('j_ads_optimization_recordings')
+      .from('j_hub_optimization_recordings')
       .update({ transcription_status: 'processing' })
       .eq('id', recording_id);
 
@@ -96,7 +96,7 @@ serve(async (req) => {
     let objectivePromptsText = '';
     if (recording.selected_objectives && recording.selected_objectives.length > 0) {
       const { data: prompts } = await supabase
-        .from('j_ads_optimization_prompts')
+        .from('j_hub_optimization_prompts')
         .select('prompt_text')
         .eq('platform', recording.platform)
         .in('objective', recording.selected_objectives)
@@ -165,7 +165,7 @@ OUTPUT: Transcribe in Brazilian Portuguese.`;
 
     // 6. Store transcription in database (RAW ONLY - no processing)
     const { error: insertError } = await supabase
-      .from('j_ads_optimization_transcripts')
+      .from('j_hub_optimization_transcripts')
       .insert({
         recording_id,
         full_text: transcription.text,
@@ -184,7 +184,7 @@ OUTPUT: Transcribe in Brazilian Portuguese.`;
 
     // 7. Update recording status to completed
     await supabase
-      .from('j_ads_optimization_recordings')
+      .from('j_hub_optimization_recordings')
       .update({
         transcription_status: 'completed',
         // processing_status remains 'pending' - user will trigger Step 2 manually
@@ -193,7 +193,7 @@ OUTPUT: Transcribe in Brazilian Portuguese.`;
 
     // 8. Log API call for debugging (admin only)
     await supabase
-      .from('j_ads_optimization_api_logs')
+      .from('j_hub_optimization_api_logs')
       .insert({
         recording_id,
         step: 'transcribe',
@@ -231,13 +231,13 @@ OUTPUT: Transcribe in Brazilian Portuguese.`;
         const supabase = createClient(supabaseUrl, supabaseKey);
 
         await supabase
-          .from('j_ads_optimization_recordings')
+          .from('j_hub_optimization_recordings')
           .update({ transcription_status: 'failed' })
           .eq('id', reqRecordingId);
 
         // Log error
         await supabase
-          .from('j_ads_optimization_api_logs')
+          .from('j_hub_optimization_api_logs')
           .insert({
             recording_id: reqRecordingId,
             step: 'transcribe',

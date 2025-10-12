@@ -80,7 +80,7 @@ Deno.serve(async (req) => {
 
     // Check if user has permission to this recording (must be owner or admin)
     const { data: recording, error: recordingError } = await supabase
-      .from('j_ads_optimization_recordings')
+      .from('j_hub_optimization_recordings')
       .select('*, j_hub_notion_db_accounts!inner(notion_id, "Conta")')
       .eq('id', recording_id)
       .single();
@@ -123,7 +123,7 @@ Deno.serve(async (req) => {
 
     // Update recording with share data
     const { error: updateError } = await supabase
-      .from('j_ads_optimization_recordings')
+      .from('j_hub_optimization_recordings')
       .update({
         public_slug: slug,
         password_hash: null,

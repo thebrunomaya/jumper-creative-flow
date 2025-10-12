@@ -88,7 +88,7 @@ export default function Optimization() {
 
   async function fetchStats() {
     const { data } = await supabase
-      .from("j_ads_optimization_recordings")
+      .from("j_hub_optimization_recordings")
       .select("transcription_status, analysis_status")
       .eq("account_id", selectedAccount);
 
@@ -106,7 +106,7 @@ export default function Optimization() {
     setIsLoadingRecordings(true);
 
     const { data, error } = await supabase
-      .from("j_ads_optimization_recordings")
+      .from("j_hub_optimization_recordings")
       .select("*")
       .eq("account_id", selectedAccount)
       .order("recorded_at", { ascending: false });

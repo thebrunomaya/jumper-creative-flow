@@ -62,7 +62,7 @@ export function DebugModal({ open, onOpenChange, recordingId, step }: DebugModal
     setIsLoading(true);
     try {
       const { data, error } = await supabase
-        .from('j_ads_optimization_api_logs')
+        .from('j_hub_optimization_api_logs')
         .select('*')
         .eq('recording_id', recordingId)
         .eq('step', step)

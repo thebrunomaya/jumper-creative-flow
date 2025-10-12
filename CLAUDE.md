@@ -282,10 +282,10 @@ Next Claude will know exactly where we left off! 🎯
 - `j_rep_metaads_bronze` - Dados Meta Ads sincronizados (fonte dos 9 dashboards) ⚠️ TODO: RLS
 
 **Optimization System:**
-- `j_ads_optimization_recordings` - Gravações de áudio (otimizações)
-- `j_ads_optimization_transcripts` - Transcrições via Whisper
-- `j_ads_optimization_context` - Contexto extraído por IA
-- `j_ads_optimization_prompts` - Prompts de análise
+- `j_hub_optimization_recordings` - Gravações de áudio (otimizações)
+- `j_hub_optimization_transcripts` - Transcrições via Whisper
+- `j_hub_optimization_context` - Contexto extraído por IA
+- `j_hub_optimization_prompts` - Prompts de análise
 
 **System Health:**
 - `j_ads_error_logs` - Error tracking estruturado ✅
@@ -407,7 +407,7 @@ Next Claude will know exactly where we left off! 🎯
 - ✅ Transcrição automática via Whisper
 - ✅ Análise de IA para extração de contexto
 - ✅ Geração de relatórios para clientes
-- ✅ Tabela `j_ads_optimization_context` pronta para consumo
+- ✅ Tabela `j_hub_optimization_context` pronta para consumo
 - **Status**: 100% implementado, pronto para integração
 
 **Branch REPORTS (Claude Code) - ⏳ A IMPLEMENTAR:**
