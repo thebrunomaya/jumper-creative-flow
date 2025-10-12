@@ -22,7 +22,6 @@ import {
   Save,
   X,
   AlertCircle,
-  Sparkles,
   Undo2,
   Loader2,
 } from 'lucide-react';
@@ -45,7 +44,6 @@ export function ExtractEditorModal({
   const [originalJson, setOriginalJson] = useState('');
   const [isValid, setIsValid] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [isImproving, setIsImproving] = useState(false);
 
   // Initialize JSON when modal opens
   useEffect(() => {
@@ -123,53 +121,6 @@ export function ExtractEditorModal({
     toast.info('Restaurado para versão original');
   };
 
-  const handleImproveWithAI = async () => {
-    setIsImproving(true);
-
-    try {
-      toast.info('Melhorando extrato com IA... Aguarde.');
-
-      // Call edge function to improve extract
-      const { data, error } = await supabase.functions.invoke(
-        'j_hub_optimization_analyze',
-        {
-          body: {
-            recording_id: context.recording_id,
-            force_regenerate: true,
-          },
-        }
-      );
-
-      if (error) throw error;
-
-      // Reload the improved context
-      const { data: updatedContext, error: fetchError } = await supabase
-        .from('j_hub_optimization_context')
-        .select('*')
-        .eq('id', context.id)
-        .single();
-
-      if (fetchError) throw fetchError;
-
-      const newJsonString = JSON.stringify({
-        summary: updatedContext.summary,
-        actions_taken: updatedContext.actions_taken,
-        metrics_mentioned: updatedContext.metrics_mentioned,
-        strategy: updatedContext.strategy,
-        timeline: updatedContext.timeline,
-        confidence_level: updatedContext.confidence_level,
-      }, null, 2);
-
-      setEditedJson(newJsonString);
-      toast.success('Extrato melhorado pela IA!');
-    } catch (error: any) {
-      console.error('Error improving with AI:', error);
-      toast.error(error.message || 'Erro ao melhorar extrato com IA');
-    } finally {
-      setIsImproving(false);
-    }
-  };
-
   const handleClose = () => {
     if (editedJson !== originalJson) {
       const confirm = window.confirm('Você tem alterações não salvas. Deseja descartar?');
@@ -238,43 +189,22 @@ export function ExtractEditorModal({
         <Separator />
 
         <div className="flex items-center justify-between gap-2">
-          <div className="flex gap-2">
-            <JumperButton
-              variant="outline"
-              size="sm"
-              onClick={handleRestore}
-              disabled={editedJson === originalJson || isSaving || isImproving}
-            >
-              <Undo2 className="mr-2 h-4 w-4" />
-              Restaurar Original
-            </JumperButton>
-
-            <JumperButton
-              variant="outline"
-              size="sm"
-              onClick={handleImproveWithAI}
-              disabled={isSaving || isImproving}
-            >
-              {isImproving ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Melhorando...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="mr-2 h-4 w-4" />
-                  Melhorar com IA
-                </>
-              )}
-            </JumperButton>
-          </div>
+          <JumperButton
+            variant="outline"
+            size="sm"
+            onClick={handleRestore}
+            disabled={editedJson === originalJson || isSaving}
+          >
+            <Undo2 className="mr-2 h-4 w-4" />
+            Restaurar Original
+          </JumperButton>
 
           <div className="flex gap-2">
             <JumperButton
               variant="ghost"
               size="sm"
               onClick={handleClose}
-              disabled={isSaving || isImproving}
+              disabled={isSaving}
             >
               <X className="mr-2 h-4 w-4" />
               Cancelar
@@ -283,7 +213,7 @@ export function ExtractEditorModal({
             <JumperButton
               size="sm"
               onClick={handleSave}
-              disabled={!isValid || isSaving || isImproving || editedJson === originalJson}
+              disabled={!isValid || isSaving || editedJson === originalJson}
             >
               {isSaving ? (
                 <>

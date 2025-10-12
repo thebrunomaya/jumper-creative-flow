@@ -49,6 +49,7 @@ import { exportOptimizationToPDF } from "@/utils/pdfExport";
 import { ShareOptimizationModal } from "@/components/optimization/ShareOptimizationModal";
 import { OracleReportGenerator } from "@/components/optimization/OracleReportGenerator";
 import { ExtractEditorModal } from "@/components/optimization/ExtractEditorModal";
+import { AIAnalysisImprovementsModal } from "@/components/optimization/AIAnalysisImprovementsModal";
 
 const AI_MODELS = [
   { value: "claude-sonnet-4-5-20250929", label: "Claude Sonnet 4.5 (Recomendado)" },
@@ -92,6 +93,9 @@ export default function OptimizationEditor() {
 
   // Extract editor modal
   const [extractEditorModalOpen, setExtractEditorModalOpen] = useState(false);
+
+  // AI analysis improvements modal
+  const [aiAnalysisImprovementsModalOpen, setAiAnalysisImprovementsModalOpen] = useState(false);
 
   // AI improvements modal
   const [aiImprovementsModalOpen, setAiImprovementsModalOpen] = useState(false);
@@ -491,6 +495,15 @@ export default function OptimizationEditor() {
     toast.success('Extrato atualizado! Recarregue a página para ver as alterações.');
   }
 
+  function handleAdjustWithAI() {
+    setAiAnalysisImprovementsModalOpen(true);
+  }
+
+  async function handleApplyAnalysisImprovements(improvedContext: OptimizationContext) {
+    setContext(improvedContext);
+    toast.success('Análise ajustada! Recarregue a página para ver as alterações.');
+  }
+
   if (isLoadingData) {
     return (
       <JumperBackground overlay={false}>
@@ -885,17 +898,17 @@ export default function OptimizationEditor() {
                     <Edit className="mr-2 h-4 w-4" />
                     Editar Extrato
                   </JumperButton>
-                  <JumperButton variant="ghost" onClick={() => handleAnalyze(true)} disabled={isAnalyzing}>
+                  <JumperButton variant="outline" onClick={handleAdjustWithAI}>
+                    <Sparkles className="mr-2 h-4 w-4" />
+                    Ajustar com IA
+                  </JumperButton>
+                  <JumperButton onClick={() => handleAnalyze(true)} disabled={isAnalyzing}>
                     <RotateCw className="mr-2 h-4 w-4" />
-                    Recriar Análise
+                    Recriar
                   </JumperButton>
                   <JumperButton variant="outline" onClick={handleShare}>
                     <Share2 className="mr-2 h-4 w-4" />
                     Compartilhar
-                  </JumperButton>
-                  <JumperButton variant="outline" onClick={handleExportPDF}>
-                    <Download className="mr-2 h-4 w-4" />
-                    Exportar PDF
                   </JumperButton>
                 </div>
               </div>
@@ -952,6 +965,18 @@ export default function OptimizationEditor() {
           onOpenChange={setExtractEditorModalOpen}
           context={context}
           onSave={handleExtractSaved}
+        />
+      )}
+
+      {context && (
+        <AIAnalysisImprovementsModal
+          isOpen={aiAnalysisImprovementsModalOpen}
+          onClose={() => setAiAnalysisImprovementsModalOpen(false)}
+          recordingId={recordingId!}
+          currentContext={context}
+          onApply={handleApplyAnalysisImprovements}
+          isAdmin={isAdmin}
+          onDebug={() => openDebug('analyze')}
         />
       )}
 
