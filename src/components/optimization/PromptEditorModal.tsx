@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
 import { useOptimizationPrompts, OptimizationPrompt } from '@/hooks/useOptimizationPrompts';
 import { useAuth } from '@/contexts/AuthContext';
+import { useUserRole } from '@/hooks/useUserRole';
 import { toast } from 'sonner';
 
 interface PromptEditorModalProps {
@@ -13,8 +14,6 @@ interface PromptEditorModalProps {
   onClose: () => void;
   platform: 'meta' | 'google';
   objective: string;
-  accountName?: string;
-  accountContext?: string;
 }
 
 export const PromptEditorModal = ({
@@ -22,62 +21,92 @@ export const PromptEditorModal = ({
   onClose,
   platform,
   objective,
-  accountName,
-  accountContext,
 }: PromptEditorModalProps) => {
-  const { getPrompt, updatePrompt, renderPromptVariables } = useOptimizationPrompts();
+  const { getAllPromptsForObjective, updatePrompt } = useOptimizationPrompts();
   const { user } = useAuth();
-  
-  const [transcriptionPrompt, setTranscriptionPrompt] = useState<OptimizationPrompt | undefined>();
-  const [analysisPrompt, setAnalysisPrompt] = useState<OptimizationPrompt | undefined>();
-  const [editedTranscription, setEditedTranscription] = useState('');
-  const [editedAnalysis, setEditedAnalysis] = useState('');
+  const { isAdmin } = useUserRole();
+
+  const [prompts, setPrompts] = useState<{
+    transcribe?: OptimizationPrompt;
+    process?: OptimizationPrompt;
+    analyze?: OptimizationPrompt;
+  }>({});
+
+  const [editedPrompts, setEditedPrompts] = useState<{
+    transcribe: string;
+    process: string;
+    analyze: string;
+  }>({
+    transcribe: '',
+    process: '',
+    analyze: '',
+  });
+
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
-      const trans = getPrompt(platform, objective, 'transcription');
-      const anal = getPrompt(platform, objective, 'analysis');
-      
-      setTranscriptionPrompt(trans);
-      setAnalysisPrompt(anal);
-      setEditedTranscription(trans?.prompt_text || '');
-      setEditedAnalysis(anal?.prompt_text || '');
+      // Fetch all 3 prompts for this objective
+      const allPrompts = getAllPromptsForObjective(platform, objective);
+      setPrompts(allPrompts);
+      setEditedPrompts({
+        transcribe: allPrompts.transcribe?.prompt_text || '',
+        process: allPrompts.process?.prompt_text || '',
+        analyze: allPrompts.analyze?.prompt_text || '',
+      });
     }
   }, [isOpen, platform, objective]);
 
-  const handleSaveTranscription = async () => {
-    if (!transcriptionPrompt || !user?.email) return;
-    const success = await updatePrompt(transcriptionPrompt.id, editedTranscription, user.email);
-    if (success) onClose();
+  const handleSave = async () => {
+    if (!user?.email) return;
+
+    setIsSaving(true);
+    try {
+      const updates: Promise<boolean>[] = [];
+
+      // Update transcribe prompt if changed
+      if (prompts.transcribe && editedPrompts.transcribe !== prompts.transcribe.prompt_text) {
+        updates.push(updatePrompt(prompts.transcribe.id, editedPrompts.transcribe, user.email));
+      }
+
+      // Update process prompt if changed
+      if (prompts.process && editedPrompts.process !== prompts.process.prompt_text) {
+        updates.push(updatePrompt(prompts.process.id, editedPrompts.process, user.email));
+      }
+
+      // Update analyze prompt if changed
+      if (prompts.analyze && editedPrompts.analyze !== prompts.analyze.prompt_text) {
+        updates.push(updatePrompt(prompts.analyze.id, editedPrompts.analyze, user.email));
+      }
+
+      if (updates.length === 0) {
+        toast.info('Nenhuma alteração para salvar');
+        onClose();
+        return;
+      }
+
+      const results = await Promise.all(updates);
+
+      if (results.every(r => r)) {
+        toast.success(`${results.length} prompt(s) atualizado(s) com sucesso`);
+        onClose();
+      }
+    } catch (error) {
+      console.error('Error saving prompts:', error);
+      toast.error('Erro ao salvar prompts');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  const handleSaveAnalysis = async () => {
-    if (!analysisPrompt || !user?.email) return;
-    const success = await updatePrompt(analysisPrompt.id, editedAnalysis, user.email);
-    if (success) onClose();
-  };
-
-  const handleRestoreTranscription = () => {
-    if (!transcriptionPrompt) return;
-    setEditedTranscription(transcriptionPrompt.prompt_text);
-    toast.info('Prompt restaurado');
-  };
-
-  const handleRestoreAnalysis = () => {
-    if (!analysisPrompt) return;
-    setEditedAnalysis(analysisPrompt.prompt_text);
-    toast.info('Prompt restaurado');
-  };
-
-  const variables = ['account_name', 'objectives', 'platform', 'context'];
-
-  const renderPreview = (promptText: string) => {
-    return renderPromptVariables(promptText, {
-      account_name: accountName || 'Nome da Conta',
-      objectives: [objective],
-      platform: platform === 'meta' ? 'Meta Ads' : 'Google Ads',
-      context: accountContext || 'Contexto da conta...',
+  const handleCancel = () => {
+    // Restore original values
+    setEditedPrompts({
+      transcribe: prompts.transcribe?.prompt_text || '',
+      process: prompts.process?.prompt_text || '',
+      analyze: prompts.analyze?.prompt_text || '',
     });
+    onClose();
   };
 
   return (
@@ -85,96 +114,101 @@ export const PromptEditorModal = ({
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
-            Prompts para {platform === 'meta' ? 'Meta Ads' : 'Google Ads'} - {objective}
+            {isAdmin ? '✏️ Editar Prompts (Admin)' : '📋 Prompts de Otimização'}
           </DialogTitle>
+          <DialogDescription>
+            {platform === 'meta' ? 'Meta Ads' : 'Google Ads'} • <strong>{objective}</strong>
+          </DialogDescription>
         </DialogHeader>
 
-        <Tabs defaultValue="transcription" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="transcription">Transcrição</TabsTrigger>
-            <TabsTrigger value="analysis">Análise</TabsTrigger>
+        <Tabs defaultValue="transcribe" className="w-full">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="transcribe">
+              📝 Transcrição
+            </TabsTrigger>
+            <TabsTrigger value="process">
+              📊 Processamento
+            </TabsTrigger>
+            <TabsTrigger value="analyze">
+              💡 Análise
+            </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="transcription" className="space-y-4">
-            <div>
-              <label className="text-sm font-medium mb-2 block">Prompt de Transcrição</label>
-              <Textarea
-                value={editedTranscription}
-                onChange={(e) => setEditedTranscription(e.target.value)}
-                className="min-h-[150px] font-mono text-sm"
-                placeholder="Digite o prompt de transcrição..."
-              />
-            </div>
+          {/* Tab 1: Transcribe */}
+          <TabsContent value="transcribe" className="space-y-4">
+            <Textarea
+              value={editedPrompts.transcribe}
+              onChange={(e) => setEditedPrompts({ ...editedPrompts, transcribe: e.target.value })}
+              className="min-h-[400px] font-mono text-sm"
+              placeholder="Nenhum prompt configurado para este objetivo"
+              disabled={!isAdmin}
+            />
 
-            <div>
-              <label className="text-sm font-medium mb-2 block">Variáveis Disponíveis</label>
-              <div className="flex flex-wrap gap-2">
-                {variables.map((v) => (
-                  <Badge key={v} variant="secondary" className="font-mono text-xs">
-                    {`{${v}}`}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <label className="text-sm font-medium mb-2 block">Preview do Prompt Renderizado</label>
-              <div className="bg-muted p-4 rounded-lg text-sm">
-                {renderPreview(editedTranscription)}
-              </div>
-            </div>
-
-            <div className="flex justify-between pt-4 border-t">
-              <Button variant="outline" onClick={handleRestoreTranscription}>
-                Restaurar Padrão
-              </Button>
-              <div className="flex gap-2">
-                <Button variant="outline" onClick={onClose}>Cancelar</Button>
-                <Button onClick={handleSaveTranscription}>Salvar</Button>
-              </div>
-            </div>
+            {!prompts.transcribe && (
+              <Alert variant="destructive">
+                <AlertDescription>
+                  ⚠️ Nenhum prompt de transcrição encontrado para <strong>{objective}</strong> na plataforma <strong>{platform}</strong>.
+                </AlertDescription>
+              </Alert>
+            )}
           </TabsContent>
 
-          <TabsContent value="analysis" className="space-y-4">
-            <div>
-              <label className="text-sm font-medium mb-2 block">Prompt de Análise</label>
-              <Textarea
-                value={editedAnalysis}
-                onChange={(e) => setEditedAnalysis(e.target.value)}
-                className="min-h-[150px] font-mono text-sm"
-                placeholder="Digite o prompt de análise..."
-              />
-            </div>
+          {/* Tab 2: Process */}
+          <TabsContent value="process" className="space-y-4">
+            <Textarea
+              value={editedPrompts.process}
+              onChange={(e) => setEditedPrompts({ ...editedPrompts, process: e.target.value })}
+              className="min-h-[400px] font-mono text-sm"
+              placeholder="Nenhum prompt configurado para este objetivo"
+              disabled={!isAdmin}
+            />
 
-            <div>
-              <label className="text-sm font-medium mb-2 block">Variáveis Disponíveis</label>
-              <div className="flex flex-wrap gap-2">
-                {variables.map((v) => (
-                  <Badge key={v} variant="secondary" className="font-mono text-xs">
-                    {`{${v}}`}
-                  </Badge>
-                ))}
-              </div>
-            </div>
+            {!prompts.process && (
+              <Alert variant="destructive">
+                <AlertDescription>
+                  ⚠️ Nenhum prompt de processamento encontrado para <strong>{objective}</strong> na plataforma <strong>{platform}</strong>.
+                </AlertDescription>
+              </Alert>
+            )}
+          </TabsContent>
 
-            <div>
-              <label className="text-sm font-medium mb-2 block">Preview do Prompt Renderizado</label>
-              <div className="bg-muted p-4 rounded-lg text-sm">
-                {renderPreview(editedAnalysis)}
-              </div>
-            </div>
+          {/* Tab 3: Analyze */}
+          <TabsContent value="analyze" className="space-y-4">
+            <Textarea
+              value={editedPrompts.analyze}
+              onChange={(e) => setEditedPrompts({ ...editedPrompts, analyze: e.target.value })}
+              className="min-h-[400px] font-mono text-sm"
+              placeholder="Nenhum prompt configurado para este objetivo"
+              disabled={!isAdmin}
+            />
 
-            <div className="flex justify-between pt-4 border-t">
-              <Button variant="outline" onClick={handleRestoreAnalysis}>
-                Restaurar Padrão
-              </Button>
-              <div className="flex gap-2">
-                <Button variant="outline" onClick={onClose}>Cancelar</Button>
-                <Button onClick={handleSaveAnalysis}>Salvar</Button>
-              </div>
-            </div>
+            {!prompts.analyze && (
+              <Alert variant="destructive">
+                <AlertDescription>
+                  ⚠️ Nenhum prompt de análise encontrado para <strong>{objective}</strong> na plataforma <strong>{platform}</strong>.
+                </AlertDescription>
+              </Alert>
+            )}
           </TabsContent>
         </Tabs>
+
+        {/* Actions */}
+        <div className="flex justify-end gap-2 pt-4 border-t">
+          {isAdmin ? (
+            <>
+              <Button variant="outline" onClick={handleCancel} disabled={isSaving}>
+                Cancelar
+              </Button>
+              <Button onClick={handleSave} disabled={isSaving}>
+                {isSaving ? 'Salvando...' : 'Salvar Alterações'}
+              </Button>
+            </>
+          ) : (
+            <Button variant="outline" onClick={onClose}>
+              Fechar
+            </Button>
+          )}
+        </div>
       </DialogContent>
     </Dialog>
   );

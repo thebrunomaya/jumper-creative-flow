@@ -1,31 +1,31 @@
 project_id = "biwwowendjuzvpttyrlb"
 
 # Active edge functions
-[functions.j_ads_admin_dashboard]
-verify_jwt = true
-
-[functions.j_ads_admin_users]
-verify_jwt = true
-
-[functions.j_ads_auth_roles]
-verify_jwt = true
-
-[functions.j_ads_manager_dashboard]
-verify_jwt = true
-
-[functions.j_ads_notion_sync_accounts]
-verify_jwt = true
-
-[functions.j_ads_notion_sync_managers]
-verify_jwt = true
-
-[functions.j_ads_notion_sync_scheduler]
-verify_jwt = false
-
 [functions.j_ads_submit_ad]
 verify_jwt = true
 
-[functions.j_ads_user_accounts]
+[functions.j_hub_admin_dashboard]
+verify_jwt = true
+
+[functions.j_hub_admin_users]
+verify_jwt = true
+
+[functions.j_hub_auth_roles]
+verify_jwt = true
+
+[functions.j_hub_manager_dashboard]
+verify_jwt = true
+
+[functions.j_hub_notion_sync_accounts]
+verify_jwt = true
+
+[functions.j_hub_notion_sync_managers]
+verify_jwt = true
+
+[functions.j_hub_notion_sync_scheduler]
+verify_jwt = false
+
+[functions.j_hub_user_accounts]
 verify_jwt = true
 
 [functions.j_hub_optimization_analyze]

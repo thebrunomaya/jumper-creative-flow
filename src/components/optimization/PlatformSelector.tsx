@@ -31,10 +31,10 @@ export const PlatformSelector = ({ value, onChange, onEditPrompt }: PlatformSele
             Meta Ads
           </Label>
         </div>
-        <div className="flex items-center space-x-2 opacity-50">
-          <RadioGroupItem value="google" id="google" disabled />
-          <Label htmlFor="google" className="cursor-not-allowed">
-            Google Ads (Em breve)
+        <div className="flex items-center space-x-2">
+          <RadioGroupItem value="google" id="google" />
+          <Label htmlFor="google" className="cursor-pointer">
+            Google Ads
           </Label>
         </div>
       </RadioGroup>

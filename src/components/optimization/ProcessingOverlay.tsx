@@ -30,8 +30,7 @@ export function ProcessingOverlay({
 
   const steps = [
     { key: 'upload', label: 'Upload do áudio' },
-    { key: 'transcribe', label: 'Transcrevendo com Whisper' },
-    { key: 'processing_transcript', label: 'Organizando em tópicos' },
+    { key: 'transcribe', label: 'Transcrevendo' },
   ];
 
   const getStepStatus = (stepKey: string) => {
@@ -65,11 +64,10 @@ export function ProcessingOverlay({
     }
   };
 
-  const progressPercentage = currentStep === 'complete' ? 100 
+  const progressPercentage = currentStep === 'complete' ? 100
     : currentStep === 'error' ? 0
-    : currentStep === 'upload' ? 33
-    : currentStep === 'transcribe' ? 66
-    : currentStep === 'processing_transcript' ? 90
+    : currentStep === 'upload' ? 50
+    : currentStep === 'transcribe' ? 90
     : 0;
 
   return (
@@ -160,8 +158,7 @@ export function ProcessingOverlay({
               <div className="text-center mt-4">
                 <p className="text-xs text-muted-foreground">
                   {currentStep === 'upload' && 'Enviando áudio para o servidor...'}
-                  {currentStep === 'transcribe' && 'Convertendo áudio em texto com Whisper AI...'}
-                  {currentStep === 'processing_transcript' && 'Organizando transcrição em tópicos...'}
+                  {currentStep === 'transcribe' && 'Convertendo áudio em texto...'}
                 </p>
               </div>
             </div>

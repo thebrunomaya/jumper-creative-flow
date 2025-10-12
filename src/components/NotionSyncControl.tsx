@@ -30,7 +30,7 @@ export const NotionSyncControl: React.FC = () => {
     toast.info('Iniciando sincronização de contas...');
 
     try {
-      const { data, error } = await supabase.functions.invoke('j_ads_notion_sync_accounts');
+      const { data, error } = await supabase.functions.invoke('j_hub_notion_sync_accounts');
 
       if (error) {
         throw error;
@@ -78,7 +78,7 @@ export const NotionSyncControl: React.FC = () => {
     toast.info('Iniciando sincronização de gerentes...');
 
     try {
-      const { data, error } = await supabase.functions.invoke('j_ads_notion_sync_managers');
+      const { data, error } = await supabase.functions.invoke('j_hub_notion_sync_managers');
 
       if (error) {
         throw error;

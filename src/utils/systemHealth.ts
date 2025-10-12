@@ -102,7 +102,7 @@ async function checkEdgeFunctionsHealth(): Promise<HealthCheckResult> {
     const { supabase } = await import('@/integrations/supabase/client');
     
     // Test with a lightweight manager action
-    const { data, error } = await supabase.functions.invoke('j_ads_manager_dashboard', {
+    const { data, error } = await supabase.functions.invoke('j_hub_manager_dashboard', {
       body: { action: 'healthCheck' }
     });
     

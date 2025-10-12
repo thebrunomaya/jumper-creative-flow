@@ -51,7 +51,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       // Explicitly pass Authorization header with JWT
-      const { data, error } = await supabase.functions.invoke('j_ads_auth_roles', {
+      const { data, error } = await supabase.functions.invoke('j_hub_auth_roles', {
         body: {},
         headers: {
           Authorization: `Bearer ${session.access_token}`

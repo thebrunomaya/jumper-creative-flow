@@ -501,7 +501,7 @@ const CreativeSystem: React.FC = () => {
       try {
         console.log('🔄 Carregando draft:', routeSubmissionId);
         // First try manager actions (for managers)
-        let response = await supabase.functions.invoke('j_ads_manager_dashboard', {
+        let response = await supabase.functions.invoke('j_hub_manager_dashboard', {
           body: { action: 'get', submissionId: routeSubmissionId },
         });
         console.log('📥 Resposta manager_actions:', response);
@@ -509,7 +509,7 @@ const CreativeSystem: React.FC = () => {
         // If that fails, try admin actions (for admins)
         if (response.error || !response.data?.success) {
           console.log('⚠️ Manager actions falhou, tentando admin actions');
-          response = await supabase.functions.invoke('j_ads_admin_dashboard', {
+          response = await supabase.functions.invoke('j_hub_admin_dashboard', {
             body: { action: 'getSubmission', submissionId: routeSubmissionId },
           });
           console.log('📥 Resposta admin_actions:', response);
@@ -711,7 +711,7 @@ const CreativeSystem: React.FC = () => {
       }
 
       setUploadProgress({ current: 0, total: 0, message: 'Salvando no servidor...' });
-      let response = await supabase.functions.invoke('j_ads_manager_dashboard', {
+      let response = await supabase.functions.invoke('j_hub_manager_dashboard', {
         body: {
           action: 'saveDraft',
           submissionId: routeSubmissionId ?? undefined,

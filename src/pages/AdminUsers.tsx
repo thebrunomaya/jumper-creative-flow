@@ -56,7 +56,7 @@ const AdminUsersPage: React.FC = () => {
       throw new Error('Não autenticado');
     }
 
-    const { data, error } = await supabase.functions.invoke('j_ads_admin_users', {
+    const { data, error } = await supabase.functions.invoke('j_hub_admin_users', {
       body: { action: 'list' },
     });
 
@@ -73,7 +73,7 @@ const AdminUsersPage: React.FC = () => {
 
   // Fetch user details
   const fetchUserDetails = async (userId: string): Promise<User> => {
-    const { data, error } = await supabase.functions.invoke('j_ads_admin_users', {
+    const { data, error } = await supabase.functions.invoke('j_hub_admin_users', {
       body: { action: 'getDetails', userId },
     });
 
@@ -94,7 +94,7 @@ const AdminUsersPage: React.FC = () => {
       newRole: string;
       reason?: string;
     }) => {
-      const { data, error } = await supabase.functions.invoke('j_ads_admin_users', {
+      const { data, error } = await supabase.functions.invoke('j_hub_admin_users', {
         body: { action: 'changeRole', userId, newRole, reason },
       });
 
@@ -122,7 +122,7 @@ const AdminUsersPage: React.FC = () => {
   // Toggle status mutation
   const toggleStatusMutation = useMutation({
     mutationFn: async ({ userId, reason }: { userId: string; reason?: string }) => {
-      const { data, error } = await supabase.functions.invoke('j_ads_admin_users', {
+      const { data, error } = await supabase.functions.invoke('j_hub_admin_users', {
         body: { action: 'toggleStatus', userId, reason },
       });
 
@@ -150,7 +150,7 @@ const AdminUsersPage: React.FC = () => {
   // Reset password mutation
   const resetPasswordMutation = useMutation({
     mutationFn: async (userId: string) => {
-      const { data, error } = await supabase.functions.invoke('j_ads_admin_users', {
+      const { data, error } = await supabase.functions.invoke('j_hub_admin_users', {
         body: { action: 'resetPassword', userId },
       });
 
@@ -177,7 +177,7 @@ const AdminUsersPage: React.FC = () => {
   // Force logout mutation
   const forceLogoutMutation = useMutation({
     mutationFn: async (userId: string) => {
-      const { data, error } = await supabase.functions.invoke('j_ads_admin_users', {
+      const { data, error } = await supabase.functions.invoke('j_hub_admin_users', {
         body: { action: 'forceLogout', userId },
       });
 

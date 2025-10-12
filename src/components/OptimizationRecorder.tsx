@@ -14,8 +14,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { JumperButton } from "@/components/ui/jumper-button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Mic, Square, Upload, Loader2, AlertCircle, ChevronDown, Edit, FileAudio } from "lucide-react";
+import { Mic, Square, Upload, Loader2, AlertCircle, Edit, FileAudio } from "lucide-react";
 import { toast } from "sonner";
 import { ContextEditor } from "./optimization/ContextEditor";
 import { PromptEditorModal } from "./optimization/PromptEditorModal";
@@ -46,7 +45,6 @@ export function OptimizationRecorder({
   const [recordingDuration, setRecordingDuration] = useState(0);
   
   // Context & Optimization state
-  const [isContextOpen, setIsContextOpen] = useState(false);
   const [editedContext, setEditedContext] = useState(accountContext);
   const [isContextEditorOpen, setIsContextEditorOpen] = useState(false);
   const [platform, setPlatform] = useState<'meta' | 'google'>('meta');
@@ -234,35 +232,22 @@ export function OptimizationRecorder({
       
       // 3. AUTO-TRIGGER TRANSCRIPTION
       setCurrentStep('transcribe');
-      
+
       const { error: transcribeError } = await supabase.functions.invoke(
-        "j_ads_transcribe_optimization",
+        "j_hub_optimization_transcribe",
         { body: { recording_id: recording.id } }
       );
 
       if (transcribeError) throw new Error(`Transcrição falhou: ${transcribeError.message}`);
 
-      // 4. AUTO-TRIGGER TRANSCRIPT PROCESSING
-      setCurrentStep('processing_transcript');
-      
-      const { error: processError } = await supabase.functions.invoke(
-        "j_ads_process_transcript",
-        { body: { recording_id: recording.id } }
-      );
-
-      if (processError) {
-        console.warn('Processamento de transcrição falhou:', processError);
-        // Don't throw - raw transcript is still usable
-      }
-
-      // 5. POLL FOR COMPLETION
+      // 4. POLL FOR TRANSCRIPTION COMPLETION
       const maxAttempts = 60; // 60 seconds max
       let attempts = 0;
-      let processingComplete = false;
+      let transcriptionComplete = false;
 
-      while (attempts < maxAttempts && !processingComplete) {
+      while (attempts < maxAttempts && !transcriptionComplete) {
         await new Promise(resolve => setTimeout(resolve, 1000));
-        
+
         const { data: statusCheck } = await supabase
           .from("j_ads_optimization_recordings")
           .select("transcription_status")
@@ -270,21 +255,21 @@ export function OptimizationRecorder({
           .single();
 
         if (statusCheck?.transcription_status === "completed") {
-          processingComplete = true;
+          transcriptionComplete = true;
         } else if (statusCheck?.transcription_status === "failed") {
-          throw new Error("Processamento falhou - verifique os logs");
+          throw new Error("Transcrição falhou - verifique os logs");
         }
 
         attempts++;
       }
 
-      if (!processingComplete) {
-        console.warn("Timeout no processamento - usando transcrição bruta");
+      if (!transcriptionComplete) {
+        console.warn("Timeout na transcrição");
       }
 
-      // 6. SUCCESS!
+      // 5. SUCCESS!
       setCurrentStep('complete');
-      toast.success("✅ Transcrição processada! Revise no drawer antes de analisar com IA");
+      toast.success("✅ Transcrição concluída! Clique na gravação para continuar o processamento");
       
       clearBlobUrl();
       handleClearFile();
@@ -316,68 +301,6 @@ export function OptimizationRecorder({
     }
   }
 
-  async function handleRetryProcessing() {
-    if (!currentRecordingId) {
-      toast.error("Nenhuma gravação para reprocessar");
-      return;
-    }
-
-    setIsProcessing(true);
-    setCurrentStep('processing_transcript');
-    setProcessingError(null);
-
-    try {
-      // Trigger processing
-      const { error: processError } = await supabase.functions.invoke(
-        "j_ads_process_transcript",
-        { body: { recording_id: currentRecordingId } }
-      );
-
-      if (processError) throw new Error(`Processamento falhou: ${processError.message}`);
-
-      // Poll for completion
-      const maxAttempts = 60;
-      let attempts = 0;
-      let processingComplete = false;
-
-      while (attempts < maxAttempts && !processingComplete) {
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        const { data: statusCheck } = await supabase
-          .from("j_ads_optimization_recordings")
-          .select("transcription_status")
-          .eq("id", currentRecordingId)
-          .single();
-
-        if (statusCheck?.transcription_status === "completed") {
-          processingComplete = true;
-        } else if (statusCheck?.transcription_status === "failed") {
-          throw new Error("Processamento falhou");
-        }
-
-        attempts++;
-      }
-
-      if (!processingComplete) {
-        throw new Error("Tempo esgotado aguardando processamento");
-      }
-
-      setCurrentStep('complete');
-      toast.success("✅ Transcrição processada com sucesso!");
-      
-      setTimeout(() => {
-        setIsProcessing(false);
-        setCurrentRecordingId(null);
-        onUploadComplete?.();
-      }, 2000);
-
-    } catch (error: any) {
-      console.error("Analysis retry error:", error);
-      setCurrentStep('error');
-      setProcessingError(error.message || "Erro desconhecido na análise");
-      toast.error(`Erro: ${error.message}`);
-    }
-  }
 
   const formatDuration = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -398,42 +321,34 @@ export function OptimizationRecorder({
       </CardHeader>
 
       <CardContent className="space-y-6">
-        {/* Section 1: Account Context (Collapsible) */}
-        <Collapsible open={isContextOpen} onOpenChange={setIsContextOpen}>
-          <div className="border rounded-lg">
-            <CollapsibleTrigger className="w-full px-4 py-3 flex items-center justify-between hover:bg-accent/50 transition-colors">
-              <div className="flex items-center gap-2">
-                <span className="font-medium">📝 Contexto da Conta</span>
-                {editedContext !== accountContext && (
-                  <span className="text-xs text-primary">(Editado)</span>
-                )}
-              </div>
-              <ChevronDown className={`h-4 w-4 transition-transform ${isContextOpen ? 'rotate-180' : ''}`} />
-            </CollapsibleTrigger>
-            
-            <CollapsibleContent>
-              <div className="px-4 pb-4 space-y-3">
-                <div className="bg-muted/50 p-3 rounded-md text-sm max-h-32 overflow-y-auto">
-                  {editedContext || 'Nenhum contexto disponível'}
-                </div>
-                <JumperButton
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => setIsContextEditorOpen(true)}
-                  className="w-full"
-                >
-                  <Edit className="h-3 w-3 mr-2" />
-                  Editar Contexto (Apenas para esta gravação)
-                </JumperButton>
-              </div>
-            </CollapsibleContent>
+        {/* Section 1: Account Information */}
+        <div className="space-y-3 border rounded-lg p-4">
+          <div className="flex items-center justify-between">
+            <h3 className="font-medium">📝 Informações da Conta</h3>
+            {editedContext !== accountContext && (
+              <span className="text-xs text-primary font-medium">(Editado)</span>
+            )}
           </div>
-        </Collapsible>
 
-        {/* Section 2: Optimization Context */}
+          <div className="bg-muted/30 p-3 rounded-md text-sm max-h-32 overflow-y-auto border">
+            {editedContext || 'Nenhum contexto disponível para esta conta'}
+          </div>
+
+          <JumperButton
+            variant="secondary"
+            size="sm"
+            onClick={() => setIsContextEditorOpen(true)}
+            className="w-full"
+          >
+            <Edit className="h-3 w-3 mr-2" />
+            Editar para Esta Gravação
+          </JumperButton>
+        </div>
+
+        {/* Section 2: Recording Configuration */}
         <div className="space-y-4 border rounded-lg p-4">
-          <h3 className="font-medium">🎯 Contexto da Otimização</h3>
-          
+          <h3 className="font-medium">🎯 Configuração da Otimização</h3>
+
           <PlatformSelector
             value={platform}
             onChange={setPlatform}
@@ -652,7 +567,7 @@ export function OptimizationRecorder({
         isOpen={isProcessing}
         currentStep={currentStep}
         error={processingError}
-        onRetry={currentStep === 'processing_transcript' ? handleRetryProcessing : handleUpload}
+        onRetry={handleUpload}
         onClose={() => {
           setIsProcessing(false);
           setProcessingError(null);

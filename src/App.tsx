@@ -23,6 +23,7 @@ const MyAccounts = lazy(() => import("./pages/MyAccounts"));
 const CreativeSystem = lazy(() => import("@/components/CreativeSystem"));
 const ReportsPage = lazy(() => import("./pages/ReportsPage"));
 const Optimization = lazy(() => import("./pages/Optimization"));
+const OptimizationEditor = lazy(() => import("./pages/OptimizationEditor"));
 const SharedOptimization = lazy(() => import("./pages/SharedOptimization"));
 
 // Loading component reutilizável com acessibilidade
@@ -109,6 +110,13 @@ const App = () => {
                   <ProtectedRoute>
                     <Suspense fallback={<PageLoading />}>
                       <Optimization />
+                    </Suspense>
+                  </ProtectedRoute>
+                } />
+                <Route path="/optimization/editor/:recordingId" element={
+                  <ProtectedRoute>
+                    <Suspense fallback={<PageLoading />}>
+                      <OptimizationEditor />
                     </Suspense>
                   </ProtectedRoute>
                 } />

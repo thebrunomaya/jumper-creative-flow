@@ -65,7 +65,7 @@ const AdminPage: React.FC = () => {
       throw new Error('Acesso negado: apenas administradores.');
     }
 
-    const { data, error } = await supabase.functions.invoke("j_ads_admin_dashboard", {
+    const { data, error } = await supabase.functions.invoke("j_hub_admin_dashboard", {
       body: { action: "list" },
     });
 
@@ -94,7 +94,7 @@ const AdminPage: React.FC = () => {
       setPublishingResult(null);
 
       // Start the publication process
-      const { data, error } = await supabase.functions.invoke("j_ads_admin_dashboard", {
+      const { data, error } = await supabase.functions.invoke("j_hub_admin_dashboard", {
         body: {
           action: "publish",
           submissionId,
@@ -157,7 +157,7 @@ const AdminPage: React.FC = () => {
 
   const queueMutation = useMutation({
     mutationFn: async (submissionId: string) => {
-      const { data, error } = await supabase.functions.invoke("j_ads_admin_dashboard", {
+      const { data, error } = await supabase.functions.invoke("j_hub_admin_dashboard", {
         body: {
           action: "queue",
           submissionId,
@@ -180,7 +180,7 @@ const AdminPage: React.FC = () => {
 
   const deleteMutation = useMutation({
     mutationFn: async (submissionId: string) => {
-      const { data, error } = await supabase.functions.invoke("j_ads_admin_dashboard", {
+      const { data, error } = await supabase.functions.invoke("j_hub_admin_dashboard", {
         body: {
           action: "deleteSubmission",
           submissionId,
@@ -205,7 +205,7 @@ const AdminPage: React.FC = () => {
 
   const fetchSubmissionDetails = async (submissionId: string) => {
     try {
-      const { data, error } = await supabase.functions.invoke('j_ads_admin_dashboard', {
+      const { data, error } = await supabase.functions.invoke('j_hub_admin_dashboard', {
         body: { action: 'getDetails', submissionId }
       });
       

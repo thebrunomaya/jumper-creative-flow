@@ -15,7 +15,7 @@ export const useMyNotionAccounts = () => {
         setError(null);
 
         // Use new complete function that works with synchronized tables
-        const { data, error } = await supabase.functions.invoke('j_ads_user_accounts');
+        const { data, error } = await supabase.functions.invoke('j_hub_user_accounts');
 
         if (error) throw error;
         if (!data || data.success !== true) {

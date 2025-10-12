@@ -6,7 +6,7 @@ export interface OptimizationPrompt {
   id: string;
   platform: 'meta' | 'google';
   objective: string;
-  prompt_type: 'transcription' | 'analysis';
+  prompt_type: 'transcribe' | 'process' | 'analyze';
   prompt_text: string;
   variables: string[];
   is_default: boolean;
@@ -46,11 +46,26 @@ export const useOptimizationPrompts = () => {
   const getPrompt = (
     platform: 'meta' | 'google',
     objective: string,
-    type: 'transcription' | 'analysis'
+    type: 'transcribe' | 'process' | 'analyze'
   ): OptimizationPrompt | undefined => {
     return prompts.find(
       (p) => p.platform === platform && p.objective === objective && p.prompt_type === type
     );
+  };
+
+  const getAllPromptsForObjective = (
+    platform: 'meta' | 'google',
+    objective: string
+  ): {
+    transcribe?: OptimizationPrompt;
+    process?: OptimizationPrompt;
+    analyze?: OptimizationPrompt;
+  } => {
+    return {
+      transcribe: getPrompt(platform, objective, 'transcribe'),
+      process: getPrompt(platform, objective, 'process'),
+      analyze: getPrompt(platform, objective, 'analyze'),
+    };
   };
 
   const updatePrompt = async (
@@ -114,6 +129,7 @@ export const useOptimizationPrompts = () => {
     prompts,
     loading,
     getPrompt,
+    getAllPromptsForObjective,
     updatePrompt,
     renderPromptVariables,
     refetch: fetchPrompts,
