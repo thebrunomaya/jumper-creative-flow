@@ -121,23 +121,12 @@ const LoginPage: React.FC = () => {
       <div className="flex-1 lg:w-1/2 flex flex-col min-h-screen bg-black text-white relative">
         {/* Header - Logo */}
         <div className="p-6 lg:p-8">
-          {/* Mobile: logo pequeno no canto superior direito */}
-          <div className="lg:hidden flex justify-end">
-            <JumperLogo
-              size="sm"
-              theme="dark"
-              showText={true}
-            />
-          </div>
-
-          {/* Desktop: logo padrão no canto superior esquerdo */}
-          <div className="hidden lg:block">
-            <JumperLogo
-              size="sm"
-              theme="dark"
-              showText={true}
-            />
-          </div>
+          {/* Mobile e Desktop: logo pequeno no canto superior esquerdo */}
+          <JumperLogo
+            size="sm"
+            theme="dark"
+            showText={true}
+          />
         </div>
 
         {/* Centro - Formulário */}
