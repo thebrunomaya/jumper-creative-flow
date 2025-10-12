@@ -676,9 +676,11 @@ export default function OptimizationEditor() {
                   <p className="text-destructive font-medium">
                     Falha ao processar transcrição
                   </p>
-                  <p className="text-sm text-muted-foreground">
-                    Verifique se a transcrição tem conteúdo suficiente (mínimo 50 caracteres).
-                  </p>
+                  {isAdmin && (
+                    <p className="text-xs text-muted-foreground">
+                      Use o ícone de debug acima para ver detalhes do erro
+                    </p>
+                  )}
                 </div>
                 <JumperButton
                   onClick={() => handleProcess()}
