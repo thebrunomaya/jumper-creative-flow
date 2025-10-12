@@ -264,6 +264,12 @@ export default function OptimizationEditor() {
         p_user_id: user.id,
       });
 
+      // Delete existing transcript (transcribe function will INSERT new one)
+      await supabase
+        .from('j_hub_optimization_transcripts')
+        .delete()
+        .eq('recording_id', recordingId);
+
       // Call transcribe function directly (same as initial transcription)
       const { error } = await supabase.functions.invoke(
         'j_hub_optimization_transcribe',
