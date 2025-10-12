@@ -143,7 +143,8 @@ const LoginPage: React.FC = () => {
               </div>
 
               <h1 className="text-2xl lg:text-3xl font-bold text-white">
-                Jumper Hub
+                <span className="lg:hidden">Hub</span>
+                <span className="hidden lg:inline">Jumper Hub</span>
               </h1>
               <p className="text-xs text-white/40">v2.0</p>
             </div>
