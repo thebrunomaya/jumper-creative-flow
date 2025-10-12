@@ -42,12 +42,20 @@ recent_decisions:
       - Agora tabelas também são j_hub_optimization_*
       - Sistema 100% consistente com v2.0 rebrand
 
-      ### Git Commit:
-      - [pending]: feat(v2.0): Complete optimization tables migration (j_ads → j_hub)
+      ### Deployment:
+      - ✅ Git commit: e775995
+      - ✅ Migration pushed to Supabase (already applied)
+      - ✅ 8 edge functions deployed successfully
+      - ✅ Frontend pushed to main → Vercel auto-deploy
+
+      ### Verification Needed:
+      - Test optimization recording workflow (Step 1, 2, 3)
+      - Verify VIEWs are working (backwards compatibility)
+      - Check public share links still work
     impact: "HIGH - Complete optimization system rebrand consistency"
     files_changed:
       - "22 files total (migrations, edge functions, React components, types, docs)"
-    deployed: false
+    deployed: true
     migrate_to_architecture: false
 
   - date: "2025-10-12"
