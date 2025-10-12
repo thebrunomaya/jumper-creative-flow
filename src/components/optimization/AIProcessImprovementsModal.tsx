@@ -196,7 +196,7 @@ export function AIProcessImprovementsModal({
                 ) : (
                   <>
                     <Sparkles className="mr-2 h-4 w-4" />
-                    Buscar Sugestões
+                    Ajustar com IA
                   </>
                 )}
               </JumperButton>
