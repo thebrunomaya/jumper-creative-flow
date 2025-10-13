@@ -14,7 +14,7 @@ export type Database = {
   }
   public: {
     Tables: {
-      j_ads_creative_files: {
+      j_hub_creative_files: {
         Row: {
           created_at: string
           format: string | null
@@ -59,12 +59,12 @@ export type Database = {
             foreignKeyName: "creative_files_submission_id_fkey"
             columns: ["submission_id"]
             isOneToOne: false
-            referencedRelation: "j_ads_creative_submissions"
+            referencedRelation: "j_hub_creative_submissions"
             referencedColumns: ["id"]
           },
         ]
       }
-      j_ads_creative_submissions: {
+      j_hub_creative_submissions: {
         Row: {
           campaign_objective: string | null
           client: string | null
@@ -130,7 +130,7 @@ export type Database = {
         }
         Relationships: []
       }
-      j_ads_creative_variations: {
+      j_hub_creative_variations: {
         Row: {
           created_at: string
           creative_id: string
@@ -172,7 +172,7 @@ export type Database = {
             foreignKeyName: "creative_variations_submission_fk"
             columns: ["submission_id"]
             isOneToOne: false
-            referencedRelation: "j_ads_creative_submissions"
+            referencedRelation: "j_hub_creative_submissions"
             referencedColumns: ["id"]
           },
         ]

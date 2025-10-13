@@ -177,7 +177,7 @@ async function handleList(admin: any, corsHeaders: any) {
 
       // Count submitted creatives
       const { count: creativeCount } = await admin
-        .from('j_ads_creative_submissions')
+        .from('j_hub_creative_submissions')
         .select('*', { count: 'exact', head: true })
         .eq('manager_id', user.id)
 
@@ -234,7 +234,7 @@ async function handleGetDetails(admin: any, userId: string, corsHeaders: any) {
 
   // Get creative submissions count
   const { count: creativeCount } = await admin
-    .from('j_ads_creative_submissions')
+    .from('j_hub_creative_submissions')
     .select('*', { count: 'exact', head: true })
     .eq('manager_id', userId)
 
