@@ -3,7 +3,7 @@
 # Tracks recent decisions and work-in-progress (last 7 days)
 # Older decisions migrate to docs/ARCHITECTURE.md
 
-last_updated: "2025-10-13T10:00:00Z"
+last_updated: "2025-10-13T14:30:00Z"
 session_computer: "MacBook Pro (trabalho)"
 session_user: "Bruno Maya"
 
@@ -343,27 +343,25 @@ recent_decisions:
 
 # Current issues being worked on
 current_issues:
-  - issue: "Migrations Cleanup - Directory needs organization and documentation"
+  - issue: "Post-Migration Testing - Validate production deployment"
     severity: "high"
-    status: "pending 🧹"
+    status: "pending - awaiting user testing 🧪"
     details: |
-      User requested: "na próxima sessão, é importante fazermos uma limpeza das migrations, pois estão super confusas"
+      Migration cleanup COMPLETED. Code updated and pushed to GitHub.
+      Awaiting GitHub → Supabase auto-deployment and user validation.
 
-      Recently completed by user:
-      - ✅ Step 3 Reengineering - Complete redesign implemented
-      - ✅ Database Cleanup - All obsolete tables removed
-      - ✅ RLS Fixes - Security policies for j_rep_metaads_bronze
+      Completed in Session 2025-10-13:
+      - ✅ Migrations consolidated (43 → 1 baseline)
+      - ✅ All code updated (8 files, 58 references)
+      - ✅ Tables renamed to j_hub_creative_*
+      - ✅ Supabase local tested successfully
+      - ✅ Committed and pushed to GitHub (commit: 40d442d)
 
-      Still pending:
-      - ⚠️ Migrations directory cleanup and organization
-
-      Recommended actions:
-      1. List all migration files chronologically
-      2. Identify obsolete migrations (referencing deleted tables/functions)
-      3. Check for duplicate timestamps or confusing naming
-      4. Consolidate related migrations if possible
-      5. Add clear comments/documentation to each migration
-      6. Consider creating a fresh baseline migration for v2.0
+      Pending for next session:
+      - ⏳ Validate GitHub → Supabase auto-deployment completed
+      - ⏳ Test production functionality (see POST-DEPLOY-CHECKLIST.md)
+      - ⏳ Verify Edge Functions using new table names
+      - ⏳ Confirm zero errors in production
 
 # Work in progress
 work_in_progress:
@@ -413,12 +411,73 @@ work_in_progress:
 
 # Context for next session
 next_session_context: |
-  🔄 SESSION 2025-10-12 (EVENING) COMPLETED: Oracle Framework Reorganization
+  🧹 SESSION 2025-10-13 COMPLETED: MIGRATIONS CLEANUP + CODE UPDATE
 
-  ## Oracle Framework Architecture Separation ✅
+  ## ✅ MISSÃO COMPLETA - Migrations Consolidation & Table Renaming
 
-  ### User's Key Insight:
-  > "meu entendimento atual é que o oracle framework faz parte de um outro módulo de relatórios, e não das otimizações"
+  ### What Was Accomplished:
+
+  **1. Migrations Cleanup (43 → 1):**
+  - Consolidated all 43 incremental migrations into single baseline
+  - Archived old migrations in `_archive_pre_baseline/` with full docs
+  - Fixed chronological conflicts, broken FKs, and VIEW issues
+  - Created: `20250101000000_jumper_hub_baseline_schema.sql`
+
+  **2. Table Naming Standardization:**
+  - Renamed: `creative_submissions` → `j_hub_creative_submissions`
+  - Renamed: `creative_files` → `j_hub_creative_files`
+  - Renamed: `creative_variations` → `j_hub_creative_variations`
+  - All tables now follow `j_hub_*` convention consistently
+
+  **3. Code Updates (8 files, 58 references):**
+  - Edge Functions: 5 files updated (j_ads_submit_ad, j_hub_admin_dashboard, etc.)
+  - Frontend: 2 files updated (systemHealth.ts, types.ts)
+  - Documentation: MIGRATION-CLEANUP-SUMMARY.md created
+  - Verification: ZERO old references remaining ✅
+
+  **4. Testing & Deployment:**
+  - Supabase local: ✅ Started successfully
+  - Database: ✅ All 18 tables created
+  - Committed: 40d442d
+  - Pushed: GitHub main branch
+  - Status: ⏳ Awaiting GitHub → Supabase auto-deployment
+
+  ## 🧪 CRITICAL - NEXT SESSION TASK:
+
+  **USER MUST TEST PRODUCTION FUNCTIONALITY**
+
+  📋 **Checklist Created:** `POST-DEPLOY-CHECKLIST.md`
+
+  **Priority Tests:**
+  1. Validate GitHub → Supabase deployment completed
+  2. Test Upload Criativo (uses j_hub_creative_* tables)
+  3. Test Dashboard Admin (lists criativos)
+  4. Test Aprovar/Publicar criativo
+  5. Verify Edge Functions logs (zero errors)
+
+  **Expected Results:**
+  - ✅ All functionality works normally
+  - ✅ OR migration baseline fails (tables exist) BUT Edge Functions work
+
+  **If Errors Found:**
+  - Check Supabase logs for table name errors
+  - May need manual table rename in production
+  - Bring error messages to next session
+
+  ## 📂 Key Files:
+  - `POST-DEPLOY-CHECKLIST.md` - Complete testing guide
+  - `MIGRATION-CLEANUP-SUMMARY.md` - Full session summary
+  - `supabase/migrations/20250101000000_jumper_hub_baseline_schema.sql` - Baseline
+  - `supabase/migrations/_archive_pre_baseline/README.md` - Migration history
+
+  ## ⚠️ Known Context:
+  - Production database already had correct schema (manually applied before)
+  - Baseline migration will likely "fail" in prod (expected - tables exist)
+  - Edge Functions should work regardless (code updated correctly)
+
+  ---
+
+  ## Previous Session (2025-10-12) - Oracle Framework Reorganization:
 
   ### Complete Reorganization (3 commits):
 
@@ -483,11 +542,21 @@ next_session_context: |
 
 # TODOs pending
 pending_todos:
-  - "🧹 HIGH PRIORITY: Cleanup migrations directory (user request)"
-  - "📊 Monitor production stability after recent changes"
+  - "🧪 CRITICAL: Test production deployment (see POST-DEPLOY-CHECKLIST.md)"
+  - "✅ Validate Edge Functions using j_hub_creative_* tables"
+  - "✅ Confirm Upload Criativo functionality working"
+  - "✅ Confirm Dashboard Admin listing criativos"
+  - "📊 Monitor Supabase logs for any table name errors"
 
 # Recently completed (for reference)
 completed_recently:
+  - "✅ [2025-10-13] Migrations Cleanup - 43 migrations consolidated into 1 baseline"
+  - "✅ [2025-10-13] Table Renaming - creative_* → j_hub_creative_* (consistent naming)"
+  - "✅ [2025-10-13] Code Updates - 8 files, 58 references updated to new table names"
+  - "✅ [2025-10-13] Supabase Local - Tested successfully with new baseline"
+  - "✅ [2025-10-13] Git Push - Commit 40d442d pushed to main"
+  - "✅ [2025-10-13] Documentation - MIGRATION-CLEANUP-SUMMARY.md created"
+  - "✅ [2025-10-13] Testing Checklist - POST-DEPLOY-CHECKLIST.md created"
   - "✅ [2025-10-13] Step 3 Reengineering - Complete redesign implemented (by user)"
   - "✅ [2025-10-13] Database Cleanup - All obsolete tables removed (by user)"
   - "✅ [2025-10-13] RLS Fixes - Security policies implemented for j_rep_metaads_bronze (by user)"
