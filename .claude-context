@@ -3,13 +3,70 @@
 # Tracks recent decisions and work-in-progress (last 7 days)
 # Older decisions migrate to docs/ARCHITECTURE.md
 
-last_updated: "2025-10-12T03:00:00Z"
+last_updated: "2025-10-12T18:30:00Z"
 session_computer: "MacBook Pro (trabalho)"
 session_user: "Bruno Maya"
 
 # Recent decisions (last 7 days)
 # When older than 7 days, migrate to docs/ARCHITECTURE.md
 recent_decisions:
+  - date: "2025-10-12"
+    decision: "Oracle Framework Architecture Reorganization - Separated from Step 3 into Step 4"
+    status: "completed ✅"
+    details: |
+      🔄 ORACLE FRAMEWORK SEPARATION: Complete reorganization of Oracle Framework from integrated Step 3 to standalone Step 4
+
+      ## User's Key Insight:
+      "meu entendimento atual é que o oracle framework faz parte de um outro módulo de relatórios, e não das otimizações"
+
+      ## Changes Implemented:
+
+      ### Phase 1 - Architecture Separation (commit 4c25cbc):
+      - Created ExtractEditorModal for manual JSON editing of OptimizationContext
+      - Modified OptimizationStepCard to support optional badge prop
+      - Simplified ShareOptimizationModal (removed oracle selection, uses default 'orfeu')
+      - Reorganized Step 3 to remove Oracle Framework
+      - Created new Step 4 with Oracle Framework (admin-only, "Beta" badge)
+
+      ### Phase 2 - Standardization (commit 4c8757b):
+      - Created AIAnalysisImprovementsModal following Steps 1 & 2 pattern
+      - Removed "Melhorar com IA" from ExtractEditorModal
+      - Added "Ajustar com IA" button to Step 3 (outside modal, with prompt input)
+      - Renamed "Recriar Análise" to "Recriar"
+      - Removed "Exportar PDF" button
+
+      ### Phase 3 - UI Polish (commit bd406c1):
+      - Increased ExtractEditorModal size: max-w-6xl, max-h-[95vh]
+      - Added variant="outline" to "Recriar" button (consistency with Steps 1 & 2)
+      - Moved "Compartilhar" button to right side with distinct styling
+      - Final layout: [Editar][Ajustar][Recriar] | [Compartilhar]
+
+      ## Final Step 3 Configuration (All Users):
+      - ✅ Editar Extrato - Manual JSON editor
+      - ✅ Ajustar com IA - AI improvements with prompt input (like Steps 1 & 2)
+      - ✅ Recriar - Full analysis regeneration
+      - ✅ Compartilhar - Simple share flow (no oracle selection)
+
+      ## Final Step 4 Configuration (Admin Only):
+      - ✅ Oracle Framework component with "Beta" badge
+      - ✅ Only visible when: isAdmin && recording.analysis_status === 'completed' && context
+      - ✅ Contains 3 oracle types: DELFOS, ORFEU, NOSTRADAMUS
+
+      ## Technical Patterns Established:
+      - All "Recriar" buttons: variant="outline" with <RotateCw /> icon
+      - All "Ajustar com IA" buttons: variant="outline" with <Sparkles /> icon
+      - Modal pattern: Input → Preview with DiffView → Apply
+      - Edge function uses default 'orfeu' oracle for public shares
+    impact: "HIGH - Clear separation of concerns between optimization workflow and client reporting"
+    files_changed:
+      - "src/components/optimization/ExtractEditorModal.tsx (created)"
+      - "src/components/optimization/AIAnalysisImprovementsModal.tsx (created)"
+      - "src/components/optimization/OptimizationStepCard.tsx (modified)"
+      - "src/components/optimization/ShareOptimizationModal.tsx (simplified)"
+      - "src/pages/OptimizationEditor.tsx (major reorganization)"
+    deployed: true
+    migrate_to_architecture: false
+
   - date: "2025-10-12"
     decision: "Database cleanup - Remove backwards compatibility VIEWs and obsolete tables"
     status: "completed ✅"
@@ -286,6 +343,26 @@ recent_decisions:
 
 # Current issues being worked on
 current_issues:
+  - issue: "Migrations Cleanup - Directory is confusing and needs organization"
+    severity: "high"
+    status: "pending - next session priority 🧹"
+    details: |
+      User requested: "na próxima sessão, é importante fazermos uma limpeza das migrations, pois estão super confusas"
+
+      Current state:
+      - supabase/migrations/ directory has accumulated many migrations over time
+      - Naming conventions may not be consistent
+      - Some migrations may reference obsolete tables/functions
+      - Need to audit, organize, and potentially consolidate migrations
+
+      Recommended actions:
+      1. List all migration files chronologically
+      2. Identify obsolete migrations (referencing deleted tables/functions)
+      3. Check for duplicate timestamps or confusing naming
+      4. Consolidate related migrations if possible
+      5. Add clear comments/documentation to each migration
+      6. Consider creating a fresh baseline migration for v2.0
+
   - issue: "Step 3 Optimization System - Awaiting User Approval"
     severity: "medium"
     status: "blocked - awaiting feedback 📋"
@@ -296,6 +373,31 @@ current_issues:
 
 # Work in progress
 work_in_progress:
+  - task: "Session 2025-10-12 (Evening) - Oracle Framework Reorganization"
+    branch: "main"
+    started: "2025-10-12T17:00:00Z"
+    completed: "2025-10-12T18:30:00Z"
+    status: "COMPLETED ✅"
+    summary: |
+      ✅ Separated Oracle Framework from Step 3 into new Step 4 (admin-only)
+      ✅ Created ExtractEditorModal for manual JSON editing
+      ✅ Created AIAnalysisImprovementsModal (following Steps 1 & 2 pattern)
+      ✅ Simplified ShareOptimizationModal (removed oracle selection)
+      ✅ Standardized button styling across all steps
+      ✅ Improved modal sizing and button layout
+    files_modified:
+      - "src/components/optimization/ExtractEditorModal.tsx (created)"
+      - "src/components/optimization/AIAnalysisImprovementsModal.tsx (created)"
+      - "src/components/optimization/OptimizationStepCard.tsx (badge prop)"
+      - "src/components/optimization/ShareOptimizationModal.tsx (simplified)"
+      - "src/pages/OptimizationEditor.tsx (major reorganization)"
+    deployed: true
+    deployment_status: "3 commits pushed, Vercel auto-deploy in progress ✅"
+    commits:
+      - "4c25cbc: feat(optimization): Separate Oracle Framework into Step 4 (admin-only module)"
+      - "4c8757b: fix(optimization): Standardize Step 3 buttons and AI adjustment flow"
+      - "bd406c1: fix(optimization): Improve Step 3 UI consistency and modal size"
+
   - task: "Session 2025-10-12 (Early Morning) - Database Cleanup & Step 3 Proposal"
     branch: "main"
     started: "2025-10-12T02:00:00Z"
@@ -317,105 +419,97 @@ work_in_progress:
 
 # Context for next session
 next_session_context: |
-  🧹 SESSION 2025-10-12 (EARLY MORNING) COMPLETED: Database Cleanup & Step 3 Proposal
+  🔄 SESSION 2025-10-12 (EVENING) COMPLETED: Oracle Framework Reorganization
 
-  ## CRITICAL FIXES - Production Optimization System
+  ## Oracle Framework Architecture Separation ✅
 
-  ### 🚨 Emergency Database Fix ✅
-  **CRITICAL DISCOVERY:**
-  Production optimization system was BROKEN! Previous migration to rename tables never actually ran.
+  ### User's Key Insight:
+  > "meu entendimento atual é que o oracle framework faz parte de um outro módulo de relatórios, e não das otimizações"
 
-  **Problem:**
-  - Edge functions calling j_hub_optimization_* (renamed in previous session)
-  - Database still had j_ads_optimization_* tables
-  - Optimization features completely non-functional
+  ### Complete Reorganization (3 commits):
 
-  **Fix Applied (Manual SQL):**
-  ```sql
-  ALTER TABLE j_ads_optimization_recordings RENAME TO j_hub_optimization_recordings;
-  ALTER TABLE j_ads_optimization_transcripts RENAME TO j_hub_optimization_transcripts;
-  ALTER TABLE j_ads_optimization_context RENAME TO j_hub_optimization_context;
-  ALTER TABLE j_ads_optimization_api_logs RENAME TO j_hub_optimization_api_logs;
-  ALTER TABLE j_ads_optimization_prompts RENAME TO j_hub_optimization_prompts;
-  DROP TABLE IF EXISTS j_ads_metrics CASCADE;
-  ```
+  **Commit 1 (4c25cbc):** Architecture Separation
+  - Separated Oracle Framework from Step 3 into new Step 4 (admin-only, "Beta" badge)
+  - Created ExtractEditorModal for manual JSON editing
+  - Simplified ShareOptimizationModal (removed oracle selection, uses default 'orfeu')
+  - Modified OptimizationStepCard to support badge prop
 
-  **Result:**
-  - ✅ All 5 optimization tables renamed
-  - ✅ Obsolete j_ads_metrics table removed
-  - ✅ Backwards compatibility VIEWs removed (j_ads_users, etc.)
-  - ✅ Clean schema: 15 tables, 0 unnecessary VIEWs
-  - ✅ Production optimization system FIXED
+  **Commit 2 (4c8757b):** Standardization
+  - Created AIAnalysisImprovementsModal following Steps 1 & 2 pattern
+  - Moved "Ajustar com IA" outside modal with prompt input
+  - Renamed "Recriar Análise" to "Recriar" with outline variant
+  - Removed "Exportar PDF" button
 
-  ### 📄 Step 3 Reengineering Proposal Created ✅
+  **Commit 3 (bd406c1):** UI Polish
+  - Increased ExtractEditorModal to max-w-6xl, max-h-[95vh]
+  - Added variant="outline" to "Recriar" button
+  - Moved "Compartilhar" button to right with distinct styling
+  - Final layout: [Editar][Ajustar][Recriar] | [Compartilhar]
+
+  ### Final Configuration:
+
+  **Step 3 - Análise (All Users):**
+  - ✅ Editar Extrato - Manual JSON editor
+  - ✅ Ajustar com IA - AI improvements with prompt input
+  - ✅ Recriar - Full analysis regeneration
+  - ✅ Compartilhar - Simple share flow
+
+  **Step 4 - Oracle Framework (Admin Only):**
+  - ✅ Beta badge visible
+  - ✅ Contains OracleReportGenerator with 3 oracle types
+  - ✅ Only visible when: isAdmin && analysis_status === 'completed' && context
+
+  ## 🚨 NEXT SESSION PRIORITY: MIGRATIONS CLEANUP
 
   **User Request:**
-  > "Step 3 ainda está longe de estar bom"
-  > Complete reengineering to produce TWO deliverables with "WOW effect"
+  > "na próxima sessão, é importante fazermos uma limpeza das migrations, pois estão super confusas"
 
-  **Document Created:** `docs/STEP3-REENGENHARIA-PROPOSAL.md` (600+ lines)
+  **Recommended Actions:**
+  1. List all migration files in supabase/migrations/ chronologically
+  2. Identify migrations referencing obsolete tables/functions
+  3. Check for duplicate timestamps or confusing naming conventions
+  4. Audit migration comments/documentation
+  5. Consider consolidating related migrations
+  6. Potentially create a fresh baseline migration for v2.0
 
-  **Proposal Highlights:**
-  1. **Executive Summary** - Compact internal card (400px height, 10-15s scan)
-     - For gestors to quickly review optimizations
-     - Key metrics highlighted with performance colors
-     - Action summary in visual timeline
+  **Context:**
+  - Multiple v2.0 migrations (j_ads → j_hub renames)
+  - Emergency fixes with manual SQL executions
+  - Some migrations may not have been applied correctly via CLI
+  - Directory has accumulated many files over development cycles
 
-  2. **Visual Report** - 6-page client-facing report
-     - Cover page with branding
-     - Summary page with key metrics
-     - Actions page with visual timeline
-     - Strategy page with progress gauges
-     - Metrics page with before/after comparisons
-     - Footer page with next steps
+  ## Other Pending Tasks:
 
-  **Architecture:**
-  - 20+ new components (ExecutiveSummary, ReportViewer, pages, visual components)
-  - Design system with Jumper branding
-  - Enhanced PDF export with visual design
-  - Reusable metric cards, timelines, progress gauges
-
-  **Implementation Plan:** 6 phases, 14 days
-
-  ## Next Session Tasks:
-
-  ⚠️ **BLOCKED - Awaiting User Approval**
-
-  **Step 1:** User needs to:
-  1. Read `docs/STEP3-REENGENHARIA-PROPOSAL.md`
-  2. Discuss proposal with Claude (chat interface)
-  3. Answer 10 open questions in proposal
-  4. Provide feedback and refinements
-
-  **Step 2:** After approval, implement in Claude Code:
-  - FASE 0: Preparation (2h)
-  - FASE 1: Executive Summary (3h)
-  - FASE 2: Report base (3h)
-  - FASE 3: Report content pages (4h)
-  - FASE 4: Footer and polish (2h)
-  - FASE 5: PDF export (3h)
-  - FASE 6: Integration (3h)
-  Total: ~20 hours over 14 days
+  📋 **Step 3 Reengineering Proposal - Awaiting User Approval**
+  - Document: `docs/STEP3-REENGENHARIA-PROPOSAL.md` (600+ lines)
+  - User needs to review and discuss with Claude (chat)
+  - Implementation blocked until approval
 
   ## Production Status:
-  - ✅ Database: Clean schema, all tables renamed correctly
-  - ✅ Optimization System: FIXED and functional
+  - ✅ Database: Clean schema, optimization system functional
+  - ✅ Optimization UI: Step 3 & 4 reorganized and deployed
   - ✅ Domain: https://hub.jumper.studio (LIVE)
-  - 📋 Step 3: Proposal ready for review
+  - ✅ All commits pushed, Vercel auto-deploy in progress
 
   ## Known Issues:
-  None - production stable ✅
+  - ⚠️ Migrations directory needs cleanup (high priority)
 
 # TODOs pending
 pending_todos:
-  - "📋 CRITICAL: Review and approve Step 3 reengineering proposal (docs/STEP3-REENGENHARIA-PROPOSAL.md)"
+  - "🧹 HIGH PRIORITY: Cleanup migrations directory (user request for next session)"
+  - "📋 Review and approve Step 3 reengineering proposal (docs/STEP3-REENGENHARIA-PROPOSAL.md)"
   - "📋 Discuss Step 3 proposal with Claude (chat) and answer 10 open questions"
   - "📊 Monitor domain migration in production (24-48h)"
   - "📱 Monitor mobile UI feedback from users"
-  - "🧪 Optional: A/B test login layout variations"
 
 # Recently completed (for reference)
 completed_recently:
+  - "✅ Oracle Framework separated into Step 4 (admin-only, Beta badge)"
+  - "✅ Created ExtractEditorModal for manual JSON editing"
+  - "✅ Created AIAnalysisImprovementsModal (following Steps 1 & 2 pattern)"
+  - "✅ Simplified ShareOptimizationModal (removed oracle selection)"
+  - "✅ Standardized button styling across all optimization steps"
+  - "✅ Improved modal sizing and button layout (3 commits)"
   - "✅ CRITICAL FIX: Renamed optimization tables (j_ads_* → j_hub_*) - production was broken"
   - "✅ Database cleanup: Removed backwards compatibility VIEWs"
   - "✅ Removed obsolete j_ads_metrics table"
@@ -424,18 +518,20 @@ completed_recently:
   - "✅ Visual branding: Ad Uploader → Jumper Hub v2.0"
   - "✅ Mobile login UI optimization (4 iterations)"
   - "✅ Edge functions deployed with new domain"
-  - "✅ Environment variables configured (SITE_URL)"
-  - "✅ Jumper Hub v2.0 - Database rebrand (previous session)"
 
 # Deployment status
 deployment:
   production_url: "https://hub.jumper.studio"
   old_url_redirect: "https://ads.jumper.studio → hub.jumper.studio (301)"
-  last_deploy: "2025-10-12T03:00:00Z"
-  last_deploy_status: "database fix via manual SQL ✅"
-  last_deploy_type: "emergency database fix (no code deploy)"
-  last_commit: "57a7e54 - chore: Update context file with session wrap-up"
-  database_status: "FIXED - optimization tables renamed, VIEWs removed, schema clean ✅"
+  last_deploy: "2025-10-12T18:30:00Z"
+  last_deploy_status: "Oracle Framework reorganization deployed ✅"
+  last_deploy_type: "feature deployment (3 commits)"
+  last_commit: "bd406c1 - fix(optimization): Improve Step 3 UI consistency and modal size"
+  database_status: "STABLE - optimization tables renamed, VIEWs removed, schema clean ✅"
+  recent_commits:
+    - "bd406c1: fix(optimization): Improve Step 3 UI consistency and modal size"
+    - "4c8757b: fix(optimization): Standardize Step 3 buttons and AI adjustment flow"
+    - "4c25cbc: feat(optimization): Separate Oracle Framework into Step 4 (admin-only module)"
   edge_functions_deployed:
     - name: "j_hub_admin_dashboard"
       status: "deployed ✅"
