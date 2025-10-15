@@ -168,36 +168,83 @@ Claude Code deve **SEMPRE** usar as ferramentas CLI disponíveis:
 1. ✅ Cria migrations em `supabase/migrations/YYYYMMDDHHMMSS_nome.sql`
 2. ✅ Cria edge functions em `supabase/functions/nome/index.ts`
 3. ✅ Cria arquivos de configuração (`deno.json`, etc.)
-4. ✅ Faz commits com mensagens descritivas
+4. ✅ **Executa comandos Supabase LOCAL livremente** (ambiente de desenvolvimento)
+5. ✅ Faz commits com mensagens descritivas
 
 **Bruno (Humano) faz:**
-1. 🧪 **Testa localmente:**
-   ```bash
-   # Iniciar Supabase local (se não estiver rodando)
-   supabase start
-
-   # Aplicar migrations
-   supabase db reset
-
-   # Testar edge functions
-   supabase functions serve
-   ```
-
-2. 🚀 **Faz deploy para produção:**
+1. 🚀 **Valida e faz deploy para produção:**
    ```bash
    git push origin branch-name
    # GitHub Integration faz deploy automático
    ```
 
-### **O que Claude Code NÃO faz**
+### **Política de Comandos Supabase**
 
-❌ **Comandos que Claude NÃO deve executar:**
-- `supabase start` - Apenas o usuário inicia quando quiser testar
-- `supabase stop` - Apenas o usuário para
-- `supabase db reset` - Apenas o usuário aplica migrations localmente
-- `supabase functions serve` - Apenas o usuário serve functions localmente
-- `supabase db push` - Deploy direto para produção (perigoso)
-- `supabase functions deploy` - Deploy direto para produção (perigoso)
+#### ✅ **Claude PODE executar livremente (ambiente LOCAL):**
+
+```bash
+# Lifecycle do ambiente local
+supabase start           # Iniciar Supabase local
+supabase stop            # Parar Supabase local
+supabase status          # Ver status
+
+# Database local
+supabase db reset        # Aplicar migrations localmente
+supabase db diff         # Ver diferenças schema
+psql ...                 # Conectar/modificar database local
+
+# Importar dados de produção (read-only remoto)
+supabase db dump --db-url "..." > file.sql  # Exportar de produção
+psql ... -f file.sql     # Importar no local
+
+# Edge Functions locais
+supabase functions serve # Servir functions localmente
+
+# Git operations
+git add / commit / push  # Version control normal
+```
+
+**Razão:** Supabase Local é ambiente de desenvolvimento isolado. Operações locais não afetam produção.
+
+#### ❌ **Claude NUNCA deve executar (sem DUPLA confirmação):**
+
+```bash
+# Deploy direto para produção
+supabase db push                    # ⚠️ Envia migrations para PRODUÇÃO
+supabase functions deploy           # ⚠️ Deploy edge functions para PRODUÇÃO
+supabase db remote commit           # ⚠️ Modifica schema remoto
+supabase secrets set                # ⚠️ Modifica secrets de produção
+supabase storage update             # ⚠️ Modifica storage de produção
+
+# Operações destrutivas remotas
+psql <PRODUCTION_URL> ...           # ⚠️ Modificar database de produção diretamente
+```
+
+**Razão:** Comandos que modificam produção precisam validação explícita do usuário.
+
+**Protocolo de dupla confirmação:**
+1. Claude avisa: "Este comando afeta PRODUÇÃO. Confirma?"
+2. Usuário confirma primeira vez
+3. Claude mostra preview do que será feito
+4. Usuário confirma segunda vez
+5. Claude executa
+
+#### ⚠️ **Avisar sobre riscos (mesmo sendo local):**
+
+Claude deve avisar o usuário ANTES de executar se:
+- Operação pode causar perda de dados locais (ex: `supabase db reset` apaga dados)
+- Primeira vez executando comando específico na sessão
+- Importando grande volume de dados de produção
+
+**Exemplo:**
+```
+⚠️ Vou executar `supabase db reset`
+→ Isso vai APAGAR todos dados locais e reaplicar migrations
+→ Ambiente local será recriado do zero
+→ Deseja prosseguir? (Isso não afeta produção)
+```
+
+Se usuário confirmar, Claude executa. Se não, Claude para.
 
 ### **Vantagens do Novo Fluxo**
 
