@@ -7,10 +7,17 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.6';
+export const APP_VERSION = 'v2.0.7';
 
 /**
  * Version history:
+ * - v2.0.7 (2024-10-14):
+ *   - PRODUCTION FIX: Resolved login issues caused by corrupted Vercel env vars
+ *   - Root cause: Vercel environment variables had invalid API key format
+ *   - Solution: Removed Vercel env vars, app now uses hardcoded fallback values
+ *   - Removed diagnostic logs from v2.0.6 (no longer needed)
+ *   - Login with email and Notion OAuth both working in production ✅
+ *
  * - v2.0.6 (2024-10-14):
  *   - DIAGNOSTIC: Added detailed Supabase config logging
  *   - Shows URL, key source, and whether using local or production

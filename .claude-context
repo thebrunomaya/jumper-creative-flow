@@ -3,13 +3,60 @@
 # Tracks recent decisions and work-in-progress (last 7 days)
 # Older decisions migrate to docs/ARCHITECTURE.md
 
-last_updated: "2025-10-13T14:30:00Z"
+last_updated: "2025-10-14T23:00:00Z"
 session_computer: "MacBook Pro (trabalho)"
 session_user: "Bruno Maya"
 
 # Recent decisions (last 7 days)
 # When older than 7 days, migrate to docs/ARCHITECTURE.md
 recent_decisions:
+  - date: "2025-10-14"
+    decision: "Production Login Fix - Corrupted Vercel Environment Variables"
+    status: "resolved ✅"
+    details: |
+      🚨 CRITICAL PRODUCTION ISSUE RESOLVED: Login completely broken in production (hub.jumper.studio)
+
+      ## Problem:
+      - Email login: "Erro ao enviar link"
+      - Notion OAuth: Authenticated but redirected back to login
+      - Error: `TypeError: Failed to execute 'set' on 'Headers': Invalid value`
+      - Error: `TypeError: Failed to execute 'fetch' on 'Window': Invalid value`
+
+      ## Root Cause:
+      Vercel had environment variables (`VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`) with corrupted/invalid values.
+      When Vite built the app, it embedded these bad values into the JavaScript bundle.
+
+      ## Debugging Journey:
+      1. Initially thought it was .env configuration (v2.0.5 - tried fixing .env vs .env.local)
+      2. Added diagnostic logging (v2.0.6 - to see which vars were being used)
+      3. Discovered Vercel env vars were the culprit (user removed them from dashboard)
+      4. Forced rebuild → cache issue → required force refresh
+
+      ## Solution:
+      - **Deleted ALL VITE_* variables from Vercel dashboard**
+      - App now uses hardcoded fallback values in `client.ts` (production credentials)
+      - Both login methods working perfectly ✅
+
+      ## Lesson Learned:
+      **DO NOT set VITE_* variables in Vercel dashboard!**
+      - Vite embeds vars at BUILD TIME
+      - Code has correct hardcoded fallbacks
+      - Vercel vars can corrupt production if invalid
+      - Use .env (committed) for production, .env.local (gitignored) for local
+
+      ## Documentation Added:
+      - Updated CLAUDE.md with "⚠️ CRITICAL: Vercel Environment Variables Policy"
+      - Added incident report and best practices
+      - Version history in version.ts updated
+    impact: "CRITICAL - Fixed completely broken production login"
+    files_changed:
+      - "src/integrations/supabase/client.ts (removed diagnostic logs)"
+      - "src/config/version.ts (v2.0.7)"
+      - "CLAUDE.md (added Vercel env vars policy)"
+    deployed: true
+    deployment_status: "v2.0.7 deployed, production login working ✅"
+    migrate_to_architecture: false
+
   - date: "2025-10-12"
     decision: "Oracle Framework Architecture Reorganization - Separated from Step 3 into Step 4"
     status: "completed ✅"
@@ -411,7 +458,35 @@ work_in_progress:
 
 # Context for next session
 next_session_context: |
-  🧹 SESSION 2025-10-13 COMPLETED: MIGRATIONS CLEANUP + CODE UPDATE
+  ✅ SESSION 2025-10-14 COMPLETED: PRODUCTION LOGIN FIX
+
+  ## 🎉 CRITICAL ISSUE RESOLVED
+  Production login was completely broken - FIXED!
+
+  **What Happened:**
+  - hub.jumper.studio login not working (email + Notion OAuth)
+  - Error: `TypeError: Failed to execute 'set' on 'Headers'`
+  - Root cause: Corrupted VITE_* env vars in Vercel dashboard
+
+  **Solution:**
+  - Deleted ALL VITE_* variables from Vercel
+  - App now uses hardcoded fallback values (correct)
+  - v2.0.7 deployed successfully
+  - Both login methods working ✅
+
+  **Key Lesson:**
+  **NEVER set VITE_* variables in Vercel dashboard!**
+  - Use hardcoded fallbacks in code for production
+  - Use .env (committed) for production values
+  - Use .env.local (gitignored) for local dev
+  - Documented in CLAUDE.md
+
+  ## 📋 READY FOR NEXT SESSION
+  Production is stable, all systems operational.
+
+  ---
+
+  ## Previous Session (2025-10-13): MIGRATIONS CLEANUP + CODE UPDATE
 
   ## ✅ MISSÃO COMPLETA - Migrations Consolidation & Table Renaming
 

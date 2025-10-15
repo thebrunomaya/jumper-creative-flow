@@ -651,6 +651,30 @@ Next Claude will know exactly where we left off! 🎯
 - `SUPABASE_SERVICE_ROLE_KEY` - Service role for admin operations
 - `NOTION_TOKEN` - Notion integration token
 
+### ⚠️ CRITICAL: Vercel Environment Variables Policy
+
+**DO NOT set VITE_* variables in Vercel dashboard unless absolutely necessary!**
+
+**Why?**
+- Vite embeds env vars into JavaScript bundle at BUILD TIME
+- Code has hardcoded fallback values for production
+- Adding Vercel env vars can cause conflicts/corruption
+- If Vercel var is invalid, entire production breaks
+
+**Incident Report (2024-10-14):**
+- Vercel had `VITE_SUPABASE_ANON_KEY` with corrupted value
+- Caused `TypeError: Failed to execute 'set' on 'Headers'` in production
+- Login completely broken (email + Notion OAuth)
+- **Solution:** Deleted Vercel env vars, app uses hardcoded fallbacks ✅
+
+**Best Practice:**
+1. ✅ Keep production credentials hardcoded in `client.ts` fallback
+2. ✅ Use `.env` for production values (committed to git, used by Vercel)
+3. ✅ Use `.env.local` for local development (gitignored, overrides `.env`)
+4. ❌ Avoid setting `VITE_*` vars in Vercel dashboard (redundant + risky)
+
+**Exception:** Only set Vercel env vars if value is secret and cannot be in git.
+
 ---
 
 ## 🚀 Git Workflow

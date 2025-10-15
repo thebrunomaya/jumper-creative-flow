@@ -8,21 +8,11 @@ const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY ||
   import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJpd3dvd2VuZGp1enZwdHR5cmxiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzk1Njg3ODIsImV4cCI6MjA1NTE0NDc4Mn0.oXq2U2laZ0IEReJg3jTDpkybtI-99CmVKHg4sOKnB1w";
 
-// CRITICAL DIAGNOSTIC: Log Supabase configuration (ALWAYS, not just in DEV)
-const isLocal = SUPABASE_URL.includes('127.0.0.1') || SUPABASE_URL.includes('localhost');
-const urlSource = import.meta.env.VITE_SUPABASE_URL ? 'VITE_SUPABASE_URL env var' : 'hardcoded fallback';
-const keySource = import.meta.env.VITE_SUPABASE_ANON_KEY ? 'VITE_SUPABASE_ANON_KEY' :
-                  import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ? 'VITE_SUPABASE_PUBLISHABLE_KEY' :
-                  'hardcoded fallback';
-
-console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-console.log(`🔗 SUPABASE CONFIG - ${isLocal ? '🏠 LOCAL' : '☁️ PRODUCTION'}`);
-console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-console.log(`📍 URL: ${SUPABASE_URL}`);
-console.log(`📦 URL Source: ${urlSource}`);
-console.log(`🔑 Key Source: ${keySource}`);
-console.log(`🔑 Key Preview: ${SUPABASE_PUBLISHABLE_KEY.substring(0, 30)}...`);
-console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+// Log which Supabase instance we're using (helps catch accidental production connections)
+if (import.meta.env.DEV) {
+  const isLocal = SUPABASE_URL.includes('127.0.0.1') || SUPABASE_URL.includes('localhost');
+  console.log(`🔗 Supabase: ${isLocal ? 'LOCAL' : 'PRODUCTION'} (${SUPABASE_URL})`);
+}
 
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
