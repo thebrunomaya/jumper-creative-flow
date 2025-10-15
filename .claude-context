@@ -3,13 +3,103 @@
 # Tracks recent decisions and work-in-progress (last 7 days)
 # Older decisions migrate to docs/ARCHITECTURE.md
 
-last_updated: "2025-10-15T21:30:00Z"
+last_updated: "2025-10-15T22:00:00Z"
 session_computer: "MacBook Pro (trabalho)"
 session_user: "Bruno Maya"
 
 # Recent decisions (last 7 days)
 # When older than 7 days, migrate to docs/ARCHITECTURE.md
 recent_decisions:
+  - date: "2025-10-15"
+    decision: "Migration History Repair - Synchronized Local and Production"
+    status: "completed successfully ✅"
+    details: |
+      🔧 INFRASTRUCTURE FIX: Repaired bifurcated migration history between local and production
+
+      ## Problem Identified:
+      User asked: "Por que as migrations de produção estão com tantas coisas velhas?"
+
+      **Situation:**
+      - Production had 43 old migrations (20250810000000 → 20251012200000)
+      - Local had 2 consolidated migrations (baseline + RLS fix)
+      - `supabase db push` was failing with "Remote migration versions not found"
+      - Every new migration required manual SQL execution in Supabase Dashboard
+
+      **Root Cause:**
+      On 2025-10-13, we consolidated 43 incremental migrations into a single baseline.
+      Local history was cleaned up, but production history remained unchanged.
+      Supabase CLI detected divergence and refused to push.
+
+      ## User's Decision:
+      > "Claude, na prática, ainda não tem ninguém usando o app. Então a hora de corrigir é agora."
+
+      Perfect timing - no active users, safe to repair.
+
+      ## Solution Implemented:
+
+      ### Step 1: Safety Backup 🛡️
+      ```bash
+      # Schema backup (67KB)
+      supabase db dump --linked > FULL_BACKUP_PRE_REPAIR_20251015_183131.sql
+
+      # Data backup (22MB)
+      supabase db dump --linked --data-only > DATA_BACKUP_PRE_REPAIR_20251015_183155.sql
+      ```
+
+      ### Step 2: Migration Repair 🔧
+      ```bash
+      # Mark 43 old migrations as "reverted" in production
+      supabase migration repair --status reverted --linked \
+        20250810000000 20250810233902 ... (all 43)
+
+      # Mark baseline as "applied" (production already has correct schema)
+      supabase migration repair --status applied --linked 20250101000000
+
+      # Mark RLS fix as "applied" (was applied manually earlier today)
+      supabase migration repair --status applied --linked 20251015000000
+      ```
+
+      ### Step 3: Validation ✅
+      - Verified 15 Jumper tables present (j_hub_*, j_ads_*, j_rep_*)
+      - Verified 4 admin RLS policies (transcripts + context)
+      - Created test migration and pushed successfully
+      - Confirmed `supabase db push` working perfectly
+
+      ## Final State:
+
+      **Migration History (Synchronized):**
+      ```
+      Local          | Remote         | Status
+      20250101000000 | 20250101000000 | ✅ Baseline
+      20251015000000 | 20251015000000 | ✅ RLS Fix
+      ```
+
+      **Benefits Achieved:**
+      - ✅ `supabase db push` restored - no more manual SQL!
+      - ✅ Clean migration history (2 migrations instead of 43)
+      - ✅ Automated deployment workflow restored
+      - ✅ Future migrations will push seamlessly
+      - ✅ Easier onboarding for new developers (baseline = instant setup)
+
+      ## Impact:
+      **Before:** Every migration required manual SQL copy/paste in Supabase Dashboard
+      **After:** `supabase db push --linked` - one command, fully automated
+
+      ## Technical Notes:
+      - Production schema was untouched (already correct)
+      - No downtime during repair
+      - Backups available for rollback if needed
+      - Test migration verified push workflow works
+    impact: "CRITICAL - Restored automated migration deployment, eliminated manual SQL work"
+    files_changed:
+      - "supabase/migrations/* (consolidated into baseline)"
+      - "backups/FULL_BACKUP_PRE_REPAIR_20251015_183131.sql (safety backup)"
+      - "backups/DATA_BACKUP_PRE_REPAIR_20251015_183155.sql (data backup)"
+    deployed: true
+    deployment_status: "Migration history repaired in production ✅"
+    deployment_method: "supabase migration repair CLI"
+    migrate_to_architecture: true
+
   - date: "2025-10-15"
     decision: "Optimization RLS Fix - Admins Can Now View All Recordings"
     status: "completed and deployed ✅"
@@ -862,42 +952,81 @@ work_in_progress:
 
 # Context for next session
 next_session_context: |
-  🎉 SESSION 2025-10-15 (Late Evening) COMPLETED: FIRST 100% PERFECT DEV SETUP TEST
+  🔧 SESSION 2025-10-15 (Night) COMPLETED: MIGRATION HISTORY REPAIR + RLS FIX
 
-  ## ✅ MILESTONE ACHIEVED: Automated Dev Environment Works Flawlessly
+  ## ✅ MAJOR ACCOMPLISHMENTS: Infrastructure Fixes
 
-  **What Happened:**
-  User ran `./scripts/start-dev.sh` and it worked PERFECTLY on first try:
-  - ✅ All services started successfully
-  - ✅ Database with 9 real users
-  - ✅ Edge Functions running (PID: 9272)
-  - ✅ Vite dev server running (PID: 9291)
-  - ✅ Total time: ~10 seconds
-  - ✅ Zero errors, zero manual steps
+  ### 1. Migration History Repair 🎯
+  **Problem:** Production had 43 old migrations, local had 2 (baseline + RLS fix)
+  **Solution:** Used `supabase migration repair` to synchronize histories
+  **Result:** `supabase db push` now works - NO MORE MANUAL SQL! 🚀
 
-  **System Status:**
-  - 🚀 Development environment: PRODUCTION-READY
-  - 🏆 Testing grade: 100% PERFECT
-  - 📦 Services: All running (http://localhost:8080)
-  - 💾 Database: Real production data imported
-  - 📝 Logs: Available at /tmp/*.log
+  **Final State:**
+  ```
+  Local          | Remote         | Status
+  20250101000000 | 20250101000000 | ✅ Baseline (consolidated)
+  20251015000000 | 20251015000000 | ✅ RLS Fix (admin policies)
+  ```
 
-  **User Quote:**
-  > "Perfeito, Claude. Registre que hoje conseguimos fazer o primeiro teste 100% perfeito do deploy do dev."
+  **Impact:**
+  - ✅ Automated migration deployment restored
+  - ✅ Future migrations: `supabase db push --linked` (one command)
+  - ✅ Clean history (43 migrations → 2)
+  - ✅ Safer workflow (no manual SQL copy/paste)
 
-  ## 🎯 READY FOR NORMAL DEVELOPMENT
+  ### 2. Optimization RLS Fix (v2.0.10) 🔐
+  **Problem:** Admin couldn't view optimizations created by other users
+  **Solution:** Added 4 RLS policies for admins (view/update transcripts + context)
+  **Result:** Admins can now view ALL recordings system-wide
 
-  **Next Session Focus:**
-  - No setup issues to fix
-  - System validated and ready
+  ### 3. Dev Environment (v2.0.9) 🎉
+  **Achievement:** First 100% perfect test of automated dev setup
+  **Status:** `./scripts/start-dev.sh` works flawlessly (~10 seconds)
+
+  ## 🎯 SYSTEM STATUS: PRODUCTION-READY
+
+  **Development Workflow:**
+  - ✅ Local dev: `./scripts/start-dev.sh` (automated)
+  - ✅ Migrations: `supabase db push --linked` (automated)
+  - ✅ Frontend: Vercel auto-deploy on push
+  - ✅ Version: v2.0.10
+
+  **Production:**
+  - URL: https://hub.jumper.studio
+  - Status: ✅ Stable, all features working
+  - Last Deploy: 2025-10-15 21:17 UTC
+  - Migration History: Clean and synchronized
+
+  ## 📋 PENDING (From Previous Sessions):
+
+  1. ⏳ **Step 3 Reengineering** - Proposal in `docs/STEP3-REENGENHARIA-PROPOSAL.md`
+     - Two deliverables: Executive Summary + Visual Report
+     - Awaiting user decision to implement
+
+  2. ⏳ **FASE 2 - REPORTS branch** - Sistema de Insights Comparativos
+     - Features: Insights comparativos, anomalias, alertas
+     - Status: Planejamento apenas
+
+  ## 🚀 READY FOR NEXT SESSION:
+
+  - No blocking issues
+  - Infrastructure solid and automated
   - Can focus on feature development
-  - Team onboarding ready (<5 minutes per developer)
+  - All workflows validated and documented
 
-  **If Issues Arise:**
-  - Documentation: docs/DEV-SETUP.md
-  - Troubleshooting: Check /tmp/supabase-functions.log or /tmp/vite-dev.log
-  - Database reset: `supabase db reset`
-  - Fresh start: `supabase stop && ./scripts/start-dev.sh`
+  **If Creating New Migrations:**
+  ```bash
+  # 1. Create migration
+  npx supabase migration new feature_name
+
+  # 2. Write SQL in supabase/migrations/
+
+  # 3. Test locally
+  supabase db reset
+
+  # 4. Push to production (automated!)
+  supabase db push --linked
+  ```
 
   ---
 
@@ -1099,6 +1228,8 @@ pending_todos:
 
 # Recently completed (for reference)
 completed_recently:
+  - "✅ [2025-10-15 Night] Migration History Repair - 43 old migrations → 2 clean migrations 🔧"
+  - "✅ [2025-10-15 Night] supabase db push restored - No more manual SQL! 🚀"
   - "✅ [2025-10-15 Evening] Optimization RLS Fix - Admins can view all recordings (v2.0.10) 🔐"
   - "✅ [2025-10-15 Late Evening] FIRST 100% PERFECT TEST - Dev setup works flawlessly 🎉"
   - "✅ [2025-10-15 Evening] Dev Server Background Fix - No more timeouts/zombies (v2.0.9)"
