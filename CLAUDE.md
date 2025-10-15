@@ -297,7 +297,8 @@ Claude Code deve **SEMPRE** usar as ferramentas CLI disponíveis:
 **AGORA (Com Supabase Local):**
 - Testamos tudo localmente antes de fazer push
 - Zero risco para produção
-- Deploy automático via GitHub Integration
+- Deploy frontend automático via Vercel
+- Deploy edge functions manual via Supabase CLI
 
 ### **Workflow Atual**
 
@@ -309,10 +310,14 @@ Claude Code deve **SEMPRE** usar as ferramentas CLI disponíveis:
 5. ✅ Faz commits com mensagens descritivas
 
 **Bruno (Humano) faz:**
-1. 🚀 **Valida e faz deploy para produção:**
+1. 🧪 **Testa localmente** (se necessário)
+2. 🚀 **Deploy para produção:**
    ```bash
+   # Push código (Vercel auto-deploys frontend)
    git push origin branch-name
-   # GitHub Integration faz deploy automático
+
+   # Deploy edge functions manualmente (se modificadas)
+   npx supabase functions deploy nome-da-function --project-ref biwwowendjuzvpttyrlb
    ```
 
 ### **Política de Comandos Supabase**
@@ -429,9 +434,15 @@ Se usuário confirmar, Claude executa. Se não, Claude para.
                  │
                  ▼
 ┌─────────────────────────────────────────────────┐
-│  6. GitHub Integration faz deploy automático    │
-│     - Migrations aplicadas em prod              │
-│     - Edge functions deployed                   │
+│  6. Vercel faz deploy FRONTEND automático ✅    │
+│     - Frontend deployed e atualizado            │
+└────────────────┬────────────────────────────────┘
+                 │
+                 ▼
+┌─────────────────────────────────────────────────┐
+│  7. Bruno deploys edge functions MANUALMENTE    │
+│     $ npx supabase functions deploy <nome>      │
+│     (apenas se edge functions foram modificadas)│
 └─────────────────────────────────────────────────┘
 ```
 
@@ -646,7 +657,8 @@ Next Claude will know exactly where we left off! 🎯
 
 - **Main branch**: `main` (production) ✅
 - **Development**: Feature branches → merge para main
-- **Deploy automático**: Push para main = deploy no Vercel
+- **Deploy frontend**: Push para main = auto-deploy no Vercel ✅
+- **Deploy edge functions**: Deploy manual via `npx supabase functions deploy <nome>` ⚙️
 - **Production URL**: https://hub.jumper.studio
 
 **Branch ativa atual:** `reports` (Sistema de insights comparativos)

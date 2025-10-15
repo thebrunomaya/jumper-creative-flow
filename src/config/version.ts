@@ -7,10 +7,13 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.1';
+export const APP_VERSION = 'v2.0.2';
 
 /**
  * Version history:
+ * - v2.0.2 (2024-10-14):
+ *   - Fixed CLAUDE.md deployment documentation (clarified Vercel auto-deploy vs Supabase manual)
+ *
  * - v2.0.1 (2024-10-14):
  *   - Centralized version management
  *
