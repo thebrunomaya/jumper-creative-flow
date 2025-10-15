@@ -106,6 +106,49 @@ npm run deploy:preview    # Deploy preview to Vercel
 1. `npm run lint`
 2. `npm run typecheck`
 3. Test core functionality in browser
+4. **For significant releases:** Update version in `src/config/version.ts`
+
+---
+
+## 📦 Versioning
+
+**Location:** `src/config/version.ts`
+
+**Current Version:** v2.0
+
+### When to Update Version
+
+Update `APP_VERSION` in `src/config/version.ts` when making:
+
+- **MAJOR releases** (v2.0 → v3.0): Breaking changes, major features
+- **MINOR releases** (v2.0 → v2.1): New features, backward compatible
+- **PATCH releases** (v2.0.0 → v2.0.1): Bug fixes, minor improvements
+
+### Version Update Process
+
+1. **Edit `src/config/version.ts`:**
+   ```typescript
+   export const APP_VERSION = 'v2.1'; // Update this
+   ```
+
+2. **Add entry to version history comment:**
+   ```typescript
+   /**
+    * Version history:
+    * - v2.1 (2024-XX-XX): Description of changes
+    * - v2.0 (2024-10-14): Composite authorization system
+    */
+   ```
+
+3. **Commit with version in message:**
+   ```bash
+   git commit -m "chore: Bump version to v2.1"
+   ```
+
+**Note:** Version appears in:
+- Login page footer
+- Header logo area
+- Automatically synced from `src/config/version.ts`
 
 ---
 

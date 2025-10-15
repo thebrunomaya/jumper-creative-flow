@@ -8,6 +8,7 @@ import { Loader2, ArrowRight, Mail, Lock, Sparkles } from 'lucide-react';
 import { JumperLogo } from '@/components/ui/jumper-logo';
 import gradientImage from '@/assets/gradients-optimized/organic-02.png';
 import { isAuthorizedEmail, userExists } from '@/utils/checkAuthorization';
+import { APP_VERSION } from '@/config/version';
 import { setupTestManagers } from '@/utils/setupTestManagers';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -300,7 +301,7 @@ const LoginPageNew: React.FC = () => {
                 <span className="lg:hidden">Hub</span>
                 <span className="hidden lg:inline">Jumper Hub</span>
               </h1>
-              <p className="text-xs text-white/40">v2.0</p>
+              <p className="text-xs text-white/40">{APP_VERSION}</p>
             </div>
 
             {/* Step: Email */}

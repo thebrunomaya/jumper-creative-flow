@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils';
 import { Users, LayoutDashboard, TrendingUp, BarChart3 } from 'lucide-react';
 import { AccountSelectorModal } from '@/components/reports/AccountSelectorModal';
 import { Button } from '@/components/ui/button';
+import { APP_VERSION } from '@/config/version';
 
 const Header: React.FC = () => {
   const location = useLocation();
@@ -59,7 +60,7 @@ const Header: React.FC = () => {
                 </div>
                 <div className="flex flex-col">
                   <span className="text-lg font-semibold text-foreground">Jumper Hub</span>
-                  <span className="text-xs text-muted-foreground">v2.0</span>
+                  <span className="text-xs text-muted-foreground">{APP_VERSION}</span>
                 </div>
               </Link>
 
