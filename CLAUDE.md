@@ -109,6 +109,75 @@ npm run deploy:preview    # Deploy preview to Vercel
 
 ---
 
+## ⚠️ CRITICAL: Environment Variables and Local Development
+
+**🚨 DISCOVERED 2025-10-14: System environment variables override `.env` files!**
+
+### **The Problem**
+
+Vite loads environment variables in this order of precedence:
+1. **System environment variables** (HIGHEST PRIORITY)
+2. `.env.local`
+3. `.env`
+
+If you have `VITE_SUPABASE_URL` exported in your shell (e.g., `.zshrc`), **it will ALWAYS use that value**, even if `.env` has different values!
+
+### **The Danger**
+
+```bash
+# If these are in your system environment:
+export VITE_SUPABASE_URL=https://biwwowendjuzvpttyrlb.supabase.co  # PRODUCTION!
+export VITE_SUPABASE_PUBLISHABLE_KEY=...  # PRODUCTION KEY!
+
+# Then running `npm run dev` connects to PRODUCTION
+# even with Supabase Local running!
+```
+
+**Result:** You think you're testing locally but **modifying production data**! 💥
+
+### **The Solution**
+
+**1. Check for system variables:**
+```bash
+env | grep VITE
+```
+
+**2. If found, remove them from shell config:**
+```bash
+# Edit ~/.zshrc or ~/.bash_profile
+# Comment out or delete lines like:
+# export VITE_SUPABASE_URL=...
+# export VITE_SUPABASE_PUBLISHABLE_KEY=...
+
+# Then reload:
+source ~/.zshrc
+```
+
+**3. Run dev server with explicit local variables:**
+```bash
+VITE_SUPABASE_URL=http://127.0.0.1:54321 \
+VITE_SUPABASE_PUBLISHABLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0 \
+npm run dev
+```
+
+**4. Verify in browser console:**
+```javascript
+// Should see:
+🔗 Supabase: LOCAL (http://127.0.0.1:54321)
+
+// NOT:
+🔗 Supabase: PRODUCTION (https://biwwowendjuzvpttyrlb.supabase.co)
+```
+
+### **Safety Check**
+
+**ALWAYS verify which Supabase you're connected to:**
+- Open browser DevTools Console
+- Look for the `🔗 Supabase:` log on page load
+- If it says `PRODUCTION`, **STOP** and fix environment variables!
+
+---
+
 ## 🖥️ CLI Usage Policy
 
 **CRITICAL: Always prefer CLI tools over web interfaces**

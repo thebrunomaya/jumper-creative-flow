@@ -62,9 +62,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         console.error('ensure-role invocation failed:', error);
       } else {
         console.log('✅ ensure-role succeeded:', data);
+
+        // After role is ensured, verify if user is active
+        const { data: userData, error: userError } = await supabase
+          .from('j_hub_users')
+          .select('is_active, role, nome')
+          .eq('id', session.user.id)
+          .single();
+
+        if (userError) {
+          console.error('❌ Error checking user status:', userError);
+        } else if (userData && !userData.is_active) {
+          // User is inactive - force logout
+          console.warn('⚠️ User is inactive - logging out');
+          await supabase.auth.signOut();
+          throw new Error('Conta desativada. Entre em contato com o administrador.');
+        } else {
+          console.log('✅ User is active:', userData);
+        }
       }
     } catch (e) {
       console.error('ensure-role unexpected error:', e);
+      throw e; // Re-throw to be handled by caller
     }
   };
   useEffect(() => {

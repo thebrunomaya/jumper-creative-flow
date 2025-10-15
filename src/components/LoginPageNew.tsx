@@ -7,7 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Loader2, ArrowRight, Mail, Lock, Sparkles } from 'lucide-react';
 import { JumperLogo } from '@/components/ui/jumper-logo';
 import gradientImage from '@/assets/gradients-optimized/organic-02.png';
-import { checkEmailWhitelist, type WhitelistCheckResult } from '@/utils/checkWhitelist';
+import { isAuthorizedEmail, userExists } from '@/utils/checkAuthorization';
 import { setupTestManagers } from '@/utils/setupTestManagers';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -56,7 +56,7 @@ const LoginPageNew: React.FC = () => {
 
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!email.trim()) {
       toast({
         title: "Digite seu email",
@@ -69,10 +69,10 @@ const LoginPageNew: React.FC = () => {
     setIsLoading(true);
 
     try {
-      // Verificar se email está autorizado e se já tem conta
-      const whitelistData = await checkEmailWhitelist(email);
+      // Verificar se email está autorizado (whitelist composta)
+      const authorized = await isAuthorizedEmail(email);
 
-      if (!whitelistData.authorized) {
+      if (!authorized) {
         toast({
           title: "Acesso não autorizado",
           description: "Seu email não está autorizado. Entre em contato com seu gestor.",
@@ -82,14 +82,18 @@ const LoginPageNew: React.FC = () => {
         return;
       }
 
-      setManagerName(whitelistData.managerName || '');
+      console.log('✅ Email autorizado, verificando se já tem conta...');
 
-      if (whitelistData.isFirstAccess) {
+      // Verificar se usuário já existe
+      const hasAccount = await userExists(email);
+
+      if (!hasAccount) {
         // Primeiro acesso - enviar link mágico automaticamente
+        console.log('📧 Primeiro acesso - enviando magic link');
         setAuthStep('first-access');
-        
+
         const { error } = await loginWithMagicLink(email);
-        
+
         if (!error) {
           setAuthStep('magic-link-sent');
           toast({
@@ -106,9 +110,10 @@ const LoginPageNew: React.FC = () => {
         }
       } else {
         // Já tem conta - pedir senha
+        console.log('🔑 Usuário já existe - pedindo senha');
         setAuthStep('password');
         toast({
-          title: `Olá, ${whitelistData.managerName}!`,
+          title: "Digite sua senha",
           description: "Digite sua senha para continuar",
         });
       }
@@ -140,7 +145,7 @@ const LoginPageNew: React.FC = () => {
 
     try {
       const { error } = await login(email, password);
-      
+
       if (!error) {
         toast({
           title: "Login realizado com sucesso",

@@ -2,8 +2,15 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
-const SUPABASE_URL = "https://biwwowendjuzvpttyrlb.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_5CJI2QQt8Crz60Mh1TTcrw_w4sL2TpL";
+// Use environment variables with fallback to production
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "https://biwwowendjuzvpttyrlb.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || "sb_publishable_5CJI2QQt8Crz60Mh1TTcrw_w4sL2TpL";
+
+// Log which Supabase instance we're using (helps catch accidental production connections)
+if (import.meta.env.DEV) {
+  const isLocal = SUPABASE_URL.includes('127.0.0.1') || SUPABASE_URL.includes('localhost');
+  console.log(`🔗 Supabase: ${isLocal ? 'LOCAL' : 'PRODUCTION'} (${SUPABASE_URL})`);
+}
 
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";

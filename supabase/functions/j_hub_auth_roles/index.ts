@@ -96,11 +96,39 @@ Deno.serve(async (req: Request) => {
     // AUTOMATIC ROLE DETECTION based on login method and Notion data
     const isNotionOAuth = user.app_metadata?.provider === 'notion'
     const targetEmail = (user.email || '').toLowerCase()
+    const isJumperEmail = targetEmail.endsWith('@jumper.studio')
     let roleToAssign: 'admin' | 'manager' | 'supervisor' | 'gerente' = 'gerente'
 
-    console.log('🔐 Detecting role for:', targetEmail, '| OAuth:', isNotionOAuth)
+    console.log('🔐 Detecting role for:', targetEmail, '| OAuth:', isNotionOAuth, '| Jumper:', isJumperEmail)
 
-    if (isNotionOAuth) {
+    // Special handling for @jumper.studio emails (internal staff)
+    if (isJumperEmail) {
+      console.log('🏢 @jumper.studio domain detected - checking DB_Gerentes')
+
+      const { data: managerData } = await admin
+        .from('j_hub_notion_db_managers')
+        .select('"Função"')
+        .ilike('"E-Mail"', targetEmail)
+        .maybeSingle()
+
+      if (managerData && managerData["Função"]) {
+        const funcao = managerData["Função"].toLowerCase()
+        console.log('📋 Found Função in DB_Gerentes:', funcao)
+
+        if (funcao.includes('admin')) {
+          roleToAssign = 'admin'
+        } else if (funcao.includes('gestor') || funcao.includes('manager')) {
+          roleToAssign = 'manager'
+        } else {
+          roleToAssign = 'manager' // Default for @jumper.studio
+        }
+        console.log(`✅ @jumper.studio with DB_Gerentes → role: ${roleToAssign}`)
+      } else {
+        // @jumper.studio but not in DB_Gerentes → default to admin
+        roleToAssign = 'admin'
+        console.log('✅ @jumper.studio without DB_Gerentes entry → role: admin (default)')
+      }
+    } else if (isNotionOAuth) {
       // NOTION OAUTH: Detect role from Gestor/Supervisor fields
       console.log('🎯 Notion OAuth login - checking Gestor/Supervisor fields')
 
@@ -166,10 +194,10 @@ Deno.serve(async (req: Request) => {
 
     console.log('📝 Assigning role with nome:', nome)
 
-    // Assign detected role
+    // Assign detected role (with is_active = true by default)
     const { error: insertError } = await admin
       .from('j_hub_users')
-      .insert({ id: user.id, email: user.email, role: roleToAssign, nome })
+      .insert({ id: user.id, email: user.email, role: roleToAssign, nome, is_active: true })
 
     if (insertError) {
       console.error('ensure-role: insertError', insertError)
