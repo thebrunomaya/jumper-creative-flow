@@ -7,10 +7,16 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.4';
+export const APP_VERSION = 'v2.0.5';
 
 /**
  * Version history:
+ * - v2.0.5 (2024-10-14):
+ *   - CRITICAL FIX: Fixed .env configuration for local vs production
+ *   - .env now contains PRODUCTION credentials (used by Vercel)
+ *   - .env.local contains LOCAL credentials (gitignored, dev only)
+ *   - No more switching env vars between local/production!
+ *
  * - v2.0.4 (2024-10-14):
  *   - CRITICAL FIX: Corrected environment variable name mismatch
  *   - Code was looking for VITE_SUPABASE_PUBLISHABLE_KEY
