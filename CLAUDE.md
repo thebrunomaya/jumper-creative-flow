@@ -114,36 +114,61 @@ npm run deploy:preview    # Deploy preview to Vercel
 
 **Location:** `src/config/version.ts`
 
-**Current Version:** v2.0
+**Current Version:** v2.0.1
 
-### When to Update Version
+### Semantic Versioning Policy
 
-Update `APP_VERSION` in `src/config/version.ts` when making:
+Following **MAJOR.MINOR.PATCH** format:
 
-- **MAJOR releases** (v2.0 → v3.0): Breaking changes, major features
-- **MINOR releases** (v2.0 → v2.1): New features, backward compatible
-- **PATCH releases** (v2.0.0 → v2.0.1): Bug fixes, minor improvements
+- **PATCH (2.0.N)**: **Auto-incremented by Claude on EVERY commit**
+  - Bug fixes, minor improvements
+  - Code refactoring, documentation updates
+  - **Claude has autonomy to increment**
 
-### Version Update Process
+- **MINOR (2.N.0)**: **User-signaled only**
+  - New features, backward compatible
+  - Significant enhancements
+  - **User must explicitly request bump**
 
-1. **Edit `src/config/version.ts`:**
+- **MAJOR (N.0.0)**: **User-signaled only**
+  - Breaking changes
+  - Major architecture changes
+  - **User must explicitly request bump**
+
+### Claude's Auto-Increment Process
+
+**On every commit, Claude automatically:**
+
+1. **Increment PATCH version:**
    ```typescript
-   export const APP_VERSION = 'v2.1'; // Update this
+   // v2.0.1 → v2.0.2
+   export const APP_VERSION = 'v2.0.2';
    ```
 
-2. **Add entry to version history comment:**
+2. **Add entry to version history:**
    ```typescript
    /**
-    * Version history:
-    * - v2.1 (2024-XX-XX): Description of changes
-    * - v2.0 (2024-10-14): Composite authorization system
+    * - v2.0.2 (2024-10-14):
+    *   - Brief description of changes in this commit
     */
    ```
 
-3. **Commit with version in message:**
+3. **Include version in commit message:**
    ```bash
-   git commit -m "chore: Bump version to v2.1"
+   git commit -m "feat: Add new feature (v2.0.2)"
    ```
+
+### User-Signaled Version Bumps
+
+**When user says "bump to 2.1" or "major release":**
+
+```typescript
+// MINOR bump: 2.0.5 → 2.1.0
+export const APP_VERSION = 'v2.1.0';
+
+// MAJOR bump: 2.5.3 → 3.0.0
+export const APP_VERSION = 'v3.0.0';
+```
 
 **Note:** Version appears in:
 - Login page footer
