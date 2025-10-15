@@ -7,10 +7,17 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.7';
+export const APP_VERSION = 'v2.0.8';
 
 /**
  * Version history:
+ * - v2.0.8 (2024-10-15):
+ *   - DEV SETUP: Added Edge Functions to start-dev.sh script (auto-start)
+ *   - DOCS: Updated DEV-SETUP.md with Edge Functions requirement (critical step)
+ *   - DOCS: Updated CLAUDE.md workflow to include Edge Functions
+ *   - FIX: Prevents "Edge Function returned a non-2xx status code" error
+ *   - Now script automatically serves functions locally on port 54321
+ *
  * - v2.0.7 (2024-10-14):
  *   - PRODUCTION FIX: Resolved login issues caused by corrupted Vercel env vars
  *   - Root cause: Vercel environment variables had invalid API key format

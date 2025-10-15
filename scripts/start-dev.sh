@@ -15,7 +15,7 @@ RED='\033[0;31m'
 NC='\033[0m' # No Color
 
 # Step 1: Check Docker
-echo "📦 Step 1/6: Checking Docker..."
+echo "📦 Step 1/7: Checking Docker..."
 if ! docker ps > /dev/null 2>&1; then
   echo -e "${RED}❌ Docker is not running${NC}"
   echo "   Please start Docker Desktop and try again"
@@ -25,7 +25,7 @@ echo -e "${GREEN}✅ Docker is running${NC}"
 echo ""
 
 # Step 2: Start Supabase Local
-echo "🐳 Step 2/6: Starting Supabase Local..."
+echo "🐳 Step 2/7: Starting Supabase Local..."
 if npx supabase status > /dev/null 2>&1; then
   echo -e "${GREEN}✅ Supabase already running${NC}"
 else
@@ -36,7 +36,7 @@ fi
 echo ""
 
 # Step 3: Check if database has data
-echo "📊 Step 3/6: Checking local database..."
+echo "📊 Step 3/7: Checking local database..."
 USER_COUNT=$(docker run --rm --network host postgres:15 \
   psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" \
   -t -c "SELECT COUNT(*) FROM j_hub_users WHERE email NOT LIKE '%exemplo.com%';" 2>/dev/null | xargs)
@@ -77,7 +77,7 @@ fi
 echo ""
 
 # Step 4: Install dependencies
-echo "📦 Step 4/6: Checking NPM dependencies..."
+echo "📦 Step 4/7: Checking NPM dependencies..."
 if [ ! -d "node_modules" ]; then
   echo "   Installing dependencies..."
   npm install > /dev/null 2>&1
@@ -88,7 +88,7 @@ fi
 echo ""
 
 # Step 5: Check environment variables
-echo "🔧 Step 5/6: Checking environment variables..."
+echo "🔧 Step 5/7: Checking environment variables..."
 if [ -f ".env.local" ]; then
   if grep -q "127.0.0.1:54321" .env.local; then
     echo -e "${GREEN}✅ .env.local configured for LOCAL${NC}"
@@ -109,8 +109,28 @@ EOF
 fi
 echo ""
 
-# Step 6: Show summary and next steps
-echo "🎯 Step 6/6: Ready to start!"
+# Step 6: Start Edge Functions
+echo "⚡ Step 6/7: Starting Edge Functions locally..."
+if pgrep -f "supabase functions serve" > /dev/null; then
+  echo -e "${GREEN}✅ Edge Functions already running${NC}"
+else
+  echo "   Starting Edge Functions server..."
+  npx supabase functions serve > /tmp/supabase-functions.log 2>&1 &
+  FUNCTIONS_PID=$!
+  sleep 3
+
+  if kill -0 $FUNCTIONS_PID 2>/dev/null; then
+    echo -e "${GREEN}✅ Edge Functions started (PID: ${FUNCTIONS_PID})${NC}"
+  else
+    echo -e "${RED}❌ Failed to start Edge Functions${NC}"
+    echo "   Check logs: tail -f /tmp/supabase-functions.log"
+    exit 1
+  fi
+fi
+echo ""
+
+# Step 7: Show summary and next steps
+echo "🎯 Step 7/7: Ready to start!"
 echo ""
 echo -e "${GREEN}✅ All checks passed!${NC}"
 echo ""
@@ -121,6 +141,7 @@ echo "   🐳 Supabase Local:  http://127.0.0.1:54321"
 echo "   🗄️  Database:        postgresql://postgres:postgres@127.0.0.1:54322/postgres"
 echo "   🎨 Studio:          http://127.0.0.1:54323"
 echo "   📧 Mailpit:         http://127.0.0.1:54324"
+echo "   ⚡ Edge Functions:  http://127.0.0.1:54321/functions/v1/"
 echo "   👥 Real Users:      ${USER_COUNT:-Unknown}"
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"

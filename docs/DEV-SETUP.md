@@ -176,7 +176,37 @@ npm run dev
 
 ---
 
-### **8. Iniciar Servidor de Desenvolvimento**
+### **8. Iniciar Edge Functions Localmente** ⚡
+
+**CRÍTICO:** Edge Functions precisam rodar localmente para que a aplicação funcione!
+
+```bash
+# Iniciar Edge Functions em background
+npx supabase functions serve > /tmp/supabase-functions.log 2>&1 &
+
+# Verificar se iniciou (aguardar 3 segundos)
+sleep 3
+tail -f /tmp/supabase-functions.log
+```
+
+**Saída esperada:**
+```
+Serving functions on http://127.0.0.1:54321/functions/v1/<function-name>
+ - http://127.0.0.1:54321/functions/v1/j_hub_user_accounts
+ - http://127.0.0.1:54321/functions/v1/j_hub_admin_dashboard
+ ... and 17 more functions
+```
+
+**Por que é necessário?**
+- Frontend faz chamadas para Edge Functions (ex: carregar contas, dashboards)
+- Sem Edge Functions rodando, você verá erros: `Edge Function returned a non-2xx status code`
+- Edge Functions acessam o database local e retornam dados para o frontend
+
+**⏱️ Tempo:** ~5 segundos
+
+---
+
+### **9. Iniciar Servidor de Desenvolvimento**
 
 ```bash
 npm run dev
@@ -195,7 +225,7 @@ npm run dev
 
 ---
 
-### **9. Verificar Conexão no Browser**
+### **10. Verificar Conexão no Browser**
 
 1. **Abrir aplicação:** http://localhost:8080
 
@@ -219,7 +249,7 @@ npm run dev
 
 ---
 
-### **10. Verificar Supabase Studio** (Opcional)
+### **11. Verificar Supabase Studio** (Opcional)
 
 ```bash
 # Abrir Supabase Studio Local
@@ -242,6 +272,7 @@ Antes de começar a desenvolver, confirme:
 - [ ] Backup de produção importado com sucesso
 - [ ] `j_hub_users` tem usuários **reais** (não dummy)
 - [ ] `.env.local` configurado para LOCAL OU variáveis inline
+- [ ] **Edge Functions rodando** (`npx supabase functions serve`)
 - [ ] Browser console mostra "🔗 Supabase: LOCAL"
 - [ ] `npm run dev` rodando sem erros
 - [ ] Login funcionando via http://localhost:8080
@@ -253,6 +284,9 @@ Antes de começar a desenvolver, confirme:
 Quando terminar o desenvolvimento:
 
 ```bash
+# Parar Edge Functions
+pkill -f "supabase functions serve"
+
 # Parar Supabase Local (mantém dados)
 npx supabase stop
 
@@ -278,6 +312,10 @@ docker run --rm --network host postgres:15 \
   psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" \
   -c "SELECT COUNT(*) FROM j_hub_users;"
 
+# Iniciar Edge Functions (CRÍTICO!)
+npx supabase functions serve > /tmp/supabase-functions.log 2>&1 &
+sleep 3
+
 # Iniciar frontend (com LOCAL)
 VITE_SUPABASE_URL=http://127.0.0.1:54321 \
 VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0 \
@@ -290,6 +328,29 @@ npm run dev
 ---
 
 ## ⚠️ Troubleshooting
+
+### **Problema: Erro "Edge Function returned a non-2xx status code"**
+
+**Causa:** Edge Functions não estão rodando localmente.
+
+**Solução:**
+```bash
+# Verificar se Edge Functions estão rodando
+pgrep -f "supabase functions serve"
+
+# Se não retornar nada, iniciar:
+npx supabase functions serve > /tmp/supabase-functions.log 2>&1 &
+
+# Verificar logs
+tail -f /tmp/supabase-functions.log
+```
+
+**Deve mostrar:**
+```
+Serving functions on http://127.0.0.1:54321/functions/v1/
+```
+
+---
 
 ### **Problema: Console mostra "PRODUCTION"**
 
@@ -372,6 +433,7 @@ Após importação completa, você deve ter:
 - **Supabase Studio:** http://127.0.0.1:54323
 - **Mailpit (emails):** http://127.0.0.1:54324
 - **Supabase API:** http://127.0.0.1:54321
+- **Edge Functions:** http://127.0.0.1:54321/functions/v1/
 - **Database URL:** `postgresql://postgres:postgres@127.0.0.1:54322/postgres`
 
 ---

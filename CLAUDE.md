@@ -302,6 +302,7 @@ Claude Code deve **SEMPRE** usar as ferramentas CLI disponíveis:
 # ✅ Importa dados (se necessário)
 # ✅ Instala dependências NPM
 # ✅ Configura .env.local
+# ✅ Inicia Edge Functions localmente
 # ✅ Inicia npm run dev
 ```
 
@@ -357,6 +358,7 @@ npx supabase db dump --linked --data-only --use-copy \
 - Testamos tudo localmente antes de fazer push
 - Zero risco para produção
 - Importar dados de produção quando necessário ✅
+- **Edge Functions rodando localmente (CRÍTICO!)** ✅
 - Deploy frontend automático via Vercel
 - Deploy edge functions manual via Supabase CLI
 
