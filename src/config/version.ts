@@ -7,10 +7,16 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.9';
+export const APP_VERSION = 'v2.0.10';
 
 /**
  * Version history:
+ * - v2.0.10 (2024-10-15):
+ *   - FIX: Optimization RLS policies now allow admins to view ALL recordings
+ *   - Added policies: "Admins can view/update all transcripts" and "Admins can view/update all context"
+ *   - Fixed issue where admin users couldn't access optimizations created by other users
+ *   - Migration: 20251015000000_fix_optimization_rls_for_admins.sql
+ *
  * - v2.0.9 (2024-10-15):
  *   - FIX: start-dev.sh now runs Vite in background (prevents timeout/zombie process)
  *   - Script completes successfully on first run (no more "second try" needed)
