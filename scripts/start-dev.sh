@@ -149,12 +149,36 @@ echo "🚀 Starting Development Server..."
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
 
-# Start dev server
+# Start dev server in background
+echo "   Starting Vite development server..."
 if [ "$USE_ENV_LOCAL" = true ]; then
-  npm run dev
+  npm run dev > /tmp/vite-dev.log 2>&1 &
 else
   # Use inline env vars as fallback
   VITE_SUPABASE_URL=http://127.0.0.1:54321 \
   VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0 \
-  npm run dev
+  npm run dev > /tmp/vite-dev.log 2>&1 &
+fi
+
+VITE_PID=$!
+sleep 3
+
+# Check if Vite started successfully
+if kill -0 $VITE_PID 2>/dev/null; then
+  echo -e "${GREEN}✅ Vite dev server started (PID: ${VITE_PID})${NC}"
+  echo ""
+  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  echo "🎉 Development Environment Ready!"
+  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  echo ""
+  echo "   🌐 Open: http://localhost:8080"
+  echo ""
+  echo "   📝 View logs:"
+  echo "      Edge Functions: tail -f /tmp/supabase-functions.log"
+  echo "      Vite:          tail -f /tmp/vite-dev.log"
+  echo ""
+else
+  echo -e "${RED}❌ Failed to start Vite dev server${NC}"
+  echo "   Check logs: tail -f /tmp/vite-dev.log"
+  exit 1
 fi

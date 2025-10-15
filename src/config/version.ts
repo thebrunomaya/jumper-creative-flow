@@ -7,10 +7,16 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.8';
+export const APP_VERSION = 'v2.0.9';
 
 /**
  * Version history:
+ * - v2.0.9 (2024-10-15):
+ *   - FIX: start-dev.sh now runs Vite in background (prevents timeout/zombie process)
+ *   - Script completes successfully on first run (no more "second try" needed)
+ *   - Logs saved to /tmp/vite-dev.log for debugging
+ *   - Clear success message with URL and log locations
+ *
  * - v2.0.8 (2024-10-15):
  *   - DEV SETUP: Added Edge Functions to start-dev.sh script (auto-start)
  *   - DOCS: Updated DEV-SETUP.md with Edge Functions requirement (critical step)
