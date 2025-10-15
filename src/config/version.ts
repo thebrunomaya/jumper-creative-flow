@@ -7,10 +7,17 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.2';
+export const APP_VERSION = 'v2.0.3';
 
 /**
  * Version history:
+ * - v2.0.3 (2024-10-14):
+ *   - Fixed production login issues (email + Notion OAuth)
+ *   - Improved userExists() with RLS-safe fallback strategy
+ *   - Added OAuth hash cleanup to prevent redirect loops
+ *   - Enhanced error handling in ensureUserRole()
+ *   - Added detailed production logging
+ *
  * - v2.0.2 (2024-10-14):
  *   - Fixed CLAUDE.md deployment documentation (clarified Vercel auto-deploy vs Supabase manual)
  *

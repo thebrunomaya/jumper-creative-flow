@@ -69,26 +69,59 @@ export async function isAuthorizedEmail(email: string): Promise<boolean> {
 
 /**
  * Verifica se usuário existe no sistema (tem conta criada)
+ *
+ * Strategy:
+ * 1. Tenta consultar j_hub_users diretamente (mais confiável)
+ * 2. Se RLS bloquear, usa fallback de tentar login com senha fake
  */
 export async function userExists(email: string): Promise<boolean> {
   try {
     const normalizedEmail = email.toLowerCase().trim();
+    console.log('🔍 Checking if user exists:', normalizedEmail);
 
-    // Tentar login com senha impossível para detectar se usuário existe
+    // STRATEGY 1: Try to query j_hub_users directly
+    // This is the most reliable method if RLS allows it
+    try {
+      const { data, error } = await supabase
+        .from('j_hub_users')
+        .select('id')
+        .eq('email', normalizedEmail)
+        .maybeSingle();
+
+      if (!error) {
+        const exists = !!data;
+        console.log(`✅ Strategy 1 (j_hub_users query): ${exists ? 'User EXISTS' : 'User NOT FOUND'}`);
+        return exists;
+      }
+
+      // If RLS blocks or other error, log and try fallback
+      console.warn('⚠️ Strategy 1 failed (RLS?), trying fallback...', error.message);
+    } catch (e) {
+      console.warn('⚠️ Strategy 1 exception, trying fallback...', e);
+    }
+
+    // STRATEGY 2: Fallback - Try login with impossible password
+    // This works even with RLS because it uses auth.users directly
+    console.log('🔄 Using Strategy 2 (login fake)...');
     const { error } = await supabase.auth.signInWithPassword({
       email: normalizedEmail,
       password: 'CHECK_USER_EXISTS_DUMMY_PASSWORD_THAT_WILL_NEVER_WORK'
     });
 
-    // Se erro for "Invalid login credentials", o usuário existe
-    // Se for outro erro (ex: "Email not confirmed"), também existe
-    // Se for "User not found", não existe
-    return error?.message?.includes('Invalid login') ||
-           error?.message?.includes('Email not confirmed') ||
-           false;
+    // If error is "Invalid login credentials", user exists
+    // If error is "Email not confirmed", user also exists
+    // If error is "User not found" or similar, user doesn't exist
+    const exists = error?.message?.includes('Invalid login') ||
+                   error?.message?.includes('Email not confirmed') ||
+                   false;
+
+    console.log(`✅ Strategy 2 (login fake): ${exists ? 'User EXISTS' : 'User NOT FOUND'}`);
+    console.log(`   Error message: "${error?.message}"`);
+
+    return exists;
 
   } catch (error) {
-    console.error('Erro ao verificar existência de usuário:', error);
+    console.error('❌ userExists() unexpected error:', error);
     return false;
   }
 }

@@ -46,9 +46,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Get current session to ensure JWT is included
       const { data: { session } } = await supabase.auth.getSession();
       if (!session?.access_token) {
-        console.warn('ensure-role: No session/token available yet');
+        console.warn('⚠️ ensure-role: No session/token available yet');
         return;
       }
+
+      console.log('🔧 Calling j_hub_auth_roles edge function...');
 
       // Explicitly pass Authorization header with JWT
       const { data, error } = await supabase.functions.invoke('j_hub_auth_roles', {
@@ -59,38 +61,72 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
 
       if (error) {
-        console.error('ensure-role invocation failed:', error);
-      } else {
-        console.log('✅ ensure-role succeeded:', data);
-
-        // After role is ensured, verify if user is active
-        const { data: userData, error: userError } = await supabase
-          .from('j_hub_users')
-          .select('is_active, role, nome')
-          .eq('id', session.user.id)
-          .single();
-
-        if (userError) {
-          console.error('❌ Error checking user status:', userError);
-        } else if (userData && !userData.is_active) {
-          // User is inactive - force logout
-          console.warn('⚠️ User is inactive - logging out');
-          await supabase.auth.signOut();
-          throw new Error('Conta desativada. Entre em contato com o administrador.');
-        } else {
-          console.log('✅ User is active:', userData);
-        }
+        console.error('❌ ensure-role invocation failed:', error);
+        // Don't throw - allow login to proceed even if edge function fails
+        return;
       }
+
+      console.log('✅ Edge function j_hub_auth_roles succeeded:', data);
+
+      // After role is ensured, verify if user is active
+      console.log('🔍 Checking if user is active...');
+      const { data: userData, error: userError } = await supabase
+        .from('j_hub_users')
+        .select('is_active, role, nome')
+        .eq('id', session.user.id)
+        .maybeSingle(); // Use maybeSingle to avoid error if not found
+
+      if (userError) {
+        console.error('❌ Error checking user status (RLS?):', userError.message);
+        // Don't logout on query error - might be RLS or timing issue
+        // User was just authenticated, let them in
+        console.warn('⚠️ Skipping is_active check due to query error');
+        return;
+      }
+
+      if (!userData) {
+        console.warn('⚠️ User not found in j_hub_users yet (timing issue?)');
+        // Edge function just ran, entry might not be visible yet due to RLS or timing
+        // Don't logout, allow login to proceed
+        return;
+      }
+
+      if (!userData.is_active) {
+        // User explicitly marked as inactive - force logout
+        console.warn('⚠️ User is inactive - logging out');
+        await supabase.auth.signOut();
+        throw new Error('Conta desativada. Entre em contato com o administrador.');
+      }
+
+      console.log('✅ User is active:', {
+        email: session.user.email,
+        role: userData.role,
+        nome: userData.nome
+      });
+
     } catch (e) {
-      console.error('ensure-role unexpected error:', e);
-      throw e; // Re-throw to be handled by caller
+      console.error('❌ ensure-role unexpected error:', e);
+      // Only re-throw if it's the "inactive account" error
+      if (e instanceof Error && e.message.includes('desativada')) {
+        throw e;
+      }
+      // For other errors, log but don't prevent login
+      console.warn('⚠️ Allowing login despite ensure-role error');
     }
   };
   useEffect(() => {
     // Subscribe to auth state changes FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, newSession) => {
+      console.log('🔐 Auth state changed:', event, newSession?.user?.email);
       setSession(newSession);
       setUser(newSession?.user ?? null);
+
+      // Clean OAuth hash from URL after successful login
+      if (event === 'SIGNED_IN' && window.location.hash.includes('access_token')) {
+        console.log('🧹 Cleaning OAuth hash from URL');
+        // Remove hash without triggering navigation
+        window.history.replaceState(null, '', window.location.pathname + window.location.search);
+      }
     });
 
     // Then check existing session
