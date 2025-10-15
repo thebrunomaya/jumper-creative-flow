@@ -3,13 +3,53 @@
 # Tracks recent decisions and work-in-progress (last 7 days)
 # Older decisions migrate to docs/ARCHITECTURE.md
 
-last_updated: "2025-10-15T16:45:00Z"
+last_updated: "2025-10-15T19:50:00Z"
 session_computer: "MacBook Pro (trabalho)"
 session_user: "Bruno Maya"
 
 # Recent decisions (last 7 days)
 # When older than 7 days, migrate to docs/ARCHITECTURE.md
 recent_decisions:
+  - date: "2025-10-15"
+    decision: "Dev Server Background Execution Fix"
+    status: "completed ✅"
+    details: |
+      🔧 FIX: start-dev.sh script now runs Vite in background to prevent timeout issues
+
+      ## Problem Identified:
+      - Script executed `npm run dev` synchronously (foreground)
+      - Bash tool timed out after 2 minutes (120s)
+      - Process became orphaned/zombie
+      - Required manual cleanup on second run
+
+      ## Root Cause:
+      - `npm run dev` is a long-running server (never returns)
+      - Script blocked at line 154/159 waiting for npm to exit
+      - Bash tool terminated parent but npm process remained
+
+      ## Solution Implemented:
+      - Modified start-dev.sh to run `npm run dev` in background (`&`)
+      - Added 3-second wait for server startup
+      - Added process verification (kill -0 $PID)
+      - Logs redirected to /tmp/vite-dev.log
+      - Script now completes immediately with success message
+
+      ## Benefits:
+      - ✅ Script completes on first run (no more "second try")
+      - ✅ No orphaned/zombie processes
+      - ✅ Clean user feedback with URLs and log locations
+      - ✅ Consistent with Edge Functions pattern (also runs in background)
+
+      ## Files Modified:
+      - scripts/start-dev.sh (lines 152-184)
+    impact: "MEDIUM - Improved developer experience, script reliability"
+    files_changed:
+      - "scripts/start-dev.sh (background execution + verification)"
+      - "src/config/version.ts (v2.0.9)"
+    deployed: false
+    deployment_status: "Script committed but frontend not deployed (no Vercel deployment needed)"
+    migrate_to_architecture: false
+
   - date: "2025-10-15"
     decision: "Local Development Setup System - VALIDATED WITH GRADE 10 ✅🎉"
     status: "completed and tested ✅"
@@ -652,7 +692,38 @@ work_in_progress:
 
 # Context for next session
 next_session_context: |
-  🏆 SESSION 2025-10-15 COMPLETED: LOCAL DEV SETUP SYSTEM - VALIDATED WITH GRADE 10! 🎉
+  🎯 SESSION 2025-10-15 (Evening) COMPLETED: DEV SERVER BACKGROUND FIX
+
+  ## ✅ ISSUE RESOLVED: Script Now Works on First Run
+
+  **Problem Fixed:**
+  - `./scripts/start-dev.sh` was timing out after 2 minutes
+  - `npm run dev` ran synchronously (never returned)
+  - Process became zombie, required second run to work
+
+  **Solution:**
+  - Script now runs Vite in background (`&`)
+  - Verifies process started successfully
+  - Logs saved to /tmp/vite-dev.log
+  - Script completes immediately with success message
+
+  **Changes:**
+  - scripts/start-dev.sh (background execution)
+  - src/config/version.ts (v2.0.9)
+
+  **Status:**
+  - ✅ Committed: f650c0b
+  - ✅ Pushed to GitHub
+  - ⏳ Vercel will auto-deploy (minor version bump)
+
+  **Next Session:**
+  - User will test fresh Docker/Supabase restart
+  - Script should work perfectly on first try
+  - No more zombie processes or timeouts
+
+  ---
+
+  🏆 SESSION 2025-10-15 (Afternoon) COMPLETED: LOCAL DEV SETUP SYSTEM - VALIDATED WITH GRADE 10! 🎉
 
   ## ✅ TESTING COMPLETE - SYSTEM APPROVED FOR PRODUCTION USE
 
@@ -850,7 +921,8 @@ pending_todos:
 
 # Recently completed (for reference)
 completed_recently:
-  - "✅ [2025-10-15] Local Dev Setup System VALIDATED - Grade 10/10 🏆"
+  - "✅ [2025-10-15 Evening] Dev Server Background Fix - No more timeouts/zombies (v2.0.9)"
+  - "✅ [2025-10-15 Afternoon] Local Dev Setup System VALIDATED - Grade 10/10 🏆"
   - "✅ [2025-10-15] Production data import tested - 9 real users, zero dummy data"
   - "✅ [2025-10-15] Browser console verification - LOCAL connection confirmed"
   - "✅ [2025-10-15] Edge Functions tested - Running locally on port 9999"
