@@ -7,10 +7,16 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.3';
+export const APP_VERSION = 'v2.0.4';
 
 /**
  * Version history:
+ * - v2.0.4 (2024-10-14):
+ *   - CRITICAL FIX: Corrected environment variable name mismatch
+ *   - Code was looking for VITE_SUPABASE_PUBLISHABLE_KEY
+ *   - Vercel has VITE_SUPABASE_ANON_KEY
+ *   - Now checks both + correct production fallback
+ *
  * - v2.0.3 (2024-10-14):
  *   - Fixed production login issues (email + Notion OAuth)
  *   - Improved userExists() with RLS-safe fallback strategy
