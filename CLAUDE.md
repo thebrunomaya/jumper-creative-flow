@@ -287,6 +287,65 @@ Claude Code deve **SEMPRE** usar as ferramentas CLI disponíveis:
 
 **STATUS:** ✅ Supabase CLI instalado (v2.48.3) + Docker disponível
 
+### **Setup Rápido para Nova Sessão** ⚡
+
+**Método mais fácil (Recomendado):**
+
+```bash
+# Um único comando que faz tudo!
+./scripts/start-dev.sh
+
+# O script automaticamente:
+# ✅ Verifica Docker
+# ✅ Inicia Supabase Local
+# ✅ Verifica se tem dados de produção
+# ✅ Importa dados (se necessário)
+# ✅ Instala dependências NPM
+# ✅ Configura .env.local
+# ✅ Inicia npm run dev
+```
+
+**📖 Guia Completo:** [docs/DEV-SETUP.md](docs/DEV-SETUP.md)
+
+---
+
+### **Importar Database de Produção para Local** (Manual)
+
+**Quando usar:** Para testes com dados reais, debugging, ou desenvolvimento com dados de produção.
+
+**Processo (2 passos):**
+
+```bash
+# 1. Fazer backup da produção
+npx supabase db dump --linked --data-only --use-copy \
+  --file="./backups/production_data_$(date +%Y%m%d_%H%M%S).sql"
+
+# Output:
+# ✅ Dumped schema to ./backups/production_data_20241015_143022.sql
+
+# 2. Restore no local (⚠️ SUBSTITUI dados locais!)
+./scripts/restore-to-local.sh ./backups/production_data_20241015_143022.sql
+
+# Confirmar quando perguntado:
+# ⚠️  This will REPLACE all local data. Continue? (yes/no): yes
+
+# 3. Verificar no Supabase Studio
+# Abrir: http://127.0.0.1:54323
+```
+
+**Segurança:**
+- ✅ Backups **NÃO** são commitados (`.gitignore` configurado)
+- ✅ Scripts usam credenciais de produção read-only (pg_dump)
+- ✅ Confirmação explícita antes de sobrescrever dados locais
+- ⚠️ Dados de produção contêm informações sensíveis - não compartilhar backups
+
+**Arquivos criados:**
+- `scripts/backup-production.sh` - Faz dump da produção
+- `scripts/restore-to-local.sh` - Restaura dump no local
+- `backups/.gitignore` - Ignora backups no git
+
+---
+
 ### **Mudança de Fluxo (Outubro 2024)**
 
 **ANTES (Sem Docker/Supabase Local):**
@@ -297,6 +356,7 @@ Claude Code deve **SEMPRE** usar as ferramentas CLI disponíveis:
 **AGORA (Com Supabase Local):**
 - Testamos tudo localmente antes de fazer push
 - Zero risco para produção
+- Importar dados de produção quando necessário ✅
 - Deploy frontend automático via Vercel
 - Deploy edge functions manual via Supabase CLI
 

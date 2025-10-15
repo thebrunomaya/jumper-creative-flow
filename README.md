@@ -19,26 +19,47 @@ Sistema profissional de upload e gestão de criativos publicitários da **Jumper
 
 ## 🚀 Desenvolvimento Local
 
-### Pré-requisitos
-- Node.js 18+ ([instalar via nvm](https://github.com/nvm-sh/nvm#installing-and-updating))
-- Acesso às credenciais Supabase
+### ⚡ Quick Start (Recomendado)
 
-### Setup
+```bash
+# Um único comando que faz tudo!
+./scripts/start-dev.sh
+```
+
+Este script automaticamente:
+- ✅ Verifica Docker e inicia Supabase Local
+- ✅ Importa dados de produção (se necessário)
+- ✅ Configura variáveis de ambiente
+- ✅ Instala dependências
+- ✅ Inicia servidor de desenvolvimento
+
+**📖 Documentação Completa:**
+- **[Quick Start Guide](docs/QUICK-START.md)** - Comandos essenciais
+- **[Setup Detalhado](docs/DEV-SETUP.md)** - Guia passo-a-passo completo
+
+### Pré-requisitos
+- **Docker Desktop** rodando
+- **Node.js 18+** ([instalar via nvm](https://github.com/nvm-sh/nvm#installing-and-updating))
+- **Supabase CLI** (via npx)
+
+### Setup Manual
 
 ```bash
 # 1. Clone o repositório
 git clone <YOUR_GIT_URL>
 cd jumper-creative-flow
 
-# 2. Instale dependências
+# 2. Inicie Supabase Local
+npx supabase start
+
+# 3. Importe dados de produção
+./scripts/restore-to-local.sh ./backups/production_data_LATEST.sql
+
+# 4. Instale dependências
 npm install
 
-# 3. Configure variáveis de ambiente
-cp .env.template .env
-# Edite .env com suas credenciais Supabase
-
-# 4. Execute em desenvolvimento
-npm run dev
+# 5. Execute em desenvolvimento (LOCAL)
+VITE_SUPABASE_URL=http://127.0.0.1:54321 npm run dev
 ```
 
 ### Scripts Disponíveis

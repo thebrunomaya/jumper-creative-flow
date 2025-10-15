@@ -1,0 +1,7 @@
+# Ignore all backup files (contain production data)
+*.sql
+*.dump
+*.backup
+
+# Keep this directory in git
+!.gitignore
