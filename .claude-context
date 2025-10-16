@@ -3,13 +3,80 @@
 # Tracks recent decisions and work-in-progress (last 7 days)
 # Older decisions migrate to docs/ARCHITECTURE.md
 
-last_updated: "2025-10-15T22:00:00Z"
+last_updated: "2025-10-16T11:55:00Z"
 session_computer: "MacBook Pro (trabalho)"
 session_user: "Bruno Maya"
 
 # Recent decisions (last 7 days)
 # When older than 7 days, migrate to docs/ARCHITECTURE.md
 recent_decisions:
+  - date: "2025-10-16"
+    decision: "Development Password Automation - Local Environment UX Improvement"
+    status: "completed ✅"
+    details: |
+      🔑 DEV PASSWORD AUTOMATION: Automated password reset for local development environment
+
+      ## User Request:
+      "gostaria que a minha senha (bruno@jumper.studio) fosse senha123 e gostaria que no script de puxar a base,
+      tivesse também sempre essa ação final que mude a minha senha para senha 123"
+
+      ## Problem:
+      - After importing production data, production password was imported too
+      - Developer had to remember/use complex production password locally
+      - No easy way to reset password for local testing
+
+      ## Solution Implemented:
+
+      ### 1. Immediate Password Change:
+      Changed bruno@jumper.studio password to 'senha123' using bcrypt:
+      ```sql
+      UPDATE auth.users
+      SET encrypted_password = crypt('senha123', gen_salt('bf'))
+      WHERE email = 'bruno@jumper.studio';
+      ```
+
+      ### 2. Script Automation:
+      Modified `scripts/restore-to-local.sh` to automatically reset password after import:
+      - Executes password change via Docker (supabase_db_biwwowendjuzvpttyrlb)
+      - Silent execution (output to /dev/null)
+      - Shows success/skip message
+      - Displays dev credentials at the end
+
+      ### 3. Testing & Validation:
+      - ✅ Tested password change immediately
+      - ✅ Tested script with full restore flow
+      - ✅ Tested login via Supabase Auth API
+      - ✅ Verified user data (email, name, role preserved)
+
+      ## Benefits:
+      - ✅ Predictable dev password: Always 'senha123'
+      - ✅ Zero manual steps after data import
+      - ✅ Better DX: Easy to remember, easy to type
+      - ✅ Safe: Only affects local environment
+      - ✅ Documented: Credentials shown at script completion
+
+      ## Script Output:
+      ```
+      🔐 Setting development password for bruno@jumper.studio...
+         ✅ Password set to 'senha123'
+
+      ✅ Restore completed successfully!
+
+      🔑 Dev credentials: bruno@jumper.studio / senha123
+      ```
+
+      ## Technical Details:
+      - Uses Docker exec to run psql command
+      - bcrypt encryption with gen_salt('bf')
+      - Updates auth.users table directly
+      - Preserves all other user data (name, metadata, role)
+    impact: "MEDIUM - Improved developer experience, reduced friction in local setup"
+    files_changed:
+      - "scripts/restore-to-local.sh (added password reset automation)"
+    deployed: false
+    deployment_status: "Local development tooling only - no production changes"
+    migrate_to_architecture: false
+
   - date: "2025-10-15"
     decision: "Migration History Repair - Synchronized Local and Production"
     status: "completed successfully ✅"
@@ -906,6 +973,22 @@ current_issues:
 
 # Work in progress
 work_in_progress:
+  - task: "Session 2025-10-16 (Morning) - Dev Password Automation"
+    branch: "main"
+    started: "2025-10-16T11:35:00Z"
+    completed: "2025-10-16T11:55:00Z"
+    status: "COMPLETED ✅"
+    summary: |
+      ✅ Changed bruno@jumper.studio password to 'senha123' in local environment
+      ✅ Modified restore-to-local.sh to automatically reset password after import
+      ✅ Tested full restore workflow with password automation
+      ✅ Tested login via Supabase Auth API (successful)
+      ✅ Verified user data preserved (email, name, role)
+    files_modified:
+      - "scripts/restore-to-local.sh (added password reset automation)"
+    deployed: false
+    deployment_status: "Local development tooling - no deployment needed"
+
   - task: "Session 2025-10-12 (Evening) - Oracle Framework Reorganization"
     branch: "main"
     started: "2025-10-12T17:00:00Z"
@@ -952,6 +1035,51 @@ work_in_progress:
 
 # Context for next session
 next_session_context: |
+  🔧 SESSION 2025-10-16 (Morning) COMPLETED: DEV PASSWORD AUTOMATION
+
+  ## ✅ QUICK SESSION: Development UX Improvement
+
+  ### What Was Done:
+
+  **1. Automated Dev Password Reset 🔑**
+  - Modified `scripts/restore-to-local.sh` to automatically change password
+  - Password for bruno@jumper.studio now always reset to 'senha123' after data import
+  - Script displays dev credentials at completion
+  - Tested and validated login via Supabase Auth API
+
+  **Benefits:**
+  - ✅ No need to remember production password locally
+  - ✅ Predictable, easy-to-type dev credentials
+  - ✅ Zero manual steps after restore
+  - ✅ Better developer experience
+
+  **Dev Credentials (Local Only):**
+  ```
+  Email: bruno@jumper.studio
+  Password: senha123
+  ```
+
+  ## 🎯 SYSTEM STATUS: STABLE
+
+  **Development Workflow:**
+  - ✅ Start environment: `./scripts/start-dev.sh` (~10 seconds)
+  - ✅ Import data: `./scripts/restore-to-local.sh file.sql` (auto-resets password)
+  - ✅ Login: bruno@jumper.studio / senha123
+  - ✅ Migrations: `supabase db push --linked`
+  - ✅ Frontend: Vercel auto-deploy on push
+
+  **Production:**
+  - URL: https://hub.jumper.studio
+  - Status: ✅ Stable
+  - Version: v2.0.10
+  - Last Deploy: 2025-10-15 21:17 UTC
+
+  ## 🚀 READY FOR NEXT SESSION
+
+  No blocking issues, infrastructure solid, ready for feature development!
+
+  ---
+
   🔧 SESSION 2025-10-15 (Night) COMPLETED: MIGRATION HISTORY REPAIR + RLS FIX
 
   ## ✅ MAJOR ACCOMPLISHMENTS: Infrastructure Fixes
@@ -1228,6 +1356,8 @@ pending_todos:
 
 # Recently completed (for reference)
 completed_recently:
+  - "✅ [2025-10-16 Morning] Dev Password Automation - Local password always reset to senha123 🔑"
+  - "✅ [2025-10-16 Morning] Tested login with new automated password reset ✅"
   - "✅ [2025-10-15 Night] Migration History Repair - 43 old migrations → 2 clean migrations 🔧"
   - "✅ [2025-10-15 Night] supabase db push restored - No more manual SQL! 🚀"
   - "✅ [2025-10-15 Evening] Optimization RLS Fix - Admins can view all recordings (v2.0.10) 🔐"

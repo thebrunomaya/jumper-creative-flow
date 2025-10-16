@@ -98,9 +98,19 @@ else
 fi
 
 echo ""
+echo "🔐 Setting development password for bruno@jumper.studio..."
+
+# Update Bruno's password to senha123 for local development
+docker exec -i supabase_db_biwwowendjuzvpttyrlb psql -U postgres -d postgres -c \
+  "UPDATE auth.users SET encrypted_password = crypt('senha123', gen_salt('bf')) WHERE email = 'bruno@jumper.studio';" \
+  > /dev/null 2>&1 && echo "   ✅ Password set to 'senha123'" || echo "   ⚠️  Password update skipped"
+
+echo ""
 echo "✅ Restore completed successfully!"
 echo ""
 echo "🎯 Next steps:"
 echo "   1. Verify data in Supabase Studio: http://127.0.0.1:54323"
 echo "   2. Test application: npm run dev"
 echo "   3. Check tables: psql ${LOCAL_DB_URL} -c '\dt'"
+echo ""
+echo "🔑 Dev credentials: bruno@jumper.studio / senha123"
