@@ -16,8 +16,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { JumperButton } from "@/components/ui/jumper-button";
-import { Bug, Loader2, AlertCircle, ChevronDown, ChevronUp } from "lucide-react";
+import { Bug, Loader2, AlertCircle } from "lucide-react";
 
 interface DebugModalProps {
   open: boolean;
@@ -52,27 +51,12 @@ const stepLabels = {
 export function DebugModal({ open, onOpenChange, recordingId, step }: DebugModalProps) {
   const [logs, setLogs] = useState<APILog[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [expandedFields, setExpandedFields] = useState<Record<string, Record<string, boolean>>>({});
 
   useEffect(() => {
     if (open) {
       fetchLogs();
     }
   }, [open, step, recordingId]);
-
-  const toggleExpand = (logId: string, field: string) => {
-    setExpandedFields(prev => ({
-      ...prev,
-      [logId]: {
-        ...prev[logId],
-        [field]: !prev[logId]?.[field]
-      }
-    }));
-  };
-
-  const isExpanded = (logId: string, field: string) => {
-    return expandedFields[logId]?.[field] || false;
-  };
 
   async function fetchLogs() {
     setIsLoading(true);
@@ -149,34 +133,14 @@ export function DebugModal({ open, onOpenChange, recordingId, step }: DebugModal
                     {/* Input Preview */}
                     {log.input_preview && (
                       <div>
-                        <div className="flex items-center justify-between mb-1">
-                          <Label className="text-xs font-semibold text-muted-foreground">
-                            📥 Input (preview)
-                          </Label>
-                          <JumperButton
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => toggleExpand(log.id, 'input')}
-                            className="h-6 text-xs"
-                          >
-                            {isExpanded(log.id, 'input') ? (
-                              <>
-                                <ChevronUp className="h-3 w-3 mr-1" />
-                                Colapsar
-                              </>
-                            ) : (
-                              <>
-                                <ChevronDown className="h-3 w-3 mr-1" />
-                                Expandir
-                              </>
-                            )}
-                          </JumperButton>
-                        </div>
+                        <Label className="text-xs font-semibold text-muted-foreground">
+                          📥 Input (preview)
+                        </Label>
                         <Textarea
                           readOnly
                           value={log.input_preview}
                           className="mt-1 font-mono text-xs resize-none"
-                          rows={isExpanded(log.id, 'input') ? 20 : 3}
+                          rows={8}
                         />
                       </div>
                     )}
@@ -184,34 +148,14 @@ export function DebugModal({ open, onOpenChange, recordingId, step }: DebugModal
                     {/* Prompt Sent */}
                     {log.prompt_sent && (
                       <div>
-                        <div className="flex items-center justify-between mb-1">
-                          <Label className="text-xs font-semibold text-muted-foreground">
-                            💬 Prompt Enviado para API
-                          </Label>
-                          <JumperButton
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => toggleExpand(log.id, 'prompt')}
-                            className="h-6 text-xs"
-                          >
-                            {isExpanded(log.id, 'prompt') ? (
-                              <>
-                                <ChevronUp className="h-3 w-3 mr-1" />
-                                Colapsar
-                              </>
-                            ) : (
-                              <>
-                                <ChevronDown className="h-3 w-3 mr-1" />
-                                Expandir
-                              </>
-                            )}
-                          </JumperButton>
-                        </div>
+                        <Label className="text-xs font-semibold text-muted-foreground">
+                          💬 Prompt Enviado para API
+                        </Label>
                         <Textarea
                           readOnly
                           value={log.prompt_sent}
                           className="mt-1 font-mono text-xs resize-none"
-                          rows={isExpanded(log.id, 'prompt') ? 30 : 8}
+                          rows={20}
                         />
                       </div>
                     )}
@@ -219,34 +163,14 @@ export function DebugModal({ open, onOpenChange, recordingId, step }: DebugModal
                     {/* Output Preview */}
                     {log.output_preview && (
                       <div>
-                        <div className="flex items-center justify-between mb-1">
-                          <Label className="text-xs font-semibold text-muted-foreground">
-                            📤 Output (preview)
-                          </Label>
-                          <JumperButton
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => toggleExpand(log.id, 'output')}
-                            className="h-6 text-xs"
-                          >
-                            {isExpanded(log.id, 'output') ? (
-                              <>
-                                <ChevronUp className="h-3 w-3 mr-1" />
-                                Colapsar
-                              </>
-                            ) : (
-                              <>
-                                <ChevronDown className="h-3 w-3 mr-1" />
-                                Expandir
-                              </>
-                            )}
-                          </JumperButton>
-                        </div>
+                        <Label className="text-xs font-semibold text-muted-foreground">
+                          📤 Output (preview)
+                        </Label>
                         <Textarea
                           readOnly
                           value={log.output_preview}
                           className="mt-1 font-mono text-xs resize-none"
-                          rows={isExpanded(log.id, 'output') ? 25 : 6}
+                          rows={15}
                         />
                       </div>
                     )}

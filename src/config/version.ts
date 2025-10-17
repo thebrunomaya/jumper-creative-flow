@@ -7,10 +7,16 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.12';
+export const APP_VERSION = 'v2.0.13';
 
 /**
  * Version history:
+ * - v2.0.13 (2024-10-17):
+ *   - REVERT: Removed expandable UI from v2.0.11 (unnecessary after v2.0.12 fix)
+ *   - Textareas now have fixed larger sizes: Input (8), Prompt (20), Output (15)
+ *   - Simpler UX - no expand/collapse buttons needed
+ *   - Data truncation was fixed in v2.0.12, so larger fixed sizes work well
+ *
  * - v2.0.12 (2024-10-17):
  *   - FIX: Increased debug log preview limits from 500 to 5000 characters
  *   - Edge Functions: j_hub_optimization_transcribe, process, analyze, improve_transcript, improve_processed
@@ -18,12 +24,9 @@ export const APP_VERSION = 'v2.0.12';
  *   - Admin debug modal now shows complete output for troubleshooting
  *   - User reported: "Output realmente está pela metade" - now fixed!
  *
- * - v2.0.11 (2024-10-17):
+ * - v2.0.11 (2024-10-17): [REVERTED in v2.0.13]
  *   - UX: Added expandable textareas in DebugModal (Optimization Editor)
- *   - Each field (Input/Prompt/Output) now has "Expandir/Colapsar" button
- *   - Collapsed: 3-8 rows (compact view)
- *   - Expanded: 20-30 rows (full content visible)
- *   - This was a visual-only fix (data was still truncated at 500 chars)
+ *   - This was unnecessary complexity after discovering real issue was data truncation
  *
  * - v2.0.10 (2024-10-15):
  *   - FIX: Optimization RLS policies now allow admins to view ALL recordings
