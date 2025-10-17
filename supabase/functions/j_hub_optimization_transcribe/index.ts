@@ -205,7 +205,7 @@ OUTPUT: Transcribe in Brazilian Portuguese.`;
         prompt_sent: finalPrompt,
         model_used: 'whisper-1',
         input_preview: `Audio file: ${recording.audio_file_path} | Duration: ${recording.duration_seconds}s`,
-        output_preview: transcription.text.substring(0, 500),
+        output_preview: transcription.text.substring(0, 5000),
         tokens_used: null, // Whisper doesn't report tokens
         latency_ms: latency,
         success: true,

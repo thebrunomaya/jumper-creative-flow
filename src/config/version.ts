@@ -7,16 +7,23 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.11';
+export const APP_VERSION = 'v2.0.12';
 
 /**
  * Version history:
+ * - v2.0.12 (2024-10-17):
+ *   - FIX: Increased debug log preview limits from 500 to 5000 characters
+ *   - Edge Functions: j_hub_optimization_transcribe, process, analyze, improve_transcript, improve_processed
+ *   - Fixes actual data truncation issue (not just visual)
+ *   - Admin debug modal now shows complete output for troubleshooting
+ *   - User reported: "Output realmente está pela metade" - now fixed!
+ *
  * - v2.0.11 (2024-10-17):
  *   - UX: Added expandable textareas in DebugModal (Optimization Editor)
  *   - Each field (Input/Prompt/Output) now has "Expandir/Colapsar" button
  *   - Collapsed: 3-8 rows (compact view)
  *   - Expanded: 20-30 rows (full content visible)
- *   - Fixes truncated output issue reported by user
+ *   - This was a visual-only fix (data was still truncated at 500 chars)
  *
  * - v2.0.10 (2024-10-15):
  *   - FIX: Optimization RLS policies now allow admins to view ALL recordings
