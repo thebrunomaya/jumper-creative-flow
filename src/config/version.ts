@@ -7,10 +7,19 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.13';
+export const APP_VERSION = 'v2.0.14';
 
 /**
  * Version history:
+ * - v2.0.14 (2024-10-17):
+ *   - ENHANCEMENT: Step 2 prompt now includes temporal context intelligence
+ *   - Added CRITICAL section for date/time resolution (Priority 1: extract from audio, Priority 2: use system timestamp)
+ *   - AI now converts relative periods ("yesterday", "last 7 days") to absolute dates (DD/MM/YYYY)
+ *   - Mandatory output format includes "CONTEXTO DA OTIMIZAÇÃO" section
+ *   - All analysis sections specify exact periods (complete/partial) with "Análise realizada em" timestamp
+ *   - Recording timestamp passed to AI in Brazil Time (UTC-3) format
+ *   - Eliminates ambiguous temporal references in optimization reports
+ *
  * - v2.0.13 (2024-10-17):
  *   - REVERT: Removed expandable UI from v2.0.11 (unnecessary after v2.0.12 fix)
  *   - Textareas now have fixed larger sizes: Input (8), Prompt (20), Output (15)

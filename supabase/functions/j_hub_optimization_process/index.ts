@@ -103,10 +103,10 @@ Your task is to transform raw transcription into chronologically organized topic
 
 EXPECTED FORMAT:
 
-### 🎯 [Timestamp/Moment] - Action/Observation Title
-**What was done:** Clear description of the action or observation
-**Metrics mentioned:** CPM R$ X, ROAS Y, CTR Z% (if mentioned)
-**Reason/Context:** Why this decision was made
+🎯 [Timestamp/Moment] - Action/Observation Title
+What was done: Clear description of the action or observation
+Metrics mentioned: CPM R$ X, ROAS Y, CTR Z% (if mentioned)
+Reason/Context: Why this decision was made
 
 IMPORTANT RULES:
 - Use relevant emojis (📊 📈 📉 ⚠️ ✅ 🔄 etc.) to improve readability
@@ -115,12 +115,112 @@ IMPORTANT RULES:
 - If the manager mentions specific campaigns/ads, cite the names
 - Return ONLY the organized text in topics, without introduction or additional conclusion
 
+==============================================
+TEMPORAL CONTEXT (CRITICAL)
+The system provides a timestamp when the optimization was recorded. The manager may or may not mention the current date/time in their audio.
+
+DETERMINING THE OPTIMIZATION DATE/TIME:
+
+PRIORITY 1 - Extract from transcription:
+If the manager mentions date/time (e.g., "Today is October 17th, it's 1 PM"):
+→ Use that date/time
+
+PRIORITY 2 - Use system timestamp:
+If the manager does NOT mention date/time:
+→ Use the timestamp from CONTEXT OF CURRENT RECORDING
+→ Convert from UTC to Brazil Time (UTC-3)
+→ This is the date/time of the optimization
+
+CALCULATING RELATIVE PERIODS:
+Once you have the optimization date, CALCULATE all relative periods mentioned:
+
+"Yesterday" / "Previous day" / "D-1"
+→ 1 day before optimization date (complete 00h00-23h59)
+Example:
+- Optimization: 17/10/2025
+- Yesterday = 16/10/2025 00h00-23h59
+
+"Today" / "Today so far"
+→ Current day from 00h00 until optimization time
+Example:
+- Optimization: 17/10/2025 at 13h00
+- Today = 17/10/2025 00h00-13h00
+
+"Last X days"
+→ X complete days BEFORE today (does not include today)
+Example:
+- Optimization: 17/10/2025
+- Last 7 days = 10/10/2025 00h - 16/10/2025 23h59
+
+"This week"
+→ Monday of current week until today
+
+"Last week"
+→ Monday to Sunday of previous week
+
+"This month"
+→ Day 1 of current month until today
+
+"Last month"
+→ Complete previous month (day 1 to last day)
+
+"Since it started" / "Maximum period" without specific start date:
+→ Indicate: [Start date not specified - until DD/MM/YYYY]
+
+MANDATORY OUTPUT FORMAT:
+ALWAYS include an initial context section:
+
+📅 CONTEXTO DA OTIMIZAÇÃO
+Data/hora: DD/MM/YYYY às HH:MM
+Gestor: [manager name]
+Conta: [account name]
+Plataforma: [Meta Ads/Google Ads]
+
+Then ALWAYS specify absolute periods in section titles:
+
+📊 [16/10/2025 Completo] - Performance do Dia Anterior
+Período analisado: 16/10/2025 00h00 - 23h59 (dia completo)
+Análise realizada em: 17/10/2025 às 13h00
+Métricas:
+[metrics here]
+
+📈 [10/10 - 16/10/2025] - Últimos 7 Dias
+Período analisado: 10/10/2025 00h - 16/10/2025 23h59 (7 dias completos)
+Análise realizada em: 17/10/2025 às 13h00
+Métricas:
+[metrics here]
+
+CRITICAL RULES:
+- NEVER leave ambiguous periods like "yesterday", "last days", "recently"
+- ALWAYS convert to absolute dates with DD/MM/YYYY format
+- ALWAYS specify if period is "complete" (00h-23h59) or "partial" (00h-HH:MM)
+- Include "Análise realizada em:" timestamp to show when data was collected
+- If start date is unknown, explicitly state: [Data inicial não especificada]
+
 OUTPUT LANGUAGE: Brazilian Portuguese`;
 
 
     const platform = recording.platform === 'google' ? 'Google Ads' : 'Meta Ads';
 
+    // Format recording timestamp for context
+    const recordingDate = new Date(recording.recorded_at);
+    const brazilTime = new Date(recordingDate.getTime() - (3 * 60 * 60 * 1000)); // UTC-3
+    const formattedDate = brazilTime.toLocaleString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      timeZone: 'America/Sao_Paulo'
+    });
+
     const userPrompt = `==============================================
+CONTEXT OF CURRENT RECORDING
+==============================================
+RECORDING TIMESTAMP (System): ${formattedDate} (Brazil Time - UTC-3)
+USE THIS if manager does NOT mention date/time in audio.
+
+==============================================
 PROPER NAMES AND CONTEXT
 ==============================================
 ${transcriptionContext}
