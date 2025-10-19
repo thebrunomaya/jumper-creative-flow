@@ -96,7 +96,7 @@ export default function OptimizationEditor() {
 
   // Debug modal
   const [debugModalOpen, setDebugModalOpen] = useState(false);
-  const [debugStep, setDebugStep] = useState<'transcribe' | 'process' | 'analyze' | 'improve_transcript'>('transcribe');
+  const [debugStep, setDebugStep] = useState<'transcribe' | 'process' | 'analyze' | 'improve_transcript' | 'improve_processed' | string[]>('transcribe');
 
   // Share modal
   const [shareModalOpen, setShareModalOpen] = useState(false);
@@ -510,7 +510,12 @@ export default function OptimizationEditor() {
 
   // Debug modal handlers
   function openDebug(step: 'transcribe' | 'process' | 'analyze') {
-    setDebugStep(step);
+    // For transcribe step, show both Whisper and Enhancement logs
+    if (step === 'transcribe') {
+      setDebugStep(['transcribe', 'enhance_transcription']);
+    } else {
+      setDebugStep(step);
+    }
     setDebugModalOpen(true);
   }
 

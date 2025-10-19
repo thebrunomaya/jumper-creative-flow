@@ -181,13 +181,15 @@ npm run dev
 **CRÍTICO:** Edge Functions precisam rodar localmente para que a aplicação funcione!
 
 ```bash
-# Iniciar Edge Functions em background
-npx supabase functions serve > /tmp/supabase-functions.log 2>&1 &
+# Iniciar Edge Functions em background com env file
+npx supabase functions serve --env-file .env.local > /tmp/supabase-functions.log 2>&1 &
 
 # Verificar se iniciou (aguardar 3 segundos)
 sleep 3
 tail -f /tmp/supabase-functions.log
 ```
+
+**IMPORTANTE:** O parâmetro `--env-file .env.local` é **obrigatório** para que as Edge Functions tenham acesso às variáveis de ambiente (SUPABASE_SERVICE_ROLE_KEY, NOTION_TOKEN, etc).
 
 **Saída esperada:**
 ```
@@ -312,8 +314,8 @@ docker run --rm --network host postgres:15 \
   psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" \
   -c "SELECT COUNT(*) FROM j_hub_users;"
 
-# Iniciar Edge Functions (CRÍTICO!)
-npx supabase functions serve > /tmp/supabase-functions.log 2>&1 &
+# Iniciar Edge Functions (CRÍTICO!) com env file
+npx supabase functions serve --env-file .env.local > /tmp/supabase-functions.log 2>&1 &
 sleep 3
 
 # Iniciar frontend (com LOCAL)
@@ -338,8 +340,8 @@ npm run dev
 # Verificar se Edge Functions estão rodando
 pgrep -f "supabase functions serve"
 
-# Se não retornar nada, iniciar:
-npx supabase functions serve > /tmp/supabase-functions.log 2>&1 &
+# Se não retornar nada, iniciar com env file:
+npx supabase functions serve --env-file .env.local > /tmp/supabase-functions.log 2>&1 &
 
 # Verificar logs
 tail -f /tmp/supabase-functions.log
@@ -446,5 +448,5 @@ Após importação completa, você deve ter:
 
 ---
 
-**Última atualização:** 2024-10-15
+**Última atualização:** 2025-10-17
 **Autor:** Claude Code Assistant

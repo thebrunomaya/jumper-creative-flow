@@ -22,7 +22,7 @@ interface DebugModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   recordingId: string;
-  step: 'transcribe' | 'process' | 'analyze' | 'improve_transcript' | 'improve_processed';
+  step: 'transcribe' | 'process' | 'analyze' | 'improve_transcript' | 'improve_processed' | string[];
 }
 
 interface APILog {
@@ -40,8 +40,9 @@ interface APILog {
   created_at: string;
 }
 
-const stepLabels = {
+const stepLabels: Record<string, string> = {
   transcribe: 'Passo 1: Transcrição (Whisper)',
+  enhance_transcription: 'Enhancement (Claude Sonnet 4.5)',
   process: 'Passo 2: Processamento (Claude Bullets)',
   analyze: 'Passo 3: Análise (IA)',
   improve_transcript: 'Ajuste de Transcrição com IA (Claude)',
@@ -61,12 +62,15 @@ export function DebugModal({ open, onOpenChange, recordingId, step }: DebugModal
   async function fetchLogs() {
     setIsLoading(true);
     try {
+      // Support both single step and array of steps
+      const steps = Array.isArray(step) ? step : [step];
+
       const { data, error } = await supabase
         .from('j_hub_optimization_api_logs')
         .select('*')
         .eq('recording_id', recordingId)
-        .eq('step', step)
-        .order('created_at', { ascending: false });
+        .in('step', steps)
+        .order('created_at', { ascending: true }); // Show in chronological order
 
       if (error) {
         console.error('Error fetching logs:', error);
@@ -87,7 +91,9 @@ export function DebugModal({ open, onOpenChange, recordingId, step }: DebugModal
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Bug className="h-5 w-5" />
-            Debug - {stepLabels[step]}
+            Debug - {Array.isArray(step)
+              ? `Múltiplos Steps (${step.length})`
+              : stepLabels[step] || step}
           </DialogTitle>
         </DialogHeader>
 
@@ -111,12 +117,19 @@ export function DebugModal({ open, onOpenChange, recordingId, step }: DebugModal
                 <Card key={log.id} className={log.success ? '' : 'border-destructive'}>
                   <CardHeader>
                     <div className="flex items-center justify-between">
-                      <CardTitle className="text-sm font-mono">
-                        {new Date(log.created_at).toLocaleString('pt-BR', {
-                          dateStyle: 'short',
-                          timeStyle: 'medium'
-                        })}
-                      </CardTitle>
+                      <div className="flex items-center gap-2">
+                        <CardTitle className="text-sm font-mono">
+                          {new Date(log.created_at).toLocaleString('pt-BR', {
+                            dateStyle: 'short',
+                            timeStyle: 'medium'
+                          })}
+                        </CardTitle>
+                        {Array.isArray(step) && (
+                          <Badge variant="secondary" className="text-xs">
+                            {stepLabels[log.step] || log.step}
+                          </Badge>
+                        )}
+                      </div>
                       {log.success ? (
                         <Badge variant="outline" className="bg-success/10 text-success border-success/20">
                           ✓ Sucesso

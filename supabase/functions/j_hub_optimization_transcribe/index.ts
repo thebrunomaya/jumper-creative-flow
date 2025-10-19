@@ -181,6 +181,18 @@ CORRECTIONS TO MAKE:
 3. Numbers and currency values (ensure clarity: "R$ 1.500" not "um mil e quinhentos reais")
 4. Punctuation ONLY when it significantly improves clarity
 
+⭐ COMMON PHONETIC ERRORS IN BRAZILIAN PORTUGUESE PAID TRAFFIC:
+These are VERY common mistakes that Whisper makes when transcribing PT-BR paid traffic audio. ALWAYS correct these:
+
+- "edge" → should be "ad" (English word for advertisement)
+- "edges" → should be "ads" (plural of ad)
+- "roaz" or "roas" (lowercase) → should be "ROAS" (uppercase acronym)
+- "cê-pê-cê" or "cpc" (lowercase) → should be "CPC" (uppercase)
+- "cê-pê-ême" or "cpm" (lowercase) → should be "CPM" (uppercase)
+- "cê-tê-érre" or "ctr" (lowercase) → should be "CTR" (uppercase)
+- "cê-pê-á" or "cpa" (lowercase) → should be "CPA" (uppercase)
+- "impressão" (singular when referring to metric) → "impressões" (plural)
+
 CRITICAL RULES:
 - Do NOT rephrase or rewrite sentences
 - Do NOT add information that wasn't spoken

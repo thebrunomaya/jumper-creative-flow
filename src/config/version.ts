@@ -7,10 +7,17 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.14';
+export const APP_VERSION = 'v2.0.15';
 
 /**
  * Version history:
+ * - v2.0.15 (2024-10-19):
+ *   - FIX: Enhanced Claude prompt to correct common PT-BR phonetic errors in transcriptions
+ *   - Added explicit corrections: "edge"→"ad", "roaz"→"ROAS", "cê-pê-cê"→"CPC", etc.
+ *   - FEATURE: DebugModal now shows BOTH Whisper and Enhancement logs for Step 1
+ *   - Admin can now inspect what Claude changed during automatic post-processing
+ *   - Improved transcription quality for paid traffic terminology
+ *
  * - v2.0.14 (2024-10-17):
  *   - ENHANCEMENT: Step 2 prompt now includes temporal context intelligence
  *   - Added CRITICAL section for date/time resolution (Priority 1: extract from audio, Priority 2: use system timestamp)

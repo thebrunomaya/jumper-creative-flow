@@ -3,13 +3,85 @@
 # Tracks recent decisions and work-in-progress (last 7 days)
 # Older decisions migrate to docs/ARCHITECTURE.md
 
-last_updated: "2025-10-16T11:55:00Z"
+last_updated: "2025-10-17T23:15:00Z"
 session_computer: "MacBook Pro (trabalho)"
 session_user: "Bruno Maya"
 
 # Recent decisions (last 7 days)
 # When older than 7 days, migrate to docs/ARCHITECTURE.md
 recent_decisions:
+  - date: "2025-10-17"
+    decision: "Edge Functions Documentation Fix - Added Missing --env-file Parameter"
+    status: "completed ✅"
+    details: |
+      🔧 DOCUMENTATION FIX: Corrected critical omission in Edge Functions startup documentation
+
+      ## Problem Discovered:
+      User started local dev environment, but Edge Functions were returning 503 errors:
+      ```
+      POST http://127.0.0.1:54321/functions/v1/j_hub_user_accounts 503 (Service Temporarily Unavailable)
+      useMyNotionAccounts error: FunctionsHttpError: Edge Function returned a non-2xx status code
+      ```
+
+      **Impact:**
+      - No user accounts visible in frontend
+      - No optimizations visible
+      - System appeared broken despite database having data
+
+      ## Root Cause:
+      Documentation instructed to run:
+      ```bash
+      npx supabase functions serve
+      ```
+
+      But this command does NOT load environment variables (.env.local), so Edge Functions:
+      - ❌ Had no SUPABASE_SERVICE_ROLE_KEY
+      - ❌ Had no NOTION_TOKEN
+      - ❌ Failed silently with 503
+
+      **Correct command:**
+      ```bash
+      npx supabase functions serve --env-file .env.local
+      ```
+
+      ## Files Corrected:
+
+      ### 1. docs/DEV-SETUP.md (3 locations):
+      - Line 185: Main Step 8 instructions
+      - Line 318: Copy-paste command summary
+      - Line 344: Troubleshooting section
+      - **Added warning:** "O parâmetro --env-file .env.local é OBRIGATÓRIO"
+
+      ### 2. scripts/start-dev.sh:
+      - Line 118: Automated startup script
+      - Added informative message about env file usage
+
+      ## Why This Matters:
+      Without `--env-file .env.local`, Edge Functions cannot:
+      - Access database with service role (queries fail)
+      - Make Notion API calls (sync fails)
+      - Return user accounts (frontend shows empty)
+      - Process optimizations (system broken)
+
+      ## Testing:
+      - ✅ Started Edge Functions with --env-file
+      - ✅ Verified functions serving on port 54321
+      - ✅ Tested j_hub_user_accounts endpoint
+      - ✅ User accounts now visible in frontend
+      - ✅ Optimizations now visible
+
+      ## User Feedback:
+      > "Agora foi. Esse procedimento não está descrito na documentação de montagem do dev mode?"
+
+      User was absolutely right - documentation was incomplete and incorrect.
+    impact: "HIGH - Critical fix for local development workflow, prevents 503 errors"
+    files_changed:
+      - "docs/DEV-SETUP.md (3 corrections)"
+      - "scripts/start-dev.sh (1 correction)"
+    deployed: false
+    deployment_status: "Documentation only - no production changes"
+    migrate_to_architecture: false
+
   - date: "2025-10-16"
     decision: "Development Password Automation - Local Environment UX Improvement"
     status: "completed ✅"
@@ -1035,6 +1107,65 @@ work_in_progress:
 
 # Context for next session
 next_session_context: |
+  🔧 SESSION 2025-10-17 (Night) COMPLETED: EDGE FUNCTIONS DOCUMENTATION FIX
+
+  ## ✅ QUICK SESSION: Critical Documentation Correction
+
+  ### What Was Done:
+
+  **1. Fixed Edge Functions Startup Documentation 📚**
+  - Corrected docs/DEV-SETUP.md (3 locations)
+  - Corrected scripts/start-dev.sh
+  - Added missing `--env-file .env.local` parameter
+  - Added warning about parameter being OBRIGATÓRIO
+
+  **2. Production Data Import Validated ✅**
+  - Imported fresh production backup (2025-10-17)
+  - 9 users, 43 accounts, 35,407 Meta Ads records
+  - Password automatically reset to 'senha123'
+
+  **3. Local Environment Fully Operational 🚀**
+  - ✅ Supabase Local running
+  - ✅ Edge Functions serving with env file
+  - ✅ Frontend dev server running
+  - ✅ User accounts visible
+  - ✅ Optimizations visible
+
+  ## 🎯 CURRENT ENVIRONMENT STATUS:
+
+  **Running Processes:**
+  - Dev server: http://localhost:8081
+  - Edge Functions: http://127.0.0.1:54321/functions/v1/
+  - Supabase Studio: http://127.0.0.1:54323
+  - Database: 127.0.0.1:54322
+
+  **To Stop Everything:**
+  ```bash
+  pkill -f "supabase functions serve"
+  pkill -f "vite"
+  npx supabase stop
+  ```
+
+  **To Start Fresh Next Session:**
+  ```bash
+  npx supabase start
+  npx supabase functions serve --env-file .env.local &
+  npm run dev
+  ```
+
+  ## 📊 DOCUMENTATION NOW CORRECT:
+
+  All dev setup docs now have correct Edge Functions command:
+  - ✅ docs/DEV-SETUP.md
+  - ✅ scripts/start-dev.sh
+  - ✅ Warnings added about --env-file requirement
+
+  ## 🚀 READY FOR NEXT SESSION
+
+  No blocking issues, environment ready, documentation corrected!
+
+  ---
+
   🔧 SESSION 2025-10-16 (Morning) COMPLETED: DEV PASSWORD AUTOMATION
 
   ## ✅ QUICK SESSION: Development UX Improvement
@@ -1356,6 +1487,9 @@ pending_todos:
 
 # Recently completed (for reference)
 completed_recently:
+  - "✅ [2025-10-17 Night] Edge Functions Documentation Fix - Added --env-file .env.local to all docs 📚"
+  - "✅ [2025-10-17 Night] Production data import - 9 users, 43 accounts, 35,407 ads records ✅"
+  - "✅ [2025-10-17 Night] Local environment fully operational - All services running 🚀"
   - "✅ [2025-10-16 Morning] Dev Password Automation - Local password always reset to senha123 🔑"
   - "✅ [2025-10-16 Morning] Tested login with new automated password reset ✅"
   - "✅ [2025-10-15 Night] Migration History Repair - 43 old migrations → 2 clean migrations 🔧"
