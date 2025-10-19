@@ -159,20 +159,103 @@ OUTPUT: Transcribe in Brazilian Portuguese.`;
     }
 
     const transcription = await whisperResponse.json();
-    const latency = Date.now() - startTime;
+    const whisperLatency = Date.now() - startTime;
 
-    console.log('✅ [TRANSCRIBE] Completed:', transcription.text?.length || 0, 'chars,', latency, 'ms');
+    console.log('✅ [TRANSCRIBE] Whisper completed:', transcription.text?.length || 0, 'chars,', whisperLatency, 'ms');
 
-    // 6. Store transcription in database (RAW ONLY - no processing)
+    // 6. ENHANCEMENT STEP: Claude Post-Processing for Quality
+    let enhancedText = transcription.text;
+    let enhancementLatency = 0;
+    let enhancementSuccess = false;
+
+    try {
+      console.log('🔧 [ENHANCE] Starting automatic quality enhancement...');
+
+      const enhancementPrompt = `You are a Brazilian Portuguese transcription quality specialist.
+
+Your job is to CORRECT ERRORS in automatic transcriptions (Whisper), preserving the speaker's original meaning and style.
+
+CORRECTIONS TO MAKE:
+1. Proper nouns (campaign names, client names, brand names, product names)
+2. Technical terms (CTR, CPA, ROAS, CPM, CPC, CPL, impressões, cliques, conversões, etc.)
+3. Numbers and currency values (ensure clarity: "R$ 1.500" not "um mil e quinhentos reais")
+4. Punctuation ONLY when it significantly improves clarity
+
+CRITICAL RULES:
+- Do NOT rephrase or rewrite sentences
+- Do NOT add information that wasn't spoken
+- Do NOT remove filler words or natural speech patterns
+- Preserve the exact flow and speaking style
+- Only correct clear transcription errors
+
+CONTEXT FOR PROPER NOUNS:
+${contexto}
+
+PLATFORM: ${platformName}
+
+RAW TRANSCRIPTION TO CORRECT:
+${transcription.text}
+
+OUTPUT: Return ONLY the corrected transcription as plain text (no markdown, no explanations, no preamble).`;
+
+      const enhanceStartTime = Date.now();
+      const anthropicKey = Deno.env.get('ANTHROPIC_API_KEY');
+
+      if (!anthropicKey) {
+        console.warn('⚠️ [ENHANCE] ANTHROPIC_API_KEY not configured, skipping enhancement');
+        throw new Error('ANTHROPIC_API_KEY not configured');
+      }
+
+      const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': anthropicKey,
+          'anthropic-version': '2023-06-01'
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-5-20250929',
+          max_tokens: 4096,
+          messages: [
+            { role: 'user', content: enhancementPrompt }
+          ]
+        }),
+      });
+
+      if (!claudeResponse.ok) {
+        const errorText = await claudeResponse.text();
+        console.error('❌ [ENHANCE] Claude API error:', errorText);
+        throw new Error(`Claude API error: ${claudeResponse.status}`);
+      }
+
+      const claudeData = await claudeResponse.json();
+      enhancedText = claudeData.content[0].text;
+      enhancementLatency = Date.now() - enhanceStartTime;
+      enhancementSuccess = true;
+
+      console.log('✅ [ENHANCE] Enhancement completed');
+      console.log('📏 [ENHANCE] Original length:', transcription.text.length, 'chars');
+      console.log('📏 [ENHANCE] Enhanced length:', enhancedText.length, 'chars');
+      console.log('⏱️ [ENHANCE] Latency:', enhancementLatency, 'ms');
+      console.log('🎫 [ENHANCE] Tokens used:', claudeData.usage?.input_tokens + claudeData.usage?.output_tokens);
+
+    } catch (error) {
+      console.warn('⚠️ [ENHANCE] Enhancement failed, using raw Whisper output as fallback');
+      console.warn('Error:', error.message);
+      enhancedText = transcription.text; // Fallback to raw
+      enhancementSuccess = false;
+    }
+
+    // 7. Store transcription in database (ENHANCED + RAW)
     // Using UPSERT to allow re-transcription without DELETE
     // NOTE: processed_text is NOT included here to preserve Step 2 work
     const { error: upsertError } = await supabase
       .from('j_hub_optimization_transcripts')
       .upsert({
         recording_id,
-        full_text: transcription.text,
+        full_text: enhancedText,  // Enhanced version (or raw if enhancement failed)
         // processed_text is omitted - maintains existing value on UPDATE, NULL on INSERT
-        original_text: transcription.text,
+        original_text: transcription.text,  // Always preserve raw Whisper output
         language: transcription.language || 'pt',
         confidence_score: null,
         segments: transcription.segments || null,
@@ -187,7 +270,7 @@ OUTPUT: Transcribe in Brazilian Portuguese.`;
       throw new Error(`Failed to save transcript: ${upsertError.message}`);
     }
 
-    // 7. Update recording status to completed
+    // 8. Update recording status to completed
     await supabase
       .from('j_hub_optimization_recordings')
       .update({
@@ -196,7 +279,7 @@ OUTPUT: Transcribe in Brazilian Portuguese.`;
       })
       .eq('id', recording_id);
 
-    // 8. Log API call for debugging (admin only)
+    // 9. Log API call for debugging (admin only) - Whisper
     await supabase
       .from('j_hub_optimization_api_logs')
       .insert({
@@ -207,15 +290,35 @@ OUTPUT: Transcribe in Brazilian Portuguese.`;
         input_preview: `Audio file: ${recording.audio_file_path} | Duration: ${recording.duration_seconds}s`,
         output_preview: transcription.text.substring(0, 5000),
         tokens_used: null, // Whisper doesn't report tokens
-        latency_ms: latency,
+        latency_ms: whisperLatency,
         success: true,
         error_message: null,
       });
 
+    // 10. Log enhancement step if it was attempted
+    if (enhancementSuccess || enhancementLatency > 0) {
+      await supabase
+        .from('j_hub_optimization_api_logs')
+        .insert({
+          recording_id,
+          step: 'enhance_transcription',
+          prompt_sent: enhancementSuccess ? 'Enhancement prompt (see code)' : null,
+          model_used: 'claude-sonnet-4-5-20250929',
+          input_preview: transcription.text.substring(0, 5000),
+          output_preview: enhancementSuccess ? enhancedText.substring(0, 5000) : null,
+          tokens_used: null, // Could add from claudeData.usage if needed
+          latency_ms: enhancementLatency || null,
+          success: enhancementSuccess,
+          error_message: enhancementSuccess ? null : 'Enhancement failed, using raw Whisper output',
+        });
+    }
+
     return new Response(
       JSON.stringify({
         success: true,
-        text: transcription.text,
+        text: enhancedText,  // Return enhanced version
+        original_text: transcription.text,  // Also return original for reference
+        enhanced: enhancementSuccess,  // Flag to indicate if enhancement was applied
         language: transcription.language,
         segments: transcription.segments?.length || 0
       }),

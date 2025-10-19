@@ -20,7 +20,16 @@ import { AIImprovementsModal } from "@/components/optimization/AIImprovementsMod
 import { RetranscribeConfirmModal } from "@/components/optimization/RetranscribeConfirmModal";
 import { AIProcessImprovementsModal } from "@/components/optimization/AIProcessImprovementsModal";
 import { ReprocessConfirmModal } from "@/components/optimization/ReprocessConfirmModal";
+import { DiffView } from "@/components/optimization/DiffView";
 import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import Header from "@/components/Header";
 import {
   OptimizationRecordingRow,
@@ -43,6 +52,7 @@ import {
   Edit,
   Loader2,
   Undo2,
+  Eye,
 } from "lucide-react";
 import { toast } from "sonner";
 import { exportOptimizationToPDF } from "@/utils/pdfExport";
@@ -111,6 +121,9 @@ export default function OptimizationEditor() {
   // Reprocess confirm modal
   const [reprocessModalOpen, setReprocessModalOpen] = useState(false);
   const [isReprocessing, setIsReprocessing] = useState(false);
+
+  // Transcription diff modal (to show AI changes)
+  const [transcriptionDiffModalOpen, setTranscriptionDiffModalOpen] = useState(false);
 
   // Load data on mount
   useEffect(() => {
@@ -318,6 +331,32 @@ export default function OptimizationEditor() {
     } catch (error: any) {
       console.error('Undo error:', error);
       toast.error('Erro ao desfazer');
+    }
+  }
+
+  // Step 1: Revert to original Whisper transcription (before AI enhancement)
+  async function handleRevertToOriginal() {
+    if (!recordingId || !transcript?.original_text) return;
+
+    try {
+      const { error } = await supabase
+        .from('j_hub_optimization_transcripts')
+        .update({
+          previous_version: transcript.full_text, // Save current as previous for undo
+          full_text: transcript.original_text,  // Revert to raw Whisper output
+          edit_count: (transcript.edit_count || 0) + 1,
+          last_edited_at: new Date().toISOString(),
+          last_edited_by: user?.id || null,
+        })
+        .eq('recording_id', recordingId);
+
+      if (error) throw error;
+
+      toast.success('Revertido para transcrição original do Whisper!');
+      await loadRecording();
+    } catch (error: any) {
+      console.error('Revert error:', error);
+      toast.error('Erro ao reverter');
     }
   }
 
@@ -638,6 +677,29 @@ export default function OptimizationEditor() {
                     <RotateCw className="mr-2 h-4 w-4" />
                     Recriar
                   </JumperButton>
+
+                  {/* Show AI changes (if original_text exists and is different from full_text) */}
+                  {transcript.original_text && transcript.original_text !== transcript.full_text && (
+                    <>
+                      <JumperButton
+                        variant="outline"
+                        onClick={() => setTranscriptionDiffModalOpen(true)}
+                        title="Ver mudanças feitas pela IA no pós-processamento"
+                      >
+                        <Eye className="mr-2 h-4 w-4" />
+                        Ver mudanças da IA
+                      </JumperButton>
+
+                      <JumperButton
+                        variant="ghost"
+                        onClick={handleRevertToOriginal}
+                        title="Reverter para transcrição original do Whisper (antes do enhancement)"
+                      >
+                        <Undo2 className="mr-2 h-4 w-4" />
+                        Reverter para original
+                      </JumperButton>
+                    </>
+                  )}
 
                   {/* Undo button (only if previous version exists) */}
                   {transcript.previous_version && (
@@ -1001,6 +1063,39 @@ export default function OptimizationEditor() {
         onConfirm={handleRetranscribe}
         isLoading={isRetranscribing}
       />
+
+      {/* Transcription Diff Modal */}
+      <Dialog open={transcriptionDiffModalOpen} onOpenChange={setTranscriptionDiffModalOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Eye className="h-5 w-5 text-primary" />
+              Mudanças feitas pela IA
+            </DialogTitle>
+            <DialogDescription>
+              Verde = corrigido pela IA | Vermelho riscado = original do Whisper
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="border rounded-md p-4 bg-muted/30 max-h-[500px] overflow-y-auto">
+            {transcript?.original_text && transcript?.full_text && (
+              <DiffView
+                oldText={transcript.original_text}
+                newText={transcript.full_text}
+              />
+            )}
+          </div>
+
+          <DialogFooter>
+            <JumperButton
+              variant="outline"
+              onClick={() => setTranscriptionDiffModalOpen(false)}
+            >
+              Fechar
+            </JumperButton>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <AIProcessImprovementsModal
         isOpen={aiProcessImprovementsModalOpen}
