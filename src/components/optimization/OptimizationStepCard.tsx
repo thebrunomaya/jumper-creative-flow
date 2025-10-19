@@ -7,7 +7,7 @@ import { ReactNode } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { JumperButton } from "@/components/ui/jumper-button";
-import { Bug } from "lucide-react";
+import { Bug, Bot } from "lucide-react";
 
 interface OptimizationStepCardProps {
   stepNumber: number;
@@ -16,6 +16,7 @@ interface OptimizationStepCardProps {
   status: string | undefined;
   badge?: string; // Optional badge text (e.g., "Beta", "Preview")
   onDebug?: () => void;
+  onEnhancementView?: () => void; // View AI enhancement changes
   children: ReactNode;
 }
 
@@ -41,6 +42,7 @@ export function OptimizationStepCard({
   status,
   badge,
   onDebug,
+  onEnhancementView,
   children
 }: OptimizationStepCardProps) {
   return (
@@ -67,9 +69,20 @@ export function OptimizationStepCard({
             </div>
           </div>
 
-          {/* Status Badge & Debug Button */}
+          {/* Status Badge & Action Buttons */}
           <div className="flex items-center gap-2">
             {getStatusBadge(status)}
+            {onEnhancementView && (
+              <JumperButton
+                size="sm"
+                variant="ghost"
+                onClick={onEnhancementView}
+                className="h-8 w-8 p-0"
+                title="Ver Ajustes da IA"
+              >
+                <Bot className="h-4 w-4" />
+              </JumperButton>
+            )}
             {onDebug && (
               <JumperButton
                 size="sm"

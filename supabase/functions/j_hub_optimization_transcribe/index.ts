@@ -167,11 +167,13 @@ OUTPUT: Transcribe in Brazilian Portuguese.`;
     let enhancedText = transcription.text;
     let enhancementLatency = 0;
     let enhancementSuccess = false;
+    let enhancementPrompt = '';
+    let enhancementTokensUsed: number | null = null;
 
     try {
       console.log('🔧 [ENHANCE] Starting automatic quality enhancement...');
 
-      const enhancementPrompt = `You are a Brazilian Portuguese transcription quality specialist.
+      enhancementPrompt = `You are a Brazilian Portuguese transcription quality specialist.
 
 Your job is to CORRECT ERRORS in automatic transcriptions (Whisper), preserving the speaker's original meaning and style.
 
@@ -244,6 +246,7 @@ OUTPUT: Return ONLY the corrected transcription as plain text (no markdown, no e
       enhancedText = claudeData.content[0].text;
       enhancementLatency = Date.now() - enhanceStartTime;
       enhancementSuccess = true;
+      enhancementTokensUsed = (claudeData.usage?.input_tokens || 0) + (claudeData.usage?.output_tokens || 0);
 
       console.log('✅ [ENHANCE] Enhancement completed');
       console.log('📏 [ENHANCE] Original length:', transcription.text.length, 'chars');
@@ -314,11 +317,11 @@ OUTPUT: Return ONLY the corrected transcription as plain text (no markdown, no e
         .insert({
           recording_id,
           step: 'enhance_transcription',
-          prompt_sent: enhancementSuccess ? 'Enhancement prompt (see code)' : null,
+          prompt_sent: enhancementPrompt || null, // Full prompt now saved
           model_used: 'claude-sonnet-4-5-20250929',
           input_preview: transcription.text.substring(0, 5000),
           output_preview: enhancementSuccess ? enhancedText.substring(0, 5000) : null,
-          tokens_used: null, // Could add from claudeData.usage if needed
+          tokens_used: enhancementTokensUsed, // Actual tokens from Claude API
           latency_ms: enhancementLatency || null,
           success: enhancementSuccess,
           error_message: enhancementSuccess ? null : 'Enhancement failed, using raw Whisper output',

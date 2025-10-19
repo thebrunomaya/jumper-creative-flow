@@ -20,16 +20,8 @@ import { AIImprovementsModal } from "@/components/optimization/AIImprovementsMod
 import { RetranscribeConfirmModal } from "@/components/optimization/RetranscribeConfirmModal";
 import { AIProcessImprovementsModal } from "@/components/optimization/AIProcessImprovementsModal";
 import { ReprocessConfirmModal } from "@/components/optimization/ReprocessConfirmModal";
-import { DiffView } from "@/components/optimization/DiffView";
+import { EnhancementDiffModal } from "@/components/optimization/EnhancementDiffModal";
 import { Badge } from "@/components/ui/badge";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "@/components/ui/dialog";
 import Header from "@/components/Header";
 import {
   OptimizationRecordingRow,
@@ -52,7 +44,6 @@ import {
   Edit,
   Loader2,
   Undo2,
-  Eye,
 } from "lucide-react";
 import { toast } from "sonner";
 import { exportOptimizationToPDF } from "@/utils/pdfExport";
@@ -122,8 +113,8 @@ export default function OptimizationEditor() {
   const [reprocessModalOpen, setReprocessModalOpen] = useState(false);
   const [isReprocessing, setIsReprocessing] = useState(false);
 
-  // Transcription diff modal (to show AI changes)
-  const [transcriptionDiffModalOpen, setTranscriptionDiffModalOpen] = useState(false);
+  // Enhancement diff modal (to show AI changes)
+  const [enhancementDiffModalOpen, setEnhancementDiffModalOpen] = useState(false);
 
   // Load data on mount
   useEffect(() => {
@@ -602,6 +593,11 @@ export default function OptimizationEditor() {
             description="Áudio → Texto bruto"
             status={recording.transcription_status}
             onDebug={isAdmin ? () => openDebug('transcribe') : undefined}
+            onEnhancementView={
+              transcript?.original_text && transcript.original_text !== transcript.full_text
+                ? () => setEnhancementDiffModalOpen(true)
+                : undefined
+            }
           >
             {/* Audio Player */}
             {audioUrl && (
@@ -682,29 +678,6 @@ export default function OptimizationEditor() {
                     <RotateCw className="mr-2 h-4 w-4" />
                     Recriar
                   </JumperButton>
-
-                  {/* Show AI changes (if original_text exists and is different from full_text) */}
-                  {transcript.original_text && transcript.original_text !== transcript.full_text && (
-                    <>
-                      <JumperButton
-                        variant="outline"
-                        onClick={() => setTranscriptionDiffModalOpen(true)}
-                        title="Ver mudanças feitas pela IA no pós-processamento"
-                      >
-                        <Eye className="mr-2 h-4 w-4" />
-                        Ver mudanças da IA
-                      </JumperButton>
-
-                      <JumperButton
-                        variant="ghost"
-                        onClick={handleRevertToOriginal}
-                        title="Reverter para transcrição original do Whisper (antes do enhancement)"
-                      >
-                        <Undo2 className="mr-2 h-4 w-4" />
-                        Reverter para original
-                      </JumperButton>
-                    </>
-                  )}
 
                   {/* Undo button (only if previous version exists) */}
                   {transcript.previous_version && (
@@ -1069,38 +1042,17 @@ export default function OptimizationEditor() {
         isLoading={isRetranscribing}
       />
 
-      {/* Transcription Diff Modal */}
-      <Dialog open={transcriptionDiffModalOpen} onOpenChange={setTranscriptionDiffModalOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Eye className="h-5 w-5 text-primary" />
-              Mudanças feitas pela IA
-            </DialogTitle>
-            <DialogDescription>
-              Verde = corrigido pela IA | Vermelho riscado = original do Whisper
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="border rounded-md p-4 bg-muted/30 max-h-[500px] overflow-y-auto">
-            {transcript?.original_text && transcript?.full_text && (
-              <DiffView
-                oldText={transcript.original_text}
-                newText={transcript.full_text}
-              />
-            )}
-          </div>
-
-          <DialogFooter>
-            <JumperButton
-              variant="outline"
-              onClick={() => setTranscriptionDiffModalOpen(false)}
-            >
-              Fechar
-            </JumperButton>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* Enhancement Diff Modal - Shows AI changes with revert option */}
+      {transcript?.original_text && transcript?.full_text && (
+        <EnhancementDiffModal
+          isOpen={enhancementDiffModalOpen}
+          onClose={() => setEnhancementDiffModalOpen(false)}
+          recordingId={recordingId!}
+          originalText={transcript.original_text}
+          enhancedText={transcript.full_text}
+          onRevert={handleRevertToOriginal}
+        />
+      )}
 
       <AIProcessImprovementsModal
         isOpen={aiProcessImprovementsModalOpen}

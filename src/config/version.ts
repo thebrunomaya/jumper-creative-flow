@@ -7,10 +7,18 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.15';
+export const APP_VERSION = 'v2.0.16';
 
 /**
  * Version history:
+ * - v2.0.16 (2024-10-19):
+ *   - UX: Improved enhancement UI - moved AI changes view to cleaner modal interface
+ *   - Added robot icon (🤖) next to debug icon in Step 1 header
+ *   - Removed "Ver mudanças da IA" and "Reverter para original" buttons from main list
+ *   - Created dedicated EnhancementDiffModal with revert button inside
+ *   - FIX: Enhancement debug logging now saves full prompt and token count (was placeholder before)
+ *   - Cleaner, less cluttered interface for reviewing AI transcription enhancements
+ *
  * - v2.0.15 (2024-10-19):
  *   - FIX: Enhanced Claude prompt to correct common PT-BR phonetic errors in transcriptions
  *   - Added explicit corrections: "edge"→"ad", "roaz"→"ROAS", "cê-pê-cê"→"CPC", etc.
