@@ -871,6 +871,7 @@ export default function OptimizationEditor() {
               description="Relatórios adaptados por perfil de cliente"
               status="completed"
               badge="Beta"
+              isCollapsible={false}
             >
               <OracleReportGenerator
                 contextId={context.id}

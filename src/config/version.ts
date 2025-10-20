@@ -7,10 +7,20 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.21';
+export const APP_VERSION = 'v2.0.22';
 
 /**
  * Version history:
+ * - v2.0.22 (2024-10-20):
+ *   - UX: All optimization steps now collapsible for cleaner interface
+ *   - NEW: Click header to expand/collapse any step (except action buttons)
+ *   - All steps start collapsed by default - user expands what they want to see
+ *   - Smooth animations: 300ms transitions with slide-in effect
+ *   - Chevron indicator shows expand/collapse state
+ *   - Header hover effect for better discoverability
+ *   - Oracle Framework (Step 4) remains always expanded (admin only)
+ *   - Locked steps show lock message when user expands them
+ *
  * - v2.0.21 (2024-10-20):
  *   - UX: Optimization steps inverted - most refined content at top (3→2→1)
  *   - NEW: Edit icons in card headers (minimalista) - removed body "Editar" buttons

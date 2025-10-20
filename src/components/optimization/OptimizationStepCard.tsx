@@ -1,13 +1,14 @@
 /**
  * OptimizationStepCard - Card component for each optimization step
  * Used in fullscreen OptimizationEditor page
+ * Now supports collapsible behavior for cleaner interface
  */
 
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { JumperButton } from "@/components/ui/jumper-button";
-import { Bug, Bot, Edit } from "lucide-react";
+import { Bug, Bot, Edit, ChevronDown, ChevronUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface OptimizationStepCardProps {
@@ -20,6 +21,8 @@ interface OptimizationStepCardProps {
   onEnhancementView?: () => void; // View AI enhancement changes
   onEdit?: () => void; // Edit action (opens modal)
   isEditDisabled?: boolean; // Disable edit if step not completed
+  isCollapsible?: boolean; // Enable collapse/expand behavior
+  defaultCollapsed?: boolean; // Start collapsed (default: true)
   children: ReactNode;
 }
 
@@ -48,14 +51,38 @@ export function OptimizationStepCard({
   onEnhancementView,
   onEdit,
   isEditDisabled = false,
+  isCollapsible = true,
+  defaultCollapsed = true,
   children
 }: OptimizationStepCardProps) {
+  const [isExpanded, setIsExpanded] = useState(!defaultCollapsed);
+
+  const handleHeaderClick = (e: React.MouseEvent) => {
+    // Don't toggle if clicking on action buttons
+    const target = e.target as HTMLElement;
+    if (target.closest('button')) {
+      return;
+    }
+
+    if (isCollapsible) {
+      setIsExpanded(!isExpanded);
+    }
+  };
+
+  const ChevronIcon = isExpanded ? ChevronUp : ChevronDown;
+
   return (
     <Card className={cn(
-      "border-2",
+      "border-2 transition-all duration-300",
       isEditDisabled && "opacity-60"
     )}>
-      <CardHeader>
+      <CardHeader
+        className={cn(
+          "transition-colors duration-200",
+          isCollapsible && "cursor-pointer hover:bg-muted/50"
+        )}
+        onClick={handleHeaderClick}
+      >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             {/* Step Number Circle */}
@@ -120,13 +147,23 @@ export function OptimizationStepCard({
                 <Bug className="h-4 w-4" />
               </JumperButton>
             )}
+
+            {/* Collapse/Expand Indicator */}
+            {isCollapsible && (
+              <ChevronIcon
+                className="h-5 w-5 text-muted-foreground transition-transform duration-300"
+              />
+            )}
           </div>
         </div>
       </CardHeader>
 
-      <CardContent className="pt-4">
-        {children}
-      </CardContent>
+      {/* Collapsible Content */}
+      {isExpanded && (
+        <CardContent className="pt-4 animate-in slide-in-from-top-2 duration-300">
+          {children}
+        </CardContent>
+      )}
     </Card>
   );
 }
