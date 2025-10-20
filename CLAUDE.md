@@ -342,6 +342,59 @@ Claude Code deve **SEMPRE** usar as ferramentas CLI disponíveis:
 
 ---
 
+## 🔄 Safe Database Reset (CRITICAL!)
+
+**⚠️ NUNCA use `npx supabase db reset` diretamente - perde todos os dados!**
+
+### **SEMPRE use o script seguro:**
+
+```bash
+./scripts/db-reset-safe.sh
+```
+
+**O que faz automaticamente:**
+1. ✅ Cria backup de produção (se não existir ou >24h)
+2. ✅ Reseta database (aplica migrations)
+3. ✅ Restaura backup automaticamente
+4. ✅ Configura senha de dev (senha123)
+
+**Resultado:** Database resetado COM dados preservados.
+
+### **Casos de Uso:**
+
+```bash
+# Caso normal: Reset COM dados
+./scripts/db-reset-safe.sh
+# → Usa/cria backup, reseta, restaura
+# → Database volta com dados de produção
+
+# Caso especial: Reset SEM dados (database vazio)
+./scripts/db-reset-safe.sh --no-restore
+# → Reseta mas não restaura
+# → Use apenas quando realmente precisa database vazio
+```
+
+### **Por que isso existe?**
+
+**Problema:** `npx supabase db reset` apaga TODOS os dados locais sem aviso.
+
+**Impacto:** Durante desenvolvimento, ao aplicar migrations, Claude executava reset e **perdia dados sem saber**, causando login quebrado e confusão.
+
+**Solução:** Script wrapper que **sempre** preserva dados via backup/restore automático.
+
+### **Para Claude Code:**
+
+Quando precisar aplicar migrations ou resetar database:
+
+```bash
+✅ CORRETO: ./scripts/db-reset-safe.sh
+❌ ERRADO:  npx supabase db reset
+```
+
+**Exceção:** Apenas use `--no-restore` se **explicitamente** solicitado pelo usuário.
+
+---
+
 ## 🐳 Supabase Local Development Workflow
 
 **STATUS:** ✅ Supabase CLI instalado (v2.48.3) + Docker disponível

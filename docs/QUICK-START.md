@@ -214,9 +214,12 @@ npm run lint            # Check code quality
 npm run typecheck       # Validate TypeScript
 
 # Supabase
-npx supabase status     # Ver URLs e status
-npx supabase db reset   # Reaplicar migrations (apaga dados!)
-npx supabase db diff    # Ver mudanças no schema
+npx supabase status            # Ver URLs e status
+./scripts/db-reset-safe.sh     # ✅ Reaplicar migrations COM BACKUP
+npx supabase db diff           # Ver mudanças no schema
+
+# ⚠️ IMPORTANTE: Sempre use db-reset-safe.sh ao invés de npx supabase db reset
+# O script seguro preserva dados via backup/restore automático
 
 # Logs
 docker logs -f supabase_edge_runtime_biwwowendjuzvpttyrlb  # Edge Functions

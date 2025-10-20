@@ -11,6 +11,8 @@
     "preview": "vite preview",
     "deploy": "vercel --prod",
     "deploy:preview": "vercel",
+    "db:reset": "./scripts/db-reset-safe.sh",
+    "db:reset-empty": "./scripts/db-reset-safe.sh --no-restore",
     "clean:temp": "rm -rf temp/* || echo 'temp folder cleaned'",
     "clean:temp:old": "find temp/ -type f -mtime +30 -delete 2>/dev/null || echo 'old temp files cleaned'",
     "clean:temp:screenshots": "rm -rf temp/screenshots/* || echo 'screenshots cleaned'",

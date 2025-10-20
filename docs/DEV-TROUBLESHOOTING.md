@@ -239,12 +239,21 @@ Nova migration criada mas não aplicada no database local.
 # 1. Verificar migrations pendentes
 npx supabase db diff
 
-# 2. Aplicar todas migrations
-npx supabase db reset
+# 2. Aplicar migrations COM SEGURANÇA (backup + restore automático)
+./scripts/db-reset-safe.sh
 
-# ⚠️ CUIDADO: Isso apaga TODOS os dados locais!
-# Se quiser preservar dados, fazer backup primeiro:
-npx supabase db dump --data-only > /tmp/local-backup.sql
+# ✅ RECOMENDADO: Use sempre o script seguro!
+# Ele automaticamente:
+# - Cria backup de produção (se não existir ou estiver velho)
+# - Reseta database
+# - Restaura dados automaticamente
+# - Configura senha de dev (senha123)
+
+# ⚠️ Apenas se quiser database VAZIO:
+./scripts/db-reset-safe.sh --no-restore
+
+# ❌ NUNCA use diretamente (perde dados!):
+# npx supabase db reset
 ```
 
 ---
