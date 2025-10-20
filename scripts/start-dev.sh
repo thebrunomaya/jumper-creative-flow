@@ -109,25 +109,11 @@ EOF
 fi
 echo ""
 
-# Step 6: Start Edge Functions
-echo "⚡ Step 6/7: Starting Edge Functions locally..."
-if pgrep -f "supabase functions serve" > /dev/null; then
-  echo -e "${GREEN}✅ Edge Functions already running${NC}"
-else
-  echo "   Starting Edge Functions server with env file..."
-  npx supabase functions serve --env-file .env.local > /tmp/supabase-functions.log 2>&1 &
-  FUNCTIONS_PID=$!
-  sleep 3
-
-  if kill -0 $FUNCTIONS_PID 2>/dev/null; then
-    echo -e "${GREEN}✅ Edge Functions started (PID: ${FUNCTIONS_PID})${NC}"
-    echo "   ℹ️  Using .env.local for Edge Function environment variables"
-  else
-    echo -e "${RED}❌ Failed to start Edge Functions${NC}"
-    echo "   Check logs: tail -f /tmp/supabase-functions.log"
-    exit 1
-  fi
-fi
+# Step 6: Edge Functions (managed by Supabase Local)
+echo "⚡ Step 6/7: Edge Functions..."
+echo -e "${GREEN}✅ Edge Functions managed by Supabase Local${NC}"
+echo "   Environment variables loaded from: supabase/.env"
+echo "   Edge Functions URL: http://127.0.0.1:54321/functions/v1/"
 echo ""
 
 # Step 7: Show summary and next steps
