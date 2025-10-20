@@ -7,10 +7,20 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.16';
+export const APP_VERSION = 'v2.0.17';
 
 /**
  * Version history:
+ * - v2.0.17 (2024-10-20):
+ *   - FIX: Debug Modal now correctly shows enhancement logs (Step 1 substep 2)
+ *   - Removed conditional `if` that prevented enhancement logs from being saved
+ *   - Added `enhance_transcription` to CHECK CONSTRAINT in j_hub_optimization_api_logs
+ *   - Migration: 20251020104215_add_enhance_transcription_step.sql
+ *   - LOCAL DEV: Added storage RLS policies for local development
+ *   - Migration: 20251020102407_storage_rls_policies.sql
+ *   - Users can now upload optimization audio files in local dev environment
+ *   - Admin Debug Modal now shows both Whisper (substep 1) and Enhancement (substep 2) logs
+ *
  * - v2.0.16 (2024-10-19):
  *   - UX: Improved enhancement UI - moved AI changes view to cleaner modal interface
  *   - Added robot icon (🤖) next to debug icon in Step 1 header

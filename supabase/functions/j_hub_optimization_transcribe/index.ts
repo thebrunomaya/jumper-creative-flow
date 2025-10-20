@@ -1,3 +1,4 @@
+// Force recompile - 2025-10-20: Fixed enhancement logging bug
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.56.0';
@@ -310,23 +311,22 @@ OUTPUT: Return ONLY the corrected transcription as plain text (no markdown, no e
         error_message: null,
       });
 
-    // 10. Log enhancement step if it was attempted
-    if (enhancementSuccess || enhancementLatency > 0) {
-      await supabase
-        .from('j_hub_optimization_api_logs')
-        .insert({
-          recording_id,
-          step: 'enhance_transcription',
-          prompt_sent: enhancementPrompt || null, // Full prompt now saved
-          model_used: 'claude-sonnet-4-5-20250929',
-          input_preview: transcription.text.substring(0, 5000),
-          output_preview: enhancementSuccess ? enhancedText.substring(0, 5000) : null,
-          tokens_used: enhancementTokensUsed, // Actual tokens from Claude API
-          latency_ms: enhancementLatency || null,
-          success: enhancementSuccess,
-          error_message: enhancementSuccess ? null : 'Enhancement failed, using raw Whisper output',
-        });
-    }
+    // 10. Log enhancement step (ALWAYS log, even if it failed completely)
+    // This ensures Debug Modal shows both Whisper + Enhancement logs
+    await supabase
+      .from('j_hub_optimization_api_logs')
+      .insert({
+        recording_id,
+        step: 'enhance_transcription',
+        prompt_sent: enhancementPrompt || null, // Full prompt now saved
+        model_used: 'claude-sonnet-4-5-20250929',
+        input_preview: transcription.text.substring(0, 5000),
+        output_preview: enhancementSuccess ? enhancedText.substring(0, 5000) : null,
+        tokens_used: enhancementTokensUsed, // Actual tokens from Claude API
+        latency_ms: enhancementLatency || null,
+        success: enhancementSuccess,
+        error_message: enhancementSuccess ? null : 'Enhancement failed, using raw Whisper output',
+      });
 
     return new Response(
       JSON.stringify({

@@ -3,13 +3,162 @@
 # Tracks recent decisions and work-in-progress (last 7 days)
 # Older decisions migrate to docs/ARCHITECTURE.md
 
-last_updated: "2025-10-17T23:15:00Z"
+last_updated: "2025-10-20T10:50:00Z"
 session_computer: "MacBook Pro (trabalho)"
 session_user: "Bruno Maya"
 
 # Recent decisions (last 7 days)
 # When older than 7 days, migrate to docs/ARCHITECTURE.md
 recent_decisions:
+  - date: "2025-10-20"
+    decision: "Debug Modal Enhancement Logging - Complete Fix + Storage RLS for Local Dev"
+    status: "completed ✅"
+    details: |
+      🐛 DEBUG MODAL FIX: Successfully fixed enhancement logging to show both Whisper and Enhancement substeps
+
+      ## Problem Identified:
+      Debug Modal was only showing Whisper logs (Step 1 substep 1), missing Enhancement logs (substep 2)
+
+      ## Root Causes Found:
+      1. **Conditional Logging Bug:** Edge function had `if (enhancementSuccess || enhancementLatency > 0)`
+         - If enhancement failed before API call, latency = 0, so log wasn't saved
+      2. **CHECK CONSTRAINT Missing:** Database constraint didn't include 'enhance_transcription'
+         - INSERT failed silently when trying to save enhancement logs
+      3. **Edge Function Cache:** Local functions were using cached compiled code (pre-fix)
+
+      ## Solutions Implemented:
+
+      ### 1. Edge Function Fix ✅
+      - File: `supabase/functions/j_hub_optimization_transcribe/index.ts`
+      - Removed conditional `if` before enhancement logging
+      - Now ALWAYS saves enhancement log (success or failure)
+      - Added comment to force recompilation
+
+      ### 2. Database Migration ✅
+      - File: `supabase/migrations/20251020104215_add_enhance_transcription_step.sql`
+      - Added 'enhance_transcription' to CHECK CONSTRAINT on j_hub_optimization_api_logs.step
+      - Allows: transcribe, enhance_transcription, process, analyze, improve_transcript, improve_processed
+
+      ### 3. Storage RLS for Local Dev ✅
+      - File: `supabase/migrations/20251020102407_storage_rls_policies.sql`
+      - Created RLS policies for storage.objects table
+      - Enables: optimizations bucket (audio uploads) + creative-files bucket
+      - Service role: Full access for edge functions
+      - Authenticated users: Upload/view/delete their own files
+
+      ## Testing Results:
+      - ✅ Audio upload working in local dev
+      - ✅ Transcription running successfully
+      - ✅ Enhancement logs being saved to database
+      - ✅ Debug Modal showing 2 cards:
+        1. **Passo 1: Transcrição (Whisper)** - Input, prompt, output
+        2. **Enhancement (Claude Sonnet 4.5)** - Corrections made, tokens used
+
+      ## Files Modified:
+      - supabase/functions/j_hub_optimization_transcribe/index.ts (bug fix + force recompile)
+      - supabase/migrations/20251020104215_add_enhance_transcription_step.sql (constraint)
+      - supabase/migrations/20251020102407_storage_rls_policies.sql (storage RLS)
+      - src/config/version.ts (v2.0.17)
+
+      ## Deployment Status:
+      - ✅ Tested locally with full workflow
+      - ⏳ Pending production deployment:
+        - Frontend: Auto-deploy via Vercel (next push)
+        - Edge Function: Manual `npx supabase functions deploy j_hub_optimization_transcribe`
+        - Migrations: Auto-apply on next migration push
+
+      ## Local Development Improvements:
+      - 🎉 Storage local now fully functional for testing
+      - ✅ Upload audio files in dev environment
+      - ✅ Test transcription flow end-to-end
+      - ✅ No need to rely on production storage for dev
+
+      ## Next Session TODO:
+      - Deploy to production (edge function + migrations)
+      - Test Debug Modal in production
+      - Verify enhancement logs appear for new transcriptions
+    impact: "HIGH - Fixed critical debugging functionality + enabled local storage dev"
+    files_changed:
+      - "supabase/functions/j_hub_optimization_transcribe/index.ts (logging fix)"
+      - "supabase/migrations/20251020104215_add_enhance_transcription_step.sql (created)"
+      - "supabase/migrations/20251020102407_storage_rls_policies.sql (created)"
+      - "src/config/version.ts (v2.0.17)"
+    deployed: false
+    deployment_status: "Tested locally ✅, pending production deployment ⏳"
+    migrate_to_architecture: false
+
+  - date: "2025-10-19"
+    decision: "Enhancement UI Improvements - Dedicated Modal + Debug Logging Fix"
+    status: "completed ✅ (fixed in v2.0.17)"
+    details: |
+      🎨 UX IMPROVEMENTS: Cleaner enhancement UI with dedicated modal interface (v2.0.16)
+
+      ## What Was Implemented:
+
+      ### 1. UI/UX Improvements ✅
+      - ✅ Added robot icon (🤖) next to debug in Step 1 header
+      - ✅ Created EnhancementDiffModal component (dedicated modal for AI changes)
+      - ✅ Removed "Ver mudanças da IA" from main button list (cleaner interface)
+      - ✅ Removed "Reverter para original" from main button list
+      - ✅ Moved "Reverter para Original" button inside modal (better UX)
+      - ✅ Robot icon only appears when enhancement exists (conditional rendering)
+
+      ### 2. Debug Logging Fixes (Code Level) ✅
+      - ✅ Fixed variable scoping in j_hub_optimization_transcribe
+      - ✅ Declared enhancementPrompt and enhancementTokensUsed outside try block
+      - ✅ Changed log insertion to save full prompt (not placeholder)
+      - ✅ Now captures actual token count from claudeData.usage
+      - ✅ DebugModal already shows both 'transcribe' and 'enhance_transcription' steps
+
+      ### 3. Testing Results:
+      - ✅ UI improvements working perfectly (user confirmed: "funcionou tudo")
+      - ❌ Debug still not working (user reported: "menos o debug")
+
+      ## Problem Identified:
+
+      **CRITICAL TODO FOR NEXT SESSION:**
+      Despite code fixes, the debug functionality is still not showing enhancement data properly.
+
+      **Possible Root Causes:**
+      1. Edge Function may need to be redeployed (already done - j_hub_optimization_transcribe)
+      2. May need to retranscribe a recording to test with new logging
+      3. Database may have old logs without full prompt/tokens
+      4. DebugModal may have additional filtering/display issues
+      5. API logs table may need migration/update
+
+      **Investigation Needed:**
+      - Check if new transcriptions save full prompt/tokens correctly
+      - Verify DebugModal fetches both steps correctly
+      - Check database schema for j_hub_optimization_api_logs
+      - Test with fresh transcription (not old cached data)
+
+      ## Files Modified:
+      - src/components/optimization/EnhancementDiffModal.tsx (created)
+      - src/components/optimization/OptimizationStepCard.tsx (added onEnhancementView)
+      - src/pages/OptimizationEditor.tsx (cleaner modal-based UI)
+      - supabase/functions/j_hub_optimization_transcribe/index.ts (logging fix)
+      - src/config/version.ts (v2.0.16)
+
+      ## Deployment:
+      - ✅ Frontend: Pushed to main → Vercel auto-deploy
+      - ✅ Edge Function: j_hub_optimization_transcribe deployed manually
+      - ✅ Git commit: db5b0cc
+
+      ## User Feedback:
+      > "funcionou tudo, menos o debug"
+
+      **Result:** UI improvements successful ✅, Debug investigation pending ⏳
+    impact: "MEDIUM - Improved UX, but debug functionality still needs fixing"
+    files_changed:
+      - "src/components/optimization/EnhancementDiffModal.tsx (created)"
+      - "src/components/optimization/OptimizationStepCard.tsx (modified)"
+      - "src/pages/OptimizationEditor.tsx (refactored)"
+      - "supabase/functions/j_hub_optimization_transcribe/index.ts (logging fix)"
+      - "src/config/version.ts (v2.0.16)"
+    deployed: true
+    deployment_status: "v2.0.16 deployed, UI working ✅, debug pending investigation ⏳"
+    migrate_to_architecture: false
+
   - date: "2025-10-17"
     decision: "Edge Functions Documentation Fix - Added Missing --env-file Parameter"
     status: "completed ✅"
@@ -1023,28 +1172,88 @@ recent_decisions:
 
 # Current issues being worked on
 current_issues:
-  - issue: "Post-Migration Testing - Validate production deployment"
-    severity: "high"
-    status: "pending - awaiting user testing 🧪"
+  - issue: "Enhancement Debug Modal Not Showing Data - Investigation Required"
+    severity: "medium"
+    status: "pending investigation 🔍"
     details: |
-      Migration cleanup COMPLETED. Code updated and pushed to GitHub.
-      Awaiting GitHub → Supabase auto-deployment and user validation.
+      **PROBLEM:** Debug functionality not working despite code fixes implemented in v2.0.16
 
-      Completed in Session 2025-10-13:
-      - ✅ Migrations consolidated (43 → 1 baseline)
-      - ✅ All code updated (8 files, 58 references)
-      - ✅ Tables renamed to j_hub_creative_*
-      - ✅ Supabase local tested successfully
-      - ✅ Committed and pushed to GitHub (commit: 40d442d)
+      **User Report (2025-10-19):**
+      > "funcionou tudo, menos o debug"
 
-      Pending for next session:
-      - ⏳ Validate GitHub → Supabase auto-deployment completed
-      - ⏳ Test production functionality (see POST-DEPLOY-CHECKLIST.md)
-      - ⏳ Verify Edge Functions using new table names
-      - ⏳ Confirm zero errors in production
+      **What Was Fixed in Code:**
+      - ✅ Variable scoping: enhancementPrompt and enhancementTokensUsed declared outside try block
+      - ✅ Database logging: Now saves full prompt instead of placeholder
+      - ✅ Token count: Captures actual tokens from claudeData.usage
+      - ✅ Edge Function: j_hub_optimization_transcribe deployed to production
+
+      **What Still Doesn't Work:**
+      - ❌ User reports debug still not showing enhancement data
+      - ❌ Expected: See full prompt sent to Claude
+      - ❌ Expected: See token count from Claude API
+      - ❌ Expected: See both Whisper and Enhancement logs
+
+      **Investigation Needed (Next Session):**
+      1. Test with NEW transcription (not old cached data)
+         - Create fresh recording and transcribe
+         - Check if j_hub_optimization_api_logs has new entries
+         - Verify step='enhance_transcription' entries exist
+
+      2. Database Verification:
+         - Query j_hub_optimization_api_logs directly
+         - Check if prompt_sent has full text (not placeholder)
+         - Check if tokens_used has actual number (not null)
+
+      3. DebugModal Investigation:
+         - Verify step parameter handling (array vs string)
+         - Check if fetch query uses correct steps array
+         - Check if step labels match database step values
+         - Verify rendering logic for enhancement logs
+
+      4. Edge Function Deployment:
+         - Confirm j_hub_optimization_transcribe version in production
+         - Check Supabase Edge Functions dashboard timestamp
+         - May need to redeploy if deployment failed silently
+
+      **Files to Check:**
+      - supabase/functions/j_hub_optimization_transcribe/index.ts (logging logic)
+      - src/components/optimization/DebugModal.tsx (display logic)
+      - Database: j_hub_optimization_api_logs table (actual data)
+
+      **Expected Outcome:**
+      When clicking debug icon on Step 1, should show:
+      1. Whisper log (step='transcribe') - Working ✅
+      2. Enhancement log (step='enhance_transcription') - Not working ❌
+         - Should show full prompt sent to Claude
+         - Should show token count
+         - Should show success/failure status
 
 # Work in progress
 work_in_progress:
+  - task: "Session 2025-10-19 (Afternoon) - Enhancement UI Improvements"
+    branch: "main"
+    started: "2025-10-19T15:45:00Z"
+    completed: "2025-10-19T16:55:00Z"
+    status: "PARTIALLY COMPLETED ⚠️"
+    summary: |
+      ✅ UI/UX improvements working perfectly
+      ✅ Created EnhancementDiffModal component
+      ✅ Added robot icon to Step 1 header
+      ✅ Removed cluttering buttons from main interface
+      ✅ Fixed enhancement logging code (variable scoping)
+      ✅ Deployed to production (v2.0.16)
+      ❌ Debug functionality still not working (investigation pending)
+    files_modified:
+      - "src/components/optimization/EnhancementDiffModal.tsx (created)"
+      - "src/components/optimization/OptimizationStepCard.tsx (modified)"
+      - "src/pages/OptimizationEditor.tsx (refactored)"
+      - "supabase/functions/j_hub_optimization_transcribe/index.ts (logging fix)"
+      - "src/config/version.ts (v2.0.16)"
+    deployed: true
+    deployment_status: "v2.0.16 deployed ✅ - UI working, debug pending"
+    commits:
+      - "db5b0cc: feat(ux): Improved enhancement UI with dedicated modal (v2.0.16)"
+
   - task: "Session 2025-10-16 (Morning) - Dev Password Automation"
     branch: "main"
     started: "2025-10-16T11:35:00Z"
@@ -1107,6 +1316,98 @@ work_in_progress:
 
 # Context for next session
 next_session_context: |
+  🔧 SESSION 2025-10-19 (Afternoon) COMPLETED: ENHANCEMENT UI IMPROVEMENTS (v2.0.16)
+
+  ## ✅ WHAT WORKS PERFECTLY:
+
+  **1. Enhancement UI Improvements 🎨**
+  - ✅ Robot icon (🤖) appears next to debug in Step 1 header
+  - ✅ Clicking robot opens dedicated EnhancementDiffModal
+  - ✅ Modal shows diff view (green = AI corrections, red strikethrough = original)
+  - ✅ "Reverter para Original" button inside modal (cleaner UX)
+  - ✅ Old cluttering buttons removed from main interface
+  - ✅ User confirmed: "funcionou tudo" for UI improvements
+
+  **2. Code Improvements ✅**
+  - ✅ Fixed variable scoping in j_hub_optimization_transcribe
+  - ✅ Enhancement prompt now saved to database (not placeholder)
+  - ✅ Token count now saved from Claude API response
+  - ✅ DebugModal configured to show both Whisper and Enhancement logs
+
+  ## ❌ CRITICAL TODO FOR NEXT SESSION:
+
+  **DEBUG FUNCTIONALITY STILL NOT WORKING**
+
+  **User Report:**
+  > "funcionou tudo, menos o debug"
+
+  **Problem:**
+  When admin clicks debug icon on Step 1, the enhancement data is not showing properly.
+  Expected to see full prompt sent to Claude + token count, but it's not appearing.
+
+  **Investigation Steps for Next Session:**
+
+  1. **Test with Fresh Transcription:**
+     - Create new audio recording
+     - Transcribe it (will use new logging code)
+     - Click debug to see if new logs appear correctly
+     - This will verify if issue is old data vs new code
+
+  2. **Database Direct Query:**
+     ```sql
+     SELECT step, prompt_sent, tokens_used, success, created_at
+     FROM j_hub_optimization_api_logs
+     WHERE recording_id = '<test_recording_id>'
+     AND step IN ('transcribe', 'enhance_transcription')
+     ORDER BY created_at DESC;
+     ```
+     - Check if step='enhance_transcription' entries exist
+     - Check if prompt_sent has full text (not placeholder)
+     - Check if tokens_used has actual number (not null)
+
+  3. **DebugModal Component Review:**
+     - File: src/components/optimization/DebugModal.tsx
+     - Check step parameter handling (receives array for transcribe)
+     - Verify step labels: 'enhance_transcription' vs 'enhance_transcript'
+     - Check rendering logic for multiple log entries
+
+  4. **Edge Function Deployment Verification:**
+     - Check Supabase Functions dashboard for deploy timestamp
+     - Confirm j_hub_optimization_transcribe has latest code
+     - May need to redeploy if deployment failed silently
+
+  **Files Involved:**
+  - `supabase/functions/j_hub_optimization_transcribe/index.ts` (logging)
+  - `src/components/optimization/DebugModal.tsx` (display)
+  - Database: `j_hub_optimization_api_logs` table
+
+  ## 🎯 CURRENT SYSTEM STATUS:
+
+  **Production:**
+  - URL: https://hub.jumper.studio
+  - Version: v2.0.16 ✅
+  - Status: UI working perfectly, debug needs investigation
+  - Last Deploy: 2025-10-19 16:50 UTC
+  - Last Commit: db5b0cc
+
+  **What's Working:**
+  - ✅ Transcription with automatic Claude enhancement
+  - ✅ Phonetic error corrections (edge→ad, roaz→ROAS, etc.)
+  - ✅ DiffView modal showing AI changes
+  - ✅ Revert to original Whisper functionality
+  - ✅ Robot icon UI
+
+  **What Needs Fixing:**
+  - ❌ Debug modal not showing enhancement logs/prompt/tokens
+
+  ## 📋 READY FOR NEXT SESSION:
+
+  **Priority:** Investigate and fix debug functionality
+  **Approach:** Test with fresh transcription, query database directly, verify DebugModal logic
+  **Expected Time:** 30-45 minutes (investigation + fix + test)
+
+  ---
+
   🔧 SESSION 2025-10-17 (Night) COMPLETED: EDGE FUNCTIONS DOCUMENTATION FIX
 
   ## ✅ QUICK SESSION: Critical Documentation Correction
@@ -1483,10 +1784,17 @@ next_session_context: |
 
 # TODOs pending
 pending_todos:
-  - "No pending TODOs - System validated and ready for normal development"
+  - "🔴 CRITICAL: Fix debug modal not showing enhancement logs (v2.0.16 partial completion)"
+  - "Investigation needed: Test with fresh transcription, query database directly, verify DebugModal component"
 
 # Recently completed (for reference)
 completed_recently:
+  - "✅ [2025-10-19 Afternoon] Enhancement UI improvements deployed (v2.0.16) 🎨"
+  - "✅ [2025-10-19 Afternoon] Created EnhancementDiffModal component ✅"
+  - "✅ [2025-10-19 Afternoon] Added robot icon to Step 1 header 🤖"
+  - "✅ [2025-10-19 Afternoon] Removed cluttering buttons from main UI ✅"
+  - "✅ [2025-10-19 Afternoon] Fixed enhancement logging code (variable scoping) ✅"
+  - "⚠️ [2025-10-19 Afternoon] Debug functionality still pending investigation ⏳"
   - "✅ [2025-10-17 Night] Edge Functions Documentation Fix - Added --env-file .env.local to all docs 📚"
   - "✅ [2025-10-17 Night] Production data import - 9 users, 43 accounts, 35,407 ads records ✅"
   - "✅ [2025-10-17 Night] Local environment fully operational - All services running 🚀"
@@ -1530,15 +1838,17 @@ completed_recently:
 deployment:
   production_url: "https://hub.jumper.studio"
   old_url_redirect: "https://ads.jumper.studio → hub.jumper.studio (301)"
-  last_deploy: "2025-10-15T21:17:00Z"
-  last_deploy_status: "Optimization RLS fix deployed ✅"
-  last_deploy_type: "bug fix (RLS policies for admin access)"
-  last_commit: "e197cc5 - fix(rls): Allow admins to view all optimization recordings (v2.0.10)"
-  database_status: "STABLE - optimization tables renamed, VIEWs removed, schema clean ✅"
+  last_deploy: "2025-10-19T16:50:00Z"
+  last_deploy_status: "Enhancement UI improvements deployed ✅ (debug pending)"
+  last_deploy_type: "feature (UX improvements + code fixes)"
+  last_commit: "db5b0cc - feat(ux): Improved enhancement UI with dedicated modal (v2.0.16)"
+  database_status: "STABLE - All tables functioning correctly ✅"
+  known_issues: "Debug modal not showing enhancement logs (investigation pending)"
   recent_commits:
+    - "db5b0cc: feat(ux): Improved enhancement UI with dedicated modal (v2.0.16)"
+    - "88643ed: feat(ux): Enhanced Claude prompt for PT-BR phonetic corrections (v2.0.15)"
     - "bd406c1: fix(optimization): Improve Step 3 UI consistency and modal size"
     - "4c8757b: fix(optimization): Standardize Step 3 buttons and AI adjustment flow"
-    - "4c25cbc: feat(optimization): Separate Oracle Framework into Step 4 (admin-only module)"
   edge_functions_deployed:
     - name: "j_hub_admin_dashboard"
       status: "deployed ✅"
@@ -1567,8 +1877,12 @@ deployment:
     - name: "j_hub_optimization_create_share"
       status: "deployed ✅ (updated with hub.jumper.studio)"
       version: "v2.0"
-    - name: "j_hub_optimization_*"
-      status: "deployed ✅ (7 functions total)"
+    - name: "j_hub_optimization_transcribe"
+      status: "deployed ✅ (v2.0.16 - enhanced logging)"
+      version: "v2.0.16"
+      notes: "Updated with full prompt logging and token tracking"
+    - name: "j_hub_optimization_* (other 6 functions)"
+      status: "deployed ✅"
       version: "v2.0"
   environment_variables:
     - name: "SITE_URL"
