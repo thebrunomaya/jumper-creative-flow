@@ -32,6 +32,7 @@ import {
 import {
   AlertCircle,
   ChevronDown,
+  ChevronUp,
   ChevronLeft,
   Mic,
   FileText,
@@ -44,6 +45,7 @@ import {
   Edit,
   Loader2,
   Undo2,
+  Lock,
 } from "lucide-react";
 import { toast } from "sonner";
 import { exportOptimizationToPDF } from "@/utils/pdfExport";
@@ -596,174 +598,28 @@ export default function OptimizationEditor() {
       <ScrollArea className="h-[calc(100vh-180px)]">
         <div className="px-8 py-6 max-w-6xl mx-auto space-y-6">
 
-          {/* SEÇÃO 1: TRANSCRIÇÃO */}
-          <OptimizationStepCard
-            stepNumber={1}
-            title="Transcrição"
-            description="Áudio → Texto formatado"
-            status={recording.transcription_status}
-            onDebug={isAdmin ? () => openDebug('transcribe') : undefined}
-          >
-            {/* Audio Player */}
-            {audioUrl && (
-              <div className="mb-4 p-4 bg-muted/30 rounded-lg border">
-                <audio controls src={audioUrl} className="w-full" />
-              </div>
-            )}
-
-            {/* Pending State */}
-            {recording.transcription_status === 'pending' && (
-              <div className="text-center py-8 space-y-4">
-                <Mic className="h-12 w-12 mx-auto text-muted-foreground opacity-50" />
-                <p className="text-muted-foreground">
-                  Este áudio ainda não foi transcrito
-                </p>
-                <JumperButton onClick={() => handleTranscribe()} disabled={isTranscribing} size="lg">
-                  {isTranscribing ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Transcrevendo...
-                    </>
-                  ) : (
-                    <>
-                      <Mic className="mr-2 h-4 w-4" />
-                      Transcrever Áudio
-                    </>
-                  )}
-                </JumperButton>
-              </div>
-            )}
-
-            {/* Completed State */}
-            {recording.transcription_status === 'completed' && transcript && (
-              <div className="space-y-4">
-                {/* Formatted Text View */}
-                <TranscriptViewer content={transcript.full_text} />
-
-                {/* Single Edit Button */}
-                <div className="flex justify-start pt-2">
-                  <JumperButton
-                    variant="outline"
-                    onClick={() => setTranscriptEditorModalOpen(true)}
-                  >
-                    <Edit className="mr-2 h-4 w-4" />
-                    Editar Transcrição
-                  </JumperButton>
-                </div>
-              </div>
-            )}
-          </OptimizationStepCard>
-
-          {/* Arrow Down */}
-          <div className="flex justify-center">
-            <ChevronDown className="h-8 w-8 text-muted-foreground animate-bounce" />
-          </div>
-
-          {/* SEÇÃO 2: LOG DA OTIMIZAÇÃO */}
-          <OptimizationStepCard
-            stepNumber={2}
-            title="Log da Otimização"
-            description="Diário detalhado das ações"
-            status={recording.processing_status}
-            onDebug={isAdmin ? () => openDebug('process') : undefined}
-          >
-            {/* Pending State */}
-            {recording.processing_status === 'pending' && (
-              <div className="text-center py-8 space-y-4">
-                <FileText className="h-12 w-12 mx-auto text-muted-foreground opacity-50" />
-                <p className="text-muted-foreground">
-                  Transcrição bruta pronta. Organize em tópicos para facilitar a análise.
-                </p>
-                <JumperButton
-                  onClick={() => handleProcess()}
-                  disabled={isProcessing || !transcript?.full_text}
-                  size="lg"
-                >
-                  {isProcessing ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Organizando...
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className="mr-2 h-4 w-4" />
-                      Organizar em Tópicos
-                    </>
-                  )}
-                </JumperButton>
-              </div>
-            )}
-
-            {/* Failed State */}
-            {recording.processing_status === 'failed' && (
-              <div className="text-center py-8 space-y-4">
-                <AlertCircle className="h-12 w-12 mx-auto text-destructive opacity-70" />
-                <div className="space-y-2">
-                  <p className="text-destructive font-medium">
-                    Falha ao processar transcrição
-                  </p>
-                  {isAdmin && (
-                    <p className="text-xs text-muted-foreground">
-                      Use o ícone de debug acima para ver detalhes do erro
-                    </p>
-                  )}
-                </div>
-                <JumperButton
-                  onClick={() => handleProcess()}
-                  disabled={isProcessing || !transcript?.full_text}
-                  variant="default"
-                  size="lg"
-                >
-                  {isProcessing ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Tentando novamente...
-                    </>
-                  ) : (
-                    <>
-                      <RotateCw className="mr-2 h-4 w-4" />
-                      Tentar Novamente
-                    </>
-                  )}
-                </JumperButton>
-              </div>
-            )}
-
-            {/* Completed State */}
-            {recording.processing_status === 'completed' && transcript?.processed_text && (
-              <div className="space-y-4">
-                {/* Rendered Log View */}
-                <LogViewer content={transcript.processed_text} />
-
-                {/* Single Edit Button */}
-                <div className="flex justify-start pt-2">
-                  <JumperButton
-                    variant="outline"
-                    onClick={() => setLogEditorModalOpen(true)}
-                  >
-                    <Edit className="mr-2 h-4 w-4" />
-                    Editar Log
-                  </JumperButton>
-                </div>
-              </div>
-            )}
-          </OptimizationStepCard>
-
-          {/* Arrow Down */}
-          <div className="flex justify-center">
-            <ChevronDown className="h-8 w-8 text-muted-foreground animate-bounce" />
-          </div>
-
-          {/* SEÇÃO 3: ANÁLISE */}
+          {/* SEÇÃO 3: ANÁLISE (TOPO - Mais refinado) */}
           <OptimizationStepCard
             stepNumber={3}
             title="Análise Estruturada"
             description="Bullets → Relatório JSON"
             status={recording.analysis_status}
+            onEdit={() => setExtractEditorModalOpen(true)}
+            isEditDisabled={recording.analysis_status !== 'completed'}
             onDebug={isAdmin ? () => openDebug('analyze') : undefined}
           >
-            {/* Pending State */}
-            {recording.analysis_status === 'pending' && (
+            {/* Pending State - Locked if Step 2 not completed */}
+            {recording.analysis_status === 'pending' && recording.processing_status !== 'completed' && (
+              <div className="text-center py-8 space-y-4">
+                <Lock className="h-12 w-12 mx-auto text-muted-foreground opacity-50" />
+                <p className="text-muted-foreground">
+                  Complete o <strong>Step 2 (Log da Otimização)</strong> primeiro
+                </p>
+              </div>
+            )}
+
+            {/* Pending State - Ready to analyze */}
+            {recording.analysis_status === 'pending' && recording.processing_status === 'completed' && (
               <div className="text-center py-8 space-y-4">
                 <Brain className="h-12 w-12 mx-auto text-muted-foreground opacity-50" />
                 <p className="text-muted-foreground">
@@ -845,28 +701,158 @@ export default function OptimizationEditor() {
                 {/* Structured Context */}
                 <OptimizationContextCard context={context} />
 
-                {/* Action Buttons */}
-                <div className="flex items-center justify-between flex-wrap gap-2 pt-4 border-t">
-                  <div className="flex gap-2 flex-wrap">
-                    <JumperButton variant="outline" onClick={handleEditExtract}>
-                      <Edit className="mr-2 h-4 w-4" />
-                      Editar Extrato
-                    </JumperButton>
-                    <JumperButton variant="outline" onClick={handleAdjustWithAI}>
-                      <Sparkles className="mr-2 h-4 w-4" />
-                      Ajustar com IA
-                    </JumperButton>
-                    <JumperButton variant="outline" onClick={() => handleAnalyze(true)} disabled={isAnalyzing}>
-                      <RotateCw className="mr-2 h-4 w-4" />
-                      Recriar
-                    </JumperButton>
-                  </div>
+                {/* Only Share Button */}
+                <div className="flex justify-end pt-4 border-t">
                   <JumperButton onClick={handleShare}>
                     <Share2 className="mr-2 h-4 w-4" />
                     Compartilhar
                   </JumperButton>
                 </div>
               </div>
+            )}
+          </OptimizationStepCard>
+
+          {/* Arrow Up - Fluxo de refinamento (Step 3 ← Step 2) */}
+          <div className="flex justify-center">
+            <ChevronUp className="h-8 w-8 text-muted-foreground" />
+          </div>
+
+          {/* SEÇÃO 2: LOG DA OTIMIZAÇÃO (MEIO - Intermediário) */}
+          <OptimizationStepCard
+            stepNumber={2}
+            title="Log da Otimização"
+            description="Diário detalhado das ações"
+            status={recording.processing_status}
+            onEdit={() => setLogEditorModalOpen(true)}
+            isEditDisabled={recording.processing_status !== 'completed'}
+            onDebug={isAdmin ? () => openDebug('process') : undefined}
+          >
+            {/* Pending State - Locked if Step 1 not completed */}
+            {recording.processing_status === 'pending' && recording.transcription_status !== 'completed' && (
+              <div className="text-center py-8 space-y-4">
+                <Lock className="h-12 w-12 mx-auto text-muted-foreground opacity-50" />
+                <p className="text-muted-foreground">
+                  Complete o <strong>Step 1 (Transcrição)</strong> primeiro
+                </p>
+              </div>
+            )}
+
+            {/* Pending State - Ready to process */}
+            {recording.processing_status === 'pending' && recording.transcription_status === 'completed' && (
+              <div className="text-center py-8 space-y-4">
+                <FileText className="h-12 w-12 mx-auto text-muted-foreground opacity-50" />
+                <p className="text-muted-foreground">
+                  Transcrição bruta pronta. Organize em tópicos para facilitar a análise.
+                </p>
+                <JumperButton
+                  onClick={() => handleProcess()}
+                  disabled={isProcessing || !transcript?.full_text}
+                  size="lg"
+                >
+                  {isProcessing ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Organizando...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="mr-2 h-4 w-4" />
+                      Organizar em Tópicos
+                    </>
+                  )}
+                </JumperButton>
+              </div>
+            )}
+
+            {/* Failed State */}
+            {recording.processing_status === 'failed' && (
+              <div className="text-center py-8 space-y-4">
+                <AlertCircle className="h-12 w-12 mx-auto text-destructive opacity-70" />
+                <div className="space-y-2">
+                  <p className="text-destructive font-medium">
+                    Falha ao processar transcrição
+                  </p>
+                  {isAdmin && (
+                    <p className="text-xs text-muted-foreground">
+                      Use o ícone de debug acima para ver detalhes do erro
+                    </p>
+                  )}
+                </div>
+                <JumperButton
+                  onClick={() => handleProcess()}
+                  disabled={isProcessing || !transcript?.full_text}
+                  variant="default"
+                  size="lg"
+                >
+                  {isProcessing ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Tentando novamente...
+                    </>
+                  ) : (
+                    <>
+                      <RotateCw className="mr-2 h-4 w-4" />
+                      Tentar Novamente
+                    </>
+                  )}
+                </JumperButton>
+              </div>
+            )}
+
+            {/* Completed State */}
+            {recording.processing_status === 'completed' && transcript?.processed_text && (
+              <LogViewer content={transcript.processed_text} />
+            )}
+          </OptimizationStepCard>
+
+          {/* Arrow Up - Fluxo de refinamento (Step 2 ← Step 1) */}
+          <div className="flex justify-center">
+            <ChevronUp className="h-8 w-8 text-muted-foreground" />
+          </div>
+
+          {/* SEÇÃO 1: TRANSCRIÇÃO (BASE - Texto bruto) */}
+          <OptimizationStepCard
+            stepNumber={1}
+            title="Transcrição"
+            description="Áudio → Texto formatado"
+            status={recording.transcription_status}
+            onEdit={() => setTranscriptEditorModalOpen(true)}
+            isEditDisabled={recording.transcription_status !== 'completed'}
+            onDebug={isAdmin ? () => openDebug('transcribe') : undefined}
+          >
+            {/* Audio Player */}
+            {audioUrl && (
+              <div className="mb-4 p-4 bg-muted/30 rounded-lg border">
+                <audio controls src={audioUrl} className="w-full" />
+              </div>
+            )}
+
+            {/* Pending State */}
+            {recording.transcription_status === 'pending' && (
+              <div className="text-center py-8 space-y-4">
+                <Mic className="h-12 w-12 mx-auto text-muted-foreground opacity-50" />
+                <p className="text-muted-foreground">
+                  Este áudio ainda não foi transcrito
+                </p>
+                <JumperButton onClick={() => handleTranscribe()} disabled={isTranscribing} size="lg">
+                  {isTranscribing ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Transcrevendo...
+                    </>
+                  ) : (
+                    <>
+                      <Mic className="mr-2 h-4 w-4" />
+                      Transcrever Áudio
+                    </>
+                  )}
+                </JumperButton>
+              </div>
+            )}
+
+            {/* Completed State */}
+            {recording.transcription_status === 'completed' && transcript && (
+              <TranscriptViewer content={transcript.full_text} />
             )}
           </OptimizationStepCard>
 

@@ -7,7 +7,8 @@ import { ReactNode } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { JumperButton } from "@/components/ui/jumper-button";
-import { Bug, Bot } from "lucide-react";
+import { Bug, Bot, Edit } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface OptimizationStepCardProps {
   stepNumber: number;
@@ -17,6 +18,8 @@ interface OptimizationStepCardProps {
   badge?: string; // Optional badge text (e.g., "Beta", "Preview")
   onDebug?: () => void;
   onEnhancementView?: () => void; // View AI enhancement changes
+  onEdit?: () => void; // Edit action (opens modal)
+  isEditDisabled?: boolean; // Disable edit if step not completed
   children: ReactNode;
 }
 
@@ -43,10 +46,15 @@ export function OptimizationStepCard({
   badge,
   onDebug,
   onEnhancementView,
+  onEdit,
+  isEditDisabled = false,
   children
 }: OptimizationStepCardProps) {
   return (
-    <Card className="border-2">
+    <Card className={cn(
+      "border-2",
+      isEditDisabled && "opacity-60"
+    )}>
       <CardHeader>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -72,6 +80,22 @@ export function OptimizationStepCard({
           {/* Status Badge & Action Buttons */}
           <div className="flex items-center gap-2">
             {getStatusBadge(status)}
+
+            {/* Edit Button */}
+            {onEdit && (
+              <JumperButton
+                size="sm"
+                variant="ghost"
+                onClick={onEdit}
+                disabled={isEditDisabled}
+                className="h-8 w-8 p-0"
+                title={isEditDisabled ? "Complete o step para editar" : "Editar"}
+              >
+                <Edit className="h-4 w-4" />
+              </JumperButton>
+            )}
+
+            {/* Enhancement View Button */}
             {onEnhancementView && (
               <JumperButton
                 size="sm"
@@ -83,6 +107,8 @@ export function OptimizationStepCard({
                 <Bot className="h-4 w-4" />
               </JumperButton>
             )}
+
+            {/* Debug Button (Admin only) */}
             {onDebug && (
               <JumperButton
                 size="sm"

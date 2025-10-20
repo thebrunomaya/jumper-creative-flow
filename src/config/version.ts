@@ -7,10 +7,19 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.20';
+export const APP_VERSION = 'v2.0.21';
 
 /**
  * Version history:
+ * - v2.0.21 (2024-10-20):
+ *   - UX: Optimization steps inverted - most refined content at top (3→2→1)
+ *   - NEW: Edit icons in card headers (minimalista) - removed body "Editar" buttons
+ *   - NEW: Locked state indicators - Steps show lock icon when dependencies not met
+ *   - Step 3 locked until Step 2 completed, Step 2 locked until Step 1 completed
+ *   - ChevronUp arrows show refinement flow upward (Step 1 → Step 2 → Step 3)
+ *   - Edit icons always visible but disabled when step incomplete
+ *   - Cleaner, more focused interface with priority on final output
+ *
  * - v2.0.20 (2024-10-20):
  *   - UX: Step 1 consolidated - single "Editar Transcrição" button
  *   - NEW: TranscriptViewer component - displays formatted text with paragraphs
