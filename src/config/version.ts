@@ -7,10 +7,16 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.18';
+export const APP_VERSION = 'v2.0.19';
 
 /**
  * Version history:
+ * - v2.0.19 (2024-10-20):
+ *   - FIX: LogViewer now preserves line breaks in Markdown
+ *   - Added remark-breaks plugin to treat single line breaks as <br />
+ *   - Fixes rendering issue where multi-line context was displayed as single line
+ *   - Dependencies: +remark-breaks
+ *
  * - v2.0.18 (2024-10-20):
  *   - UX: Step 2 renamed to "Log da Otimização" (was "Organização em Tópicos")
  *   - NEW: Created LogViewer component - renders Markdown as formatted HTML

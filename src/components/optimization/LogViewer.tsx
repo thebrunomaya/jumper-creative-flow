@@ -5,6 +5,7 @@
 
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import remarkBreaks from 'remark-breaks';
 
 interface LogViewerProps {
   content: string;
@@ -22,7 +23,7 @@ export function LogViewer({ content }: LogViewerProps) {
   return (
     <div className="prose prose-sm max-w-none dark:prose-invert">
       <ReactMarkdown
-        remarkPlugins={[remarkGfm]}
+        remarkPlugins={[remarkGfm, remarkBreaks]}
         components={{
           // Headings
           h1: ({ node, ...props }) => (
