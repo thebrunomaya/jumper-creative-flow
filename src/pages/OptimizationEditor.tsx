@@ -57,6 +57,7 @@ import { LogViewer } from "@/components/optimization/LogViewer";
 import { LogEditorModal } from "@/components/optimization/LogEditorModal";
 import { TranscriptViewer } from "@/components/optimization/TranscriptViewer";
 import { TranscriptEditorModal } from "@/components/optimization/TranscriptEditorModal";
+import { ExtractViewer } from "@/components/optimization/ExtractViewer";
 
 const AI_MODELS = [
   { value: "claude-sonnet-4-5-20250929", label: "Claude Sonnet 4.5 (Recomendado)" },
@@ -75,6 +76,7 @@ export default function OptimizationEditor() {
   const [recording, setRecording] = useState<OptimizationRecordingRow | null>(null);
   const [transcript, setTranscript] = useState<OptimizationTranscriptRow | null>(null);
   const [context, setContext] = useState<OptimizationContext | null>(null);
+  const [extract, setExtract] = useState<{ extract_text: string; edit_count: number; updated_at: string; previous_version?: string } | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [accountName, setAccountName] = useState<string>("");
 
@@ -83,6 +85,7 @@ export default function OptimizationEditor() {
   const [isTranscribing, setIsTranscribing] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isGeneratingExtract, setIsGeneratingExtract] = useState(false);
 
   // Edit states
   const [editedTranscript, setEditedTranscript] = useState("");
@@ -189,6 +192,17 @@ export default function OptimizationEditor() {
 
       if (contextData) {
         setContext(rowToOptimizationContext(contextData));
+      }
+
+      // Fetch extract
+      const { data: extractData } = await supabase
+        .from('j_hub_optimization_extracts')
+        .select('extract_text, edit_count, updated_at, previous_version')
+        .eq('recording_id', recordingId)
+        .maybeSingle();
+
+      if (extractData) {
+        setExtract(extractData);
       }
 
       // Fetch original Whisper prompt from transcribe log
@@ -512,7 +526,7 @@ export default function OptimizationEditor() {
   }
 
   // Debug modal handlers
-  function openDebug(step: 'transcribe' | 'process' | 'analyze') {
+  function openDebug(step: 'transcribe' | 'process' | 'analyze' | 'extract') {
     // For transcribe step, show both Whisper and Enhancement logs
     if (step === 'transcribe') {
       setDebugStep(['transcribe', 'enhance_transcription']);
@@ -533,13 +547,76 @@ export default function OptimizationEditor() {
     setShareModalOpen(true);
   }
 
-  function handleEditExtract() {
-    setExtractEditorModalOpen(true);
+  // Extract handlers (Step 3)
+  async function handleGenerateExtract() {
+    if (!recordingId || !transcript?.processed_text) return;
+
+    setIsGeneratingExtract(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('j_hub_optimization_extract', {
+        body: {
+          recordingId,
+          contextText: transcript.processed_text,
+          forceRegenerate: true,
+        }
+      });
+
+      if (error) throw error;
+
+      toast.success('Extrato gerado com sucesso!');
+      await loadRecording();
+    } catch (error: any) {
+      console.error('Extract generation error:', error);
+      toast.error(error.message || 'Erro ao gerar extrato');
+    } finally {
+      setIsGeneratingExtract(false);
+    }
   }
 
-  function handleExtractSaved(updatedContext: OptimizationContext) {
-    setContext(updatedContext);
-    toast.success('Extrato atualizado! Recarregue a página para ver as alterações.');
+  async function handleSaveExtract(newText: string) {
+    if (!recordingId || !extract) return;
+
+    try {
+      const { error } = await supabase
+        .from('j_hub_optimization_extracts')
+        .update({
+          extract_text: newText,
+          previous_version: extract.extract_text,
+          edit_count: extract.edit_count + 1,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('recording_id', recordingId);
+
+      if (error) throw error;
+
+      toast.success('Extrato salvo!');
+      await loadRecording();
+    } catch (error: any) {
+      console.error('Save extract error:', error);
+      toast.error('Erro ao salvar extrato');
+    }
+  }
+
+  async function handleUndoExtract() {
+    if (!recordingId || !extract?.previous_version) return;
+
+    try {
+      const { error } = await supabase
+        .from('j_hub_optimization_extracts')
+        .update({
+          extract_text: extract.previous_version,
+          previous_version: null,
+        })
+        .eq('recording_id', recordingId);
+
+      if (error) throw error;
+
+      toast.success('Extrato restaurado!');
+      await loadRecording();
+    } catch (error: any) {
+      console.error('Undo extract error:', error);
+      toast.error('Erro ao desfazer');
+    }
   }
 
   function handleAdjustWithAI() {
@@ -598,15 +675,15 @@ export default function OptimizationEditor() {
       <ScrollArea className="h-[calc(100vh-180px)]">
         <div className="px-8 py-6 max-w-6xl mx-auto space-y-6">
 
-          {/* SEÇÃO 3: ANÁLISE (TOPO - Mais refinado) */}
+          {/* SEÇÃO 3: EXTRATO (TOPO - Mais refinado) */}
           <OptimizationStepCard
             stepNumber={3}
-            title="Análise Estruturada"
-            description="Bullets → Relatório JSON"
+            title="Extrato da Otimização"
+            description="Resumo das ações realizadas"
             status={recording.analysis_status}
             onEdit={() => setExtractEditorModalOpen(true)}
             isEditDisabled={recording.analysis_status !== 'completed'}
-            onDebug={isAdmin ? () => openDebug('analyze') : undefined}
+            onDebug={isAdmin ? () => openDebug('extract') : undefined}
           >
             {/* Pending State - Locked if Step 2 not completed */}
             {recording.analysis_status === 'pending' && recording.processing_status !== 'completed' && (
@@ -618,45 +695,30 @@ export default function OptimizationEditor() {
               </div>
             )}
 
-            {/* Pending State - Ready to analyze */}
+            {/* Pending State - Ready to extract */}
             {recording.analysis_status === 'pending' && recording.processing_status === 'completed' && (
               <div className="text-center py-8 space-y-4">
-                <Brain className="h-12 w-12 mx-auto text-muted-foreground opacity-50" />
+                <FileText className="h-12 w-12 mx-auto text-muted-foreground opacity-50" />
                 <p className="text-muted-foreground">
-                  Bullets organizados. Gere o extrato estruturado final.
+                  Log organizado. Gere o extrato de ações realizadas.
                 </p>
-                <div className="max-w-xs mx-auto space-y-3">
-                  <Select value={selectedModel} onValueChange={setSelectedModel}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {AI_MODELS.map((model) => (
-                        <SelectItem key={model.value} value={model.value}>
-                          {model.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <JumperButton
-                    onClick={() => handleAnalyze()}
-                    disabled={isAnalyzing || !transcript?.processed_text}
-                    size="lg"
-                    className="w-full"
-                  >
-                    {isAnalyzing ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Analisando...
-                      </>
-                    ) : (
-                      <>
-                        <Brain className="mr-2 h-4 w-4" />
-                        Analisar com IA
-                      </>
-                    )}
-                  </JumperButton>
-                </div>
+                <JumperButton
+                  onClick={() => handleGenerateExtract()}
+                  disabled={isGeneratingExtract || !transcript?.processed_text}
+                  size="lg"
+                >
+                  {isGeneratingExtract ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Gerando Extrato...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="mr-2 h-4 w-4" />
+                      Gerar Extrato com IA
+                    </>
+                  )}
+                </JumperButton>
               </div>
             )}
 
@@ -666,7 +728,7 @@ export default function OptimizationEditor() {
                 <AlertCircle className="h-12 w-12 mx-auto text-destructive opacity-70" />
                 <div className="space-y-2">
                   <p className="text-destructive font-medium">
-                    Falha ao analisar transcrição
+                    Falha ao gerar extrato
                   </p>
                   {isAdmin && (
                     <p className="text-xs text-muted-foreground">
@@ -675,12 +737,12 @@ export default function OptimizationEditor() {
                   )}
                 </div>
                 <JumperButton
-                  onClick={() => handleAnalyze()}
-                  disabled={isAnalyzing || !transcript?.processed_text}
+                  onClick={() => handleGenerateExtract()}
+                  disabled={isGeneratingExtract || !transcript?.processed_text}
                   variant="default"
                   size="lg"
                 >
-                  {isAnalyzing ? (
+                  {isGeneratingExtract ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       Tentando novamente...
@@ -696,12 +758,12 @@ export default function OptimizationEditor() {
             )}
 
             {/* Completed State */}
-            {recording.analysis_status === 'completed' && context && (
+            {recording.analysis_status === 'completed' && extract && (
               <div className="space-y-6">
-                {/* Structured Context */}
-                <OptimizationContextCard context={context} />
+                {/* Extract Viewer */}
+                <ExtractViewer content={extract.extract_text} />
 
-                {/* Only Share Button */}
+                {/* Share Button */}
                 <div className="flex justify-end pt-4 border-t">
                   <JumperButton onClick={handleShare}>
                     <Share2 className="mr-2 h-4 w-4" />
@@ -901,12 +963,18 @@ export default function OptimizationEditor() {
         recordedAt={recording.recorded_at}
       />
 
-      {context && (
+      {extract && recordingId && (
         <ExtractEditorModal
           open={extractEditorModalOpen}
           onOpenChange={setExtractEditorModalOpen}
-          context={context}
-          onSave={handleExtractSaved}
+          recordingId={recordingId}
+          currentText={extract.extract_text}
+          onSave={handleSaveExtract}
+          onRegenerate={handleGenerateExtract}
+          hasUndo={!!extract.previous_version}
+          onUndo={handleUndoExtract}
+          editCount={extract.edit_count}
+          lastEditedAt={extract.updated_at}
         />
       )}
 

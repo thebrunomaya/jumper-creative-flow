@@ -7,10 +7,21 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.22';
+export const APP_VERSION = 'v2.0.23';
 
 /**
  * Version history:
+ * - v2.0.23 (2024-10-20):
+ *   - MAJOR CHANGE: Step 3 transformed from "Análise Estruturada" to "Extrato da Otimização"
+ *   - NEW: AI now extracts concrete actions from log into categorized bullet list
+ *   - 4 action categories: [VERBA], [CRIATIVOS], [CONJUNTOS], [COPY]
+ *   - ExtractViewer component: displays actions with category icons and colors
+ *   - ExtractEditorModal: manual editing, AI regeneration, undo support
+ *   - Edge Function: j_hub_optimization_extract (Claude analyzes Step 2 log)
+ *   - Database: j_hub_optimization_extracts table with versioning
+ *   - Focused on WHAT was done (actions) vs WHY (analysis moved to Step 4 Oracle)
+ *   - Cleaner interface: compact bullet format instead of verbose JSON
+ *
  * - v2.0.22 (2024-10-20):
  *   - UX: All optimization steps now collapsible for cleaner interface
  *   - NEW: Click header to expand/collapse any step (except action buttons)
