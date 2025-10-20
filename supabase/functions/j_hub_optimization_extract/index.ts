@@ -108,7 +108,7 @@ serve(async (req) => {
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: 'claude-3-5-sonnet-20241022',
+        model: 'claude-sonnet-4-5-20250929',
         max_tokens: 2000,
         messages: [
           {
@@ -180,7 +180,7 @@ serve(async (req) => {
       recording_id: recordingId,
       step: 'extract',
       prompt_sent: EXTRACT_PROMPT,
-      model_used: 'claude-3-5-sonnet-20241022',
+      model_used: 'claude-sonnet-4-5-20250929',
       input_preview: contextText.substring(0, 5000),
       output_preview: extractText.substring(0, 5000),
       tokens_used: (claudeData.usage?.input_tokens || 0) + (claudeData.usage?.output_tokens || 0),
@@ -223,7 +223,7 @@ serve(async (req) => {
           recording_id: reqRecordingId,
           step: 'extract',
           prompt_sent: EXTRACT_PROMPT || null,
-          model_used: 'claude-3-5-sonnet-20241022',
+          model_used: 'claude-sonnet-4-5-20250929',
           input_preview: reqContextText?.substring(0, 5000) || 'Error occurred before/during processing',
           output_preview: null,
           tokens_used: null,
