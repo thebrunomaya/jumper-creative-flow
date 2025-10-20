@@ -51,6 +51,8 @@ import { ShareOptimizationModal } from "@/components/optimization/ShareOptimizat
 import { OracleReportGenerator } from "@/components/optimization/OracleReportGenerator";
 import { ExtractEditorModal } from "@/components/optimization/ExtractEditorModal";
 import { AIAnalysisImprovementsModal } from "@/components/optimization/AIAnalysisImprovementsModal";
+import { LogViewer } from "@/components/optimization/LogViewer";
+import { LogEditorModal } from "@/components/optimization/LogEditorModal";
 
 const AI_MODELS = [
   { value: "claude-sonnet-4-5-20250929", label: "Claude Sonnet 4.5 (Recomendado)" },
@@ -115,6 +117,9 @@ export default function OptimizationEditor() {
 
   // Enhancement diff modal (to show AI changes)
   const [enhancementDiffModalOpen, setEnhancementDiffModalOpen] = useState(false);
+
+  // Log editor modal (Step 2)
+  const [logEditorModalOpen, setLogEditorModalOpen] = useState(false);
 
   // Load data on mount
   useEffect(() => {
@@ -700,11 +705,11 @@ export default function OptimizationEditor() {
             <ChevronDown className="h-8 w-8 text-muted-foreground animate-bounce" />
           </div>
 
-          {/* SEÇÃO 2: PROCESSAMENTO */}
+          {/* SEÇÃO 2: LOG DA OTIMIZAÇÃO */}
           <OptimizationStepCard
             stepNumber={2}
-            title="Organização em Tópicos"
-            description="Texto → Bullets estruturados"
+            title="Log da Otimização"
+            description="Diário detalhado das ações"
             status={recording.processing_status}
             onDebug={isAdmin ? () => openDebug('process') : undefined}
           >
@@ -772,65 +777,19 @@ export default function OptimizationEditor() {
 
             {/* Completed State */}
             {recording.processing_status === 'completed' && transcript?.processed_text && (
-              <div className="space-y-3">
-                {/* Edit count badge */}
-                {transcript.processed_edit_count > 0 && (
-                  <Badge variant="secondary" className="mb-2">
-                    Editado {transcript.processed_edit_count}x
-                    {transcript.processed_last_edited_at && (
-                      <span className="ml-2 text-xs opacity-70">
-                        • {new Date(transcript.processed_last_edited_at).toLocaleString('pt-BR')}
-                      </span>
-                    )}
-                  </Badge>
-                )}
+              <div className="space-y-4">
+                {/* Rendered Log View */}
+                <LogViewer content={transcript.processed_text} />
 
-                <Textarea
-                  value={editedProcessed}
-                  onChange={(e) => setEditedProcessed(e.target.value)}
-                  className="min-h-[400px] text-sm"
-                  placeholder="Bullets organizados..."
-                />
-
-                <div className="flex flex-wrap gap-2">
-                  {/* Primary actions */}
+                {/* Single Edit Button */}
+                <div className="flex justify-start pt-2">
                   <JumperButton
                     variant="outline"
-                    onClick={handleSaveProcessed}
-                    disabled={editedProcessed === transcript.processed_text}
+                    onClick={() => setLogEditorModalOpen(true)}
                   >
-                    <Save className="mr-2 h-4 w-4" />
-                    Salvar Edição Manual
+                    <Edit className="mr-2 h-4 w-4" />
+                    Editar Log
                   </JumperButton>
-
-                  <JumperButton
-                    variant="outline"
-                    onClick={() => setAiProcessImprovementsModalOpen(true)}
-                  >
-                    <Sparkles className="mr-2 h-4 w-4" />
-                    Ajustar com IA
-                  </JumperButton>
-
-                  <JumperButton
-                    variant="outline"
-                    onClick={() => setReprocessModalOpen(true)}
-                    disabled={isReprocessing}
-                  >
-                    <RotateCw className="mr-2 h-4 w-4" />
-                    Recriar
-                  </JumperButton>
-
-                  {/* Undo button (only if previous version exists) */}
-                  {transcript.processed_previous_version && (
-                    <JumperButton
-                      variant="ghost"
-                      onClick={handleUndoProcessed}
-                      title="Restaurar versão anterior"
-                    >
-                      <Undo2 className="mr-2 h-4 w-4" />
-                      Desfazer
-                    </JumperButton>
-                  )}
                 </div>
               </div>
             )}
@@ -1072,6 +1031,29 @@ export default function OptimizationEditor() {
         onConfirm={handleReprocess}
         isProcessing={isReprocessing}
       />
+
+      {/* Log Editor Modal (Step 2) */}
+      {transcript && (
+        <LogEditorModal
+          open={logEditorModalOpen}
+          onOpenChange={setLogEditorModalOpen}
+          recordingId={recordingId!}
+          currentText={editedProcessed}
+          onSave={handleSaveProcessed}
+          onAIImprove={() => {
+            setLogEditorModalOpen(false);
+            setAiProcessImprovementsModalOpen(true);
+          }}
+          onReprocess={() => {
+            setLogEditorModalOpen(false);
+            setReprocessModalOpen(true);
+          }}
+          onUndo={handleUndoProcessed}
+          hasUndo={!!transcript.processed_previous_version}
+          editCount={transcript.processed_edit_count || 0}
+          lastEditedAt={transcript.processed_last_edited_at}
+        />
+      )}
     </JumperBackground>
   );
 }

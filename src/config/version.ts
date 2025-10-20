@@ -7,10 +7,19 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.17';
+export const APP_VERSION = 'v2.0.18';
 
 /**
  * Version history:
+ * - v2.0.18 (2024-10-20):
+ *   - UX: Step 2 renamed to "Log da Otimização" (was "Organização em Tópicos")
+ *   - NEW: Created LogViewer component - renders Markdown as formatted HTML
+ *   - NEW: Created LogEditorModal component - edit Log in Markdown format
+ *   - Step 2 now shows rendered HTML view by default (emojis, formatting preserved)
+ *   - Edit button opens modal with all actions (Save, AI Improve, Recreate, Undo)
+ *   - Cleaner UX: Single "Editar Log" button in view mode
+ *   - Dependencies: react-markdown + remark-gfm (already installed)
+ *
  * - v2.0.17 (2024-10-20):
  *   - FIX: Debug Modal now correctly shows enhancement logs (Step 1 substep 2)
  *   - Removed conditional `if` that prevented enhancement logs from being saved
