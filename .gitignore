@@ -37,3 +37,4 @@ temp/
 *.sln
 *.sw?
 .vercel
+supabase/functions/.env
