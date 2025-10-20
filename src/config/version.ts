@@ -7,10 +7,20 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.19';
+export const APP_VERSION = 'v2.0.20';
 
 /**
  * Version history:
+ * - v2.0.20 (2024-10-20):
+ *   - UX: Step 1 consolidated - single "Editar Transcrição" button
+ *   - NEW: TranscriptViewer component - displays formatted text with paragraphs
+ *   - NEW: TranscriptEditorModal component - edit with all actions in modal
+ *   - ENHANCEMENT: Claude now adds punctuation and breaks into paragraphs automatically
+ *   - Edge Function: Updated j_hub_optimization_transcribe prompt for formatting
+ *   - Improved readability: formatted text view with natural paragraph breaks
+ *   - "Ver Mudanças IA" moved inside modal
+ *   - Consistent UX pattern with Step 2 (Log da Otimização)
+ *
  * - v2.0.19 (2024-10-20):
  *   - FIX: LogViewer now preserves line breaks in Markdown
  *   - Added remark-breaks plugin to treat single line breaks as <br />

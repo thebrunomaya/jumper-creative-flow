@@ -53,6 +53,8 @@ import { ExtractEditorModal } from "@/components/optimization/ExtractEditorModal
 import { AIAnalysisImprovementsModal } from "@/components/optimization/AIAnalysisImprovementsModal";
 import { LogViewer } from "@/components/optimization/LogViewer";
 import { LogEditorModal } from "@/components/optimization/LogEditorModal";
+import { TranscriptViewer } from "@/components/optimization/TranscriptViewer";
+import { TranscriptEditorModal } from "@/components/optimization/TranscriptEditorModal";
 
 const AI_MODELS = [
   { value: "claude-sonnet-4-5-20250929", label: "Claude Sonnet 4.5 (Recomendado)" },
@@ -120,6 +122,9 @@ export default function OptimizationEditor() {
 
   // Log editor modal (Step 2)
   const [logEditorModalOpen, setLogEditorModalOpen] = useState(false);
+
+  // Transcript editor modal (Step 1)
+  const [transcriptEditorModalOpen, setTranscriptEditorModalOpen] = useState(false);
 
   // Load data on mount
   useEffect(() => {
@@ -595,14 +600,9 @@ export default function OptimizationEditor() {
           <OptimizationStepCard
             stepNumber={1}
             title="Transcrição"
-            description="Áudio → Texto bruto"
+            description="Áudio → Texto formatado"
             status={recording.transcription_status}
             onDebug={isAdmin ? () => openDebug('transcribe') : undefined}
-            onEnhancementView={
-              transcript?.original_text && transcript.original_text !== transcript.full_text
-                ? () => setEnhancementDiffModalOpen(true)
-                : undefined
-            }
           >
             {/* Audio Player */}
             {audioUrl && (
@@ -636,65 +636,19 @@ export default function OptimizationEditor() {
 
             {/* Completed State */}
             {recording.transcription_status === 'completed' && transcript && (
-              <div className="space-y-3">
-                {/* Edit count badge */}
-                {transcript.edit_count > 0 && (
-                  <Badge variant="secondary" className="mb-2">
-                    Editado {transcript.edit_count}x
-                    {transcript.last_edited_at && (
-                      <span className="ml-2 text-xs opacity-70">
-                        • {new Date(transcript.last_edited_at).toLocaleString('pt-BR')}
-                      </span>
-                    )}
-                  </Badge>
-                )}
+              <div className="space-y-4">
+                {/* Formatted Text View */}
+                <TranscriptViewer content={transcript.full_text} />
 
-                <Textarea
-                  value={editedTranscript}
-                  onChange={(e) => setEditedTranscript(e.target.value)}
-                  className="min-h-[300px] font-mono text-sm"
-                  placeholder="Transcrição bruta do Whisper..."
-                />
-
-                <div className="flex flex-wrap gap-2">
-                  {/* Primary actions */}
+                {/* Single Edit Button */}
+                <div className="flex justify-start pt-2">
                   <JumperButton
                     variant="outline"
-                    onClick={handleSaveTranscript}
-                    disabled={editedTranscript === transcript.full_text}
+                    onClick={() => setTranscriptEditorModalOpen(true)}
                   >
-                    <Save className="mr-2 h-4 w-4" />
-                    Salvar Edição Manual
+                    <Edit className="mr-2 h-4 w-4" />
+                    Editar Transcrição
                   </JumperButton>
-
-                  <JumperButton
-                    variant="outline"
-                    onClick={() => setAiImprovementsModalOpen(true)}
-                  >
-                    <Sparkles className="mr-2 h-4 w-4" />
-                    Ajustar com IA
-                  </JumperButton>
-
-                  <JumperButton
-                    variant="outline"
-                    onClick={() => setRetranscribeModalOpen(true)}
-                    disabled={isRetranscribing}
-                  >
-                    <RotateCw className="mr-2 h-4 w-4" />
-                    Recriar
-                  </JumperButton>
-
-                  {/* Undo button (only if previous version exists) */}
-                  {transcript.previous_version && (
-                    <JumperButton
-                      variant="ghost"
-                      onClick={handleUndo}
-                      title="Restaurar versão anterior"
-                    >
-                      <Undo2 className="mr-2 h-4 w-4" />
-                      Desfazer
-                    </JumperButton>
-                  )}
                 </div>
               </div>
             )}
@@ -1052,6 +1006,33 @@ export default function OptimizationEditor() {
           hasUndo={!!transcript.processed_previous_version}
           editCount={transcript.processed_edit_count || 0}
           lastEditedAt={transcript.processed_last_edited_at}
+        />
+      )}
+
+      {/* Transcript Editor Modal (Step 1) */}
+      {transcript && (
+        <TranscriptEditorModal
+          open={transcriptEditorModalOpen}
+          onOpenChange={setTranscriptEditorModalOpen}
+          recordingId={recordingId!}
+          currentText={editedTranscript}
+          originalText={transcript.original_text || ''}
+          onSave={handleSaveTranscript}
+          onAIImprove={() => {
+            setTranscriptEditorModalOpen(false);
+            setAiImprovementsModalOpen(true);
+          }}
+          onRetranscribe={() => {
+            setTranscriptEditorModalOpen(false);
+            setRetranscribeModalOpen(true);
+          }}
+          hasUndo={!!transcript.previous_version}
+          onUndo={handleUndo}
+          onViewEnhancement={() => {
+            setEnhancementDiffModalOpen(true);
+          }}
+          editCount={transcript.edit_count || 0}
+          lastEditedAt={transcript.last_edited_at}
         />
       )}
     </JumperBackground>

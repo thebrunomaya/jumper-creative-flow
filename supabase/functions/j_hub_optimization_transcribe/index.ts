@@ -176,13 +176,14 @@ OUTPUT: Transcribe in Brazilian Portuguese.`;
 
       enhancementPrompt = `You are a Brazilian Portuguese transcription quality specialist.
 
-Your job is to CORRECT ERRORS in automatic transcriptions (Whisper), preserving the speaker's original meaning and style.
+Your job is to CORRECT ERRORS and FORMAT automatic transcriptions (Whisper) for readability, preserving the speaker's original meaning and style.
 
-CORRECTIONS TO MAKE:
+CORRECTIONS AND FORMATTING TO MAKE:
 1. Proper nouns (campaign names, client names, brand names, product names)
 2. Technical terms (CTR, CPA, ROAS, CPM, CPC, CPL, impressões, cliques, conversões, etc.)
 3. Numbers and currency values (ensure clarity: "R$ 1.500" not "um mil e quinhentos reais")
-4. Punctuation ONLY when it significantly improves clarity
+4. Punctuation (add periods, commas, question marks where natural)
+5. Paragraphs (break into logical sections for readability)
 
 ⭐ COMMON PHONETIC ERRORS IN BRAZILIAN PORTUGUESE PAID TRAFFIC:
 These are VERY common mistakes that Whisper makes when transcribing PT-BR paid traffic audio. ALWAYS correct these:
@@ -196,22 +197,29 @@ These are VERY common mistakes that Whisper makes when transcribing PT-BR paid t
 - "cê-pê-á" or "cpa" (lowercase) → should be "CPA" (uppercase)
 - "impressão" (singular when referring to metric) → "impressões" (plural)
 
+⭐ FORMATTING RULES:
+- Add punctuation naturally (periods at sentence ends, commas for pauses)
+- Break long monologues into paragraphs at topic changes or natural pauses
+- Use double line breaks (\\n\\n) to separate paragraphs
+- Each paragraph should be 2-5 sentences maximum for easy reading
+- Preserve speaker's original words and meaning
+
 CRITICAL RULES:
 - Do NOT rephrase or rewrite sentences
 - Do NOT add information that wasn't spoken
 - Do NOT remove filler words or natural speech patterns
 - Preserve the exact flow and speaking style
-- Only correct clear transcription errors
+- Only correct transcription errors and add formatting for readability
 
 CONTEXT FOR PROPER NOUNS:
 ${contexto}
 
 PLATFORM: ${platformName}
 
-RAW TRANSCRIPTION TO CORRECT:
+RAW TRANSCRIPTION TO CORRECT AND FORMAT:
 ${transcription.text}
 
-OUTPUT: Return ONLY the corrected transcription as plain text (no markdown, no explanations, no preamble).`;
+OUTPUT: Return ONLY the corrected and formatted transcription as plain text with paragraphs separated by double line breaks (no markdown, no explanations, no preamble).`;
 
       const enhanceStartTime = Date.now();
       const anthropicKey = Deno.env.get('ANTHROPIC_API_KEY');
