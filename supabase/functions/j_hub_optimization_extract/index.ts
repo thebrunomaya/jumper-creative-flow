@@ -175,17 +175,18 @@ serve(async (req) => {
       // Non-critical error - extract was saved successfully
     }
 
-    // Log API call
+    // Log API call for debugging (admin only)
     await supabase.from('j_hub_optimization_api_logs').insert({
       recording_id: recordingId,
       step: 'extract',
-      substep: 1,
-      input_text: contextText,
-      input_tokens: claudeData.usage?.input_tokens || 0,
-      output_text: extractText,
-      output_tokens: claudeData.usage?.output_tokens || 0,
-      prompt_text: EXTRACT_PROMPT,
+      prompt_sent: EXTRACT_PROMPT,
       model_used: 'claude-3-5-sonnet-20241022',
+      input_preview: contextText.substring(0, 5000),
+      output_preview: extractText.substring(0, 5000),
+      tokens_used: (claudeData.usage?.input_tokens || 0) + (claudeData.usage?.output_tokens || 0),
+      latency_ms: null, // Could calculate if needed
+      success: true,
+      error_message: null,
     });
 
     return new Response(
@@ -200,6 +201,41 @@ serve(async (req) => {
     );
   } catch (error) {
     console.error('[Extract] Error:', error);
+
+    // Log error to API logs for debugging (best effort)
+    try {
+      const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+
+      // Try to parse request body if error occurred before parse
+      let reqRecordingId: string | undefined;
+      let reqContextText: string | undefined;
+
+      try {
+        const body = await req.clone().json();
+        reqRecordingId = body.recordingId;
+        reqContextText = body.contextText;
+      } catch (parseError) {
+        console.warn('[Extract] Could not parse request body for error logging');
+      }
+
+      if (reqRecordingId) {
+        await supabase.from('j_hub_optimization_api_logs').insert({
+          recording_id: reqRecordingId,
+          step: 'extract',
+          prompt_sent: EXTRACT_PROMPT || null,
+          model_used: 'claude-3-5-sonnet-20241022',
+          input_preview: reqContextText?.substring(0, 5000) || 'Error occurred before/during processing',
+          output_preview: null,
+          tokens_used: null,
+          latency_ms: null,
+          success: false,
+          error_message: error instanceof Error ? error.message : 'Unknown error',
+        });
+      }
+    } catch (logError) {
+      console.error('[Extract] Failed to log error (non-critical):', logError);
+    }
+
     return new Response(
       JSON.stringify({
         success: false,

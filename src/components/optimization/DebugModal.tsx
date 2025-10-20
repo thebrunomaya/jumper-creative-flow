@@ -45,6 +45,7 @@ const stepLabels: Record<string, string> = {
   enhance_transcription: 'Enhancement (Claude Sonnet 4.5)',
   process: 'Passo 2: Processamento (Claude Bullets)',
   analyze: 'Passo 3: Análise (IA)',
+  extract: 'Passo 3: Geração de Extrato (Claude)',
   improve_transcript: 'Ajuste de Transcrição com IA (Claude)',
   improve_processed: 'Ajuste de Bullets com IA (Claude)',
 };
