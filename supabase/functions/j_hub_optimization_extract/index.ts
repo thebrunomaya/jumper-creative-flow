@@ -164,6 +164,17 @@ serve(async (req) => {
       throw new Error(`Database error: ${dbError.message}`);
     }
 
+    // Update recording status to completed
+    const { error: statusError } = await supabase
+      .from('j_hub_optimization_recordings')
+      .update({ analysis_status: 'completed' })
+      .eq('id', recordingId);
+
+    if (statusError) {
+      console.error('[Extract] Failed to update recording status:', statusError);
+      // Non-critical error - extract was saved successfully
+    }
+
     // Log API call
     await supabase.from('j_hub_optimization_api_logs').insert({
       recording_id: recordingId,
