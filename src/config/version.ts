@@ -7,10 +7,38 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.23';
+export const APP_VERSION = 'v2.0.28';
 
 /**
  * Version history:
+ * - v2.0.28 (2024-10-20):
+ *   - DEPLOY: j_hub_optimization_extract Edge Function deployed with Claude Sonnet 4.5
+ *   - Model upgrade: claude-3-5-sonnet-20241022 → claude-sonnet-4-5-20250929
+ *   - All optimization steps now use Sonnet 4.5 (transcribe, process, extract)
+ *   - Improved extraction quality with newer model version
+ *
+ * - v2.0.27 (2024-10-20):
+ *   - CODE: Updated Step 3 Extract to use Claude Sonnet 4.5 (not deployed yet)
+ *   - Changed model identifier in j_hub_optimization_extract/index.ts
+ *
+ * - v2.0.26 (2024-10-20):
+ *   - NEW: Safe database reset script (db-reset-safe.sh)
+ *   - Auto backup/restore workflow prevents data loss during resets
+ *   - Updated all documentation (CLAUDE.md, DEV-TROUBLESHOOTING.md, QUICK-START.md)
+ *   - Added package.json npm script: npm run db:reset
+ *
+ * - v2.0.25 (2024-10-20):
+ *   - FIX: Debug modal for Step 3 (Extract) now working
+ *   - Migration: Added 'extract' to j_hub_optimization_api_logs step constraint
+ *   - Edge Function: Corrected API logging field names
+ *   - DebugModal: Added label for 'extract' step
+ *
+ * - v2.0.24 (2024-10-20):
+ *   - DOCS: Comprehensive local development setup documentation
+ *   - NEW: DEV-TROUBLESHOOTING.md with solutions for common issues
+ *   - NEW: QUICK-START.md for rapid onboarding
+ *   - Updated CLAUDE.md with environment variable warnings
+ *
  * - v2.0.23 (2024-10-20):
  *   - MAJOR CHANGE: Step 3 transformed from "Análise Estruturada" to "Extrato da Otimização"
  *   - NEW: AI now extracts concrete actions from log into categorized bullet list
