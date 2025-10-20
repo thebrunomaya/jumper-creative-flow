@@ -179,70 +179,129 @@ export const APP_VERSION = 'v3.0.0';
 
 ## ⚠️ CRITICAL: Environment Variables and Local Development
 
-**🚨 DISCOVERED 2025-10-14: System environment variables override `.env` files!**
+**🚨 UPDATED 2024-10-20: Complete guide for Frontend + Edge Functions**
 
-### **The Problem**
+### **Environment Files Structure**
 
-Vite loads environment variables in this order of precedence:
+```
+.env                       → Production values (committed to git)
+.env.local                 → Frontend local override (gitignored)
+supabase/.env              → Source of truth for API keys (gitignored)
+supabase/functions/.env    → Edge Functions environment (gitignored, REQUIRED!)
+```
+
+---
+
+### **Frontend Variables (.env.local)**
+
+**Purpose:** Override production Supabase URL for local development
+
+**Setup:**
+```bash
+# .env.local (create if doesn't exist)
+VITE_SUPABASE_URL=http://127.0.0.1:54321
+VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0
+```
+
+**⚠️ Common Problem:** System environment variables override `.env` files!
+
+Vite loads in this order:
 1. **System environment variables** (HIGHEST PRIORITY)
 2. `.env.local`
 3. `.env`
 
-If you have `VITE_SUPABASE_URL` exported in your shell (e.g., `.zshrc`), **it will ALWAYS use that value**, even if `.env` has different values!
-
-### **The Danger**
-
+**Solution:**
 ```bash
-# If these are in your system environment:
-export VITE_SUPABASE_URL=https://biwwowendjuzvpttyrlb.supabase.co  # PRODUCTION!
-export VITE_SUPABASE_PUBLISHABLE_KEY=...  # PRODUCTION KEY!
-
-# Then running `npm run dev` connects to PRODUCTION
-# even with Supabase Local running!
-```
-
-**Result:** You think you're testing locally but **modifying production data**! 💥
-
-### **The Solution**
-
-**1. Check for system variables:**
-```bash
+# 1. Check for conflicting system vars
 env | grep VITE
-```
 
-**2. If found, remove them from shell config:**
-```bash
-# Edit ~/.zshrc or ~/.bash_profile
-# Comment out or delete lines like:
-# export VITE_SUPABASE_URL=...
-# export VITE_SUPABASE_PUBLISHABLE_KEY=...
+# 2. If found, remove from ~/.zshrc or ~/.bash_profile
+# Comment out lines like: export VITE_SUPABASE_URL=...
 
-# Then reload:
+# 3. Reload shell
 source ~/.zshrc
 ```
 
-**3. Run dev server with explicit local variables:**
-```bash
-VITE_SUPABASE_URL=http://127.0.0.1:54321 \
-VITE_SUPABASE_PUBLISHABLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0 \
-npm run dev
-```
-
-**4. Verify in browser console:**
-```javascript
-// Should see:
-🔗 Supabase: LOCAL (http://127.0.0.1:54321)
-
-// NOT:
-🔗 Supabase: PRODUCTION (https://biwwowendjuzvpttyrlb.supabase.co)
-```
-
-### **Safety Check**
-
-**ALWAYS verify which Supabase you're connected to:**
+**Validation:**
 - Open browser DevTools Console
-- Look for the `🔗 Supabase:` log on page load
-- If it says `PRODUCTION`, **STOP** and fix environment variables!
+- Look for: `🔗 Supabase: LOCAL (http://127.0.0.1:54321)`
+- If shows `PRODUCTION`, **STOP** and fix environment variables!
+
+---
+
+### **Edge Functions Variables (supabase/functions/.env) ✨ NEW!**
+
+**🚨 CRITICAL:** Edge Functions run in Docker container and **DO NOT** read `.env.local`!
+
+**Purpose:** Provide API keys (OpenAI, Anthropic) to Edge Functions
+
+**Setup (REQUIRED for optimization system):**
+```bash
+# 1. Copy API keys to functions folder
+cp supabase/.env supabase/functions/.env
+
+# 2. Verify content
+cat supabase/functions/.env
+# Should contain:
+# OPENAI_API_KEY=sk-proj-...
+# ANTHROPIC_API_KEY=sk-ant-api03-...
+
+# 3. Restart Supabase (auto-loads on start)
+npx supabase stop
+npx supabase start
+```
+
+**Validation:**
+```bash
+# Check Edge Runtime container has the keys
+docker exec supabase_edge_runtime_biwwowendjuzvpttyrlb env | grep OPENAI_API_KEY
+
+# Should return: OPENAI_API_KEY=sk-proj-...
+```
+
+**❌ Common Mistakes:**
+- Using `npx supabase secrets set` → Only for PRODUCTION remote, not local!
+- Putting keys in `.env.local` → Edge Functions won't see them
+- Using `supabase functions serve --env-file` → Creates conflicts with `supabase start`
+
+**✅ Correct Flow:**
+1. `supabase/.env` = Source of truth (API keys)
+2. Copy to `supabase/functions/.env` (gitignored)
+3. `npx supabase start` → Auto-loads into Edge Runtime container
+4. Edge Functions can now access `Deno.env.get('OPENAI_API_KEY')`
+
+---
+
+### **Troubleshooting**
+
+**Edge Function error: "OPENAI_API_KEY not configured"**
+
+```bash
+# 1. Check file exists
+ls -la supabase/functions/.env
+
+# 2. If missing, create it
+cp supabase/.env supabase/functions/.env
+
+# 3. Restart Supabase
+npx supabase stop && npx supabase start
+
+# 4. Validate
+docker exec supabase_edge_runtime_... env | grep API_KEY
+```
+
+**Frontend connecting to PRODUCTION instead of LOCAL**
+
+```bash
+# 1. Check system environment
+env | grep VITE
+
+# 2. Remove conflicting vars from shell config
+# 3. Verify .env.local exists with correct values
+# 4. Restart dev server: npm run dev
+```
+
+See [docs/DEV-TROUBLESHOOTING.md](docs/DEV-TROUBLESHOOTING.md) for more issues.
 
 ---
 

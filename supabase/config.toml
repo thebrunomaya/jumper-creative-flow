@@ -51,3 +51,6 @@ verify_jwt = true
 
 [functions.j_hub_optimization_view_shared]
 verify_jwt = false
+
+[functions.j_hub_optimization_extract]
+verify_jwt = true
