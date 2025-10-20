@@ -39,18 +39,18 @@ CREATE POLICY "Users can view their own extracts"
   USING (
     recording_id IN (
       SELECT id FROM public.j_hub_optimization_recordings
-      WHERE user_id = auth.uid()
+      WHERE recorded_by = (auth.jwt() ->> 'email'::text)
     )
   );
 
--- Users can insert their own extracts
+-- Users can insert their own extracts (via Edge Functions)
 CREATE POLICY "Users can insert their own extracts"
   ON public.j_hub_optimization_extracts
   FOR INSERT
   WITH CHECK (
     recording_id IN (
       SELECT id FROM public.j_hub_optimization_recordings
-      WHERE user_id = auth.uid()
+      WHERE recorded_by = (auth.jwt() ->> 'email'::text)
     )
   );
 
@@ -61,7 +61,7 @@ CREATE POLICY "Users can update their own extracts"
   USING (
     recording_id IN (
       SELECT id FROM public.j_hub_optimization_recordings
-      WHERE user_id = auth.uid()
+      WHERE recorded_by = (auth.jwt() ->> 'email'::text)
     )
   );
 
@@ -71,7 +71,7 @@ CREATE POLICY "Admins can view all extracts"
   FOR SELECT
   USING (
     EXISTS (
-      SELECT 1 FROM public.j_ads_users
+      SELECT 1 FROM public.j_hub_users
       WHERE id = auth.uid() AND role = 'admin'
     )
   );
@@ -82,10 +82,15 @@ CREATE POLICY "Admins can update all extracts"
   FOR UPDATE
   USING (
     EXISTS (
-      SELECT 1 FROM public.j_ads_users
+      SELECT 1 FROM public.j_hub_users
       WHERE id = auth.uid() AND role = 'admin'
     )
   );
+
+-- Service role can manage extracts (Edge Functions)
+CREATE POLICY "Service role can manage extracts"
+  ON public.j_hub_optimization_extracts
+  USING (auth.role() = 'service_role'::text);
 
 -- Add comment
 COMMENT ON TABLE public.j_hub_optimization_extracts IS 'Stores extracted summaries of optimization actions (Step 3)';
