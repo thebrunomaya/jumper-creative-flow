@@ -22,7 +22,7 @@ interface TranscriptEditorModalProps {
   recordingId: string;
   currentText: string;
   originalText: string; // For "Ver Mudanças IA"
-  onSave: () => Promise<void>;
+  onSave: (editedText: string) => Promise<void>;
   onAIImprove: () => void;
   onRetranscribe: () => void;
   hasUndo: boolean;
@@ -50,11 +50,11 @@ export function TranscriptEditorModal({
   const [editedText, setEditedText] = useState(currentText);
   const [hasChanges, setHasChanges] = useState(false);
 
-  // Sync with external changes
+  // Sync with external changes (only when currentText prop changes, not when modal opens/closes)
   useEffect(() => {
     setEditedText(currentText);
     setHasChanges(false);
-  }, [currentText, open]);
+  }, [currentText]);
 
   // Track changes
   useEffect(() => {
@@ -62,7 +62,7 @@ export function TranscriptEditorModal({
   }, [editedText, currentText]);
 
   const handleSave = async () => {
-    await onSave();
+    await onSave(editedText);
     onOpenChange(false);
   };
 

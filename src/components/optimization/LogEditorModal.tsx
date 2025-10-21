@@ -21,7 +21,7 @@ interface LogEditorModalProps {
   onOpenChange: (open: boolean) => void;
   recordingId: string;
   currentText: string;
-  onSave: () => Promise<void>;
+  onSave: (editedText: string) => Promise<void>;
   onAIImprove: () => void;
   onReprocess: () => void;
   onUndo: () => Promise<void>;
@@ -46,11 +46,11 @@ export function LogEditorModal({
   const [editedText, setEditedText] = useState(currentText);
   const [hasChanges, setHasChanges] = useState(false);
 
-  // Sync with external changes
+  // Sync with external changes (only when currentText prop changes, not when modal opens/closes)
   useEffect(() => {
     setEditedText(currentText);
     setHasChanges(false);
-  }, [currentText, open]);
+  }, [currentText]);
 
   // Track changes
   useEffect(() => {
@@ -58,7 +58,7 @@ export function LogEditorModal({
   }, [editedText, currentText]);
 
   const handleSave = async () => {
-    await onSave();
+    await onSave(editedText);
     onOpenChange(false);
   };
 

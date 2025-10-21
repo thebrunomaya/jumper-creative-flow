@@ -250,20 +250,39 @@ export default function OptimizationEditor() {
   }
 
   // Step 1: Save edited transcript
-  async function handleSaveTranscript() {
+  async function handleSaveTranscript(newText: string) {
     if (!recordingId || !user?.id) return;
 
     try {
-      const { error } = await supabase.rpc('save_transcript_edit', {
+      console.log('🔵 Saving transcript...', { recordingId, newText: newText?.substring(0, 50) });
+      const { data, error } = await supabase.rpc('save_transcript_edit', {
         p_recording_id: recordingId,
-        p_new_text: editedTranscript,
+        p_new_text: newText,
         p_user_id: user.id,
       });
 
+      console.log('🔵 Save response:', { data, error });
+
       if (error) throw error;
 
+      // Update local state immediately with returned data
+      if (data && data.length > 0 && transcript) {
+        const updated = data[0];
+        console.log('🔵 Updating state with:', updated);
+        setTranscript({
+          ...transcript,
+          full_text: updated.full_text,
+          previous_version: updated.previous_version,
+          edit_count: updated.edit_count,
+          last_edited_at: updated.last_edited_at,
+          last_edited_by: updated.last_edited_by,
+        });
+        setEditedTranscript(updated.full_text);
+      } else {
+        console.warn('🟡 No data returned or transcript missing:', { data, transcript });
+      }
+
       toast.success('Transcrição salva!');
-      await loadRecording();
     } catch (error: any) {
       console.error('Save transcript error:', error);
       toast.error('Erro ao salvar transcrição');
@@ -400,20 +419,32 @@ export default function OptimizationEditor() {
   }
 
   // Step 2: Save edited processed text (with versioning)
-  async function handleSaveProcessed() {
+  async function handleSaveProcessed(newText: string) {
     if (!recordingId || !user) return;
 
     try {
-      const { error } = await supabase.rpc('save_processed_edit', {
+      const { data, error } = await supabase.rpc('save_processed_edit', {
         p_recording_id: recordingId,
-        p_new_text: editedProcessed,
+        p_new_text: newText,
         p_user_id: user.id,
       });
 
       if (error) throw error;
 
+      // Update local state immediately with returned data
+      if (data && data.length > 0 && transcript) {
+        const updated = data[0];
+        setTranscript({
+          ...transcript,
+          processed_text: updated.processed_text,
+          processed_previous_version: updated.processed_previous_version,
+          processed_edit_count: updated.processed_edit_count,
+          processed_last_edited_at: updated.processed_last_edited_at,
+        });
+        setEditedProcessed(updated.processed_text);
+      }
+
       toast.success('Bullets salvos!');
-      await loadRecording();
     } catch (error: any) {
       console.error('Save processed error:', error);
       toast.error('Erro ao salvar bullets');
@@ -577,7 +608,7 @@ export default function OptimizationEditor() {
     if (!recordingId || !extract) return;
 
     try {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('j_hub_optimization_extracts')
         .update({
           extract_text: newText,
@@ -585,12 +616,18 @@ export default function OptimizationEditor() {
           edit_count: extract.edit_count + 1,
           updated_at: new Date().toISOString(),
         })
-        .eq('recording_id', recordingId);
+        .eq('recording_id', recordingId)
+        .select('extract_text, edit_count, updated_at, previous_version')
+        .single();
 
       if (error) throw error;
 
+      // Update local state immediately with returned data
+      if (data) {
+        setExtract(data);
+      }
+
       toast.success('Extrato salvo!');
-      await loadRecording();
     } catch (error: any) {
       console.error('Save extract error:', error);
       toast.error('Erro ao salvar extrato');

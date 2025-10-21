@@ -44,11 +44,11 @@ export function ExtractEditorModal({
   const [editedText, setEditedText] = useState(currentText);
   const [hasChanges, setHasChanges] = useState(false);
 
-  // Sync with external changes
+  // Sync with external changes (only when currentText prop changes, not when modal opens/closes)
   useEffect(() => {
     setEditedText(currentText);
     setHasChanges(false);
-  }, [currentText, open]);
+  }, [currentText]);
 
   // Track changes
   useEffect(() => {
