@@ -729,16 +729,43 @@ Next Claude will know exactly where we left off! 🎯
 
 ### **User Management (PRIMARY TABLE)**
 
-**✅ USE THIS:**
-- **`j_ads_users`** - Single source of truth for user data
+**✅ ALWAYS USE THIS:**
+- **`j_hub_users`** - Single source of truth for user data
   - Fields: id, email, role, nome, notion_manager_id
   - Roles: 'admin', 'staff', 'client'
 
-**❌ NEVER USE:**
+**❌ NEVER USE (OBSOLETE):**
+- `j_ads_users` - DELETED/RENAMED to `j_hub_users` (2024-10-20)
 - `user_roles` - DELETED (2025-10-09)
 - `j_ads_user_roles` - Never existed
 
-**See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#user-management-system) for complete schema**
+### **⚠️ CRITICAL: Naming Convention Rules**
+
+**Before creating ANY database object:**
+
+1. **Search for existing tables FIRST:**
+   ```bash
+   grep -r "table_name" supabase/migrations/
+   ```
+
+2. **Check ARCHITECTURE.md:**
+   - See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#user-management-system)
+   - Verify correct table name and schema
+
+3. **NEVER assume table name from constraint/trigger name:**
+   - ❌ Seeing `j_ads_users_role_check` does NOT mean table is `j_ads_users`
+   - ✅ Always verify table name with `\d tablename` or check migrations
+
+4. **Naming Standard:**
+   - Format: `{table_name}_{column}_{type}`
+   - Example: `j_hub_users_role_check` (table: j_hub_users, column: role, type: check)
+
+**Incident Report (2024-10-20):**
+- Claude saw constraint `j_ads_users_role_check` in baseline migration
+- Assumed table `j_ads_users` should exist
+- Created duplicate table (actual table: `j_hub_users`)
+- **Fix:** Renamed all constraints/triggers to match table name
+- **Prevention:** This section + ARCHITECTURE.md documentation
 
 ---
 

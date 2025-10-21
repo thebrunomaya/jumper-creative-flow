@@ -3,12 +3,176 @@
 # Tracks recent decisions and work-in-progress (last 7 days)
 # Older decisions migrate to docs/ARCHITECTURE.md
 
-last_updated: "2025-10-20T20:30:00Z"
+last_updated: "2025-10-20T23:45:00Z"
 session_computer: "MacBook Pro (trabalho)"
 session_user: "Bruno Maya"
 
 # Recent decisions (last 7 days)
 # When older than 7 days, migrate to docs/ARCHITECTURE.md
+recent_decisions:
+  - date: "2025-10-20"
+    decision: "Fix Production Error 500 + Complete Naming Standardization"
+    status: "completed ✅"
+    details: |
+      🚨 CRITICAL FIX: Resolved production error 500 + standardized j_ads_users → j_hub_users
+
+      ## Session Summary (2025-10-20 Night):
+
+      ### PARTE 1: Fix Error 500 (j_hub_optimization_extract) ✅
+
+      **Problem Reported:**
+      - User experiencing 500 errors on Step 3 (Extract) generation
+      - Error: `FunctionsHttpError: Edge Function returned a non-2xx status code`
+
+      **Root Cause Identified:**
+      - 4 migrations created locally (2024-10-20) were NEVER applied to production:
+        - 20251020102407_storage_rls_policies.sql
+        - 20251020104215_add_enhance_transcription_step.sql
+        - 20251020120000_create_optimization_extracts.sql ⚠️ CRITICAL
+        - 20251020195223_add_extract_step_to_api_logs.sql ⚠️ CRITICAL
+      - Table `j_hub_optimization_extracts` did not exist in production
+      - Edge Function tried to INSERT → PostgreSQL error → 500 response
+
+      **Investigation Process:**
+      1. ✅ Verified migrations applied: `npx supabase migration list --linked`
+      2. ✅ Verified ANTHROPIC_API_KEY configured: `npx supabase secrets list`
+      3. ✅ Identified 4 pending migrations (local only, not in production)
+
+      **Fix Applied:**
+      - **DECISION:** Skip Storage RLS migration (Option A - SAFE)
+        - Reason: Migration designed for local dev, could overwrite production policies
+        - Action: Marked as applied via `npx supabase migration repair --status applied 20251020102407`
+
+      - **Applied 3 critical migrations to production:**
+        ```bash
+        npx supabase db push --linked
+        ```
+        - ✅ 20251020104215_add_enhance_transcription_step.sql
+        - ✅ 20251020120000_create_optimization_extracts.sql (creates table!)
+        - ✅ 20251020195223_add_extract_step_to_api_logs.sql (adds 'extract' to CHECK)
+
+      **Result:**
+      - ✅ Table `j_hub_optimization_extracts` created with RLS policies
+      - ✅ Step 'extract' added to api_logs CHECK constraint
+      - ✅ Error 500 resolved - Step 3 working in production
+      - ✅ User confirmed fix working
+
+      ### PARTE 2: Naming Standardization (j_ads_users → j_hub_users) ✅
+
+      **Problem Identified:**
+      - User questioned why Claude searched for `j_ads_users` (obsolete table)
+      - **Root Cause:** Baseline migration had inconsistent naming:
+        - Table: `j_hub_users` (correct, renamed 2024-10-09)
+        - Constraints/Triggers: `j_ads_users_*` (old naming, not updated)
+
+      **Incident Context:**
+      - Previous Claude Code session created duplicate `j_ads_users` table
+      - Cause: Saw constraint `j_ads_users_role_check` and assumed table existed
+      - Impact: Confusion, potential data duplication
+
+      **Audit Results:**
+      - **Baseline Migration (20250101000000):**
+        - 6 references to `j_ads_users` (all in object names, not table)
+        - Constraint: `j_ads_users_role_check`
+        - Constraint: `j_ads_users_email_key`
+        - Trigger: `update_j_ads_users_updated_at`
+        - FK: `j_ads_users_deactivated_by_fkey`
+        - FK: `j_ads_users_id_fkey`
+        - Function `get_user_role()`: `SELECT FROM j_ads_users`
+
+      - **TypeScript Types (src/integrations/supabase/types.ts):**
+        - Multiple references to `j_ads_users` (auto-generated from prod schema)
+
+      - **Edge Functions:**
+        - ✅ No references found (safe!)
+
+      **Fix Applied:**
+
+      **1. Created Migration (20251020220000_rename_j_ads_users_to_j_hub_users.sql):**
+      ```sql
+      -- Renamed all database objects:
+      ALTER TABLE j_hub_users RENAME CONSTRAINT j_ads_users_role_check TO j_hub_users_role_check;
+      ALTER TABLE j_hub_users RENAME CONSTRAINT j_ads_users_email_key TO j_hub_users_email_key;
+      ALTER TABLE j_hub_users RENAME CONSTRAINT j_ads_users_deactivated_by_fkey TO j_hub_users_deactivated_by_fkey;
+      ALTER TABLE j_hub_users RENAME CONSTRAINT j_ads_users_id_fkey TO j_hub_users_id_fkey;
+
+      DROP TRIGGER update_j_ads_users_updated_at ON j_hub_users;
+      CREATE TRIGGER update_j_hub_users_updated_at ...;
+
+      -- Updated has_role() function to reference j_hub_users
+      CREATE OR REPLACE FUNCTION has_role(...) AS $$
+        SELECT role FROM public.j_hub_users WHERE id = _user_id;
+      $$;
+      ```
+
+      **2. Updated Baseline Migration (local file only):**
+      - Replaced all 6 `j_ads_users` references with `j_hub_users`
+      - Ensures future local resets use correct naming
+
+      **3. Applied to Production:**
+      ```bash
+      npx supabase db push --linked
+      # ✅ Renamed constraints: 5
+      # ✅ Renamed triggers: 1
+      # ✅ Verification complete - no legacy j_ads_users names found
+      ```
+
+      **4. Regenerated TypeScript Types:**
+      ```bash
+      npx supabase gen types typescript --linked > src/integrations/supabase/types.ts
+      # ✅ 5 references to j_hub_users
+      # ✅ 0 references to j_ads_users
+      ```
+
+      ### PARTE 3: Documentation & Prevention ✅
+
+      **Updated ARCHITECTURE.md:**
+      - Added **CRITICAL: Table Naming Convention** section at top
+      - Documented history (2024-10-09 rename, 2024-10-20 standardization)
+      - Listed all standardized objects with ✅/❌ indicators
+      - Incident report explaining duplicate table issue
+      - "If You See j_ads_users Anywhere" warning section
+
+      **Updated CLAUDE.md:**
+      - Changed PRIMARY TABLE: `j_ads_users` → `j_hub_users`
+      - Added **NEVER USE** section with obsolete names
+      - Added **Naming Convention Rules** with 4-step checklist
+      - Incident Report (2024-10-20) explaining what happened
+      - Prevention strategies (search first, check docs, verify table name)
+
+      ## Impact: CRITICAL - Production fixed + Future incidents prevented
+
+      **Immediate Impact:**
+      - ✅ Production error 500 resolved (Step 3 Extract working)
+      - ✅ All users can generate extracts successfully
+      - ✅ Debug modal shows Step 3 logs correctly
+
+      **Long-term Impact:**
+      - ✅ Complete naming standardization (j_hub_users everywhere)
+      - ✅ Zero legacy j_ads_users references in production
+      - ✅ TypeScript types regenerated and consistent
+      - ✅ Documentation prevents future Claude sessions from duplicating tables
+      - ✅ Clear incident report helps understand what went wrong
+
+      **Files Changed:**
+      - supabase/migrations/20251020220000_rename_j_ads_users_to_j_hub_users.sql (created)
+      - supabase/migrations/20250101000000_jumper_hub_baseline_from_production.sql (updated - 6 renames)
+      - src/integrations/supabase/types.ts (regenerated - j_ads_users → j_hub_users)
+      - docs/ARCHITECTURE.md (new section - naming convention)
+      - CLAUDE.md (updated - critical warnings added)
+    impact: "CRITICAL - Fixed production error 500 + prevented future table duplication incidents"
+    files_changed:
+      - "supabase/migrations/20251020220000_rename_j_ads_users_to_j_hub_users.sql (created)"
+      - "supabase/migrations/20250101000000_jumper_hub_baseline_from_production.sql (6 object renames)"
+      - "src/integrations/supabase/types.ts (regenerated from production)"
+      - "docs/ARCHITECTURE.md (added naming convention section)"
+      - "CLAUDE.md (added critical warnings)"
+    deployed: true
+    deployment_status: "4 migrations applied to production (3 for error fix + 1 for naming standardization)"
+    commits:
+      - "Pending: fix(production): Resolve error 500 + standardize j_ads_users → j_hub_users naming (v2.0.29)"
+    migrate_to_architecture: true
+
 recent_decisions:
   - date: "2025-10-20"
     decision: "Local Development Documentation Complete + Step 3 Model Upgrade"

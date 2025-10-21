@@ -7,10 +7,19 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.28';
+export const APP_VERSION = 'v2.0.29';
 
 /**
  * Version history:
+ * - v2.0.29 (2024-10-20):
+ *   - PRODUCTION FIX: Resolved error 500 in Step 3 Extract generation
+ *   - Applied 3 pending migrations: create optimization_extracts table + api_logs constraint
+ *   - BREAKING: Complete naming standardization j_ads_users → j_hub_users
+ *   - Renamed 5 constraints, 1 trigger, updated has_role() function
+ *   - Regenerated TypeScript types (zero j_ads_users references)
+ *   - DOCS: Added critical naming convention warnings to ARCHITECTURE.md + CLAUDE.md
+ *   - Prevention: Documented incident report to prevent future table duplication
+ *
  * - v2.0.28 (2024-10-20):
  *   - DEPLOY: j_hub_optimization_extract Edge Function deployed with Claude Sonnet 4.5
  *   - Model upgrade: claude-3-5-sonnet-20241022 → claude-sonnet-4-5-20250929

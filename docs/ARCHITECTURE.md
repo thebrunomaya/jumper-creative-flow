@@ -19,11 +19,43 @@
 
 ---
 
+## ⚠️ CRITICAL: Table Naming Convention
+
+> **ALWAYS use:** `j_hub_users`
+> **NEVER use:** `j_ads_users` (obsolete, DO NOT CREATE)
+
+### History & Context
+
+- **2024-10-09:** Migrated from `j_ads_users` → `j_hub_users`
+- **2024-10-20:** Standardized all related objects (constraints, triggers, foreign keys)
+- **Incident:** Claude Code created duplicate `j_ads_users` table based on legacy constraint names
+- **Root Cause:** Constraints had old naming (`j_ads_users_role_check`) while table was already `j_hub_users`
+
+### Naming Standards (2024-10-20)
+
+**Table:** `j_hub_users`
+
+**Related Objects (all standardized):**
+- ✅ Constraint: `j_hub_users_role_check` (not `j_ads_users_role_check`)
+- ✅ Constraint: `j_hub_users_email_key` (not `j_ads_users_email_key`)
+- ✅ Trigger: `update_j_hub_users_updated_at` (not `update_j_ads_users_updated_at`)
+- ✅ Foreign Key: `j_hub_users_deactivated_by_fkey` (not `j_ads_users_deactivated_by_fkey`)
+- ✅ Foreign Key: `j_hub_users_id_fkey` (not `j_ads_users_id_fkey`)
+- ✅ Function: `has_role()` references `j_hub_users` (not `j_ads_users`)
+
+### If You See `j_ads_users` Anywhere
+
+1. **STOP** - Do not create this table
+2. Check this document for correct table name
+3. Use `j_hub_users` instead
+4. Report inconsistency to be fixed
+
+---
+
 ## 👥 User Management System
 
-> ⚠️ **CRITICAL:** `j_hub_users` is the PRIMARY table for all user data and roles (renamed from `j_ads_users` in v2.0)
-> ✅ **BACKWARDS COMPATIBLE:** `j_ads_users` view still available
-> ❌ **DEPRECATED:** `user_roles` and `j_ads_user_roles` - DO NOT USE
+> ⚠️ **PRIMARY TABLE:** `j_hub_users` - Single source of truth for all user data and roles
+> ❌ **DEPRECATED:** `user_roles`, `j_ads_user_roles`, `j_ads_users` - DO NOT USE
 
 ### **`j_hub_users` - Single Source of Truth** (v2.0)
 

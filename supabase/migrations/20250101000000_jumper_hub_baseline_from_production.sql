@@ -127,7 +127,7 @@ ALTER FUNCTION "public"."cleanup_old_error_logs"() OWNER TO "postgres";
 CREATE OR REPLACE FUNCTION "public"."get_user_role"("_user_id" "uuid") RETURNS "text"
     LANGUAGE "sql" STABLE SECURITY DEFINER
     AS $$
-  SELECT role FROM public.j_ads_users WHERE id = _user_id;
+  SELECT role FROM public.j_hub_users WHERE id = _user_id;
 $$;
 
 
@@ -898,7 +898,7 @@ CREATE TABLE IF NOT EXISTS "public"."j_hub_users" (
     "is_active" boolean DEFAULT true,
     "deactivated_at" timestamp with time zone,
     "deactivated_by" "uuid",
-    CONSTRAINT "j_ads_users_role_check" CHECK (("role" = ANY (ARRAY['admin'::"text", 'staff'::"text", 'client'::"text"])))
+    CONSTRAINT "j_hub_users_role_check" CHECK (("role" = ANY (ARRAY['admin'::"text", 'staff'::"text", 'client'::"text"])))
 );
 
 
@@ -1067,7 +1067,7 @@ ALTER TABLE ONLY "public"."j_hub_optimization_transcripts"
 
 
 ALTER TABLE ONLY "public"."j_hub_users"
-    ADD CONSTRAINT "j_ads_users_email_key" UNIQUE ("email");
+    ADD CONSTRAINT "j_hub_users_email_key" UNIQUE ("email");
 
 
 
@@ -1334,7 +1334,7 @@ CREATE OR REPLACE TRIGGER "update_creative_variations_updated_at" BEFORE UPDATE 
 
 
 
-CREATE OR REPLACE TRIGGER "update_j_ads_users_updated_at" BEFORE UPDATE ON "public"."j_hub_users" FOR EACH ROW EXECUTE FUNCTION "public"."update_updated_at_column"();
+CREATE OR REPLACE TRIGGER "update_j_hub_users_updated_at" BEFORE UPDATE ON "public"."j_hub_users" FOR EACH ROW EXECUTE FUNCTION "public"."update_updated_at_column"();
 
 
 
@@ -1388,12 +1388,12 @@ ALTER TABLE ONLY "public"."j_hub_user_audit_log"
 
 
 ALTER TABLE ONLY "public"."j_hub_users"
-    ADD CONSTRAINT "j_ads_users_deactivated_by_fkey" FOREIGN KEY ("deactivated_by") REFERENCES "public"."j_hub_users"("id");
+    ADD CONSTRAINT "j_hub_users_deactivated_by_fkey" FOREIGN KEY ("deactivated_by") REFERENCES "public"."j_hub_users"("id");
 
 
 
 ALTER TABLE ONLY "public"."j_hub_users"
-    ADD CONSTRAINT "j_ads_users_id_fkey" FOREIGN KEY ("id") REFERENCES "auth"."users"("id") ON DELETE CASCADE;
+    ADD CONSTRAINT "j_hub_users_id_fkey" FOREIGN KEY ("id") REFERENCES "auth"."users"("id") ON DELETE CASCADE;
 
 
 
