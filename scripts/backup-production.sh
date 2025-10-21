@@ -11,7 +11,7 @@ PROD_PROJECT_REF="biwwowendjuzvpttyrlb"
 PROD_DB_PASSWORD="JumperStudio@7777"
 
 # Try direct connection first (port 5432), fallback to pooler (port 6543)
-PROD_DB_URL_DIRECT="postgresql://postgres.${PROD_PROJECT_REF}:${PROD_DB_PASSWORD}@aws-0-us-east-1.pooler.supabase.com:5432/postgres"
+PROD_DB_URL_DIRECT="postgresql://postgres.${PROD_PROJECT_REF}:${PROD_DB_PASSWORD}@aws-0-sa-east-1.pooler.supabase.com:5432/postgres"
 PROD_DB_URL="${PROD_DB_URL_DIRECT}"
 
 # Backup directory

@@ -86,6 +86,35 @@ PLATAFORMAS DE ADS (Futuro):
 
 ---
 
+## 🤖 Claude Code Agents
+
+**Custom agents disponíveis em `.claude/agents/`:**
+
+### **dev-setup** (Development Environment Setup)
+**Uso:** Quando precisar configurar ambiente de desenvolvimento local
+
+**O que faz automaticamente:**
+1. ✅ Valida Docker + Supabase CLI
+2. ✅ Inicia Supabase local
+3. ✅ Cria backup de produção (ou reusa recente <24h)
+4. ✅ Reseta database + restaura dados
+5. ✅ Valida Edge Functions env vars
+6. ✅ Inicia npm dev server
+
+**Resultado:** Ambiente completo com dados de produção em ~2 minutos
+
+**Como usar:**
+```bash
+# Via Claude Code (recomendado)
+# Apenas peça: "Configure o ambiente de desenvolvimento"
+# Claude detectará e usará o agent automaticamente
+
+# Ou manualmente via script (fallback)
+./scripts/start-dev.sh
+```
+
+---
+
 ## 🔧 Essential Commands
 
 ```bash

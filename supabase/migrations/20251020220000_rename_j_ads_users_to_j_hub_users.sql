@@ -8,20 +8,36 @@
 -- ============================================================================
 
 -- 1. CHECK constraint for role validation
-ALTER TABLE j_hub_users
-RENAME CONSTRAINT j_ads_users_role_check TO j_hub_users_role_check;
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'j_ads_users_role_check') THEN
+    ALTER TABLE j_hub_users RENAME CONSTRAINT j_ads_users_role_check TO j_hub_users_role_check;
+  END IF;
+END $$;
 
 -- 2. UNIQUE constraint for email
-ALTER TABLE j_hub_users
-RENAME CONSTRAINT j_ads_users_email_key TO j_hub_users_email_key;
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'j_ads_users_email_key') THEN
+    ALTER TABLE j_hub_users RENAME CONSTRAINT j_ads_users_email_key TO j_hub_users_email_key;
+  END IF;
+END $$;
 
 -- 3. FOREIGN KEY: deactivated_by references j_hub_users(id)
-ALTER TABLE j_hub_users
-RENAME CONSTRAINT j_ads_users_deactivated_by_fkey TO j_hub_users_deactivated_by_fkey;
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'j_ads_users_deactivated_by_fkey') THEN
+    ALTER TABLE j_hub_users RENAME CONSTRAINT j_ads_users_deactivated_by_fkey TO j_hub_users_deactivated_by_fkey;
+  END IF;
+END $$;
 
 -- 4. FOREIGN KEY: id references auth.users(id)
-ALTER TABLE j_hub_users
-RENAME CONSTRAINT j_ads_users_id_fkey TO j_hub_users_id_fkey;
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'j_ads_users_id_fkey') THEN
+    ALTER TABLE j_hub_users RENAME CONSTRAINT j_ads_users_id_fkey TO j_hub_users_id_fkey;
+  END IF;
+END $$;
 
 -- ============================================================================
 -- RENAME TRIGGER
@@ -30,10 +46,20 @@ RENAME CONSTRAINT j_ads_users_id_fkey TO j_hub_users_id_fkey;
 -- Drop old trigger and recreate with correct name
 DROP TRIGGER IF EXISTS update_j_ads_users_updated_at ON j_hub_users;
 
-CREATE TRIGGER update_j_hub_users_updated_at
-  BEFORE UPDATE ON j_hub_users
-  FOR EACH ROW
-  EXECUTE FUNCTION update_updated_at_column();
+-- Only create trigger if it doesn't exist
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_trigger
+    WHERE tgname = 'update_j_hub_users_updated_at'
+    AND tgrelid = 'j_hub_users'::regclass
+  ) THEN
+    CREATE TRIGGER update_j_hub_users_updated_at
+      BEFORE UPDATE ON j_hub_users
+      FOR EACH ROW
+      EXECUTE FUNCTION update_updated_at_column();
+  END IF;
+END $$;
 
 -- ============================================================================
 -- UPDATE FUNCTION REFERENCES (if function exists)

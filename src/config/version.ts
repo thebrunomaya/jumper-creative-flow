@@ -7,10 +7,19 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.29';
+export const APP_VERSION = 'v2.0.30';
 
 /**
  * Version history:
+ * - v2.0.30 (2024-10-21):
+ *   - NEW: dev-setup agent for automated development environment setup
+ *   - Agent reduces setup from ~10 manual steps to single invocation (~2 min)
+ *   - Validates Docker + Supabase CLI, creates/reuses backups, restores data
+ *   - FIX: Migration 20251020220000 now fully idempotent (IF EXISTS checks)
+ *   - FIX: Backup script corrected region endpoint (us-east-1 → sa-east-1)
+ *   - DOCS: Added .claude/agents/README.md with agent development guidelines
+ *   - DOCS: Updated CLAUDE.md with "Claude Code Agents" section
+ *
  * - v2.0.29 (2024-10-20):
  *   - PRODUCTION FIX: Resolved error 500 in Step 3 Extract generation
  *   - Applied 3 pending migrations: create optimization_extracts table + api_logs constraint
