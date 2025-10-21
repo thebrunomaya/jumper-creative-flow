@@ -7,10 +7,14 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.31';
+export const APP_VERSION = 'v2.0.32';
 
 /**
  * Version history:
+ * - v2.0.32 (2024-10-21):
+ *   - CHORE: Removed debug console.log statements from OptimizationEditor
+ *   - Production-ready code with clean logging
+ *
  * - v2.0.31 (2024-10-21):
  *   - FIX: Editor modals now correctly save edited text to database
  *   - Root cause: Modals called onSave() without passing edited text parameter
