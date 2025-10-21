@@ -254,21 +254,17 @@ export default function OptimizationEditor() {
     if (!recordingId || !user?.id) return;
 
     try {
-      console.log('🔵 Saving transcript...', { recordingId, newText: newText?.substring(0, 50) });
       const { data, error } = await supabase.rpc('save_transcript_edit', {
         p_recording_id: recordingId,
         p_new_text: newText,
         p_user_id: user.id,
       });
 
-      console.log('🔵 Save response:', { data, error });
-
       if (error) throw error;
 
       // Update local state immediately with returned data
       if (data && data.length > 0 && transcript) {
         const updated = data[0];
-        console.log('🔵 Updating state with:', updated);
         setTranscript({
           ...transcript,
           full_text: updated.full_text,
@@ -278,8 +274,6 @@ export default function OptimizationEditor() {
           last_edited_by: updated.last_edited_by,
         });
         setEditedTranscript(updated.full_text);
-      } else {
-        console.warn('🟡 No data returned or transcript missing:', { data, transcript });
       }
 
       toast.success('Transcrição salva!');
