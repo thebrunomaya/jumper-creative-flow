@@ -7,10 +7,19 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.30';
+export const APP_VERSION = 'v2.0.31';
 
 /**
  * Version history:
+ * - v2.0.31 (2024-10-21):
+ *   - FIX: Editor modals now correctly save edited text to database
+ *   - Root cause: Modals called onSave() without passing edited text parameter
+ *   - Fixed TranscriptEditorModal and LogEditorModal to pass editedText
+ *   - Parent functions now receive and use the new text parameter
+ *   - DATABASE: Fixed ambiguous column references in save_transcript_edit RPC
+ *   - Added DECLARE variables to eliminate PostgreSQL column/parameter ambiguity
+ *   - Migrations: 20251021152046 (optimize RPC return data), 20251021153000 (fix ambiguous refs)
+ *
  * - v2.0.30 (2024-10-21):
  *   - NEW: dev-setup agent for automated development environment setup
  *   - Agent reduces setup from ~10 manual steps to single invocation (~2 min)
