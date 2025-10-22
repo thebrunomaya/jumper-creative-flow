@@ -29,6 +29,7 @@ import {
   OptimizationContext,
   rowToOptimizationContext,
 } from "@/types/optimization";
+import { RadarTags, initializeEmptyTags, ExtractFormat } from "@/types/radarTags";
 import {
   AlertCircle,
   ChevronDown,
@@ -58,6 +59,7 @@ import { LogEditorModal } from "@/components/optimization/LogEditorModal";
 import { TranscriptViewer } from "@/components/optimization/TranscriptViewer";
 import { TranscriptEditorModal } from "@/components/optimization/TranscriptEditorModal";
 import { ExtractViewer } from "@/components/optimization/ExtractViewer";
+import { TagSelector } from "@/components/optimization/TagSelector";
 
 const AI_MODELS = [
   { value: "claude-sonnet-4-5-20250929", label: "Claude Sonnet 4.5 (Recomendado)" },
@@ -76,7 +78,14 @@ export default function OptimizationEditor() {
   const [recording, setRecording] = useState<OptimizationRecordingRow | null>(null);
   const [transcript, setTranscript] = useState<OptimizationTranscriptRow | null>(null);
   const [context, setContext] = useState<OptimizationContext | null>(null);
-  const [extract, setExtract] = useState<{ extract_text: string; edit_count: number; updated_at: string; previous_version?: string } | null>(null);
+  const [extract, setExtract] = useState<{
+    extract_text: string;
+    extract_format: ExtractFormat;
+    tags: RadarTags;
+    edit_count: number;
+    updated_at: string;
+    previous_version?: string;
+  } | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [accountName, setAccountName] = useState<string>("");
 
@@ -197,12 +206,16 @@ export default function OptimizationEditor() {
       // Fetch extract
       const { data: extractData } = await supabase
         .from('j_hub_optimization_extracts')
-        .select('extract_text, edit_count, updated_at, previous_version')
+        .select('extract_text, extract_format, tags, edit_count, updated_at, previous_version')
         .eq('recording_id', recordingId)
         .maybeSingle();
 
       if (extractData) {
-        setExtract(extractData);
+        setExtract({
+          ...extractData,
+          extract_format: extractData.extract_format || 'legacy',
+          tags: extractData.tags || initializeEmptyTags(),
+        });
       }
 
       // Fetch original Whisper prompt from transcribe log
@@ -659,6 +672,37 @@ export default function OptimizationEditor() {
     toast.success('Análise ajustada! Recarregue a página para ver as alterações.');
   }
 
+  // Tags handlers
+  async function handleSaveTags(newTags: RadarTags) {
+    if (!recordingId || !extract) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('j_hub_optimization_extracts')
+        .update({ tags: newTags })
+        .eq('recording_id', recordingId)
+        .select('extract_text, extract_format, tags, edit_count, updated_at, previous_version')
+        .single();
+
+      if (error) throw error;
+
+      // Update local state immediately with returned data
+      if (data) {
+        setExtract({
+          ...data,
+          extract_format: data.extract_format || 'legacy',
+          tags: data.tags || initializeEmptyTags(),
+        });
+      }
+
+      toast.success('Tags salvas!');
+    } catch (error: any) {
+      console.error('Save tags error:', error);
+      toast.error('Erro ao salvar tags');
+      throw error; // Re-throw to let TagSelector handle it
+    }
+  }
+
   if (isLoadingData) {
     return (
       <JumperBackground overlay={false}>
@@ -793,6 +837,25 @@ export default function OptimizationEditor() {
               <div className="space-y-6">
                 {/* Extract Viewer */}
                 <ExtractViewer content={extract.extract_text} />
+
+                {/* Tag Selector - Only for RADAR format */}
+                {extract.extract_format === 'radar' && (
+                  <div className="pt-6 border-t">
+                    <h4 className="text-sm font-semibold mb-4 text-muted-foreground">Tags de Organização</h4>
+                    <TagSelector
+                      recordingId={recordingId!}
+                      currentTags={extract.tags}
+                      onSave={handleSaveTags}
+                    />
+                  </div>
+                )}
+
+                {/* Legacy Format Notice */}
+                {extract.extract_format === 'legacy' && (
+                  <div className="text-sm text-muted-foreground bg-muted/30 p-3 rounded-lg">
+                    ℹ️ Este extrato usa o formato antigo (lista de ações). Novos extratos usam o Método RADAR com tags.
+                  </div>
+                )}
 
                 {/* Share Button */}
                 <div className="flex justify-end pt-4 border-t">
