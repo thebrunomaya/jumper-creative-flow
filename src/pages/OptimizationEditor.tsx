@@ -728,6 +728,12 @@ export default function OptimizationEditor() {
     );
   }
 
+  // Determine which step should be expanded (most recent completed step)
+  const mostRecentStep = recording.analysis_status === 'completed' ? 3
+    : recording.processing_status === 'completed' ? 2
+    : recording.transcription_status === 'completed' ? 1
+    : 1; // Default to Step 1 if nothing completed
+
   return (
     <JumperBackground overlay={false}>
       <Header />
@@ -759,6 +765,7 @@ export default function OptimizationEditor() {
             onEdit={() => setExtractEditorModalOpen(true)}
             isEditDisabled={recording.analysis_status !== 'completed'}
             onDebug={isAdmin ? () => openDebug('extract') : undefined}
+            defaultCollapsed={3 !== mostRecentStep}
           >
             {/* Pending State - Locked if Step 2 not completed */}
             {recording.analysis_status === 'pending' && recording.processing_status !== 'completed' && (
@@ -836,7 +843,7 @@ export default function OptimizationEditor() {
             {recording.analysis_status === 'completed' && extract && (
               <div className="space-y-6">
                 {/* Extract Viewer */}
-                <ExtractViewer content={extract.extract_text} />
+                <ExtractViewer content={extract.extract_text} format={extract.extract_format} />
 
                 {/* Tag Selector - Only for RADAR format */}
                 {extract.extract_format === 'radar' && (
@@ -882,6 +889,7 @@ export default function OptimizationEditor() {
             onEdit={() => setLogEditorModalOpen(true)}
             isEditDisabled={recording.processing_status !== 'completed'}
             onDebug={isAdmin ? () => openDebug('process') : undefined}
+            defaultCollapsed={2 !== mostRecentStep}
           >
             {/* Pending State - Locked if Step 1 not completed */}
             {recording.processing_status === 'pending' && recording.transcription_status !== 'completed' && (
@@ -975,6 +983,7 @@ export default function OptimizationEditor() {
             onEdit={() => setTranscriptEditorModalOpen(true)}
             isEditDisabled={recording.transcription_status !== 'completed'}
             onDebug={isAdmin ? () => openDebug('transcribe') : undefined}
+            defaultCollapsed={1 !== mostRecentStep}
           >
             {/* Audio Player */}
             {audioUrl && (

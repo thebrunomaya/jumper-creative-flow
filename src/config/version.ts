@@ -7,10 +7,17 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.33';
+export const APP_VERSION = 'v2.0.34';
 
 /**
  * Version history:
+ * - v2.0.34 (2024-10-21):
+ *   - FIX: Collapse inteligente - apenas step mais recente aberto por padrão
+ *   - FIX: ExtractViewer agora renderiza formato RADAR corretamente
+ *   - Auto-detecção de formato RADAR via box characters (┌─, │)
+ *   - Preservação de formatação original em <pre> para RADAR
+ *   - Backward compatibility com formato legacy (bullet list)
+ *
  * - v2.0.33 (2024-10-21):
  *   - FEAT: Painel Executivo de Otimizações completo com Método RADAR
  *   - NEW: OptimizationCard component - Card-based layout com tags RADAR

@@ -1,12 +1,13 @@
 /**
  * ExtractViewer - Displays extracted optimization actions (Step 3)
- * Shows bullet list with categorized actions
+ * Supports both RADAR format (structured report) and Legacy format (bullet list)
  */
 
 import { DollarSign, Image, Layers, Type } from "lucide-react";
 
 interface ExtractViewerProps {
   content: string;
+  format?: 'radar' | 'legacy'; // Optional format hint
 }
 
 // Map category names to icons
@@ -25,7 +26,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   COPY: "text-orange-600 dark:text-orange-400",
 };
 
-export function ExtractViewer({ content }: ExtractViewerProps) {
+export function ExtractViewer({ content, format }: ExtractViewerProps) {
   if (!content || content.trim().length === 0) {
     return (
       <div className="text-center py-8 text-muted-foreground">
@@ -34,7 +35,21 @@ export function ExtractViewer({ content }: ExtractViewerProps) {
     );
   }
 
-  // Parse bullet lines
+  // Auto-detect RADAR format if not explicitly provided
+  const isRadarFormat = format === 'radar' || content.includes('┌─') || content.includes('│');
+
+  // Render RADAR format (preserve box characters and formatting)
+  if (isRadarFormat) {
+    return (
+      <div className="space-y-4">
+        <pre className="font-mono text-sm bg-muted/30 p-4 rounded-lg overflow-x-auto whitespace-pre-wrap leading-relaxed">
+          {content}
+        </pre>
+      </div>
+    );
+  }
+
+  // Legacy format: Parse bullet lines
   const lines = content
     .split('\n')
     .map((line) => line.trim())
