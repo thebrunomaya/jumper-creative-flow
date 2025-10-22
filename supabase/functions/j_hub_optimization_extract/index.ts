@@ -18,6 +18,7 @@ const corsHeaders = {
 interface ExtractRequest {
   recordingId: string;
   contextText: string; // Step 2 log content
+  method?: 'radar' | 'legacy'; // Extraction method (default: radar)
   forceRegenerate?: boolean;
 }
 
@@ -108,6 +109,51 @@ A │ Regional pausada
 
 **RESPONDA APENAS COM O RADAR FORMATADO** (sem explicações adicionais, sem markdown code blocks, apenas o box formatado).`;
 
+const ACTIONS_PROMPT = `Você é um assistente especializado em extrair e organizar ações de otimizações de tráfego pago.
+
+**OBJETIVO**: Analisar o log de otimização e criar uma lista organizada de ações executadas pelo gestor de tráfego.
+
+**CATEGORIAS DE AÇÕES**:
+- **[VERBA]**: Ajustes de orçamento (aumentos, reduções, realocações)
+- **[CRIATIVOS]**: Mudanças em anúncios (novos criativos, pausas, testes A/B)
+- **[CONJUNTOS]**: Ajustes em conjuntos de anúncios (públicos, locais, interesses)
+- **[COPY]**: Alterações em textos e calls-to-action
+
+**FORMATO DE SAÍDA OBRIGATÓRIO**:
+
+• [CATEGORIA] Descrição clara e concisa da ação executada
+• [CATEGORIA] Próxima ação com detalhes quantificados
+
+**REGRAS CRÍTICAS**:
+
+1. Cada ação em uma linha iniciando com "•"
+2. Use verbos no passado para ações já executadas (ex: "Aumentou", "Pausou", "Criou")
+3. Quantifique sempre que possível (valores em R$, percentuais, números de anúncios)
+4. Seja específico: mencione nomes de campanhas, conjuntos, criativos
+5. Máximo 8-10 ações (priorize as mais relevantes)
+6. Mantenha conciso mas informativo (20-40 palavras por ação)
+
+**EXEMPLOS DE FORMATAÇÃO**:
+
+✅ BOM - Específico e quantificado:
+• [VERBA] Aumentou orçamento da Campanha ABO Tyaro de R$800 para R$1.200 (+50%)
+• [CRIATIVOS] Pausou 3 anúncios com CPA acima de R$1.500 no conjunto Regional
+• [CONJUNTOS] Criou novo público lookalike 1% baseado em compradores últimos 30 dias
+
+❌ RUIM - Genérico:
+• [VERBA] Aumentou orçamento
+• [CRIATIVOS] Pausou anúncios ruins
+• [CONJUNTOS] Criou público novo
+
+**INFORMAÇÕES DA OTIMIZAÇÃO**:
+- CLIENTE: {cliente}
+- DATA/HORA: {data_hora}
+
+**LOG DE OTIMIZAÇÃO A ANALISAR**:
+{context_text}
+
+**RESPONDA APENAS COM A LISTA DE AÇÕES** (sem explicações adicionais, sem markdown code blocks, apenas as bullets).`;
+
 serve(async (req) => {
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
@@ -118,11 +164,13 @@ serve(async (req) => {
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
     // Parse request
-    const { recordingId, contextText, forceRegenerate = false }: ExtractRequest = await req.json();
+    const { recordingId, contextText, method = 'radar', forceRegenerate = false }: ExtractRequest = await req.json();
 
     if (!recordingId || !contextText) {
       throw new Error('recordingId and contextText are required');
     }
+
+    console.log(`[Extract] Method selected: ${method}`);
 
     // Check if extract already exists
     if (!forceRegenerate) {
@@ -176,14 +224,17 @@ serve(async (req) => {
     const timeFormatted = `${recordedDate.getHours()}h${String(recordedDate.getMinutes()).padStart(2, '0')}`;
     const dateTimeFormatted = `${dateFormatted} ${timeFormatted}`;
 
+    // Select prompt based on method
+    const basePrompt = method === 'radar' ? RADAR_PROMPT : ACTIONS_PROMPT;
+
     // Build prompt with variables
-    const promptWithVars = RADAR_PROMPT
+    const promptWithVars = basePrompt
       .replace('{cliente}', clientName)
       .replace('{data_hora}', dateTimeFormatted)
       .replace('{context_text}', contextText);
 
     // Generate extract with Claude
-    console.log('[Extract] Calling Claude API...');
+    console.log(`[Extract] Calling Claude API with method: ${method}...`);
     console.log('[Extract] Client:', clientName, '| DateTime:', dateTimeFormatted);
 
     const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
@@ -213,40 +264,50 @@ serve(async (req) => {
     const claudeData = await claudeResponse.json();
     const extractText = claudeData.content[0].text.trim();
 
-    console.log('[Extract] Generated RADAR:', extractText);
+    console.log(`[Extract] Generated ${method.toUpperCase()} extract:`, extractText.substring(0, 200));
 
-    // Validate RADAR format (basic checks - gestor can manually edit if needed)
+    // Validate format based on method
     const validationWarnings: string[] = [];
 
-    // Check for header with client and date
-    if (!extractText.includes('RADAR') || !extractText.includes(clientName)) {
-      validationWarnings.push('RADAR header may be missing client name');
-    }
+    if (method === 'radar') {
+      // RADAR format validation
+      if (!extractText.includes('RADAR') || !extractText.includes(clientName)) {
+        validationWarnings.push('RADAR header may be missing client name');
+      }
 
-    // Check for 5 sections (R-A-D-A-R)
-    const rCount = (extractText.match(/^R │/gm) || []).length;
-    const aCount = (extractText.match(/^A │/gm) || []).length;
-    const dCount = (extractText.match(/^D │/gm) || []).length;
+      const rCount = (extractText.match(/^R │/gm) || []).length;
+      const aCount = (extractText.match(/^A │/gm) || []).length;
+      const dCount = (extractText.match(/^D │/gm) || []).length;
 
-    if (rCount !== 2 || aCount !== 2 || dCount !== 1) {
-      validationWarnings.push(`RADAR sections count mismatch (expected 2R-2A-1D, got ${rCount}R-${aCount}A-${dCount}D)`);
-    }
+      if (rCount !== 2 || aCount !== 2 || dCount !== 1) {
+        validationWarnings.push(`RADAR sections count mismatch (expected 2R-2A-1D, got ${rCount}R-${aCount}A-${dCount}D)`);
+      }
 
-    // Check for severity emojis in ANOMALIA section
-    if (!extractText.includes('🔴') && !extractText.includes('🟡') && !extractText.includes('🔵')) {
-      validationWarnings.push('ANOMALIA section missing severity emojis (🔴🟡🔵)');
-    }
+      if (!extractText.includes('🔴') && !extractText.includes('🟡') && !extractText.includes('🔵')) {
+        validationWarnings.push('ANOMALIA section missing severity emojis (🔴🟡🔵)');
+      }
 
-    // Check for box characters
-    if (!extractText.includes('┌─') || !extractText.includes('└─')) {
-      validationWarnings.push('RADAR box formatting may be incomplete');
+      if (!extractText.includes('┌─') || !extractText.includes('└─')) {
+        validationWarnings.push('RADAR box formatting may be incomplete');
+      }
+    } else {
+      // Actions/Legacy format validation
+      const bulletCount = (extractText.match(/^•/gm) || []).length;
+      if (bulletCount === 0) {
+        validationWarnings.push('No actions found (expected bullet points starting with •)');
+      }
+
+      const categoryCount = (extractText.match(/\[(VERBA|CRIATIVOS|CONJUNTOS|COPY)\]/g) || []).length;
+      if (categoryCount === 0) {
+        validationWarnings.push('No categories found (expected [VERBA], [CRIATIVOS], etc.)');
+      }
     }
 
     if (validationWarnings.length > 0) {
-      console.warn('[Extract] RADAR validation warnings:', validationWarnings);
+      console.warn(`[Extract] ${method.toUpperCase()} validation warnings:`, validationWarnings);
       // Continue anyway - gestor can manually fix
     } else {
-      console.log('[Extract] RADAR validation: ✅ All checks passed');
+      console.log(`[Extract] ${method.toUpperCase()} validation: ✅ All checks passed`);
     }
 
     // Parse extract into structured actions (optional, for future features)
@@ -271,9 +332,9 @@ serve(async (req) => {
         {
           recording_id: recordingId,
           extract_text: extractText,
-          extract_format: 'radar', // Mark as RADAR format
-          actions: actions, // Keep for backward compatibility (will be empty for RADAR)
-          tags: { // Initialize with empty tags structure
+          extract_format: method, // Save selected method (radar or legacy)
+          actions: actions, // Parsed actions (populated for legacy, empty for radar)
+          tags: { // Initialize with empty tags structure (RADAR uses this, legacy may not)
             registro: { panorama: null, gasto_atual: null },
             anomalia: { pontos_negativos: [], pontos_positivos: [] },
             diagnostico: {},
@@ -306,7 +367,7 @@ serve(async (req) => {
     // Log API call for debugging (admin only)
     await supabase.from('j_hub_optimization_api_logs').insert({
       recording_id: recordingId,
-      step: 'extract',
+      step: `extract_${method}`, // Include method in step name for easier filtering
       prompt_sent: promptWithVars, // Save prompt with variables substituted
       model_used: 'claude-sonnet-4-5-20250929',
       input_preview: contextText.substring(0, 5000),
@@ -314,7 +375,7 @@ serve(async (req) => {
       tokens_used: (claudeData.usage?.input_tokens || 0) + (claudeData.usage?.output_tokens || 0),
       latency_ms: null, // Could calculate if needed
       success: true,
-      error_message: validationWarnings.length > 0 ? `Warnings: ${validationWarnings.join(', ')}` : null,
+      error_message: validationWarnings.length > 0 ? `[${method.toUpperCase()}] Warnings: ${validationWarnings.join(', ')}` : null,
     });
 
     return new Response(
@@ -347,10 +408,11 @@ serve(async (req) => {
       }
 
       if (reqRecordingId) {
+        const reqMethod = (await req.clone().json()).method || 'radar';
         await supabase.from('j_hub_optimization_api_logs').insert({
           recording_id: reqRecordingId,
-          step: 'extract',
-          prompt_sent: RADAR_PROMPT || null, // Use RADAR_PROMPT constant (not substituted yet at error time)
+          step: `extract_${reqMethod}`,
+          prompt_sent: (reqMethod === 'radar' ? RADAR_PROMPT : ACTIONS_PROMPT) || null,
           model_used: 'claude-sonnet-4-5-20250929',
           input_preview: reqContextText?.substring(0, 5000) || 'Error occurred before/during processing',
           output_preview: null,

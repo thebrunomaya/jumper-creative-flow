@@ -13,6 +13,8 @@ import { JumperButton } from "@/components/ui/jumper-button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 import { OptimizationStepCard } from "@/components/optimization/OptimizationStepCard";
 import { DebugModal } from "@/components/optimization/DebugModal";
 import { OptimizationContextCard } from "@/components/OptimizationContextCard";
@@ -102,6 +104,9 @@ export default function OptimizationEditor() {
 
   // Analysis model selection
   const [selectedModel, setSelectedModel] = useState<string>("claude-sonnet-4-5-20250929");
+
+  // Extract method selection
+  const [selectedMethod, setSelectedMethod] = useState<ExtractFormat>("radar");
 
   // Debug modal
   const [debugModalOpen, setDebugModalOpen] = useState(false);
@@ -595,13 +600,15 @@ export default function OptimizationEditor() {
         body: {
           recordingId,
           contextText: transcript.processed_text,
+          method: selectedMethod, // Send selected method to Edge Function
           forceRegenerate: true,
         }
       });
 
       if (error) throw error;
 
-      toast.success('Extrato gerado com sucesso!');
+      const methodName = selectedMethod === 'radar' ? 'RADAR' : 'Actions';
+      toast.success(`Extrato gerado com método ${methodName}!`);
       await loadRecording();
     } catch (error: any) {
       console.error('Extract generation error:', error);
@@ -779,11 +786,46 @@ export default function OptimizationEditor() {
 
             {/* Pending State - Ready to extract */}
             {recording.analysis_status === 'pending' && recording.processing_status === 'completed' && (
-              <div className="text-center py-8 space-y-4">
+              <div className="text-center py-8 space-y-6">
                 <FileText className="h-12 w-12 mx-auto text-muted-foreground opacity-50" />
                 <p className="text-muted-foreground">
-                  Log organizado. Gere o extrato de ações realizadas.
+                  Log organizado. Escolha o método e gere o extrato.
                 </p>
+
+                {/* Method Selection */}
+                <div className="max-w-md mx-auto space-y-3">
+                  <Label className="text-sm font-medium">Método de Extração:</Label>
+                  <RadioGroup
+                    value={selectedMethod}
+                    onValueChange={(value) => setSelectedMethod(value as ExtractFormat)}
+                    className="space-y-3"
+                  >
+                    <div className="flex items-start space-x-3 p-3 border rounded-lg hover:bg-muted/50 transition-colors">
+                      <RadioGroupItem value="radar" id="method-radar" />
+                      <div className="flex-1 space-y-1">
+                        <Label htmlFor="method-radar" className="font-medium cursor-pointer">
+                          RADAR
+                        </Label>
+                        <p className="text-xs text-muted-foreground">
+                          Método estruturado em 5 seções: Registro, Anomalia, Diagnóstico, Ação, Resultado Esperado
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start space-x-3 p-3 border rounded-lg hover:bg-muted/50 transition-colors">
+                      <RadioGroupItem value="legacy" id="method-actions" />
+                      <div className="flex-1 space-y-1">
+                        <Label htmlFor="method-actions" className="font-medium cursor-pointer">
+                          Actions (Legado)
+                        </Label>
+                        <p className="text-xs text-muted-foreground">
+                          Lista simples de ações executadas durante a otimização
+                        </p>
+                      </div>
+                    </div>
+                  </RadioGroup>
+                </div>
+
                 <JumperButton
                   onClick={() => handleGenerateExtract()}
                   disabled={isGeneratingExtract || !transcript?.processed_text}
@@ -842,6 +884,18 @@ export default function OptimizationEditor() {
             {/* Completed State */}
             {recording.analysis_status === 'completed' && extract && (
               <div className="space-y-6">
+                {/* Method Badge */}
+                <div className="flex justify-between items-center">
+                  <Badge variant="outline" className="text-xs">
+                    {extract.extract_format === 'radar' ? '📊 Método: RADAR' : '📝 Método: Actions (Legado)'}
+                  </Badge>
+                  {extract.edit_count > 0 && (
+                    <span className="text-xs text-muted-foreground">
+                      {extract.edit_count} {extract.edit_count === 1 ? 'edição' : 'edições'}
+                    </span>
+                  )}
+                </div>
+
                 {/* Extract Viewer */}
                 <ExtractViewer content={extract.extract_text} format={extract.extract_format} />
 

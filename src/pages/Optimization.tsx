@@ -7,7 +7,6 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { OptimizationCard } from "@/components/optimization/OptimizationCard";
-import { RadarDrawer } from "@/components/optimization/RadarDrawer";
 import { AccountSelector } from "@/components/optimization/AccountSelector";
 import { JumperBackground } from "@/components/ui/jumper-background";
 import { JumperButton } from "@/components/ui/jumper-button";
@@ -38,10 +37,6 @@ export default function Optimization() {
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(0);
   const ITEMS_PER_PAGE = 20;
-
-  // Drawer state
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const [drawerData, setDrawerData] = useState<OptimizationData | null>(null);
 
   // Fetch optimizations on mount and filter change
   useEffect(() => {
@@ -135,25 +130,8 @@ export default function Optimization() {
   }
 
   // Handlers
-  function handleOpenDrawer(optimization: OptimizationData) {
-    if (!optimization.extract_text) {
-      toast.error('Esta otimização ainda não tem extrato gerado');
-      return;
-    }
-
-    setDrawerData(optimization);
-    setDrawerOpen(true);
-  }
-
   function handleOpenFull(optimizationId: string) {
     navigate(`/optimization/editor/${optimizationId}`);
-  }
-
-  function handleShare() {
-    if (drawerData) {
-      navigate(`/optimization/editor/${drawerData.id}`);
-      // User can share from full editor
-    }
   }
 
   // Load more on scroll
@@ -220,7 +198,7 @@ export default function Optimization() {
                   recordedAt={opt.recorded_at}
                   tags={opt.extract_tags}
                   hasExtract={!!opt.extract_text}
-                  onOpenDrawer={() => handleOpenDrawer(opt)}
+                  extractText={opt.extract_text}
                   onOpenFull={() => handleOpenFull(opt.id)}
                 />
               ))}
@@ -258,22 +236,6 @@ export default function Optimization() {
         <Plus className="h-6 w-6" />
         <span className="sr-only">Nova Otimização</span>
       </button>
-
-      {/* RADAR Drawer */}
-      {drawerData && (
-        <RadarDrawer
-          open={drawerOpen}
-          onOpenChange={setDrawerOpen}
-          recordingId={drawerData.id}
-          accountName={drawerData.account_name}
-          recordedBy={drawerData.recorded_by}
-          recordedAt={drawerData.recorded_at}
-          radarText={drawerData.extract_text || ''}
-          tags={drawerData.extract_tags}
-          onOpenFull={() => handleOpenFull(drawerData.id)}
-          onShare={handleShare}
-        />
-      )}
     </JumperBackground>
   );
 }
