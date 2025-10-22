@@ -915,7 +915,9 @@ Next Claude will know exactly where we left off! 🎯
 - **Deploy edge functions**: Deploy manual via `npx supabase functions deploy <nome>` ⚙️
 - **Production URL**: https://hub.jumper.studio
 
-**Branch ativa atual:** `reports` (Sistema de insights comparativos)
+**Branch ativa atual:** `radar` (Sistema de otimização com método RADAR)
+
+> 📋 **Ver:** [BRANCH-RADAR.md](docs/BRANCH-RADAR.md) para contexto específico desta branch
 
 ---
 
