@@ -7,10 +7,17 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.34';
+export const APP_VERSION = 'v2.0.35';
 
 /**
  * Version history:
+ * - v2.0.35 (2024-10-21):
+ *   - REDESIGN: OptimizationCard layout horizontal tipo tabela
+ *   - Row 1: [Icon] Nome da conta - Gestor    Data Hora
+ *   - Row 2:        Tags tags tags     Ver Extrato - Abrir
+ *   - Data formatada: dd/MM/yyyy HH:mm (não mais relative time)
+ *   - Layout mais compacto e organizado
+ *
  * - v2.0.34 (2024-10-21):
  *   - FIX: Collapse inteligente - apenas step mais recente aberto por padrão
  *   - FIX: ExtractViewer agora renderiza formato RADAR corretamente
