@@ -205,7 +205,7 @@ export default function Optimization() {
               )}
             </div>
           ) : (
-            <div className="border border-border rounded-lg overflow-hidden bg-card">
+            <div className="space-y-2">
               {optimizations.map((opt) => (
                 <OptimizationCard
                   key={opt.id}

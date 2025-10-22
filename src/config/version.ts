@@ -7,10 +7,22 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.32';
+export const APP_VERSION = 'v2.0.33';
 
 /**
  * Version history:
+ * - v2.0.33 (2024-10-21):
+ *   - FEAT: Painel Executivo de Otimizações completo com Método RADAR
+ *   - NEW: OptimizationCard component - Card-based layout com tags RADAR
+ *   - NEW: RadarDrawer component - visualização rápida sem abrir editor completo
+ *   - NEW: TagBadge/TagBadgeList - badges coloridos por categoria
+ *   - REDESIGN: /optimization page - mostra TODAS otimizações (não apenas uma conta)
+ *   - FEATURE: Filtro opcional por conta com opção "Todas as Contas"
+ *   - FEATURE: Paginação com scroll infinito ("Carregar Mais")
+ *   - UX: Layout elegante seguindo design de produção existente
+ *   - Display: Panorama + Top 2 Actions com contador "+X" para restantes
+ *   - Navigation: Quick view (drawer) vs Full editor (route)
+ *
  * - v2.0.32 (2024-10-21):
  *   - CHORE: Removed debug console.log statements from OptimizationEditor
  *   - Production-ready code with clean logging
