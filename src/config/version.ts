@@ -7,10 +7,17 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.36';
+export const APP_VERSION = 'v2.0.37';
 
 /**
  * Version history:
+ * - v2.0.37 (2024-10-21):
+ *   - FIX: RLS recordings também bloqueava - adicionada public read
+ *   - MIGRATION: 20251022030000 - Public read access para recordings
+ *   - Policy: "Authenticated users can view all recordings" (qual = true)
+ *   - Fix completo: extracts + recordings com acesso público de leitura
+ *   - Debug logs temporários adicionados ao OptimizationCard
+ *
  * - v2.0.36 (2024-10-21):
  *   - FIX: RLS policy bloqueava acesso a extracts de outros usuários
  *   - MIGRATION: 20251022024700 - Public read access para extracts
