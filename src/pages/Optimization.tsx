@@ -99,7 +99,8 @@ export default function Optimization() {
 
       // Transform data
       const transformed: OptimizationData[] = (recordings || []).map((r) => {
-        const extractData = (r as any).j_hub_optimization_extracts?.[0];
+        // FIX: PostgREST returns object (not array) for one-to-one relationships
+        const extractData = (r as any).j_hub_optimization_extracts;
 
         return {
           id: r.id,

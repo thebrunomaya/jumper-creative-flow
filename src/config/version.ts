@@ -7,10 +7,17 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.37';
+export const APP_VERSION = 'v2.0.38';
 
 /**
  * Version history:
+ * - v2.0.38 (2024-10-21):
+ *   - FIX CRÍTICO: Array access em objeto PostgREST
+ *   - Root cause: j_hub_optimization_extracts retorna OBJETO (não array)
+ *   - PostgREST usa objeto para relacionamentos one-to-one (FK única)
+ *   - Mudança: extractData = r.j_hub_optimization_extracts (não [0])
+ *   - Tags RADAR finalmente aparecem no painel executivo! ✅
+ *
  * - v2.0.37 (2024-10-21):
  *   - FIX: RLS recordings também bloqueava - adicionada public read
  *   - MIGRATION: 20251022030000 - Public read access para recordings

@@ -38,15 +38,6 @@ export function OptimizationCard({
   // Parse tags for display (Panorama + Top 2 Actions)
   const displayTags = [];
 
-  // Debug: Log received tags
-  console.log('[OptimizationCard] Recording:', recordingId.slice(0, 8), {
-    hasTags: !!tags,
-    tags: tags,
-    panorama: tags?.registro?.panorama,
-    gasto: tags?.registro?.gasto_atual,
-    actions: tags?.acao?.acoes_executadas
-  });
-
   if (tags) {
     // Add Panorama tag
     if (tags.registro?.panorama) {
@@ -67,8 +58,6 @@ export function OptimizationCard({
       });
     });
   }
-
-  console.log('[OptimizationCard] displayTags:', displayTags);
 
   // Calculate remaining actions
   const totalActions = tags?.acao?.acoes_executadas?.length || 0;
