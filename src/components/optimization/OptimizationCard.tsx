@@ -1,17 +1,13 @@
 /**
- * OptimizationCard - Card view for optimization in executive panel
+ * OptimizationCard - Horizontal compact card for optimization panel
  *
- * Displays: Account, Manager, Date, Tags, Action Buttons
- * Used in: Optimization.tsx (main panel)
+ * Layout: [Account | Manager | Tags | Date/Time | Buttons]
  */
 
-import { Card, CardContent } from "@/components/ui/card";
 import { JumperButton } from "@/components/ui/jumper-button";
 import { TagBadgeList } from "@/components/optimization/TagBadge";
 import { RadarTags } from "@/types/radarTags";
-import { Eye, ExternalLink, Calendar, User, Building2 } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
-import { ptBR } from "date-fns/locale";
+import { Eye, ExternalLink, AlertCircle } from "lucide-react";
 
 interface OptimizationCardProps {
   recordingId: string;
@@ -62,95 +58,91 @@ export function OptimizationCard({
   const totalActions = tags?.acao?.acoes_executadas?.length || 0;
   const remainingActions = totalActions > 2 ? totalActions - 2 : 0;
 
-  // Format date
-  const relativeTime = formatDistanceToNow(new Date(recordedAt), {
-    addSuffix: true,
-    locale: ptBR,
-  });
-
-  const absoluteDate = new Date(recordedAt).toLocaleDateString('pt-BR', {
+  // Format date/time
+  const date = new Date(recordedAt);
+  const dateFormatted = date.toLocaleDateString('pt-BR', {
     day: '2-digit',
     month: '2-digit',
-    year: 'numeric',
+  });
+  const timeFormatted = date.toLocaleTimeString('pt-BR', {
     hour: '2-digit',
     minute: '2-digit',
   });
 
+  // Status icon based on extract
+  const StatusIcon = hasExtract ? Eye : AlertCircle;
+  const statusColor = hasExtract ? "text-green-600" : "text-orange-500";
+
   return (
-    <Card className="hover:border-primary/50 transition-all">
-      <CardContent className="p-4 space-y-3">
-        {/* Header: Account, Manager, Date */}
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex-1 space-y-1.5">
-            {/* Account Name */}
-            <div className="flex items-center gap-2">
-              <Building2 className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-              <h3 className="font-semibold text-base truncate">{accountName}</h3>
-            </div>
+    <div className="border-b border-border py-3 px-4 hover:bg-muted/30 transition-colors flex items-center gap-4">
+      {/* Status Icon */}
+      <div className="flex-shrink-0">
+        <StatusIcon className={`h-5 w-5 ${statusColor}`} />
+      </div>
 
-            {/* Manager */}
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <User className="h-3.5 w-3.5 flex-shrink-0" />
-              <span className="truncate">{recordedBy}</span>
-            </div>
+      {/* Account Name */}
+      <div className="flex-shrink-0 w-32 lg:w-40">
+        <p className="font-medium text-sm truncate" title={accountName}>
+          {accountName}
+        </p>
+      </div>
 
-            {/* Date */}
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <Calendar className="h-3 w-3 flex-shrink-0" />
-              <span title={absoluteDate}>{relativeTime}</span>
-            </div>
-          </div>
-        </div>
+      {/* Manager */}
+      <div className="flex-shrink-0 w-32 lg:w-40 hidden sm:block">
+        <p className="text-sm text-muted-foreground truncate" title={recordedBy}>
+          {recordedBy.split('@')[0]}
+        </p>
+      </div>
 
-        {/* Tags Section */}
+      {/* Tags */}
+      <div className="flex-1 min-w-0">
         {hasExtract && displayTags.length > 0 ? (
-          <div className="pt-2 border-t">
-            <p className="text-xs text-muted-foreground mb-1.5">Tags:</p>
-            <div className="flex flex-wrap gap-1.5">
-              <TagBadgeList
-                tags={displayTags}
-                size="sm"
-                variant="outline"
-              />
-              {remainingActions > 0 && (
-                <span className="text-xs text-muted-foreground self-center">
-                  +{remainingActions} ações
-                </span>
-              )}
-            </div>
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <TagBadgeList tags={displayTags} size="sm" variant="outline" />
+            {remainingActions > 0 && (
+              <span className="text-xs text-muted-foreground">
+                +{remainingActions}
+              </span>
+            )}
           </div>
         ) : (
-          <div className="pt-2 border-t">
-            <p className="text-xs text-muted-foreground italic">
-              {hasExtract ? 'Sem tags atribuídas' : 'Extrato não gerado'}
-            </p>
-          </div>
+          <p className="text-xs text-muted-foreground italic">
+            {hasExtract ? 'Sem tags' : 'Extrato pendente'}
+          </p>
         )}
+      </div>
 
-        {/* Action Buttons */}
-        <div className="flex gap-2 pt-2">
-          <JumperButton
-            variant="outline"
-            size="sm"
-            onClick={onOpenDrawer}
-            disabled={!hasExtract}
-            className="flex-1"
-          >
-            <Eye className="h-3.5 w-3.5 mr-1.5" />
-            Ver RADAR
-          </JumperButton>
+      {/* Date/Time */}
+      <div className="flex-shrink-0 w-20 hidden md:block">
+        <p className="text-xs text-muted-foreground">
+          {dateFormatted}
+        </p>
+        <p className="text-xs text-muted-foreground font-mono">
+          {timeFormatted}
+        </p>
+      </div>
 
-          <JumperButton
-            variant="default"
-            size="sm"
-            onClick={onOpenFull}
-            className="flex-1"
-          >
-            <ExternalLink className="h-3.5 w-3.5 mr-1.5" />
-            Abrir Completo
-          </JumperButton>
-        </div>
-      </CardContent>
-    </Card>
+      {/* Action Buttons */}
+      <div className="flex-shrink-0 flex gap-2">
+        <JumperButton
+          variant="ghost"
+          size="sm"
+          onClick={onOpenDrawer}
+          disabled={!hasExtract}
+          className="text-xs"
+        >
+          Ver Extrato
+        </JumperButton>
+
+        <JumperButton
+          variant="outline"
+          size="sm"
+          onClick={onOpenFull}
+          className="text-xs"
+        >
+          <ExternalLink className="h-3 w-3" />
+        </JumperButton>
+      </div>
+    </div>
   );
 }

@@ -196,7 +196,7 @@ export default function Optimization() {
             )}
           </div>
 
-          {/* Cards Grid */}
+          {/* Cards List */}
           {optimizations.length === 0 && !isLoading ? (
             <div className="text-center py-12 text-muted-foreground">
               <p>Nenhuma otimização encontrada</p>
@@ -205,7 +205,7 @@ export default function Optimization() {
               )}
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="border border-border rounded-lg overflow-hidden bg-card">
               {optimizations.map((opt) => (
                 <OptimizationCard
                   key={opt.id}
