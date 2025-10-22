@@ -18,9 +18,10 @@ interface Account {
 interface AccountSelectorProps {
   value: string;
   onValueChange: (value: string) => void;
+  allowAll?: boolean; // If true, shows "Todas as Contas" option
 }
 
-export function AccountSelector({ value, onValueChange }: AccountSelectorProps) {
+export function AccountSelector({ value, onValueChange, allowAll = false }: AccountSelectorProps) {
   const { user } = useAuth();
   const { accounts: userAccounts, loading } = useMyNotionAccounts();
   const [accounts, setAccounts] = useState<Account[]>([]);
@@ -63,9 +64,14 @@ export function AccountSelector({ value, onValueChange }: AccountSelectorProps) 
       </label>
       <Select value={value} onValueChange={onValueChange}>
         <SelectTrigger className="w-full">
-          <SelectValue placeholder="Selecione a conta para otimização..." />
+          <SelectValue placeholder={allowAll ? "Filtrar por conta..." : "Selecione a conta para otimização..."} />
         </SelectTrigger>
         <SelectContent>
+          {allowAll && (
+            <SelectItem value="all">
+              <span className="font-medium">Todas as Contas</span>
+            </SelectItem>
+          )}
           {accounts.map((account) => (
             <SelectItem key={account.notion_id} value={account.notion_id}>
               {account.Conta || account.notion_id}
