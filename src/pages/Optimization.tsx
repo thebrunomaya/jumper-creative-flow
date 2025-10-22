@@ -68,7 +68,7 @@ export default function Optimization() {
           account_id,
           recorded_by,
           recorded_at,
-          extract:j_hub_optimization_extracts!recording_id(extract_text, tags)
+          j_hub_optimization_extracts!recording_id(extract_text, tags)
         `)
         .order('recorded_at', { ascending: false })
         .range(from, to);
@@ -98,15 +98,19 @@ export default function Optimization() {
       const accountMap = new Map(accounts?.map((a) => [a.notion_id, a.Conta]) || []);
 
       // Transform data
-      const transformed: OptimizationData[] = (recordings || []).map((r) => ({
-        id: r.id,
-        account_id: r.account_id,
-        recorded_by: r.recorded_by,
-        recorded_at: r.recorded_at,
-        account_name: accountMap.get(r.account_id) || r.account_id,
-        extract_text: (r.extract as any)?.[0]?.extract_text || null,
-        extract_tags: (r.extract as any)?.[0]?.tags || null,
-      }));
+      const transformed: OptimizationData[] = (recordings || []).map((r) => {
+        const extractData = (r as any).j_hub_optimization_extracts?.[0];
+
+        return {
+          id: r.id,
+          account_id: r.account_id,
+          recorded_by: r.recorded_by,
+          recorded_at: r.recorded_at,
+          account_name: accountMap.get(r.account_id) || r.account_id,
+          extract_text: extractData?.extract_text || null,
+          extract_tags: extractData?.tags || null,
+        };
+      });
 
       // Update state
       if (reset) {

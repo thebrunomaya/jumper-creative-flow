@@ -7,10 +7,17 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.35';
+export const APP_VERSION = 'v2.0.36';
 
 /**
  * Version history:
+ * - v2.0.36 (2024-10-21):
+ *   - FIX: RLS policy bloqueava acesso a extracts de outros usuários
+ *   - MIGRATION: 20251022024700 - Public read access para extracts
+ *   - Policy: "Authenticated users can view all extracts" (qual = true)
+ *   - Query: Corrigida sintaxe j_hub_optimization_extracts!recording_id
+ *   - Tags RADAR agora aparecem corretamente no painel executivo
+ *
  * - v2.0.35 (2024-10-21):
  *   - REDESIGN: OptimizationCard layout horizontal tipo tabela
  *   - Row 1: [Icon] Nome da conta - Gestor    Data Hora
