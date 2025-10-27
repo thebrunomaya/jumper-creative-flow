@@ -7,10 +7,20 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.32';
+export const APP_VERSION = 'v2.0.33';
 
 /**
  * Version history:
+ * - v2.0.33 (2024-10-27):
+ *   - REDESIGN: Optimization page transformed into panel view with permissions
+ *   - Shows all optimizations from user's accessible accounts (like /my-accounts)
+ *   - Account names displayed in titles (e.g., "Boiler - 24/10/2025 às 08:39")
+ *   - Extract preview shown inline when available
+ *   - NEW: useMyOptimizations hook with permission logic via j_hub_user_accounts
+ *   - NEW: OptimizationsPanelList component with clean, scannable layout
+ *   - Fetches optimizations with j_hub_optimization_extracts join
+ *   - 44 otimizações displayed with proper status indicators
+ *
  * - v2.0.32 (2024-10-21):
  *   - CHORE: Removed debug console.log statements from OptimizationEditor
  *   - Production-ready code with clean logging
