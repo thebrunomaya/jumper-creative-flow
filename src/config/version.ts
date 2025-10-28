@@ -7,10 +7,16 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.39';
+export const APP_VERSION = 'v2.0.40';
 
 /**
  * Version history:
+ * - v2.0.40 (2024-10-27):
+ *   - FIX: Added missing spinner to ReprocessConfirmModal
+ *   - Button now shows "Recriando..." with animated Loader2 icon
+ *   - Completes loading state audit - all AI operations now have visual feedback
+ *   - Consistent UX across all create/recreate operations
+ *
  * - v2.0.39 (2024-10-27):
  *   - UX: Added loading states to all AI operation modals
  *   - ExtractEditorModal: Shows "Recriando com IA..." while regenerating

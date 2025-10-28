@@ -12,7 +12,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { JumperButton } from "@/components/ui/jumper-button";
-import { AlertCircle, RotateCw, X } from "lucide-react";
+import { AlertCircle, RotateCw, X, Loader2 } from "lucide-react";
 
 interface ReprocessConfirmModalProps {
   isOpen: boolean;
@@ -71,8 +71,17 @@ export function ReprocessConfirmModal({
             onClick={handleConfirm}
             disabled={isProcessing}
           >
-            <RotateCw className="mr-2 h-4 w-4" />
-            {isProcessing ? 'Recriando...' : 'Recriar'}
+            {isProcessing ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Recriando...
+              </>
+            ) : (
+              <>
+                <RotateCw className="mr-2 h-4 w-4" />
+                Recriar
+              </>
+            )}
           </JumperButton>
         </AlertDialogFooter>
       </AlertDialogContent>
