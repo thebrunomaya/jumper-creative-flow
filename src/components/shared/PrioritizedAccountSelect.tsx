@@ -147,7 +147,14 @@ export function PrioritizedAccountSelect({
           <SelectTrigger className={className}>
             <SelectValue placeholder={placeholder} />
           </SelectTrigger>
-          <SelectContent className="max-h-[400px]" position="popper" side="bottom" sideOffset={5}>
+          <SelectContent
+            className="max-h-[400px]"
+            position="popper"
+            side="bottom"
+            align="start"
+            sideOffset={5}
+            avoidCollisions={false}
+          >
             {/* "Todas as contas" option */}
             {showAllOption && (
               <>

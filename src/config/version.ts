@@ -7,10 +7,17 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.62';
+export const APP_VERSION = 'v2.0.63';
 
 /**
  * Version history:
+ * - v2.0.63 (2024-10-28):
+ *   - FIX: PrioritizedAccountSelect dropdown direction finally resolved
+ *   - Added avoidCollisions={false} to disable Radix UI collision detection
+ *   - Root cause: Collision detection was overriding side="bottom" prop
+ *   - Dropdown now consistently opens downward on all pages
+ *   - Verified fix with Playwright MCP testing on OptimizationNew page
+ *
  * - v2.0.62 (2024-10-28):
  *   - FIX: PrioritizedAccountSelect dropdown now always opens downward
  *   - Added side="bottom" to SelectContent to prevent upward opening
