@@ -7,10 +7,16 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.47';
+export const APP_VERSION = 'v2.0.48';
 
 /**
  * Version history:
+ * - v2.0.48 (2024-10-27):
+ *   - UX FIX: Simple header alignment fix in Optimization Editor
+ *   - Changed from `items-start` to `items-center` for vertical centering
+ *   - Removed `mt-8` margin from action buttons
+ *   - Buttons now align properly with text content
+ *
  * - v2.0.47 (2024-10-27):
  *   - UX FIX: Improved icon alignment for multi-line action text
  *   - Reverted to `items-start` for top alignment with first line

@@ -791,7 +791,7 @@ export default function OptimizationEditor() {
 
       {/* Breadcrumb */}
       <div className="px-8 py-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="flex items-start justify-between">
+        <div className="flex items-center justify-between">
           <div className="flex-1">
             <JumperButton variant="ghost" size="sm" onClick={() => navigate('/optimization')}>
               <ChevronLeft className="h-4 w-4 mr-1" />
@@ -806,7 +806,7 @@ export default function OptimizationEditor() {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center gap-2 mt-8">
+          <div className="flex items-center gap-2">
             <JumperButton
               variant="outline"
               size="sm"
