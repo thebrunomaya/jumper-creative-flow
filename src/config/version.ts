@@ -7,10 +7,19 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.57';
+export const APP_VERSION = 'v2.0.58';
 
 /**
  * Version history:
+ * - v2.0.58 (2024-10-28):
+ *   - UX: Enhanced account selector with loading and empty states on OptimizationNew
+ *   - Select component now shows "Carregando contas..." placeholder while fetching
+ *   - Disabled state prevents interaction during account loading
+ *   - Loading indicator with Loader2 spinner in dropdown
+ *   - Empty state message when no accounts available
+ *   - Conditional rendering for better user feedback during fetch operations
+ *   - Part of account selection standardization (FASE 2)
+ *
  * - v2.0.57 (2024-10-28):
  *   - FIX: Account selector dropdown clipping issue on OptimizationNew page
  *   - Added max-h-[300px] to SelectContent for proper height constraint (~8-10 items visible)

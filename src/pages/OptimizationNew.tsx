@@ -227,12 +227,23 @@ export default function OptimizationNew() {
               <label className="text-sm font-medium flex items-center gap-2">
                 Conta <span className="text-destructive">*</span>
               </label>
-              <Select value={selectedAccountId} onValueChange={handleAccountChange}>
+              <Select value={selectedAccountId} onValueChange={handleAccountChange} disabled={accountsLoading}>
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Selecione uma conta" />
+                  <SelectValue placeholder={accountsLoading ? "Carregando contas..." : "Selecione uma conta"} />
                 </SelectTrigger>
                 <SelectContent className="max-h-[300px]" position="popper" sideOffset={5}>
-                  {accounts.map((account) => (
+                  {accountsLoading && (
+                    <div className="p-4 text-center text-sm text-muted-foreground">
+                      <Loader2 className="h-4 w-4 animate-spin mx-auto mb-2" />
+                      Carregando contas...
+                    </div>
+                  )}
+                  {!accountsLoading && accounts.length === 0 && (
+                    <div className="p-4 text-center text-sm text-muted-foreground">
+                      Nenhuma conta disponível
+                    </div>
+                  )}
+                  {!accountsLoading && accounts.map((account) => (
                     <SelectItem key={account.id} value={account.id}>
                       {account.name}
                     </SelectItem>
