@@ -7,15 +7,16 @@
 ## 📑 Índice
 
 1. [User Management System](#-user-management-system) ⭐ **NOVO**
-2. [Estrutura de Pastas](#-estrutura-de-pastas)
-3. [Database Schema](#-database-schema)
-4. [Edge Functions](#-edge-functions)
-5. [Autenticação e Permissões](#-autenticação-e-permissões)
-6. [Integração Notion](#-integração-notion)
-7. [Sistema de Resiliência](#-sistema-de-resiliência)
-8. [Supabase Integration](#-supabase-integration)
-9. [UI/UX Patterns](#-uiux-patterns)
-10. [Performance](#-performance)
+2. [Account Selection Pattern](#-account-selection-pattern-standard-pattern) ⭐ **ATUALIZADO (2024-10-28)**
+3. [Estrutura de Pastas](#-estrutura-de-pastas)
+4. [Database Schema](#-database-schema)
+5. [Edge Functions](#-edge-functions)
+6. [Autenticação e Permissões](#-autenticação-e-permissões)
+7. [Integração Notion](#-integração-notion)
+8. [Sistema de Resiliência](#-sistema-de-resiliência)
+9. [Supabase Integration](#-supabase-integration)
+10. [UI/UX Patterns](#-uiux-patterns)
+11. [Performance](#-performance)
 
 ---
 
@@ -154,6 +155,168 @@ Names are resolved using this priority order (v2.0):
 - `j_ads_creative_*` tables (creative system)
 - `j_ads_submit_ad` function (creative submission)
 - `j_rep_*` tables (reports system)
+
+---
+
+## 🔄 Account Selection Pattern (Standard Pattern)
+
+> ⭐ **Updated:** 2024-10-28 - Standardized across entire application
+
+### **Architecture Overview**
+
+**Pattern:** Backend-centralized account fetching with permission-based filtering
+
+**Components:**
+1. **Edge Function:** `j_hub_user_accounts` - Handles ALL permission logic and sorting
+2. **React Hook:** `useMyNotionAccounts` - Standard interface for all pages
+3. **Frontend:** Optional custom sorting for special cases (e.g., MyAccounts priority tiers)
+
+### **Backend: j_hub_user_accounts Edge Function**
+
+**Location:** `supabase/functions/j_hub_user_accounts/index.ts`
+
+**Responsibilities:**
+- ✅ User authentication verification
+- ✅ Role-based account filtering (Admin/Staff/Client)
+- ✅ Alphabetical sorting by account name (`.order('"Conta"', { ascending: true })`)
+- ✅ Name resolution (Gestor/Atendimento/Gerente IDs → Names)
+- ✅ Complete account data formatting
+
+**Permission Logic:**
+
+| Role | Account Access |
+|------|----------------|
+| **Admin** | ALL accounts (unrestricted) |
+| **Staff** | Accounts where user is in `Gestor` or `Atendimento` fields |
+| **Client** | Accounts where user's `notion_manager_id` is in `Gerente` field |
+
+**Response Format:**
+```typescript
+{
+  success: true,
+  accounts: NotionAccount[], // Pre-sorted alphabetically
+  account_ids: string[],     // Legacy compatibility
+  is_admin: boolean,
+  user_role: 'admin' | 'staff' | 'client',
+  source: 'complete_sync'
+}
+```
+
+### **Frontend: useMyNotionAccounts Hook**
+
+**Location:** `src/hooks/useMyNotionAccounts.ts`
+
+**Usage (Standard Pattern):**
+```tsx
+import { useMyNotionAccounts } from '@/hooks/useMyNotionAccounts';
+
+function MyComponent() {
+  const { accounts, loading, error, isAdmin } = useMyNotionAccounts();
+
+  if (loading) return <LoadingSpinner />;
+  if (error) return <ErrorMessage error={error} />;
+
+  return (
+    <Select>
+      {accounts.map(account => (
+        <SelectItem key={account.id} value={account.id}>
+          {account.name}
+        </SelectItem>
+      ))}
+    </Select>
+  );
+}
+```
+
+**Return Type:**
+```typescript
+{
+  accountIds: string[];        // Legacy field (array of Notion IDs)
+  accounts: NotionAccount[];   // Complete account data (pre-sorted)
+  isAdmin: boolean;            // Admin flag from Edge Function
+  loading: boolean;            // Fetch state
+  error: string | null;        // Error message if failed
+}
+```
+
+**NotionAccount Interface:**
+```typescript
+interface NotionAccount {
+  id: string;              // Notion page ID
+  name: string;            // Account name (from "Conta" field)
+  objectives?: string[];   // ["Vendas", "Tráfego", ...]
+  status?: string;         // Account status
+  tier?: string;           // Account tier
+  gestor?: string;         // Gestor names (resolved)
+  atendimento?: string;    // Atendimento names (resolved)
+  gerente?: string;        // Gerente names (resolved)
+  meta_ads_id?: string;    // Meta Ads account ID
+  id_google_ads?: string;  // Google Ads account ID
+}
+```
+
+### **Pages Using This Pattern**
+
+✅ **OptimizationNew** (`src/pages/OptimizationNew.tsx`)
+- Uses accounts directly from hook
+- Enhanced with loading/empty states
+- Alphabetical sorting from backend
+
+✅ **Optimization** (`src/pages/Optimization.tsx`)
+- Derives unique accounts from optimization records
+- Applies alphabetical sorting on derived list
+- Filter dropdown for multi-account users
+
+✅ **MyAccounts** (`src/pages/MyAccounts.tsx`)
+- Uses accounts from hook
+- **Custom frontend sorting:** Priority-based (Gestor > Supervisor > Gerente) + User choice (name/tier/status)
+- Applies custom logic on top of alphabetical base
+
+### **Custom Frontend Sorting (Advanced)**
+
+For special cases like MyAccounts that need custom sorting logic:
+
+```tsx
+const sortedAccounts = useMemo(() => {
+  return [...accounts].sort((a, b) => {
+    // 1st tier: Custom priority logic
+    const priorityA = getAccessPriority(a);
+    const priorityB = getAccessPriority(b);
+    if (priorityA !== priorityB) {
+      return priorityA - priorityB;
+    }
+
+    // 2nd tier: User-selected sorting
+    switch (sortBy) {
+      case 'name':
+        return a.name.localeCompare(b.name);
+      case 'tier':
+        return (a.tier || '').localeCompare(b.tier || '');
+      // ... other cases
+    }
+  });
+}, [accounts, sortBy]);
+```
+
+### **Migration History**
+
+**Before (Inconsistent):**
+- ❌ Different implementations across pages
+- ❌ Some pages had no sorting (OptimizationNew)
+- ❌ Confusion with unused AccountSelector component
+- ❌ Manual filtering logic duplicated
+
+**After (Standardized - v2.0.58+):**
+- ✅ Single Edge Function for all permission logic
+- ✅ Alphabetical sorting at database level (consistent)
+- ✅ Standard hook for all pages
+- ✅ Optional custom frontend sorting for special cases
+- ✅ Removed unused AccountSelector.tsx component
+
+**Commits:**
+- `bf6e634` - Added alphabetical sorting to Edge Function (FASE 1)
+- `f83fa1b` - Enhanced OptimizationNew with loading states (FASE 2)
+- `129da30` - Removed unused AccountSelector component (FASE 3)
 
 ---
 

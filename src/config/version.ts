@@ -7,10 +7,20 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.59';
+export const APP_VERSION = 'v2.0.60';
 
 /**
  * Version history:
+ * - v2.0.60 (2024-10-28):
+ *   - DOCS: Comprehensive documentation for account selection standardization
+ *   - Added JSDoc to useMyNotionAccounts hook with architecture pattern explanation
+ *   - Created NotionAccount TypeScript interface for type safety
+ *   - Added "Account Selection Pattern" section to ARCHITECTURE.md
+ *   - Documented backend (Edge Function) and frontend (React Hook) responsibilities
+ *   - Included usage examples, custom sorting patterns, and migration history
+ *   - Updated ARCHITECTURE.md table of contents
+ *   - Part of account selection standardization (FASE 3 - Documentation)
+ *
  * - v2.0.59 (2024-10-28):
  *   - CLEANUP: Removed unused AccountSelector.tsx component from optimization folder
  *   - Component was never imported or used anywhere in the application
