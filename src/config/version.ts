@@ -7,10 +7,15 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.61';
+export const APP_VERSION = 'v2.0.62';
 
 /**
  * Version history:
+ * - v2.0.62 (2024-10-28):
+ *   - FIX: PrioritizedAccountSelect dropdown now always opens downward
+ *   - Added side="bottom" to SelectContent to prevent upward opening
+ *   - Resolves issue where dropdown appeared above trigger on OptimizationNew page
+ *
  * - v2.0.61 (2024-10-28):
  *   - MAJOR FEATURE: Prioritized account selection across entire application
  *   - Created accountPriority.ts utils with shared logic (getAccessReasons, sortAccountsByPriority, groupAccountsByPriority)
