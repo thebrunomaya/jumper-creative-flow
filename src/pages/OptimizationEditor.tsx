@@ -46,6 +46,7 @@ import {
   Loader2,
   Undo2,
   Lock,
+  Trash2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { exportOptimizationToPDF } from "@/utils/pdfExport";
@@ -58,6 +59,16 @@ import { LogEditorModal } from "@/components/optimization/LogEditorModal";
 import { TranscriptViewer } from "@/components/optimization/TranscriptViewer";
 import { TranscriptEditorModal } from "@/components/optimization/TranscriptEditorModal";
 import { ExtractViewer } from "@/components/optimization/ExtractViewer";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const AI_MODELS = [
   { value: "claude-sonnet-4-5-20250929", label: "Claude Sonnet 4.5 (Recomendado)" },
@@ -130,6 +141,10 @@ export default function OptimizationEditor() {
 
   // Transcript editor modal (Step 1)
   const [transcriptEditorModalOpen, setTranscriptEditorModalOpen] = useState(false);
+
+  // Delete confirmation
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Load data on mount
   useEffect(() => {
@@ -606,6 +621,44 @@ export default function OptimizationEditor() {
     }
   }
 
+  // Delete handlers
+  async function handleDeleteOptimization() {
+    if (!recordingId || !recording) return;
+
+    setIsDeleting(true);
+    try {
+      // Delete audio file from storage
+      const audioPath = recording.audio_file_path;
+      if (audioPath) {
+        const { error: storageError } = await supabase.storage
+          .from('optimizations')
+          .remove([audioPath]);
+
+        if (storageError) {
+          console.error('Storage deletion error:', storageError);
+          // Continue with record deletion even if storage fails
+        }
+      }
+
+      // Delete database record (cascade will delete related records)
+      const { error: deleteError } = await supabase
+        .from('j_hub_optimization_recordings')
+        .delete()
+        .eq('id', recordingId);
+
+      if (deleteError) throw deleteError;
+
+      toast.success('Otimização excluída com sucesso!');
+      navigate('/optimization');
+    } catch (error: any) {
+      console.error('Delete optimization error:', error);
+      toast.error(error.message || 'Erro ao excluir otimização');
+    } finally {
+      setIsDeleting(false);
+      setDeleteConfirmOpen(false);
+    }
+  }
+
   // Extract handlers (Step 3)
   async function handleGenerateExtract() {
     if (!recordingId || !transcript?.processed_text) return;
@@ -724,16 +777,42 @@ export default function OptimizationEditor() {
 
       {/* Breadcrumb */}
       <div className="px-8 py-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <JumperButton variant="ghost" size="sm" onClick={() => navigate('/optimization')}>
-          <ChevronLeft className="h-4 w-4 mr-1" />
-          Voltar para Lista
-        </JumperButton>
-        <h1 className="text-2xl font-bold mt-2">
-          Edição de Otimização - {accountName}
-        </h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Gravado em {new Date(recording.recorded_at).toLocaleString('pt-BR')}
-        </p>
+        <div className="flex items-start justify-between">
+          <div className="flex-1">
+            <JumperButton variant="ghost" size="sm" onClick={() => navigate('/optimization')}>
+              <ChevronLeft className="h-4 w-4 mr-1" />
+              Voltar para Lista
+            </JumperButton>
+            <h1 className="text-2xl font-bold mt-2">
+              Edição de Otimização - {accountName}
+            </h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              Gravado em {new Date(recording.recorded_at).toLocaleString('pt-BR')}
+            </p>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex items-center gap-2 mt-8">
+            <JumperButton
+              variant="outline"
+              size="sm"
+              onClick={handleExportPDF}
+              disabled={!transcript || recording.transcription_status !== 'completed'}
+            >
+              <Download className="h-4 w-4 mr-2" />
+              Exportar PDF
+            </JumperButton>
+
+            <JumperButton
+              variant="destructive"
+              size="sm"
+              onClick={() => setDeleteConfirmOpen(true)}
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Excluir
+            </JumperButton>
+          </div>
+        </div>
       </div>
 
       {/* Main Content */}
@@ -1158,6 +1237,38 @@ export default function OptimizationEditor() {
           lastEditedAt={transcript.last_edited_at}
         />
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir Otimização</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir esta otimização?
+              <br />
+              <br />
+              <strong>Esta ação não pode ser desfeita.</strong> A gravação de áudio, transcrição, log e todos os dados relacionados serão permanentemente excluídos.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteOptimization}
+              disabled={isDeleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isDeleting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Excluindo...
+                </>
+              ) : (
+                'Excluir Permanentemente'
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </JumperBackground>
   );
 }

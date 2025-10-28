@@ -7,10 +7,18 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.36';
+export const APP_VERSION = 'v2.0.37';
 
 /**
  * Version history:
+ * - v2.0.37 (2024-10-27):
+ *   - FEATURE: Added delete optimization functionality in editor
+ *   - Delete button placed in header alongside "Export PDF"
+ *   - Confirmation dialog with warning about permanent deletion
+ *   - Deletes audio file from storage and all database records (cascade)
+ *   - Redirects to optimization list after successful deletion
+ *   - Toast notifications for success/error feedback
+ *
  * - v2.0.36 (2024-10-27):
  *   - FEATURE: Added "Copy" button to all optimization steps in editor
  *   - Button order: Edit → Copy → Debug (Admin)
