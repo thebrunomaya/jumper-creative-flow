@@ -29,6 +29,10 @@ export interface NotionAccount {
   gestor_email?: string;
   /** Atendimento emails (for matching/filtering) - renamed from supervisor_email */
   atendimento_email?: string;
+  /** Full context for optimization recordings */
+  contexto_otimizacao?: string;
+  /** Summarized context for transcription (Whisper API) */
+  contexto_transcricao?: string;
 }
 
 /**

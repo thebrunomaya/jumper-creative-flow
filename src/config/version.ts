@@ -7,10 +7,19 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.63';
+export const APP_VERSION = 'v2.0.64';
 
 /**
  * Version history:
+ * - v2.0.64 (2024-10-28):
+ *   - FIX: Restored account context and objectives loading in OptimizationNew
+ *   - Edge Function j_hub_user_accounts now returns contexto_otimizacao and contexto_transcricao fields
+ *   - Updated NotionAccount interface with context fields
+ *   - Fixed OptimizationNew to use correct field name (contexto_otimizacao instead of non-existent contexto)
+ *   - DOCS: Updated all references from obsolete j_ads_notion_db_* to current j_hub_notion_db_* naming
+ *   - Updated CLAUDE.md, ARCHITECTURE.md, and REPORTS-ROADMAP.md with correct table names
+ *   - Corrects naming convention from Jumper Hub rebrand (October 2025)
+ *
  * - v2.0.63 (2024-10-28):
  *   - FIX: PrioritizedAccountSelect dropdown direction finally resolved
  *   - Added avoidCollisions={false} to disable Radix UI collision detection

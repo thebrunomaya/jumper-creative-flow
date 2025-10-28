@@ -96,10 +96,16 @@ export default function OptimizationNew() {
 
     const account = accounts.find(a => a.id === accountId);
     if (account) {
-      console.log('🔍 DEBUG - Account found:', account); // Debug log to see actual structure
-      setSelectedAccountName(account.name); // FIXED: Changed from account.nome to account.name
-      setAccountContext(account.contexto || "");
-      setCustomContext(account.contexto || "");
+      console.log('🔍 Account loaded:', {
+        name: account.name,
+        objectives: account.objectives,
+        contexto: account.contexto_otimizacao
+      });
+      setSelectedAccountName(account.name);
+      // Use FULL context for optimization (not transcription summary)
+      const fullContext = account.contexto_otimizacao || "";
+      setAccountContext(fullContext);
+      setCustomContext(fullContext);
     }
   };
 
@@ -116,8 +122,8 @@ export default function OptimizationNew() {
       // Load account details
       const account = accounts.find(a => a.id === draft.accountId);
       if (account) {
-        setSelectedAccountName(account.name); // FIXED: Changed from account.nome to account.name
-        setAccountContext(account.contexto || "");
+        setSelectedAccountName(account.name);
+        setAccountContext(account.contexto_otimizacao || "");
       }
     }
     setShowDraftRecovery(false);

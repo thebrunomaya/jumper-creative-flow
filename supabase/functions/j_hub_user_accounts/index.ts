@@ -339,6 +339,8 @@ serve(async (req) => {
         id_meta_ads: account["ID Meta Ads"],
         meta_ads_id: account["ID Meta Ads"],
         id_google_ads: account["ID Google Ads"],
+        contexto_otimizacao: account["Contexto para Otimização"] || null,
+        contexto_transcricao: account["Contexto para Transcrição"] || null,
       };
     });
 
