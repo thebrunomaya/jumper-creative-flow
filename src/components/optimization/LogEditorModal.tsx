@@ -14,7 +14,7 @@ import {
 import { JumperButton } from "@/components/ui/jumper-button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Save, Sparkles, RotateCw, Undo2 } from "lucide-react";
+import { Save, Sparkles, RotateCw, Undo2, Loader2 } from "lucide-react";
 
 interface LogEditorModalProps {
   open: boolean;
@@ -28,6 +28,7 @@ interface LogEditorModalProps {
   hasUndo: boolean;
   editCount: number;
   lastEditedAt?: string;
+  isReprocessing?: boolean; // Loading state from parent
 }
 
 export function LogEditorModal({
@@ -42,6 +43,7 @@ export function LogEditorModal({
   hasUndo,
   editCount,
   lastEditedAt,
+  isReprocessing = false,
 }: LogEditorModalProps) {
   const [editedText, setEditedText] = useState(currentText);
   const [hasChanges, setHasChanges] = useState(false);
@@ -63,6 +65,9 @@ export function LogEditorModal({
   };
 
   const handleCancel = () => {
+    // Don't allow closing while reprocessing
+    if (isReprocessing) return;
+
     setEditedText(currentText);
     setHasChanges(false);
     onOpenChange(false);
@@ -75,9 +80,9 @@ export function LogEditorModal({
   };
 
   const handleReprocess = () => {
-    // Parent will open reprocess confirm modal
+    // Parent will trigger reprocessing
+    // Modal stays open - will close when parent finishes
     onReprocess();
-    onOpenChange(false);
   };
 
   const handleUndo = async () => {
@@ -125,7 +130,7 @@ export function LogEditorModal({
             <JumperButton
               variant="outline"
               onClick={handleSave}
-              disabled={!hasChanges}
+              disabled={!hasChanges || isReprocessing}
             >
               <Save className="mr-2 h-4 w-4" />
               Salvar Edição Manual
@@ -134,6 +139,7 @@ export function LogEditorModal({
             <JumperButton
               variant="outline"
               onClick={handleAIImprove}
+              disabled={isReprocessing}
             >
               <Sparkles className="mr-2 h-4 w-4" />
               Ajustar com IA
@@ -142,9 +148,19 @@ export function LogEditorModal({
             <JumperButton
               variant="outline"
               onClick={handleReprocess}
+              disabled={isReprocessing}
             >
-              <RotateCw className="mr-2 h-4 w-4" />
-              Recriar
+              {isReprocessing ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Recriando com IA...
+                </>
+              ) : (
+                <>
+                  <RotateCw className="mr-2 h-4 w-4" />
+                  Recriar
+                </>
+              )}
             </JumperButton>
           </div>
 
@@ -154,6 +170,7 @@ export function LogEditorModal({
               <JumperButton
                 variant="ghost"
                 onClick={handleUndo}
+                disabled={isReprocessing}
                 title="Restaurar versão anterior"
               >
                 <Undo2 className="mr-2 h-4 w-4" />
@@ -161,7 +178,7 @@ export function LogEditorModal({
               </JumperButton>
             )}
 
-            <JumperButton variant="ghost" onClick={handleCancel}>
+            <JumperButton variant="ghost" onClick={handleCancel} disabled={isReprocessing}>
               Cancelar
             </JumperButton>
           </div>

@@ -14,7 +14,7 @@ import {
 import { JumperButton } from "@/components/ui/jumper-button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Save, RotateCw, Undo2 } from "lucide-react";
+import { Save, RotateCw, Undo2, Loader2 } from "lucide-react";
 
 interface ExtractEditorModalProps {
   open: boolean;
@@ -27,6 +27,7 @@ interface ExtractEditorModalProps {
   onUndo: () => Promise<void>;
   editCount: number;
   lastEditedAt?: string;
+  isRegenerating?: boolean; // Loading state from parent
 }
 
 export function ExtractEditorModal({
@@ -40,6 +41,7 @@ export function ExtractEditorModal({
   onUndo,
   editCount,
   lastEditedAt,
+  isRegenerating = false,
 }: ExtractEditorModalProps) {
   const [editedText, setEditedText] = useState(currentText);
   const [hasChanges, setHasChanges] = useState(false);
@@ -61,6 +63,9 @@ export function ExtractEditorModal({
   };
 
   const handleCancel = () => {
+    // Don't allow closing while regenerating
+    if (isRegenerating) return;
+
     setEditedText(currentText);
     setHasChanges(false);
     onOpenChange(false);
@@ -68,8 +73,8 @@ export function ExtractEditorModal({
 
   const handleRegenerate = () => {
     // Parent will trigger AI regeneration
+    // Modal stays open - will close when parent finishes
     onRegenerate();
-    onOpenChange(false);
   };
 
   const handleUndo = async () => {
@@ -111,7 +116,7 @@ export function ExtractEditorModal({
               <strong>Formato:</strong> Uma ação por linha, começando com • e categoria entre colchetes
             </p>
             <p>
-              <strong>Categorias disponíveis:</strong> [VERBA], [CRIATIVOS], [CONJUNTOS], [COPY]
+              <strong>Categorias disponíveis:</strong> [VERBA], [CRIATIVOS], [CONJUNTOS], [COPY], [OBSERVAÇÃO]
             </p>
             <p>
               <strong>Exemplo:</strong> • [VERBA] Aumentado budget em 30% (R$500 → R$650)
@@ -125,7 +130,7 @@ export function ExtractEditorModal({
             <JumperButton
               variant="outline"
               onClick={handleSave}
-              disabled={!hasChanges}
+              disabled={!hasChanges || isRegenerating}
             >
               <Save className="mr-2 h-4 w-4" />
               Salvar Edição Manual
@@ -134,9 +139,19 @@ export function ExtractEditorModal({
             <JumperButton
               variant="outline"
               onClick={handleRegenerate}
+              disabled={isRegenerating}
             >
-              <RotateCw className="mr-2 h-4 w-4" />
-              Recriar com IA
+              {isRegenerating ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Recriando com IA...
+                </>
+              ) : (
+                <>
+                  <RotateCw className="mr-2 h-4 w-4" />
+                  Recriar com IA
+                </>
+              )}
             </JumperButton>
           </div>
 
@@ -146,6 +161,7 @@ export function ExtractEditorModal({
               <JumperButton
                 variant="ghost"
                 onClick={handleUndo}
+                disabled={isRegenerating}
                 title="Restaurar versão anterior"
               >
                 <Undo2 className="mr-2 h-4 w-4" />
@@ -153,7 +169,7 @@ export function ExtractEditorModal({
               </JumperButton>
             )}
 
-            <JumperButton variant="ghost" onClick={handleCancel}>
+            <JumperButton variant="ghost" onClick={handleCancel} disabled={isRegenerating}>
               Cancelar
             </JumperButton>
           </div>

@@ -677,9 +677,13 @@ export default function OptimizationEditor() {
 
       toast.success('Extrato gerado com sucesso!');
       await loadRecording();
+
+      // Close modal after successful generation
+      setExtractEditorModalOpen(false);
     } catch (error: any) {
       console.error('Extract generation error:', error);
       toast.error(error.message || 'Erro ao gerar extrato');
+      // Keep modal open on error so user can try again
     } finally {
       setIsGeneratingExtract(false);
     }
@@ -1122,6 +1126,7 @@ export default function OptimizationEditor() {
           onUndo={handleUndoExtract}
           editCount={extract.edit_count}
           lastEditedAt={extract.updated_at}
+          isRegenerating={isGeneratingExtract}
         />
       )}
 

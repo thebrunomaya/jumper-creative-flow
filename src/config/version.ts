@@ -7,10 +7,19 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.38';
+export const APP_VERSION = 'v2.0.39';
 
 /**
  * Version history:
+ * - v2.0.39 (2024-10-27):
+ *   - UX: Added loading states to all AI operation modals
+ *   - ExtractEditorModal: Shows "Recriando com IA..." while regenerating
+ *   - LogEditorModal: Shows "Recriando com IA..." while reprocessing
+ *   - TranscriptEditorModal: Shows "Recriando com Whisper..." while retranscribing
+ *   - Modals stay open during AI processing with disabled buttons and spinner
+ *   - Prevents user confusion when AI takes 5-30 seconds to process
+ *   - Modal closes automatically on success, stays open on error for retry
+ *
  * - v2.0.38 (2024-10-27):
  *   - FEATURE: Added [OBSERVAÇÃO] as new action category in Step 3 extract
  *   - Edge Function prompt updated with OBSERVAÇÃO category and example

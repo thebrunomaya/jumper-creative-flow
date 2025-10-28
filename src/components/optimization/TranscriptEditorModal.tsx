@@ -14,7 +14,7 @@ import {
 import { JumperButton } from "@/components/ui/jumper-button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Save, Sparkles, RotateCw, Undo2, Bot } from "lucide-react";
+import { Save, Sparkles, RotateCw, Undo2, Bot, Loader2 } from "lucide-react";
 
 interface TranscriptEditorModalProps {
   open: boolean;
@@ -30,6 +30,7 @@ interface TranscriptEditorModalProps {
   onViewEnhancement: () => void;
   editCount: number;
   lastEditedAt?: string;
+  isRetranscribing?: boolean; // Loading state from parent
 }
 
 export function TranscriptEditorModal({
@@ -46,6 +47,7 @@ export function TranscriptEditorModal({
   onViewEnhancement,
   editCount,
   lastEditedAt,
+  isRetranscribing = false,
 }: TranscriptEditorModalProps) {
   const [editedText, setEditedText] = useState(currentText);
   const [hasChanges, setHasChanges] = useState(false);
@@ -67,6 +69,9 @@ export function TranscriptEditorModal({
   };
 
   const handleCancel = () => {
+    // Don't allow closing while retranscribing
+    if (isRetranscribing) return;
+
     setEditedText(currentText);
     setHasChanges(false);
     onOpenChange(false);
@@ -79,9 +84,9 @@ export function TranscriptEditorModal({
   };
 
   const handleRetranscribe = () => {
-    // Parent will open retranscribe confirm modal
+    // Parent will trigger retranscription
+    // Modal stays open - will close when parent finishes
     onRetranscribe();
-    onOpenChange(false);
   };
 
   const handleUndo = async () => {
@@ -138,7 +143,7 @@ export function TranscriptEditorModal({
             <JumperButton
               variant="outline"
               onClick={handleSave}
-              disabled={!hasChanges}
+              disabled={!hasChanges || isRetranscribing}
             >
               <Save className="mr-2 h-4 w-4" />
               Salvar Edição Manual
@@ -147,6 +152,7 @@ export function TranscriptEditorModal({
             <JumperButton
               variant="outline"
               onClick={handleAIImprove}
+              disabled={isRetranscribing}
             >
               <Sparkles className="mr-2 h-4 w-4" />
               Ajustar com IA
@@ -155,9 +161,19 @@ export function TranscriptEditorModal({
             <JumperButton
               variant="outline"
               onClick={handleRetranscribe}
+              disabled={isRetranscribing}
             >
-              <RotateCw className="mr-2 h-4 w-4" />
-              Recriar
+              {isRetranscribing ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Recriando com Whisper...
+                </>
+              ) : (
+                <>
+                  <RotateCw className="mr-2 h-4 w-4" />
+                  Recriar
+                </>
+              )}
             </JumperButton>
           </div>
 
@@ -167,6 +183,7 @@ export function TranscriptEditorModal({
               <JumperButton
                 variant="outline"
                 onClick={handleViewEnhancement}
+                disabled={isRetranscribing}
                 title="Ver o que a IA corrigiu automaticamente"
               >
                 <Bot className="mr-2 h-4 w-4" />
@@ -178,6 +195,7 @@ export function TranscriptEditorModal({
               <JumperButton
                 variant="ghost"
                 onClick={handleUndo}
+                disabled={isRetranscribing}
                 title="Restaurar versão anterior"
               >
                 <Undo2 className="mr-2 h-4 w-4" />
@@ -185,7 +203,7 @@ export function TranscriptEditorModal({
               </JumperButton>
             )}
 
-            <JumperButton variant="ghost" onClick={handleCancel}>
+            <JumperButton variant="ghost" onClick={handleCancel} disabled={isRetranscribing}>
               Cancelar
             </JumperButton>
           </div>
