@@ -34,6 +34,7 @@ import {
   ChevronDown,
   ChevronUp,
   ChevronLeft,
+  ChevronRight,
   Mic,
   FileText,
   Brain,
@@ -789,23 +790,27 @@ export default function OptimizationEditor() {
     <JumperBackground overlay={false}>
       <Header />
 
-      {/* Header - Enhanced visual separation and hierarchy */}
+      {/* Header - Breadcrumb Navigation Pattern */}
       <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          {/* Back button row */}
-          <div className="mb-4">
-            <JumperButton variant="ghost" size="sm" onClick={() => navigate('/optimization')}>
-              <ChevronLeft className="h-4 w-4 mr-1" />
-              Voltar para Lista
-            </JumperButton>
-          </div>
-
-          {/* Title and action buttons row */}
-          <div className="flex items-start justify-between gap-4">
+          {/* Breadcrumb and action buttons row */}
+          <div className="flex items-center justify-between gap-4">
             <div className="flex-1">
-              <h1 className="text-2xl font-bold">
-                Edição de Otimização - {accountName}
-              </h1>
+              {/* Breadcrumb navigation */}
+              <div className="flex items-center gap-2 mb-1">
+                <button
+                  onClick={() => navigate('/optimization')}
+                  className="text-muted-foreground hover:text-primary transition-colors cursor-pointer text-base"
+                >
+                  Otimizações
+                </button>
+                <ChevronRight className="h-4 w-4 text-muted-foreground mx-2" />
+                <h1 className="text-base font-bold text-foreground">
+                  Edição de Otimização - {accountName}
+                </h1>
+              </div>
+
+              {/* Timestamp row */}
               <p className="text-sm text-muted-foreground/80 mt-1 font-medium">
                 {(() => {
                   const recordedDate = new Date(recording.recorded_at);
@@ -826,7 +831,7 @@ export default function OptimizationEditor() {
               </p>
             </div>
 
-            {/* Action Buttons - Improved visual hierarchy */}
+            {/* Action Buttons */}
             <div className="flex items-center gap-3">
               {/* Primary Action - Export PDF */}
               <JumperButton
@@ -841,7 +846,7 @@ export default function OptimizationEditor() {
                 Exportar PDF
               </JumperButton>
 
-              {/* Destructive Action - Delete (clearly separated) */}
+              {/* Destructive Action - Delete */}
               <JumperButton
                 variant="outline"
                 size="sm"

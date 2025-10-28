@@ -7,10 +7,20 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.52';
+export const APP_VERSION = 'v2.0.53';
 
 /**
  * Version history:
+ * - v2.0.53 (2024-10-27):
+ *   - UX: Implemented breadcrumb navigation pattern in OptimizationEditor header
+ *   - Breadcrumb structure: "Otimizações > Edição de Otimização - Account Name"
+ *   - Clickable "Otimizações" link navigates back to /optimization panel
+ *   - ChevronRight separator for visual clarity
+ *   - Removed standalone back button (navigation now integrated into breadcrumb)
+ *   - Two-row layout: Breadcrumb+Actions (line 1), Timestamp (line 2)
+ *   - Cleaner, more professional navigation following industry UX best practices
+ *   - Better contextual awareness - user always sees where they are in hierarchy
+ *
  * - v2.0.52 (2024-10-27):
  *   - UX ENHANCEMENT: Comprehensive OptimizationEditor UX improvements
  *   - Header: Added subtle shadow for visual separation, improved button hierarchy
