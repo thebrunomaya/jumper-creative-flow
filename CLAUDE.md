@@ -72,7 +72,7 @@ NOTION (Hub Central - Single Source of Truth)
     └── DB_Criativos (receptor final)
     ↕️
 SUPABASE (Backend + Storage)
-    ├── Tabelas Sincronizadas (j_ads_notion_db_*)
+    ├── Tabelas Sincronizadas (j_hub_notion_db_*)
     ├── Edge Functions (j_ads_*)
     └── Storage (criativos + áudios)
     ↕️
@@ -813,9 +813,9 @@ Next Claude will know exactly where we left off! 🎯
 - `j_ads_creative_variations` - Multiple creative variations
 
 **Synchronized Tables (Notion → Supabase):**
-- `j_ads_notion_db_managers` - Gestores (10 campos) ✅
-- `j_ads_notion_db_accounts` - Contas (75 campos) ✅
-- `j_ads_notion_db_partners` - Parceiros ✅
+- `j_hub_notion_db_managers` - Gestores (10 campos) ✅
+- `j_hub_notion_db_accounts` - Contas (75 campos) ✅
+- `j_hub_notion_db_partners` - Parceiros ✅
 
 **Reports System (j_rep_*):**
 - `j_rep_metaads_bronze` - Dados Meta Ads sincronizados (fonte dos 9 dashboards) ⚠️ TODO: RLS
@@ -832,7 +832,7 @@ Next Claude will know exactly where we left off! 🎯
 
 **❌ OBSOLETE TABLES (to be removed):**
 - `creative_submissions`, `creative_files`, `creative_variations` - Duplicatas sem prefixo
-- `notion_managers`, `notion_manager_accounts` - Antigas, substituídas por j_ads_notion_db_*
+- `notion_managers`, `notion_manager_accounts` - Antigas, substituídas por j_hub_notion_db_*
 - `user_roles` - Antiga, substituída por j_ads_users
 
 > 📖 Ver [ARCHITECTURE.md](docs/ARCHITECTURE.md) para detalhes completos

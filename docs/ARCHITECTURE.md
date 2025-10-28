@@ -71,7 +71,7 @@
 | `telefone` | TEXT | | Phone number |
 | `organizacao` | TEXT | | Organization name |
 | `avatar_url` | TEXT | | Profile picture URL |
-| `notion_manager_id` | UUID | | Links to `j_ads_notion_db_managers.notion_id` |
+| `notion_manager_id` | UUID | | Links to `j_hub_notion_db_managers.notion_id` |
 | `created_at` | TIMESTAMPTZ | DEFAULT now() | Creation timestamp |
 | `updated_at` | TIMESTAMPTZ | DEFAULT now() | Last update |
 | `last_login_at` | TIMESTAMPTZ | | Last login timestamp |
@@ -142,8 +142,8 @@ Names are resolved using this priority order (v2.0):
 **Renamed Tables:**
 - `j_ads_users` → `j_hub_users`
 - `j_ads_user_audit_log` → `j_hub_user_audit_log`
-- `j_ads_notion_db_accounts` → `j_hub_notion_db_accounts`
-- `j_ads_notion_db_managers` → `j_hub_notion_db_managers`
+- `j_hub_notion_db_accounts` → `j_hub_notion_db_accounts`
+- `j_hub_notion_db_managers` → `j_hub_notion_db_managers`
 - `j_ads_notion_sync_logs` → `j_hub_notion_sync_logs`
 
 **Backwards Compatibility:**
@@ -624,10 +624,10 @@ CREATE TABLE j_ads_creative_variations (
 
 ### **Synchronized Tables (Notion → Supabase)**
 
-#### `j_ads_notion_db_managers`
+#### `j_hub_notion_db_managers`
 Gestores completos sincronizados (10 campos)
 ```sql
-CREATE TABLE j_ads_notion_db_managers (
+CREATE TABLE j_hub_notion_db_managers (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   notion_id TEXT UNIQUE NOT NULL,
   nome TEXT,
@@ -642,10 +642,10 @@ CREATE TABLE j_ads_notion_db_managers (
 );
 ```
 
-#### `j_ads_notion_db_accounts`
+#### `j_hub_notion_db_accounts`
 Contas completas sincronizadas (75 campos)
 ```sql
-CREATE TABLE j_ads_notion_db_accounts (
+CREATE TABLE j_hub_notion_db_accounts (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   notion_id TEXT UNIQUE NOT NULL,
   nome TEXT,
@@ -691,10 +691,10 @@ CREATE TABLE j_ads_notion_db_accounts (
 );
 ```
 
-#### `j_ads_notion_db_partners`
+#### `j_hub_notion_db_partners`
 Parceiros sincronizados
 ```sql
-CREATE TABLE j_ads_notion_db_partners (
+CREATE TABLE j_hub_notion_db_partners (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   notion_id TEXT UNIQUE NOT NULL,
   nome TEXT,
@@ -760,7 +760,7 @@ CREATE TABLE j_ads_fallback_submissions (
 
 ⚠️ **Não usar em novos desenvolvimentos**
 
-- `j_ads_notion_managers` - Substituída por `j_ads_notion_db_managers`
+- `j_ads_notion_managers` - Substituída por `j_hub_notion_db_managers`
 - `j_ads_notion_accounts` - Substituída por dados sincronizados
 
 ---
@@ -860,9 +860,9 @@ const { data } = await supabase.functions.invoke('j_ads_complete_notion_sync');
 **Fluxo:**
 ```
 1. Recebe user.email
-2. SELECT * FROM j_ads_notion_db_managers WHERE email = user.email
+2. SELECT * FROM j_hub_notion_db_managers WHERE email = user.email
 3. Parse manager.contas → ['id1', 'id2', 'id3']
-4. SELECT * FROM j_ads_notion_db_accounts WHERE notion_id IN (ids)
+4. SELECT * FROM j_hub_notion_db_accounts WHERE notion_id IN (ids)
 5. Transform objetivos (string → array)
 6. Return accounts[]
 ```
@@ -1082,7 +1082,7 @@ await supabase.auth.resetPasswordForEmail(email, {
 ┌─────────────────────┐
 │ Supabase Tables     │
 │ (Synchronized)      │
-│ - j_ads_notion_db_* │
+│ - j_hub_notion_db_* │
 └──────────┬──────────┘
            │
            │ Real-time queries
@@ -1131,7 +1131,7 @@ async function syncNotionData() {
 
   // 3. Upsert to Supabase
   await supabase
-    .from('j_ads_notion_db_accounts')
+    .from('j_hub_notion_db_accounts')
     .upsert(transformed, { onConflict: 'notion_id' });
 
   return { synced: transformed.length };
@@ -1365,7 +1365,7 @@ const { data, error } = await supabase
 
 // Read
 const { data } = await supabase
-  .from('j_ads_notion_db_accounts')
+  .from('j_hub_notion_db_accounts')
   .select('*')
   .eq('notion_id', 'abc123');
 
