@@ -7,10 +7,17 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.46';
+export const APP_VERSION = 'v2.0.47';
 
 /**
  * Version history:
+ * - v2.0.47 (2024-10-27):
+ *   - UX FIX: Improved icon alignment for multi-line action text
+ *   - Reverted to `items-start` for top alignment with first line
+ *   - Added `pt-1` padding to icon container for better baseline alignment
+ *   - Icons now stay aligned with first line when text wraps to multiple lines
+ *   - Example: Long observations with 2-3 lines now have icon aligned at top
+ *
  * - v2.0.46 (2024-10-27):
  *   - UX FIX: Corrected icon alignment in Step 3 Extract viewer
  *   - Changed from `items-start` to `items-center` and removed `mt-0.5`

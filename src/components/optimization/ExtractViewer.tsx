@@ -125,9 +125,9 @@ export function ExtractViewer({ content }: ExtractViewerProps) {
     const colorClass = VERB_COLORS[verbUpper] || "text-muted-foreground";
 
     return (
-      <div key={idx} className="flex items-center gap-3">
+      <div key={idx} className="flex items-start gap-3">
         {/* Verb Icon */}
-        <div className={`flex-shrink-0 ${colorClass}`}>
+        <div className={`flex-shrink-0 pt-1 ${colorClass}`}>
           <Icon className="h-4 w-4" />
         </div>
 
