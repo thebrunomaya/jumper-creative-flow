@@ -7,10 +7,17 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.53';
+export const APP_VERSION = 'v2.0.54';
 
 /**
  * Version history:
+ * - v2.0.54 (2024-10-28):
+ *   - FIX: Corrected import in OptimizationNew.tsx (useMyAccounts → useMyNotionAccounts)
+ *   - Import error: "Failed to resolve import @/hooks/useMyAccounts"
+ *   - Root cause: Hook useMyAccounts doesn't exist in codebase
+ *   - Fixed by using correct hook: useMyNotionAccounts
+ *   - Feature now ready to test: /optimization/new page with date range, draft auto-save
+ *
  * - v2.0.53 (2024-10-27):
  *   - UX: Implemented breadcrumb navigation pattern in OptimizationEditor header
  *   - Breadcrumb structure: "Otimizações > Edição de Otimização - Account Name"

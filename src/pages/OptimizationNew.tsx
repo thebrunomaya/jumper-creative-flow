@@ -22,7 +22,7 @@ import { DateRangePicker } from "@/components/optimization/DateRangePicker";
 import { ContextEditor } from "@/components/optimization/ContextEditor";
 import { OptimizationRecorder } from "@/components/OptimizationRecorder";
 import { useDraftManager } from "@/hooks/useDraftManager";
-import { useMyAccounts } from "@/hooks/useMyAccounts";
+import { useMyNotionAccounts } from "@/hooks/useMyNotionAccounts";
 import {
   AlertCircle,
   Calendar,
@@ -50,7 +50,7 @@ import {
 
 export default function OptimizationNew() {
   const navigate = useNavigate();
-  const { accounts, loading: accountsLoading, error: accountsError } = useMyAccounts();
+  const { accounts, loading: accountsLoading, error: accountsError } = useMyNotionAccounts();
   const { loadDraft, saveDraft, clearDraft, hasDraft, markDirty, startAutoSave } = useDraftManager();
 
   // Form state
