@@ -7,10 +7,24 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.51';
+export const APP_VERSION = 'v2.0.52';
 
 /**
  * Version history:
+ * - v2.0.52 (2024-10-27):
+ *   - UX ENHANCEMENT: Comprehensive OptimizationEditor UX improvements
+ *   - Header: Added subtle shadow for visual separation, improved button hierarchy
+ *   - Primary action (Exportar PDF) now uses solid button style with min-width
+ *   - Destructive action (Excluir) clearly styled with red outline and warning tooltip
+ *   - Date format: Smart relative time ("Gravado hoje às 19:14", "há 2 dias", etc.)
+ *   - Card actions: Better spacing with border-left separator, improved hover states
+ *   - Tooltips: Enhanced with detailed descriptions explaining functionality
+ *   - Accessibility: Added aria-labels to all icon buttons for screen readers
+ *   - Flow indicators: Added connecting lines and labels ("Refina em", "Organiza em")
+ *   - Admin section: Visually distinct with amber-colored indicator
+ *   - Button sizing: Increased from h-8 to h-9 for better touch targets
+ *   - Hover effects: Orange/amber tints on action buttons for better feedback
+ *
  * - v2.0.51 (2024-10-27):
  *   - UX FIX: Aligned header content with main Header component
  *   - Changed from `px-8` to responsive padding: `px-4 sm:px-6 lg:px-8`

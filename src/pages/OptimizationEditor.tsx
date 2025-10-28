@@ -789,8 +789,8 @@ export default function OptimizationEditor() {
     <JumperBackground overlay={false}>
       <Header />
 
-      {/* Header */}
-      <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      {/* Header - Enhanced visual separation and hierarchy */}
+      <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           {/* Back button row */}
           <div className="mb-4">
@@ -802,32 +802,52 @@ export default function OptimizationEditor() {
 
           {/* Title and action buttons row */}
           <div className="flex items-start justify-between gap-4">
-            <div>
+            <div className="flex-1">
               <h1 className="text-2xl font-bold">
                 Edição de Otimização - {accountName}
               </h1>
-              <p className="text-sm text-muted-foreground mt-1">
-                Gravado em {new Date(recording.recorded_at).toLocaleString('pt-BR')}
+              <p className="text-sm text-muted-foreground/80 mt-1 font-medium">
+                {(() => {
+                  const recordedDate = new Date(recording.recorded_at);
+                  const now = new Date();
+                  const diffMs = now.getTime() - recordedDate.getTime();
+                  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+                  if (diffDays === 0) {
+                    return `Gravado hoje às ${recordedDate.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`;
+                  } else if (diffDays === 1) {
+                    return `Gravado ontem às ${recordedDate.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`;
+                  } else if (diffDays < 7) {
+                    return `Gravado há ${diffDays} dias`;
+                  } else {
+                    return `Gravado em ${recordedDate.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })} às ${recordedDate.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`;
+                  }
+                })()}
               </p>
             </div>
 
-            {/* Action Buttons */}
-            <div className="flex items-center gap-2">
+            {/* Action Buttons - Improved visual hierarchy */}
+            <div className="flex items-center gap-3">
+              {/* Primary Action - Export PDF */}
               <JumperButton
-                variant="outline"
+                variant="default"
                 size="sm"
                 onClick={handleExportPDF}
                 disabled={!extract || recording.analysis_status !== 'completed'}
-                title={!extract ? "Complete o Step 3 (Extrato) para exportar PDF" : undefined}
+                title={!extract ? "Complete o Step 3 (Extrato) para exportar PDF" : "Gerar PDF completo com todos os dados da otimização"}
+                className="min-w-[140px]"
               >
                 <Download className="h-4 w-4 mr-2" />
                 Exportar PDF
               </JumperButton>
 
+              {/* Destructive Action - Delete (clearly separated) */}
               <JumperButton
-                variant="destructive"
+                variant="outline"
                 size="sm"
                 onClick={() => setDeleteConfirmOpen(true)}
+                className="border-destructive/50 text-destructive hover:bg-destructive hover:text-destructive-foreground transition-colors"
+                title="Excluir permanentemente esta otimização"
               >
                 <Trash2 className="h-4 w-4 mr-2" />
                 Excluir
@@ -943,8 +963,10 @@ export default function OptimizationEditor() {
           </OptimizationStepCard>
 
           {/* Arrow Up - Fluxo de refinamento (Step 3 ← Step 2) */}
-          <div className="flex justify-center">
-            <ChevronUp className="h-8 w-8 text-muted-foreground" />
+          <div className="flex flex-col items-center gap-1 py-2">
+            <div className="h-4 w-px bg-gradient-to-b from-border to-transparent" />
+            <ChevronUp className="h-8 w-8 text-muted-foreground animate-pulse" />
+            <p className="text-xs text-muted-foreground font-medium">Refina em</p>
           </div>
 
           {/* SEÇÃO 2: LOG DA OTIMIZAÇÃO (MEIO - Intermediário) */}
@@ -1038,8 +1060,10 @@ export default function OptimizationEditor() {
           </OptimizationStepCard>
 
           {/* Arrow Up - Fluxo de refinamento (Step 2 ← Step 1) */}
-          <div className="flex justify-center">
-            <ChevronUp className="h-8 w-8 text-muted-foreground" />
+          <div className="flex flex-col items-center gap-1 py-2">
+            <div className="h-4 w-px bg-gradient-to-b from-border to-transparent" />
+            <ChevronUp className="h-8 w-8 text-muted-foreground animate-pulse" />
+            <p className="text-xs text-muted-foreground font-medium">Organiza em</p>
           </div>
 
           {/* SEÇÃO 1: TRANSCRIÇÃO (BASE - Texto bruto) */}
@@ -1090,10 +1114,12 @@ export default function OptimizationEditor() {
             )}
           </OptimizationStepCard>
 
-          {/* Spacer arrow */}
+          {/* Spacer arrow - Admin-only section */}
           {recording.analysis_status === 'completed' && isAdmin && context && (
-            <div className="flex justify-center py-4">
-              <ChevronDown className="h-8 w-8 text-muted-foreground animate-bounce" />
+            <div className="flex flex-col items-center gap-1 py-4">
+              <p className="text-xs text-muted-foreground font-medium">Seção Admin</p>
+              <ChevronDown className="h-8 w-8 text-amber-500/50 animate-bounce" />
+              <div className="h-4 w-px bg-gradient-to-b from-transparent to-amber-500/20" />
             </div>
           )}
 

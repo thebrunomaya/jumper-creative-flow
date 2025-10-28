@@ -106,68 +106,82 @@ export function OptimizationStepCard({
             </div>
           </div>
 
-          {/* Status Badge & Action Buttons */}
-          <div className="flex items-center gap-2">
+          {/* Status Badge & Action Buttons - Improved spacing and hierarchy */}
+          <div className="flex items-center gap-3">
             {getStatusBadge(status)}
 
-            {/* Edit Button */}
-            {onEdit && (
-              <JumperButton
-                size="sm"
-                variant="ghost"
-                onClick={onEdit}
-                disabled={isEditDisabled}
-                className="h-8 w-8 p-0"
-                title={isEditDisabled ? "Complete o step para editar" : "Editar"}
-              >
-                <Edit className="h-4 w-4" />
-              </JumperButton>
-            )}
+            {/* Action Buttons Group - Better visual separation */}
+            <div className="flex items-center gap-1 ml-2 border-l pl-3">
+              {/* Edit Button */}
+              {onEdit && (
+                <JumperButton
+                  size="sm"
+                  variant="ghost"
+                  onClick={onEdit}
+                  disabled={isEditDisabled}
+                  className={cn(
+                    "h-9 w-9 p-0 transition-all",
+                    !isEditDisabled && "hover:bg-primary/10 hover:text-primary"
+                  )}
+                  title={isEditDisabled ? "Complete este step antes de editar" : "Editar conteúdo (abre modal de edição)"}
+                  aria-label={isEditDisabled ? "Edição desabilitada - complete o step" : "Editar conteúdo"}
+                >
+                  <Edit className="h-4 w-4" />
+                </JumperButton>
+              )}
 
-            {/* Copy Button */}
-            {onCopy && (
-              <JumperButton
-                size="sm"
-                variant="ghost"
-                onClick={onCopy}
-                disabled={isEditDisabled}
-                className="h-8 w-8 p-0"
-                title={isEditDisabled ? "Complete o step para copiar" : "Copiar"}
-              >
-                <Copy className="h-4 w-4" />
-              </JumperButton>
-            )}
+              {/* Copy Button */}
+              {onCopy && (
+                <JumperButton
+                  size="sm"
+                  variant="ghost"
+                  onClick={onCopy}
+                  disabled={isEditDisabled}
+                  className={cn(
+                    "h-9 w-9 p-0 transition-all",
+                    !isEditDisabled && "hover:bg-primary/10 hover:text-primary"
+                  )}
+                  title={isEditDisabled ? "Complete este step antes de copiar" : "Copiar conteúdo para área de transferência"}
+                  aria-label={isEditDisabled ? "Cópia desabilitada - complete o step" : "Copiar para área de transferência"}
+                >
+                  <Copy className="h-4 w-4" />
+                </JumperButton>
+              )}
 
-            {/* Enhancement View Button */}
-            {onEnhancementView && (
-              <JumperButton
-                size="sm"
-                variant="ghost"
-                onClick={onEnhancementView}
-                className="h-8 w-8 p-0"
-                title="Ver Ajustes da IA"
-              >
-                <Bot className="h-4 w-4" />
-              </JumperButton>
-            )}
+              {/* Enhancement View Button */}
+              {onEnhancementView && (
+                <JumperButton
+                  size="sm"
+                  variant="ghost"
+                  onClick={onEnhancementView}
+                  className="h-9 w-9 p-0 hover:bg-primary/10 hover:text-primary transition-all"
+                  title="Ver alterações feitas pela IA durante o processamento"
+                  aria-label="Ver ajustes da IA"
+                >
+                  <Bot className="h-4 w-4" />
+                </JumperButton>
+              )}
 
-            {/* Debug Button (Admin only) */}
-            {onDebug && (
-              <JumperButton
-                size="sm"
-                variant="ghost"
-                onClick={onDebug}
-                className="h-8 w-8 p-0"
-                title="Debug (Admin)"
-              >
-                <Bug className="h-4 w-4" />
-              </JumperButton>
-            )}
+              {/* Debug Button (Admin only) */}
+              {onDebug && (
+                <JumperButton
+                  size="sm"
+                  variant="ghost"
+                  onClick={onDebug}
+                  className="h-9 w-9 p-0 hover:bg-amber-500/10 hover:text-amber-600 transition-all"
+                  title="Ver logs detalhados e requisições API (apenas Admin)"
+                  aria-label="Debug - Admin only"
+                >
+                  <Bug className="h-4 w-4" />
+                </JumperButton>
+              )}
+            </div>
 
-            {/* Collapse/Expand Indicator */}
+            {/* Collapse/Expand Indicator - Separated visually */}
             {isCollapsible && (
               <ChevronIcon
-                className="h-5 w-5 text-muted-foreground transition-transform duration-300"
+                className="h-5 w-5 text-muted-foreground transition-transform duration-300 ml-1"
+                aria-label={isExpanded ? "Recolher seção" : "Expandir seção"}
               />
             )}
           </div>
