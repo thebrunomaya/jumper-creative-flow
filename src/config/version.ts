@@ -7,10 +7,113 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.53';
+export const APP_VERSION = 'v2.0.66';
 
 /**
  * Version history:
+ * - v2.0.66 (2024-10-28):
+ *   - FEATURE: "Geral" objective now always appears as first option
+ *   - All accounts now have "Geral" + Notion-specific objectives
+ *   - Ensures all optimizations can be categorized as general if needed
+ *
+ * - v2.0.65 (2024-10-28):
+ *   - FIX: Account objectives now display in OptimizationRecorder
+ *   - Added accountObjectives state to store objectives from selected account
+ *   - Objectives now passed as notionObjectives prop to OptimizationRecorder
+ *   - Fixed draft auto-save to store actual objectives (was storing empty array)
+ *   - Fixed draft recovery to restore objectives
+ *   - Objectives checkboxes now appear pre-selected from Notion account data
+ *
+ * - v2.0.64 (2024-10-28):
+ *   - FIX: Restored account context and objectives loading in OptimizationNew
+ *   - Edge Function j_hub_user_accounts now returns contexto_otimizacao and contexto_transcricao fields
+ *   - Updated NotionAccount interface with context fields
+ *   - Fixed OptimizationNew to use correct field name (contexto_otimizacao instead of non-existent contexto)
+ *   - DOCS: Updated all references from obsolete j_ads_notion_db_* to current j_hub_notion_db_* naming
+ *   - Updated CLAUDE.md, ARCHITECTURE.md, and REPORTS-ROADMAP.md with correct table names
+ *   - Corrects naming convention from Jumper Hub rebrand (October 2025)
+ *
+ * - v2.0.63 (2024-10-28):
+ *   - FIX: PrioritizedAccountSelect dropdown direction finally resolved
+ *   - Added avoidCollisions={false} to disable Radix UI collision detection
+ *   - Root cause: Collision detection was overriding side="bottom" prop
+ *   - Dropdown now consistently opens downward on all pages
+ *   - Verified fix with Playwright MCP testing on OptimizationNew page
+ *
+ * - v2.0.62 (2024-10-28):
+ *   - FIX: PrioritizedAccountSelect dropdown now always opens downward
+ *   - Added side="bottom" to SelectContent to prevent upward opening
+ *   - Resolves issue where dropdown appeared above trigger on OptimizationNew page
+ *
+ * - v2.0.61 (2024-10-28):
+ *   - MAJOR FEATURE: Prioritized account selection across entire application
+ *   - Created accountPriority.ts utils with shared logic (getAccessReasons, sortAccountsByPriority, groupAccountsByPriority)
+ *   - Created PrioritizedAccountSelect component with visual separators (GESTOR → SUPERVISOR → GERENTE → ADMIN)
+ *   - Refactored MyAccounts to use shared utils (maintains existing behavior)
+ *   - Applied to OptimizationNew with "Show Inactive" toggle (admin only)
+ *   - Applied to Optimization with "All accounts" option and priority sorting
+ *   - Dropdown separators show: "--- GESTOR (3) ---" with emoji icons
+ *   - "Mostrar Inativas" toggle appears only for admin users
+ *   - All account selectors now use consistent permission-based ordering
+ *   - Updated NotionAccount interface to include gestor_email and atendimento_email
+ *
+ * - v2.0.60 (2024-10-28):
+ *   - DOCS: Comprehensive documentation for account selection standardization
+ *   - Added JSDoc to useMyNotionAccounts hook with architecture pattern explanation
+ *   - Created NotionAccount TypeScript interface for type safety
+ *   - Added "Account Selection Pattern" section to ARCHITECTURE.md
+ *   - Documented backend (Edge Function) and frontend (React Hook) responsibilities
+ *   - Included usage examples, custom sorting patterns, and migration history
+ *   - Updated ARCHITECTURE.md table of contents
+ *   - Part of account selection standardization (FASE 3 - Documentation)
+ *
+ * - v2.0.59 (2024-10-28):
+ *   - CLEANUP: Removed unused AccountSelector.tsx component from optimization folder
+ *   - Component was never imported or used anywhere in the application
+ *   - Reduced codebase complexity as part of account selection standardization (FASE 3)
+ *   - All pages now use standardized useMyNotionAccounts hook pattern
+ *
+ * - v2.0.58 (2024-10-28):
+ *   - UX: Enhanced account selector with loading and empty states on OptimizationNew
+ *   - Select component now shows "Carregando contas..." placeholder while fetching
+ *   - Disabled state prevents interaction during account loading
+ *   - Loading indicator with Loader2 spinner in dropdown
+ *   - Empty state message when no accounts available
+ *   - Conditional rendering for better user feedback during fetch operations
+ *   - Part of account selection standardization (FASE 2)
+ *
+ * - v2.0.57 (2024-10-28):
+ *   - FIX: Account selector dropdown clipping issue on OptimizationNew page
+ *   - Added max-h-[300px] to SelectContent for proper height constraint (~8-10 items visible)
+ *   - Added position="popper" to prevent viewport clipping
+ *   - Added sideOffset={5} for proper spacing between trigger and dropdown
+ *   - Built-in scrollbar now appears when 43 accounts exceed visible area
+ *   - Also applied same fix to Optimization.tsx account filter for consistency
+ *   - Resolves issue where dropdown was cut off at bottom without scrolling
+ *
+ * - v2.0.56 (2024-10-28):
+ *   - ENHANCEMENT: OptimizationNew date picker now auto-detects matching presets
+ *   - AUDIT: Verified account filtering uses correct permission-based logic (same as /my-accounts)
+ *   - DateRangePicker component now highlights correct preset when modal opens
+ *   - Example: "Últimos 7 dias" preset selected when dates match that range
+ *   - Improves UX by showing user which preset they're currently using
+ *   - detectMatchingPreset() compares date strings to identify preset vs custom range
+ *   - No changes needed to account filtering - already correct via useMyNotionAccounts hook
+ *
+ * - v2.0.55 (2024-10-28):
+ *   - FIX: Corrected import in useDraftManager.ts (useAuth path)
+ *   - Import error: "Failed to resolve import @/hooks/useAuth"
+ *   - Root cause: useAuth is exported from AuthContext, not a separate hooks file
+ *   - Fixed by changing import path: @/hooks/useAuth → @/contexts/AuthContext
+ *   - All import errors resolved, feature ready to test
+ *
+ * - v2.0.54 (2024-10-28):
+ *   - FIX: Corrected import in OptimizationNew.tsx (useMyAccounts → useMyNotionAccounts)
+ *   - Import error: "Failed to resolve import @/hooks/useMyAccounts"
+ *   - Root cause: Hook useMyAccounts doesn't exist in codebase
+ *   - Fixed by using correct hook: useMyNotionAccounts
+ *   - Feature now ready to test: /optimization/new page with date range, draft auto-save
+ *
  * - v2.0.53 (2024-10-27):
  *   - UX: Implemented breadcrumb navigation pattern in OptimizationEditor header
  *   - Breadcrumb structure: "Otimizações > Edição de Otimização - Account Name"

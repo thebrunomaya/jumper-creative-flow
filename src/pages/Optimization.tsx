@@ -7,30 +7,54 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMyOptimizations } from "@/hooks/useMyOptimizations";
+import { useMyNotionAccounts } from "@/hooks/useMyNotionAccounts";
+import { useUserRole } from "@/hooks/useUserRole";
+import { useAuth } from "@/contexts/AuthContext";
 import { OptimizationsPanelList } from "@/components/optimization/OptimizationsPanelList";
+import { PrioritizedAccountSelect } from "@/components/shared/PrioritizedAccountSelect";
 import { JumperBackground } from "@/components/ui/jumper-background";
-import { Loader2, Sparkles, X } from "lucide-react";
+import { Loader2, Plus, Sparkles, X } from "lucide-react";
 import Header from "@/components/Header";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { JumperButton } from "@/components/ui/jumper-button";
 
 export default function Optimization() {
   const navigate = useNavigate();
   const { optimizations, loading, error } = useMyOptimizations();
+  const { accounts: allAccounts } = useMyNotionAccounts(); // Get complete account data
+  const { userRole } = useUserRole();
+  const { currentUser } = useAuth();
   const [selectedAccountId, setSelectedAccountId] = useState<string | null>(null);
 
-  // Get unique accounts from optimizations
+  // Get unique accounts from optimizations with complete data
   const uniqueAccounts = useMemo(() => {
-    const accountsMap = new Map<string, string>();
+    // Get unique account IDs from optimizations
+    const accountIdsInOptimizations = new Set<string>();
     optimizations.forEach(opt => {
-      accountsMap.set(opt.account_id, opt.account_name);
+      accountIdsInOptimizations.add(opt.account_id);
     });
-    return Array.from(accountsMap.entries())
-      .map(([id, name]) => ({ id, name }))
-      .sort((a, b) => a.name.localeCompare(b.name));
-  }, [optimizations]);
+
+    // Match with complete account data from allAccounts
+    const accountsWithData = allAccounts.filter(account =>
+      accountIdsInOptimizations.has(account.id)
+    );
+
+    // Fallback: If account not in allAccounts, create minimal object
+    const missingAccountIds = Array.from(accountIdsInOptimizations).filter(
+      id => !allAccounts.some(acc => acc.id === id)
+    );
+
+    const fallbackAccounts = missingAccountIds.map(id => {
+      const opt = optimizations.find(o => o.account_id === id);
+      return {
+        id,
+        name: opt?.account_name || 'Conta desconhecida',
+      };
+    });
+
+    return [...accountsWithData, ...fallbackAccounts];
+  }, [optimizations, allAccounts]);
 
   // Filter optimizations by selected account
   const filteredOptimizations = useMemo(() => {
@@ -103,38 +127,44 @@ export default function Optimization() {
               </div>
             </div>
 
-            {/* Account Filter */}
-            {uniqueAccounts.length > 1 && (
-              <div className="flex items-center gap-2">
-                <Select
-                  value={selectedAccountId || "all"}
-                  onValueChange={(value) => setSelectedAccountId(value === "all" ? null : value)}
-                >
-                  <SelectTrigger className="w-[280px]">
-                    <SelectValue placeholder="Filtrar por conta" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Todas as contas</SelectItem>
-                    {uniqueAccounts.map(account => (
-                      <SelectItem key={account.id} value={account.id}>
-                        {account.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+            <div className="flex items-center gap-2">
+              {/* New Optimization Button */}
+              <JumperButton
+                onClick={() => navigate('/optimization/new')}
+                className="whitespace-nowrap"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Nova Otimização
+              </JumperButton>
 
-                {selectedAccountId && (
-                  <JumperButton
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleClearFilter}
-                    className="h-10 px-3"
-                  >
-                    <X className="h-4 w-4" />
-                  </JumperButton>
-                )}
-              </div>
-            )}
+              {/* Account Filter */}
+              {uniqueAccounts.length > 1 && (
+                <div className="flex items-center gap-2">
+                  <PrioritizedAccountSelect
+                    accounts={uniqueAccounts}
+                    value={selectedAccountId || "all"}
+                    onChange={(value) => setSelectedAccountId(value === "all" ? null : value)}
+                    userEmail={currentUser?.email}
+                    userRole={userRole}
+                    placeholder="Filtrar por conta"
+                    className="w-[280px]"
+                    showAllOption={true}
+                    showInactiveToggle={false}
+                  />
+
+                  {selectedAccountId && (
+                    <JumperButton
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleClearFilter}
+                      className="h-10 px-3"
+                    >
+                      <X className="h-4 w-4" />
+                    </JumperButton>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </header>
 

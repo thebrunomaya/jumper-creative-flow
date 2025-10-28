@@ -7,15 +7,16 @@
 ## 📑 Índice
 
 1. [User Management System](#-user-management-system) ⭐ **NOVO**
-2. [Estrutura de Pastas](#-estrutura-de-pastas)
-3. [Database Schema](#-database-schema)
-4. [Edge Functions](#-edge-functions)
-5. [Autenticação e Permissões](#-autenticação-e-permissões)
-6. [Integração Notion](#-integração-notion)
-7. [Sistema de Resiliência](#-sistema-de-resiliência)
-8. [Supabase Integration](#-supabase-integration)
-9. [UI/UX Patterns](#-uiux-patterns)
-10. [Performance](#-performance)
+2. [Account Selection Pattern](#-account-selection-pattern-standard-pattern) ⭐ **ATUALIZADO (2024-10-28)**
+3. [Estrutura de Pastas](#-estrutura-de-pastas)
+4. [Database Schema](#-database-schema)
+5. [Edge Functions](#-edge-functions)
+6. [Autenticação e Permissões](#-autenticação-e-permissões)
+7. [Integração Notion](#-integração-notion)
+8. [Sistema de Resiliência](#-sistema-de-resiliência)
+9. [Supabase Integration](#-supabase-integration)
+10. [UI/UX Patterns](#-uiux-patterns)
+11. [Performance](#-performance)
 
 ---
 
@@ -70,7 +71,7 @@
 | `telefone` | TEXT | | Phone number |
 | `organizacao` | TEXT | | Organization name |
 | `avatar_url` | TEXT | | Profile picture URL |
-| `notion_manager_id` | UUID | | Links to `j_ads_notion_db_managers.notion_id` |
+| `notion_manager_id` | UUID | | Links to `j_hub_notion_db_managers.notion_id` |
 | `created_at` | TIMESTAMPTZ | DEFAULT now() | Creation timestamp |
 | `updated_at` | TIMESTAMPTZ | DEFAULT now() | Last update |
 | `last_login_at` | TIMESTAMPTZ | | Last login timestamp |
@@ -141,8 +142,8 @@ Names are resolved using this priority order (v2.0):
 **Renamed Tables:**
 - `j_ads_users` → `j_hub_users`
 - `j_ads_user_audit_log` → `j_hub_user_audit_log`
-- `j_ads_notion_db_accounts` → `j_hub_notion_db_accounts`
-- `j_ads_notion_db_managers` → `j_hub_notion_db_managers`
+- `j_hub_notion_db_accounts` → `j_hub_notion_db_accounts`
+- `j_hub_notion_db_managers` → `j_hub_notion_db_managers`
 - `j_ads_notion_sync_logs` → `j_hub_notion_sync_logs`
 
 **Backwards Compatibility:**
@@ -154,6 +155,352 @@ Names are resolved using this priority order (v2.0):
 - `j_ads_creative_*` tables (creative system)
 - `j_ads_submit_ad` function (creative submission)
 - `j_rep_*` tables (reports system)
+
+---
+
+## 🔄 Account Selection Pattern (Standard Pattern)
+
+> ⭐ **Updated:** 2024-10-28 - Standardized across entire application
+
+### **Architecture Overview**
+
+**Pattern:** Backend-centralized account fetching with permission-based filtering
+
+**Components:**
+1. **Edge Function:** `j_hub_user_accounts` - Handles ALL permission logic and sorting
+2. **React Hook:** `useMyNotionAccounts` - Standard interface for all pages
+3. **Frontend:** Optional custom sorting for special cases (e.g., MyAccounts priority tiers)
+
+### **Backend: j_hub_user_accounts Edge Function**
+
+**Location:** `supabase/functions/j_hub_user_accounts/index.ts`
+
+**Responsibilities:**
+- ✅ User authentication verification
+- ✅ Role-based account filtering (Admin/Staff/Client)
+- ✅ Alphabetical sorting by account name (`.order('"Conta"', { ascending: true })`)
+- ✅ Name resolution (Gestor/Atendimento/Gerente IDs → Names)
+- ✅ Complete account data formatting
+
+**Permission Logic:**
+
+| Role | Account Access |
+|------|----------------|
+| **Admin** | ALL accounts (unrestricted) |
+| **Staff** | Accounts where user is in `Gestor` or `Atendimento` fields |
+| **Client** | Accounts where user's `notion_manager_id` is in `Gerente` field |
+
+**Response Format:**
+```typescript
+{
+  success: true,
+  accounts: NotionAccount[], // Pre-sorted alphabetically
+  account_ids: string[],     // Legacy compatibility
+  is_admin: boolean,
+  user_role: 'admin' | 'staff' | 'client',
+  source: 'complete_sync'
+}
+```
+
+### **Frontend: useMyNotionAccounts Hook**
+
+**Location:** `src/hooks/useMyNotionAccounts.ts`
+
+**Usage (Standard Pattern):**
+```tsx
+import { useMyNotionAccounts } from '@/hooks/useMyNotionAccounts';
+
+function MyComponent() {
+  const { accounts, loading, error, isAdmin } = useMyNotionAccounts();
+
+  if (loading) return <LoadingSpinner />;
+  if (error) return <ErrorMessage error={error} />;
+
+  return (
+    <Select>
+      {accounts.map(account => (
+        <SelectItem key={account.id} value={account.id}>
+          {account.name}
+        </SelectItem>
+      ))}
+    </Select>
+  );
+}
+```
+
+**Return Type:**
+```typescript
+{
+  accountIds: string[];        // Legacy field (array of Notion IDs)
+  accounts: NotionAccount[];   // Complete account data (pre-sorted)
+  isAdmin: boolean;            // Admin flag from Edge Function
+  loading: boolean;            // Fetch state
+  error: string | null;        // Error message if failed
+}
+```
+
+**NotionAccount Interface:**
+```typescript
+interface NotionAccount {
+  id: string;              // Notion page ID
+  name: string;            // Account name (from "Conta" field)
+  objectives?: string[];   // ["Vendas", "Tráfego", ...]
+  status?: string;         // Account status
+  tier?: string;           // Account tier
+  gestor?: string;         // Gestor names (resolved)
+  atendimento?: string;    // Atendimento names (resolved)
+  gerente?: string;        // Gerente names (resolved)
+  meta_ads_id?: string;    // Meta Ads account ID
+  id_google_ads?: string;  // Google Ads account ID
+}
+```
+
+### **Pages Using This Pattern**
+
+✅ **OptimizationNew** (`src/pages/OptimizationNew.tsx`)
+- Uses accounts directly from hook
+- Enhanced with loading/empty states
+- Alphabetical sorting from backend
+
+✅ **Optimization** (`src/pages/Optimization.tsx`)
+- Derives unique accounts from optimization records
+- Applies alphabetical sorting on derived list
+- Filter dropdown for multi-account users
+
+✅ **MyAccounts** (`src/pages/MyAccounts.tsx`)
+- Uses accounts from hook
+- **Custom frontend sorting:** Priority-based (Gestor > Supervisor > Gerente) + User choice (name/tier/status)
+- Applies custom logic on top of alphabetical base
+
+### **Custom Frontend Sorting (Advanced)**
+
+For special cases like MyAccounts that need custom sorting logic:
+
+```tsx
+const sortedAccounts = useMemo(() => {
+  return [...accounts].sort((a, b) => {
+    // 1st tier: Custom priority logic
+    const priorityA = getAccessPriority(a);
+    const priorityB = getAccessPriority(b);
+    if (priorityA !== priorityB) {
+      return priorityA - priorityB;
+    }
+
+    // 2nd tier: User-selected sorting
+    switch (sortBy) {
+      case 'name':
+        return a.name.localeCompare(b.name);
+      case 'tier':
+        return (a.tier || '').localeCompare(b.tier || '');
+      // ... other cases
+    }
+  });
+}, [accounts, sortBy]);
+```
+
+### **Migration History**
+
+**Before (Inconsistent):**
+- ❌ Different implementations across pages
+- ❌ Some pages had no sorting (OptimizationNew)
+- ❌ Confusion with unused AccountSelector component
+- ❌ Manual filtering logic duplicated
+
+**After (Standardized - v2.0.58+):**
+- ✅ Single Edge Function for all permission logic
+- ✅ Alphabetical sorting at database level (consistent)
+- ✅ Standard hook for all pages
+- ✅ Optional custom frontend sorting for special cases
+- ✅ Removed unused AccountSelector.tsx component
+
+**Commits:**
+- `bf6e634` - Added alphabetical sorting to Edge Function (FASE 1)
+- `f83fa1b` - Enhanced OptimizationNew with loading states (FASE 2)
+- `129da30` - Removed unused AccountSelector component (FASE 3)
+
+### **Prioritized Account Selection (v2.0.61+)** ⭐ NEW
+
+**Purpose:** Display accounts in dropdowns with visual priority groups based on user's relationship with each account
+
+**Architecture:** Shared utilities + reusable component pattern
+
+**Components:**
+1. **Utils:** `src/utils/accountPriority.ts` - Centralized priority logic
+2. **Component:** `src/components/shared/PrioritizedAccountSelect.tsx` - Reusable dropdown with visual separators
+3. **Pages:** OptimizationNew, Optimization, MyAccounts - All use same pattern
+
+#### **Priority Order**
+
+Accounts are grouped by user's relationship (highest to lowest priority):
+
+1. **GESTOR (📊)** - User is the traffic manager (`gestor_email` field)
+2. **SUPERVISOR (👁️)** - User is supervisor/atendimento (`atendimento_email` field)
+3. **GERENTE (📝)** - User is manager/client (other accounts)
+4. **ADMIN (👑)** - Admin-only access (no direct assignment)
+
+**Visual Pattern:**
+```
+┌─────────────────────────────────────────┐
+│ Selecione uma conta                  ▼ │
+└─────────────────────────────────────────┘
+  ┌───────────────────────────────────┐
+  │ 📊 GESTOR (3)                     │
+  │   • Clínica Seven                 │
+  │   • Boiler                        │
+  │   • Mini                          │
+  ├───────────────────────────────────┤ ← Visual separator
+  │ 👁️ SUPERVISOR (2)                 │
+  │   • A Tu Lado                     │
+  │   • Jumper                        │
+  ├───────────────────────────────────┤
+  │ 👑 ADMIN (20)                     │
+  │   • Almanara                      │
+  │   • Almeida Prado                 │
+  │   • ...                           │
+  └───────────────────────────────────┘
+```
+
+#### **accountPriority.ts - Shared Utils**
+
+**Location:** `src/utils/accountPriority.ts`
+
+**Key Functions:**
+
+```typescript
+// Types
+export type AccessReason = 'GESTOR' | 'SUPERVISOR' | 'GERENTE' | 'ADMIN';
+export type UserRole = 'admin' | 'staff' | 'client';
+
+// Get all access reasons for a user (accumulated, not replaced)
+export function getAccessReasons(
+  account: NotionAccount,
+  userEmail: string,
+  userRole: UserRole
+): AccessReason[] {
+  // Returns array like: ['GESTOR', 'ADMIN']
+}
+
+// Get numeric priority (1=highest, 4=lowest)
+export function getAccessPriority(reason: AccessReason): number {
+  // GESTOR=1, SUPERVISOR=2, GERENTE=3, ADMIN=4
+}
+
+// Get primary (highest priority) reason for sorting
+export function getPrimaryAccessReason(
+  account: NotionAccount,
+  userEmail: string,
+  userRole: UserRole
+): AccessReason;
+
+// Sort accounts by priority + alphabetically
+export function sortAccountsByPriority(
+  accounts: NotionAccount[],
+  userEmail: string,
+  userRole: UserRole
+): NotionAccount[];
+
+// Group accounts into priority buckets
+export function groupAccountsByPriority(
+  accounts: NotionAccount[],
+  userEmail: string,
+  userRole: UserRole
+): Record<AccessReason, NotionAccount[]>;
+
+// UI helpers
+export function getAccessReasonLabel(reason: AccessReason): string;
+export function getAccessReasonIcon(reason: AccessReason): string;
+```
+
+**Why This Works:**
+- **Single source of truth** for priority logic across entire app
+- **Accumulated badges** - User can be GESTOR + ADMIN on same account
+- **Email-based matching** - Uses gestor_email, atendimento_email fields
+- **Alphabetical within groups** - Clean, scannable lists
+
+#### **PrioritizedAccountSelect Component**
+
+**Location:** `src/components/shared/PrioritizedAccountSelect.tsx`
+
+**Props:**
+```typescript
+interface PrioritizedAccountSelectProps {
+  accounts: NotionAccount[];
+  value?: string | null;  // null = "all accounts"
+  onChange: (accountId: string) => void;
+  userEmail?: string;
+  userRole?: UserRole;
+  placeholder?: string;
+  disabled?: boolean;
+  loading?: boolean;
+  showInactiveToggle?: boolean;  // Admin-only toggle
+  showAllOption?: boolean;        // "Todas as contas" option
+  className?: string;
+}
+```
+
+**Features:**
+- ✅ Visual separators between priority groups
+- ✅ Group headers with emoji icons and counts: "📊 GESTOR (3)"
+- ✅ "Mostrar Inativas" toggle (admin only) - filters inactive accounts
+- ✅ "Todas as contas" option (for filters)
+- ✅ Loading states with spinner
+- ✅ Empty states
+- ✅ Dropdown always opens downward (`avoidCollisions={false}`)
+
+**Usage Example:**
+```tsx
+import { PrioritizedAccountSelect } from '@/components/shared/PrioritizedAccountSelect';
+import { useMyNotionAccounts } from '@/hooks/useMyNotionAccounts';
+import { useUserRole } from '@/hooks/useUserRole';
+import { useAuth } from '@/contexts/AuthContext';
+
+function MyPage() {
+  const { accounts, loading } = useMyNotionAccounts();
+  const { userRole } = useUserRole();
+  const { currentUser } = useAuth();
+  const [selectedAccountId, setSelectedAccountId] = useState<string>("");
+
+  return (
+    <PrioritizedAccountSelect
+      accounts={accounts}
+      loading={loading}
+      value={selectedAccountId}
+      onChange={setSelectedAccountId}
+      userEmail={currentUser?.email}
+      userRole={userRole}
+      placeholder="Selecione uma conta"
+      showInactiveToggle={true}  // Enable admin toggle
+      showAllOption={false}       // No "all" option
+    />
+  );
+}
+```
+
+#### **Implementation Commits (v2.0.61-v2.0.63)**
+
+| Version | Changes |
+|---------|---------|
+| **v2.0.61** | 🎉 Major feature - Prioritized account selection across entire app |
+| | - Created `accountPriority.ts` utils with shared logic |
+| | - Created `PrioritizedAccountSelect` component with visual separators |
+| | - Refactored MyAccounts to use shared utils (maintains existing behavior) |
+| | - Applied to OptimizationNew with "Show Inactive" toggle |
+| | - Applied to Optimization with "All accounts" option |
+| | - Updated NotionAccount interface with email fields |
+| **v2.0.62** | 🐛 Fix - Added `side="bottom"` to SelectContent (attempted fix) |
+| **v2.0.63** | ✅ Fix - Added `avoidCollisions={false}` to force downward opening |
+| | - Root cause: Radix UI collision detection overriding side prop |
+| | - Verified with Playwright MCP testing |
+
+**Git Branch:** `feature/standardize-account-selection`
+
+**Related Files:**
+- `src/utils/accountPriority.ts` (NEW - 200 lines)
+- `src/components/shared/PrioritizedAccountSelect.tsx` (NEW - 240 lines)
+- `src/pages/OptimizationNew.tsx` (MODIFIED - uses component)
+- `src/pages/Optimization.tsx` (MODIFIED - uses component)
+- `src/pages/MyAccounts.tsx` (MODIFIED - uses utils)
+- `src/hooks/useMyNotionAccounts.ts` (MODIFIED - added email fields to interface)
 
 ---
 
@@ -277,10 +624,10 @@ CREATE TABLE j_ads_creative_variations (
 
 ### **Synchronized Tables (Notion → Supabase)**
 
-#### `j_ads_notion_db_managers`
+#### `j_hub_notion_db_managers`
 Gestores completos sincronizados (10 campos)
 ```sql
-CREATE TABLE j_ads_notion_db_managers (
+CREATE TABLE j_hub_notion_db_managers (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   notion_id TEXT UNIQUE NOT NULL,
   nome TEXT,
@@ -295,10 +642,10 @@ CREATE TABLE j_ads_notion_db_managers (
 );
 ```
 
-#### `j_ads_notion_db_accounts`
+#### `j_hub_notion_db_accounts`
 Contas completas sincronizadas (75 campos)
 ```sql
-CREATE TABLE j_ads_notion_db_accounts (
+CREATE TABLE j_hub_notion_db_accounts (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   notion_id TEXT UNIQUE NOT NULL,
   nome TEXT,
@@ -344,10 +691,10 @@ CREATE TABLE j_ads_notion_db_accounts (
 );
 ```
 
-#### `j_ads_notion_db_partners`
+#### `j_hub_notion_db_partners`
 Parceiros sincronizados
 ```sql
-CREATE TABLE j_ads_notion_db_partners (
+CREATE TABLE j_hub_notion_db_partners (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   notion_id TEXT UNIQUE NOT NULL,
   nome TEXT,
@@ -413,7 +760,7 @@ CREATE TABLE j_ads_fallback_submissions (
 
 ⚠️ **Não usar em novos desenvolvimentos**
 
-- `j_ads_notion_managers` - Substituída por `j_ads_notion_db_managers`
+- `j_ads_notion_managers` - Substituída por `j_hub_notion_db_managers`
 - `j_ads_notion_accounts` - Substituída por dados sincronizados
 
 ---
@@ -513,9 +860,9 @@ const { data } = await supabase.functions.invoke('j_ads_complete_notion_sync');
 **Fluxo:**
 ```
 1. Recebe user.email
-2. SELECT * FROM j_ads_notion_db_managers WHERE email = user.email
+2. SELECT * FROM j_hub_notion_db_managers WHERE email = user.email
 3. Parse manager.contas → ['id1', 'id2', 'id3']
-4. SELECT * FROM j_ads_notion_db_accounts WHERE notion_id IN (ids)
+4. SELECT * FROM j_hub_notion_db_accounts WHERE notion_id IN (ids)
 5. Transform objetivos (string → array)
 6. Return accounts[]
 ```
@@ -735,7 +1082,7 @@ await supabase.auth.resetPasswordForEmail(email, {
 ┌─────────────────────┐
 │ Supabase Tables     │
 │ (Synchronized)      │
-│ - j_ads_notion_db_* │
+│ - j_hub_notion_db_* │
 └──────────┬──────────┘
            │
            │ Real-time queries
@@ -784,7 +1131,7 @@ async function syncNotionData() {
 
   // 3. Upsert to Supabase
   await supabase
-    .from('j_ads_notion_db_accounts')
+    .from('j_hub_notion_db_accounts')
     .upsert(transformed, { onConflict: 'notion_id' });
 
   return { synced: transformed.length };
@@ -1018,7 +1365,7 @@ const { data, error } = await supabase
 
 // Read
 const { data } = await supabase
-  .from('j_ads_notion_db_accounts')
+  .from('j_hub_notion_db_accounts')
   .select('*')
   .eq('notion_id', 'abc123');
 

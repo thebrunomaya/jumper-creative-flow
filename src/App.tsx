@@ -23,6 +23,7 @@ const MyAccounts = lazy(() => import("./pages/MyAccounts"));
 const CreativeSystem = lazy(() => import("@/components/CreativeSystem"));
 const ReportsPage = lazy(() => import("./pages/ReportsPage"));
 const Optimization = lazy(() => import("./pages/Optimization"));
+const OptimizationNew = lazy(() => import("./pages/OptimizationNew"));
 const OptimizationEditor = lazy(() => import("./pages/OptimizationEditor"));
 const SharedOptimization = lazy(() => import("./pages/SharedOptimization"));
 
@@ -110,6 +111,13 @@ const App = () => {
                   <ProtectedRoute>
                     <Suspense fallback={<PageLoading />}>
                       <Optimization />
+                    </Suspense>
+                  </ProtectedRoute>
+                } />
+                <Route path="/optimization/new" element={
+                  <ProtectedRoute>
+                    <Suspense fallback={<PageLoading />}>
+                      <OptimizationNew />
                     </Suspense>
                   </ProtectedRoute>
                 } />

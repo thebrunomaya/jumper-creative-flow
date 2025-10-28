@@ -195,10 +195,12 @@ serve(async (req) => {
     }
 
     // Step 3: Get complete account data from the synchronized accounts table
+    // Returns accounts sorted alphabetically by default for consistent UX across all pages
     const { data: accountsData, error: accountsError } = await service
       .from('j_hub_notion_db_accounts')
       .select('*')
-      .in('notion_id', accountIds);
+      .in('notion_id', accountIds)
+      .order('"Conta"', { ascending: true }); // Alphabetical sorting
 
     if (accountsError) {
       console.error('Error fetching accounts:', accountsError);
@@ -337,6 +339,8 @@ serve(async (req) => {
         id_meta_ads: account["ID Meta Ads"],
         meta_ads_id: account["ID Meta Ads"],
         id_google_ads: account["ID Google Ads"],
+        contexto_otimizacao: account["Contexto para Otimização"] || null,
+        contexto_transcricao: account["Contexto para Transcrição"] || null,
       };
     });
 

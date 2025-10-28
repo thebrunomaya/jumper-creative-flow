@@ -350,7 +350,7 @@ SELECT
   unnest(string_to_array(m.contas, ',')) as account_id,
   'read' as access_level
 FROM auth.users u
-JOIN j_ads_notion_db_managers m ON m.email = u.email
+JOIN j_hub_notion_db_managers m ON m.email = u.email
 WHERE m.ativo = true;
 ```
 
@@ -377,7 +377,7 @@ ON j_rep_metaads_bronze
 FOR SELECT
 USING (
   EXISTS (
-    SELECT 1 FROM j_ads_notion_db_managers
+    SELECT 1 FROM j_hub_notion_db_managers
     WHERE email = (SELECT email FROM auth.users WHERE id = auth.uid())
     AND tipo = 'admin'
     AND ativo = true

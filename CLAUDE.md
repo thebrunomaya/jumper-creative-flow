@@ -40,10 +40,17 @@
 - Design system Jumper aplicado
 - Mobile-first responsive
 
+**✅ FASE 2 v2.1 (COMPLETA - Out/2025):**
+- ✅ Nova página `/optimization/new` - Fluxo completo de criação
+- ✅ Seletor de período estilo Facebook (predefinições + calendário duplo)
+- ✅ Auto-save de rascunhos (localStorage + recovery modal)
+- ✅ ContextEditor aprimorado (contador, preview, último contexto)
+- ✅ Database: campos `date_range_start/end`, `is_draft`, `draft_data`
+- ✅ OptimizationRecorder integrado com seleção de período
+
 **🔄 FASE 2 (EM PLANEJAMENTO - Out/2024):**
 - Sistema de Insights Comparativos (REPORTS branch)
 - Detecção de anomalias automática
-- Contexto de otimizações via gravação de áudio (OPTIMIZER branch)
 - Alertas em tempo real
 
 **💎 FASE 3 (1-2 anos):**
@@ -65,7 +72,7 @@ NOTION (Hub Central - Single Source of Truth)
     └── DB_Criativos (receptor final)
     ↕️
 SUPABASE (Backend + Storage)
-    ├── Tabelas Sincronizadas (j_ads_notion_db_*)
+    ├── Tabelas Sincronizadas (j_hub_notion_db_*)
     ├── Edge Functions (j_ads_*)
     └── Storage (criativos + áudios)
     ↕️
@@ -806,9 +813,9 @@ Next Claude will know exactly where we left off! 🎯
 - `j_ads_creative_variations` - Multiple creative variations
 
 **Synchronized Tables (Notion → Supabase):**
-- `j_ads_notion_db_managers` - Gestores (10 campos) ✅
-- `j_ads_notion_db_accounts` - Contas (75 campos) ✅
-- `j_ads_notion_db_partners` - Parceiros ✅
+- `j_hub_notion_db_managers` - Gestores (10 campos) ✅
+- `j_hub_notion_db_accounts` - Contas (75 campos) ✅
+- `j_hub_notion_db_partners` - Parceiros ✅
 
 **Reports System (j_rep_*):**
 - `j_rep_metaads_bronze` - Dados Meta Ads sincronizados (fonte dos 9 dashboards) ⚠️ TODO: RLS
@@ -825,7 +832,7 @@ Next Claude will know exactly where we left off! 🎯
 
 **❌ OBSOLETE TABLES (to be removed):**
 - `creative_submissions`, `creative_files`, `creative_variations` - Duplicatas sem prefixo
-- `notion_managers`, `notion_manager_accounts` - Antigas, substituídas por j_ads_notion_db_*
+- `notion_managers`, `notion_manager_accounts` - Antigas, substituídas por j_hub_notion_db_*
 - `user_roles` - Antiga, substituída por j_ads_users
 
 > 📖 Ver [ARCHITECTURE.md](docs/ARCHITECTURE.md) para detalhes completos
@@ -1016,6 +1023,132 @@ Next Claude will know exactly where we left off! 🎯
 - Supabase dashboard para database/auth debugging
 - Network tab para Edge Function debugging
 - Console logs disponíveis em Supabase Edge Function logs
+
+---
+
+## 🎯 New Feature: Optimization Creation Flow (v2.1)
+
+**Release Date:** October 28, 2025
+
+### **Overview**
+
+Complete redesign of the optimization creation process with date range selection and draft management.
+
+### **New Route: `/optimization/new`**
+
+**User Flow:**
+1. Select account (required dropdown)
+2. Select analysis period (Facebook-style date picker)
+3. Edit account context (optional, modal)
+4. Record/Upload audio
+5. Auto-transcription triggers
+6. Toast notification with "Continue editing" button
+7. Navigate to editor or return later
+
+**Key Features:**
+- ✅ Account selector with search
+- ✅ Date range picker (predefinições + dual calendar)
+- ✅ Context editor with preview and last-used suggestion
+- ✅ Auto-save drafts (30s debounce)
+- ✅ Draft recovery modal on revisit
+- ✅ Breadcrumb navigation
+
+### **Components Created**
+
+**1. DateRangePicker** (`src/components/optimization/DateRangePicker.tsx`)
+- Facebook-inspired UI (predefinições + calendário duplo)
+- Predefinições: Hoje, Ontem, Últimos 7/14/28 dias, Esta semana, etc.
+- Optional "Comparar" mode for second date range
+- Timezone display (Horário de São Paulo)
+
+**2. useDraftManager** (`src/hooks/useDraftManager.ts`)
+- Auto-save every 30 seconds
+- localStorage-based (`optimization_draft_{userId}`)
+- Draft expiration (7 days)
+- beforeunload detection
+- Recovery modal on page load
+
+**3. ContextEditor Enhanced** (`src/components/optimization/ContextEditor.tsx`)
+- Auto-resize textarea
+- Character/word counter
+- "Load last used context" button
+- Optional preview tab showing how context appears in AI prompt
+- Backward compatible (optional props)
+
+### **Database Changes**
+
+**Migration:** `20251028093000_add_date_range_to_optimization_recordings.sql`
+
+**New Fields in `j_hub_optimization_recordings`:**
+```sql
+date_range_start TIMESTAMP WITH TIME ZONE  -- Period start
+date_range_end TIMESTAMP WITH TIME ZONE    -- Period end
+is_draft BOOLEAN DEFAULT FALSE             -- Draft status
+draft_data JSONB                          -- Temporary draft data
+```
+
+**Indexes:**
+```sql
+idx_optimization_recordings_drafts (recorded_by, is_draft) WHERE is_draft = TRUE
+idx_optimization_recordings_date_range (account_id, date_range_start, date_range_end)
+```
+
+**Constraint:**
+```sql
+CHECK (date_range_start IS NULL OR date_range_end IS NULL OR date_range_end >= date_range_start)
+```
+
+### **Modified Components**
+
+**OptimizationRecorder** (`src/components/OptimizationRecorder.tsx`)
+- New prop: `dateRange?: { start: Date; end: Date }`
+- Sends `date_range_start/end` to database on upload
+- Shows selected period in confirmation
+
+**Optimization Panel** (`src/pages/Optimization.tsx`)
+- New button "Nova Otimização" in header
+- Navigates to `/optimization/new`
+
+### **Usage Example**
+
+```typescript
+// In OptimizationNew.tsx
+<OptimizationRecorder
+  accountId={selectedAccountId}
+  accountName={selectedAccountName}
+  accountContext={accountContext}
+  dateRange={{ start: new Date('2024-10-15'), end: new Date('2024-10-22') }}
+  onUploadComplete={() => {
+    clearDraft();
+    navigate('/optimization');
+  }}
+/>
+```
+
+### **Technical Decisions**
+
+**Why Facebook-style date picker?**
+- User familiarity (managers already use Meta Ads Manager)
+- Clear predefinições reduce clicks
+- Dual calendar shows context (current + next month)
+
+**Why auto-save drafts?**
+- Prevent loss of work (common pain point)
+- Enable "pause and resume" workflow
+- 7-day expiration balances utility vs storage
+
+**Why optional dateRange prop?**
+- Backward compatibility with existing code
+- Allows gradual migration
+- NULL values permitted in database
+
+### **Future Enhancements (Post v2.1)**
+
+- [ ] Fetch last-used context from Supabase (not just localStorage)
+- [ ] Show date range in optimization cards (panel view)
+- [ ] Filter optimizations by date range
+- [ ] Export optimization with period context for reports
+- [ ] Integrate with REPORTS branch for period comparisons
 
 ---
 

@@ -29,16 +29,18 @@ interface OptimizationRecorderProps {
   accountContext?: string;
   notionObjectives?: string[];
   availableObjectives?: string[];
+  dateRange?: { start: Date; end: Date }; // NEW: Period being analyzed
   onUploadComplete?: () => void;
 }
 
-export function OptimizationRecorder({ 
-  accountId, 
-  accountName, 
+export function OptimizationRecorder({
+  accountId,
+  accountName,
   accountContext = '',
   notionObjectives = [],
   availableObjectives = [],
-  onUploadComplete 
+  dateRange, // NEW: Period being analyzed
+  onUploadComplete
 }: OptimizationRecorderProps) {
   const { user } = useAuth();
   const [isUploading, setIsUploading] = useState(false);
@@ -218,6 +220,8 @@ export function OptimizationRecorder({
           override_context: editedContext !== accountContext ? editedContext : null,
           platform,
           selected_objectives: selectedObjectives,
+          date_range_start: dateRange?.start?.toISOString() || null, // NEW: Period start
+          date_range_end: dateRange?.end?.toISOString() || null,     // NEW: Period end
         })
         .select()
         .single();
