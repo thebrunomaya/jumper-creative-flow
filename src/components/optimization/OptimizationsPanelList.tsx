@@ -9,6 +9,7 @@ import { Clock, FileAudio, CheckCircle2, AlertCircle } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { OptimizationWithDetails } from "@/hooks/useMyOptimizations";
+import { ExtractViewer } from "./ExtractViewer";
 
 interface OptimizationsPanelListProps {
   optimizations: OptimizationWithDetails[];
@@ -89,7 +90,7 @@ export function OptimizationsPanelList({
                       <p className="text-xs text-muted-foreground truncate">
                         por {optimization.recorded_by}
                       </p>
-                      {optimization.duration_seconds && (
+                      {optimization.duration_seconds > 0 && (
                         <span className="text-xs text-muted-foreground">
                           • {formatDuration(optimization.duration_seconds)}
                         </span>
@@ -110,12 +111,10 @@ export function OptimizationsPanelList({
               {/* Extract Preview */}
               {optimization.extract_text && (
                 <div className="mt-3 p-3 bg-muted/50 rounded-md">
-                  <p className="text-sm text-muted-foreground font-medium mb-1">
+                  <p className="text-sm text-muted-foreground font-medium mb-2">
                     Extrato:
                   </p>
-                  <div className="text-sm whitespace-pre-wrap line-clamp-4">
-                    {optimization.extract_text}
-                  </div>
+                  <ExtractViewer content={optimization.extract_text} />
                 </div>
               )}
 

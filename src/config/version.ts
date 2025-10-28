@@ -7,10 +7,16 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.34';
+export const APP_VERSION = 'v2.0.35';
 
 /**
  * Version history:
+ * - v2.0.35 (2024-10-27):
+ *   - UX: Extracts now display with full formatting and colored tags in panel
+ *   - Uses ExtractViewer component with icons and category colors (CONJUNTOS purple, CRIATIVOS blue, VERBA green)
+ *   - FIX: Removed "0" bug appearing next to manager email (duration_seconds > 0 check)
+ *   - Shows complete extract content without truncation (removed line-clamp-4)
+ *
  * - v2.0.34 (2024-10-27):
  *   - FIX: Optimization panel extracts now display correctly
  *   - Root cause: Supabase left join returns object, not array
