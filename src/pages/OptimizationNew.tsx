@@ -320,7 +320,7 @@ export default function OptimizationNew() {
                 accountId={selectedAccountId}
                 accountName={selectedAccountName}
                 accountContext={accountContext}
-                notionObjectives={accountObjectives}
+                notionObjectives={['Geral', ...accountObjectives]}
                 dateRange={dateRange}
                 onUploadComplete={handleUploadComplete}
               />

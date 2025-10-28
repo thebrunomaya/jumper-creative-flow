@@ -7,10 +7,15 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.65';
+export const APP_VERSION = 'v2.0.66';
 
 /**
  * Version history:
+ * - v2.0.66 (2024-10-28):
+ *   - FEATURE: "Geral" objective now always appears as first option
+ *   - All accounts now have "Geral" + Notion-specific objectives
+ *   - Ensures all optimizations can be categorized as general if needed
+ *
  * - v2.0.65 (2024-10-28):
  *   - FIX: Account objectives now display in OptimizationRecorder
  *   - Added accountObjectives state to store objectives from selected account
