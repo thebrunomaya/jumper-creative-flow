@@ -1,5 +1,5 @@
 import { useEffect, useRef, useCallback } from "react";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/contexts/AuthContext";
 
 export interface OptimizationDraft {
   accountId: string;

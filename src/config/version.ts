@@ -7,10 +7,17 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.54';
+export const APP_VERSION = 'v2.0.55';
 
 /**
  * Version history:
+ * - v2.0.55 (2024-10-28):
+ *   - FIX: Corrected import in useDraftManager.ts (useAuth path)
+ *   - Import error: "Failed to resolve import @/hooks/useAuth"
+ *   - Root cause: useAuth is exported from AuthContext, not a separate hooks file
+ *   - Fixed by changing import path: @/hooks/useAuth → @/contexts/AuthContext
+ *   - All import errors resolved, feature ready to test
+ *
  * - v2.0.54 (2024-10-28):
  *   - FIX: Corrected import in OptimizationNew.tsx (useMyAccounts → useMyNotionAccounts)
  *   - Import error: "Failed to resolve import @/hooks/useMyAccounts"
