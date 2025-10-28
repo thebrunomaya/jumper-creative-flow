@@ -7,10 +7,18 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.35';
+export const APP_VERSION = 'v2.0.36';
 
 /**
  * Version history:
+ * - v2.0.36 (2024-10-27):
+ *   - FEATURE: Added "Copy" button to all optimization steps in editor
+ *   - Button order: Edit → Copy → Debug (Admin)
+ *   - Copies step content to clipboard with success toast
+ *   - Step 1: Copies transcript text
+ *   - Step 2: Copies processed log text
+ *   - Step 3: Copies extract text
+ *
  * - v2.0.35 (2024-10-27):
  *   - UX: Extracts now display with full formatting and colored tags in panel
  *   - Uses ExtractViewer component with icons and category colors (CONJUNTOS purple, CRIATIVOS blue, VERBA green)

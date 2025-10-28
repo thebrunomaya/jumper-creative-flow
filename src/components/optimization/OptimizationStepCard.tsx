@@ -8,7 +8,7 @@ import { ReactNode, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { JumperButton } from "@/components/ui/jumper-button";
-import { Bug, Bot, Edit, ChevronDown, ChevronUp } from "lucide-react";
+import { Bug, Bot, Edit, Copy, ChevronDown, ChevronUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface OptimizationStepCardProps {
@@ -20,6 +20,7 @@ interface OptimizationStepCardProps {
   onDebug?: () => void;
   onEnhancementView?: () => void; // View AI enhancement changes
   onEdit?: () => void; // Edit action (opens modal)
+  onCopy?: () => void; // Copy step content to clipboard
   isEditDisabled?: boolean; // Disable edit if step not completed
   isCollapsible?: boolean; // Enable collapse/expand behavior
   defaultCollapsed?: boolean; // Start collapsed (default: true)
@@ -50,6 +51,7 @@ export function OptimizationStepCard({
   onDebug,
   onEnhancementView,
   onEdit,
+  onCopy,
   isEditDisabled = false,
   isCollapsible = true,
   defaultCollapsed = true,
@@ -119,6 +121,20 @@ export function OptimizationStepCard({
                 title={isEditDisabled ? "Complete o step para editar" : "Editar"}
               >
                 <Edit className="h-4 w-4" />
+              </JumperButton>
+            )}
+
+            {/* Copy Button */}
+            {onCopy && (
+              <JumperButton
+                size="sm"
+                variant="ghost"
+                onClick={onCopy}
+                disabled={isEditDisabled}
+                className="h-8 w-8 p-0"
+                title={isEditDisabled ? "Complete o step para copiar" : "Copiar"}
+              >
+                <Copy className="h-4 w-4" />
               </JumperButton>
             )}
 

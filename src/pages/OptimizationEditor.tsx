@@ -572,6 +572,40 @@ export default function OptimizationEditor() {
     setShareModalOpen(true);
   }
 
+  // Copy handlers
+  async function handleCopyTranscript() {
+    if (!transcript?.transcript) return;
+
+    try {
+      await navigator.clipboard.writeText(transcript.transcript);
+      toast.success('Transcrição copiada!');
+    } catch (error) {
+      toast.error('Erro ao copiar transcrição');
+    }
+  }
+
+  async function handleCopyLog() {
+    if (!transcript?.processed_text) return;
+
+    try {
+      await navigator.clipboard.writeText(transcript.processed_text);
+      toast.success('Log copiado!');
+    } catch (error) {
+      toast.error('Erro ao copiar log');
+    }
+  }
+
+  async function handleCopyExtract() {
+    if (!extract?.extract_text) return;
+
+    try {
+      await navigator.clipboard.writeText(extract.extract_text);
+      toast.success('Extrato copiado!');
+    } catch (error) {
+      toast.error('Erro ao copiar extrato');
+    }
+  }
+
   // Extract handlers (Step 3)
   async function handleGenerateExtract() {
     if (!recordingId || !transcript?.processed_text) return;
@@ -713,6 +747,7 @@ export default function OptimizationEditor() {
             description="Resumo das ações realizadas"
             status={recording.analysis_status}
             onEdit={() => setExtractEditorModalOpen(true)}
+            onCopy={handleCopyExtract}
             isEditDisabled={recording.analysis_status !== 'completed'}
             onDebug={isAdmin ? () => openDebug('extract') : undefined}
           >
@@ -817,6 +852,7 @@ export default function OptimizationEditor() {
             description="Diário detalhado das ações"
             status={recording.processing_status}
             onEdit={() => setLogEditorModalOpen(true)}
+            onCopy={handleCopyLog}
             isEditDisabled={recording.processing_status !== 'completed'}
             onDebug={isAdmin ? () => openDebug('process') : undefined}
           >
@@ -910,6 +946,7 @@ export default function OptimizationEditor() {
             description="Áudio → Texto formatado"
             status={recording.transcription_status}
             onEdit={() => setTranscriptEditorModalOpen(true)}
+            onCopy={handleCopyTranscript}
             isEditDisabled={recording.transcription_status !== 'completed'}
             onDebug={isAdmin ? () => openDebug('transcribe') : undefined}
           >
