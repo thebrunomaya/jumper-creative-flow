@@ -7,10 +7,19 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.42';
+export const APP_VERSION = 'v2.0.43';
 
 /**
  * Version history:
+ * - v2.0.43 (2024-10-27):
+ *   - FEATURE: Added account filter to optimization panel (/optimization)
+ *   - Select dropdown shows all accounts with optimizations
+ *   - Clear button (X) to reset filter and show all
+ *   - Counter updates to show filtered count vs total
+ *   - Only displays filter when user has access to multiple accounts
+ *   - Accounts sorted alphabetically for easy navigation
+ *   - Uses memoization for optimal performance
+ *
  * - v2.0.42 (2024-10-27):
  *   - UX: Intelligent step expansion on page load
  *   - Highest completed step automatically opens when entering editor
