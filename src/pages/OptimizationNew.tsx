@@ -56,6 +56,7 @@ export default function OptimizationNew() {
   const [selectedAccountName, setSelectedAccountName] = useState<string>("");
   const [accountContext, setAccountContext] = useState<string>("");
   const [customContext, setCustomContext] = useState<string>("");
+  const [accountObjectives, setAccountObjectives] = useState<string[]>([]);
   const [dateRange, setDateRange] = useState<{ start: Date; end: Date }>({
     start: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000), // Last 7 days default
     end: new Date(),
@@ -85,11 +86,11 @@ export default function OptimizationNew() {
         },
         customContext,
         platform: "meta" as const,
-        objectives: [],
+        objectives: accountObjectives,
       };
       startAutoSave(draft);
     }
-  }, [selectedAccountId, dateRange, customContext, markDirty, startAutoSave]);
+  }, [selectedAccountId, dateRange, customContext, accountObjectives, markDirty, startAutoSave]);
 
   const handleAccountChange = (accountId: string) => {
     setSelectedAccountId(accountId);
@@ -106,6 +107,7 @@ export default function OptimizationNew() {
       const fullContext = account.contexto_otimizacao || "";
       setAccountContext(fullContext);
       setCustomContext(fullContext);
+      setAccountObjectives(account.objectives || []);
     }
   };
 
@@ -124,6 +126,7 @@ export default function OptimizationNew() {
       if (account) {
         setSelectedAccountName(account.name);
         setAccountContext(account.contexto_otimizacao || "");
+        setAccountObjectives(account.objectives || []);
       }
     }
     setShowDraftRecovery(false);
@@ -317,6 +320,7 @@ export default function OptimizationNew() {
                 accountId={selectedAccountId}
                 accountName={selectedAccountName}
                 accountContext={accountContext}
+                notionObjectives={accountObjectives}
                 dateRange={dateRange}
                 onUploadComplete={handleUploadComplete}
               />

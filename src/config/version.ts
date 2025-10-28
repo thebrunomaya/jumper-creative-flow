@@ -7,10 +7,18 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.64';
+export const APP_VERSION = 'v2.0.65';
 
 /**
  * Version history:
+ * - v2.0.65 (2024-10-28):
+ *   - FIX: Account objectives now display in OptimizationRecorder
+ *   - Added accountObjectives state to store objectives from selected account
+ *   - Objectives now passed as notionObjectives prop to OptimizationRecorder
+ *   - Fixed draft auto-save to store actual objectives (was storing empty array)
+ *   - Fixed draft recovery to restore objectives
+ *   - Objectives checkboxes now appear pre-selected from Notion account data
+ *
  * - v2.0.64 (2024-10-28):
  *   - FIX: Restored account context and objectives loading in OptimizationNew
  *   - Edge Function j_hub_user_accounts now returns contexto_otimizacao and contexto_transcricao fields
