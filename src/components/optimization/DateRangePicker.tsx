@@ -243,41 +243,60 @@ export function DateRangePicker({
   };
 
   return (
-    <div className="flex flex-col gap-4 p-4 bg-white rounded-lg border shadow-lg min-w-[700px]">
-      <div className="flex gap-6">
+    <div className="flex flex-col gap-6 p-6 bg-white rounded-lg min-w-[800px]">
+      <div className="flex gap-8">
         {/* Left: Presets */}
-        <div className="flex-shrink-0 w-48 border-r pr-4">
-          <h3 className="text-sm font-medium mb-3">Usados recentemente</h3>
+        <div className="flex-shrink-0 w-56 border-r pr-6">
+          <h3 className="text-sm font-semibold text-foreground mb-4">
+            Usados recentemente
+          </h3>
           <RadioGroup
             value={selectedPreset}
             onValueChange={handlePresetChange}
-            className="space-y-2"
+            className="space-y-1"
           >
             {presets.map((preset) => (
-              <div key={preset.key} className="flex items-center space-x-2">
+              <div
+                key={preset.key}
+                className={cn(
+                  "flex items-center space-x-3 px-3 py-2.5 rounded-md transition-colors",
+                  "hover:bg-muted/50 cursor-pointer",
+                  selectedPreset === preset.key && "bg-muted"
+                )}
+              >
                 <RadioGroupItem value={preset.key} id={preset.key} />
                 <Label
                   htmlFor={preset.key}
-                  className="text-sm font-normal cursor-pointer"
+                  className="text-sm font-normal cursor-pointer flex-1"
                 >
                   {preset.label}
                 </Label>
               </div>
             ))}
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="custom" id="custom" />
-              <Label
-                htmlFor="custom"
-                className="text-sm font-normal cursor-pointer"
+
+            {/* Visual separator before custom option */}
+            <div className="pt-2 mt-2 border-t">
+              <div
+                className={cn(
+                  "flex items-center space-x-3 px-3 py-2.5 rounded-md transition-colors",
+                  "hover:bg-muted/50 cursor-pointer",
+                  selectedPreset === "custom" && "bg-muted"
+                )}
               >
-                Personalizado
-              </Label>
+                <RadioGroupItem value="custom" id="custom" />
+                <Label
+                  htmlFor="custom"
+                  className="text-sm font-normal cursor-pointer flex-1"
+                >
+                  Personalizado
+                </Label>
+              </div>
             </div>
           </RadioGroup>
         </div>
 
         {/* Right: Calendar */}
-        <div className="flex-1">
+        <div className="flex-1 pl-2">
           <Calendar
             mode="range"
             selected={localRange}
@@ -291,30 +310,30 @@ export function DateRangePicker({
 
       {/* Compare Section */}
       {showCompare && (
-        <div className="border-t pt-4">
-          <div className="flex items-center space-x-2 mb-3">
+        <div className="border-t pt-5 mt-2">
+          <div className="flex items-center space-x-3 mb-4 px-3 py-2 rounded-md hover:bg-muted/30 transition-colors cursor-pointer">
             <Checkbox
               id="compare"
               checked={enableCompare}
               onCheckedChange={handleCompareChange}
             />
-            <Label htmlFor="compare" className="text-sm cursor-pointer">
-              Comparar
+            <Label htmlFor="compare" className="text-sm font-medium cursor-pointer flex-1">
+              Comparar com período anterior
             </Label>
           </div>
 
           {enableCompare && (
-            <div className="pl-6">
+            <div className="pl-6 space-y-4">
               <div className="flex gap-4 items-center">
                 <div className="flex-1">
-                  <Label className="text-xs text-muted-foreground">
+                  <Label className="text-xs font-medium text-muted-foreground mb-1.5 block">
                     Período de comparação
                   </Label>
                   <input
                     type="text"
                     readOnly
                     value={formatDateRange(compareRange)}
-                    className="w-full mt-1 px-3 py-2 border rounded-md text-sm bg-background"
+                    className="w-full px-3 py-2 border rounded-md text-sm bg-muted/30 cursor-default focus:outline-none"
                   />
                 </div>
               </div>
@@ -325,7 +344,7 @@ export function DateRangePicker({
                 onSelect={setCompareRange}
                 numberOfMonths={2}
                 locale={ptBR}
-                className="rounded-md mt-2"
+                className="rounded-md"
               />
             </div>
           )}
@@ -333,20 +352,26 @@ export function DateRangePicker({
       )}
 
       {/* Footer: Range Display + Actions */}
-      <div className="border-t pt-4 flex items-center justify-between">
-        <div className="text-sm text-muted-foreground">
+      <div className="border-t pt-5 mt-2 flex items-center justify-between">
+        <div className="text-sm font-medium text-foreground">
           {formatDateRange(localRange)}
         </div>
 
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={onClose}>
+        <div className="flex gap-3">
+          <Button
+            variant="outline"
+            onClick={onClose}
+            className="min-w-[100px] hover:bg-muted"
+          >
             Cancelar
           </Button>
           <Button
             onClick={handleApply}
             disabled={!localRange.from || !localRange.to}
             className={cn(
-              "bg-[#FA4721] hover:bg-[#FA4721]/90 text-white"
+              "min-w-[100px] bg-[#FA4721] hover:bg-[#FA4721]/90 text-white",
+              "transition-all duration-200",
+              "disabled:opacity-50 disabled:cursor-not-allowed"
             )}
           >
             Atualizar
@@ -355,7 +380,7 @@ export function DateRangePicker({
       </div>
 
       {/* Timezone note */}
-      <div className="text-xs text-muted-foreground text-center border-t pt-2">
+      <div className="text-xs text-muted-foreground text-center pt-3 border-t">
         Fuso horário das datas: Horário de São Paulo
       </div>
     </div>
