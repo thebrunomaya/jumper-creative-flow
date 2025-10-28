@@ -7,21 +7,10 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.48';
+export const APP_VERSION = 'v2.0.47';
 
 /**
  * Version history:
- * - v2.0.48 (2024-10-27):
- *   - UX REDESIGN: Complete header overhaul in Optimization Editor page
- *   - Added FileText icon in orange box (consistent with Optimization list page)
- *   - Added status badge inline with title (Pendente/Processando/Concluído/Falha)
- *   - Fixed alignment: Changed from `items-start` to `items-center`
- *   - Removed inconsistent margins (mt-8, mt-2, mt-1) in favor of `space-y-1`
- *   - Improved button spacing: `gap-2` → `gap-3`
- *   - Better visual hierarchy: Icon → Breadcrumb → Title+Badge → Date
- *   - Consistent with Jumper design system patterns (orange-subtle bg, orange-hero icon)
- *   - Professional, clean layout matching other pages in the app
- *
  * - v2.0.47 (2024-10-27):
  *   - UX FIX: Improved icon alignment for multi-line action text
  *   - Reverted to `items-start` for top alignment with first line
