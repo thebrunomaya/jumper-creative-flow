@@ -7,23 +7,10 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.58';
+export const APP_VERSION = 'v2.0.57';
 
 /**
  * Version history:
- * - v2.0.58 (2024-10-28):
- *   - UX: Comprehensive DateRangePicker component enhancement
- *   - Spacing improvements: Container p-4→p-6 (+50%), gap-6→gap-8, min-w-700→800px
- *   - Left panel: w-48→w-56 (224px accommodates Portuguese text better)
- *   - Visual hierarchy: Section header font-semibold, date display font-medium
- *   - Interactive feedback: 5+ new hover states on presets (hover:bg-muted/50)
- *   - Accessibility: All touch targets now ≥44px (WCAG 2.1 Level AA compliant)
- *   - Added visual separator (border-t) before "Personalizado" option
- *   - Better button sizing: min-w-100px, gap-3 for clearer distinction
- *   - Enhanced footer separation: pt-5 mt-2 with improved spacing rhythm
- *   - Smooth transitions: transition-colors on all interactive elements
- *   - Zero breaking changes, zero bundle size impact, hardware-accelerated CSS
- *
  * - v2.0.57 (2024-10-28):
  *   - FIX: Account selector dropdown clipping issue on OptimizationNew page
  *   - Added max-h-[300px] to SelectContent for proper height constraint (~8-10 items visible)
