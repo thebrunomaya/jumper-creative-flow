@@ -318,6 +318,190 @@ const sortedAccounts = useMemo(() => {
 - `f83fa1b` - Enhanced OptimizationNew with loading states (FASE 2)
 - `129da30` - Removed unused AccountSelector component (FASE 3)
 
+### **Prioritized Account Selection (v2.0.61+)** ⭐ NEW
+
+**Purpose:** Display accounts in dropdowns with visual priority groups based on user's relationship with each account
+
+**Architecture:** Shared utilities + reusable component pattern
+
+**Components:**
+1. **Utils:** `src/utils/accountPriority.ts` - Centralized priority logic
+2. **Component:** `src/components/shared/PrioritizedAccountSelect.tsx` - Reusable dropdown with visual separators
+3. **Pages:** OptimizationNew, Optimization, MyAccounts - All use same pattern
+
+#### **Priority Order**
+
+Accounts are grouped by user's relationship (highest to lowest priority):
+
+1. **GESTOR (📊)** - User is the traffic manager (`gestor_email` field)
+2. **SUPERVISOR (👁️)** - User is supervisor/atendimento (`atendimento_email` field)
+3. **GERENTE (📝)** - User is manager/client (other accounts)
+4. **ADMIN (👑)** - Admin-only access (no direct assignment)
+
+**Visual Pattern:**
+```
+┌─────────────────────────────────────────┐
+│ Selecione uma conta                  ▼ │
+└─────────────────────────────────────────┘
+  ┌───────────────────────────────────┐
+  │ 📊 GESTOR (3)                     │
+  │   • Clínica Seven                 │
+  │   • Boiler                        │
+  │   • Mini                          │
+  ├───────────────────────────────────┤ ← Visual separator
+  │ 👁️ SUPERVISOR (2)                 │
+  │   • A Tu Lado                     │
+  │   • Jumper                        │
+  ├───────────────────────────────────┤
+  │ 👑 ADMIN (20)                     │
+  │   • Almanara                      │
+  │   • Almeida Prado                 │
+  │   • ...                           │
+  └───────────────────────────────────┘
+```
+
+#### **accountPriority.ts - Shared Utils**
+
+**Location:** `src/utils/accountPriority.ts`
+
+**Key Functions:**
+
+```typescript
+// Types
+export type AccessReason = 'GESTOR' | 'SUPERVISOR' | 'GERENTE' | 'ADMIN';
+export type UserRole = 'admin' | 'staff' | 'client';
+
+// Get all access reasons for a user (accumulated, not replaced)
+export function getAccessReasons(
+  account: NotionAccount,
+  userEmail: string,
+  userRole: UserRole
+): AccessReason[] {
+  // Returns array like: ['GESTOR', 'ADMIN']
+}
+
+// Get numeric priority (1=highest, 4=lowest)
+export function getAccessPriority(reason: AccessReason): number {
+  // GESTOR=1, SUPERVISOR=2, GERENTE=3, ADMIN=4
+}
+
+// Get primary (highest priority) reason for sorting
+export function getPrimaryAccessReason(
+  account: NotionAccount,
+  userEmail: string,
+  userRole: UserRole
+): AccessReason;
+
+// Sort accounts by priority + alphabetically
+export function sortAccountsByPriority(
+  accounts: NotionAccount[],
+  userEmail: string,
+  userRole: UserRole
+): NotionAccount[];
+
+// Group accounts into priority buckets
+export function groupAccountsByPriority(
+  accounts: NotionAccount[],
+  userEmail: string,
+  userRole: UserRole
+): Record<AccessReason, NotionAccount[]>;
+
+// UI helpers
+export function getAccessReasonLabel(reason: AccessReason): string;
+export function getAccessReasonIcon(reason: AccessReason): string;
+```
+
+**Why This Works:**
+- **Single source of truth** for priority logic across entire app
+- **Accumulated badges** - User can be GESTOR + ADMIN on same account
+- **Email-based matching** - Uses gestor_email, atendimento_email fields
+- **Alphabetical within groups** - Clean, scannable lists
+
+#### **PrioritizedAccountSelect Component**
+
+**Location:** `src/components/shared/PrioritizedAccountSelect.tsx`
+
+**Props:**
+```typescript
+interface PrioritizedAccountSelectProps {
+  accounts: NotionAccount[];
+  value?: string | null;  // null = "all accounts"
+  onChange: (accountId: string) => void;
+  userEmail?: string;
+  userRole?: UserRole;
+  placeholder?: string;
+  disabled?: boolean;
+  loading?: boolean;
+  showInactiveToggle?: boolean;  // Admin-only toggle
+  showAllOption?: boolean;        // "Todas as contas" option
+  className?: string;
+}
+```
+
+**Features:**
+- ✅ Visual separators between priority groups
+- ✅ Group headers with emoji icons and counts: "📊 GESTOR (3)"
+- ✅ "Mostrar Inativas" toggle (admin only) - filters inactive accounts
+- ✅ "Todas as contas" option (for filters)
+- ✅ Loading states with spinner
+- ✅ Empty states
+- ✅ Dropdown always opens downward (`avoidCollisions={false}`)
+
+**Usage Example:**
+```tsx
+import { PrioritizedAccountSelect } from '@/components/shared/PrioritizedAccountSelect';
+import { useMyNotionAccounts } from '@/hooks/useMyNotionAccounts';
+import { useUserRole } from '@/hooks/useUserRole';
+import { useAuth } from '@/contexts/AuthContext';
+
+function MyPage() {
+  const { accounts, loading } = useMyNotionAccounts();
+  const { userRole } = useUserRole();
+  const { currentUser } = useAuth();
+  const [selectedAccountId, setSelectedAccountId] = useState<string>("");
+
+  return (
+    <PrioritizedAccountSelect
+      accounts={accounts}
+      loading={loading}
+      value={selectedAccountId}
+      onChange={setSelectedAccountId}
+      userEmail={currentUser?.email}
+      userRole={userRole}
+      placeholder="Selecione uma conta"
+      showInactiveToggle={true}  // Enable admin toggle
+      showAllOption={false}       // No "all" option
+    />
+  );
+}
+```
+
+#### **Implementation Commits (v2.0.61-v2.0.63)**
+
+| Version | Changes |
+|---------|---------|
+| **v2.0.61** | 🎉 Major feature - Prioritized account selection across entire app |
+| | - Created `accountPriority.ts` utils with shared logic |
+| | - Created `PrioritizedAccountSelect` component with visual separators |
+| | - Refactored MyAccounts to use shared utils (maintains existing behavior) |
+| | - Applied to OptimizationNew with "Show Inactive" toggle |
+| | - Applied to Optimization with "All accounts" option |
+| | - Updated NotionAccount interface with email fields |
+| **v2.0.62** | 🐛 Fix - Added `side="bottom"` to SelectContent (attempted fix) |
+| **v2.0.63** | ✅ Fix - Added `avoidCollisions={false}` to force downward opening |
+| | - Root cause: Radix UI collision detection overriding side prop |
+| | - Verified with Playwright MCP testing |
+
+**Git Branch:** `feature/standardize-account-selection`
+
+**Related Files:**
+- `src/utils/accountPriority.ts` (NEW - 200 lines)
+- `src/components/shared/PrioritizedAccountSelect.tsx` (NEW - 240 lines)
+- `src/pages/OptimizationNew.tsx` (MODIFIED - uses component)
+- `src/pages/Optimization.tsx` (MODIFIED - uses component)
+- `src/pages/MyAccounts.tsx` (MODIFIED - uses utils)
+- `src/hooks/useMyNotionAccounts.ts` (MODIFIED - added email fields to interface)
+
 ---
 
 ## 🗂️ Estrutura de Pastas
