@@ -785,28 +785,57 @@ export default function OptimizationEditor() {
     );
   }
 
+  // Helper to get status badge configuration
+  const getStatusBadge = (status: string | undefined) => {
+    const statusConfig = {
+      pending: { variant: "secondary" as const, label: "Pendente" },
+      processing: { variant: "default" as const, label: "Processando" },
+      completed: { variant: "outline" as const, label: "Concluído" },
+      failed: { variant: "destructive" as const, label: "Falha" },
+    };
+
+    const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.pending;
+    return <Badge variant={config.variant}>{config.label}</Badge>;
+  };
+
   return (
     <JumperBackground overlay={false}>
       <Header />
 
-      {/* Breadcrumb */}
+      {/* Page Header */}
       <div className="px-8 py-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <JumperButton variant="ghost" size="sm" onClick={() => navigate('/optimization')}>
-              <ChevronLeft className="h-4 w-4 mr-1" />
-              Voltar para Lista
-            </JumperButton>
-            <h1 className="text-2xl font-bold mt-2">
-              Edição de Otimização - {accountName}
-            </h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              Gravado em {new Date(recording.recorded_at).toLocaleString('pt-BR')}
-            </p>
+        <div className="flex items-center justify-between gap-4">
+          {/* Left: Icon + Title + Metadata */}
+          <div className="flex items-center gap-3">
+            {/* Icon/Logo for context */}
+            <div className="p-2 rounded-lg bg-[hsl(var(--orange-subtle))]">
+              <FileText className="h-6 w-6 text-[hsl(var(--orange-hero))]" />
+            </div>
+
+            <div className="space-y-1">
+              {/* Breadcrumb navigation */}
+              <JumperButton variant="ghost" size="sm" onClick={() => navigate('/optimization')}>
+                <ChevronLeft className="h-4 w-4 mr-1" />
+                Voltar para Lista
+              </JumperButton>
+
+              {/* Title with status badge */}
+              <div className="flex items-center gap-2">
+                <h1 className="text-2xl font-bold tracking-tight">
+                  Edição de Otimização - {accountName}
+                </h1>
+                {getStatusBadge(recording.analysis_status)}
+              </div>
+
+              {/* Metadata */}
+              <p className="text-sm text-muted-foreground">
+                Gravado em {new Date(recording.recorded_at).toLocaleString('pt-BR')}
+              </p>
+            </div>
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex items-center gap-2 mt-8">
+          {/* Right: Action Buttons */}
+          <div className="flex items-center gap-3">
             <JumperButton
               variant="outline"
               size="sm"
