@@ -7,10 +7,22 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.60';
+export const APP_VERSION = 'v2.0.61';
 
 /**
  * Version history:
+ * - v2.0.61 (2024-10-28):
+ *   - MAJOR FEATURE: Prioritized account selection across entire application
+ *   - Created accountPriority.ts utils with shared logic (getAccessReasons, sortAccountsByPriority, groupAccountsByPriority)
+ *   - Created PrioritizedAccountSelect component with visual separators (GESTOR → SUPERVISOR → GERENTE → ADMIN)
+ *   - Refactored MyAccounts to use shared utils (maintains existing behavior)
+ *   - Applied to OptimizationNew with "Show Inactive" toggle (admin only)
+ *   - Applied to Optimization with "All accounts" option and priority sorting
+ *   - Dropdown separators show: "--- GESTOR (3) ---" with emoji icons
+ *   - "Mostrar Inativas" toggle appears only for admin users
+ *   - All account selectors now use consistent permission-based ordering
+ *   - Updated NotionAccount interface to include gestor_email and atendimento_email
+ *
  * - v2.0.60 (2024-10-28):
  *   - DOCS: Comprehensive documentation for account selection standardization
  *   - Added JSDoc to useMyNotionAccounts hook with architecture pattern explanation

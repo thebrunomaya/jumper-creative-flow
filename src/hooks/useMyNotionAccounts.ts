@@ -25,6 +25,10 @@ export interface NotionAccount {
   meta_ads_id?: string;
   /** Google Ads account ID */
   id_google_ads?: string;
+  /** Gestor emails (for matching/filtering) */
+  gestor_email?: string;
+  /** Atendimento emails (for matching/filtering) - renamed from supervisor_email */
+  atendimento_email?: string;
 }
 
 /**

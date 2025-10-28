@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useMyNotionAccounts } from '@/hooks/useMyNotionAccounts';
-import { useUserRole, UserRole } from '@/hooks/useUserRole';
+import { useUserRole } from '@/hooks/useUserRole';
 import { useAuth } from '@/contexts/AuthContext';
 import { AccountCard, AccessReason } from '@/components/AccountCard';
 import Header from '@/components/Header';
@@ -18,55 +18,23 @@ import {
 } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { cn } from '@/lib/utils';
+import {
+  getAccessReasons as getAccessReasonsUtil,
+  getAccessPriority as getAccessPriorityUtil,
+  UserRole,
+} from '@/utils/accountPriority';
 
-// Retorna TODAS as badges do usuário (acumulativas)
+// Re-export functions from utils for backward compatibility
 function getAccessReasons(
   account: any,
   userEmail: string,
   userRole: UserRole
 ): AccessReason[] {
-  const reasons: AccessReason[] = [];
-  const email = userEmail.toLowerCase();
-  const gestorEmail = account.gestor_email?.toLowerCase() || '';
-  const atendimentoEmail = account.atendimento_email?.toLowerCase() || '';
-
-
-  // Acumular TODAS as relações (não substituir)
-  if (gestorEmail.includes(email)) {
-    reasons.push('GESTOR');
-  }
-  if (atendimentoEmail.includes(email)) {
-    reasons.push('SUPERVISOR'); // Badge label mantém "SUPERVISOR" para UX
-  }
-
-  // TODO: Adicionar lógica para GERENTE quando tivermos o campo
-  // if (gerenteField matches userEmail or notionManagerId) {
-  //   reasons.push('GERENTE');
-  // }
-
-  // Admin sempre aparece se o usuário for admin
-  if (userRole === 'admin') {
-    reasons.push('ADMIN');
-  }
-
-  // Se não tem nenhuma badge, usar GERENTE como fallback
-  if (reasons.length === 0) {
-    reasons.push('GERENTE');
-  }
-
-  // Ordenar por prioridade: GESTOR → SUPERVISOR → GERENTE → ADMIN
-  return reasons.sort((a, b) => getAccessPriority(a) - getAccessPriority(b));
+  return getAccessReasonsUtil(account, userEmail, userRole);
 }
 
-// Helper function to get sort priority for access reason
 function getAccessPriority(reason: AccessReason): number {
-  switch (reason) {
-    case 'GESTOR': return 1;
-    case 'SUPERVISOR': return 2;
-    case 'GERENTE': return 3;
-    case 'ADMIN': return 4; // Admin access (no direct assignment) goes last
-    default: return 999;
-  }
+  return getAccessPriorityUtil(reason);
 }
 
 const MyAccounts: React.FC = () => {

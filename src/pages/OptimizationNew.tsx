@@ -23,6 +23,9 @@ import { ContextEditor } from "@/components/optimization/ContextEditor";
 import { OptimizationRecorder } from "@/components/OptimizationRecorder";
 import { useDraftManager } from "@/hooks/useDraftManager";
 import { useMyNotionAccounts } from "@/hooks/useMyNotionAccounts";
+import { useUserRole } from "@/hooks/useUserRole";
+import { useAuth } from "@/contexts/AuthContext";
+import { PrioritizedAccountSelect } from "@/components/shared/PrioritizedAccountSelect";
 import {
   AlertCircle,
   Calendar,
@@ -34,13 +37,6 @@ import {
   Sparkles
 } from "lucide-react";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -51,6 +47,8 @@ import {
 export default function OptimizationNew() {
   const navigate = useNavigate();
   const { accounts, loading: accountsLoading, error: accountsError } = useMyNotionAccounts();
+  const { userRole } = useUserRole();
+  const { currentUser } = useAuth();
   const { loadDraft, saveDraft, clearDraft, hasDraft, markDirty, startAutoSave } = useDraftManager();
 
   // Form state
@@ -227,29 +225,17 @@ export default function OptimizationNew() {
               <label className="text-sm font-medium flex items-center gap-2">
                 Conta <span className="text-destructive">*</span>
               </label>
-              <Select value={selectedAccountId} onValueChange={handleAccountChange} disabled={accountsLoading}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder={accountsLoading ? "Carregando contas..." : "Selecione uma conta"} />
-                </SelectTrigger>
-                <SelectContent className="max-h-[300px]" position="popper" sideOffset={5}>
-                  {accountsLoading && (
-                    <div className="p-4 text-center text-sm text-muted-foreground">
-                      <Loader2 className="h-4 w-4 animate-spin mx-auto mb-2" />
-                      Carregando contas...
-                    </div>
-                  )}
-                  {!accountsLoading && accounts.length === 0 && (
-                    <div className="p-4 text-center text-sm text-muted-foreground">
-                      Nenhuma conta disponível
-                    </div>
-                  )}
-                  {!accountsLoading && accounts.map((account) => (
-                    <SelectItem key={account.id} value={account.id}>
-                      {account.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <PrioritizedAccountSelect
+                accounts={accounts}
+                loading={accountsLoading}
+                value={selectedAccountId}
+                onChange={handleAccountChange}
+                userEmail={currentUser?.email}
+                userRole={userRole}
+                placeholder="Selecione uma conta"
+                className="w-full"
+                showInactiveToggle={true}
+              />
             </div>
 
             <Separator />
