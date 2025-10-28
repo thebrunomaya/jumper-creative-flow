@@ -98,7 +98,8 @@ export default function OptimizationNew() {
 
     const account = accounts.find(a => a.id === accountId);
     if (account) {
-      setSelectedAccountName(account.nome);
+      console.log('🔍 DEBUG - Account found:', account); // Debug log to see actual structure
+      setSelectedAccountName(account.name); // FIXED: Changed from account.nome to account.name
       setAccountContext(account.contexto || "");
       setCustomContext(account.contexto || "");
     }
@@ -117,7 +118,7 @@ export default function OptimizationNew() {
       // Load account details
       const account = accounts.find(a => a.id === draft.accountId);
       if (account) {
-        setSelectedAccountName(account.nome);
+        setSelectedAccountName(account.name); // FIXED: Changed from account.nome to account.name
         setAccountContext(account.contexto || "");
       }
     }
@@ -230,10 +231,10 @@ export default function OptimizationNew() {
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Selecione uma conta" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="max-h-[300px]" position="popper" sideOffset={5}>
                   {accounts.map((account) => (
                     <SelectItem key={account.id} value={account.id}>
-                      {account.nome}
+                      {account.name}
                     </SelectItem>
                   ))}
                 </SelectContent>

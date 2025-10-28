@@ -7,10 +7,19 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.56';
+export const APP_VERSION = 'v2.0.57';
 
 /**
  * Version history:
+ * - v2.0.57 (2024-10-28):
+ *   - FIX: Account selector dropdown clipping issue on OptimizationNew page
+ *   - Added max-h-[300px] to SelectContent for proper height constraint (~8-10 items visible)
+ *   - Added position="popper" to prevent viewport clipping
+ *   - Added sideOffset={5} for proper spacing between trigger and dropdown
+ *   - Built-in scrollbar now appears when 43 accounts exceed visible area
+ *   - Also applied same fix to Optimization.tsx account filter for consistency
+ *   - Resolves issue where dropdown was cut off at bottom without scrolling
+ *
  * - v2.0.56 (2024-10-28):
  *   - ENHANCEMENT: OptimizationNew date picker now auto-detects matching presets
  *   - AUDIT: Verified account filtering uses correct permission-based logic (same as /my-accounts)

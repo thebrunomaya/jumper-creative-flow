@@ -123,7 +123,7 @@ export default function Optimization() {
                   <SelectTrigger className="w-[280px]">
                     <SelectValue placeholder="Filtrar por conta" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="max-h-[300px]" position="popper" sideOffset={5}>
                     <SelectItem value="all">Todas as contas</SelectItem>
                     {uniqueAccounts.map(account => (
                       <SelectItem key={account.id} value={account.id}>
