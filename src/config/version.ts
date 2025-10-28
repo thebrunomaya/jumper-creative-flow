@@ -7,10 +7,18 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.49';
+export const APP_VERSION = 'v2.0.50';
 
 /**
  * Version history:
+ * - v2.0.50 (2024-10-27):
+ *   - UX FIX: Reverted to left-aligned header (app standard)
+ *   - Two-row layout: Back button above, title + actions below
+ *   - Row 1: Back button (standalone)
+ *   - Row 2: Title + Date (left) | Action buttons (right)
+ *   - Maintains app's left-alignment pattern
+ *   - Clean separation between navigation and content
+ *
  * - v2.0.49 (2024-10-27):
  *   - UX FIX: Centered header layout in Optimization Editor
  *   - Changed from 2-column to 3-column grid layout
