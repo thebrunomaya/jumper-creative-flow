@@ -3,7 +3,7 @@
  * Shows bullet list with categorized actions
  */
 
-import { DollarSign, Image, Layers, Type } from "lucide-react";
+import { DollarSign, Image, Layers, Type, Info } from "lucide-react";
 
 interface ExtractViewerProps {
   content: string;
@@ -15,6 +15,7 @@ const CATEGORY_ICONS: Record<string, React.ComponentType<{ className?: string }>
   CRIATIVOS: Image,
   CONJUNTOS: Layers,
   COPY: Type,
+  OBSERVAÇÃO: Info,
 };
 
 // Map category names to colors
@@ -23,6 +24,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   CRIATIVOS: "text-blue-600 dark:text-blue-400",
   CONJUNTOS: "text-purple-600 dark:text-purple-400",
   COPY: "text-orange-600 dark:text-orange-400",
+  OBSERVAÇÃO: "text-amber-600 dark:text-amber-400",
 };
 
 export function ExtractViewer({ content }: ExtractViewerProps) {

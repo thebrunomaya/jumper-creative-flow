@@ -22,7 +22,7 @@ interface ExtractRequest {
 }
 
 interface ExtractAction {
-  category: 'VERBA' | 'CRIATIVOS' | 'CONJUNTOS' | 'COPY';
+  category: 'VERBA' | 'CRIATIVOS' | 'CONJUNTOS' | 'COPY' | 'OBSERVAÇÃO';
   description: string;
 }
 
@@ -35,6 +35,7 @@ const EXTRACT_PROMPT = `Você é um assistente especializado em extrair ações 
 - [CRIATIVOS] - Trocas, pausas, ativações, novos uploads de anúncios
 - [CONJUNTOS] - Pausas, ativações, ajustes de targeting/público
 - [COPY] - Ajustes em títulos, descrições, CTAs de anúncios
+- [OBSERVAÇÃO] - Notas, alertas, insights ou contexto importante sem ação concreta
 
 **FORMATO DE SAÍDA** (uma ação por linha):
 • [CATEGORIA] Descrição objetiva e quantificada quando possível
@@ -44,15 +45,16 @@ const EXTRACT_PROMPT = `Você é um assistente especializado em extrair ações 
 • [CRIATIVOS] Pausados 3 anúncios com CTR < 1%
 • [CONJUNTOS] Ativado conjunto "Lookalike 1%" com budget R$200
 • [COPY] Ajustado CTA de "Saiba mais" para "Compre agora"
+• [OBSERVAÇÃO] Meta Ads reportou instabilidade de entrega no período
 
 **REGRAS IMPORTANTES**:
 1. Seja conciso - máximo 1 linha por ação
 2. Quantifique sempre que possível (números, percentuais, valores)
-3. Use verbos no particípio (Aumentado, Pausado, Ativado, Ajustado)
+3. Use verbos no particípio (Aumentado, Pausado, Ativado, Ajustado) - exceto para [OBSERVAÇÃO]
 4. Foque no QUE foi feito, não no PORQUÊ
-5. Ignore análises, insights, ou contexto - apenas ações concretas
+5. Ignore análises e insights extensos - para contexto importante use [OBSERVAÇÃO]
 6. Se não houver ações de uma categoria, não inclua linhas vazias
-7. Ordene por impacto: VERBA > CRIATIVOS > CONJUNTOS > COPY
+7. Ordene por impacto: VERBA > CRIATIVOS > CONJUNTOS > COPY > OBSERVAÇÃO
 
 **LOG DE OTIMIZAÇÃO A ANALISAR**:
 

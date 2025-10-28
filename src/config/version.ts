@@ -7,10 +7,17 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.37';
+export const APP_VERSION = 'v2.0.38';
 
 /**
  * Version history:
+ * - v2.0.38 (2024-10-27):
+ *   - FEATURE: Added [OBSERVAÇÃO] as new action category in Step 3 extract
+ *   - Edge Function prompt updated with OBSERVAÇÃO category and example
+ *   - ExtractViewer now displays OBSERVAÇÃO with amber color and Info icon
+ *   - Use case: Notes, alerts, or important context without concrete actions
+ *   - Ordering priority: VERBA > CRIATIVOS > CONJUNTOS > COPY > OBSERVAÇÃO
+ *
  * - v2.0.37 (2024-10-27):
  *   - FEATURE: Added delete optimization functionality in editor
  *   - Delete button placed in header alongside "Export PDF"
