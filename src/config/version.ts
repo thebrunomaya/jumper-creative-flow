@@ -7,10 +7,21 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.43';
+export const APP_VERSION = 'v2.0.44';
 
 /**
  * Version history:
+ * - v2.0.44 (2024-10-27):
+ *   - MAJOR CHANGE: Step 3 Extract prompt updated to RADAR methodology
+ *   - New structure: Actions separated into INTERNAL (platform) vs EXTERNAL (third-party)
+ *   - Internal actions: Pausou, Ativou, Criou, Excluiu, Ajustou, Realocou, Corrigiu, Escalou, Testou, Observou
+ *   - External actions: Solicitou, Informou, Aguardando, Abriu, Enviou
+ *   - Format changed from bullet points (•) to dashes (-) with verbs: [Verb]: [Details]
+ *   - Blank line separator between internal and external actions
+ *   - More structured and actionable output aligned with RADAR tracking method
+ *   - Updated Edge Function: j_hub_optimization_extract
+ *   - Updated parsing logic to handle new verb-based format
+ *
  * - v2.0.43 (2024-10-27):
  *   - FEATURE: Added account filter to optimization panel (/optimization)
  *   - Select dropdown shows all accounts with optimizations

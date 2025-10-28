@@ -26,41 +26,46 @@ interface ExtractAction {
   description: string;
 }
 
-const EXTRACT_PROMPT = `Você é um assistente especializado em extrair ações concretas de logs de otimização de tráfego pago.
+const EXTRACT_PROMPT = `Você é um assistente especializado em extrair ações concretas de logs de otimização seguindo o método RADAR.
 
-**TAREFA**: Analise o log de otimização fornecido e extraia SOMENTE as ações concretas que foram realizadas.
+**TAREFA**: Analise o log e extraia TODAS as ações executadas, listando primeiro as internas e depois as externas.
 
-**CATEGORIAS DE AÇÕES**:
-- [VERBA] - Aumentos, reduções, realocações de budget entre campanhas/conjuntos
-- [CRIATIVOS] - Trocas, pausas, ativações, novos uploads de anúncios
-- [CONJUNTOS] - Pausas, ativações, ajustes de targeting/público
-- [COPY] - Ajustes em títulos, descrições, CTAs de anúncios
-- [OBSERVAÇÃO] - Notas, alertas, insights ou contexto importante sem ação concreta
+**AÇÕES INTERNAS** (executadas diretamente nas plataformas):
+- Pausou / Ativou / Reativou: Recursos ligados/desligados
+- Criou / Publicou / Duplicou: Novos recursos
+- Excluiu: Recursos removidos
+- Ajustou / Realocou: Modificações de budget ou configurações
+- Corrigiu: Erros consertados
+- Escalou: Investimento aumentado
+- Testou: Testes iniciados
+- Observou: Análise sem ação (apenas se explicitamente mencionado)
 
-**FORMATO DE SAÍDA** (uma ação por linha):
-• [CATEGORIA] Descrição objetiva e quantificada quando possível
+**AÇÕES EXTERNAS** (dependem de terceiros):
+- Solicitou: Criativos, verba, ajustes técnicos
+- Informou: Gerente ou cliente
+- Aguardando: Aprovações pendentes
+- Abriu: Tickets no sistema
+- Enviou: Comunicações durante otimização
 
-**EXEMPLOS**:
-• [VERBA] Aumentado budget em 30% (R$500 → R$650)
-• [CRIATIVOS] Pausados 3 anúncios com CTR < 1%
-• [CONJUNTOS] Ativado conjunto "Lookalike 1%" com budget R$200
-• [COPY] Ajustado CTA de "Saiba mais" para "Compre agora"
-• [OBSERVAÇÃO] Meta Ads reportou instabilidade de entrega no período
+**FORMATO DE SAÍDA**:
+- [Verbo]: [Detalhes específicos + quantificação]
 
-**REGRAS IMPORTANTES**:
-1. Seja conciso - máximo 1 linha por ação
-2. Quantifique sempre que possível (números, percentuais, valores)
-3. Use verbos no particípio (Aumentado, Pausado, Ativado, Ajustado) - exceto para [OBSERVAÇÃO]
-4. Foque no QUE foi feito, não no PORQUÊ
-5. Ignore análises e insights extensos - para contexto importante use [OBSERVAÇÃO]
-6. Se não houver ações de uma categoria, não inclua linhas vazias
-7. Ordene por impacto: VERBA > CRIATIVOS > CONJUNTOS > COPY > OBSERVAÇÃO
+[linha em branco separando se houver ações externas]
 
-**LOG DE OTIMIZAÇÃO A ANALISAR**:
+- [Verbo]: [Detalhes da solicitação/comunicação]
 
+**REGRAS**:
+1. Liste primeiro todas as ações internas
+2. Separe com linha em branco se houver ações externas
+3. Use apenas os verbos listados
+4. Especifique recursos afetados (nomes/IDs)
+5. Quantifique sempre que possível
+6. Se não houver ações de um tipo, omita completamente
+
+**LOG A ANALISAR**:
 {context_text}
 
-**RESPONDA APENAS COM A LISTA DE AÇÕES** (sem explicações adicionais):`;
+**RESPONDA APENAS COM A LISTA DE AÇÕES**:`;
 
 serve(async (req) => {
   // Handle CORS preflight
@@ -133,15 +138,22 @@ serve(async (req) => {
 
     // Parse extract into structured actions (optional, for future features)
     const actions: ExtractAction[] = [];
-    const lines = extractText.split('\n').filter((line) => line.trim().startsWith('•'));
+    const lines = extractText.split('\n').filter((line) => line.trim().startsWith('-'));
 
     lines.forEach((line) => {
-      const match = line.match(/•\s*\[(\w+)\]\s*(.+)/);
+      const match = line.match(/-\s*(\w+):\s*(.+)/);
       if (match) {
-        const [, category, description] = match;
+        const [, verb, description] = match;
+        // Map verbs to legacy categories for backward compatibility
+        let category: ExtractAction['category'] = 'OBSERVAÇÃO';
+        if (['Ajustou', 'Realocou', 'Escalou'].includes(verb)) category = 'VERBA';
+        if (['Criou', 'Publicou', 'Duplicou', 'Pausou', 'Ativou', 'Reativou'].includes(verb)) category = 'CRIATIVOS';
+        if (['Testou', 'Corrigiu'].includes(verb)) category = 'CONJUNTOS';
+        if (['Observou'].includes(verb)) category = 'OBSERVAÇÃO';
+
         actions.push({
-          category: category as ExtractAction['category'],
-          description: description.trim(),
+          category,
+          description: `${verb}: ${description.trim()}`,
         });
       }
     });
