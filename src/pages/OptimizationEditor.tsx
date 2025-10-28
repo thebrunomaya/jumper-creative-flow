@@ -789,15 +789,20 @@ export default function OptimizationEditor() {
     <JumperBackground overlay={false}>
       <Header />
 
-      {/* Breadcrumb */}
+      {/* Header */}
       <div className="px-8 py-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="flex items-center justify-between">
-          <div className="flex-1">
+        <div className="grid grid-cols-3 items-center gap-4">
+          {/* Left: Back button */}
+          <div className="flex justify-start">
             <JumperButton variant="ghost" size="sm" onClick={() => navigate('/optimization')}>
               <ChevronLeft className="h-4 w-4 mr-1" />
               Voltar para Lista
             </JumperButton>
-            <h1 className="text-2xl font-bold mt-2">
+          </div>
+
+          {/* Center: Title and date */}
+          <div className="text-center">
+            <h1 className="text-2xl font-bold">
               Edição de Otimização - {accountName}
             </h1>
             <p className="text-sm text-muted-foreground mt-1">
@@ -805,8 +810,8 @@ export default function OptimizationEditor() {
             </p>
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex items-center gap-2">
+          {/* Right: Action Buttons */}
+          <div className="flex items-center gap-2 justify-end">
             <JumperButton
               variant="outline"
               size="sm"

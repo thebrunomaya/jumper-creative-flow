@@ -7,10 +7,18 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.48';
+export const APP_VERSION = 'v2.0.49';
 
 /**
  * Version history:
+ * - v2.0.49 (2024-10-27):
+ *   - UX FIX: Centered header layout in Optimization Editor
+ *   - Changed from 2-column to 3-column grid layout
+ *   - Left: Back button | Center: Title + Date | Right: Action buttons
+ *   - Title and date now horizontally centered
+ *   - All elements vertically aligned with `items-center`
+ *   - Clean, balanced header layout
+ *
  * - v2.0.48 (2024-10-27):
  *   - UX FIX: Simple header alignment fix in Optimization Editor
  *   - Changed from `items-start` to `items-center` for vertical centering
