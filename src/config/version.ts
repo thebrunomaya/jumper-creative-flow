@@ -7,16 +7,24 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.41';
+export const APP_VERSION = 'v2.0.42';
 
 /**
  * Version history:
+ * - v2.0.42 (2024-10-27):
+ *   - UX: Intelligent step expansion on page load
+ *   - Highest completed step automatically opens when entering editor
+ *   - Priority: Step 3 > Step 2 > Step 1 (most refined content first)
+ *   - Other steps remain collapsed for clean interface
+ *   - User immediately sees the most important/complete content
+ *   - Can still expand/collapse any step manually
+ *
  * - v2.0.41 (2024-10-27):
  *   - FIX: PDF export now includes ALL 3 optimization steps
  *   - Added Step 1 (Transcrição Completa) section with full transcript
  *   - Added Step 2 (Log da Otimização) section with organized bullets
  *   - Added Step 3 (Extrato) section with categorized actions
- *   - PDF now shows complete workflow: Transcript → Log → Extract → Analysis
+ *   - PDF structure: Header → Transcrição → Log → Extrato
  *   - Button only enabled when Step 3 (Extrato) is completed
  *   - Updated toast message: "PDF completo gerado com sucesso!"
  *   - Fixed critical bug: extract parameter was missing from export function

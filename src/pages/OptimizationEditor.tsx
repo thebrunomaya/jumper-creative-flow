@@ -146,6 +146,16 @@ export default function OptimizationEditor() {
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  // Determine which step should be open by default (highest completed step)
+  const getDefaultOpenStep = (): number => {
+    if (extract?.extract_text) return 3; // Step 3 has content
+    if (transcript?.processed_text) return 2; // Step 2 has content
+    if (transcript?.full_text) return 1; // Step 1 has content
+    return 0; // Nothing completed, all closed
+  };
+
+  const defaultOpenStep = getDefaultOpenStep();
+
   // Load data on mount
   useEffect(() => {
     if (recordingId) {
@@ -834,6 +844,7 @@ export default function OptimizationEditor() {
             onCopy={handleCopyExtract}
             isEditDisabled={recording.analysis_status !== 'completed'}
             onDebug={isAdmin ? () => openDebug('extract') : undefined}
+            defaultCollapsed={defaultOpenStep !== 3}
           >
             {/* Pending State - Locked if Step 2 not completed */}
             {recording.analysis_status === 'pending' && recording.processing_status !== 'completed' && (
@@ -939,6 +950,7 @@ export default function OptimizationEditor() {
             onCopy={handleCopyLog}
             isEditDisabled={recording.processing_status !== 'completed'}
             onDebug={isAdmin ? () => openDebug('process') : undefined}
+            defaultCollapsed={defaultOpenStep !== 2}
           >
             {/* Pending State - Locked if Step 1 not completed */}
             {recording.processing_status === 'pending' && recording.transcription_status !== 'completed' && (
@@ -1033,6 +1045,7 @@ export default function OptimizationEditor() {
             onCopy={handleCopyTranscript}
             isEditDisabled={recording.transcription_status !== 'completed'}
             onDebug={isAdmin ? () => openDebug('transcribe') : undefined}
+            defaultCollapsed={defaultOpenStep !== 1}
           >
             {/* Audio Player */}
             {audioUrl && (
