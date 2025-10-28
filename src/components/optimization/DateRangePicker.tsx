@@ -161,8 +161,23 @@ export function DateRangePicker({
 }: DateRangePickerProps) {
   const presets = getDatePresets();
 
+  // Detect which preset matches the current value
+  const detectMatchingPreset = (range: { start: Date; end: Date }): PresetKey | "custom" => {
+    for (const preset of presets) {
+      const presetRange = preset.getRange();
+      // Compare dates by comparing their time values (ignores milliseconds)
+      if (
+        presetRange.start.toDateString() === range.start.toDateString() &&
+        presetRange.end.toDateString() === range.end.toDateString()
+      ) {
+        return preset.key;
+      }
+    }
+    return "custom";
+  };
+
   const [selectedPreset, setSelectedPreset] = useState<PresetKey | "custom">(
-    "last_7_days"
+    detectMatchingPreset(value)
   );
   const [localRange, setLocalRange] = useState<DateRange>({
     from: value.start,

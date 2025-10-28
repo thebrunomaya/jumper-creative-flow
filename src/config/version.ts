@@ -7,10 +7,19 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.55';
+export const APP_VERSION = 'v2.0.56';
 
 /**
  * Version history:
+ * - v2.0.56 (2024-10-28):
+ *   - ENHANCEMENT: OptimizationNew date picker now auto-detects matching presets
+ *   - AUDIT: Verified account filtering uses correct permission-based logic (same as /my-accounts)
+ *   - DateRangePicker component now highlights correct preset when modal opens
+ *   - Example: "Últimos 7 dias" preset selected when dates match that range
+ *   - Improves UX by showing user which preset they're currently using
+ *   - detectMatchingPreset() compares date strings to identify preset vs custom range
+ *   - No changes needed to account filtering - already correct via useMyNotionAccounts hook
+ *
  * - v2.0.55 (2024-10-28):
  *   - FIX: Corrected import in useDraftManager.ts (useAuth path)
  *   - Import error: "Failed to resolve import @/hooks/useAuth"
