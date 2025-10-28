@@ -579,8 +579,8 @@ export default function OptimizationEditor() {
   // Export handlers
   function handleExportPDF() {
     if (!recording || !accountName) return;
-    exportOptimizationToPDF(recording, accountName, transcript, context);
-    toast.success('PDF gerado!');
+    exportOptimizationToPDF(recording, accountName, transcript, extract, context);
+    toast.success('PDF completo gerado com sucesso!');
   }
 
   function handleShare() {
@@ -801,7 +801,8 @@ export default function OptimizationEditor() {
               variant="outline"
               size="sm"
               onClick={handleExportPDF}
-              disabled={!transcript || recording.transcription_status !== 'completed'}
+              disabled={!extract || recording.analysis_status !== 'completed'}
+              title={!extract ? "Complete o Step 3 (Extrato) para exportar PDF" : undefined}
             >
               <Download className="h-4 w-4 mr-2" />
               Exportar PDF

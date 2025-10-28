@@ -16,6 +16,7 @@ export function exportOptimizationToPDF(
   recording: OptimizationRecordingRow,
   accountName: string,
   transcript: OptimizationTranscriptRow | null,
+  extract: { extract_text: string; edit_count: number; updated_at: string } | null,
   context: OptimizationContext | null
 ) {
   const doc = new jsPDF();
@@ -68,6 +69,23 @@ export function exportOptimizationToPDF(
     addText(`Duração: ${mins}:${secs.toString().padStart(2, '0')}`);
   }
 
+  // Step 1: Transcription
+  if (transcript?.full_text) {
+    addSection('1. Transcrição Completa');
+    addText(transcript.full_text, 10);
+  }
+
+  // Step 2: Log da Otimização
+  if (transcript?.processed_text) {
+    addSection('2. Log da Otimização');
+    addText(transcript.processed_text, 10);
+  }
+
+  // Step 3: Extrato
+  if (extract?.extract_text) {
+    addSection('3. Extrato de Ações');
+    addText(extract.extract_text, 10);
+  }
 
   // AI Analysis
   if (context) {

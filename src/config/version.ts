@@ -7,10 +7,20 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.40';
+export const APP_VERSION = 'v2.0.41';
 
 /**
  * Version history:
+ * - v2.0.41 (2024-10-27):
+ *   - FIX: PDF export now includes ALL 3 optimization steps
+ *   - Added Step 1 (Transcrição Completa) section with full transcript
+ *   - Added Step 2 (Log da Otimização) section with organized bullets
+ *   - Added Step 3 (Extrato) section with categorized actions
+ *   - PDF now shows complete workflow: Transcript → Log → Extract → Analysis
+ *   - Button only enabled when Step 3 (Extrato) is completed
+ *   - Updated toast message: "PDF completo gerado com sucesso!"
+ *   - Fixed critical bug: extract parameter was missing from export function
+ *
  * - v2.0.40 (2024-10-27):
  *   - FIX: Added missing spinner to ReprocessConfirmModal
  *   - Button now shows "Recriando..." with animated Loader2 icon
