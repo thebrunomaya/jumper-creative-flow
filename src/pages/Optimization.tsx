@@ -9,7 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { useMyOptimizations } from "@/hooks/useMyOptimizations";
 import { OptimizationsPanelList } from "@/components/optimization/OptimizationsPanelList";
 import { JumperBackground } from "@/components/ui/jumper-background";
-import { Loader2, Sparkles, X } from "lucide-react";
+import { Loader2, Plus, Sparkles, X } from "lucide-react";
 import Header from "@/components/Header";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
@@ -103,9 +103,19 @@ export default function Optimization() {
               </div>
             </div>
 
-            {/* Account Filter */}
-            {uniqueAccounts.length > 1 && (
-              <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2">
+              {/* New Optimization Button */}
+              <JumperButton
+                onClick={() => navigate('/optimization/new')}
+                className="whitespace-nowrap"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Nova Otimização
+              </JumperButton>
+
+              {/* Account Filter */}
+              {uniqueAccounts.length > 1 && (
+                <>
                 <Select
                   value={selectedAccountId || "all"}
                   onValueChange={(value) => setSelectedAccountId(value === "all" ? null : value)}
@@ -133,8 +143,9 @@ export default function Optimization() {
                     <X className="h-4 w-4" />
                   </JumperButton>
                 )}
-              </div>
-            )}
+                </>
+              )}
+            </div>
           </div>
         </header>
 
