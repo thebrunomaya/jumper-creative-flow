@@ -31,41 +31,41 @@ const EXTRACT_PROMPT = `Você é um assistente especializado em extrair ações 
 **TAREFA**: Analise o log e extraia TODAS as ações executadas, listando primeiro as internas e depois as externas.
 
 **AÇÕES INTERNAS** (executadas diretamente nas plataformas):
-- [Pausou] / [Ativou] / [Reativou]: Recursos ligados/desligados
-- [Criou] / [Publicou] / [Duplicou]: Novos recursos
-- [Excluiu]: Recursos removidos
-- [Ajustou] / [Realocou]: Modificações de budget ou configurações
-- [Corrigiu]: Erros consertados
-- [Escalou]: Investimento aumentado
-- [Testou]: Testes iniciados
-- [Observou]: Análise sem ação (apenas se explicitamente mencionado)
+- [PAUSOU] / [ATIVOU] / [REATIVOU]: Recursos ligados/desligados
+- [CRIOU] / [PUBLICOU] / [DUPLICOU]: Novos recursos
+- [EXCLUIU]: Recursos removidos
+- [AJUSTOU] / [REALOCOU]: Modificações de budget ou configurações
+- [CORRIGIU]: Erros consertados
+- [ESCALOU]: Investimento aumentado
+- [TESTOU]: Testes iniciados
+- [OBSERVOU]: Análise sem ação (apenas se explicitamente mencionado)
 
 **AÇÕES EXTERNAS** (dependem de terceiros):
-- [Solicitou]: Criativos, verba, ajustes técnicos
-- [Informou]: Gerente ou cliente
-- [Aguardando]: Aprovações pendentes
-- [Abriu]: Tickets no sistema
-- [Enviou]: Comunicações durante otimização
+- [SOLICITOU]: Criativos, verba, ajustes técnicos
+- [INFORMOU]: Gerente ou cliente
+- [AGUARDANDO]: Aprovações pendentes
+- [ABRIU]: Tickets no sistema
+- [ENVIOU]: Comunicações durante otimização
 
-**FORMATO DE SAÍDA** (use EXATAMENTE este formato com colchetes):
-- [Verbo]: Detalhes específicos + quantificação
+**FORMATO DE SAÍDA** (use EXATAMENTE este formato com verbos em MAIÚSCULAS):
+- [VERBO]: Detalhes específicos + quantificação
 
 [linha em branco separando se houver ações externas]
 
-- [Verbo]: Detalhes da solicitação/comunicação
+- [VERBO]: Detalhes da solicitação/comunicação
 
 **EXEMPLO DE SAÍDA CORRETA**:
-- [Criou]: Campanha de vendas CBO "Estratégia Apocalíptica" com budget R$ 413/dia
-- [Criou]: Conjunto "Rebelde" (categoria de produto) dentro da CBO
-- [Observou]: Distribuição anômala de verba (72,6% no catálogo) sem executar ajustes
+- [CRIOU]: Campanha de vendas CBO "Estratégia Apocalíptica" com budget R$ 413/dia
+- [CRIOU]: Conjunto "Rebelde" (categoria de produto) dentro da CBO
+- [OBSERVOU]: Distribuição anômala de verba (72,6% no catálogo) sem executar ajustes
 
-- [Solicitou]: 5 novos criativos ao time de design
-- [Informou]: Gerente sobre performance baixa da campanha X
+- [SOLICITOU]: 5 novos criativos ao time de design
+- [INFORMOU]: Gerente sobre performance baixa da campanha X
 
 **REGRAS**:
 1. Liste primeiro todas as ações internas
 2. Separe com linha em branco se houver ações externas
-3. Use APENAS os verbos listados ENTRE COLCHETES: [Verbo]
+3. Use APENAS os verbos listados ENTRE COLCHETES EM MAIÚSCULAS: [VERBO]
 4. Especifique recursos afetados (nomes/IDs)
 5. Quantifique sempre que possível
 6. Se não houver ações de um tipo, omita completamente
@@ -73,7 +73,7 @@ const EXTRACT_PROMPT = `Você é um assistente especializado em extrair ações 
 **LOG A ANALISAR**:
 {context_text}
 
-**RESPONDA APENAS COM A LISTA DE AÇÕES (formato: - [Verbo]: detalhes)**:`;
+**RESPONDA APENAS COM A LISTA DE AÇÕES (formato: - [VERBO]: detalhes)**:`;
 
 serve(async (req) => {
   // Handle CORS preflight
@@ -149,19 +149,20 @@ serve(async (req) => {
     const lines = extractText.split('\n').filter((line) => line.trim().startsWith('-'));
 
     lines.forEach((line) => {
-      const match = line.match(/-\s*\[(\w+)\]:\s*(.+)/);
+      const match = line.match(/-\s*\[(\w+)\]:\s*(.+)/i);
       if (match) {
         const [, verb, description] = match;
+        const verbUpper = verb.toUpperCase();
         // Map verbs to legacy categories for backward compatibility
         let category: ExtractAction['category'] = 'OBSERVAÇÃO';
-        if (['Ajustou', 'Realocou', 'Escalou'].includes(verb)) category = 'VERBA';
-        if (['Criou', 'Publicou', 'Duplicou', 'Pausou', 'Ativou', 'Reativou'].includes(verb)) category = 'CRIATIVOS';
-        if (['Testou', 'Corrigiu'].includes(verb)) category = 'CONJUNTOS';
-        if (['Observou'].includes(verb)) category = 'OBSERVAÇÃO';
+        if (['AJUSTOU', 'REALOCOU', 'ESCALOU'].includes(verbUpper)) category = 'VERBA';
+        if (['CRIOU', 'PUBLICOU', 'DUPLICOU', 'PAUSOU', 'ATIVOU', 'REATIVOU'].includes(verbUpper)) category = 'CRIATIVOS';
+        if (['TESTOU', 'CORRIGIU'].includes(verbUpper)) category = 'CONJUNTOS';
+        if (['OBSERVOU'].includes(verbUpper)) category = 'OBSERVAÇÃO';
 
         actions.push({
           category,
-          description: `[${verb}]: ${description.trim()}`,
+          description: `[${verbUpper}]: ${description.trim()}`,
         });
       }
     });

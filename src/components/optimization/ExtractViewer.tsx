@@ -15,61 +15,61 @@ interface ExtractViewerProps {
 // Map action verbs to icons (RADAR methodology)
 const VERB_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
   // Internal actions - Platform
-  Criou: Plus,
-  Publicou: Play,
-  Duplicou: Plus,
-  Pausou: Pause,
-  Ativou: Play,
-  Reativou: Play,
-  Excluiu: Trash2,
-  Ajustou: Settings,
-  Realocou: Settings,
-  Corrigiu: AlertCircle,
-  Escalou: TrendingUp,
-  Testou: Beaker,
-  Observou: Eye,
+  CRIOU: Plus,
+  PUBLICOU: Play,
+  DUPLICOU: Plus,
+  PAUSOU: Pause,
+  ATIVOU: Play,
+  REATIVOU: Play,
+  EXCLUIU: Trash2,
+  AJUSTOU: Settings,
+  REALOCOU: Settings,
+  CORRIGIU: AlertCircle,
+  ESCALOU: TrendingUp,
+  TESTOU: Beaker,
+  OBSERVOU: Eye,
 
   // External actions - Third-party
-  Solicitou: MessageSquare,
-  Informou: MessageSquare,
-  Aguardando: Clock,
-  Abriu: AlertCircle,
-  Enviou: Send,
+  SOLICITOU: MessageSquare,
+  INFORMOU: MessageSquare,
+  AGUARDANDO: Clock,
+  ABRIU: AlertCircle,
+  ENVIOU: Send,
 };
 
 // Map action verbs to semantic colors
 const VERB_COLORS: Record<string, string> = {
   // Creation actions - Blue
-  Criou: "text-blue-600 dark:text-blue-400",
-  Publicou: "text-blue-600 dark:text-blue-400",
-  Duplicou: "text-blue-600 dark:text-blue-400",
+  CRIOU: "text-blue-600 dark:text-blue-400",
+  PUBLICOU: "text-blue-600 dark:text-blue-400",
+  DUPLICOU: "text-blue-600 dark:text-blue-400",
 
   // Activation/Pause - Purple
-  Pausou: "text-purple-600 dark:text-purple-400",
-  Ativou: "text-purple-600 dark:text-purple-400",
-  Reativou: "text-purple-600 dark:text-purple-400",
+  PAUSOU: "text-purple-600 dark:text-purple-400",
+  ATIVOU: "text-purple-600 dark:text-purple-400",
+  REATIVOU: "text-purple-600 dark:text-purple-400",
 
   // Deletion - Red
-  Excluiu: "text-red-600 dark:text-red-400",
+  EXCLUIU: "text-red-600 dark:text-red-400",
 
   // Budget/Settings - Green
-  Ajustou: "text-green-600 dark:text-green-400",
-  Realocou: "text-green-600 dark:text-green-400",
-  Escalou: "text-green-600 dark:text-green-400",
+  AJUSTOU: "text-green-600 dark:text-green-400",
+  REALOCOU: "text-green-600 dark:text-green-400",
+  ESCALOU: "text-green-600 dark:text-green-400",
 
   // Correction/Testing - Orange
-  Corrigiu: "text-orange-600 dark:text-orange-400",
-  Testou: "text-orange-600 dark:text-orange-400",
+  CORRIGIU: "text-orange-600 dark:text-orange-400",
+  TESTOU: "text-orange-600 dark:text-orange-400",
 
   // Observation - Amber
-  Observou: "text-amber-600 dark:text-amber-400",
+  OBSERVOU: "text-amber-600 dark:text-amber-400",
 
   // External actions - Gray (neutral)
-  Solicitou: "text-gray-600 dark:text-gray-400",
-  Informou: "text-gray-600 dark:text-gray-400",
-  Aguardando: "text-gray-600 dark:text-gray-400",
-  Abriu: "text-gray-600 dark:text-gray-400",
-  Enviou: "text-gray-600 dark:text-gray-400",
+  SOLICITOU: "text-gray-600 dark:text-gray-400",
+  INFORMOU: "text-gray-600 dark:text-gray-400",
+  AGUARDANDO: "text-gray-600 dark:text-gray-400",
+  ABRIU: "text-gray-600 dark:text-gray-400",
+  ENVIOU: "text-gray-600 dark:text-gray-400",
 };
 
 export function ExtractViewer({ content }: ExtractViewerProps) {
@@ -108,7 +108,7 @@ export function ExtractViewer({ content }: ExtractViewerProps) {
 
   const renderAction = (line: string, idx: number) => {
     // Extract verb and description: - [Verb]: description
-    const match = line.match(/-\s*\[(\w+)\]:\s*(.+)/);
+    const match = line.match(/-\s*\[(\w+)\]:\s*(.+)/i);
     if (!match) {
       // Fallback for lines without proper format
       return (
@@ -120,19 +120,20 @@ export function ExtractViewer({ content }: ExtractViewerProps) {
     }
 
     const [, verb, description] = match;
-    const Icon = VERB_ICONS[verb] || AlertCircle;
-    const colorClass = VERB_COLORS[verb] || "text-muted-foreground";
+    const verbUpper = verb.toUpperCase();
+    const Icon = VERB_ICONS[verbUpper] || AlertCircle;
+    const colorClass = VERB_COLORS[verbUpper] || "text-muted-foreground";
 
     return (
-      <div key={idx} className="flex items-start gap-3">
+      <div key={idx} className="flex items-center gap-3">
         {/* Verb Icon */}
-        <div className={`flex-shrink-0 mt-0.5 ${colorClass}`}>
+        <div className={`flex-shrink-0 ${colorClass}`}>
           <Icon className="h-4 w-4" />
         </div>
 
         {/* Action Description */}
         <div className="flex-1">
-          <span className={`font-semibold ${colorClass}`}>[{verb}]</span>{' '}
+          <span className={`font-semibold ${colorClass}`}>[{verbUpper}]</span>{' '}
           <span className="text-foreground leading-relaxed">{description}</span>
         </div>
       </div>

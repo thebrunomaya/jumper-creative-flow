@@ -7,10 +7,20 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.45';
+export const APP_VERSION = 'v2.0.46';
 
 /**
  * Version history:
+ * - v2.0.46 (2024-10-27):
+ *   - UX FIX: Corrected icon alignment in Step 3 Extract viewer
+ *   - Changed from `items-start` to `items-center` and removed `mt-0.5`
+ *   - Icons now perfectly aligned with text baseline
+ *   - BREAKING: Action verbs now display in UPPERCASE: [CRIOU], [OBSERVOU], etc.
+ *   - Updated prompt to generate uppercase verbs for better visual hierarchy
+ *   - Updated ExtractViewer parsing to handle uppercase verbs
+ *   - Updated Edge Function parsing to normalize verbs to uppercase
+ *   - All verb mappings (VERB_ICONS, VERB_COLORS) converted to uppercase keys
+ *
  * - v2.0.45 (2024-10-27):
  *   - UX: Restored color-coded visual system for Step 3 Extract with RADAR methodology
  *   - Semantic colors by action type: Blue (creation), Purple (activation/pause), Red (deletion),
