@@ -7,10 +7,16 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.33';
+export const APP_VERSION = 'v2.0.34';
 
 /**
  * Version history:
+ * - v2.0.34 (2024-10-27):
+ *   - FIX: Optimization panel extracts now display correctly
+ *   - Root cause: Supabase left join returns object, not array
+ *   - Changed from rec.j_hub_optimization_extracts?.[0]?.extract_text to rec.j_hub_optimization_extracts?.extract_text
+ *   - All 9 extracts now showing inline in optimization cards
+ *
  * - v2.0.33 (2024-10-27):
  *   - REDESIGN: Optimization page transformed into panel view with permissions
  *   - Shows all optimizations from user's accessible accounts (like /my-accounts)

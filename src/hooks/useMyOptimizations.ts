@@ -78,19 +78,13 @@ export const useMyOptimizations = () => {
           account_name: accountsMap.get(rec.account_id) || rec.account_id,
           recorded_at: rec.recorded_at,
           recorded_by: rec.recorded_by,
-          extract_text: rec.j_hub_optimization_extracts?.[0]?.extract_text || null,
+          extract_text: rec.j_hub_optimization_extracts?.extract_text || null,
           transcription_status: rec.transcription_status,
           analysis_status: rec.analysis_status,
           duration_seconds: rec.duration_seconds,
         }));
 
         setOptimizations(transformed);
-
-        console.log('✅ useMyOptimizations - Data loaded:', {
-          accounts: accountIds.length,
-          optimizations: transformed.length,
-          withExtracts: transformed.filter(o => o.extract_text).length,
-        });
 
       } catch (err: any) {
         console.error('useMyOptimizations error:', err);
