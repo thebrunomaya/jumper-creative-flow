@@ -7,10 +7,16 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.58';
+export const APP_VERSION = 'v2.0.59';
 
 /**
  * Version history:
+ * - v2.0.59 (2024-10-28):
+ *   - CLEANUP: Removed unused AccountSelector.tsx component from optimization folder
+ *   - Component was never imported or used anywhere in the application
+ *   - Reduced codebase complexity as part of account selection standardization (FASE 3)
+ *   - All pages now use standardized useMyNotionAccounts hook pattern
+ *
  * - v2.0.58 (2024-10-28):
  *   - UX: Enhanced account selector with loading and empty states on OptimizationNew
  *   - Select component now shows "Carregando contas..." placeholder while fetching
