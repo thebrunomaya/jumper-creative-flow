@@ -790,54 +790,56 @@ export default function OptimizationEditor() {
       <Header />
 
       {/* Header */}
-      <div className="px-8 py-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        {/* Back button row */}
-        <div className="mb-4">
-          <JumperButton variant="ghost" size="sm" onClick={() => navigate('/optimization')}>
-            <ChevronLeft className="h-4 w-4 mr-1" />
-            Voltar para Lista
-          </JumperButton>
-        </div>
-
-        {/* Title and action buttons row */}
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold">
-              Edição de Otimização - {accountName}
-            </h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              Gravado em {new Date(recording.recorded_at).toLocaleString('pt-BR')}
-            </p>
+      <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          {/* Back button row */}
+          <div className="mb-4">
+            <JumperButton variant="ghost" size="sm" onClick={() => navigate('/optimization')}>
+              <ChevronLeft className="h-4 w-4 mr-1" />
+              Voltar para Lista
+            </JumperButton>
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex items-center gap-2">
-            <JumperButton
-              variant="outline"
-              size="sm"
-              onClick={handleExportPDF}
-              disabled={!extract || recording.analysis_status !== 'completed'}
-              title={!extract ? "Complete o Step 3 (Extrato) para exportar PDF" : undefined}
-            >
-              <Download className="h-4 w-4 mr-2" />
-              Exportar PDF
-            </JumperButton>
+          {/* Title and action buttons row */}
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h1 className="text-2xl font-bold">
+                Edição de Otimização - {accountName}
+              </h1>
+              <p className="text-sm text-muted-foreground mt-1">
+                Gravado em {new Date(recording.recorded_at).toLocaleString('pt-BR')}
+              </p>
+            </div>
 
-            <JumperButton
-              variant="destructive"
-              size="sm"
-              onClick={() => setDeleteConfirmOpen(true)}
-            >
-              <Trash2 className="h-4 w-4 mr-2" />
-              Excluir
-            </JumperButton>
+            {/* Action Buttons */}
+            <div className="flex items-center gap-2">
+              <JumperButton
+                variant="outline"
+                size="sm"
+                onClick={handleExportPDF}
+                disabled={!extract || recording.analysis_status !== 'completed'}
+                title={!extract ? "Complete o Step 3 (Extrato) para exportar PDF" : undefined}
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Exportar PDF
+              </JumperButton>
+
+              <JumperButton
+                variant="destructive"
+                size="sm"
+                onClick={() => setDeleteConfirmOpen(true)}
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Excluir
+              </JumperButton>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Main Content */}
       <ScrollArea className="h-[calc(100vh-180px)]">
-        <div className="px-8 py-6 max-w-6xl mx-auto space-y-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
 
           {/* SEÇÃO 3: EXTRATO (TOPO - Mais refinado) */}
           <OptimizationStepCard

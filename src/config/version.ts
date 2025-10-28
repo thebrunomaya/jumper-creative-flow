@@ -7,10 +7,18 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.50';
+export const APP_VERSION = 'v2.0.51';
 
 /**
  * Version history:
+ * - v2.0.51 (2024-10-27):
+ *   - UX FIX: Aligned header content with main Header component
+ *   - Changed from `px-8` to responsive padding: `px-4 sm:px-6 lg:px-8`
+ *   - Added `max-w-7xl mx-auto` container to match Header component
+ *   - Page header now aligns with Jumper logo (left) and UserMenu (right)
+ *   - Main content also uses same container for consistent alignment
+ *   - Clean, professional visual alignment across entire page
+ *
  * - v2.0.50 (2024-10-27):
  *   - UX FIX: Reverted to left-aligned header (app standard)
  *   - Two-row layout: Back button above, title + actions below
