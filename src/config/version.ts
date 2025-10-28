@@ -7,10 +7,20 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.44';
+export const APP_VERSION = 'v2.0.45';
 
 /**
  * Version history:
+ * - v2.0.45 (2024-10-27):
+ *   - UX: Restored color-coded visual system for Step 3 Extract with RADAR methodology
+ *   - Semantic colors by action type: Blue (creation), Purple (activation/pause), Red (deletion),
+ *     Green (budget/settings), Orange (correction/testing), Amber (observation), Gray (external)
+ *   - Updated prompt format: - [Verb]: Details (with brackets for parsing)
+ *   - New icons per verb: Plus, Play, Pause, Trash2, Settings, TrendingUp, Beaker, Eye, MessageSquare, Clock, Send
+ *   - Visual separator (border) between internal and external actions
+ *   - ExtractViewer now parses dash-based format with [Verb] extraction
+ *   - Maintains backward compatibility with action parsing in Edge Function
+ *
  * - v2.0.44 (2024-10-27):
  *   - MAJOR CHANGE: Step 3 Extract prompt updated to RADAR methodology
  *   - New structure: Actions separated into INTERNAL (platform) vs EXTERNAL (third-party)

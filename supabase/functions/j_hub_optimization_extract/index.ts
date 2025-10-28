@@ -31,33 +31,41 @@ const EXTRACT_PROMPT = `Você é um assistente especializado em extrair ações 
 **TAREFA**: Analise o log e extraia TODAS as ações executadas, listando primeiro as internas e depois as externas.
 
 **AÇÕES INTERNAS** (executadas diretamente nas plataformas):
-- Pausou / Ativou / Reativou: Recursos ligados/desligados
-- Criou / Publicou / Duplicou: Novos recursos
-- Excluiu: Recursos removidos
-- Ajustou / Realocou: Modificações de budget ou configurações
-- Corrigiu: Erros consertados
-- Escalou: Investimento aumentado
-- Testou: Testes iniciados
-- Observou: Análise sem ação (apenas se explicitamente mencionado)
+- [Pausou] / [Ativou] / [Reativou]: Recursos ligados/desligados
+- [Criou] / [Publicou] / [Duplicou]: Novos recursos
+- [Excluiu]: Recursos removidos
+- [Ajustou] / [Realocou]: Modificações de budget ou configurações
+- [Corrigiu]: Erros consertados
+- [Escalou]: Investimento aumentado
+- [Testou]: Testes iniciados
+- [Observou]: Análise sem ação (apenas se explicitamente mencionado)
 
 **AÇÕES EXTERNAS** (dependem de terceiros):
-- Solicitou: Criativos, verba, ajustes técnicos
-- Informou: Gerente ou cliente
-- Aguardando: Aprovações pendentes
-- Abriu: Tickets no sistema
-- Enviou: Comunicações durante otimização
+- [Solicitou]: Criativos, verba, ajustes técnicos
+- [Informou]: Gerente ou cliente
+- [Aguardando]: Aprovações pendentes
+- [Abriu]: Tickets no sistema
+- [Enviou]: Comunicações durante otimização
 
-**FORMATO DE SAÍDA**:
-- [Verbo]: [Detalhes específicos + quantificação]
+**FORMATO DE SAÍDA** (use EXATAMENTE este formato com colchetes):
+- [Verbo]: Detalhes específicos + quantificação
 
 [linha em branco separando se houver ações externas]
 
-- [Verbo]: [Detalhes da solicitação/comunicação]
+- [Verbo]: Detalhes da solicitação/comunicação
+
+**EXEMPLO DE SAÍDA CORRETA**:
+- [Criou]: Campanha de vendas CBO "Estratégia Apocalíptica" com budget R$ 413/dia
+- [Criou]: Conjunto "Rebelde" (categoria de produto) dentro da CBO
+- [Observou]: Distribuição anômala de verba (72,6% no catálogo) sem executar ajustes
+
+- [Solicitou]: 5 novos criativos ao time de design
+- [Informou]: Gerente sobre performance baixa da campanha X
 
 **REGRAS**:
 1. Liste primeiro todas as ações internas
 2. Separe com linha em branco se houver ações externas
-3. Use apenas os verbos listados
+3. Use APENAS os verbos listados ENTRE COLCHETES: [Verbo]
 4. Especifique recursos afetados (nomes/IDs)
 5. Quantifique sempre que possível
 6. Se não houver ações de um tipo, omita completamente
@@ -65,7 +73,7 @@ const EXTRACT_PROMPT = `Você é um assistente especializado em extrair ações 
 **LOG A ANALISAR**:
 {context_text}
 
-**RESPONDA APENAS COM A LISTA DE AÇÕES**:`;
+**RESPONDA APENAS COM A LISTA DE AÇÕES (formato: - [Verbo]: detalhes)**:`;
 
 serve(async (req) => {
   // Handle CORS preflight
@@ -141,7 +149,7 @@ serve(async (req) => {
     const lines = extractText.split('\n').filter((line) => line.trim().startsWith('-'));
 
     lines.forEach((line) => {
-      const match = line.match(/-\s*(\w+):\s*(.+)/);
+      const match = line.match(/-\s*\[(\w+)\]:\s*(.+)/);
       if (match) {
         const [, verb, description] = match;
         // Map verbs to legacy categories for backward compatibility
@@ -153,7 +161,7 @@ serve(async (req) => {
 
         actions.push({
           category,
-          description: `${verb}: ${description.trim()}`,
+          description: `[${verb}]: ${description.trim()}`,
         });
       }
     });
