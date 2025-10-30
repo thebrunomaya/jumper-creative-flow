@@ -7,10 +7,21 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.66';
+export const APP_VERSION = 'v2.0.67';
 
 /**
  * Version history:
+ * - v2.0.67 (2024-10-30):
+ *   - FIX: Resilient transcription error handling for OpenAI API failures
+ *   - Edge Function: Added HTML response detection (Cloudflare 502/503 errors)
+ *   - Edge Function: Implemented exponential backoff retry (3 attempts: 2s, 4s, 8s)
+ *   - Edge Function: Classifies errors as TRANSIENT vs PERMANENT
+ *   - Frontend: Preserves recording on transient errors (can retry later)
+ *   - Frontend: Only deletes recording on permanent errors (invalid file, auth failure)
+ *   - User-friendly toast: "OpenAI API está temporariamente indisponível. A gravação foi salva..."
+ *   - Fixes data loss issue when OpenAI API returns 502 during high load
+ *   - Audio file remains in storage even when transcription fails
+ *
  * - v2.0.66 (2024-10-28):
  *   - FEATURE: "Geral" objective now always appears as first option
  *   - All accounts now have "Geral" + Notion-specific objectives

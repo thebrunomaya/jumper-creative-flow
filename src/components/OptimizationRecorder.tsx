@@ -288,18 +288,36 @@ export function OptimizationRecorder({
     } catch (error: any) {
       console.error("Processing error:", error);
       setCurrentStep('error');
-      setProcessingError(error.message || "Erro desconhecido no processamento");
-      
-      // Clean up failed recording
-      if (insertedRecordingId) {
-        await supabase
-          .from("j_hub_optimization_recordings")
-          .delete()
-          .eq("id", insertedRecordingId);
+      const errorMessage = error.message || "Erro desconhecido no processamento";
+      setProcessingError(errorMessage);
+
+      // Determine if error is transient or permanent
+      const isTransientError = errorMessage.includes('temporarily unavailable') ||
+                              errorMessage.includes('CDN error') ||
+                              errorMessage.includes('after 3 attempts') ||
+                              errorMessage.includes('502') ||
+                              errorMessage.includes('503') ||
+                              errorMessage.includes('504');
+
+      if (isTransientError) {
+        // TRANSIENT ERROR: Keep recording for retry later
+        toast.error(
+          "OpenAI API está temporariamente indisponível. A gravação foi salva e você pode tentar novamente mais tarde.",
+          { duration: 6000 }
+        );
+        console.log(`⚠️ [RECORDER] Transient error - recording preserved: ${insertedRecordingId}`);
+      } else {
+        // PERMANENT ERROR: Delete recording (file invalid, auth failed, etc)
+        if (insertedRecordingId) {
+          await supabase
+            .from("j_hub_optimization_recordings")
+            .delete()
+            .eq("id", insertedRecordingId);
+          console.log(`❌ [RECORDER] Permanent error - recording deleted: ${insertedRecordingId}`);
+        }
+        toast.error(`Erro permanente: ${errorMessage}`);
       }
-      
-      toast.error(`Erro: ${error.message}`);
-      
+
     } finally {
       setIsUploading(false);
     }

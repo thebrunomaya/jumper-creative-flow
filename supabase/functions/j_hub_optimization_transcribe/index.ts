@@ -131,35 +131,118 @@ OUTPUT: Transcribe in Brazilian Portuguese.`;
 
     console.log('📏 [TRANSCRIBE] Prompt size:', finalPrompt.length, 'chars');
 
-    const formData = new FormData();
-    formData.append('file', audioData, 'audio.webm');
-    formData.append('model', 'whisper-1');
-    formData.append('language', 'pt');
-    formData.append('response_format', 'verbose_json'); // Get segments with timestamps
-    formData.append('prompt', finalPrompt);
-
-    // 5. Call OpenAI Whisper API
+    // 5. Call OpenAI Whisper API with retry logic
     const openaiKey = Deno.env.get('OPENAI_API_KEY');
     if (!openaiKey) {
       throw new Error('OPENAI_API_KEY not configured');
     }
 
-    const startTime = Date.now();
-    const whisperResponse = await fetch('https://api.openai.com/v1/audio/transcriptions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${openaiKey}`,
-      },
-      body: formData,
-    });
+    // Helper function to detect transient errors
+    const isTransientError = (status: number, contentType: string | null): boolean => {
+      // Network/infrastructure errors that should be retried
+      if ([502, 503, 504, 429].includes(status)) return true;
 
-    if (!whisperResponse.ok) {
-      const errorText = await whisperResponse.text();
-      console.error('❌ [TRANSCRIBE] OpenAI API error:', errorText);
-      throw new Error(`OpenAI API error: ${whisperResponse.status} - ${errorText}`);
+      // HTML responses from CDN indicate infrastructure issues
+      if (contentType?.includes('text/html')) return true;
+
+      return false;
+    };
+
+    // Helper function to call Whisper API with better error detection
+    const callWhisperAPI = async (): Promise<any> => {
+      // Create fresh FormData for each attempt (FormData can only be read once)
+      const formData = new FormData();
+      formData.append('file', audioData, 'audio.webm');
+      formData.append('model', 'whisper-1');
+      formData.append('language', 'pt');
+      formData.append('response_format', 'verbose_json');
+      formData.append('prompt', finalPrompt);
+
+      const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${openaiKey}`,
+        },
+        body: formData,
+      });
+
+      const contentType = response.headers.get('content-type');
+
+      // Detect HTML error pages (502/503 from Cloudflare/CDN)
+      if (contentType?.includes('text/html')) {
+        const htmlText = await response.text();
+        const isCloudflareError = htmlText.includes('cloudflare') || htmlText.includes('Bad gateway');
+
+        if (isCloudflareError) {
+          throw new Error(`TRANSIENT_ERROR: OpenAI API temporarily unavailable (CDN error: ${response.status})`);
+        } else {
+          throw new Error(`TRANSIENT_ERROR: Received HTML response instead of JSON (${response.status})`);
+        }
+      }
+
+      // Handle non-OK responses
+      if (!response.ok) {
+        let errorMessage = `OpenAI API error: ${response.status}`;
+
+        try {
+          const errorJson = await response.json();
+          errorMessage = errorJson.error?.message || errorMessage;
+        } catch {
+          const errorText = await response.text();
+          errorMessage = errorText.substring(0, 500); // Limit error message length
+        }
+
+        // Classify error type
+        if (isTransientError(response.status, contentType)) {
+          throw new Error(`TRANSIENT_ERROR: ${errorMessage}`);
+        } else {
+          throw new Error(`PERMANENT_ERROR: ${errorMessage}`);
+        }
+      }
+
+      return await response.json();
+    };
+
+    // Retry logic with exponential backoff
+    const MAX_RETRIES = 3;
+    let transcription: any = null;
+    let lastError: Error | null = null;
+    const startTime = Date.now();
+
+    for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+      try {
+        console.log(`🎙️ [TRANSCRIBE] Attempt ${attempt + 1}/${MAX_RETRIES}`);
+        transcription = await callWhisperAPI();
+        break; // Success! Exit retry loop
+
+      } catch (error: any) {
+        lastError = error;
+        console.error(`❌ [TRANSCRIBE] Attempt ${attempt + 1} failed:`, error.message);
+
+        // If permanent error, fail immediately
+        if (error.message.includes('PERMANENT_ERROR')) {
+          throw new Error(error.message.replace('PERMANENT_ERROR: ', ''));
+        }
+
+        // If transient error and not last attempt, retry with exponential backoff
+        if (error.message.includes('TRANSIENT_ERROR') && attempt < MAX_RETRIES - 1) {
+          const delayMs = 2000 * Math.pow(2, attempt); // 2s, 4s, 8s
+          console.log(`⏳ [TRANSCRIBE] Waiting ${delayMs}ms before retry...`);
+          await new Promise(resolve => setTimeout(resolve, delayMs));
+          continue;
+        }
+
+        // Last attempt failed - throw final error
+        if (attempt === MAX_RETRIES - 1) {
+          throw new Error(`Transcription failed after ${MAX_RETRIES} attempts: ${error.message.replace('TRANSIENT_ERROR: ', '')}`);
+        }
+      }
     }
 
-    const transcription = await whisperResponse.json();
+    if (!transcription) {
+      throw lastError || new Error('Unknown transcription error');
+    }
+
     const whisperLatency = Date.now() - startTime;
 
     console.log('✅ [TRANSCRIBE] Whisper completed:', transcription.text?.length || 0, 'chars,', whisperLatency, 'ms');
