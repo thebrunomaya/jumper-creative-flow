@@ -14,7 +14,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { JumperButton } from "@/components/ui/jumper-button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Mic, Square, Upload, Loader2, AlertCircle, Edit, FileAudio } from "lucide-react";
+import { Mic, Square, Upload, Loader2, AlertCircle, Edit, FileAudio, Download } from "lucide-react";
 import { toast } from "sonner";
 import { ContextEditor } from "./optimization/ContextEditor";
 import { PromptEditorModal } from "./optimization/PromptEditorModal";
@@ -160,6 +160,30 @@ export function OptimizationRecorder({
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
+  };
+
+  const handleDownloadAudio = () => {
+    const url = mediaBlobUrl || uploadedFileUrl;
+    if (!url) {
+      toast.error("Nenhum áudio disponível para download");
+      return;
+    }
+
+    // Create download link
+    const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+    const accountNameSlug = selectedAccountName.replace(/[^a-zA-Z0-9]/g, "-").toLowerCase();
+    const fileName = `otimizacao-${accountNameSlug}-${timestamp}.webm`;
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+
+    toast.success("✅ Áudio salvo em Downloads! Você pode enviá-lo depois usando 'Enviar Arquivo'.", {
+      duration: 6000
+    });
   };
 
   async function handleUpload() {
@@ -315,7 +339,25 @@ export function OptimizationRecorder({
             .eq("id", insertedRecordingId);
           console.log(`❌ [RECORDER] Permanent error - recording deleted: ${insertedRecordingId}`);
         }
-        toast.error(`Erro permanente: ${errorMessage}`);
+
+        // Auto-download audio on permanent failure (e.g., network error during upload)
+        // This prevents data loss - user can retry later using "Upload File" tab
+        if (mediaBlobUrl || uploadedFileUrl) {
+          try {
+            handleDownloadAudio();
+            toast.error(
+              `❌ Erro no upload! Salvamos o áudio em Downloads.\n` +
+              `Você pode enviá-lo depois usando a aba 'Enviar Arquivo'.\n\n` +
+              `Erro: ${errorMessage}`,
+              { duration: 10000 }
+            );
+          } catch (downloadError) {
+            console.error('Failed to auto-download audio:', downloadError);
+            toast.error(`Erro permanente: ${errorMessage}`);
+          }
+        } else {
+          toast.error(`Erro permanente: ${errorMessage}`);
+        }
       }
 
     } finally {
@@ -460,37 +502,50 @@ export function OptimizationRecorder({
                   <audio controls src={mediaBlobUrl} className="w-full" />
                 </div>
 
-                <div className="flex gap-3">
-                  <JumperButton
-                    onClick={handleUpload}
-                    disabled={isUploading}
-                    variant="primary"
-                    className="flex-1"
-                    size="lg"
-                  >
-                    {isUploading ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Enviando...
-                      </>
-                    ) : (
-                      <>
-                        <Upload className="mr-2 h-4 w-4" />
-                        Enviar Gravação
-                      </>
-                    )}
-                  </JumperButton>
+                <div className="space-y-3">
+                  <div className="flex gap-3">
+                    <JumperButton
+                      onClick={handleUpload}
+                      disabled={isUploading}
+                      variant="primary"
+                      className="flex-1"
+                      size="lg"
+                    >
+                      {isUploading ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Enviando...
+                        </>
+                      ) : (
+                        <>
+                          <Upload className="mr-2 h-4 w-4" />
+                          Enviar Gravação
+                        </>
+                      )}
+                    </JumperButton>
+
+                    <JumperButton
+                      onClick={() => {
+                        clearBlobUrl();
+                        setRecordingDuration(0);
+                      }}
+                      variant="ghost"
+                      disabled={isUploading}
+                      size="lg"
+                    >
+                      Cancelar
+                    </JumperButton>
+                  </div>
 
                   <JumperButton
-                    onClick={() => {
-                      clearBlobUrl();
-                      setRecordingDuration(0);
-                    }}
-                    variant="ghost"
-                    disabled={isUploading}
+                    onClick={handleDownloadAudio}
+                    variant="outline"
+                    className="w-full"
                     size="lg"
+                    disabled={isUploading}
                   >
-                    Cancelar
+                    <Download className="mr-2 h-4 w-4" />
+                    Baixar Localmente
                   </JumperButton>
                 </div>
               </div>
@@ -547,34 +602,47 @@ export function OptimizationRecorder({
                     </div>
                   )}
 
-                  <div className="flex gap-3">
-                    <JumperButton
-                      onClick={handleUpload}
-                      disabled={isUploading}
-                      variant="primary"
-                      className="flex-1"
-                      size="lg"
-                    >
-                      {isUploading ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Enviando...
-                        </>
-                      ) : (
-                        <>
-                          <Upload className="mr-2 h-4 w-4" />
-                          Enviar Arquivo
-                        </>
-                      )}
-                    </JumperButton>
+                  <div className="space-y-3">
+                    <div className="flex gap-3">
+                      <JumperButton
+                        onClick={handleUpload}
+                        disabled={isUploading}
+                        variant="primary"
+                        className="flex-1"
+                        size="lg"
+                      >
+                        {isUploading ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Enviando...
+                          </>
+                        ) : (
+                          <>
+                            <Upload className="mr-2 h-4 w-4" />
+                            Enviar Arquivo
+                          </>
+                        )}
+                      </JumperButton>
+
+                      <JumperButton
+                        onClick={handleClearFile}
+                        variant="ghost"
+                        disabled={isUploading}
+                        size="lg"
+                      >
+                        Cancelar
+                      </JumperButton>
+                    </div>
 
                     <JumperButton
-                      onClick={handleClearFile}
-                      variant="ghost"
-                      disabled={isUploading}
+                      onClick={handleDownloadAudio}
+                      variant="outline"
+                      className="w-full"
                       size="lg"
+                      disabled={isUploading}
                     >
-                      Cancelar
+                      <Download className="mr-2 h-4 w-4" />
+                      Baixar Localmente
                     </JumperButton>
                   </div>
                 </div>

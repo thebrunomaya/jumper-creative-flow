@@ -7,10 +7,19 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.67';
+export const APP_VERSION = 'v2.0.68';
 
 /**
  * Version history:
+ * - v2.0.68 (2024-10-30):
+ *   - FEATURE: Local audio download to prevent data loss
+ *   - Added "Baixar Localmente" button in recording and upload tabs
+ *   - Auto-download audio when upload fails (network error, storage error)
+ *   - User can save 10-minute recording even without internet
+ *   - Downloaded file: otimizacao-{account}-{timestamp}.webm
+ *   - Toast explains user can upload later using "Enviar Arquivo" tab
+ *   - Prevents total data loss in case of network failure
+ *
  * - v2.0.67 (2024-10-30):
  *   - FIX: Resilient transcription error handling for OpenAI API failures
  *   - Edge Function: Added HTML response detection (Cloudflare 502/503 errors)
