@@ -97,28 +97,40 @@ PLATAFORMAS DE ADS (Futuro):
 
 **Custom agents disponíveis em `.claude/agents/`:**
 
-### **dev-setup** (Development Environment Setup)
-**Uso:** Quando precisar configurar ambiente de desenvolvimento local
+### **dev-setup** (Development Environment Setup) - v2.0
 
-**O que faz automaticamente:**
-1. ✅ Valida Docker + Supabase CLI
-2. ✅ Inicia Supabase local
-3. ✅ Cria backup de produção (ou reusa recente <24h)
-4. ✅ Reseta database + restaura dados
-5. ✅ Valida Edge Functions env vars
-6. ✅ Inicia npm dev server
+**Type:** Standalone automation (1225 lines, all logic embedded)
+**Uso:** Configurar ambiente de desenvolvimento local completo
 
-**Resultado:** Ambiente completo com dados de produção em ~2 minutos
+**O que faz automaticamente (11 passos):**
+1. ✅ Valida Supabase CLI authentication
+2. ✅ Verifica Docker está rodando
+3. ✅ **Auto-cria `supabase/functions/.env`** (crítico para Edge Functions)
+4. ✅ **Detecta conflitos de env vars** (previne conexão em produção)
+5. ✅ Cria backup de produção (ou reusa recente <24h)
+6. ✅ Inicia Supabase local com validação de API keys
+7. ✅ Reseta database de forma segura
+8. ✅ Restaura dados de produção
+9. ✅ Configura `.env.local` para LOCAL
+10. ✅ Inicia npm dev server
+11. ✅ **Validação abrangente** (Docker, DB, Edge Functions, Frontend)
+
+**Melhorias críticas (v2.0):**
+- ⭐ **Edge Functions setup automático** - Elimina erro #1 mais comum
+- ⭐ **Detecção de variáveis de sistema** - Previne conexão acidental em produção
+- ⭐ **Validação ponta-a-ponta** - Garante que setup realmente funcionou
+- ⭐ **Error recovery embutido** - Instruções específicas para cada falha
+
+**Resultado:** Ambiente 100% funcional e validado em ~2-3 minutos
 
 **Como usar:**
 ```bash
-# Via Claude Code (recomendado)
+# Via Claude Code (única forma recomendada)
 # Apenas peça: "Configure o ambiente de desenvolvimento"
 # Claude detectará e usará o agent automaticamente
-
-# Ou manualmente via script (fallback)
-./scripts/start-dev.sh
 ```
+
+**Nota:** Scripts antigos (`./scripts/start-dev.sh`, etc) foram movidos para `scripts/deprecated/`. Todo o conhecimento foi consolidado no agent.
 
 ---
 
