@@ -1342,17 +1342,59 @@ async function submitCreativeWithFallback(data) {
 
 ## 🔌 Supabase Integration
 
+### **🔐 Security Audit Update (2024-11-01)**
+
+**Previous implementation (INSECURE):**
+- Had hardcoded production credentials as fallback
+- `.env` file committed to git with secrets
+- Relied on embedded credentials
+
+**Current implementation (SECURE):**
+- NO hardcoded credentials
+- Fail-fast validation with clear error messages
+- All credentials in gitignored files only
+
 ### **Conexão Client**
 
 ```javascript
 // src/integrations/supabase/client.ts
 import { createClient } from '@supabase/supabase-js';
+import type { Database } from './types';
 
-export const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_ANON_KEY
-);
+// Environment variables are REQUIRED - fail fast if missing
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY ||
+  import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+
+// Validate required environment variables
+if (!SUPABASE_URL) {
+  throw new Error(
+    '❌ VITE_SUPABASE_URL is not defined. ' +
+    'Please set it in .env.local for development or in Vercel for production.'
+  );
+}
+
+if (!SUPABASE_PUBLISHABLE_KEY) {
+  throw new Error(
+    '❌ VITE_SUPABASE_ANON_KEY is not defined. ' +
+    'Please set it in .env.local for development or in Vercel for production.'
+  );
+}
+
+// Log which Supabase instance we're using (helps catch accidental production connections)
+if (import.meta.env.DEV) {
+  const isLocal = SUPABASE_URL.includes('127.0.0.1') || SUPABASE_URL.includes('localhost');
+  console.log(`🔗 Supabase: ${isLocal ? 'LOCAL' : 'PRODUCTION'} (${SUPABASE_URL})`);
+}
+
+export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 ```
+
+**Key Security Features:**
+- ✅ Fails immediately if credentials missing (no silent fallback)
+- ✅ Clear error messages guide developers to correct setup
+- ✅ Development mode logs connection target (LOCAL vs PRODUCTION)
+- ✅ Supports both legacy (`VITE_SUPABASE_ANON_KEY`) and new (`VITE_SUPABASE_PUBLISHABLE_KEY`) env var names
 
 ### **Métodos Testados**
 
@@ -1412,6 +1454,68 @@ const { data, error } = await supabase.functions.invoke('j_ads_admin_actions', {
 - SQL direto apenas via Supabase SQL Editor (manual)
 - Edge Functions podem executar SQL via service role
 - API REST perfeita para CRUD operations
+
+### **Edge Functions Credential Management (2024-11-01)**
+
+**🔍 Critical Discovery:** Edge Functions cache environment variables at deployment time.
+
+**What this means:**
+- Changing credentials in Supabase Dashboard does NOT update running Edge Functions
+- Edge Functions continue using OLD cached credentials until redeployed
+- Disabling legacy API keys invalidates cached credentials → "Unregistered API key" errors
+- **Solution:** Must redeploy ALL Edge Functions after rotating credentials
+
+**Incident Report (2024-11-01):**
+
+**Problem:**
+- Rotated Supabase service role key in Dashboard
+- Updated `supabase/functions/.env` with new key
+- Frontend worked with new publishable key
+- Edge Functions returned 500 errors: "Unregistered API key"
+
+**Root Cause:**
+- Edge Functions cached old service role key at deployment time
+- `Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')` returned cached value
+- Disabling legacy keys invalidated the cached credential
+- New credential wasn't being used because functions weren't redeployed
+
+**Solution:**
+- Redeployed single Edge Function → It worked!
+- Realized deployment forces credential reload
+- Deployed ALL 19 Edge Functions → Production 100% functional
+
+**Credential Rotation Procedure:**
+
+```bash
+# 1. Rotate credentials in Supabase Dashboard
+# - Generate new service role key (sb_secret_...)
+# - Generate new publishable key (sb_publishable_...)
+
+# 2. Update environment variables
+# - Vercel: VITE_SUPABASE_ANON_KEY
+# - Local: supabase/functions/.env
+
+# 3. Redeploy ALL Edge Functions (CRITICAL!)
+for func in $(ls supabase/functions); do
+  npx supabase functions deploy $func --project-ref biwwowendjuzvpttyrlb
+done
+
+# 4. Verify functionality
+# - Test login (uses frontend publishable key)
+# - Test account loading (uses Edge Function service role key)
+```
+
+**Why Redeployment Works:**
+- Edge Functions read `Deno.env.get()` values from deployment-time environment
+- Supabase injects secrets at deployment, not runtime
+- Redeploying forces Edge Functions to reload all environment variables
+- New deployment gets new credentials from Supabase secrets
+
+**Prevention:**
+- Document this behavior in credential rotation procedures
+- Always redeploy Edge Functions after rotating Supabase credentials
+- Test Edge Function endpoints after credential changes
+- Monitor for "Unregistered API key" errors (indicates cached old credentials)
 
 ---
 

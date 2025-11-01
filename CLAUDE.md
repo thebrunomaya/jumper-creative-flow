@@ -225,38 +225,72 @@ export const APP_VERSION = 'v3.0.0';
 
 ---
 
-## ⚠️ CRITICAL: Environment Variables and Local Development
+## ⚠️ CRITICAL: Environment Variables and Credential Security
 
-**🚨 UPDATED 2024-10-20: Complete guide for Frontend + Edge Functions**
+**🚨 UPDATED 2024-11-01: Secure credential management with fail-fast validation**
+
+### **🔐 Security Audit Findings (2024-11-01)**
+
+**What happened:** Security audit discovered exposed credentials in public GitHub repository:
+- `.env` file was committed to git with production secrets
+- `client.ts` had hardcoded credential fallbacks
+- Legacy test files contained old API keys
+
+**Actions taken:**
+- ✅ Removed `.env` from git tracking (now gitignored)
+- ✅ Removed all hardcoded credential fallbacks from code
+- ✅ Rotated ALL Supabase API keys (service role + publishable key)
+- ✅ Migrated to new Publishable Key format (`sb_publishable_...`)
+- ✅ Implemented fail-fast validation (app crashes if credentials missing)
+- ✅ Updated all Edge Functions to use new credentials (required redeploy)
+
+**Key discovery:** Edge Functions cache environment variables at deployment time. Rotating credentials requires redeploying ALL Edge Functions.
 
 ### **Environment Files Structure**
 
 ```
-.env                       → Production values (committed to git)
-.env.local                 → Frontend local override (gitignored)
-supabase/.env              → Source of truth for API keys (gitignored)
+.env.example               → Template (committed to git, no real values)
+.env.local                 → Frontend local override (gitignored, REQUIRED for dev)
+supabase/.env              → Source of truth for API keys (gitignored, REQUIRED)
 supabase/functions/.env    → Edge Functions environment (gitignored, REQUIRED!)
 ```
+
+**⚠️ SECURITY NOTICE:**
+- `.env` file was **REMOVED from git tracking** (2024-11-01)
+- All real credentials are now **ONLY in gitignored files**
+- Code has **NO hardcoded fallback credentials** - fails fast if env vars missing
+- Never commit real API keys to git - use `.env.example` as template
 
 ---
 
 ### **Frontend Variables (.env.local)**
 
-**Purpose:** Override production Supabase URL for local development
+**Purpose:** Override production Supabase URL for local development + provide required credentials
 
 **Setup:**
 ```bash
-# .env.local (create if doesn't exist)
+# .env.local (create from .env.example)
 VITE_SUPABASE_URL=http://127.0.0.1:54321
-VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0
+VITE_SUPABASE_ANON_KEY=sb_publishable_5CJI2QQt8Crz60Mh1TTcrw_w4sL2TpL
 ```
+
+**⚠️ IMPORTANT: New Publishable Key Format**
+
+Supabase migrated from JWT tokens to Publishable Keys:
+- **OLD (deprecated):** `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...` (JWT format)
+- **NEW (required):** `sb_publishable_...` (Publishable Key format)
+
+**Why this matters:**
+- Disabling legacy API keys invalidates ALL old JWT tokens
+- Frontend and Edge Functions both need new format credentials
+- Code now **fails fast** with clear error if credentials missing
 
 **⚠️ Common Problem:** System environment variables override `.env` files!
 
 Vite loads in this order:
 1. **System environment variables** (HIGHEST PRIORITY)
 2. `.env.local`
-3. `.env`
+3. `.env.example` (read-only template)
 
 **Solution:**
 ```bash
@@ -274,23 +308,33 @@ source ~/.zshrc
 - Open browser DevTools Console
 - Look for: `🔗 Supabase: LOCAL (http://127.0.0.1:54321)`
 - If shows `PRODUCTION`, **STOP** and fix environment variables!
+- If app crashes with "VITE_SUPABASE_URL is not defined", create `.env.local`
 
 ---
 
-### **Edge Functions Variables (supabase/functions/.env) ✨ NEW!**
+### **Edge Functions Variables (supabase/functions/.env)**
 
 **🚨 CRITICAL:** Edge Functions run in Docker container and **DO NOT** read `.env.local`!
 
-**Purpose:** Provide API keys (OpenAI, Anthropic) to Edge Functions
+**Purpose:** Provide API keys (OpenAI, Anthropic) and Supabase credentials to Edge Functions
 
-**Setup (REQUIRED for optimization system):**
+**🔍 SECURITY AUDIT DISCOVERY (2024-11-01):**
+
+Edge Functions **cache environment variables at deployment time**. This means:
+- Rotating credentials in Supabase Dashboard does NOT automatically update running Edge Functions
+- Edge Functions continue using OLD cached credentials until redeployed
+- When credentials are invalidated (e.g., disabling legacy API keys), Edge Functions fail with "Unregistered API key"
+- **Solution:** Redeploy ALL Edge Functions after rotating credentials
+
+**Setup (REQUIRED for optimization system + authentication):**
 ```bash
 # 1. Copy API keys to functions folder
 cp supabase/.env supabase/functions/.env
 
-# 2. Verify content
+# 2. Verify content (should include NEW rotated keys)
 cat supabase/functions/.env
 # Should contain:
+# SUPABASE_SERVICE_ROLE_KEY=sb_secret_hVzx2tEx0UFGrhz_s3HA0A_m9I_Y8ZI
 # OPENAI_API_KEY=sk-proj-...
 # ANTHROPIC_API_KEY=sk-ant-api03-...
 
@@ -301,22 +345,50 @@ npx supabase start
 
 **Validation:**
 ```bash
-# Check Edge Runtime container has the keys
-docker exec supabase_edge_runtime_biwwowendjuzvpttyrlb env | grep OPENAI_API_KEY
+# Check Edge Runtime container has the NEW keys
+docker exec supabase_edge_runtime_biwwowendjuzvpttyrlb env | grep SERVICE_ROLE_KEY
 
-# Should return: OPENAI_API_KEY=sk-proj-...
+# Should return: SUPABASE_SERVICE_ROLE_KEY=sb_secret_hVzx... (NEW key format)
 ```
+
+**⚠️ PRODUCTION Credential Rotation Procedure:**
+
+When rotating Supabase credentials in production:
+
+1. **Rotate keys in Supabase Dashboard**
+   - Generate new service role key (format: `sb_secret_...`)
+   - Generate new publishable key (format: `sb_publishable_...`)
+
+2. **Update environment variables**
+   - Update Vercel: `VITE_SUPABASE_ANON_KEY` with new publishable key
+   - Update local: `supabase/functions/.env` with new service role key
+
+3. **Redeploy ALL Edge Functions** (CRITICAL!)
+   ```bash
+   # Example: Redeploy all 19 Edge Functions
+   for func in j_hub_user_accounts j_hub_optimization_transcribe ...; do
+     npx supabase functions deploy $func --project-ref biwwowendjuzvpttyrlb
+   done
+   ```
+
+4. **Why redeployment is required:**
+   - Edge Functions cache `Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')` at deployment
+   - Changing Supabase secrets does NOT update cached values
+   - Old cached credentials cause "Unregistered API key" errors
+   - Redeployment forces Edge Functions to reload new credentials
 
 **❌ Common Mistakes:**
 - Using `npx supabase secrets set` → Only for PRODUCTION remote, not local!
 - Putting keys in `.env.local` → Edge Functions won't see them
 - Using `supabase functions serve --env-file` → Creates conflicts with `supabase start`
+- Rotating credentials without redeploying Edge Functions → Functions still use old cached keys!
 
 **✅ Correct Flow:**
 1. `supabase/.env` = Source of truth (API keys)
 2. Copy to `supabase/functions/.env` (gitignored)
 3. `npx supabase start` → Auto-loads into Edge Runtime container
 4. Edge Functions can now access `Deno.env.get('OPENAI_API_KEY')`
+5. **After rotating production credentials:** Redeploy ALL Edge Functions
 
 ---
 
@@ -893,36 +965,62 @@ Next Claude will know exactly where we left off! 🎯
 ## 🔑 Environment Variables
 
 **Frontend (Vercel):**
-- `VITE_SUPABASE_URL` - Supabase project URL
-- `VITE_SUPABASE_ANON_KEY` - Public anon key
+- `VITE_SUPABASE_URL` - Supabase project URL (REQUIRED in Vercel)
+- `VITE_SUPABASE_ANON_KEY` - Publishable key (REQUIRED in Vercel, format: `sb_publishable_...`)
 
 **Backend (Supabase Edge Functions):**
-- `SUPABASE_SERVICE_ROLE_KEY` - Service role for admin operations
+- `SUPABASE_SERVICE_ROLE_KEY` - Service role key (format: `sb_secret_...`)
+- `OPENAI_API_KEY` - OpenAI API for transcription
+- `ANTHROPIC_API_KEY` - Anthropic API for optimization analysis
 - `NOTION_TOKEN` - Notion integration token
 
-### ⚠️ CRITICAL: Vercel Environment Variables Policy
+### ⚠️ CRITICAL: Vercel Environment Variables Policy (UPDATED 2024-11-01)
 
-**DO NOT set VITE_* variables in Vercel dashboard unless absolutely necessary!**
+**MUST set VITE_* variables in Vercel dashboard for production!**
 
-**Why?**
+**🔐 Security Audit Changed Our Approach:**
+
+Previously (INSECURE):
+- ❌ Code had hardcoded credential fallbacks in `client.ts`
+- ❌ `.env` file was committed to git with production values
+- ❌ Relying on embedded credentials as "safe fallback"
+
+**Now (SECURE - 2024-11-01):**
+- ✅ Code has NO hardcoded credentials - fails fast if missing
+- ✅ `.env.example` template committed (no real values)
+- ✅ `.env.local` for local development (gitignored)
+- ✅ Vercel env vars are REQUIRED for production to work
+
+**Why Vercel environment variables are NOW required:**
 - Vite embeds env vars into JavaScript bundle at BUILD TIME
-- Code has hardcoded fallback values for production
-- Adding Vercel env vars can cause conflicts/corruption
-- If Vercel var is invalid, entire production breaks
+- Code validates credentials exist and throws error if missing
+- No fallback values - app crashes with clear error message
+- Vercel env vars are the ONLY way to provide production credentials
 
-**Incident Report (2024-10-14):**
-- Vercel had `VITE_SUPABASE_ANON_KEY` with corrupted value
+**Incident History:**
+
+**2024-10-14:** Vercel had corrupted `VITE_SUPABASE_ANON_KEY`
 - Caused `TypeError: Failed to execute 'set' on 'Headers'` in production
 - Login completely broken (email + Notion OAuth)
-- **Solution:** Deleted Vercel env vars, app uses hardcoded fallbacks ✅
+- **Temporary solution:** Deleted Vercel env vars, app used hardcoded fallbacks
 
-**Best Practice:**
-1. ✅ Keep production credentials hardcoded in `client.ts` fallback
-2. ✅ Use `.env` for production values (committed to git, used by Vercel)
-3. ✅ Use `.env.local` for local development (gitignored, overrides `.env`)
-4. ❌ Avoid setting `VITE_*` vars in Vercel dashboard (redundant + risky)
+**2024-11-01:** Security audit found hardcoded credentials
+- Removed ALL hardcoded fallbacks from `client.ts`
+- Migrated to new Publishable Key format (`sb_publishable_...`)
+- Rotated all credentials
+- **Permanent solution:** Vercel env vars are now REQUIRED
 
-**Exception:** Only set Vercel env vars if value is secret and cannot be in git.
+**Current Best Practice:**
+1. ✅ Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in Vercel dashboard
+2. ✅ Use new Publishable Key format: `sb_publishable_...` (not JWT tokens)
+3. ✅ Use `.env.example` as template (committed to git, no real values)
+4. ✅ Use `.env.local` for local development (gitignored, overrides Vercel values)
+5. ✅ Code fails fast with clear error if credentials missing
+
+**After rotating credentials:**
+1. Update Vercel env vars with new publishable key
+2. Redeploy ALL Edge Functions (they cache credentials!)
+3. Test login and core functionality
 
 ---
 
