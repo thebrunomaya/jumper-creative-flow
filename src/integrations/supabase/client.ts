@@ -2,11 +2,25 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
-// Use environment variables with fallback to production
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "https://biwwowendjuzvpttyrlb.supabase.co";
+// Environment variables are REQUIRED - fail fast if missing
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY ||
-  import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJpd3dvd2VuZGp1enZwdHR5cmxiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzk1Njg3ODIsImV4cCI6MjA1NTE0NDc4Mn0.oXq2U2laZ0IEReJg3jTDpkybtI-99CmVKHg4sOKnB1w";
+  import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+
+// Validate required environment variables
+if (!SUPABASE_URL) {
+  throw new Error(
+    '❌ VITE_SUPABASE_URL is not defined. ' +
+    'Please set it in .env.local for development or in Vercel for production.'
+  );
+}
+
+if (!SUPABASE_PUBLISHABLE_KEY) {
+  throw new Error(
+    '❌ VITE_SUPABASE_ANON_KEY is not defined. ' +
+    'Please set it in .env.local for development or in Vercel for production.'
+  );
+}
 
 // Log which Supabase instance we're using (helps catch accidental production connections)
 if (import.meta.env.DEV) {
