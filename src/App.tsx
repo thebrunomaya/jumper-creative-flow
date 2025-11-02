@@ -21,7 +21,7 @@ const AdminUsers = lazy(() => import("./pages/AdminUsers"));
 const Manager = lazy(() => import("./pages/Manager"));
 const MyAccounts = lazy(() => import("./pages/MyAccounts"));
 const CreativeSystem = lazy(() => import("@/components/CreativeSystem"));
-const ReportsPage = lazy(() => import("./pages/ReportsPage"));
+const DashboardsPage = lazy(() => import("./pages/DashboardsPage"));
 const Optimization = lazy(() => import("./pages/Optimization"));
 const OptimizationNew = lazy(() => import("./pages/OptimizationNew"));
 const OptimizationEditor = lazy(() => import("./pages/OptimizationEditor"));
@@ -100,10 +100,10 @@ const App = () => {
                     </Suspense>
                   </ProtectedRoute>
                 } />
-                <Route path="/reports/:accountName" element={
+                <Route path="/dashboards/:accountName" element={
                   <ProtectedRoute>
                     <Suspense fallback={<PageLoading />}>
-                      <ReportsPage />
+                      <DashboardsPage />
                     </Suspense>
                   </ProtectedRoute>
                 } />

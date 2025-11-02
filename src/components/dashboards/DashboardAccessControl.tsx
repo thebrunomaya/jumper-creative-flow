@@ -7,11 +7,11 @@ import { Button } from '@/components/ui/button';
 import { AlertCircle, Lock, ArrowLeft } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 
-interface ReportAccessControlProps {
+interface DashboardAccessControlProps {
   children: React.ReactNode;
 }
 
-export function ReportAccessControl({ children }: ReportAccessControlProps) {
+export function DashboardAccessControl({ children }: DashboardAccessControlProps) {
   const { accountName } = useParams<{ accountName: string }>();
   const navigate = useNavigate();
   const { currentUser } = useAuth();

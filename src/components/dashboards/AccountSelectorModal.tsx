@@ -55,8 +55,8 @@ export function AccountSelectorModal({ isOpen, onClose }: AccountSelectorModalPr
 
   const handleSelectAccount = (accountId: string, accountName: string) => {
     setSelectedAccount(accountId);
-    // Navigate to reports page with account as URL parameter
-    navigate(`/reports/${encodeURIComponent(accountName)}`);
+    // Navigate to dashboards page with account as URL parameter
+    navigate(`/dashboards/${encodeURIComponent(accountName)}`);
     onClose();
   };
 

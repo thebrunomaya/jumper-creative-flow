@@ -23,12 +23,12 @@ interface AccountInfo {
   objectives?: string[];
 }
 
-interface ReportsDashboardProps {
+interface DashboardsDisplayProps {
   accountName?: string;
   accountInfo?: AccountInfo;
 }
 
-export function ReportsDashboard({ accountName, accountInfo }: ReportsDashboardProps) {
+export function DashboardsDisplay({ accountName, accountInfo }: DashboardsDisplayProps) {
   // State for selected template and period
   const [selectedTemplate, setSelectedTemplate] = useState<string>('geral');
   const [selectedPeriod, setSelectedPeriod] = useState<number>(30);

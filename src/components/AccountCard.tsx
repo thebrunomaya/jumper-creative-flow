@@ -166,10 +166,10 @@ export function AccountCard({ account, accessReasons, className }: AccountCardPr
       </CardContent>
 
       <CardFooter className="flex gap-2 pt-4">
-        <Link to={`/reports/${encodeURIComponent(account.name)}`} className="flex-1">
+        <Link to={`/dashboards/${encodeURIComponent(account.name)}`} className="flex-1">
           <Button variant="default" size="sm" className="w-full">
             <BarChart3 className="h-4 w-4 mr-2" />
-            Ver Reports
+            Ver Relatórios
           </Button>
         </Link>
         <Link to={`/create?account=${account.id}`} className="flex-1">
