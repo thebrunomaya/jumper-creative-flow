@@ -1314,3 +1314,5 @@ Este não é apenas um "sistema interno" - é um **PRODUTO ESTRATÉGICO** que va
 **Last Updated**: 2024-10-07
 **Maintained by**: Claude Code Assistant
 **Project Status**: **FASE 1 COMPLETA** ✅ → **FASE 2 (INSIGHTS) EM PLANEJAMENTO** 🧠
+
+- Don't ask for permissions for bash commands ran by the dev-setup agent.

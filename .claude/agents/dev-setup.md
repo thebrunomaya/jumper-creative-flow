@@ -47,6 +47,195 @@ Use this agent when:
 - Onboarding new developers
 - Debugging production issues locally
 
+# Prerequisites - UPDATED
+
+Before running this agent, ensure the following are in place:
+
+## 1. Environment Files
+
+### `.env.local` (Frontend configuration)
+**Location:** Project root
+**Purpose:** Tells frontend to connect to LOCAL Supabase (not production)
+
+**Required content:**
+```bash
+VITE_SUPABASE_URL=http://127.0.0.1:54321
+VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0
+```
+
+**Create it:**
+```bash
+cat > .env.local << 'EOF'
+VITE_SUPABASE_URL=http://127.0.0.1:54321
+VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0
+EOF
+```
+
+### `supabase/functions/.env` (Edge Functions API keys)
+**Location:** `supabase/functions/.env`
+**Purpose:** API keys for OpenAI and Anthropic used by Edge Functions
+
+**Required content:**
+```bash
+OPENAI_API_KEY=sk-proj-...
+ANTHROPIC_API_KEY=sk-ant-api03-...
+SUPABASE_SERVICE_ROLE_KEY=eyJhbGci...
+```
+
+**Where to get keys:**
+- OpenAI: https://platform.openai.com/api-keys
+- Anthropic: https://console.anthropic.com/settings/keys
+- Supabase Service Role: Dashboard → Settings → API → service_role key
+
+**Create it:**
+```bash
+cat > supabase/functions/.env << 'EOF'
+OPENAI_API_KEY=your-openai-key-here
+ANTHROPIC_API_KEY=your-anthropic-key-here
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-here
+EOF
+```
+
+## 2. Production Database Password
+
+**NEW REQUIREMENT:** Set production database password as environment variable BEFORE running agent.
+
+**Why needed:** Step 5 creates backup of production database using pg_dump, which requires authentication.
+
+**How to set:**
+```bash
+export PROD_DB_PASSWORD='your-production-db-password'
+```
+
+**Where to get password:**
+Supabase Dashboard → Settings → Database → Database Password
+
+**IMPORTANT:**
+- Do NOT hardcode this password in any files
+- Do NOT commit this password to Git
+- Set it in your terminal session before running agent
+- Agent will validate and stop if not set
+
+**Recommended: Add to your shell profile**
+If you run this agent frequently, add to `~/.zshrc` or `~/.bashrc`:
+```bash
+# Supabase Production DB Password (for local dev agent)
+export PROD_DB_PASSWORD='your-password-here'
+```
+
+Then reload: `source ~/.zshrc`
+
+## 3. Supabase CLI Authentication
+
+**Verify:**
+```bash
+npx supabase projects list
+```
+
+**Should show:**
+```
+LINKED | ORG ID | REFERENCE ID         | NAME | REGION
+  ●    | ...    | biwwowendjuzvpttyrlb | J-1  | South America (São Paulo)
+```
+
+**If not authenticated:**
+```bash
+npx supabase login
+npx supabase link --project-ref biwwowendjuzvpttyrlb
+```
+
+## 4. Docker Desktop
+
+**Verify:**
+```bash
+docker ps
+```
+
+Should return without errors (empty list is fine).
+
+**If fails:**
+- Open Docker Desktop application
+- Wait for Docker to fully start
+- Try again
+
+## 5. PostgreSQL Tools (pg_dump/pg_restore)
+
+**NEW REQUIREMENT:** pg_dump must be installed for Step 5 (production backup).
+
+**Verify:**
+```bash
+pg_dump --version
+```
+
+**Should show:**
+```
+pg_dump (PostgreSQL) 15.x
+```
+
+**If not installed:**
+```bash
+brew install libpq
+echo 'export PATH="/opt/homebrew/opt/libpq/bin:$PATH"' >> ~/.zshrc
+source ~/.zshrc
+```
+
+**Why needed:**
+The Supabase CLI's `db dump` command doesn't reliably capture data. Using pg_dump directly ensures complete backups with actual data (6MB vs 73KB schema-only dumps).
+
+## Quick Pre-Flight Check
+
+Run all checks at once:
+```bash
+echo "1. Frontend env file:"
+test -f .env.local && grep -q "127.0.0.1:54321" .env.local && echo "✅ .env.local configured for LOCAL" || echo "❌ Missing or incorrect"
+
+echo ""
+echo "2. Edge Functions env file:"
+test -f supabase/functions/.env && grep -q "OPENAI_API_KEY" supabase/functions/.env && echo "✅ supabase/functions/.env exists with keys" || echo "❌ Missing or incomplete"
+
+echo ""
+echo "3. Production DB password:"
+test -n "$PROD_DB_PASSWORD" && echo "✅ PROD_DB_PASSWORD is set" || echo "❌ PROD_DB_PASSWORD not set (run: export PROD_DB_PASSWORD='...')"
+
+echo ""
+echo "4. Supabase CLI auth:"
+npx supabase projects list 2>&1 | grep -q "biwwowendjuzvpttyrlb" && echo "✅ Authenticated and linked" || echo "❌ Not authenticated or not linked"
+
+echo ""
+echo "5. Docker:"
+docker ps > /dev/null 2>&1 && echo "✅ Docker running" || echo "❌ Docker not running"
+
+echo ""
+echo "6. pg_dump:"
+which pg_dump > /dev/null && echo "✅ pg_dump installed" || echo "❌ pg_dump not installed (run: brew install libpq)"
+```
+
+## Summary - What Changed
+
+**Previous version required:**
+- `.env.local` (agent created it automatically)
+- `supabase/functions/.env` (agent created it automatically)
+- Supabase CLI auth
+- Docker
+
+**New version requires:**
+- `.env.local` (user creates manually)
+- `supabase/functions/.env` (user creates manually)
+- **PROD_DB_PASSWORD environment variable** (NEW)
+- Supabase CLI auth
+- Docker
+- **pg_dump/pg_restore installed** (NEW)
+
+**Why the change:**
+- Security: No automatic file creation prevents accidental credential exposure
+- Reliability: pg_dump guarantees complete backups with data (Supabase CLI was unreliable)
+- Explicitness: User has full control over credentials and knows exactly what's configured
+
+**Time investment:**
+- First-time setup: 5-10 minutes to create files and set environment variables
+- Subsequent runs: 0 minutes (everything already configured)
+- Agent execution: 5-7 minutes (down from 22 minutes with improved backup method)
+
 ---
 
 ## 📖 Step-by-Step Process
@@ -125,64 +314,181 @@ Docker version 24.0.6, build ed223bc
 
 ---
 
-### **Step 3: Edge Functions Environment Setup** ⭐ **CRITICAL**
+### **Step 3: Edge Functions Environment Validation** ⭐ **CRITICAL**
 
-**What:** Automatically create `supabase/functions/.env` with API keys.
+**What:** Validate that `supabase/functions/.env` exists with required API keys.
 
 **Why:** Edge Functions run in Docker container and need API keys (OpenAI, Anthropic) to work. Without this file, optimization features fail with "API_KEY not configured" errors.
 
 **Execute:**
 
 ```bash
-# Check if source file exists
-if [ ! -f "supabase/.env" ]; then
-  echo "❌ Missing supabase/.env"
-  echo "   This file should contain:"
-  echo "   - OPENAI_API_KEY=sk-proj-..."
-  echo "   - ANTHROPIC_API_KEY=sk-ant-api03-..."
+echo "🔍 Step 3: Edge Functions Environment Validation"
+echo ""
+
+# Check if file exists
+if [ ! -f "supabase/functions/.env" ]; then
+  echo "❌ Missing: supabase/functions/.env"
   echo ""
-  echo "   Please add API keys to supabase/.env and restart agent"
+  echo "This file contains API keys for Edge Functions."
+  echo ""
+  echo "📝 To create it:"
+  echo ""
+  echo "1. Create the file:"
+  echo "   touch supabase/functions/.env"
+  echo ""
+  echo "2. Add your API keys:"
+  echo "   nano supabase/functions/.env"
+  echo ""
+  echo "3. Required content:"
+  echo ""
+  echo "   OPENAI_API_KEY=sk-proj-..."
+  echo "   ANTHROPIC_API_KEY=sk-ant-api03-..."
+  echo "   SUPABASE_SERVICE_ROLE_KEY=eyJhbGci..."
+  echo ""
+  echo "📍 Where to get these keys:"
+  echo ""
+  echo "   OpenAI:     https://platform.openai.com/api-keys"
+  echo "   Anthropic:  https://console.anthropic.com/settings/keys"
+  echo "   Supabase:   Dashboard → Settings → API → service_role key"
+  echo ""
+  echo "⚠️  This file is gitignored (will not be committed)"
+  echo ""
   exit 1
 fi
 
-# Check if supabase/functions/.env already exists
-if [ -f "supabase/functions/.env" ]; then
-  echo "✅ supabase/functions/.env already exists"
-else
-  echo "📝 Creating supabase/functions/.env from supabase/.env..."
-  cp supabase/.env supabase/functions/.env
-  echo "✅ Created supabase/functions/.env"
+echo "✅ supabase/functions/.env exists"
+echo ""
+
+# Validate required keys
+MISSING_KEYS=()
+
+if ! grep -q "^OPENAI_API_KEY=" supabase/functions/.env; then
+  MISSING_KEYS+=("OPENAI_API_KEY")
 fi
 
-# Validate API keys exist in file
-if ! grep -q "OPENAI_API_KEY" supabase/functions/.env || \
-   ! grep -q "ANTHROPIC_API_KEY" supabase/functions/.env; then
-  echo "⚠️  Warning: API keys may be missing in supabase/functions/.env"
-  echo "   Edge Functions may fail without:"
-  echo "   - OPENAI_API_KEY (for transcription)"
-  echo "   - ANTHROPIC_API_KEY (for context extraction)"
+if ! grep -q "^ANTHROPIC_API_KEY=" supabase/functions/.env; then
+  MISSING_KEYS+=("ANTHROPIC_API_KEY")
 fi
+
+if ! grep -q "^SUPABASE_SERVICE_ROLE_KEY=" supabase/functions/.env; then
+  MISSING_KEYS+=("SUPABASE_SERVICE_ROLE_KEY")
+fi
+
+if [ ${#MISSING_KEYS[@]} -gt 0 ]; then
+  echo "❌ Missing required keys in supabase/functions/.env:"
+  echo ""
+  for key in "${MISSING_KEYS[@]}"; do
+    echo "   • $key"
+  done
+  echo ""
+  echo "📝 Add these keys to supabase/functions/.env:"
+  echo ""
+  echo "   nano supabase/functions/.env"
+  echo ""
+  echo "📍 Where to get missing keys:"
+  echo ""
+  
+  for key in "${MISSING_KEYS[@]}"; do
+    case $key in
+      OPENAI_API_KEY)
+        echo "   OpenAI:     https://platform.openai.com/api-keys"
+        echo "   Format:     OPENAI_API_KEY=sk-proj-..."
+        ;;
+      ANTHROPIC_API_KEY)
+        echo "   Anthropic:  https://console.anthropic.com/settings/keys"
+        echo "   Format:     ANTHROPIC_API_KEY=sk-ant-api03-..."
+        ;;
+      SUPABASE_SERVICE_ROLE_KEY)
+        echo "   Supabase:   Dashboard → Settings → API"
+        echo "   Format:     SUPABASE_SERVICE_ROLE_KEY=eyJhbGci..."
+        ;;
+    esac
+    echo ""
+  done
+  
+  exit 1
+fi
+
+echo "✅ All required API keys present:"
+cat supabase/functions/.env | grep -E "^(OPENAI|ANTHROPIC|SUPABASE).*_KEY=" | sed 's/=.*/=***REDACTED***/'
 
 echo ""
-echo "Edge Functions environment ready:"
-cat supabase/functions/.env | grep -E "^[A-Z_]+_API_KEY=" | sed 's/=.*/=***REDACTED***/'
 ```
 
-**Expected output:**
+**Expected output (success):**
 ```
-✅ Created supabase/functions/.env
+🔍 Step 3: Edge Functions Environment Validation
 
-Edge Functions environment ready:
+✅ supabase/functions/.env exists
+
+✅ All required API keys present:
 OPENAI_API_KEY=***REDACTED***
 ANTHROPIC_API_KEY=***REDACTED***
+SUPABASE_SERVICE_ROLE_KEY=***REDACTED***
 ```
 
-**Common issue:**
+**Expected output (file missing):**
+```
+🔍 Step 3: Edge Functions Environment Validation
 
-- **Problem:** "OPENAI_API_KEY not configured" error in Edge Functions
-- **Root cause:** `supabase/functions/.env` doesn't exist or wasn't loaded
-- **Prevention:** This step auto-creates the file BEFORE Supabase starts
-- **Validation:** After Supabase starts, we'll verify Docker container has the keys
+❌ Missing: supabase/functions/.env
+
+This file contains API keys for Edge Functions.
+
+📝 To create it:
+
+1. Create the file:
+   touch supabase/functions/.env
+
+2. Add your API keys:
+   nano supabase/functions/.env
+
+3. Required content:
+
+   OPENAI_API_KEY=sk-proj-...
+   ANTHROPIC_API_KEY=sk-ant-api03-...
+   SUPABASE_SERVICE_ROLE_KEY=eyJhbGci...
+
+📍 Where to get these keys:
+
+   OpenAI:     https://platform.openai.com/api-keys
+   Anthropic:  https://console.anthropic.com/settings/keys
+   Supabase:   Dashboard → Settings → API → service_role key
+
+⚠️  This file is gitignored (will not be committed)
+```
+
+**Expected output (keys missing):**
+```
+🔍 Step 3: Edge Functions Environment Validation
+
+✅ supabase/functions/.env exists
+
+❌ Missing required keys in supabase/functions/.env:
+
+   • OPENAI_API_KEY
+   • ANTHROPIC_API_KEY
+
+📝 Add these keys to supabase/functions/.env:
+
+   nano supabase/functions/.env
+
+📍 Where to get missing keys:
+
+   OpenAI:     https://platform.openai.com/api-keys
+   Format:     OPENAI_API_KEY=sk-proj-...
+
+   Anthropic:  https://console.anthropic.com/settings/keys
+   Format:     ANTHROPIC_API_KEY=sk-ant-api03-...
+```
+
+**Agent action:** 
+- If file missing → STOP, show instructions
+- If keys missing → STOP, show which keys and where to get them
+- If all valid → Continue to next step
+
+**Note:** This step does NOT create the file automatically. The user must manually create and populate it with their API keys. This ensures keys stay secure and are never in Git history or terminal history.
 
 ---
 
@@ -257,11 +563,13 @@ fi
 
 ### **Step 5: Production Backup Creation**
 
-**What:** Create fresh backup from production or reuse recent backup (<24 hours old).
+**What:** Create fresh backup from production using pg_dump (more reliable than Supabase CLI).
 
-**Why:** Need production data to test locally. Smart reuse saves time (~60 seconds).
+**Why:** We need production data to test locally with realistic scenarios. The smart reuse feature saves time by avoiding redundant downloads when you already have fresh data.
 
-**Interactive decision:** Ask user if they want to create backup or skip (if already have data).
+**Prerequisites:** `PROD_DB_PASSWORD` environment variable must be set before running agent.
+
+**Interactive decision:** The agent will ask if you want to create a new backup or skip this step if you already have data locally.
 
 **Execute:**
 
@@ -273,7 +581,7 @@ echo ""
 echo "Checking local database for existing data..."
 USER_COUNT=$(docker run --rm --network host postgres:15 \
   psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" \
-  -t -c "SELECT COUNT(*) FROM j_hub_users WHERE email NOT LIKE '%exemplo.com%';" 2>/dev/null | xargs || echo "0")
+  -t -c "SELECT COUNT(*) FROM auth.users WHERE email NOT LIKE '%@example.com%';" 2>/dev/null | xargs || echo "0")
 
 if [ "$USER_COUNT" != "0" ] && [ -n "$USER_COUNT" ]; then
   echo "✅ Local database has $USER_COUNT real users"
@@ -287,12 +595,31 @@ if [ "$USER_COUNT" != "0" ] && [ -n "$USER_COUNT" ]; then
 fi
 
 if [ "$SKIP_BACKUP" != "true" ]; then
+  # Validate PROD_DB_PASSWORD is set
+  if [ -z "$PROD_DB_PASSWORD" ]; then
+    echo "❌ PROD_DB_PASSWORD not set"
+    echo ""
+    echo "This environment variable is required to connect to production database."
+    echo ""
+    echo "📝 To set it:"
+    echo ""
+    echo "   export PROD_DB_PASSWORD='your-production-password'"
+    echo ""
+    echo "📍 Where to get the password:"
+    echo ""
+    echo "   Supabase Dashboard → Settings → Database → Database Password"
+    echo ""
+    echo "⚠️  Do NOT hardcode this password in the agent or commit it to Git."
+    echo ""
+    exit 1
+  fi
+
   # Look for recent backups
   echo "Looking for recent backups..."
   BACKUP_DIR="./backups"
   mkdir -p "$BACKUP_DIR"
 
-  LATEST_BACKUP=$(find "$BACKUP_DIR" -name "production_data_*.sql" -mtime -1 2>/dev/null | sort -r | head -1)
+  LATEST_BACKUP=$(find "$BACKUP_DIR" -name "production_data_*.dump" -mtime -1 2>/dev/null | sort -r | head -1)
 
   if [ -n "$LATEST_BACKUP" ]; then
     # Calculate backup age
@@ -319,55 +646,57 @@ if [ "$SKIP_BACKUP" != "true" ]; then
   if [ -z "$LATEST_BACKUP" ]; then
     echo ""
     echo "📥 Creating fresh production backup..."
-    BACKUP_FILE="${BACKUP_DIR}/production_data_$(date +%Y%m%d_%H%M%S).sql"
+    BACKUP_FILE="${BACKUP_DIR}/production_data_$(date +%Y%m%d_%H%M%S).dump"
 
-    # Production credentials
-    PROD_PROJECT_REF="biwwowendjuzvpttyrlb"
-    PROD_DB_PASSWORD="JumperStudio@7777"
-    PROD_DB_URL="postgresql://postgres.${PROD_PROJECT_REF}:${PROD_DB_PASSWORD}@aws-0-sa-east-1.pooler.supabase.com:5432/postgres"
-
-    echo "   Project: ${PROD_PROJECT_REF}"
+    echo "   Using pg_dump (authenticated via PROD_DB_PASSWORD)"
     echo "   Output: ${BACKUP_FILE}"
     echo ""
 
-    # Try Supabase CLI dump
-    if npx supabase db dump \
-      --db-url="${PROD_DB_URL}" \
-      --file="${BACKUP_FILE}" \
-      --use-copy \
-      --data-only=false 2>&1; then
+    # Use pg_dump with custom format (more reliable than Supabase CLI)
+    if PGPASSWORD="$PROD_DB_PASSWORD" pg_dump \
+      "postgresql://postgres.biwwowendjuzvpttyrlb@aws-0-sa-east-1.pooler.supabase.com:5432/postgres" \
+      --format=custom \
+      --no-owner \
+      --file="${BACKUP_FILE}" 2>&1; then
 
       BACKUP_SIZE=$(du -h "${BACKUP_FILE}" | cut -f1)
       echo ""
       echo "✅ Backup created successfully!"
       echo "   File: ${BACKUP_FILE}"
       echo "   Size: ${BACKUP_SIZE}"
+      
+      # Validate backup has data (should be > 1MB)
+      BACKUP_SIZE_BYTES=$(stat -f %z "${BACKUP_FILE}" 2>/dev/null || stat -c %s "${BACKUP_FILE}" 2>/dev/null)
+      if [ "$BACKUP_SIZE_BYTES" -lt 1000000 ]; then
+        echo ""
+        echo "⚠️  Warning: Backup file is suspiciously small (< 1MB)"
+        echo "   This may indicate the backup contains only schema, not data."
+        echo "   Production database might be empty or connection had issues."
+        echo ""
+      fi
+      
       LATEST_BACKUP="${BACKUP_FILE}"
     else
       echo ""
-      echo "❌ Supabase CLI dump failed, trying Docker fallback..."
-
-      # Fallback to Docker-based pg_dump
-      docker run --rm postgres:15 \
-        pg_dump "${PROD_DB_URL}" \
-        --clean \
-        --if-exists \
-        --no-owner \
-        --no-privileges > "${BACKUP_FILE}" 2>&1 && {
-          BACKUP_SIZE=$(du -h "${BACKUP_FILE}" | cut -f1)
-          echo "✅ Backup created via Docker fallback!"
-          echo "   File: ${BACKUP_FILE}"
-          echo "   Size: ${BACKUP_SIZE}"
-          LATEST_BACKUP="${BACKUP_FILE}"
-        } || {
-          echo "❌ Both backup methods failed!"
-          echo ""
-          echo "Please check:"
-          echo "  1. Supabase CLI authentication (npx supabase login)"
-          echo "  2. Production database credentials"
-          echo "  3. Network connectivity"
-          exit 1
-        }
+      echo "❌ Backup creation failed!"
+      echo ""
+      echo "This usually happens due to:"
+      echo ""
+      echo "1. Incorrect password:"
+      echo "   Verify password in Dashboard → Settings → Database"
+      echo "   Re-export: export PROD_DB_PASSWORD='correct-password'"
+      echo ""
+      echo "2. Network connectivity issues:"
+      echo "   Check your internet connection"
+      echo "   Verify firewall allows connections to aws-0-sa-east-1.pooler.supabase.com:5432"
+      echo ""
+      echo "3. pg_dump not installed:"
+      echo "   Install: brew install libpq"
+      echo "   Add to PATH: export PATH=\"/opt/homebrew/opt/libpq/bin:\$PATH\""
+      echo ""
+      echo "After fixing, restart this agent."
+      echo ""
+      exit 1
     fi
   fi
 
@@ -378,7 +707,18 @@ fi
 echo ""
 ```
 
-**Expected output:**
+**Expected output (using existing data):**
+```
+📦 Step 5: Production Backup Management
+
+Checking local database for existing data...
+✅ Local database has 9 real users
+
+Do you want to refresh with latest production data? (yes/no): no
+⏭️  Skipping backup (using existing local data)
+```
+
+**Expected output (using recent backup):**
 ```
 📦 Step 5: Production Backup Management
 
@@ -386,21 +726,74 @@ Checking local database for existing data...
 ✅ Local database has 0 real users
 
 Looking for recent backups...
-✅ Found backup: production_data_20251031_143022.sql
+✅ Found backup: production_data_20251101_133922.dump
    Age: 3 hours old
    Using recent backup (less than 24h)
 ```
 
-**Or if creating new:**
+**Expected output (creating new backup):**
 ```
+📦 Step 5: Production Backup Management
+
+Checking local database for existing data...
+✅ Local database has 0 real users
+
+Looking for recent backups...
+
 📥 Creating fresh production backup...
-   Project: biwwowendjuzvpttyrlb
-   Output: ./backups/production_data_20251031_164533.sql
+   Using pg_dump (authenticated via PROD_DB_PASSWORD)
+   Output: ./backups/production_data_20251101_133922.dump
 
 ✅ Backup created successfully!
-   File: ./backups/production_data_20251031_164533.sql
-   Size: 2.3M
+   File: ./backups/production_data_20251101_133922.dump
+   Size: 6.0M
 ```
+
+**Expected output (failure - password not set):**
+```
+📦 Step 5: Production Backup Management
+
+Checking local database for existing data...
+✅ Local database has 0 real users
+
+Looking for recent backups...
+
+❌ PROD_DB_PASSWORD not set
+
+This environment variable is required to connect to production database.
+
+📝 To set it:
+
+   export PROD_DB_PASSWORD='your-production-password'
+
+📍 Where to get the password:
+
+   Supabase Dashboard → Settings → Database → Database Password
+
+⚠️  Do NOT hardcode this password in the agent or commit it to Git.
+```
+
+**Key improvements:**
+
+1. **No hardcoded credentials** - Requires PROD_DB_PASSWORD env var
+2. **Uses pg_dump instead of Supabase CLI** - More reliable, actually captures data (6MB vs 73KB)
+3. **Custom format (.dump)** - Better for pg_restore, handles large databases efficiently
+4. **Validates backup size** - Warns if backup suspiciously small
+5. **Better error messages** - Specific troubleshooting steps for common failures
+
+**Why pg_dump is better:**
+
+The Supabase CLI `db dump --linked` command has issues:
+- Often captures only schema, missing actual data
+- Depends on pg_dump being in PATH but doesn't validate it
+- Less control over dump format and options
+- Version-specific bugs (e.g., v2.54.11 doesn't capture data properly)
+
+Using pg_dump directly:
+- Guarantees data capture with `--format=custom`
+- More reliable across different environments
+- Standard PostgreSQL tool with consistent behavior
+- Better error messages and debugging
 
 ---
 
@@ -436,24 +829,60 @@ echo ""
 
 # Validate Edge Runtime has API keys
 echo "Validating Edge Functions environment..."
-if docker exec supabase_edge_runtime_biwwowendjuzvpttyrlb env | grep -q "OPENAI_API_KEY"; then
-  echo "✅ Edge Runtime has OPENAI_API_KEY"
-else
-  echo "⚠️  Edge Runtime missing OPENAI_API_KEY"
-  echo "   This may cause transcription failures"
+
+MISSING_KEYS=()
+
+if ! docker exec supabase_edge_runtime_biwwowendjuzvpttyrlb env 2>/dev/null | grep -q "^OPENAI_API_KEY="; then
+  MISSING_KEYS+=("OPENAI_API_KEY")
 fi
 
-if docker exec supabase_edge_runtime_biwwowendjuzvpttyrlb env | grep -q "ANTHROPIC_API_KEY"; then
-  echo "✅ Edge Runtime has ANTHROPIC_API_KEY"
-else
-  echo "⚠️  Edge Runtime missing ANTHROPIC_API_KEY"
-  echo "   This may cause context extraction failures"
+if ! docker exec supabase_edge_runtime_biwwowendjuzvpttyrlb env 2>/dev/null | grep -q "^ANTHROPIC_API_KEY="; then
+  MISSING_KEYS+=("ANTHROPIC_API_KEY")
 fi
+
+if ! docker exec supabase_edge_runtime_biwwowendjuzvpttyrlb env 2>/dev/null | grep -q "^SUPABASE_SERVICE_ROLE_KEY="; then
+  MISSING_KEYS+=("SUPABASE_SERVICE_ROLE_KEY")
+fi
+
+if [ ${#MISSING_KEYS[@]} -gt 0 ]; then
+  echo "❌ Edge Runtime container missing required keys:"
+  echo ""
+  for key in "${MISSING_KEYS[@]}"; do
+    echo "   • $key"
+  done
+  echo ""
+  echo "This means the keys in supabase/functions/.env were not loaded into the container."
+  echo ""
+  echo "🔧 To fix:"
+  echo ""
+  echo "1. Stop Supabase:"
+  echo "   npx supabase stop"
+  echo ""
+  echo "2. Verify supabase/functions/.env has correct format:"
+  echo "   cat supabase/functions/.env"
+  echo ""
+  echo "   Should look like:"
+  echo "   OPENAI_API_KEY=sk-proj-..."
+  echo "   ANTHROPIC_API_KEY=sk-ant-api03-..."
+  echo "   SUPABASE_SERVICE_ROLE_KEY=eyJhbGci..."
+  echo ""
+  echo "   ⚠️  No spaces around '=' sign"
+  echo "   ⚠️  No quotes around values"
+  echo "   ⚠️  No empty lines between keys"
+  echo ""
+  echo "3. Restart this agent"
+  echo ""
+  exit 1
+fi
+
+echo "✅ Edge Runtime has OPENAI_API_KEY"
+echo "✅ Edge Runtime has ANTHROPIC_API_KEY"
+echo "✅ Edge Runtime has SUPABASE_SERVICE_ROLE_KEY"
 
 echo ""
 ```
 
-**Expected output:**
+**Expected output (success):**
 ```
 🐳 Step 6: Starting Supabase Local
 
@@ -472,7 +901,64 @@ Started supabase local development setup.
 Validating Edge Functions environment...
 ✅ Edge Runtime has OPENAI_API_KEY
 ✅ Edge Runtime has ANTHROPIC_API_KEY
+✅ Edge Runtime has SUPABASE_SERVICE_ROLE_KEY
 ```
+
+**Expected output (failure):**
+```
+🐳 Step 6: Starting Supabase Local
+
+✅ Supabase already running
+
+Current status:
+[status output...]
+
+Validating Edge Functions environment...
+❌ Edge Runtime container missing required keys:
+
+   • OPENAI_API_KEY
+   • ANTHROPIC_API_KEY
+
+This means the keys in supabase/functions/.env were not loaded into the container.
+
+🔧 To fix:
+
+1. Stop Supabase:
+   npx supabase stop
+
+2. Verify supabase/functions/.env has correct format:
+   cat supabase/functions/.env
+
+   Should look like:
+   OPENAI_API_KEY=sk-proj-...
+   ANTHROPIC_API_KEY=sk-ant-api03-...
+   SUPABASE_SERVICE_ROLE_KEY=eyJhbGci...
+
+   ⚠️  No spaces around '=' sign
+   ⚠️  No quotes around values
+   ⚠️  No empty lines between keys
+
+3. Restart this agent
+```
+
+**Key improvements:**
+
+1. **Stops execution** if keys are missing (consistent with Opção A)
+2. **Checks all three required keys** systematically
+3. **Provides actionable fix steps** that address the root cause
+4. **Includes format validation tips** to prevent common mistakes
+5. **Clear exit code** (exit 1) so automation tools can detect failure
+
+**Why keys might be missing:**
+
+- File created AFTER Supabase was already started
+- File has formatting issues (spaces, quotes, etc.)
+- File permissions prevent CLI from reading it
+- Supabase CLI didn't detect the file during startup
+
+**The fix workflow:**
+
+Stop Supabase → Verify file format → Restart agent (which restarts Supabase with correct env vars loaded)
 
 ---
 
@@ -543,11 +1029,11 @@ Applying migration 20240815000000_add_optimization_tables.sql...
 
 ### **Step 8: Data Restoration**
 
-**What:** Restore production backup to local database.
+**What:** Import production data into local database using pg_restore.
 
-**Why:** Populate local database with real production data for realistic testing.
+**Why:** Local database has correct schema from migrations (Step 7), now we populate it with production data for realistic testing.
 
-**Safety:** Disables triggers during import, handles duplicate keys, sets dev password.
+**Critical:** Uses `--data-only` to avoid overwriting local auth schema permissions. Uses `--disable-triggers` to handle circular foreign key constraints.
 
 **Execute:**
 
@@ -555,80 +1041,166 @@ Applying migration 20240815000000_add_optimization_tables.sql...
 echo "📥 Step 8: Restoring Production Data"
 echo ""
 
-if [ -z "$BACKUP_TO_RESTORE" ]; then
-  echo "⏭️  No backup to restore (skipped backup step)"
+# Check if we have a backup to restore
+if [ -z "$BACKUP_TO_RESTORE" ] && [ -z "$SKIP_BACKUP" ]; then
+  # Find most recent backup
+  BACKUP_TO_RESTORE=$(find ./backups -name "production_data_*.dump" -type f 2>/dev/null | sort -r | head -1)
+fi
+
+if [ -n "$BACKUP_TO_RESTORE" ]; then
+  echo "Using backup: $(basename "$BACKUP_TO_RESTORE")"
+  BACKUP_SIZE=$(du -h "$BACKUP_TO_RESTORE" | cut -f1)
+  echo "Backup size: ${BACKUP_SIZE}"
   echo ""
+
+  echo "Starting restore (this may take 1-3 minutes)..."
+  echo ""
+
+  # Restore data only (schema already correct from Step 7 reset)
+  # --data-only: Only restore data, not schema (prevents permission issues)
+  # --disable-triggers: Allows data insertion despite circular FK constraints
+  # --no-owner: Don't try to restore ownership (we're not superuser)
+  if pg_restore \
+    --dbname="postgresql://postgres:postgres@127.0.0.1:54322/postgres" \
+    --data-only \
+    --disable-triggers \
+    --no-owner \
+    "$BACKUP_TO_RESTORE" 2>&1 | tee /tmp/restore.log; then
+
+    echo ""
+    echo "✅ Data restoration completed"
+    echo ""
+
+    # Verify data was imported
+    USER_COUNT=$(docker run --rm --network host postgres:15 \
+      psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" \
+      -t -c "SELECT COUNT(*) FROM auth.users;" 2>/dev/null | xargs || echo "0")
+
+    ACCOUNT_COUNT=$(docker run --rm --network host postgres:15 \
+      psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" \
+      -t -c "SELECT COUNT(*) FROM j_hub_notion_db_accounts;" 2>/dev/null | xargs || echo "0")
+
+    if [ "$USER_COUNT" != "0" ]; then
+      echo "✅ Imported $USER_COUNT users"
+      echo "✅ Imported $ACCOUNT_COUNT accounts"
+    else
+      echo "⚠️  Warning: No users found after restore"
+      echo "   The backup file may have been empty or restore may have failed partially"
+      echo "   Check logs: cat /tmp/restore.log"
+    fi
+
+  else
+    echo ""
+    echo "❌ Data restoration failed"
+    echo ""
+    echo "Common issues:"
+    echo ""
+    echo "1. Backup file corrupted:"
+    echo "   Re-run Step 5 to create fresh backup"
+    echo ""
+    echo "2. Permission errors (should not happen with --data-only):"
+    echo "   This indicates schema mismatch between local and production"
+    echo "   Run: supabase db reset"
+    echo "   Then re-run this agent"
+    echo ""
+    echo "3. Foreign key constraint violations:"
+    echo "   The --disable-triggers flag should handle this"
+    echo "   If still failing, check /tmp/restore.log for details"
+    echo ""
+    echo "Detailed logs: cat /tmp/restore.log"
+    echo ""
+    exit 1
+  fi
+
+elif [ "$SKIP_BACKUP" = "true" ]; then
+  echo "⏭️  Skipping restore (using existing data from previous setup)"
+
 else
-  echo "Backup file: $(basename "$BACKUP_TO_RESTORE")"
+  echo "⚠️  No backup file found"
   echo ""
-
-  # Get absolute path
-  BACKUP_FILE_ABS=$(cd "$(dirname "${BACKUP_TO_RESTORE}")" && pwd)/$(basename "${BACKUP_TO_RESTORE}")
-
-  # Local database URL
-  LOCAL_DB_URL="postgresql://postgres:postgres@127.0.0.1:54322/postgres"
-
-  echo "Preparing import (disabling triggers, truncating tables)..."
-
-  # Create modified SQL with trigger disabling
-  TEMP_SQL="/tmp/restore_with_truncate_$(date +%s).sql"
-
-  cat > "${TEMP_SQL}" <<'SQLHEADER'
--- Disable triggers and foreign key checks for import
-SET session_replication_role = replica;
-
-SQLHEADER
-
-  # Add backup content
-  cat "${BACKUP_FILE_ABS}" >> "${TEMP_SQL}"
-
-  # Re-enable triggers
-  cat >> "${TEMP_SQL}" <<'SQLFOOTER'
-
--- Re-enable triggers and foreign key checks
-SET session_replication_role = DEFAULT;
-
--- Show summary
-SELECT 'Import completed' as status;
-SQLFOOTER
-
-  # Restore using Docker psql
-  echo "Importing data..."
-  docker run --rm \
-    -v "${TEMP_SQL}:/backup.sql:ro" \
-    --network host \
-    postgres:15 \
-    psql "${LOCAL_DB_URL}" -f /backup.sql -v ON_ERROR_STOP=0 2>&1 | \
-    grep -E "(COPY|ERROR|WARNING|INSERT|completed)" | head -40 || {
-      echo "⚠️  Some warnings occurred, but restore may have succeeded"
-    }
-
-  # Clean up temp file
-  rm -f "${TEMP_SQL}"
-
+  echo "Step 5 should have created a backup, but none exists."
   echo ""
-  echo "✅ Data restored successfully!"
+  echo "Options:"
+  echo "1. Re-run the agent (it will create backup in Step 5)"
+  echo "2. Manually create backup:"
+  echo "   export PROD_DB_PASSWORD='your-password'"
+  echo "   mkdir -p backups"
+  echo "   PGPASSWORD=\"\$PROD_DB_PASSWORD\" pg_dump \\"
+  echo "     \"postgresql://postgres.biwwowendjuzvpttyrlb@aws-0-sa-east-1.pooler.supabase.com:5432/postgres\" \\"
+  echo "     --format=custom --no-owner --file=backups/production_manual.dump"
+  echo ""
+  exit 1
 fi
 
 echo ""
 ```
 
-**Expected output:**
+**Expected output (success):**
 ```
 📥 Step 8: Restoring Production Data
 
-Backup file: production_data_20251031_143022.sql
+Using backup: production_data_20251101_133922.dump
+Backup size: 6.0M
 
-Preparing import (disabling triggers, truncating tables)...
-Importing data...
-COPY 9
-COPY 48
-COPY 24
-... (progress indicators)
-Import completed
+Starting restore (this may take 1-3 minutes)...
 
-✅ Data restored successfully!
+✅ Data restoration completed
+
+✅ Imported 9 users
+✅ Imported 48 accounts
 ```
+
+**Expected output (using existing data):**
+```
+📥 Step 8: Restoring Production Data
+
+⏭️  Skipping restore (using existing data from previous setup)
+```
+
+**Expected output (no backup found):**
+```
+📥 Step 8: Restoring Production Data
+
+⚠️  No backup file found
+
+Step 5 should have created a backup, but none exists.
+
+Options:
+1. Re-run the agent (it will create backup in Step 5)
+2. Manually create backup:
+   export PROD_DB_PASSWORD='your-password'
+   mkdir -p backups
+   PGPASSWORD="$PROD_DB_PASSWORD" pg_dump \
+     "postgresql://postgres.biwwowendjuzvpttyrlb@aws-0-sa-east-1.pooler.supabase.com:5432/postgres" \
+     --format=custom --no-owner --file=backups/production_manual.dump
+```
+
+**Why these flags matter:**
+
+**`--data-only`:**
+- Critical for avoiding the "permission denied for table users" error you encountered
+- Local Supabase has correct auth schema with proper permissions from migrations
+- Production dump includes schema that would overwrite these permissions
+- By using --data-only, we keep local schema intact and only import the data
+
+**`--disable-triggers`:**
+- Handles circular foreign key constraints (e.g., tables that reference each other)
+- Without this, restore would fail with FK constraint violations
+- Safe in local environment - triggers will work normally after restore completes
+- Production backups warned about this: "You might not be able to restore the dump without using --disable-triggers"
+
+**Why this is better than full restore:**
+
+The original approach (`pg_restore --clean --if-exists`) had issues:
+- Overwrote local auth schema, breaking permissions
+- Caused "permission denied" errors on login
+- Required superuser privileges that local setup doesn't have
+
+New approach separates concerns:
+- Step 7 (db reset): Applies migrations → correct schema with correct permissions
+- Step 8 (data restore): Populates tables → production data without touching schema
+
+This matches PostgreSQL best practices: schema from migrations (version controlled), data from backups (environment-specific).
 
 ---
 
@@ -766,46 +1338,82 @@ Possible solutions:
 
 ---
 
-### **Step 9.5: Frontend Environment Setup**
+### **Step 9: Frontend Environment Validation**
 
-**What:** Create/validate `.env.local` file for frontend to connect to local Supabase.
+**What:** Validate that `.env.local` exists and is configured for LOCAL development.
 
 **Why:** Without this, frontend connects to production (dangerous!).
 
 **Execute:**
 
 ```bash
-echo "🔧 Step 9: Frontend Environment Setup"
+echo "🔧 Step 9: Frontend Environment Validation"
 echo ""
 
 # Check if .env.local exists
-if [ -f ".env.local" ]; then
-  if grep -q "127.0.0.1:54321" .env.local; then
-    echo "✅ .env.local configured for LOCAL"
-  else
-    echo "⚠️  .env.local exists but NOT configured for LOCAL"
-    echo "   Current content:"
-    cat .env.local | grep "VITE_SUPABASE_URL"
-    echo ""
-    echo "   Overwriting with LOCAL configuration..."
+if [ ! -f ".env.local" ]; then
+  echo "❌ Missing: .env.local"
+  echo ""
+  echo "This file tells the frontend where to connect."
+  echo ""
+  echo "📝 To create it:"
+  echo ""
+  echo "1. Create the file:"
+  echo "   touch .env.local"
+  echo ""
+  echo "2. Add local Supabase configuration:"
+  echo "   nano .env.local"
+  echo ""
+  echo "3. Required content:"
+  echo ""
+  echo "   VITE_SUPABASE_URL=http://127.0.0.1:54321"
+  echo "   VITE_SUPABASE_ANON_KEY=sb_publishable_ACJWlzQHlZjBrEguHvfOxg_3BJgxAaH"
+  echo ""
+  echo "⚠️  This file is gitignored (will not be committed)"
+  echo ""
+  exit 1
+fi
 
-    cat > .env.local <<'EOF'
-VITE_SUPABASE_URL=http://127.0.0.1:54321
-VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0
-EOF
+echo "✅ .env.local exists"
+echo ""
 
-    echo "   ✅ Overwritten with LOCAL config"
-  fi
+# Validate it points to LOCAL, not PRODUCTION
+if grep -q "127.0.0.1:54321" .env.local; then
+  echo "✅ .env.local configured for LOCAL"
+elif grep -q "supabase.co" .env.local; then
+  echo "❌ .env.local is pointing to PRODUCTION!"
+  echo ""
+  echo "Current configuration:"
+  grep "VITE_SUPABASE_URL" .env.local
+  echo ""
+  echo "This is DANGEROUS - changes will affect production data."
+  echo ""
+  echo "🔧 To fix:"
+  echo ""
+  echo "1. Edit .env.local:"
+  echo "   nano .env.local"
+  echo ""
+  echo "2. Change to local configuration:"
+  echo ""
+  echo "   VITE_SUPABASE_URL=http://127.0.0.1:54321"
+  echo "   VITE_SUPABASE_ANON_KEY=sb_publishable_ACJWlzQHlZjBrEguHvfOxg_3BJgxAaH"
+  echo ""
+  exit 1
 else
-  echo "⚠️  No .env.local found"
-  echo "   Creating .env.local for LOCAL development..."
-
-  cat > .env.local <<'EOF'
-VITE_SUPABASE_URL=http://127.0.0.1:54321
-VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0
-EOF
-
-  echo "   ✅ .env.local created"
+  echo "⚠️  .env.local exists but configuration unclear"
+  echo ""
+  echo "Current content:"
+  cat .env.local | grep "VITE_SUPABASE"
+  echo ""
+  echo "For local development, it should be:"
+  echo ""
+  echo "   VITE_SUPABASE_URL=http://127.0.0.1:54321"
+  echo "   VITE_SUPABASE_ANON_KEY=sb_publishable_ACJWlzQHlZjBrEguHvfOxg_3BJgxAaH"
+  echo ""
+  read -p "Continue anyway? (yes/no): " CONTINUE
+  if [[ ! $CONTINUE =~ ^[Yy][Ee][Ss]$ ]]; then
+    exit 1
+  fi
 fi
 
 echo ""
@@ -819,9 +1427,11 @@ if [ ! -d "node_modules" ]; then
 fi
 ```
 
-**Expected output:**
+**Expected output (success):**
 ```
-🔧 Step 9.5: Frontend Environment Setup
+🔧 Step 9: Frontend Environment Validation
+
+✅ .env.local exists
 
 ✅ .env.local configured for LOCAL
 
@@ -829,9 +1439,67 @@ fi
 ✅ Dependencies installed
 ```
 
+**Expected output (file missing):**
+```
+🔧 Step 9: Frontend Environment Validation
+
+❌ Missing: .env.local
+
+This file tells the frontend where to connect.
+
+📝 To create it:
+
+1. Create the file:
+   touch .env.local
+
+2. Add local Supabase configuration:
+   nano .env.local
+
+3. Required content:
+
+   VITE_SUPABASE_URL=http://127.0.0.1:54321
+   VITE_SUPABASE_ANON_KEY=sb_publishable_ACJWlzQHlZjBrEguHvfOxg_3BJgxAaH
+
+⚠️  This file is gitignored (will not be committed)
+```
+
+**Expected output (pointing to production - CRITICAL):**
+```
+🔧 Step 9: Frontend Environment Validation
+
+✅ .env.local exists
+
+❌ .env.local is pointing to PRODUCTION!
+
+Current configuration:
+VITE_SUPABASE_URL=https://biwwowendjuzvpttyrlb.supabase.co
+
+This is DANGEROUS - changes will affect production data.
+
+🔧 To fix:
+
+1. Edit .env.local:
+   nano .env.local
+
+2. Change to local configuration:
+
+   VITE_SUPABASE_URL=http://127.0.0.1:54321
+   VITE_SUPABASE_ANON_KEY=sb_publishable_ACJWlzQHlZjBrEguHvfOxg_3BJgxAaH
+```
+
+**Key improvements:**
+
+1. **Validates, doesn't create** - Consistent with Opção A
+2. **Checks if pointing to production** - Prevents dangerous mistakes
+3. **Preserves other variables** - No risk of overwriting
+4. **Actionable instructions** - User knows exactly what to do
+5. **Safety first** - Stops if production URL detected
+
+**Note:** The local Supabase anon key shown is the default demo key that Supabase Local always uses - it's safe to hardcode in instructions.
+
 ---
 
-### **Step 10.5: Service Startup**
+### **Step 10: Service Startup**
 
 **What:** Start npm development server.
 
@@ -845,14 +1513,22 @@ echo ""
 
 echo "Starting Vite development server..."
 
-# Kill any existing dev server
-pkill -f "vite" 2>/dev/null || true
+# Check if port 8080 is already in use
+PORT_PID=$(lsof -ti:8080 2>/dev/null)
+
+if [ -n "$PORT_PID" ]; then
+  echo "⚠️  Port 8080 already in use by process $PORT_PID"
+  echo "   Stopping existing process..."
+  kill -9 $PORT_PID 2>/dev/null
+  sleep 2
+fi
 
 # Start dev server in background
 npm run dev > /tmp/vite-dev.log 2>&1 &
 VITE_PID=$!
 
 # Wait for server to start
+echo "Waiting for server to initialize..."
 sleep 3
 
 # Check if started successfully
@@ -870,27 +1546,75 @@ if kill -0 $VITE_PID 2>/dev/null; then
 else
   echo "❌ Failed to start Vite dev server"
   echo ""
-  echo "Check logs:"
+  echo "Check logs for errors:"
   tail -20 /tmp/vite-dev.log
+  echo ""
+  echo "Common issues:"
+  echo "  • Port conflict: Another service using port 8080"
+  echo "  • Missing dependencies: Run 'npm install'"
+  echo "  • Configuration errors: Check vite.config.ts"
+  echo ""
   exit 1
 fi
 
 echo ""
 ```
 
-**Expected output:**
+**Expected output (success):**
 ```
-🚀 Step 10.5: Starting Development Server
+🚀 Step 10: Starting Development Server
 
 Starting Vite development server...
+Waiting for server to initialize...
 ✅ Vite dev server started (PID: 12345)
 
    🌐 URL: http://localhost:8080
 ```
 
+**Expected output (port conflict):**
+```
+🚀 Step 10: Starting Development Server
+
+Starting Vite development server...
+⚠️  Port 8080 already in use by process 67890
+   Stopping existing process...
+Waiting for server to initialize...
+✅ Vite dev server started (PID: 12345)
+
+   🌐 URL: http://localhost:8080
+```
+
+**Expected output (failure):**
+```
+🚀 Step 10: Starting Development Server
+
+Starting Vite development server...
+Waiting for server to initialize...
+❌ Failed to start Vite dev server
+
+Check logs for errors:
+[error output from /tmp/vite-dev.log]
+
+Common issues:
+  • Port conflict: Another service using port 8080
+  • Missing dependencies: Run 'npm install'
+  • Configuration errors: Check vite.config.ts
+```
+
+**Key improvements:**
+
+1. **Surgical process killing** - Only kills process on port 8080, not all vite processes
+2. **Clear feedback** - Shows which PID was killed and why
+3. **Better error handling** - Displays logs and common solutions if startup fails
+4. **Graceful handling** - 2 second sleep after kill to ensure port is released
+
+**Why this is better:**
+
+Using `lsof -ti:8080` targets only the process using port 8080, preventing accidental termination of unrelated processes (e.g., another project's vite server on different port, or vite processes in other terminals).
+
 ---
 
-### **Step 11.5: Comprehensive Validation** ⭐ **ENHANCED**
+### **Step 11: Comprehensive Validation** ⭐ **FINAL CHECK**
 
 **What:** Test all components to ensure setup succeeded.
 
@@ -962,7 +1686,7 @@ echo ""
 
 # 5. Dev server
 echo "5. Development Server:"
-if pgrep -f "vite" > /dev/null; then
+if lsof -ti:8080 > /dev/null 2>&1; then
   echo "   ✅ Vite dev server running"
 else
   echo "   ⚠️  Vite dev server not running"
@@ -1014,7 +1738,7 @@ echo ""
 
 **Expected output:**
 ```
-🔍 Step 11.5: Comprehensive Validation
+🔍 Step 11: Comprehensive Validation
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📊 System Status Check
@@ -1043,8 +1767,34 @@ echo ""
 🎉 Setup Complete!
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-[Access points and credentials...]
+📍 Access Points:
+   🌐 Frontend:       http://localhost:8080
+   🗄️  Database:       postgresql://postgres:postgres@127.0.0.1:54322/postgres
+   🎨 Supabase Studio: http://127.0.0.1:54323
+   📧 Mailpit (emails): http://127.0.0.1:54324
+   ⚡ Edge Functions:  http://127.0.0.1:54321/functions/v1/
+
+🔑 Development Credentials:
+   Email:    bruno@jumper.studio
+   Password: senha123
+
+🎯 Next Steps:
+   1. Open http://localhost:8080 in browser
+   2. Open DevTools Console (F12) and verify:
+      → Should show: 🔗 Supabase: LOCAL (http://127.0.0.1:54321)
+      → If shows PRODUCTION, STOP and check system env vars
+   3. Login with credentials above
+   4. Verify data loads correctly
+
+📝 View Logs:
+   Vite:           tail -f /tmp/vite-dev.log
+   Edge Functions: docker logs -f supabase_edge_runtime_biwwowendjuzvpttyrlb
+   Database:       docker logs -f supabase_db_biwwowendjuzvpttyrlb
 ```
+
+**Note:** Step 11 only reports status - it does not stop execution. All critical validations that should block progress have already been done in Steps 1-10.
+
+**Reference updated:** Changed "check Step 8.5 output" to reflect original numbering in agent.
 
 ---
 
@@ -1075,20 +1825,24 @@ npx supabase login
 
 ---
 
-### **Error: "OPENAI_API_KEY not configured" (Step 3)**
+### **Error: "Missing: supabase/functions/.env" (Step 3)**
 
-**Problem:** API keys missing from `supabase/.env`.
+**Problem:** API keys file for Edge Functions doesn't exist.
 
 **Solution:**
 ```bash
-# 1. Edit source file
-nano supabase/.env
+# 1. Create the file
+touch supabase/functions/.env
 
 # 2. Add required keys:
+nano supabase/functions/.env
+
+# Content:
 OPENAI_API_KEY=sk-proj-...
 ANTHROPIC_API_KEY=sk-ant-api03-...
+SUPABASE_SERVICE_ROLE_KEY=eyJhbGci...
 
-# 3. Restart agent (will auto-copy to supabase/functions/.env)
+# 3. Restart agent
 ```
 
 ---
@@ -1116,26 +1870,34 @@ source ~/.zshrc
 
 ---
 
-### **Error: Backup fails with "connection refused" (Step 5)**
+### **Error: Backup creation failed (Step 5)**
 
 **Problem:** Cannot connect to production database.
 
 **Solutions:**
 
-1. **Check authentication:**
-   ```bash
-   npx supabase login
-   npx supabase projects list
-   ```
+1. **Check password is set:**
+```bash
+   echo $PROD_DB_PASSWORD
+```
 
-2. **Verify credentials:**
-   - Project ref: `biwwowendjuzvpttyrlb`
-   - Password: Check `supabase/.env`
+2. **Verify password correct:**
+   Dashboard → Settings → Database → Database Password
 
-3. **Test connection:**
-   ```bash
-   npx supabase db dump --linked --help
-   ```
+3. **Check pg_dump installed:**
+```bash
+   which pg_dump
+```
+
+4. **Test connection:**
+```bash
+   PGPASSWORD="$PROD_DB_PASSWORD" pg_dump \
+     "postgresql://postgres.biwwowendjuzvpttyrlb@aws-0-sa-east-1.pooler.supabase.com:5432/postgres" \
+     --version
+```
+
+5. **Network issues:**
+   Verify firewall allows port 5432 to aws-0-sa-east-1.pooler.supabase.com
 
 ---
 
@@ -1206,15 +1968,17 @@ docker exec supabase_edge_runtime_biwwowendjuzvpttyrlb env | grep API_KEY
 
 ---
 
-### **Common Issue #2: Edge Functions fail with API_KEY errors**
+### **Common Issue #2: Agent stops at Step 3 or Step 6**
 
 **Symptoms:**
-- Transcription fails: "OPENAI_API_KEY not configured"
-- Context extraction fails: "ANTHROPIC_API_KEY not configured"
+- Step 3: "Missing: supabase/functions/.env"
+- Step 6: "Edge Runtime container missing required keys"
 
-**Root cause:** `supabase/functions/.env` doesn't exist or wasn't loaded into Docker container
+**Root cause:** API keys not properly configured
 
-**Fix:** See "Error Recovery Guide" above for Step 3.
+**Fix:** 
+Step 3 failure = File doesn't exist or missing keys. Create/edit `supabase/functions/.env`
+Step 6 failure = File exists but wasn't loaded. Stop Supabase (`npx supabase stop`), verify file format (no spaces around `=`, no quotes), restart agent.
 
 ---
 
@@ -1306,14 +2070,16 @@ npx supabase db dump --linked --data-only --use-copy \
 
 ## 📚 Files Managed by Agent
 
-### **Created/Modified:**
-- `.env.local` - Frontend environment (points to local Supabase)
+### **Validated (must exist before running agent):**
+- `.env.local` - Frontend environment (must point to local Supabase)
 - `supabase/functions/.env` - Edge Functions API keys
+
+### **Created:**
 - `backups/production_data_*.sql` - Production database dumps
 
 ### **Read Only:**
-- `supabase/.env` - Source of truth for API keys
 - `supabase/migrations/*.sql` - Database schema
+- `supabase/config.toml` - Supabase configuration
 
 ### **Monitored:**
 - `/tmp/vite-dev.log` - Vite dev server logs
@@ -1325,7 +2091,6 @@ npx supabase db dump --linked --data-only --use-copy \
 
 - **Bash:** Shell commands, scripts, Docker operations
 - **Read:** Configuration file validation
-- **Write:** Creating `.env.local` and Edge Functions env
 - **TodoWrite:** Progress tracking (optional)
 
 ---
@@ -1334,17 +2099,22 @@ npx supabase db dump --linked --data-only --use-copy \
 
 Agent completes successfully when ALL of these are true:
 
+**Prerequisites (must exist BEFORE running agent):**
+- ✅ `supabase/functions/.env` exists with API keys
+- ✅ `.env.local` exists and points to LOCAL (127.0.0.1:54321)
+- ✅ Supabase CLI authenticated (`npx supabase projects list` works)
+- ✅ Project linked (`npx supabase link` completed)
+
+**Runtime checks (validated during execution):**
 - ✅ Docker containers running (6+ containers)
 - ✅ Supabase status shows "running"
 - ✅ Database has >0 users in `j_hub_users`
-- ✅ `supabase/functions/.env` exists with API keys
 - ✅ Edge Runtime container has API keys loaded
-- ✅ `.env.local` points to `127.0.0.1:54321`
 - ✅ No conflicting system environment variables
 - ✅ Vite dev server running on port 8080
 - ✅ Edge Functions responding to requests
 - ✅ Dev password validated: `bruno@jumper.studio` / `senha123`
-- ✅ Password hash verification passes in Step 11.5
+- ✅ Password hash verification passes in Step 11
 
 ---
 
@@ -1360,15 +2130,38 @@ Agent completes successfully when ALL of these are true:
 
 5. **System env vars** - If Step 4 shows conflicts, FIX before continuing (high risk!)
 
+6. **Prerequisites required** - Agent validates but doesn't create `supabase/functions/.env` or `.env.local`. These files must exist with correct configuration before running agent. This design prevents accidental credential exposure and gives user full control over secrets management.
+
 ---
 
-**Agent Version:** 2.1
-**Last Updated:** 2025-10-31
+**Agent Version:** 3.0
+**Last Updated:** 2025-11-01
 **Maintained by:** Claude Code Assistant
+
+**Changelog v3.0 (Security & Consistency Update):**
+- 🔒 Security: Removed hardcoded production credentials from Step 5
+- 🔒 Security: Agent now validates files instead of creating them (Steps 3, 9)
+- 🛡️ Safety: Step 6 stops execution if API keys missing from container
+- 🔧 Improvement: Step 5 uses `--linked` flag (cleaner, more secure)
+- 🔢 Renumbering: Steps 9.5→9, 10.5→10, 11.5→11
+- 📝 Philosophy: "Validate and instruct" instead of "create automatically"
+- ⚡ Process: Surgical port killing in Step 10 (only kills :8080, not all vite)
 
 **Changelog v2.1:**
 - 🐛 Fixed password setup failing silently (moved to dedicated Step 8.5)
 - ✅ Added password validation with clear error messages
-- ✅ Added password hash verification in Step 11.5
-- ✅ No more error suppression - all failures visible to user
-- ✅ Step renumbering (9→9.5, 10→10.5, 11→11.5)
+- ✅ Added password hash verification in Step 11
+
+---
+
+## Resumo das Mudanças Filosóficas
+
+O agente mudou de uma abordagem **"helpful automation"** (cria arquivos automaticamente) para **"safe validation"** (valida e instrui o usuário).
+
+**Razão:** Prevenir exposição acidental de credenciais e dar ao usuário controle total sobre secrets management.
+
+**Impacto:**
+- Usuário deve preparar `supabase/functions/.env` e `.env.local` ANTES de rodar agente
+- Agente para imediatamente se algo estiver faltando ou incorreto
+- Instruções claras e acionáveis em cada erro
+- Nenhuma credencial é criada, copiada ou manipulada automaticamente pelo script
