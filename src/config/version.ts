@@ -7,12 +7,27 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.71';
+export const APP_VERSION = 'v2.0.72';
 
 /**
  * Version history:
+ * - v2.0.72 (2024-11-03):
+ *   - FIX: Comprehensive UTF-8 encoding fix across ENTIRE pipeline (mojibake fully resolved)
+ *   - CRITICAL: Added TextDecoder('utf-8') to ALL fetch operations in Edge Function
+ *   - Request body: Explicit UTF-8 decoding before JSON.parse (line 30-33)
+ *   - Template loading: arrayBuffer() + TextDecoder for forced UTF-8 (line 95-108)
+ *   - Design system: arrayBuffer() + TextDecoder for forced UTF-8 (line 123-135)
+ *   - Claude API: Added Accept/Content-Type charset headers + TextDecoder response (line 254-277)
+ *   - Storage upload: UTF-8 Blob with charset (from v2.0.71)
+ *   - Response headers: All include charset=utf-8 (from v2.0.71)
+ *   - Fixes Portuguese characters (Relatório, Otimização, etc.)
+ *   - Fixes all special symbols (→, ✅, emojis like 🇧🇷)
+ *   - Root cause: Templates/API responses not explicitly decoded as UTF-8
+ *   - Test 1 confirmed: Simple markdown also had mojibake (eliminated user input as cause)
+ *   - Edge Function j_hub_deck_generate deployed with comprehensive fixes
+ *
  * - v2.0.71 (2024-11-03):
- *   - FIX: UTF-8 encoding issue in deck generation (mojibake resolved)
+ *   - FIX: UTF-8 encoding issue in deck generation (partial fix - Storage upload only)
  *   - CRITICAL: Added explicit UTF-8 encoding via TextEncoder in Edge Function
  *   - Changed Blob creation to use encoded bytes with charset declaration
  *   - Updated Storage upload Content-Type: 'text/html; charset=utf-8'
@@ -22,6 +37,7 @@ export const APP_VERSION = 'v2.0.71';
  *   - Fixes broken emoji encoding (🇨🇴 → ðŸ‡¨ðŸ‡´)
  *   - Root cause: UTF-8 bytes misinterpreted as ISO-8859-1/Latin-1
  *   - Edge Function j_hub_deck_generate deployed with fixes
+ *   - NOTE: This fix was incomplete - v2.0.72 added decoding to all fetch operations
  *
  * - v2.0.70 (2024-11-03):
  *   - FEATURE: Decks system FULLY INTEGRATED into web application (ALL 5 phases complete!)

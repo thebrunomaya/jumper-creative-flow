@@ -26,8 +26,12 @@ serve(async (req) => {
     const anthropicKey = Deno.env.get('ANTHROPIC_API_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Parse request body
-    const body = await req.json();
+    // Parse request body with explicit UTF-8 decoding
+    const bodyBytes = await req.arrayBuffer();
+    const decoder = new TextDecoder('utf-8');
+    const bodyText = decoder.decode(bodyBytes);
+    const body = JSON.parse(bodyText);
+
     const {
       title,
       markdown_source,
@@ -92,12 +96,21 @@ serve(async (req) => {
 
     let templateHtml: string;
     try {
-      const templateResponse = await fetch(templateUrl);
+      const templateResponse = await fetch(templateUrl, {
+        headers: {
+          'Accept': 'text/html; charset=utf-8',
+        },
+      });
       if (!templateResponse.ok) {
         // Fallback: Try loading from local file path if in dev
         throw new Error(`Template not found in storage: ${template_id}`);
       }
-      templateHtml = await templateResponse.text();
+
+      // Force UTF-8 decoding with TextDecoder
+      const templateBytes = await templateResponse.arrayBuffer();
+      const decoder = new TextDecoder('utf-8');
+      templateHtml = decoder.decode(templateBytes);
+
       console.log('✅ [DECK_GENERATE] Template loaded:', templateHtml.length, 'chars');
     } catch (templateError) {
       console.error('❌ [DECK_GENERATE] Template load failed:', templateError);
@@ -111,11 +124,20 @@ serve(async (req) => {
 
     let designSystem: string;
     try {
-      const dsResponse = await fetch(designSystemUrl);
+      const dsResponse = await fetch(designSystemUrl, {
+        headers: {
+          'Accept': 'text/markdown; charset=utf-8',
+        },
+      });
       if (!dsResponse.ok) {
         throw new Error(`Design system not found in storage: ${brand_identity}`);
       }
-      designSystem = await dsResponse.text();
+
+      // Force UTF-8 decoding with TextDecoder
+      const dsBytes = await dsResponse.arrayBuffer();
+      const decoder = new TextDecoder('utf-8');
+      designSystem = decoder.decode(dsBytes);
+
       console.log('✅ [DECK_GENERATE] Design system loaded:', designSystem.length, 'chars');
     } catch (dsError) {
       console.error('❌ [DECK_GENERATE] Design system load failed:', dsError);
@@ -233,7 +255,8 @@ OUTPUT FORMAT: Complete standalone HTML file (no markdown fences, no explanation
       headers: {
         'x-api-key': anthropicKey,
         'anthropic-version': '2023-06-01',
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json; charset=utf-8',
+        'Accept': 'application/json; charset=utf-8',
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-5-20250929',
@@ -251,7 +274,12 @@ OUTPUT FORMAT: Complete standalone HTML file (no markdown fences, no explanation
       throw new Error(`Claude API error: ${claudeResponse.status}`);
     }
 
-    const claudeData = await claudeResponse.json();
+    // Force UTF-8 decoding of Claude response
+    const claudeBytes = await claudeResponse.arrayBuffer();
+    const decoder = new TextDecoder('utf-8');
+    const claudeText = decoder.decode(claudeBytes);
+    const claudeData = JSON.parse(claudeText);
+
     let htmlOutput = claudeData.content[0].text;
     const latency = Date.now() - startTime;
 
