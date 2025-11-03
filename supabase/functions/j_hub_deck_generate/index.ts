@@ -150,7 +150,8 @@ CRITICAL INSTRUCTIONS:
 1. READ AND APPLY the complete design system from identities/${brand_identity}/design-system.md
 2. USE the template structure from ${template_id}.html as inspiration for layout patterns
 3. GENERATE a complete, standalone HTML file with:
-   - Complete <head> with all CSS embedded (no external dependencies)
+   - Complete <head> with <meta charset="UTF-8"> as FIRST tag (CRITICAL for UTF-8 encoding)
+   - All CSS embedded (no external dependencies)
    - Font loading (@font-face for Haffer VF)
    - All animations and interactions
    - Responsive design (mobile-first)
@@ -264,14 +265,18 @@ OUTPUT FORMAT: Complete standalone HTML file (no markdown fences, no explanation
 
     // 7. Upload HTML to Supabase Storage (decks/{user_id}/{deck_id}.html)
     const fileName = `${user.id}/${deckId}.html`;
-    const htmlBlob = new Blob([htmlOutput], { type: 'text/html' });
+
+    // Explicitly encode as UTF-8 to prevent mojibake
+    const encoder = new TextEncoder();
+    const htmlBytes = encoder.encode(htmlOutput);
+    const htmlBlob = new Blob([htmlBytes], { type: 'text/html; charset=utf-8' });
 
     console.log('📤 [DECK_GENERATE] Uploading to storage:', fileName);
 
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from('decks')
       .upload(fileName, htmlBlob, {
-        contentType: 'text/html',
+        contentType: 'text/html; charset=utf-8',
         cacheControl: '3600',
         upsert: false,
       });
@@ -317,7 +322,7 @@ OUTPUT FORMAT: Complete standalone HTML file (no markdown fences, no explanation
         latency_ms: latency,
       }),
       {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { ...corsHeaders, 'Content-Type': 'application/json; charset=utf-8' },
         status: 200
       }
     );
@@ -350,7 +355,7 @@ OUTPUT FORMAT: Complete standalone HTML file (no markdown fences, no explanation
         error: error.message
       }),
       {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { ...corsHeaders, 'Content-Type': 'application/json; charset=utf-8' },
         status: 500
       }
     );

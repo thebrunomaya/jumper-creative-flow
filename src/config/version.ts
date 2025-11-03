@@ -7,10 +7,22 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.70';
+export const APP_VERSION = 'v2.0.71';
 
 /**
  * Version history:
+ * - v2.0.71 (2024-11-03):
+ *   - FIX: UTF-8 encoding issue in deck generation (mojibake resolved)
+ *   - CRITICAL: Added explicit UTF-8 encoding via TextEncoder in Edge Function
+ *   - Changed Blob creation to use encoded bytes with charset declaration
+ *   - Updated Storage upload Content-Type: 'text/html; charset=utf-8'
+ *   - Updated all response headers with 'charset=utf-8'
+ *   - Updated Claude prompt to require <meta charset="UTF-8"> as first tag
+ *   - Fixes Portuguese characters displaying incorrectly (Relatório → RelatÃ³rio)
+ *   - Fixes broken emoji encoding (🇨🇴 → ðŸ‡¨ðŸ‡´)
+ *   - Root cause: UTF-8 bytes misinterpreted as ISO-8859-1/Latin-1
+ *   - Edge Function j_hub_deck_generate deployed with fixes
+ *
  * - v2.0.70 (2024-11-03):
  *   - FEATURE: Decks system FULLY INTEGRATED into web application (ALL 5 phases complete!)
  *   - PHASE 1 (Backend - Edge Functions):
