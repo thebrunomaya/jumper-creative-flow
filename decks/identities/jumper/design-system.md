@@ -505,6 +505,34 @@ Use `clamp(min, preferred, max)` for fluid scaling across devices. This ensures 
 
 ---
 
+#### **Live Section Examples**
+
+**Location:** `../sections/`
+
+Interactive HTML demos of the gradient layout strategies:
+
+1. **`split-layout-gradient-right.html`**
+   - Cover slide pattern with gradient on right side
+   - Demonstrates organic-01.png usage
+   - Perfect for opening slides
+   - Includes animated content and brand logo positioning
+
+2. **`split-layout-gradient-left.html`**
+   - Closing slide pattern with gradient on left side
+   - Demonstrates organic-02.png usage
+   - Strong final impression layout
+   - Badge component example
+
+3. **`text-containers-on-gradient.html`**
+   - Timeline pattern with dark containers over gradient
+   - Demonstrates organic-05.png usage
+   - Sequential animation of timeline items
+   - Includes glassmorphism variant example
+
+**Usage:** Open HTML files in browser to see interactive demos with animations, hover states, and responsive behavior. Each file includes an info panel explaining when and how to use the pattern.
+
+---
+
 ### Component Library
 
 **Metric Cards (Data Displays):**
