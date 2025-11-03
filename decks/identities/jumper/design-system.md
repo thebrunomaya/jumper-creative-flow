@@ -148,9 +148,8 @@ Use `clamp(min, preferred, max)` for fluid scaling across devices. This ensures 
 | `../gradients/organic-02.png` | 1.4MB | CTA slides, closing statements |
 | `../gradients/organic-03.png` | 392KB | Subtle backgrounds (most minimal) |
 | `../gradients/organic-04.png` | 571KB | Mid-deck transitions |
-| `../gradients/organic-05.png` | 1.1MB | Data visualization backgrounds |
+| `../gradients/organic-05.png` | 693KB | Data visualization backgrounds |
 | `../gradients/organic-06.png` | 615KB | Alternative hero sections |
-| `../gradients/organic-07.png` | 693KB | Variation for multi-deck consistency |
 
 **Application Example:**
 ```css
@@ -445,7 +444,7 @@ Use `clamp(min, preferred, max)` for fluid scaling across devices. This ensures 
 **When to use:**
 - Full-bleed gradients mandatory
 - No space for split layout
-- Subtle gradients (organic-03, organic-06, organic-07)
+- Subtle gradients (organic-03, organic-04, organic-06)
 
 **Disadvantages:**
 - ⚠️ Depends on light/dark areas of gradient
@@ -849,9 +848,8 @@ Use `clamp(min, preferred, max)` for fluid scaling across devices. This ensures 
 | `organic-02.png` | 1.4MB | CTA slides, closing statements | **Split Layout** |
 | `organic-03.png` | 392KB | Subtle backgrounds (minimal texture) | Color Overrides OK |
 | `organic-04.png` | 571KB | Mid-deck transitions | Color Overrides OK |
-| `organic-05.png` | 1.1MB | Data visualization, timeline backgrounds | **Text Containers** |
+| `organic-05.png` | 693KB | Data visualization, timeline backgrounds | **Text Containers** |
 | `organic-06.png` | 615KB | Alternative hero sections | Split Layout or Containers |
-| `organic-07.png` | 693KB | Multi-deck consistency | Color Overrides OK |
 
 **Rule of thumb:** Use gradients 2-3 times per 10-slide deck. More = cluttered, less = missed opportunity.
 
@@ -931,7 +929,7 @@ Use `clamp(min, preferred, max)` for fluid scaling across devices. This ensures 
 - Symbol only: `../logos/x-black.png`, `../logos/X-White.png`
 
 **Gradient Files:**
-- `../gradients/organic-01.png` through `../gradients/organic-07.png`
+- `../gradients/organic-01.png` through `../gradients/organic-06.png`
 
 **Decision Hierarchy When Unsure:**
 1. **Simpler is better** (remove decoration)
