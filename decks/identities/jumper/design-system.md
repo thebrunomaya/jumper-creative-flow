@@ -363,6 +363,54 @@ Use `clamp(min, preferred, max)` for fluid scaling across devices. This ensures 
 
 ---
 
+#### **⚠️ Critical: Split Layout Height Bug Fix**
+
+**Problem:** Split layout gradients may not display correctly with the following symptoms:
+- Empty gradient div has `height: 0px` (not visible at all)
+- Black borders appear on gradient edges
+- Gradient doesn't fill the grid parent container
+
+**Root Cause:**
+Using `min-height: 100vh` on `.slide-split-gradient` breaks in CSS Grid contexts because:
+- `100vh` calculates height based on viewport, not grid parent
+- Grid parent may be shorter or taller than viewport, causing mismatch/overflow
+- Empty divs without content default to `height: 0px` unless explicitly sized
+
+**Solution:**
+
+```css
+.slide-split-gradient {
+  /* ❌ WRONG - causes empty div or black borders */
+  min-height: 100vh;
+
+  /* ✅ CORRECT - fills grid parent completely */
+  height: 100%;
+
+  background-image: url('../identities/jumper/gradients/organic-01.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+```
+
+**Validation Checklist:**
+- ✅ Gradient fills exactly 50% of slide width (edge-to-edge)
+- ✅ No black borders or empty space visible
+- ✅ Height matches the `.slide-split-content` div exactly
+- ✅ Works correctly on mobile (stacked layout)
+
+**Debugging Tips:**
+If gradients still don't appear:
+1. Use browser DevTools to inspect `.slide-split-gradient` element
+2. Check computed `height` property (should NOT be `0px`)
+3. Verify `background-image` path is correct relative to HTML file
+4. Confirm gradient PNG files exist and have proper permissions (`chmod 644`)
+
+**Historical Note:**
+This fix was discovered on 2025-11-03 during Moldura Minuto presentation creation. Original code used `min-height: 100vh` which caused gradients to not display properly.
+
+---
+
 #### **Strategy 2: Text Containers (ALTERNATIVE)**
 
 **When to use:**

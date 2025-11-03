@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jumper Minimal - Template de Apresentação</title>
+    <style>
+        /**
+         * JUMPER MINIMAL TEMPLATE
+         * Design System: Minimalismo sofisticado com acentos orgânicos estratégicos
+         * Paleta: 90% cinza, 5% laranja, 5% semânticas
+         * Font: Haffer Variable
+         */
+
+        /* ========================================
+           FONT IMPORT - Haffer Variable
+           ======================================== */
+        @font-face {
+            font-family: 'Haffer';
+            src: url('../fonts/HafferVF.ttf') format('truetype');
+            font-weight: 100 900;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: 'Haffer';
+            src: url('../fonts/HafferItalicVF.ttf') format('truetype');
+            font-weight: 100 900;
+            font-style: italic;
+            font-display: swap;
+        }
+
+        /* ========================================
+           CSS VARIABLES - Jumper Design System
+           ======================================== */
+        :root {
+            /* Cores Primárias - Uso restrito */
+            --jumper-orange: #FA4721;
+            --jumper-purple: #8143A7;
+            --jumper-white: #FFFFFF;
+            --jumper-black: #000000;
+
+            /* Tons de Cinza - Uso preferencial (90%) */
+            --jumper-gray-dark: #181818;
+            --jumper-gray-medium: #3E3D40;
+            --jumper-gray-light: #C6CBD4;
+            --color-subtle: #6B7280;
+            --color-muted: #9CA3AF;
+
+            /* Cores Semânticas */
+            --color-success: #10B981;
+            --color-error: #EF4444;
+            --color-info: #3B82F6;
+            --color-warning: #F59E0B;
+
+            /* Espaçamento (Grid 8px) */
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+            --spacing-2xl: 48px;
+            --spacing-3xl: 64px;
+
+            /* Border Radius */
+            --radius-sm: 6px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --radius-xl: 16px;
+
+            /* Shadows */
+            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.2);
+            --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.3);
+
+            /* Transitions */
+            --transition-fast: 0.3s ease;
+            --transition-normal: 0.6s ease-out;
+            --transition-slow: 0.8s ease-out;
+        }
+
+        /* ========================================
+           RESET & BASE
+           ======================================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Haffer', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--jumper-black);
+            color: var(--jumper-white);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* ========================================
+           SLIDE SYSTEM
+           ======================================== */
+        .slides-container {
+            width: 100vw;
+            height: 100vh;
+            scroll-snap-type: y mandatory;
+            overflow-y: scroll;
+            scroll-behavior: smooth;
+        }
+
+        .slide {
+            width: 100vw;
+            min-height: 100vh;
+            scroll-snap-align: start;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--spacing-2xl);
+            position: relative;
+        }
+
+        .slide .content {
+            max-width: 1100px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        /* ========================================
+           TYPOGRAPHY
+           ======================================== */
+        h1 {
+            font-size: clamp(36px, 5vw, 60px);
+            font-weight: 600;
+            line-height: 1.1;
+            letter-spacing: -0.02em;
+            color: var(--jumper-white);
+            margin-bottom: var(--spacing-md);
+        }
+
+        h2 {
+            font-size: clamp(20px, 3vw, 24px);
+            font-weight: 500;
+            line-height: 1.3;
+            color: var(--color-muted);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--jumper-white);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        p {
+            font-size: 14px;
+            line-height: 1.6;
+            color: var(--color-muted);
+        }
+
+        .huge {
+            font-size: clamp(48px, 8vw, 72px);
+            font-weight: 700;
+            line-height: 1;
+            color: var(--jumper-white);
+        }
+
+        .caption {
+            font-size: 12px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--color-subtle);
+        }
+
+        /* ========================================
+           HERO SLIDE
+           ======================================== */
+        .slide-hero {
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        .slide-hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1;
+        }
+
+        .slide-hero .content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .slide-hero img.logo {
+            width: 150px;
+            height: auto;
+            margin-bottom: var(--spacing-xl);
+            opacity: 0.9;
+        }
+
+        /* ========================================
+           CARDS
+           ======================================== */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--spacing-lg);
+            margin-top: var(--spacing-xl);
+            width: 100%;
+        }
+
+        .card {
+            background: var(--jumper-gray-dark);
+            border: 1px solid var(--jumper-gray-medium);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-lg);
+            transition: all var(--transition-fast);
+            text-align: left;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            border-color: var(--color-subtle);
+            box-shadow: var(--shadow-md);
+        }
+
+        .card h3 {
+            color: var(--jumper-white);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .card p {
+            color: var(--color-muted);
+            font-size: 14px;
+        }
+
+        /* ========================================
+           STATS GRID
+           ======================================== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-xl);
+            margin-top: var(--spacing-2xl);
+            width: 100%;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: clamp(48px, 8vw, 72px);
+            font-weight: 700;
+            line-height: 1;
+            color: var(--jumper-white);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--color-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        /* Badge de métricas */
+        .stat-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-top: var(--spacing-xs);
+        }
+
+        .stat-badge.positive {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10B981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        /* ========================================
+           INVESTMENT BOX
+           ======================================== */
+        .investment-box {
+            background: var(--jumper-gray-dark);
+            border: 3px solid var(--jumper-orange);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-2xl) var(--spacing-3xl);
+            text-align: center;
+            margin: var(--spacing-xl) auto;
+            max-width: 600px;
+        }
+
+        .investment-value {
+            font-size: clamp(48px, 8vw, 72px);
+            font-weight: 700;
+            color: var(--jumper-white);
+            margin-bottom: var(--spacing-md);
+            line-height: 1;
+        }
+
+        .investment-label {
+            font-size: 12px;
+            color: var(--color-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        /* ========================================
+           TIMELINE
+           ======================================== */
+        .timeline {
+            position: relative;
+            padding-left: var(--spacing-xl);
+            margin-top: var(--spacing-xl);
+            text-align: left;
+            max-width: 800px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--jumper-gray-medium);
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-bottom: var(--spacing-lg);
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: calc(-1 * var(--spacing-xl) - 5px);
+            top: 8px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--color-subtle);
+            border: 2px solid var(--jumper-black);
+        }
+
+        .timeline-item.highlight::before {
+            background: var(--jumper-orange);
+        }
+
+        .timeline-item:last-child {
+            padding-bottom: 0;
+        }
+
+        .timeline-title {
+            font-weight: 600;
+            font-size: 16px;
+            color: var(--jumper-white);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .timeline-content {
+            color: var(--color-muted);
+            font-size: 14px;
+        }
+
+        /* ========================================
+           CTA SLIDE & BUTTON
+           ======================================== */
+        .slide-cta {
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        .slide-cta::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1;
+        }
+
+        .slide-cta .content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .btn-cta {
+            display: inline-block;
+            background: var(--jumper-orange);
+            color: var(--jumper-white);
+            padding: 18px 36px;
+            border-radius: var(--radius-md);
+            font-size: 18px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all var(--transition-fast);
+            margin-top: var(--spacing-lg);
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-cta:hover {
+            background: #E63E1C;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(250, 71, 33, 0.4);
+        }
+
+        /* ========================================
+           NAVIGATION
+           ======================================== */
+        .slide-indicator {
+            position: fixed;
+            bottom: var(--spacing-lg);
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            color: var(--jumper-white);
+            font-weight: 500;
+        }
+
+        /* ========================================
+           ANIMATIONS
+           ======================================== */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-in {
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        .slide .content > * {
+            opacity: 0;
+        }
+
+        .slide.visible .content > * {
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        .slide.visible .content > *:nth-child(1) { animation-delay: 0s; }
+        .slide.visible .content > *:nth-child(2) { animation-delay: 0.1s; }
+        .slide.visible .content > *:nth-child(3) { animation-delay: 0.2s; }
+        .slide.visible .content > *:nth-child(4) { animation-delay: 0.3s; }
+
+        /* ========================================
+           RESPONSIVE
+           ======================================== */
+        @media (max-width: 1024px) {
+            .slide {
+                padding: var(--spacing-xl);
+            }
+
+            .cards-grid,
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: var(--spacing-md);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .slide {
+                padding: var(--spacing-lg);
+            }
+
+            h1 {
+                font-size: clamp(28px, 6vw, 48px);
+            }
+
+            h2 {
+                font-size: clamp(16px, 3vw, 20px);
+            }
+
+            .huge,
+            .stat-value,
+            .investment-value {
+                font-size: clamp(36px, 8vw, 56px);
+            }
+
+            .investment-box {
+                padding: var(--spacing-xl);
+            }
+
+            .timeline {
+                padding-left: var(--spacing-md);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slides-container">
+        <!-- SLIDE 1: HERO -->
+        <div class="slide slide-hero" style="background-image: url('../assets/gradients/organic-01.png');">
+            <div class="content">
+                <img src="../assets/logos/jumper-white.png" alt="Jumper Studio" class="logo">
+                <h1>Transformação Digital para Clínica Bella Vista</h1>
+                <h2>Estratégia exclusiva de otimização digital para clínicas premium</h2>
+            </div>
+        </div>
+
+        <!-- SLIDE 2: O DESAFIO -->
+        <div class="slide" style="background: #000000;">
+            <div class="content">
+                <h1>O Desafio</h1>
+                <h2>Desafios típicos do segmento premium</h2>
+                <div class="cards-grid">
+                    <div class="card">
+                        <h3>Baixa Conversão</h3>
+                        <p>Leads qualificados não convertem em clientes</p>
+                    </div>
+                    <div class="card">
+                        <h3>ROI Desconhecido</h3>
+                        <p>Sem visibilidade sobre retorno dos investimentos em mídia</p>
+                    </div>
+                    <div class="card">
+                        <h3>Processos Manuais</h3>
+                        <p>Operações que limitam escalabilidade do negócio</p>
+                    </div>
+                    <div class="card">
+                        <h3>Jornada Opaca</h3>
+                        <p>Falta de visibilidade sobre comportamento do cliente</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 3: NOSSA SOLUÇÃO -->
+        <div class="slide" style="background: #000000;">
+            <div class="content">
+                <h1>Nossa Solução</h1>
+                <h2>Infraestrutura completa de marketing digital</h2>
+                <div class="cards-grid">
+                    <div class="card">
+                        <h3>Tracking Avançado</h3>
+                        <p>Sistema completo de rastreamento client-side e server-side para visibilidade total do funil</p>
+                    </div>
+                    <div class="card">
+                        <h3>Automação Inteligente</h3>
+                        <p>Fluxos automatizados que nutrem leads e aumentam conversão sem intervenção manual</p>
+                    </div>
+                    <div class="card">
+                        <h3>Otimização Contínua</h3>
+                        <p>Metodologia de testes e melhorias baseada em dados reais de performance</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 4: INVESTIMENTO -->
+        <div class="slide" style="background: #000000;">
+            <div class="content">
+                <h1>Investimento</h1>
+                <div class="investment-box">
+                    <div class="investment-value">R$ 85.500</div>
+                    <div class="investment-label">12 Semanas - Infraestrutura Escalável</div>
+                </div>
+                <p style="max-width: 600px; margin-top: var(--spacing-lg);">Investimento único com foco em construir infraestrutura escalável e sustentável para crescimento a longo prazo.</p>
+            </div>
+        </div>
+
+        <!-- SLIDE 5: RESULTADOS ESPERADOS -->
+        <div class="slide" style="background: #181818;">
+            <div class="content">
+                <h1>Resultados Esperados</h1>
+                <h2>Métricas documentadas e mensuráveis</h2>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-value">+450%</div>
+                        <div class="stat-label">ROI Documentado</div>
+                        <span class="stat-badge positive">Crescimento</span>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">+280%</div>
+                        <div class="stat-label">Conversões Qualificadas</div>
+                        <span class="stat-badge positive">Aumento</span>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">+65%</div>
+                        <div class="stat-label">Eficiência Operacional</div>
+                        <span class="stat-badge positive">Melhoria</span>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">-40%</div>
+                        <div class="stat-label">Custo por Aquisição</div>
+                        <span class="stat-badge positive">Redução</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 6: CRONOGRAMA -->
+        <div class="slide" style="background: #000000;">
+            <div class="content">
+                <h1>Cronograma de Implementação</h1>
+                <h2>12 semanas de execução focada</h2>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-title">Semanas 1-2: Discovery e Setup</div>
+                        <div class="timeline-content">Setup inicial de tracking e análise profunda</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-title">Semanas 3-4: Implementação</div>
+                        <div class="timeline-content">Automações e integrações de sistemas</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-title">Semanas 5-8: Otimização</div>
+                        <div class="timeline-content">Testes A/B e ajustes de performance</div>
+                    </div>
+                    <div class="timeline-item highlight">
+                        <div class="timeline-title">Semanas 9-12: Escalonamento</div>
+                        <div class="timeline-content">Escala e documentação completa</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 7: METODOLOGIA JUMPER -->
+        <div class="slide" style="background: #000000;">
+            <div class="content">
+                <h1>Metodologia Jumper</h1>
+                <h2 style="max-width: 800px;">Nossa abordagem consultiva se baseia em resultados mensuráveis, não em promessas</h2>
+                <div class="cards-grid" style="max-width: 900px; grid-template-columns: repeat(2, 1fr); margin-top: var(--spacing-2xl);">
+                    <div class="card">
+                        <h3>Validação com Dados</h3>
+                        <p>Cada etapa é validada com dados concretos antes de avançar para a próxima fase</p>
+                    </div>
+                    <div class="card">
+                        <h3>Transparência Total</h3>
+                        <p>Você terá acesso aos mesmos dashboards que utilizamos internamente para monitorar performance</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 8: CTA -->
+        <div class="slide slide-cta" style="background-image: url('../assets/gradients/organic-02.png');">
+            <div class="content">
+                <h1 style="font-size: 48px;">Próximos Passos</h1>
+                <h2 style="max-width: 700px; margin-bottom: var(--spacing-2xl);">Vamos agendar uma reunião de 30 minutos para discutir detalhes técnicos e alinhar expectativas</h2>
+                <a href="#" class="btn-cta">Agendar Reunião →</a>
+                <p style="margin-top: var(--spacing-lg); font-size: 14px; color: var(--jumper-gray-light);">Nosso time está pronto para iniciar assim que você aprovar</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Indicador de Slide -->
+    <div class="slide-indicator">
+        <span id="current-slide">1</span> / <span id="total-slides">8</span>
+    </div>
+
+    <script>
+        // ========================================
+        // SLIDE NAVIGATION SYSTEM
+        // ========================================
+
+        const slidesContainer = document.querySelector('.slides-container');
+        const slides = document.querySelectorAll('.slide');
+        const currentSlideEl = document.getElementById('current-slide');
+        const totalSlidesEl = document.getElementById('total-slides');
+
+        let currentSlide = 0;
+
+        // Set total slides
+        totalSlidesEl.textContent = slides.length;
+
+        // Update current slide on scroll
+        slidesContainer.addEventListener('scroll', () => {
+            const scrollPosition = slidesContainer.scrollTop;
+            const slideHeight = window.innerHeight;
+            const newSlide = Math.round(scrollPosition / slideHeight);
+
+            if (newSlide !== currentSlide) {
+                currentSlide = newSlide;
+                currentSlideEl.textContent = currentSlide + 1;
+
+                // Add visible class for animations
+                slides.forEach((slide, index) => {
+                    if (index === currentSlide) {
+                        slide.classList.add('visible');
+                    }
+                });
+            }
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            const slideHeight = window.innerHeight;
+
+            if (e.key === 'ArrowDown' || e.key === ' ' || e.key === 'ArrowRight') {
+                e.preventDefault();
+                if (currentSlide < slides.length - 1) {
+                    slidesContainer.scrollBy({ top: slideHeight, behavior: 'smooth' });
+                }
+            } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+                e.preventDefault();
+                if (currentSlide > 0) {
+                    slidesContainer.scrollBy({ top: -slideHeight, behavior: 'smooth' });
+                }
+            }
+        });
+
+        // Touch/swipe navigation
+        let touchStartY = 0;
+        let touchStartTime = 0;
+
+        document.addEventListener('touchstart', (e) => {
+            touchStartY = e.touches[0].clientY;
+            touchStartTime = Date.now();
+        });
+
+        document.addEventListener('touchend', (e) => {
+            const touchEndY = e.changedTouches[0].clientY;
+            const touchEndTime = Date.now();
+            const diff = touchStartY - touchEndY;
+            const timeDiff = touchEndTime - touchStartTime;
+            const slideHeight = window.innerHeight;
+
+            // Swipe must be at least 50px and less than 300ms
+            if (Math.abs(diff) > 50 && timeDiff < 300) {
+                if (diff > 0 && currentSlide < slides.length - 1) {
+                    // Swipe up - next slide
+                    slidesContainer.scrollBy({ top: slideHeight, behavior: 'smooth' });
+                } else if (diff < 0 && currentSlide > 0) {
+                    // Swipe down - previous slide
+                    slidesContainer.scrollBy({ top: -slideHeight, behavior: 'smooth' });
+                }
+            }
+        });
+
+        // Initialize first slide as visible
+        slides[0].classList.add('visible');
+    </script>
+</body>
+</html>

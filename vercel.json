@@ -1,6 +1,10 @@
 {
   "rewrites": [
     {
+      "source": "/decks/(.*)",
+      "destination": "/decks/$1"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

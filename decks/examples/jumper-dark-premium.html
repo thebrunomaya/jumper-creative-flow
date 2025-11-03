@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jumper Dark Premium - Template</title>
+    <style>
+        /**
+         * JUMPER DARK PREMIUM TEMPLATE
+         * Uso estratégico de gradientes + Glassmorphism
+         * Visual dramático mantendo minimalismo sofisticado
+         * 85% cinza + 10% gradientes + 5% laranja
+         */
+
+        @font-face {
+            font-family: 'Haffer';
+            src: url('../fonts/HafferVF.ttf') format('truetype');
+            font-weight: 100 900;
+            font-style: normal;
+        }
+
+        :root {
+            --jumper-orange: #FA4721;
+            --jumper-purple: #8143A7;
+            --jumper-white: #FFFFFF;
+            --jumper-black: #000000;
+            --jumper-gray-dark: #181818;
+            --jumper-gray-medium: #3E3D40;
+            --jumper-gray-light: #C6CBD4;
+            --color-subtle: #6B7280;
+            --color-muted: #9CA3AF;
+            --color-success: #10B981;
+            --spacing-sm: 8px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+            --spacing-2xl: 48px;
+            --spacing-3xl: 64px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --radius-xl: 16px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Haffer', -apple-system, sans-serif;
+            background: var(--jumper-black);
+            color: var(--jumper-white);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .slides-container {
+            width: 100vw;
+            height: 100vh;
+            scroll-snap-type: y mandatory;
+            overflow-y: scroll;
+            scroll-behavior: smooth;
+        }
+
+        .slide {
+            width: 100vw;
+            min-height: 100vh;
+            scroll-snap-align: start;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--spacing-2xl);
+            position: relative;
+        }
+
+        .slide .content {
+            max-width: 1100px;
+            width: 100%;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Typography */
+        h1 {
+            font-size: clamp(36px, 5vw, 60px);
+            font-weight: 600;
+            line-height: 1.1;
+            margin-bottom: var(--spacing-md);
+            text-shadow: 0 2px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        h2 {
+            font-size: clamp(20px, 3vw, 24px);
+            font-weight: 500;
+            color: var(--color-muted);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        /* Hero with Gradient */
+        .slide-hero {
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        .slide-hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(0,0,0,0.7) 0%, rgba(129,67,167,0.3) 100%);
+            z-index: 1;
+        }
+
+        /* Gradient Accent Slides */
+        .slide-gradient {
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        .slide-gradient::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1;
+        }
+
+        /* Glass Card - Premium Effect */
+        .glass-card {
+            background: rgba(24, 24, 24, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-lg);
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+
+        .glass-card:hover {
+            background: rgba(24, 24, 24, 0.8);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Cards Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: var(--spacing-lg);
+            margin-top: var(--spacing-xl);
+        }
+
+        .card-premium {
+            background: linear-gradient(135deg, rgba(24,24,24,0.9) 0%, rgba(62,61,64,0.6) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-lg);
+            text-align: left;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-premium::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, var(--jumper-orange), var(--jumper-purple));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .card-premium:hover::before {
+            opacity: 1;
+        }
+
+        .card-premium:hover {
+            transform: translateY(-4px);
+            border-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 12px 32px rgba(250, 71, 33, 0.2);
+        }
+
+        /* Stats Premium */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-xl);
+            margin-top: var(--spacing-2xl);
+        }
+
+        .stat-item-premium {
+            background: linear-gradient(135deg, rgba(24,24,24,0.8) 0%, rgba(62,61,64,0.4) 100%);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-xl);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-item-premium:hover {
+            transform: scale(1.05);
+            border-color: rgba(250, 71, 33, 0.5);
+            box-shadow: 0 8px 24px rgba(250, 71, 33, 0.3);
+        }
+
+        .stat-value {
+            font-size: clamp(48px, 8vw, 72px);
+            font-weight: 700;
+            line-height: 1;
+            margin-bottom: var(--spacing-sm);
+            background: linear-gradient(135deg, #fff 0%, var(--color-muted) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--color-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        /* Investment Box Premium */
+        .investment-box-premium {
+            background: linear-gradient(135deg, rgba(24,24,24,0.9) 0%, rgba(129,67,167,0.2) 100%);
+            border: 3px solid;
+            border-image: linear-gradient(135deg, var(--jumper-orange), var(--jumper-purple)) 1;
+            border-radius: var(--radius-xl);
+            padding: var(--spacing-3xl);
+            text-align: center;
+            margin: var(--spacing-xl) auto;
+            max-width: 600px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .investment-box-premium::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(250,71,33,0.1) 0%, transparent 70%);
+            animation: pulse 3s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+
+        .investment-value {
+            font-size: clamp(48px, 8vw, 72px);
+            font-weight: 700;
+            margin-bottom: var(--spacing-md);
+            line-height: 1;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Timeline Premium */
+        .timeline-premium {
+            position: relative;
+            padding-left: var(--spacing-xl);
+            margin-top: var(--spacing-xl);
+            text-align: left;
+            max-width: 800px;
+        }
+
+        .timeline-premium::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(180deg, var(--jumper-orange) 0%, var(--jumper-purple) 100%);
+        }
+
+        .timeline-item-premium {
+            position: relative;
+            padding-bottom: var(--spacing-lg);
+            background: linear-gradient(90deg, rgba(24,24,24,0.5) 0%, transparent 100%);
+            padding: var(--spacing-md);
+            border-radius: var(--radius-md);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .timeline-item-premium::before {
+            content: '';
+            position: absolute;
+            left: calc(-1 * var(--spacing-xl) - 5px);
+            top: 20px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--jumper-orange);
+            border: 2px solid var(--jumper-black);
+            box-shadow: 0 0 16px rgba(250, 71, 33, 0.6);
+        }
+
+        /* CTA Premium */
+        .btn-cta-premium {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--jumper-orange) 0%, #E63E1C 100%);
+            color: var(--jumper-white);
+            padding: 20px 40px;
+            border-radius: var(--radius-lg);
+            font-size: 18px;
+            font-weight: 600;
+            text-decoration: none;
+            margin-top: var(--spacing-lg);
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 24px rgba(250, 71, 33, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-cta-premium::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn-cta-premium:hover::before {
+            left: 100%;
+        }
+
+        .btn-cta-premium:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(250, 71, 33, 0.5);
+        }
+
+        /* Navigation */
+        .slide-indicator {
+            position: fixed;
+            bottom: var(--spacing-lg);
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(20px);
+            padding: 10px 20px;
+            border-radius: 24px;
+            font-size: 12px;
+            font-weight: 500;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes glow {
+            0%, 100% {
+                box-shadow: 0 0 20px rgba(250, 71, 33, 0.2);
+            }
+            50% {
+                box-shadow: 0 0 40px rgba(250, 71, 33, 0.4);
+            }
+        }
+
+        .slide .content > * {
+            opacity: 0;
+        }
+
+        .slide.visible .content > * {
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+
+        .slide.visible .content > *:nth-child(1) { animation-delay: 0s; }
+        .slide.visible .content > *:nth-child(2) { animation-delay: 0.1s; }
+        .slide.visible .content > *:nth-child(3) { animation-delay: 0.2s; }
+        .slide.visible .content > *:nth-child(4) { animation-delay: 0.3s; }
+
+        /* Glow Text */
+        .glow-text {
+            color: var(--jumper-orange);
+            text-shadow: 0 0 20px rgba(250, 71, 33, 0.5);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .cards-grid, .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .slide { padding: var(--spacing-lg); }
+            h1 { font-size: clamp(28px, 6vw, 48px); }
+            .investment-box-premium { padding: var(--spacing-xl); }
+        }
+    </style>
+</head>
+<body>
+    <div class="slides-container">
+        <!-- SLIDE 1: HERO -->
+        <div class="slide slide-hero" style="background-image: url('../assets/gradients/organic-01.png');">
+            <div class="content">
+                <img src="../assets/logos/jumper-white.png" alt="Jumper" style="width: 150px; margin-bottom: 32px; opacity: 0.9; filter: drop-shadow(0 4px 20px rgba(0,0,0,0.5));">
+                <h1>Transformação Digital <span class="glow-text">Premium</span></h1>
+                <h2>Estratégia exclusiva de crescimento para clínicas de alto padrão</h2>
+            </div>
+        </div>
+
+        <!-- SLIDE 2: DESAFIOS -->
+        <div class="slide" style="background: #000000;">
+            <div class="content">
+                <h1>Desafios do Mercado <span class="glow-text">Premium</span></h1>
+                <h2>Problemas que impedem crescimento escalável</h2>
+                <div class="cards-grid">
+                    <div class="card-premium">
+                        <h3 style="color: #fff;">Conversão Subótima</h3>
+                        <p style="color: var(--color-muted); font-size: 14px;">Leads qualificados não se transformam em clientes de alto valor</p>
+                    </div>
+                    <div class="card-premium">
+                        <h3 style="color: #fff;">ROI Desconhecido</h3>
+                        <p style="color: var(--color-muted); font-size: 14px;">Investimentos sem rastreamento preciso de retorno</p>
+                    </div>
+                    <div class="card-premium">
+                        <h3 style="color: #fff;">Processos Manuais</h3>
+                        <p style="color: var(--color-muted); font-size: 14px;">Operações que limitam capacidade de escala</p>
+                    </div>
+                    <div class="card-premium">
+                        <h3 style="color: #fff;">Visibilidade Limitada</h3>
+                        <p style="color: var(--color-muted); font-size: 14px;">Jornada do cliente opaca e difícil de otimizar</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 3: SOLUÇÃO -->
+        <div class="slide slide-gradient" style="background-image: url('../assets/gradients/organic-03.png');">
+            <div class="content">
+                <h1>Nossa Abordagem</h1>
+                <h2>Infraestrutura completa de marketing digital</h2>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 48px;">
+                    <div class="glass-card">
+                        <h3 style="color: #fff;">Tracking Avançado</h3>
+                        <p style="color: var(--color-muted); font-size: 14px; margin-top: 8px;">Sistema completo client-side e server-side para visibilidade total do funil</p>
+                    </div>
+                    <div class="glass-card">
+                        <h3 style="color: #fff;">Automação Inteligente</h3>
+                        <p style="color: var(--color-muted); font-size: 14px; margin-top: 8px;">Fluxos que nutrem leads e aumentam conversão sem intervenção manual</p>
+                    </div>
+                    <div class="glass-card">
+                        <h3 style="color: #fff;">Otimização Contínua</h3>
+                        <p style="color: var(--color-muted); font-size: 14px; margin-top: 8px;">Metodologia de testes baseada em dados reais de performance</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 4: INVESTIMENTO -->
+        <div class="slide" style="background: #000000;">
+            <div class="content">
+                <h1>Investimento</h1>
+                <div class="investment-box-premium">
+                    <div class="investment-value">R$ 85.500</div>
+                    <div class="stat-label" style="font-size: 14px;">12 Semanas • Infraestrutura Escalável</div>
+                </div>
+                <p style="max-width: 600px; margin: 32px auto 0; color: var(--color-muted);">Investimento único com foco em construir infraestrutura escalável e sustentável para crescimento a longo prazo</p>
+            </div>
+        </div>
+
+        <!-- SLIDE 5: RESULTADOS -->
+        <div class="slide slide-gradient" style="background-image: url('../assets/gradients/organic-04.png');">
+            <div class="content">
+                <h1>Resultados <span class="glow-text">Esperados</span></h1>
+                <h2>Métricas documentadas e mensuráveis</h2>
+                <div class="stats-grid">
+                    <div class="stat-item-premium">
+                        <div class="stat-value">+450%</div>
+                        <div class="stat-label">ROI Documentado</div>
+                    </div>
+                    <div class="stat-item-premium">
+                        <div class="stat-value">+280%</div>
+                        <div class="stat-label">Conversões Qualificadas</div>
+                    </div>
+                    <div class="stat-item-premium">
+                        <div class="stat-value">+65%</div>
+                        <div class="stat-label">Eficiência Operacional</div>
+                    </div>
+                    <div class="stat-item-premium">
+                        <div class="stat-value">-40%</div>
+                        <div class="stat-label">Custo por Aquisição</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 6: CRONOGRAMA -->
+        <div class="slide" style="background: #000000;">
+            <div class="content">
+                <h1>Cronograma de Implementação</h1>
+                <h2>12 semanas de execução focada e estruturada</h2>
+                <div class="timeline-premium">
+                    <div class="timeline-item-premium">
+                        <h3 style="color: #fff; font-size: 16px; margin-bottom: 8px;">Semanas 1-2: Discovery e Setup</h3>
+                        <p style="color: var(--color-muted); font-size: 14px;">Setup inicial de tracking e análise profunda do negócio</p>
+                    </div>
+                    <div class="timeline-item-premium">
+                        <h3 style="color: #fff; font-size: 16px; margin-bottom: 8px;">Semanas 3-4: Implementação</h3>
+                        <p style="color: var(--color-muted); font-size: 14px;">Automações e integrações de sistemas</p>
+                    </div>
+                    <div class="timeline-item-premium">
+                        <h3 style="color: #fff; font-size: 16px; margin-bottom: 8px;">Semanas 5-8: Otimização</h3>
+                        <p style="color: var(--color-muted); font-size: 14px;">Testes A/B e ajustes de performance contínuos</p>
+                    </div>
+                    <div class="timeline-item-premium">
+                        <h3 style="color: var(--jumper-orange); font-size: 16px; margin-bottom: 8px;">Semanas 9-12: Escalonamento</h3>
+                        <p style="color: var(--color-muted); font-size: 14px;">Escala de resultados e documentação completa</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 7: METODOLOGIA -->
+        <div class="slide" style="background: #000000;">
+            <div class="content">
+                <h1>Metodologia Jumper</h1>
+                <h2>Abordagem consultiva baseada em resultados mensuráveis</h2>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 48px; max-width: 900px; margin-left: auto; margin-right: auto;">
+                    <div class="glass-card">
+                        <h3 style="color: var(--jumper-orange); margin-bottom: 12px;">Validação com Dados</h3>
+                        <p style="color: var(--color-muted); font-size: 14px; line-height: 1.6;">Cada etapa é validada com dados concretos antes de avançar para a próxima fase do projeto</p>
+                    </div>
+                    <div class="glass-card">
+                        <h3 style="color: var(--jumper-orange); margin-bottom: 12px;">Transparência Total</h3>
+                        <p style="color: var(--color-muted); font-size: 14px; line-height: 1.6;">Você terá acesso aos mesmos dashboards que utilizamos internamente para monitorar performance</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 8: CTA -->
+        <div class="slide slide-hero" style="background-image: url('../assets/gradients/organic-02.png');">
+            <div class="content">
+                <h1 style="font-size: 48px; margin-bottom: 24px;">Vamos <span class="glow-text">Transformar</span> Seu Negócio</h1>
+                <h2 style="max-width: 700px; margin: 0 auto 48px; font-size: 20px;">Agende uma reunião de 30 minutos para discutir detalhes técnicos e alinhar expectativas</h2>
+                <a href="#" class="btn-cta-premium">Agendar Reunião Premium →</a>
+                <p style="margin-top: 32px; font-size: 14px; color: rgba(255,255,255,0.6);">Nosso time está pronto para iniciar assim que você aprovar</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide-indicator">
+        <span id="current-slide">1</span> / <span id="total-slides">8</span>
+    </div>
+
+    <script>
+        const slidesContainer = document.querySelector('.slides-container');
+        const slides = document.querySelectorAll('.slide');
+        const currentSlideEl = document.getElementById('current-slide');
+        const totalSlidesEl = document.getElementById('total-slides');
+        let currentSlide = 0;
+
+        totalSlidesEl.textContent = slides.length;
+
+        slidesContainer.addEventListener('scroll', () => {
+            const scrollPosition = slidesContainer.scrollTop;
+            const slideHeight = window.innerHeight;
+            const newSlide = Math.round(scrollPosition / slideHeight);
+
+            if (newSlide !== currentSlide) {
+                currentSlide = newSlide;
+                currentSlideEl.textContent = currentSlide + 1;
+                slides.forEach((slide, index) => {
+                    if (index === currentSlide) slide.classList.add('visible');
+                });
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            const slideHeight = window.innerHeight;
+            if (e.key === 'ArrowDown' || e.key === ' ' || e.key === 'ArrowRight') {
+                e.preventDefault();
+                if (currentSlide < slides.length - 1) {
+                    slidesContainer.scrollBy({ top: slideHeight, behavior: 'smooth' });
+                }
+            } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+                e.preventDefault();
+                if (currentSlide > 0) {
+                    slidesContainer.scrollBy({ top: -slideHeight, behavior: 'smooth' });
+                }
+            }
+        });
+
+        let touchStartY = 0;
+        document.addEventListener('touchstart', (e) => {
+            touchStartY = e.touches[0].clientY;
+        });
+
+        document.addEventListener('touchend', (e) => {
+            const touchEndY = e.changedTouches[0].clientY;
+            const diff = touchStartY - touchEndY;
+            const slideHeight = window.innerHeight;
+
+            if (Math.abs(diff) > 50) {
+                if (diff > 0 && currentSlide < slides.length - 1) {
+                    slidesContainer.scrollBy({ top: slideHeight, behavior: 'smooth' });
+                } else if (diff < 0 && currentSlide > 0) {
+                    slidesContainer.scrollBy({ top: -slideHeight, behavior: 'smooth' });
+                }
+            }
+        });
+
+        slides[0].classList.add('visible');
+    </script>
+</body>
+</html>

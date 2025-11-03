@@ -3,7 +3,7 @@
 # Tracks recent decisions and work-in-progress (last 7 days)
 # Older decisions migrate to docs/ARCHITECTURE.md
 
-last_updated: "2025-10-21T18:20:00Z"
+last_updated: "2025-11-03T14:30:00Z"
 session_computer: "MacBook Pro (trabalho)"
 session_user: "Bruno Maya"
 
@@ -201,6 +201,91 @@ recent_decisions:
     impact: "CRITICAL - Fixed production error 500 + prevented future table duplication incidents"
     deployed: true
     migrate_to_architecture: true
+
+  - date: "2025-11-03"
+    decision: "Fixed gradient display bug in split-layout presentations"
+    status: "completed ✅"
+    details: |
+      Fixed CSS issue causing gradients to not display correctly in split-layout slides.
+
+      ## Problem Discovery:
+
+      **Presentation:** Moldura Minuto report (22 slides, Jumper identity)
+      **Template:** Apple-minimal inspired with split-layout cover/closing
+
+      **Symptoms:**
+      - Gradient div had `height: 0px` (completely invisible)
+      - After initial fix, black borders appeared on gradient edges
+      - Gradient didn't fill 50% of slide properly
+
+      ## Root Cause:
+
+      Using `min-height: 100vh` on `.slide-split-gradient` breaks in CSS Grid contexts:
+      - `100vh` calculates based on viewport height, not grid parent
+      - Grid parent may be shorter or taller than viewport
+      - Empty divs without content default to `height: 0px`
+      - Fixed height creates overflow/underflow with black gaps
+
+      ## Solution Applied:
+
+      Changed `.slide-split-gradient` CSS:
+      ```css
+      /* ❌ BEFORE - Viewport-based */
+      .slide-split-gradient {
+        min-height: 100vh;
+      }
+
+      /* ✅ AFTER - Parent-based */
+      .slide-split-gradient {
+        height: 100%;
+      }
+      ```
+
+      **Result:** Gradient now fills entire grid cell edge-to-edge, no borders
+
+      ## Verification:
+
+      - Used Playwright MCP for visual debugging
+      - Took screenshots of slides 1 (cover) and 22 (closing)
+      - Confirmed gradients display correctly without artifacts
+      - Both organic-01.png and organic-02.png loading properly
+
+      ## Documentation Created:
+
+      1. **`decks/identities/jumper/design-system.md`** (HIGH priority)
+         - Added "⚠️ Critical: Split Layout Height Bug Fix" section
+         - Detailed problem, cause, solution, validation checklist
+         - Debugging tips and historical note
+
+      2. **`decks/decks.md`** (MEDIUM priority)
+         - Created "🛠️ Troubleshooting Common Issues" section
+         - Generic fix applicable to ALL brand identities
+         - Prevention guidelines
+
+      3. **`.claude-context`** (this entry)
+         - Recent decision log for next 7 days
+
+      ## Impact:
+
+      **Immediate:**
+      - Moldura Minuto presentation now displays correctly
+      - Future Jumper presentations won't have this issue
+
+      **Long-term:**
+      - Prevents gradient display issues in all split-layout presentations
+      - Clear troubleshooting guide for future Claude sessions
+      - Pattern documented for any brand identity using split layouts
+
+    impact: "MEDIUM - Prevents gradient display issues in future presentations"
+    files_changed:
+      - "decks/output/molduraminuto-report.html (CSS fix applied)"
+      - "decks/identities/jumper/design-system.md (troubleshooting section added)"
+      - "decks/decks.md (troubleshooting section added)"
+      - ".claude-context (this decision logged)"
+    deployed: false
+    deployment_status: "Documentation only (no production deploy needed)"
+    commits: []
+    migrate_to_architecture: false
 
 # Current issues being worked on
 current_issues: []
