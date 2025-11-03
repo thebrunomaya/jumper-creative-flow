@@ -39,7 +39,53 @@ Ask the user for the following (if not already provided in the command arguments
 3. ✅ Read `/decks/examples/[template].html` (inspiration only, if specified)
 4. ✅ Read `/decks/decks.md` (presentation creation guidelines)
 5. ✅ Generate presentation following all guidelines
-6. ✅ Save to `/decks/output/[descriptive-name].html`
+6. ✅ **Determine output filename** (see Step 2.1 below)
+7. ✅ Save to `/decks/output/[generated-filename].html`
+
+#### Step 2.1: Output Filename Generation (MANDATORY)
+
+**NAMING PATTERN:**
+```
+[type]-[client-slug]-[YYYYMMDD][-vN].html
+```
+
+**Process:**
+
+1. **Extract client name from markdown content:**
+   - Read the first H1 heading (line starting with `#`) from input markdown
+   - OR read the title/company name from the content front matter
+   - Example from markdown: `# Moldura Minuto - Relatório de Performance` → Extract "Moldura Minuto"
+   - Example from markdown: `**Acme Corp | Q4 2025**` → Extract "Acme Corp"
+
+2. **Generate client slug:**
+   - Convert to lowercase
+   - Replace spaces with hyphens
+   - Remove special characters (keep only a-z, 0-9, hyphens)
+   - Examples:
+     - "Moldura Minuto" → "molduraminuto"
+     - "Acme Corp" → "acme-corp"
+     - "Startup XYZ!" → "startup-xyz"
+
+3. **Format today's date:**
+   - Use YYYYMMDD format (year, month, day with zero-padding)
+   - Example: November 3, 2025 → "20251103"
+   - Example: January 5, 2026 → "20260105"
+
+4. **Check for duplicates:**
+   - Check if `/decks/output/[type]-[client-slug]-[YYYYMMDD].html` already exists
+   - If exists, try `-v2`, then `-v3`, `-v4`, etc. until finding unique filename
+   - Maximum 10 versions (if all taken, ask user for manual name)
+
+5. **Final filename examples:**
+   - `report-molduraminuto-20251103.html`
+   - `plan-acme-corp-20251215-v2.html`
+   - `pitch-startup-xyz-20260110.html`
+
+**Validation:**
+- ✅ Filename must be all lowercase
+- ✅ No spaces or special characters (only a-z, 0-9, hyphens, dots)
+- ✅ Must match pattern: `[type]-[client]-[date][-vN].html`
+- ✅ Confirm filename to user before saving
 
 ### Step 3: Quality Checklist
 
@@ -53,10 +99,10 @@ Before finalizing, verify:
 - [ ] Sufficient slide expansion (10-20 slides for reports, not compressed)
 - [ ] Color psychology applied (red=problems, green=solutions, cyan=technology)
 
-### Step 4: Output
+### Step 3: Output
 
 Confirm completion with:
-- File path: `/decks/output/[name].html`
+- File path: `/decks/output/[type]-[client]-[YYYYMMDD].html` (e.g., `report-molduraminuto-20251103.html`)
 - Slide count
 - Key features applied (gradients used, animations, visualizations)
 - Next steps (open in browser, iterate if needed)
@@ -64,10 +110,18 @@ Confirm completion with:
 ## Example Usage
 
 ```
-/deck report jumper atulado.md apple-minimal.html
+/deck report jumper molduraminuto.md apple-minimal.html
 ```
 
-This generates a report deck using Jumper identity, inspired by apple-minimal.html, from atulado.md.
+**Process:**
+1. Reads `/decks/input/molduraminuto.md`
+2. Extracts client name "Moldura Minuto" from markdown
+3. Generates slug "molduraminuto"
+4. Formats today's date (e.g., "20251103")
+5. Checks for duplicates, creates `-v2` if needed
+6. **Saves to:** `/decks/output/report-molduraminuto-20251103.html`
+
+This generates a report deck using Jumper identity, inspired by apple-minimal.html, with automatic filename generation.
 
 ## Notes
 

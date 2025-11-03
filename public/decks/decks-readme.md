@@ -25,9 +25,9 @@ decks/
 │   └── pitch-new-client.md     # Sales pitches
 │
 ├── output/                     # 📤 OUTPUT: Generated presentations
-│   ├── google-ads-report-oct24-30.html
-│   ├── marketing-plan-black-friday.html
-│   └── pitch-ecommerce-client.html
+│   ├── report-cliente-xyz-20251103.html
+│   ├── plan-acme-corp-20251215-v2.html
+│   └── pitch-startup-abc-20260110.html
 │
 ├── examples/                   # 🎨 TEMPLATES: Style inspirations
 │   ├── apple-minimal.html      # Clean, professional (RECOMMENDED)
@@ -126,7 +126,9 @@ Create a report deck using Jumper identity, inspired by apple-minimal.html, from
 Create a [report|plan|pitch] deck using [Jumper|Koko] identity, inspired by [template].html, from [input-file].md
 ```
 
-**Result:** HTML presentation saved to `output/[descriptive-name].html`
+**Result:** HTML presentation saved to `output/[type]-[client]-[YYYYMMDD].html`
+- Example: `output/report-molduraminuto-20251103.html`
+- Auto-versioned if duplicate: `output/report-molduraminuto-20251103-v2.html`
 
 ---
 
@@ -476,7 +478,7 @@ Presentations are built with:
 1. Content → `input/[name].md`
 2. Choose: Type (report|plan|pitch) + Identity (jumper|koko) + Template (examples/)
 3. Command: "Create a [type] deck using [identity] identity, inspired by [template].html"
-4. Result → `output/[name].html`
+4. Result → `output/[type]-[client]-[YYYYMMDD].html` (e.g., `report-molduraminuto-20251103.html`)
 
 **Deck Types:**
 - **report** = Performance reviews (weekly/monthly)

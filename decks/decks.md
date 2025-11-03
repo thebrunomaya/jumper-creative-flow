@@ -17,7 +17,7 @@ Professional presentation system for **Jumper Studio clients**, creating data-dr
    - Identity: jumper | koko (check `/identities/[name]/`)
    - Inspiration: Choose from `/examples/[template].html`
 3. **Generate:** Apply identity's `design-system.md` + adapt template structure
-4. **Output:** HTML created in `/output/[name].html`
+4. **Output:** HTML created in `/output/[type]-[client]-[YYYYMMDD].html` (e.g., `report-molduraminuto-20251103.html`)
 
 **Example Commands:**
 - "Create a report deck using Jumper identity, inspired by apple-minimal.html, from atulado.md"
@@ -537,7 +537,16 @@ Always review the entire content first, identify the key journey/narrative, then
 
 **File Structure:**
 - Input files: Place content in `/input/[name].md`
-- Output files: Generated HTML goes to `/output/[name].html`
+- Output files: Generated HTML goes to `/output/[type]-[client]-[YYYYMMDD][-vN].html`
+  - **Naming Convention:** `[type]-[client-slug]-[YYYYMMDD][-vN].html`
+  - `type`: report | plan | pitch (lowercase)
+  - `client-slug`: Client name in lowercase, hyphenated (e.g., "molduraminuto", "acme-corp")
+  - `YYYYMMDD`: Date in format YYYYMMDD (e.g., "20251103")
+  - `-vN`: Optional version suffix if file exists (e.g., "-v2", "-v3")
+  - Examples:
+    - `report-molduraminuto-20251103.html`
+    - `plan-acme-20251215-v2.html`
+    - `pitch-startup-xpto-20260110.html`
 - Style references: `/examples/` folder contains 30+ template styles for inspiration
 - Identities: `/identities/` folder contains design systems for each brand
 
@@ -1028,3 +1037,60 @@ Using `min-height: 100vh` on gradient containers breaks in CSS Grid layouts beca
 
 **Historical Context:**
 Discovered 2025-11-03 during Moldura Minuto presentation creation. Originally templated with `min-height: 100vh` which prevented gradients from displaying.
+
+---
+
+### Timeline Elements Overlapping
+
+**Symptoms:**
+- Timeline items appear stacked/overlapping on top of each other
+- Text is unreadable due to content collision
+- No visible spacing between timeline columns
+- Elements appear "crushed" together
+
+**Root Cause:**
+Using `justify-content: space-between` alone in flexbox layouts doesn't guarantee minimum spacing between items. When viewport is narrow or content is wide, items can overlap because there's no enforced gap.
+
+**Solution:**
+
+```css
+/* ❌ WRONG - No guaranteed spacing */
+.timeline {
+  display: flex;
+  justify-content: space-between;
+  /* Items can overlap if not enough space */
+}
+
+/* ✅ CORRECT - Enforced minimum spacing */
+.timeline {
+  display: flex;
+  justify-content: space-between;
+  gap: clamp(30px, 5vw, 60px); /* Responsive spacing */
+}
+```
+
+**Why `gap` works:**
+- Enforces minimum 30px spacing (mobile-friendly)
+- Scales up to 60px on larger screens (5vw = 5% of viewport width)
+- Works with flexbox to maintain proper distribution
+- Prevents overlap even when content wraps
+
+**Validation:**
+- Open presentation in browser
+- Resize window from mobile to desktop width
+- Timeline items should maintain clear spacing at all sizes
+- No content overlap at any viewport width
+
+**Prevention:**
+- Always use `gap` property with flexbox/grid layouts
+- Use `clamp()` for responsive sizing: `clamp(min, preferred, max)`
+- Test layouts at multiple screen sizes (mobile 375px, tablet 768px, desktop 1440px+)
+
+**Applies to:**
+- Timeline components
+- Card grids
+- Comparison layouts
+- Any flex/grid with multiple items
+
+**Historical Context:**
+Discovered 2025-11-03 in Moldura Minuto presentation slide 10. Timeline showing "Controle", "Alto Valor", "Arq & Futebol" had overlapping text without gap property.
