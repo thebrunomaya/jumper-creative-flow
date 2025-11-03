@@ -512,6 +512,59 @@
                 right: 20px;
             }
         }
+
+        /* Print-specific optimizations for PDF export */
+        @media print {
+            /* Force page breaks between slides */
+            .slide {
+                page-break-after: always;
+                page-break-inside: avoid;
+                break-after: page;
+                break-inside: avoid;
+            }
+
+            /* Last slide shouldn't force new page */
+            .slide:last-child {
+                page-break-after: auto;
+            }
+
+            /* Disable animations (static in PDF) */
+            * {
+                animation: none !important;
+                transition: none !important;
+            }
+
+            /* Ensure full visibility */
+            .slide-content {
+                opacity: 1 !important;
+                transform: none !important;
+            }
+
+            /* Remove scroll behavior */
+            .presentation {
+                overflow-y: visible;
+                scroll-snap-type: none;
+                height: auto;
+            }
+
+            /* Ensure backgrounds and colors print */
+            body, .slide, .slide-split-gradient {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                color-adjust: exact;
+            }
+
+            /* Hide navigation indicators */
+            .slide-indicator {
+                display: none;
+            }
+        }
+
+        /* Set PDF page size to landscape 16:9 aspect ratio */
+        @page {
+            size: 297mm 167.0625mm; /* A4 width with 16:9 ratio */
+            margin: 0;
+        }
     </style>
 </head>
 <body>

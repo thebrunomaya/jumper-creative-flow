@@ -17,7 +17,8 @@
     "clean:temp:old": "find temp/ -type f -mtime +30 -delete 2>/dev/null || echo 'old temp files cleaned'",
     "clean:temp:screenshots": "rm -rf temp/screenshots/* || echo 'screenshots cleaned'",
     "clean:temp:docs": "rm -rf temp/docs/* || echo 'temp docs cleaned'",
-    "clean:all": "npm run clean:temp && npm run clean:temp:old"
+    "clean:all": "npm run clean:temp && npm run clean:temp:old",
+    "export:pdf": "node scripts/export-presentation-to-pdf.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
