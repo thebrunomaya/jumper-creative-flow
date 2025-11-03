@@ -1,0 +1,1185 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moldura Minuto - Relatório de Performance | Agosto-Outubro 2025</title>
+    <style>
+        @font-face {
+            font-family: 'Haffer';
+            src: url('/decks/identities/jumper/fonts/HafferVF.ttf') format('truetype');
+            font-weight: 100 900;
+            font-style: normal;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Haffer', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0a0a0a;
+            color: #FFFFFF;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .presentation {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            overflow-y: scroll;
+            scroll-snap-type: y mandatory;
+            scroll-behavior: smooth;
+        }
+
+        .slide {
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            scroll-snap-align: start;
+            padding: clamp(40px, 8vh, 80px) clamp(30px, 6vw, 120px) clamp(80px, 10vh, 120px);
+        }
+
+        .slide-content {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Split Layout Pattern (Gradient Strategy) */
+        .slide-split {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+
+        .slide-split-gradient {
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            height: 100%;
+        }
+
+        .slide-split-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: clamp(60px, 10vw, 120px);
+            background: #000000;
+        }
+
+        .slide-split-gradient-right .slide-split-gradient {
+            order: 2;
+        }
+
+        .slide-split-gradient-right .slide-split-content {
+            order: 1;
+        }
+
+        .slide-split-gradient-left .slide-split-gradient {
+            order: 1;
+        }
+
+        .slide-split-gradient-left .slide-split-content {
+            order: 2;
+        }
+
+        /* Typography */
+        h1 {
+            font-size: clamp(36px, 5vw, 60px);
+            font-weight: 900;
+            letter-spacing: -0.02em;
+            line-height: 1.1;
+            margin-bottom: clamp(15px, 3vh, 25px);
+            color: #FFFFFF;
+        }
+
+        h2 {
+            font-size: clamp(18px, 2.5vw, 28px);
+            font-weight: 400;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: clamp(25px, 4vh, 40px);
+            line-height: 1.3;
+        }
+
+        .hero-text {
+            font-size: clamp(24px, 4vw, 42px);
+            font-weight: 600;
+            line-height: 1.2;
+            letter-spacing: -0.01em;
+            margin-bottom: clamp(20px, 3vh, 35px);
+            color: #FFFFFF;
+        }
+
+        .body-text {
+            font-size: clamp(16px, 2vw, 20px);
+            font-weight: 400;
+            color: rgba(255, 255, 255, 0.6);
+            line-height: 1.5;
+            max-width: 900px;
+            margin: 0 auto 20px;
+        }
+
+        .big-number {
+            font-size: clamp(64px, 10vw, 120px);
+            font-weight: 900;
+            color: #FA4721;
+            line-height: 0.9;
+            margin-bottom: clamp(15px, 2vh, 25px);
+            letter-spacing: -0.04em;
+        }
+
+        .highlight {
+            color: #FA4721;
+            font-weight: 600;
+        }
+
+        /* Cards & Grids */
+        .cards-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: clamp(20px, 3vw, 30px);
+            margin-top: clamp(25px, 4vh, 40px);
+            max-width: 1100px;
+            width: 100%;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: clamp(24px, 3vw, 32px);
+            text-align: left;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: cardSlideUp 0.6s ease-out forwards;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            background: rgba(255, 255, 255, 0.05);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(250, 71, 33, 0.2);
+        }
+
+        .card:nth-child(1) { animation-delay: 0.5s; }
+        .card:nth-child(2) { animation-delay: 0.6s; }
+        .card:nth-child(3) { animation-delay: 0.7s; }
+        .card:nth-child(4) { animation-delay: 0.8s; }
+
+        @keyframes cardSlideUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card h3 {
+            font-size: clamp(18px, 2.2vw, 22px);
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #FFFFFF;
+        }
+
+        .card p {
+            font-size: clamp(14px, 1.6vw, 16px);
+            color: rgba(255, 255, 255, 0.6);
+            line-height: 1.5;
+        }
+
+        .card .metric {
+            font-size: clamp(28px, 4vw, 36px);
+            font-weight: 900;
+            color: #FA4721;
+            margin-bottom: 8px;
+        }
+
+        /* Comparison Grid */
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: clamp(25px, 4vw, 40px);
+            max-width: 1000px;
+            margin: clamp(25px, 4vh, 40px) auto;
+            width: 100%;
+        }
+
+        .comparison-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: clamp(28px, 4vw, 36px);
+            text-align: center;
+            opacity: 0;
+            transform: scale(0.95);
+            animation: scaleIn 0.6s ease-out forwards;
+        }
+
+        .comparison-item:nth-child(1) { animation-delay: 0.4s; }
+        .comparison-item:nth-child(2) { animation-delay: 0.6s; }
+
+        @keyframes scaleIn {
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .comparison-item h3 {
+            font-size: clamp(20px, 2.8vw, 26px);
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: #FFFFFF;
+        }
+
+        .comparison-item .stat {
+            font-size: clamp(32px, 5vw, 48px);
+            font-weight: 900;
+            line-height: 1.1;
+            margin: 16px 0;
+        }
+
+        .comparison-item .label {
+            font-size: clamp(14px, 1.6vw, 16px);
+            color: rgba(255, 255, 255, 0.5);
+            margin-top: 8px;
+        }
+
+        /* Performance Colors */
+        .stat-success { color: #2AA876; }
+        .stat-warning { color: #F59E0B; }
+        .stat-critical { color: #EF4444; }
+
+        /* Badge System */
+        .badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: clamp(12px, 1.4vw, 14px);
+            font-weight: 600;
+            margin: 4px;
+        }
+
+        .badge-success {
+            background: rgba(42, 168, 118, 0.15);
+            color: #2AA876;
+        }
+
+        .badge-warning {
+            background: rgba(245, 158, 11, 0.15);
+            color: #F59E0B;
+        }
+
+        .badge-critical {
+            background: rgba(239, 68, 68, 0.15);
+            color: #EF4444;
+        }
+
+        .badge-info {
+            background: rgba(59, 130, 246, 0.15);
+            color: #3B82F6;
+        }
+
+        /* Timeline */
+        .timeline {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            max-width: 1000px;
+            margin: 30px auto;
+            position: relative;
+            padding: 20px 0;
+            gap: clamp(30px, 5vw, 60px);
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            top: 40px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(to right, rgba(42, 168, 118, 0.3), rgba(245, 158, 11, 0.3), rgba(239, 68, 68, 0.3));
+        }
+
+        .timeline-item {
+            text-align: center;
+            position: relative;
+            flex: 1;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        .timeline-item:nth-child(1) { animation-delay: 0.5s; }
+        .timeline-item:nth-child(2) { animation-delay: 0.7s; }
+        .timeline-item:nth-child(3) { animation-delay: 0.9s; }
+
+        .timeline-item .date {
+            font-size: clamp(12px, 1.4vw, 14px);
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .timeline-item .value {
+            font-size: clamp(32px, 4.5vw, 42px);
+            font-weight: 900;
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+
+        .timeline-item .sub {
+            font-size: clamp(13px, 1.5vw, 15px);
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* Table */
+        .data-table {
+            width: 100%;
+            max-width: 900px;
+            margin: 30px auto;
+            border-collapse: separate;
+            border-spacing: 0 8px;
+        }
+
+        .data-table th {
+            font-size: clamp(13px, 1.5vw, 15px);
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.7);
+            text-align: left;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .data-table td {
+            font-size: clamp(14px, 1.6vw, 16px);
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.02);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .data-table td:first-child {
+            font-weight: 600;
+            color: #FFFFFF;
+        }
+
+        .data-table tr {
+            opacity: 0;
+            animation: fadeInUp 0.5s ease-out forwards;
+        }
+
+        .data-table tr:nth-child(1) { animation-delay: 0.5s; }
+        .data-table tr:nth-child(2) { animation-delay: 0.6s; }
+        .data-table tr:nth-child(3) { animation-delay: 0.7s; }
+        .data-table tr:nth-child(4) { animation-delay: 0.8s; }
+        .data-table tr:nth-child(5) { animation-delay: 0.9s; }
+
+        /* List */
+        .checklist {
+            max-width: 800px;
+            margin: 25px auto;
+            text-align: left;
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            padding: 16px;
+            margin: 8px 0;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 12px;
+            opacity: 0;
+            animation: fadeInUp 0.5s ease-out forwards;
+        }
+
+        .checklist-item:nth-child(1) { animation-delay: 0.5s; }
+        .checklist-item:nth-child(2) { animation-delay: 0.6s; }
+        .checklist-item:nth-child(3) { animation-delay: 0.7s; }
+        .checklist-item:nth-child(4) { animation-delay: 0.8s; }
+
+        .checklist-item .icon {
+            font-size: 20px;
+            color: #2AA876;
+            flex-shrink: 0;
+        }
+
+        .checklist-item .text {
+            font-size: clamp(15px, 1.8vw, 17px);
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.5;
+        }
+
+        /* CTA Button */
+        .cta-button {
+            display: inline-block;
+            padding: 16px 40px;
+            background: #FA4721;
+            color: #FFFFFF;
+            font-size: clamp(16px, 1.8vw, 18px);
+            font-weight: 700;
+            text-decoration: none;
+            border-radius: 50px;
+            margin-top: 30px;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 24px rgba(250, 71, 33, 0.3);
+        }
+
+        .cta-button:hover {
+            background: #ff5733;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(250, 71, 33, 0.4);
+        }
+
+        /* Navigation */
+        .slide-indicator {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.5);
+            font-weight: 500;
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            padding: 8px 20px;
+            border-radius: 20px;
+        }
+
+        .logo {
+            position: absolute;
+            top: 40px;
+            right: 40px;
+            width: 120px;
+            height: auto;
+            opacity: 0.9;
+            z-index: 10;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .slide-split {
+                grid-template-columns: 1fr;
+                grid-template-rows: 1fr 1fr;
+            }
+
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .cards-container {
+                grid-template-columns: 1fr;
+            }
+
+            .timeline {
+                flex-direction: column;
+                gap: 30px;
+            }
+
+            .timeline::before {
+                display: none;
+            }
+
+            .logo {
+                width: 80px;
+                top: 20px;
+                right: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation">
+        <!-- Slide 1: Cover -->
+        <div class="slide slide-split slide-split-gradient-right">
+            <div class="slide-split-content">
+                <div style="max-width: 600px;">
+                    <h1 style="color: #FFFFFF; text-align: left;">Moldura Minuto<br>Relatório de Performance</h1>
+                    <p class="hero-text" style="color: rgba(255,255,255,0.7); text-align: left; font-size: clamp(18px, 2.5vw, 24px); font-weight: 400;">Agosto - Outubro 2025</p>
+                    <p class="body-text" style="text-align: left; margin-top: 25px;">70 dias construindo fundações sólidas para crescimento sustentável</p>
+                </div>
+            </div>
+            <div class="slide-split-gradient" style="background-image: url('/decks/identities/jumper/gradients/organic-01.png');"></div>
+        </div>
+
+        <!-- Slide 2: Contexto -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>O Contexto da Transição</h1>
+                <h2>Assumimos em 20 de agosto, em meio a múltiplas mudanças</h2>
+                <div class="cards-container">
+                    <div class="card">
+                        <h3>No Cliente</h3>
+                        <p>Mudança de gestão de marketing (Carla → Jessica)<br>Gestor antigo saiu após 2 dias de passagem</p>
+                    </div>
+                    <div class="card">
+                        <h3>Estrutura Recebida</h3>
+                        <p>5 contas ativas (3 Google + 2 Meta)<br>R$ 8.000/mês investimento<br>CRM não estruturado</p>
+                    </div>
+                    <div class="card">
+                        <h3>Performance Julho</h3>
+                        <p class="metric">2.345</p>
+                        <p>conversões → R$ 49.004 receita<br>(61% da meta de R$ 80k)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: Fase 1 -->
+        <div class="slide">
+            <div class="slide-content">
+                <span class="badge badge-info">Fase 1: 21/08 - 12/09</span>
+                <h1>Diagnóstico e Desbloqueios Técnicos</h1>
+                <h2>3 semanas dedicadas ao mapeamento completo</h2>
+                <div class="checklist">
+                    <div class="checklist-item">
+                        <span class="icon">✓</span>
+                        <span class="text"><strong>Auditoria de velocidade:</strong> Site oficial extremamente lento (5+ min carregamento)</span>
+                    </div>
+                    <div class="checklist-item">
+                        <span class="icon">✓</span>
+                        <span class="text"><strong>Análise de acessos:</strong> Coletados todos os logins (Google Ads, Meta, GTM, GA4, Wix)</span>
+                    </div>
+                    <div class="checklist-item">
+                        <span class="icon">✓</span>
+                        <span class="text"><strong>Entrevista técnica:</strong> Histórico completo das campanhas com gestor anterior</span>
+                    </div>
+                    <div class="checklist-item">
+                        <span class="icon">✓</span>
+                        <span class="text"><strong>Briefing estratégico:</strong> Objetivos, metas e expectativas documentados</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Problema Crítico -->
+        <div class="slide">
+            <div class="slide-content">
+                <span class="badge badge-critical">Problema Crítico</span>
+                <h1>Bloqueio no Meta há mais de 1 ano</h1>
+                <h2>Perfil "Moldura Minuto Vitória" com restrição permanente</h2>
+                <div class="comparison-grid" style="margin-top: 40px;">
+                    <div class="comparison-item" style="border-color: rgba(239, 68, 68, 0.3);">
+                        <h3>Situação</h3>
+                        <p style="color: rgba(255,255,255,0.7); margin-top: 12px;">Impossível criar novos públicos, testar criativos ou escalar campanhas</p>
+                        <span class="badge badge-critical" style="margin-top: 16px;">Bloqueado</span>
+                    </div>
+                    <div class="comparison-item" style="border-color: rgba(42, 168, 118, 0.3);">
+                        <h3>Resolução</h3>
+                        <p style="color: rgba(255,255,255,0.7); margin-top: 12px;">Remoção manual + reestruturação completa de acessos em 5 dias</p>
+                        <span class="badge badge-success" style="margin-top: 16px;">Resolvido ✓</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Fase 2 -->
+        <div class="slide">
+            <div class="slide-content">
+                <span class="badge badge-info">Fase 2: 16/09 - 30/09</span>
+                <h1>Arquitetura da Estratégia</h1>
+                <h2>2 semanas construindo as bases para crescimento inteligente</h2>
+                <div class="cards-container">
+                    <div class="card">
+                        <h3>Plano de Mídia</h3>
+                        <p>Redistribuição de verba baseada em eficiência real (CPL por canal)</p>
+                    </div>
+                    <div class="card">
+                        <h3>Públicos Segmentados</h3>
+                        <p>Criação de 2 novos públicos com hipóteses estratégicas claras</p>
+                    </div>
+                    <div class="card">
+                        <h3>Verba Aprovada</h3>
+                        <p class="metric">R$ 12k/mês</p>
+                        <p>Aumento de 50% vs período anterior</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: Eficiência por Canal -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>Eficiência por Canal (Julho)</h1>
+                <h2>Por que gastávamos igual em canais com resultados tão diferentes?</h2>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Canal</th>
+                            <th>CPL</th>
+                            <th>Eficiência</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Google Ads E-commerce</td>
+                            <td class="stat-success" style="font-weight: 700;">R$ 3,60</td>
+                            <td><span class="badge badge-success">Melhor custo</span></td>
+                        </tr>
+                        <tr>
+                            <td>Meta Ads E-commerce</td>
+                            <td style="font-weight: 700;">R$ 5,45</td>
+                            <td><span class="badge badge-warning">51% mais caro</span></td>
+                        </tr>
+                        <tr>
+                            <td>Expansão Google</td>
+                            <td style="font-weight: 700;">R$ 68,30</td>
+                            <td><span class="badge badge-info">Lead investidor</span></td>
+                        </tr>
+                        <tr>
+                            <td>Expansão Meta</td>
+                            <td class="stat-critical" style="font-weight: 700;">R$ 126,67</td>
+                            <td><span class="badge badge-critical">85% mais caro</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Slide 7: Nova Distribuição -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>Nova Distribuição de Verba</h1>
+                <h2>Realocação estratégica baseada em eficiência real</h2>
+                <div class="comparison-grid">
+                    <div class="comparison-item">
+                        <h3>Antes</h3>
+                        <div style="margin: 20px 0;">
+                            <div style="margin: 12px 0;">
+                                <div style="color: rgba(255,255,255,0.6); font-size: 14px;">Google E-commerce</div>
+                                <div class="stat" style="font-size: clamp(24px, 3.5vw, 32px); color: #3B82F6;">R$ 4.000</div>
+                            </div>
+                            <div style="margin: 12px 0;">
+                                <div style="color: rgba(255,255,255,0.6); font-size: 14px;">Meta Branding</div>
+                                <div class="stat" style="font-size: clamp(24px, 3.5vw, 32px); color: #3B82F6;">R$ 6.000</div>
+                            </div>
+                        </div>
+                        <span class="badge badge-info">Total: R$ 8k</span>
+                    </div>
+                    <div class="comparison-item" style="border: 2px solid rgba(42, 168, 118, 0.3);">
+                        <h3>Depois</h3>
+                        <div style="margin: 20px 0;">
+                            <div style="margin: 12px 0;">
+                                <div style="color: rgba(255,255,255,0.6); font-size: 14px;">Google E-commerce</div>
+                                <div class="stat stat-success" style="font-size: clamp(24px, 3.5vw, 32px);">R$ 5.000</div>
+                            </div>
+                            <div style="margin: 12px 0;">
+                                <div style="color: rgba(255,255,255,0.6); font-size: 14px;">Meta Branding</div>
+                                <div class="stat" style="font-size: clamp(24px, 3.5vw, 32px); color: #F59E0B;">R$ 3.570</div>
+                            </div>
+                        </div>
+                        <span class="badge badge-success">Total: R$ 12k</span>
+                    </div>
+                </div>
+                <p class="body-text" style="margin-top: 25px;">Mais verba nos canais eficientes, menos nos que precisam otimizar</p>
+            </div>
+        </div>
+
+        <!-- Slide 8: Públicos Segmentados -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>Públicos Segmentados</h1>
+                <h2>3 hipóteses estratégicas testadas simultaneamente</h2>
+                <div class="cards-container">
+                    <div class="card">
+                        <h3>Arquitetura & Futebol</h3>
+                        <p><strong>Hipótese:</strong> Arquitetos compram profissionalmente + torcedores emolduram camisas</p>
+                        <p style="margin-top: 12px; color: rgba(255,255,255,0.5); font-size: 14px;">35-54 anos | 40km SP-RJ | Interesse em arquitetura, design, futebol</p>
+                    </div>
+                    <div class="card">
+                        <h3>Alto Valor</h3>
+                        <p><strong>Hipótese:</strong> Alto poder aquisitivo valoriza qualidade e personalização premium</p>
+                        <p style="margin-top: 12px; color: rgba(255,255,255,0.5); font-size: 14px;">35-54 anos | 40km | Alto gasto online + decoração premium</p>
+                    </div>
+                    <div class="card">
+                        <h3>CONJUNTO SP-RJ</h3>
+                        <p><strong>Função:</strong> Baseline de controle para medir se segmentações funcionam melhor</p>
+                        <p style="margin-top: 12px; color: rgba(255,255,255,0.5); font-size: 14px;">Público amplo criado pela gestão anterior</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9: Fase 3 -->
+        <div class="slide">
+            <div class="slide-content">
+                <span class="badge badge-success">Fase 3: 01/10 - 31/10</span>
+                <h1>Validação e Aprendizados</h1>
+                <h2>1 mês testando e provando hipóteses</h2>
+            </div>
+        </div>
+
+        <!-- Slide 10: Resultados E-commerce -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>Resultados: E-commerce</h1>
+                <h2>Performance dos públicos segmentados (01-15/out)</h2>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="date">Controle</div>
+                        <div class="value" style="color: #3B82F6;">81</div>
+                        <div class="sub">CONJUNTO SP-RJ</div>
+                        <div class="sub" style="margin-top: 8px; color: rgba(255,255,255,0.4);">CPL: R$ 5,29</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="date">Alto Valor</div>
+                        <div class="value stat-success">92</div>
+                        <div class="sub">+104% vs anterior</div>
+                        <div class="sub" style="margin-top: 8px; color: rgba(255,255,255,0.4);">CPL: R$ 4,74</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="date">Arq & Futebol</div>
+                        <div class="value stat-success">99</div>
+                        <div class="sub">+800% vs anterior</div>
+                        <div class="sub" style="margin-top: 8px; color: rgba(255,255,255,0.4);">CPL: R$ 4,88</div>
+                    </div>
+                </div>
+                <div style="margin-top: 40px;">
+                    <div class="big-number">191</div>
+                    <p class="hero-text">conversas dos novos públicos vs 81 do controle</p>
+                    <span class="badge badge-success">CPL médio 9% mais barato</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 11: Validação -->
+        <div class="slide">
+            <div class="slide-content">
+                <span class="badge badge-success">Hipóteses Validadas</span>
+                <h1>Segmentação estratégica funciona</h1>
+                <h2>Volume 2,4x maior com custo menor</h2>
+                <div class="comparison-grid" style="margin-top: 40px;">
+                    <div class="comparison-item">
+                        <h3>Público Antigo</h3>
+                        <div class="stat" style="color: #3B82F6;">81</div>
+                        <div class="label">conversas WhatsApp</div>
+                        <div style="margin-top: 16px;">
+                            <div style="font-size: 20px; font-weight: 700; color: rgba(255,255,255,0.7);">R$ 5,29</div>
+                            <div style="font-size: 14px; color: rgba(255,255,255,0.5);">CPL</div>
+                        </div>
+                    </div>
+                    <div class="comparison-item" style="border: 2px solid rgba(42, 168, 118, 0.3);">
+                        <h3>Novos Públicos</h3>
+                        <div class="stat stat-success">191</div>
+                        <div class="label">conversas WhatsApp (+136%)</div>
+                        <div style="margin-top: 16px;">
+                            <div style="font-size: 20px; font-weight: 700;" class="stat-success">R$ 4,81</div>
+                            <div style="font-size: 14px; color: rgba(255,255,255,0.5);">CPL (-9%)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 12: Desafio Expansão -->
+        <div class="slide">
+            <div class="slide-content">
+                <span class="badge badge-critical">Desafio Identificado</span>
+                <h1>Expansão/Franquias</h1>
+                <h2>19 formulários preenchidos, 0 leads qualificados</h2>
+                <div class="cards-container" style="margin-top: 40px;">
+                    <div class="card" style="border-color: rgba(239, 68, 68, 0.3);">
+                        <h3>O Problema</h3>
+                        <p>Perfil detectado: pessoas buscando emprego, não investimento em franquia</p>
+                        <span class="badge badge-critical" style="margin-top: 12px;">0% qualificados</span>
+                    </div>
+                    <div class="card">
+                        <h3>Por que aconteceu</h3>
+                        <p style="margin-bottom: 8px;">1. Público Meta muito amplo (PageView 180 dias)</p>
+                        <p style="margin-bottom: 8px;">2. Posicionamento confuso nos criativos</p>
+                        <p>3. Formulário sem filtro de investimento</p>
+                    </div>
+                    <div class="card" style="border-color: rgba(245, 158, 11, 0.3);">
+                        <h3>Feedback Tardio</h3>
+                        <p>Problema só identificado em 27/10, impossibilitou correção antes</p>
+                        <span class="badge badge-warning" style="margin-top: 12px;">Ciclo lento</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 13: Custo Expansão -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>Custo por Lead: Expansão</h1>
+                <h2>Meta 87% mais caro que Google (mas qualidade ainda zero)</h2>
+                <div class="comparison-grid" style="margin-top: 40px;">
+                    <div class="comparison-item" style="border-color: rgba(42, 168, 118, 0.3);">
+                        <h3>Google Ads</h3>
+                        <div class="stat stat-success">R$ 40</div>
+                        <div class="label">Busca ativa</div>
+                        <p style="margin-top: 16px; font-size: 14px; color: rgba(255,255,255,0.6);">"franquia para abrir"<br>Intenção clara</p>
+                    </div>
+                    <div class="comparison-item" style="border-color: rgba(239, 68, 68, 0.3);">
+                        <h3>Meta Ads</h3>
+                        <div class="stat stat-critical">R$ 75</div>
+                        <div class="label">Descoberta passiva</div>
+                        <p style="margin-top: 16px; font-size: 14px; color: rgba(255,255,255,0.6);">Público amplo<br>Precisa filtrar melhor</p>
+                    </div>
+                </div>
+                <p class="body-text" style="margin-top: 30px;"><strong>Aprendizado:</strong> Qualidade > volume. 1 lead qualificado a R$ 80 vale mais que 10 desqualificados a R$ 40.</p>
+            </div>
+        </div>
+
+        <!-- Slide 14: Tracking -->
+        <div class="slide">
+            <div class="slide-content">
+                <span class="badge badge-success">Solução Implementada</span>
+                <h1>Tracking de Origem</h1>
+                <h2>Sistema de tags automáticas via GTM</h2>
+                <div class="comparison-grid" style="margin-top: 40px;">
+                    <div class="comparison-item" style="border-color: rgba(239, 68, 68, 0.3);">
+                        <h3>Problema</h3>
+                        <p style="margin-top: 16px; color: rgba(255,255,255,0.7);">Impossível saber se lead veio do Google ou Meta</p>
+                        <p style="margin-top: 12px; color: rgba(255,255,255,0.5); font-size: 14px;">Otimização diferenciada por canal ficava impossível</p>
+                    </div>
+                    <div class="comparison-item" style="border-color: rgba(42, 168, 118, 0.3);">
+                        <h3>Solução</h3>
+                        <p style="margin-top: 16px; color: rgba(255,255,255,0.7);">Tags automáticas identificam origem no formulário</p>
+                        <p style="margin-top: 12px; color: rgba(42, 168, 118, 0.9); font-size: 14px; font-weight: 600;">[fonte: Google] ou [fonte: META]</p>
+                        <span class="badge badge-success" style="margin-top: 16px;">Implementado ✓</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 15: Desafios Operacionais -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>Desafios Operacionais</h1>
+                <h2>Sincronização e estabilidade técnica</h2>
+                <div class="cards-container">
+                    <div class="card">
+                        <h3>Pagamentos</h3>
+                        <p><strong>Setembro:</strong> Boleto pago em 4 dias → conta Meta negativou R$ 10</p>
+                        <p style="margin-top: 8px;"><strong>Outubro:</strong> PIX em 2 dias → campanha pausada temporariamente</p>
+                        <span class="badge badge-success" style="margin-top: 12px;">Resolvido: cartão de crédito</span>
+                    </div>
+                    <div class="card">
+                        <h3>Instabilidades</h3>
+                        <p>29/09, 15-16/10, 30/10: Site fora do ar</p>
+                        <p style="margin-top: 8px;">31/10: WhatsApp bloqueado</p>
+                        <p style="margin-top: 12px; color: rgba(255,255,255,0.5); font-size: 14px;">Decisão: pausar campanhas durante instabilidades</p>
+                    </div>
+                    <div class="card">
+                        <h3>Feedback Loop</h3>
+                        <p>16/09 → 27/10: 6 semanas até identificar problema completo</p>
+                        <p style="margin-top: 12px; color: rgba(255,255,255,0.5); font-size: 14px;"><strong>Consequência:</strong> Expansão rodou gerando leads errados antes da correção</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 16: Situação Atual -->
+        <div class="slide">
+            <div class="slide-content">
+                <span class="badge badge-success">31 de Outubro</span>
+                <h1>Situação Atual</h1>
+                <h2>Fundações consolidadas, pronto para escalar</h2>
+                <div class="comparison-grid" style="margin-top: 40px;">
+                    <div class="comparison-item" style="border-color: rgba(42, 168, 118, 0.3);">
+                        <h3>Consolidado ✓</h3>
+                        <div class="checklist" style="text-align: left; margin-top: 16px;">
+                            <div class="checklist-item" style="padding: 8px; background: transparent;">
+                                <span class="icon" style="font-size: 16px;">✓</span>
+                                <span class="text" style="font-size: 14px;">Públicos validados (+104% a +800%)</span>
+                            </div>
+                            <div class="checklist-item" style="padding: 8px; background: transparent;">
+                                <span class="icon" style="font-size: 16px;">✓</span>
+                                <span class="text" style="font-size: 14px;">CPL reduzido em 9%</span>
+                            </div>
+                            <div class="checklist-item" style="padding: 8px; background: transparent;">
+                                <span class="icon" style="font-size: 16px;">✓</span>
+                                <span class="text" style="font-size: 14px;">Tracking implementado</span>
+                            </div>
+                            <div class="checklist-item" style="padding: 8px; background: transparent;">
+                                <span class="icon" style="font-size: 16px;">✓</span>
+                                <span class="text" style="font-size: 14px;">Pagamento otimizado</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="comparison-item" style="border-color: rgba(245, 158, 11, 0.3);">
+                        <h3>Em Ajuste</h3>
+                        <p style="margin-top: 16px; color: rgba(255,255,255,0.7); text-align: left;">Expansão/Franquias precisa reformulação estratégica:</p>
+                        <div style="margin-top: 16px; text-align: left; font-size: 14px; color: rgba(255,255,255,0.6); line-height: 1.7;">
+                            • Aguardando novos criativos<br>
+                            • Público mais restrito<br>
+                            • Filtro de investimento<br>
+                            • Foco Google (melhor CAC)
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 17: Números Período -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>Números do Período</h1>
+                <h2>Primeiros 15 dias de outubro</h2>
+                <div class="comparison-grid" style="margin-top: 40px;">
+                    <div class="comparison-item" style="border-color: rgba(42, 168, 118, 0.3);">
+                        <h3>E-commerce</h3>
+                        <div class="stat stat-success">272</div>
+                        <div class="label">conversas WhatsApp</div>
+                        <div style="margin-top: 20px;">
+                            <div style="font-size: 24px; font-weight: 700;" class="stat-success">R$ 4,96</div>
+                            <div style="font-size: 14px; color: rgba(255,255,255,0.5);">CPL médio</div>
+                            <div style="font-size: 13px; color: rgba(42, 168, 118, 0.7); margin-top: 8px;">-9% vs julho (R$ 5,45)</div>
+                        </div>
+                    </div>
+                    <div class="comparison-item" style="border-color: rgba(245, 158, 11, 0.3);">
+                        <h3>Expansão</h3>
+                        <div style="margin-top: 20px;">
+                            <div style="margin: 12px 0;">
+                                <div style="font-size: 14px; color: rgba(255,255,255,0.5);">Google Ads</div>
+                                <div style="font-size: 24px; font-weight: 700; color: #2AA876;">R$ 40/lead</div>
+                            </div>
+                            <div style="margin: 12px 0;">
+                                <div style="font-size: 14px; color: rgba(255,255,255,0.5);">Meta Ads</div>
+                                <div style="font-size: 24px; font-weight: 700; color: #F59E0B;">R$ 75/lead</div>
+                            </div>
+                        </div>
+                        <span class="badge badge-warning" style="margin-top: 8px;">Qualidade: 0% qualificados</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 18: Aprendizados -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>Principais Aprendizados</h1>
+                <h2>O que validamos e o que precisa melhorar</h2>
+                <div class="comparison-grid" style="margin-top: 40px;">
+                    <div class="comparison-item" style="border-color: rgba(42, 168, 118, 0.3);">
+                        <h3 style="color: #2AA876;">Validamos ✓</h3>
+                        <div style="text-align: left; margin-top: 16px; font-size: 15px; line-height: 1.7; color: rgba(255,255,255,0.7);">
+                            1. Segmentação estratégica funciona<br><br>
+                            2. Auditoria técnica direciona verba<br><br>
+                            3. Tracking permite otimização<br><br>
+                            4. Transparência constrói confiança
+                        </div>
+                    </div>
+                    <div class="comparison-item" style="border-color: rgba(245, 158, 11, 0.3);">
+                        <h3 style="color: #F59E0B;">Precisa Melhorar</h3>
+                        <div style="text-align: left; margin-top: 16px; font-size: 15px; line-height: 1.7; color: rgba(255,255,255,0.7);">
+                            1. Feedback loop mais rápido<br><br>
+                            2. Testes de criativos frequentes<br><br>
+                            3. Alinhamentos regulares<br><br>
+                            4. Filtros de qualificação desde início
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 19: Próximos 30 Dias -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>Próximos 30 Dias (Novembro)</h1>
+                <h2>Escalar o validado, corrigir o identificado</h2>
+                <div class="cards-container">
+                    <div class="card">
+                        <h3>1. E-commerce: Escalar</h3>
+                        <p>• Aumentar budget dos públicos validados<br>
+                        • Testar variações de criativos<br>
+                        • Feedback semanal com comercial</p>
+                        <span class="badge badge-success" style="margin-top: 12px;">Pronto para crescer</span>
+                    </div>
+                    <div class="card">
+                        <h3>2. Expansão: Reestruturar</h3>
+                        <p>• Pausar Meta temporariamente<br>
+                        • Dobrar Google Ads (CPL 46% menor)<br>
+                        • Filtro: capacidade de investimento</p>
+                        <span class="badge badge-warning" style="margin-top: 12px;">Reformulação completa</span>
+                    </div>
+                    <div class="card">
+                        <h3>3. Simplificação</h3>
+                        <p>• Consolidar 5 contas → 2 objetivos<br>
+                        • Relatórios mais claros<br>
+                        • Análise mais rápida</p>
+                        <span class="badge badge-info" style="margin-top: 12px;">Gestão ágil</span>
+                    </div>
+                    <div class="card">
+                        <h3>4. Processos</h3>
+                        <p>• Relatórios mensais<br>
+                        • Feedback semanal de leads<br>
+                        • Dashboard em tempo real</p>
+                        <span class="badge badge-info" style="margin-top: 12px;">Ciclo: 6 sem → 1 sem</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 20: Contexto -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>Contexto e Perspectiva</h1>
+                <h2>70 dias construindo fundações sólidas</h2>
+                <div class="hero-text" style="margin-top: 40px; max-width: 900px;">
+                    Não prometemos resultados mágicos nos primeiros 70 dias. Prometemos construir a arquitetura técnica que permite crescimento sustentável.
+                </div>
+                <div class="checklist" style="margin-top: 40px;">
+                    <div class="checklist-item">
+                        <span class="icon">✓</span>
+                        <span class="text">Resolvemos problemas técnicos históricos (bloqueio Meta de 1+ ano)</span>
+                    </div>
+                    <div class="checklist-item">
+                        <span class="icon">✓</span>
+                        <span class="text">Mapeamos completamente estrutura e performance</span>
+                    </div>
+                    <div class="checklist-item">
+                        <span class="icon">✓</span>
+                        <span class="text">Validamos hipóteses através de testes estruturados</span>
+                    </div>
+                    <div class="checklist-item">
+                        <span class="icon">✓</span>
+                        <span class="text">Estabelecemos processos e tracking para otimização contínua</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 21: Conclusão -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>Conclusão</h1>
+                <div class="hero-text" style="margin-top: 30px; max-width: 900px; font-size: clamp(20px, 3vw, 32px);">
+                    A diferença entre uma campanha que escala com segurança e uma que quebra quando cresce está nas fundações.
+                </div>
+                <p class="body-text" style="margin-top: 30px; max-width: 800px;">
+                    <strong>E-commerce:</strong> Segmentação estratégica validada, pronta para escala.<br><br>
+                    <strong>Expansão:</strong> Problema de qualidade identificado, estratégia de correção definida.<br><br>
+                    <strong>Infraestrutura:</strong> Tracking implementado, processos estabelecidos, fundações sólidas construídas.
+                </p>
+                <div class="big-number" style="margin-top: 40px; font-size: clamp(48px, 8vw, 80px);">
+                    Agora estamos prontos<br>para escalar
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 22: Closing -->
+        <div class="slide slide-split slide-split-gradient-left">
+            <div class="slide-split-gradient" style="background-image: url('/decks/identities/jumper/gradients/organic-02.png');"></div>
+            <div class="slide-split-content">
+                <div style="max-width: 600px;">
+                    <h1 style="color: #FFFFFF; text-align: left;">Próximas Etapas</h1>
+                    <h2 style="color: rgba(255,255,255,0.7); text-align: left; margin-bottom: 30px;">Seu plano de ação para novembro</h2>
+
+                    <div style="background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 30px; text-align: left;">
+                        <h3 style="color: #FA4721; font-size: clamp(18px, 2.2vw, 22px); margin-bottom: 20px; font-weight: 700;">Ações Imediatas:</h3>
+                        <div style="font-size: clamp(15px, 1.8vw, 17px); line-height: 1.8; color: rgba(255,255,255,0.8);">
+                            <div style="margin: 12px 0;"><span style="color: #2AA876; font-weight: 700;">✓</span> Escalar públicos validados em e-commerce</div>
+                            <div style="margin: 12px 0;"><span style="color: #2AA876; font-weight: 700;">✓</span> Reestruturar estratégia de expansão/franquias</div>
+                            <div style="margin: 12px 0;"><span style="color: #2AA876; font-weight: 700;">✓</span> Implementar feedback semanal de qualidade</div>
+                            <div style="margin: 12px 0;"><span style="color: #2AA876; font-weight: 700;">✓</span> Simplificar estrutura de contas</div>
+                        </div>
+                    </div>
+
+                    <a href="#" class="cta-button" style="margin-top: 30px;">Agendar Reunião de Novembro →</a>
+
+                    <p style="margin-top: 25px; font-size: 14px; color: rgba(255,255,255,0.5); text-align: left;">
+                        Baseado em 70 dias de fundações construídas com dados validados
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <img src="/decks/identities/jumper/logos/jumper-white.png" alt="Jumper Studio" class="logo">
+
+    <div class="slide-indicator">
+        <span id="current-slide">1</span> de <span id="total-slides">22</span>
+    </div>
+
+    <script>
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        let currentSlide = 0;
+
+        document.getElementById('total-slides').textContent = totalSlides;
+
+        function updateSlideIndicator() {
+            document.getElementById('current-slide').textContent = currentSlide + 1;
+        }
+
+        const presentation = document.querySelector('.presentation');
+
+        presentation.addEventListener('scroll', () => {
+            const scrollPosition = presentation.scrollTop;
+            const slideHeight = window.innerHeight;
+            const newSlide = Math.round(scrollPosition / slideHeight);
+
+            if (newSlide !== currentSlide && newSlide >= 0 && newSlide < totalSlides) {
+                currentSlide = newSlide;
+                updateSlideIndicator();
+            }
+        });
+
+        function scrollToSlide(index) {
+            if (index >= 0 && index < totalSlides) {
+                currentSlide = index;
+                slides[index].scrollIntoView({ behavior: 'smooth' });
+                updateSlideIndicator();
+            }
+        }
+
+        document.addEventListener('keydown', function(event) {
+            switch(event.key) {
+                case 'ArrowRight':
+                case ' ':
+                    event.preventDefault();
+                    scrollToSlide(currentSlide + 1);
+                    break;
+                case 'ArrowLeft':
+                    event.preventDefault();
+                    scrollToSlide(currentSlide - 1);
+                    break;
+            }
+        });
+
+        let touchStartY = 0;
+        let touchEndY = 0;
+
+        document.addEventListener('touchstart', function(event) {
+            touchStartY = event.changedTouches[0].screenY;
+        });
+
+        document.addEventListener('touchend', function(event) {
+            touchEndY = event.changedTouches[0].screenY;
+            if (touchStartY - touchEndY > 50) {
+                scrollToSlide(currentSlide + 1);
+            } else if (touchEndY - touchStartY > 50) {
+                scrollToSlide(currentSlide - 1);
+            }
+        });
+    </script>
+</body>
+</html>
