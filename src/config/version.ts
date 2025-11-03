@@ -7,10 +7,21 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.72';
+export const APP_VERSION = 'v2.0.73';
 
 /**
  * Version history:
+ * - v2.0.73 (2024-11-03):
+ *   - TOOLS: Created upload script for deck templates with correct Content-Type
+ *   - Script: scripts/upload-deck-assets.sh (uses Supabase CLI)
+ *   - ROOT CAUSE IDENTIFIED: Storage serving templates as text/plain instead of text/html
+ *   - Templates were being served without charset=utf-8, causing mojibake in Edge Function
+ *   - Script uploads with explicit Content-Type: "text/html; charset=utf-8"
+ *   - Two-phase approach: test (1 file) → all (33 templates + 2 design systems)
+ *   - Includes Content-Type validation via curl after upload
+ *   - User must delete existing files from bucket before running
+ *   - This is the FINAL piece to solve mojibake issue completely
+ *
  * - v2.0.72 (2024-11-03):
  *   - FIX: Comprehensive UTF-8 encoding fix across ENTIRE pipeline (mojibake fully resolved)
  *   - CRITICAL: Added TextDecoder('utf-8') to ALL fetch operations in Edge Function
