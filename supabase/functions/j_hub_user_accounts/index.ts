@@ -212,6 +212,11 @@ serve(async (req) => {
 
     console.log(`✅ Found ${accountsData?.length || 0} accounts`);
 
+    // Convert notion_ids to UUIDs for foreign key compatibility
+    // This ensures account_ids array contains UUIDs that match j_hub_decks.account_id FK
+    accountIds = (accountsData || []).map((acc: any) => acc.id);
+    console.log('🔄 Converted accountIds to UUIDs:', accountIds.length);
+
     // Step 4: Resolve names for Gestor, Atendimento, and Gerente
     // Collect all unique emails and notion_ids to lookup
     const gestorEmails = new Set<string>();
@@ -325,7 +330,8 @@ serve(async (req) => {
         : undefined;
 
       return {
-        id: account.notion_id,
+        id: account.id, // UUID for foreign key references
+        notion_id: account.notion_id, // Keep notion_id for backward compatibility
         name: account["Conta"] || 'Sem nome',
         objectives: account["Objetivos"] ? account["Objetivos"].split(', ').filter(Boolean) : [],
         status: account["Status"],
