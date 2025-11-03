@@ -7,10 +7,17 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.73';
+export const APP_VERSION = 'v2.0.74';
 
 /**
  * Version history:
+ * - v2.0.74 (2024-11-03):
+ *   - FIX: Upload script authentication issue resolved
+ *   - Changed from `npx supabase` to `supabase` (global installation)
+ *   - Root cause: npx and global supabase have separate auth sessions
+ *   - User was authenticated with global CLI but script used npx
+ *   - Script now uses global supabase command directly
+ *
  * - v2.0.73 (2024-11-03):
  *   - TOOLS: Created upload script for deck templates with correct Content-Type
  *   - Script: scripts/upload-deck-assets.sh (uses Supabase CLI)

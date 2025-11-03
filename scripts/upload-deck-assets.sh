@@ -24,9 +24,9 @@ echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━�
 echo ""
 
 # Validate Supabase CLI is authenticated
-if ! npx supabase projects list --project-ref "$PROJECT_REF" &>/dev/null; then
+if ! supabase projects list --project-ref "$PROJECT_REF" &>/dev/null; then
     echo -e "${YELLOW}⚠️  Not authenticated with Supabase CLI${NC}"
-    echo "Run: npx supabase login"
+    echo "Run: supabase login"
     exit 1
 fi
 
@@ -41,7 +41,7 @@ upload_file() {
 
     echo -e "📤 Uploading: ${BLUE}$storage_path${NC}"
 
-    npx supabase storage cp \
+    supabase storage cp \
         "$local_path" \
         "$BUCKET/$storage_path" \
         --project-ref "$PROJECT_REF" \
