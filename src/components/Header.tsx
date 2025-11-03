@@ -7,7 +7,7 @@ import logoBackground from '../assets/gradients-optimized/organic-07.png';
 import { LazyImage } from '@/components/ui/lazy-image';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { Users, LayoutDashboard, TrendingUp, BarChart3 } from 'lucide-react';
+import { Users, LayoutDashboard, TrendingUp, BarChart3, Presentation } from 'lucide-react';
 import { AccountSelectorModal } from '@/components/dashboards/AccountSelectorModal';
 import { Button } from '@/components/ui/button';
 import { APP_VERSION } from '@/config/version';
@@ -20,6 +20,7 @@ const Header: React.FC = () => {
     { to: '/my-accounts', label: 'Contas', icon: Users },
     { to: '/creatives', label: 'Criativos', icon: LayoutDashboard },
     { to: '/optimization', label: 'Otimizações', icon: TrendingUp },
+    { to: '/decks', label: 'Decks', icon: Presentation },
   ];
 
   return (

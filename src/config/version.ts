@@ -7,10 +7,43 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.69';
+export const APP_VERSION = 'v2.0.70';
 
 /**
  * Version history:
+ * - v2.0.70 (2024-11-03):
+ *   - FEATURE: Decks system FULLY INTEGRATED into web application (ALL 5 phases complete!)
+ *   - PHASE 1 (Backend - Edge Functions):
+ *     - j_hub_deck_generate: Claude Sonnet 4.5 AI generation from markdown + templates
+ *     - j_hub_deck_create_share: Public sharing with optional password protection (bcrypt)
+ *     - j_hub_deck_view_shared: Password-protected viewing for shared decks
+ *   - PHASE 2 (Frontend - Components):
+ *     - useMyDecks hook: Fetch decks with RLS filtering (follows optimization pattern)
+ *     - useDeckGeneration hook: Deck generation workflow with progress tracking
+ *     - DeckCard: Card view with badges, metadata, and actions
+ *     - DecksPanelList: List/grid view with filters (type, identity, search, sort)
+ *     - DeckConfigForm: Complete form with tabs, validation, file upload, preview
+ *     - DeckShareModal: Share dialog with password protection and copy link
+ *   - PHASE 3 (Frontend - Pages):
+ *     - Decks.tsx: Main panel view with role-based permissions
+ *     - DeckNew.tsx: Creation page with form and progress tracking
+ *     - DeckEditor.tsx: Viewer with iframe, actions (share, download, delete)
+ *     - SharedDeck.tsx: Public view with password modal (no auth required)
+ *   - PHASE 4 (Integration):
+ *     - Added 4 routes to App.tsx (decks, decks/new, decks/:id, decks/share/:slug)
+ *     - Added "Decks" navigation link to Header.tsx with Presentation icon
+ *   - PHASE 5 (Security & Testing):
+ *     - CRITICAL FIX: Type inconsistency (migration: 'mediaplan', code: 'plan')
+ *     - CRITICAL FIX: RLS policies - Staff now see decks from managed accounts
+ *     - CRITICAL FIX: RLS policies - Admins now have full access
+ *     - Migration: 20241103000000_fix_decks_rls_and_types.sql
+ *   - PERMISSIONS:
+ *     - View: All users see decks from accessible accounts (via j_hub_user_accounts logic)
+ *     - Create: Only Admin and Staff can create decks
+ *     - Edit: Staff can edit decks from managed accounts, Clients only own decks
+ *     - Delete: Only Admins can delete decks
+ *   - Progress: 100% complete (16/16 tasks) - SYSTEM READY FOR USE!
+ *
  * - v2.0.69 (2024-11-03):
  *   - FEATURE: Decks system integration - Phase 1 & 2 (Backend + Frontend Hooks)
  *   - Backend: 3 Edge Functions created (j_hub_deck_generate, j_hub_deck_create_share, j_hub_deck_view_shared)

@@ -26,6 +26,10 @@ const Optimization = lazy(() => import("./pages/Optimization"));
 const OptimizationNew = lazy(() => import("./pages/OptimizationNew"));
 const OptimizationEditor = lazy(() => import("./pages/OptimizationEditor"));
 const SharedOptimization = lazy(() => import("./pages/SharedOptimization"));
+const Decks = lazy(() => import("./pages/Decks"));
+const DeckNew = lazy(() => import("./pages/DeckNew"));
+const DeckEditor = lazy(() => import("./pages/DeckEditor"));
+const SharedDeck = lazy(() => import("./pages/SharedDeck"));
 
 // Loading component reutilizável com acessibilidade
 const PageLoading = () => (
@@ -132,6 +136,33 @@ const App = () => {
                 <Route path="/optimization/:slug" element={
                   <Suspense fallback={<PageLoading />}>
                     <SharedOptimization />
+                  </Suspense>
+                } />
+                <Route path="/decks" element={
+                  <ProtectedRoute>
+                    <Suspense fallback={<PageLoading />}>
+                      <Decks />
+                    </Suspense>
+                  </ProtectedRoute>
+                } />
+                <Route path="/decks/new" element={
+                  <ProtectedRoute>
+                    <Suspense fallback={<PageLoading />}>
+                      <DeckNew />
+                    </Suspense>
+                  </ProtectedRoute>
+                } />
+                <Route path="/decks/:deckId" element={
+                  <ProtectedRoute>
+                    <Suspense fallback={<PageLoading />}>
+                      <DeckEditor />
+                    </Suspense>
+                  </ProtectedRoute>
+                } />
+                {/* Public route for shared decks (password protected within component) */}
+                <Route path="/decks/share/:slug" element={
+                  <Suspense fallback={<PageLoading />}>
+                    <SharedDeck />
                   </Suspense>
                 } />
                 <Route path="/reset-password" element={<ResetPasswordPage />} />

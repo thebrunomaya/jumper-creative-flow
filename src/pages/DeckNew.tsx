@@ -1,0 +1,183 @@
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { DeckConfigForm } from "@/components/decks/DeckConfigForm";
+import { useDeckGeneration } from "@/hooks/useDeckGeneration";
+import { supabase } from "@/integrations/supabase/client";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Skeleton } from "@/components/ui/skeleton";
+import { ArrowLeft, Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
+
+export default function DeckNew() {
+  const navigate = useNavigate();
+  const { generateDeck, isGenerating, progress } = useDeckGeneration();
+
+  const [userRole, setUserRole] = useState<"admin" | "staff" | "client" | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const checkPermissions = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        // Check authentication
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+
+        if (!user) {
+          navigate("/login");
+          return;
+        }
+
+        // Fetch user role
+        const { data: userData, error: userError } = await supabase
+          .from("j_hub_users")
+          .select("role")
+          .eq("id", user.id)
+          .single();
+
+        if (userError) throw userError;
+
+        if (!userData || !userData.role) {
+          throw new Error("Usuário sem role definido");
+        }
+
+        const role = userData.role as "admin" | "staff" | "client";
+        setUserRole(role);
+
+        // Check if user can create decks (only admin/staff)
+        if (role !== "admin" && role !== "staff") {
+          setError("Você não tem permissão para criar decks. Apenas administradores e staff podem criar decks.");
+        }
+      } catch (err: any) {
+        console.error("Error checking permissions:", err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkPermissions();
+  }, [navigate]);
+
+  const handleSubmit = async (values: any) => {
+    try {
+      const result = await generateDeck({
+        title: values.title,
+        markdown_source: values.markdown_source,
+        type: values.type,
+        brand_identity: values.brand_identity,
+        template_id: values.template_id,
+        account_id: values.account_id,
+      });
+
+      if (result.success && result.deck_id) {
+        // Navigate to deck view page
+        navigate(`/decks/${result.deck_id}`);
+      }
+    } catch (err: any) {
+      console.error("Error creating deck:", err);
+      // Error handling is done in useDeckGeneration hook
+    }
+  };
+
+  const handleCancel = () => {
+    navigate("/decks");
+  };
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="container mx-auto py-8 space-y-6">
+        <Skeleton className="h-10 w-64" />
+        <Skeleton className="h-96" />
+      </div>
+    );
+  }
+
+  // Error state (permission denied)
+  if (error) {
+    return (
+      <div className="container mx-auto py-8 space-y-6">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" onClick={() => navigate("/decks")}>
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Voltar
+          </Button>
+        </div>
+
+        <Alert variant="destructive">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
+
+  // User doesn't have permission
+  if (userRole !== "admin" && userRole !== "staff") {
+    return (
+      <div className="container mx-auto py-8 space-y-6">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" onClick={() => navigate("/decks")}>
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Voltar
+          </Button>
+        </div>
+
+        <Alert variant="destructive">
+          <AlertDescription>
+            Você não tem permissão para criar decks. Apenas administradores e staff podem criar
+            decks.
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
+
+  return (
+    <div className="container mx-auto py-8 space-y-6">
+      {/* Header */}
+      <div className="flex items-center gap-4">
+        <Button variant="ghost" onClick={() => navigate("/decks")}>
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Voltar
+        </Button>
+      </div>
+
+      <div className="flex items-center gap-3">
+        <Plus className="h-8 w-8 text-primary" />
+        <div>
+          <h1 className="text-3xl font-bold">Criar Novo Deck</h1>
+          <p className="text-muted-foreground">
+            Preencha as informações para gerar uma apresentação personalizada
+          </p>
+        </div>
+      </div>
+
+      {/* Progress indicator (if generating) */}
+      {isGenerating && (
+        <Alert>
+          <AlertDescription className="flex items-center justify-between">
+            <span>Gerando deck... {progress}%</span>
+            <div className="w-48 h-2 bg-muted rounded-full overflow-hidden">
+              <div
+                className="h-full bg-primary transition-all duration-300"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {/* Form */}
+      <DeckConfigForm
+        onSubmit={handleSubmit}
+        onCancel={handleCancel}
+        isSubmitting={isGenerating}
+      />
+    </div>
+  );
+}
