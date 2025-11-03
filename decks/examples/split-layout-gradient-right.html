@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jumper Design System - Split Layout (Gradient Right)</title>
+    <style>
+        @font-face {
+            font-family: 'Haffer';
+            src: url('../identities/jumper/fonts/HafferVF.ttf') format('truetype');
+            font-weight: 100 900;
+            font-style: normal;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Haffer', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #000000;
+            color: #FFFFFF;
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .presentation {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+
+        .slide {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        /* Split Layout: 50/50 Gradient + Content */
+        .slide-split {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+        }
+
+        .slide-split-gradient {
+            background: #181818 url('../identities/jumper/gradients/organic-01.png') center/cover no-repeat;
+            position: relative;
+        }
+
+        .slide-split-content {
+            background: #000000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: clamp(60px, 10vw, 120px);
+            position: relative;
+        }
+
+        /* Gradient Right variation */
+        .slide-split-gradient-right .slide-split-gradient {
+            order: 2;
+        }
+
+        .slide-split-gradient-right .slide-split-content {
+            order: 1;
+        }
+
+        /* Logo positioning */
+        .brand-logo {
+            position: absolute;
+            top: 40px;
+            right: 40px;
+            width: 120px;
+            height: auto;
+            opacity: 0.9;
+            z-index: 10;
+        }
+
+        /* Content styling */
+        .slide-content {
+            max-width: 600px;
+            width: 100%;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            font-size: clamp(48px, 8vw, 96px);
+            font-weight: 900;
+            letter-spacing: -0.02em;
+            line-height: 0.9;
+            margin-bottom: clamp(20px, 3vh, 40px);
+            color: #FFFFFF;
+        }
+
+        .subtitle {
+            font-size: clamp(18px, 2.5vw, 28px);
+            font-weight: 400;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.2;
+        }
+
+        .tagline {
+            font-size: clamp(14px, 1.8vw, 18px);
+            font-weight: 400;
+            color: rgba(255, 255, 255, 0.5);
+            margin-top: clamp(30px, 5vh, 60px);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        /* Mobile: Stack vertically */
+        @media (max-width: 768px) {
+            .slide-split {
+                grid-template-columns: 1fr;
+                grid-template-rows: 1fr 1fr;
+            }
+
+            .slide-split-gradient-right .slide-split-gradient {
+                order: 1;
+            }
+
+            .slide-split-gradient-right .slide-split-content {
+                order: 2;
+            }
+
+            .brand-logo {
+                width: 90px;
+                top: 25px;
+                right: 25px;
+            }
+
+            .slide-split-content {
+                padding: 40px 25px;
+            }
+        }
+
+        /* Info panel */
+        .info-panel {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-width: 400px;
+            z-index: 100;
+        }
+
+        .info-panel h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #FA4721;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .info-panel p {
+            font-size: 13px;
+            line-height: 1.4;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 6px;
+        }
+
+        .info-panel code {
+            background: rgba(250, 71, 33, 0.1);
+            color: #FA4721;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation">
+        <!-- Example: Cover Slide with Gradient Right -->
+        <div class="slide slide-split slide-split-gradient-right">
+            <!-- Content Side (Left) -->
+            <div class="slide-split-content">
+                <img src="../identities/jumper/logos/jumper-white.png" alt="Jumper Studio" class="brand-logo">
+                <div class="slide-content">
+                    <h1>Google Ads<br>Weekly Report</h1>
+                    <p class="subtitle">October 24-30, 2025</p>
+                    <p class="tagline">Jumper Studio · Performance Marketing</p>
+                </div>
+            </div>
+
+            <!-- Gradient Side (Right) -->
+            <div class="slide-split-gradient"></div>
+        </div>
+    </div>
+
+    <!-- Info Panel -->
+    <div class="info-panel">
+        <h3>Strategy: Split Layout (Gradient Right)</h3>
+        <p><strong>✅ Use for:</strong> Cover slides, maximum visual impact</p>
+        <p><strong>✅ Advantages:</strong> 100% legibility, full gradient impact</p>
+        <p><strong>📐 Layout:</strong> 50/50 grid with <code>order</code> property</p>
+        <p><strong>📱 Mobile:</strong> Stacks vertically (gradient on top)</p>
+        <p><strong>🎨 Gradient:</strong> organic-01.png (4.2MB)</p>
+    </div>
+</body>
+</html>
