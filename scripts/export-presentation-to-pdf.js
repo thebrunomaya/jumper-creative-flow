@@ -1,6 +1,14 @@
 #!/usr/bin/env node
 
 /**
+ * ⚠️ DEPRECATED / NOT FUNCTIONAL ⚠️
+ *
+ * This script was created to export HTML presentations to PDF but was never
+ * fully tested and does not work correctly. It is kept here for future reference.
+ *
+ * Current workaround: Use browser's Print → Save as PDF feature
+ * Future plan: Implement server-side PDF generation via Edge Function (Puppeteer/Playwright)
+ *
  * Export HTML Presentation to PDF using Playwright
  *
  * Usage:

@@ -7,10 +7,23 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.68';
+export const APP_VERSION = 'v2.0.69';
 
 /**
  * Version history:
+ * - v2.0.69 (2024-11-03):
+ *   - FEATURE: Decks system integration - Phase 1 & 2 (Backend + Frontend Hooks)
+ *   - Backend: 3 Edge Functions created (j_hub_deck_generate, j_hub_deck_create_share, j_hub_deck_view_shared)
+ *   - Frontend: 2 React Hooks created (useMyDecks, useDeckGeneration)
+ *   - Database: j_hub_decks table with RLS policies already existed (created in earlier migration)
+ *   - Storage: decks bucket with RLS policies already configured
+ *   - Deck generation via Claude API (Anthropic) with template + design system loading
+ *   - Public sharing with optional password protection (bcrypt)
+ *   - Follows optimization system patterns (permissions, sharing, storage)
+ *   - DOCS: Marked scripts/export-presentation-to-pdf.js as deprecated/non-functional
+ *   - DOCS: Added Known Limitations section to decks/decks-readme.md (PDF export workaround)
+ *   - Progress: 37.5% complete (6/16 tasks) - Components, Pages, Routes pending
+ *
  * - v2.0.68 (2024-10-30):
  *   - FEATURE: Local audio download to prevent data loss
  *   - Added "Baixar Localmente" button in recording and upload tabs

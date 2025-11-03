@@ -444,6 +444,21 @@ Presentations are built with:
 
 ---
 
+## ⚠️ Known Limitations
+
+**PDF Export:**
+- ❌ **Not currently available** - The `scripts/export-presentation-to-pdf.js` script exists but is not functional
+- ✅ **Workaround:** Use your browser's Print → Save as PDF feature (works perfectly with presentations)
+- 📋 **Planned:** Server-side PDF generation will be added in a future update via web app
+
+**Current Presentation Format:**
+- HTML presentations open in browser
+- Keyboard navigation with arrow keys
+- Can be shared via URL or downloaded as HTML file
+- Browser print function produces high-quality PDFs
+
+---
+
 ## 📖 Additional Resources
 
 - **Design Guidelines:** `/decks.md` (Claude's full instructions)
