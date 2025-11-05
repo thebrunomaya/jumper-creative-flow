@@ -7,10 +7,21 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.75';
+export const APP_VERSION = 'v2.1.0';
 
 /**
  * Version history:
+ * - v2.1.0 (2024-11-05):
+ *   - MAJOR RELEASE: Documentation Cleanup and Consolidation
+ *   - Cleaned CLAUDE.md: 1579 → 1288 lines (-291 lines, -18%)
+ *   - Fixed script paths (./scripts/ → ./localdev/)
+ *   - Removed duplicate sections (Vercel env vars, roadmap, Local Dev)
+ *   - Moved Optimization v2.1 technical docs to ARCHITECTURE.md
+ *   - Updated all stale metadata (dates, project status)
+ *   - ARCHITECTURE.md: Added complete Optimization v2.1 section (+126 lines)
+ *   - Improved documentation navigation and clarity
+ *   - All critical information preserved and better organized
+ *
  * - v2.0.75 (2024-11-05):
  *   - FIX: FK constraint violation on optimization creation (critical bug)
  *   - OptimizationNew.tsx now stores notion_id (TEXT) instead of UUID in account_id
