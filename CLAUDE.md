@@ -95,7 +95,7 @@ PLATAFORMAS DE ADS (Futuro):
 
 ## 🛠️ Local Development Setup
 
-**⚠️ CRITICAL: Use scripts in `localdev/` directory - Agent approach was deprecated**
+**⚠️ RECOMMENDED: Use scripts in `localdev/` directory (tested and reliable)**
 
 ### **Quick Start (Recommended)**
 
@@ -724,120 +724,34 @@ Claude Code deve **SEMPRE** usar as ferramentas CLI disponíveis:
 
 ---
 
-## 🔄 Safe Database Reset (CRITICAL!)
+## 🔄 Quick Database Reset
 
 **⚠️ NUNCA use `npx supabase db reset` diretamente - perde todos os dados!**
 
 ### **SEMPRE use o script seguro:**
 
 ```bash
-./scripts/db-reset-safe.sh
+./localdev/4-quick-reset.sh
 ```
 
 **O que faz automaticamente:**
-1. ✅ Cria backup de produção (se não existir ou >24h)
-2. ✅ Reseta database (aplica migrations)
-3. ✅ Restaura backup automaticamente
-4. ✅ Configura senha de dev (senha123)
+1. ✅ Apaga dados locais
+2. ✅ Reaplica todas migrations
+3. ✅ Restaura backup de produção
+4. ✅ Database volta ao estado de produção
 
-**Resultado:** Database resetado COM dados preservados.
-
-### **Casos de Uso:**
-
-```bash
-# Caso normal: Reset COM dados
-./scripts/db-reset-safe.sh
-# → Usa/cria backup, reseta, restaura
-# → Database volta com dados de produção
-
-# Caso especial: Reset SEM dados (database vazio)
-./scripts/db-reset-safe.sh --no-restore
-# → Reseta mas não restaura
-# → Use apenas quando realmente precisa database vazio
-```
-
-### **Por que isso existe?**
-
-**Problema:** `npx supabase db reset` apaga TODOS os dados locais sem aviso.
-
-**Impacto:** Durante desenvolvimento, ao aplicar migrations, Claude executava reset e **perdia dados sem saber**, causando login quebrado e confusão.
-
-**Solução:** Script wrapper que **sempre** preserva dados via backup/restore automático.
+**Quando usar:** Dados locais corrompidos ou após mudanças em migrations.
 
 ### **Para Claude Code:**
 
 Quando precisar aplicar migrations ou resetar database:
 
 ```bash
-✅ CORRETO: ./scripts/db-reset-safe.sh
-❌ ERRADO:  npx supabase db reset
+✅ CORRETO: ./localdev/4-quick-reset.sh
+❌ ERRADO:  npx supabase db reset (perde todos dados!)
 ```
 
-**Exceção:** Apenas use `--no-restore` se **explicitamente** solicitado pelo usuário.
-
----
-
-## 🐳 Supabase Local Development Workflow
-
-**STATUS:** ✅ Supabase CLI instalado (v2.48.3) + Docker disponível
-
-### **Setup Rápido para Nova Sessão** ⚡
-
-**Método mais fácil (Recomendado):**
-
-```bash
-# Um único comando que faz tudo!
-./scripts/start-dev.sh
-
-# O script automaticamente:
-# ✅ Verifica Docker
-# ✅ Inicia Supabase Local
-# ✅ Verifica se tem dados de produção
-# ✅ Importa dados (se necessário)
-# ✅ Instala dependências NPM
-# ✅ Configura .env.local
-# ✅ Inicia Edge Functions localmente
-# ✅ Inicia npm run dev
-```
-
-**📖 Guia Completo:** [docs/DEV-SETUP.md](docs/DEV-SETUP.md)
-
----
-
-### **Importar Database de Produção para Local** (Manual)
-
-**Quando usar:** Para testes com dados reais, debugging, ou desenvolvimento com dados de produção.
-
-**Processo (2 passos):**
-
-```bash
-# 1. Fazer backup da produção
-npx supabase db dump --linked --data-only --use-copy \
-  --file="./backups/production_data_$(date +%Y%m%d_%H%M%S).sql"
-
-# Output:
-# ✅ Dumped schema to ./backups/production_data_20241015_143022.sql
-
-# 2. Restore no local (⚠️ SUBSTITUI dados locais!)
-./scripts/restore-to-local.sh ./backups/production_data_20241015_143022.sql
-
-# Confirmar quando perguntado:
-# ⚠️  This will REPLACE all local data. Continue? (yes/no): yes
-
-# 3. Verificar no Supabase Studio
-# Abrir: http://127.0.0.1:54323
-```
-
-**Segurança:**
-- ✅ Backups **NÃO** são commitados (`.gitignore` configurado)
-- ✅ Scripts usam credenciais de produção read-only (pg_dump)
-- ✅ Confirmação explícita antes de sobrescrever dados locais
-- ⚠️ Dados de produção contêm informações sensíveis - não compartilhar backups
-
-**Arquivos criados:**
-- `scripts/backup-production.sh` - Faz dump da produção
-- `scripts/restore-to-local.sh` - Restaura dump no local
-- `backups/.gitignore` - Ignora backups no git
+**Ver também:** `./localdev.sh` (menu interativo com todas opções)
 
 ---
 
@@ -1224,68 +1138,6 @@ Next Claude will know exactly where we left off! 🎯
 
 ---
 
-## 🔑 Environment Variables
-
-**Frontend (Vercel):**
-- `VITE_SUPABASE_URL` - Supabase project URL (REQUIRED in Vercel)
-- `VITE_SUPABASE_ANON_KEY` - Publishable key (REQUIRED in Vercel, format: `sb_publishable_...`)
-
-**Backend (Supabase Edge Functions):**
-- `SUPABASE_SERVICE_ROLE_KEY` - Service role key (format: `sb_secret_...`)
-- `OPENAI_API_KEY` - OpenAI API for transcription
-- `ANTHROPIC_API_KEY` - Anthropic API for optimization analysis
-- `NOTION_TOKEN` - Notion integration token
-
-### ⚠️ CRITICAL: Vercel Environment Variables Policy (UPDATED 2024-11-01)
-
-**MUST set VITE_* variables in Vercel dashboard for production!**
-
-**🔐 Security Audit Changed Our Approach:**
-
-Previously (INSECURE):
-- ❌ Code had hardcoded credential fallbacks in `client.ts`
-- ❌ `.env` file was committed to git with production values
-- ❌ Relying on embedded credentials as "safe fallback"
-
-**Now (SECURE - 2024-11-01):**
-- ✅ Code has NO hardcoded credentials - fails fast if missing
-- ✅ `.env.example` template committed (no real values)
-- ✅ `.env.local` for local development (gitignored)
-- ✅ Vercel env vars are REQUIRED for production to work
-
-**Why Vercel environment variables are NOW required:**
-- Vite embeds env vars into JavaScript bundle at BUILD TIME
-- Code validates credentials exist and throws error if missing
-- No fallback values - app crashes with clear error message
-- Vercel env vars are the ONLY way to provide production credentials
-
-**Incident History:**
-
-**2024-10-14:** Vercel had corrupted `VITE_SUPABASE_ANON_KEY`
-- Caused `TypeError: Failed to execute 'set' on 'Headers'` in production
-- Login completely broken (email + Notion OAuth)
-- **Temporary solution:** Deleted Vercel env vars, app used hardcoded fallbacks
-
-**2024-11-01:** Security audit found hardcoded credentials
-- Removed ALL hardcoded fallbacks from `client.ts`
-- Migrated to new Publishable Key format (`sb_publishable_...`)
-- Rotated all credentials
-- **Permanent solution:** Vercel env vars are now REQUIRED
-
-**Current Best Practice:**
-1. ✅ Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in Vercel dashboard
-2. ✅ Use new Publishable Key format: `sb_publishable_...` (not JWT tokens)
-3. ✅ Use `.env.example` as template (committed to git, no real values)
-4. ✅ Use `.env.local` for local development (gitignored, overrides Vercel values)
-5. ✅ Code fails fast with clear error if credentials missing
-
-**After rotating credentials:**
-1. Update Vercel env vars with new publishable key
-2. Redeploy ALL Edge Functions (they cache credentials!)
-3. Test login and core functionality
-
----
-
 ## 🚀 Git Workflow
 
 - **Main branch**: `main` (production) ✅
@@ -1335,29 +1187,6 @@ Previously (INSECURE):
 
 ---
 
-## 🧠 Roadmap FASE 2 (REPORTS + OPTIMIZER)
-
-**Branch OPTIMIZER (Lovable) - ✅ COMPLETO:**
-- ✅ Interface de gravação de áudio (otimizações do gestor)
-- ✅ Transcrição automática via Whisper
-- ✅ Análise de IA para extração de contexto
-- ✅ Geração de relatórios para clientes
-- ✅ Tabela `j_hub_optimization_context` pronta para consumo
-- **Status**: 100% implementado, pronto para integração
-
-**Branch REPORTS (Claude Code) - ⏳ A IMPLEMENTAR:**
-- **FASE 0**: 🔐 Fixes de segurança (RLS) - **CRITICAL**
-- **FASE 1**: Insights Comparativos (período atual vs anterior)
-- **FASE 2**: Detecção de Anomalias automática
-- **FASE 3**: Contexto Automático Básico (quick notes)
-- **FASE 4**: Integração com OPTIMIZER
-- **Status**: Planejamento completo, aguardando início
-
-> 📖 Ver [REPORTS-ROADMAP.md](docs/REPORTS-ROADMAP.md) para plano detalhado
-> 📖 Ver [CHANGELOG.md](docs/CHANGELOG.md) para histórico completo
-
----
-
 ## 🔍 Development Workflow
 
 ### **For New Features**
@@ -1398,129 +1227,7 @@ Previously (INSECURE):
 
 ---
 
-## 🎯 New Feature: Optimization Creation Flow (v2.1)
-
-**Release Date:** October 28, 2025
-
-### **Overview**
-
-Complete redesign of the optimization creation process with date range selection and draft management.
-
-### **New Route: `/optimization/new`**
-
-**User Flow:**
-1. Select account (required dropdown)
-2. Select analysis period (Facebook-style date picker)
-3. Edit account context (optional, modal)
-4. Record/Upload audio
-5. Auto-transcription triggers
-6. Toast notification with "Continue editing" button
-7. Navigate to editor or return later
-
-**Key Features:**
-- ✅ Account selector with search
-- ✅ Date range picker (predefinições + dual calendar)
-- ✅ Context editor with preview and last-used suggestion
-- ✅ Auto-save drafts (30s debounce)
-- ✅ Draft recovery modal on revisit
-- ✅ Breadcrumb navigation
-
-### **Components Created**
-
-**1. DateRangePicker** (`src/components/optimization/DateRangePicker.tsx`)
-- Facebook-inspired UI (predefinições + calendário duplo)
-- Predefinições: Hoje, Ontem, Últimos 7/14/28 dias, Esta semana, etc.
-- Optional "Comparar" mode for second date range
-- Timezone display (Horário de São Paulo)
-
-**2. useDraftManager** (`src/hooks/useDraftManager.ts`)
-- Auto-save every 30 seconds
-- localStorage-based (`optimization_draft_{userId}`)
-- Draft expiration (7 days)
-- beforeunload detection
-- Recovery modal on page load
-
-**3. ContextEditor Enhanced** (`src/components/optimization/ContextEditor.tsx`)
-- Auto-resize textarea
-- Character/word counter
-- "Load last used context" button
-- Optional preview tab showing how context appears in AI prompt
-- Backward compatible (optional props)
-
-### **Database Changes**
-
-**Migration:** `20251028093000_add_date_range_to_optimization_recordings.sql`
-
-**New Fields in `j_hub_optimization_recordings`:**
-```sql
-date_range_start TIMESTAMP WITH TIME ZONE  -- Period start
-date_range_end TIMESTAMP WITH TIME ZONE    -- Period end
-is_draft BOOLEAN DEFAULT FALSE             -- Draft status
-draft_data JSONB                          -- Temporary draft data
-```
-
-**Indexes:**
-```sql
-idx_optimization_recordings_drafts (recorded_by, is_draft) WHERE is_draft = TRUE
-idx_optimization_recordings_date_range (account_id, date_range_start, date_range_end)
-```
-
-**Constraint:**
-```sql
-CHECK (date_range_start IS NULL OR date_range_end IS NULL OR date_range_end >= date_range_start)
-```
-
-### **Modified Components**
-
-**OptimizationRecorder** (`src/components/OptimizationRecorder.tsx`)
-- New prop: `dateRange?: { start: Date; end: Date }`
-- Sends `date_range_start/end` to database on upload
-- Shows selected period in confirmation
-
-**Optimization Panel** (`src/pages/Optimization.tsx`)
-- New button "Nova Otimização" in header
-- Navigates to `/optimization/new`
-
-### **Usage Example**
-
-```typescript
-// In OptimizationNew.tsx
-<OptimizationRecorder
-  accountId={selectedAccountId}
-  accountName={selectedAccountName}
-  accountContext={accountContext}
-  dateRange={{ start: new Date('2024-10-15'), end: new Date('2024-10-22') }}
-  onUploadComplete={() => {
-    clearDraft();
-    navigate('/optimization');
-  }}
-/>
-```
-
-### **Technical Decisions**
-
-**Why Facebook-style date picker?**
-- User familiarity (managers already use Meta Ads Manager)
-- Clear predefinições reduce clicks
-- Dual calendar shows context (current + next month)
-
-**Why auto-save drafts?**
-- Prevent loss of work (common pain point)
-- Enable "pause and resume" workflow
-- 7-day expiration balances utility vs storage
-
-**Why optional dateRange prop?**
-- Backward compatibility with existing code
-- Allows gradual migration
-- NULL values permitted in database
-
-### **Future Enhancements (Post v2.1)**
-
-- [ ] Fetch last-used context from Supabase (not just localStorage)
-- [ ] Show date range in optimization cards (panel view)
-- [ ] Filter optimizations by date range
-- [ ] Export optimization with period context for reports
-- [ ] Integrate with REPORTS branch for period comparisons
+> 📖 **Detailed Documentation**: See [ARCHITECTURE.md - Optimization Creation Flow v2.1](docs/ARCHITECTURE.md#optimization-creation-flow-v21) for complete technical details, components, database changes, and usage examples.
 
 ---
 
@@ -1537,7 +1244,7 @@ CHECK (date_range_start IS NULL OR date_range_end IS NULL OR date_range_end >= d
 4. Drop obsolete tables from database
 
 **Context:**
-During migration cleanup (2025-10-09), we deleted obsolete migrations referencing old tables (n8n_*, accounts, notion_managers, etc). However, there may still be:
+During migration cleanup (2024-10-09), we deleted obsolete migrations referencing old tables (n8n_*, accounts, notion_managers, etc). However, there may still be:
 - References in code to old table names
 - Actual tables in Supabase that are no longer used
 - Edge Functions querying deprecated tables
@@ -1573,8 +1280,9 @@ Este não é apenas um "sistema interno" - é um **PRODUTO ESTRATÉGICO** que va
 
 ---
 
-**Last Updated**: 2024-10-07
+**Last Updated**: 2024-11-05
 **Maintained by**: Claude Code Assistant
-**Project Status**: **FASE 1 COMPLETA** ✅ → **FASE 2 (INSIGHTS) EM PLANEJAMENTO** 🧠
-
-- Don't ask for permissions for bash commands ran by the dev-setup agent.
+**Project Status**:
+- **FASE 1**: ✅ Complete (Production system with 9 dashboards)
+- **FASE 2 v2.1**: ✅ Complete (Optimization Creation Flow)
+- **FASE 2 REPORTS**: ⏳ Planning (Comparative insights, anomaly detection)
