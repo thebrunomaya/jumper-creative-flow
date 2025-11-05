@@ -3,288 +3,177 @@
 # Tracks recent decisions and work-in-progress (last 7 days)
 # Older decisions migrate to docs/ARCHITECTURE.md
 
-last_updated: "2025-11-03T14:30:00Z"
+last_updated: "2024-11-05T22:00:00Z"
 session_computer: "MacBook Pro (trabalho)"
 session_user: "Bruno Maya"
 
 # Recent decisions (last 7 days)
 # When older than 7 days, migrate to docs/ARCHITECTURE.md
 recent_decisions:
-  - date: "2025-10-21"
-    decision: "Dev-Setup Agent Created + Migration Idempotency Fix"
+  - date: "2024-11-05"
+    decision: "CRITICAL: Dual ID System Fix (UUID vs TEXT notion_id)"
     status: "completed ✅"
     details: |
-      🤖 DEV-SETUP AGENT: Automated development environment setup system created
+      🚨 CRITICAL BUG FIX: FK constraint violation on optimization creation resolved
 
-      ## Session Summary (2025-10-21):
+      ## Session Summary (2024-11-05):
 
-      ### 1. User Request: Setup Development Environment
+      ### 1. Problem Discovery
 
-      **Initial Task:**
-      User requested complete local development environment setup with production data.
+      **User Report:**
+      "Claude, provavelmente em virtude dos ajustes que fizemos nessa sessão, quando tento criar uma nova otimização dá erro permanente."
 
-      **Manual Steps Executed (6 tasks):**
-      1. ✅ Start Docker and Supabase local instance
-      2. ✅ Create fresh backup from production database (24MB)
-      3. ✅ Restore production data to local database
-      4. ✅ Configure .env.local for local development
-      5. ✅ Verify Edge Functions environment variables
-      6. ✅ Start npm development server
-
-      **Issues Encountered:**
-      - Supabase CLI authentication needed (resolved with `npx supabase login`)
-      - Backup script had wrong region (us-east-1 → sa-east-1)
-      - Migration 20251020220000 failed on fresh reset (not idempotent)
-      - Database restore had duplicate key errors (needed clean reset first)
-
-      **Time Taken:** ~10 minutes with troubleshooting
-
-      ### 2. Agent Creation Decision
-
-      **User Suggestion:**
-      > "Claude, faz sentido desenvolver um agent que faça esse procedimento do setup do modo de desenvolvimento?"
-
-      **Analysis:**
-      - ✅ Reprodutibilidade - Mesma sequência toda vez, zero erros humanos
-      - ✅ Economia de tempo - 6 tarefas manuais → 1 comando
-      - ✅ Onboarding - Novos devs (ou você em outra máquina) setup instantâneo
-      - ✅ Documentação viva - Agent é a documentação executável
-      - ✅ Detecção de problemas - Valida cada etapa, reporta erros claramente
-
-      **Decision:** Create specialized dev-setup agent
-
-      ### 3. Agent Implementation
-
-      **Created Files:**
-
-      **A. `.claude/agents/dev-setup.md` (164 lines)**
-      - Complete agent specification
-      - 9 sections: Purpose, What it Does, Expected Outcome, Usage Context, etc.
-      - Validation steps and error handling protocols
-      - Key commands reference
-      - Common issues & solutions
-      - Post-setup actions
-
-      **Key Features:**
-      - Validates Docker + Supabase CLI authentication
-      - Smart backup reuse (checks for recent <24h backups)
-      - Automatic database reset + restore
-      - Edge Functions environment validation
-      - npm dev server startup
-      - Clear success criteria and error reporting
-
-      **B. `.claude/agents/README.md` (114 lines)**
-      - Agent system documentation
-      - What are agents? (definition, capabilities)
-      - Available agents list
-      - How to create new agents (template)
-      - Best practices (specific, error-friendly, idempotent, safe)
-      - Agent vs Script decision guide
-      - Good/poor use case examples
-      - Maintenance guidelines
-
-      ### 4. Bug Fixes During Setup
-
-      **A. Backup Script Region Fix:**
-      - File: `scripts/backup-production.sh`
-      - Issue: Wrong endpoint `aws-0-us-east-1.pooler.supabase.com`
-      - Fix: Changed to `aws-0-sa-east-1.pooler.supabase.com`
-      - Impact: Backup now works correctly
-
-      **B. Migration Idempotency Fix:**
-      - File: `supabase/migrations/20251020220000_rename_j_ads_users_to_j_hub_users.sql`
-      - Issue: Migration failed on fresh database reset (constraints/triggers didn't exist)
-      - Root Cause:
-        - `ALTER TABLE ... RENAME CONSTRAINT` requires constraint to exist
-        - `CREATE TRIGGER` fails if trigger already exists
-      - Fix Applied:
-        - Wrapped constraint renames in `DO $$ BEGIN IF EXISTS ... END $$;`
-        - Wrapped trigger creation in `DO $$ BEGIN IF NOT EXISTS ... END $$;`
-      - Result: Migration now fully idempotent (can run multiple times safely)
-
-      ### 5. Documentation Updates
-
-      **A. Updated CLAUDE.md:**
-      - Added new section: "🤖 Claude Code Agents"
-      - Documented dev-setup agent usage
-      - Explained what it does (6 steps)
-      - Provided invocation examples
-      - Noted fallback script (./scripts/start-dev.sh)
-
-      **B. Version Update:**
-      - File: `src/config/version.ts`
-      - Version: v2.0.29 → v2.0.30
-      - Changelog entry with all features/fixes
-
-      ### 6. Git Workflow
-
-      **Commit Created:**
+      **Error Message:**
       ```
-      2d5401e: feat: Add dev-setup agent + fix migration idempotency (v2.0.30)
+      Error: insert or update on table "j_hub_optimization_recordings"
+      violates foreign key constraint "j_ads_optimization_recordings_account_id_fkey"
+
+      ReferenceError: selectedAccountName is not defined
+      ```
+
+      **Root Cause Investigation:**
+      - Commit 412a8ec changed `j_hub_user_accounts` Edge Function to return UUIDs (for decks system)
+      - `OptimizationNew.tsx` was storing UUID from `account.id`
+      - `j_hub_optimization_recordings.account_id` is TEXT (expects `notion_id`)
+      - UUID inserted into TEXT column → FK constraint violation
+
+      **Discovery: Dual ID System**
+      - Modern tables (j_hub_decks) use UUID foreign keys
+      - Legacy tables (j_hub_optimization_recordings) use TEXT notion_id foreign keys
+      - `j_hub_user_accounts` now returns BOTH formats for compatibility
+
+      ### 2. Fix Implementation (v2.0.75)
+
+      **FIX 1: OptimizationNew.tsx (lines 109, 131)**
+      ```typescript
+      // Before: Stored UUID from PrioritizedAccountSelect
+      setSelectedAccountId(accountId); // ❌ UUID in TEXT column
+
+      // After: Extract notion_id from account object
+      const account = accounts.find(a => a.id === accountId);
+      setSelectedAccountId(account.notion_id); // ✅ TEXT in TEXT column
+      ```
+
+      Also fixed `handleRecoverDraft` to search by `a.notion_id` instead of `a.id`.
+
+      **FIX 2: OptimizationRecorder.tsx (line 174)**
+      ```typescript
+      // Before: ReferenceError
+      const accountNameSlug = selectedAccountName.replace(...); // ❌ undefined
+
+      // After: Use correct prop name
+      const accountNameSlug = accountName.replace(...); // ✅ defined prop
+      ```
+
+      ### 3. Architecture Documentation
+
+      **Created comprehensive ARCHITECTURE.md section:**
+      - Overview of dual ID system (UUID vs TEXT)
+      - Table classification (Modern vs Legacy)
+      - Edge Function compatibility layer
+      - Frontend patterns and common mistakes
+      - Incident report with symptoms/cause/fix
+      - Migration strategy for future
+      - Decision checklists
+
+      **Location:** `docs/ARCHITECTURE.md` - "Dual ID System" section
+
+      ### 4. Account Filtering Standardization
+
+      **Problem:** Inconsistent account filtering across pages
+      - `/optimization` showed ONLY accounts with optimizations (incorrect)
+      - `/decks` had NO account filter
+      - `/decks/new` used standard Select instead of PrioritizedAccountSelect
+
+      **Solution:**
+      - **PHASE 1:** Fixed `/optimization` to show ALL accessible accounts
+      - **PHASE 2:** Added account filter to `/decks` using PrioritizedAccountSelect
+      - **PHASE 3:** Migrated `/decks/new` to use PrioritizedAccountSelect
+
+      **Result:** Unified account selection pattern across entire application
+
+      ### 5. Navigation Headers Added
+
+      **Problem:** Decks pages missing Header component
+
+      **Fix:** Added Header and JumperBackground to:
+      - `Decks.tsx` (panel view)
+      - `DeckNew.tsx` (creation page)
+      - `DeckEditor.tsx` (viewer page)
+
+      **Result:** Consistent navigation across all pages
+
+      ### 6. Git Commits
+
+      **Commits Created:**
+      ```
+      e2a1aaa: fix: FK constraint violation on optimization creation (v2.0.74)
+      9bac8c3: chore: bump version to v2.0.75
       ```
 
       **Files Changed:**
-      - `.claude/agents/dev-setup.md` (created, 164 lines)
-      - `.claude/agents/README.md` (created, 114 lines)
-      - `CLAUDE.md` (updated, +29 lines)
-      - `scripts/backup-production.sh` (region fix)
-      - `supabase/migrations/20251020220000_*.sql` (idempotency fix)
-      - `src/config/version.ts` (version bump)
+      - `src/pages/OptimizationNew.tsx` (handleAccountChange + handleRecoverDraft fixes)
+      - `src/components/OptimizationRecorder.tsx` (selectedAccountName typo fix)
+      - `src/config/version.ts` (version bump + changelog)
+      - `docs/ARCHITECTURE.md` (new Dual ID System section, ~200 lines)
 
-      **Pushed to GitHub:**
-      - ✅ Commit: fc47041..2d5401e
-      - ✅ Branch: main → main
-      - ✅ Status: Success
+      ### 7. Context Organization
 
-      ### 7. Agent Versioning Decision
+      **Migrated to ARCHITECTURE.md:**
+      - Dual ID System architectural decision (permanent documentation)
+      - Table classification and FK patterns
+      - Frontend integration patterns
 
-      **User Question:**
-      > "O agente é local ou vai para o Github tb?"
+      **Cleaned up `.claude-context`:**
+      - Removed decisions >7 days old (dev-setup agent, naming standardization)
+      - Kept only recent work (last 3 days)
+      - Updated deployment status
 
-      **Investigation:**
-      - Checked `.gitignore` - `.claude/` NOT ignored
-      - Checked `git ls-files .claude/` - agents ARE tracked
-      - Conclusion: **Agents go to GitHub ✅**
-
-      **Rationale:**
-      - ✅ Compartilhamento - Toda equipe pode usar
-      - ✅ Onboarding - Novos devs já têm agent automaticamente
-      - ✅ Evolução - Histórico de melhorias via Git
-      - ✅ Documentação viva - Agent é parte do projeto
-      - ✅ Multi-máquina - Funciona em qualquer computador após clone
-
-      **What stays local:**
-      - `.claude/settings.local.json` - Personal settings (gitignored)
-
-      ## Impact: HIGH - Developer Experience
+      ## Impact: CRITICAL - Production Bug Fix
 
       **Before:**
-      - 10+ manual steps to setup dev environment
-      - ~10 minutes with troubleshooting
-      - Requires knowledge of all commands
-      - Error-prone (forgot steps, wrong order, etc.)
+      - ❌ Creating new optimizations caused FK constraint errors
+      - ❌ Inconsistent account filtering across pages
+      - ❌ Missing navigation headers on decks pages
 
       **After:**
-      - Single invocation: "Configure o ambiente de desenvolvimento"
-      - ~2 minutes automated execution
-      - Agent handles all complexity
-      - Automatic error detection and reporting
+      - ✅ Optimization creation working correctly (v2.0.75 deployed)
+      - ✅ Unified account selection pattern everywhere
+      - ✅ Complete navigation across all pages
+      - ✅ Comprehensive architecture documentation prevents future incidents
 
-      **Benefits:**
-      - 🚀 Faster onboarding (new devs productive immediately)
-      - 🔄 Multi-computer workflow (setup anywhere instantly)
-      - 📖 Living documentation (agent IS the setup guide)
-      - 🛡️ Error prevention (validation at each step)
-      - 🤝 Team sharing (agent available to all via Git)
-
-      **Next Usage:**
-      Just ask Claude: "Configure o ambiente de desenvolvimento"
-      Agent will execute autonomously!
-
-    impact: "HIGH - Automated dev setup reduces time from ~10 min to ~2 min"
+    impact: "CRITICAL - Fixed production bug + documented dual ID system architecture"
     files_changed:
-      - ".claude/agents/dev-setup.md (created, 164 lines)"
-      - ".claude/agents/README.md (created, 114 lines)"
-      - "CLAUDE.md (updated, +29 lines)"
-      - "scripts/backup-production.sh (region fix)"
-      - "supabase/migrations/20251020220000_*.sql (idempotency fix)"
-      - "src/config/version.ts (v2.0.30)"
+      - "src/pages/OptimizationNew.tsx (UUID → notion_id fix)"
+      - "src/components/OptimizationRecorder.tsx (typo fix)"
+      - "src/pages/Optimization.tsx (account filtering fix)"
+      - "src/components/decks/DecksPanelList.tsx (account filter added)"
+      - "src/components/decks/DeckConfigForm.tsx (migrated to PrioritizedAccountSelect)"
+      - "src/pages/Decks.tsx, DeckNew.tsx, DeckEditor.tsx (Header added)"
+      - "docs/ARCHITECTURE.md (+200 lines: Dual ID System section)"
+      - "src/config/version.ts (v2.0.75)"
     deployed: true
-    deployment_status: "Pushed to GitHub ✅ (commit 2d5401e)"
+    deployment_status: "Pushed to production ✅ (commits e2a1aaa, 9bac8c3)"
     commits:
-      - "2d5401e: feat: Add dev-setup agent + fix migration idempotency (v2.0.30)"
-    migrate_to_architecture: false
-
-  - date: "2025-10-20"
-    decision: "Fix Production Error 500 + Complete Naming Standardization"
-    status: "completed ✅"
-    impact: "CRITICAL - Fixed production error 500 + prevented future table duplication incidents"
-    deployed: true
+      - "e2a1aaa: fix: FK constraint violation on optimization creation (v2.0.74)"
+      - "9bac8c3: chore: bump version to v2.0.75"
     migrate_to_architecture: true
 
-  - date: "2025-11-03"
+  - date: "2024-11-03"
     decision: "Fixed gradient display bug in split-layout presentations"
     status: "completed ✅"
     details: |
       Fixed CSS issue causing gradients to not display correctly in split-layout slides.
-
-      ## Problem Discovery:
-
-      **Presentation:** Moldura Minuto report (22 slides, Jumper identity)
-      **Template:** Apple-minimal inspired with split-layout cover/closing
-
-      **Symptoms:**
-      - Gradient div had `height: 0px` (completely invisible)
-      - After initial fix, black borders appeared on gradient edges
-      - Gradient didn't fill 50% of slide properly
-
-      ## Root Cause:
-
-      Using `min-height: 100vh` on `.slide-split-gradient` breaks in CSS Grid contexts:
-      - `100vh` calculates based on viewport height, not grid parent
-      - Grid parent may be shorter or taller than viewport
-      - Empty divs without content default to `height: 0px`
-      - Fixed height creates overflow/underflow with black gaps
-
-      ## Solution Applied:
-
-      Changed `.slide-split-gradient` CSS:
-      ```css
-      /* ❌ BEFORE - Viewport-based */
-      .slide-split-gradient {
-        min-height: 100vh;
-      }
-
-      /* ✅ AFTER - Parent-based */
-      .slide-split-gradient {
-        height: 100%;
-      }
-      ```
-
-      **Result:** Gradient now fills entire grid cell edge-to-edge, no borders
-
-      ## Verification:
-
-      - Used Playwright MCP for visual debugging
-      - Took screenshots of slides 1 (cover) and 22 (closing)
-      - Confirmed gradients display correctly without artifacts
-      - Both organic-01.png and organic-02.png loading properly
-
-      ## Documentation Created:
-
-      1. **`decks/identities/jumper/design-system.md`** (HIGH priority)
-         - Added "⚠️ Critical: Split Layout Height Bug Fix" section
-         - Detailed problem, cause, solution, validation checklist
-         - Debugging tips and historical note
-
-      2. **`decks/decks.md`** (MEDIUM priority)
-         - Created "🛠️ Troubleshooting Common Issues" section
-         - Generic fix applicable to ALL brand identities
-         - Prevention guidelines
-
-      3. **`.claude-context`** (this entry)
-         - Recent decision log for next 7 days
-
-      ## Impact:
-
-      **Immediate:**
-      - Moldura Minuto presentation now displays correctly
-      - Future Jumper presentations won't have this issue
-
-      **Long-term:**
-      - Prevents gradient display issues in all split-layout presentations
-      - Clear troubleshooting guide for future Claude sessions
-      - Pattern documented for any brand identity using split layouts
-
+      Changed `.slide-split-gradient` from `min-height: 100vh` (viewport-based) to `height: 100%` (parent-based).
+      Gradient now fills entire grid cell edge-to-edge without borders.
+      Documented in `decks/identities/jumper/design-system.md` and `decks/decks.md`.
     impact: "MEDIUM - Prevents gradient display issues in future presentations"
     files_changed:
       - "decks/output/molduraminuto-report.html (CSS fix applied)"
-      - "decks/identities/jumper/design-system.md (troubleshooting section added)"
-      - "decks/decks.md (troubleshooting section added)"
-      - ".claude-context (this decision logged)"
+      - "decks/identities/jumper/design-system.md (troubleshooting section)"
+      - "decks/decks.md (troubleshooting section)"
     deployed: false
     deployment_status: "Documentation only (no production deploy needed)"
-    commits: []
     migrate_to_architecture: false
 
 # Current issues being worked on
@@ -295,66 +184,67 @@ work_in_progress: []
 
 # Context for next session
 next_session_context: |
-  🎯 SESSION 2025-10-21 COMPLETED: DEV-SETUP AGENT CREATED (v2.0.30)
+  🎯 SESSION 2024-11-05 COMPLETED: DUAL ID SYSTEM FIX + ARCHITECTURE DOCUMENTATION
 
   ## ✅ WHAT WAS ACCOMPLISHED:
 
-  **1. Development Environment Setup (Manual) 🔧**
-  - ✅ Configured complete local dev environment
-  - ✅ Created fresh production backup (24MB, 2025-10-21)
-  - ✅ Restored production data to local database
-  - ✅ Validated Edge Functions environment variables
-  - ✅ Started npm dev server successfully
+  **1. Critical Bug Fix 🚨**
+  - ✅ Fixed FK constraint violation on optimization creation (v2.0.75)
+  - ✅ OptimizationNew.tsx now uses notion_id (TEXT) instead of UUID
+  - ✅ OptimizationRecorder.tsx typo fixed (selectedAccountName → accountName)
+  - ✅ Root cause identified: Dual ID system (UUID for modern, TEXT for legacy tables)
 
-  **2. Dev-Setup Agent Created 🤖**
-  - ✅ Created .claude/agents/dev-setup.md (164 lines)
-  - ✅ Created .claude/agents/README.md (114 lines)
-  - ✅ Documented in CLAUDE.md (new section)
-  - ✅ Agent reduces setup time: ~10 min → ~2 min
-  - ✅ Fully autonomous execution with error handling
+  **2. Architecture Documentation 📚**
+  - ✅ Created comprehensive "Dual ID System" section in ARCHITECTURE.md (~200 lines)
+  - ✅ Documented table classification (Modern vs Legacy)
+  - ✅ Frontend patterns and common mistakes explained
+  - ✅ Migration strategy outlined for future
+  - ✅ Decision checklists for developers
 
-  **3. Bug Fixes 🐛**
-  - ✅ Backup script region fix (us-east-1 → sa-east-1)
-  - ✅ Migration 20251020220000 now idempotent (IF EXISTS checks)
-  - ✅ Database reset workflow validated
+  **3. Account Filtering Standardization 🔄**
+  - ✅ Fixed /optimization to show ALL accessible accounts (not just with data)
+  - ✅ Added account filter to /decks using PrioritizedAccountSelect
+  - ✅ Migrated /decks/new to use PrioritizedAccountSelect
+  - ✅ Unified account selection pattern across application
 
-  **4. Documentation 📚**
-  - ✅ Agent development guidelines (README.md)
-  - ✅ CLAUDE.md updated with agent usage
-  - ✅ Version bumped to v2.0.30
+  **4. Navigation Headers 🧭**
+  - ✅ Added Header component to Decks.tsx, DeckNew.tsx, DeckEditor.tsx
+  - ✅ Consistent navigation across all pages
 
-  **5. Git & Deployment 🚀**
-  - ✅ Committed: 2d5401e
-  - ✅ Pushed to GitHub successfully
-  - ✅ Agents now available to entire team
+  **5. Context Organization 📋**
+  - ✅ Migrated old decisions to ARCHITECTURE.md
+  - ✅ Cleaned up .claude-context (removed >7 day old items)
+  - ✅ Updated deployment status
 
   ## 🎯 CURRENT SYSTEM STATUS:
 
-  **Local Development:**
-  - Supabase: Running at http://127.0.0.1:54321
-  - Database: Populated with production data
-  - Edge Functions: API keys loaded ✅
-  - Frontend: Running at http://localhost:8080/
-  - Login: bruno@jumper.studio / senha123
-
   **Production:**
   - URL: https://hub.jumper.studio
-  - Version: v2.0.30 ✅
-  - Status: All features working
-  - Last Deploy: 2025-10-21 (agent creation)
-  - Last Commit: 2d5401e
+  - Version: v2.0.75 ✅
+  - Status: All features working, critical bug fixed
+  - Last Deploy: 2024-11-05 22:00 UTC
+  - Last Commits: e2a1aaa (fix), 9bac8c3 (version bump)
 
   **What's Working:**
-  - ✅ Dev-setup agent available for future sessions
-  - ✅ Migration idempotency fixed
-  - ✅ Backup script working correctly
-  - ✅ Local environment fully functional
+  - ✅ Optimization creation (FK constraint fixed)
+  - ✅ Unified account filtering across all pages
+  - ✅ Complete navigation (Headers on all pages)
+  - ✅ Dual ID system documented and understood
 
-  ## 📋 READY FOR NEXT SESSION:
+  ## 📋 IMPORTANT FOR NEXT SESSION:
 
-  **Next Time You Need Dev Setup:**
-  Just ask: "Configure o ambiente de desenvolvimento"
-  Agent will handle everything automatically!
+  **Dual ID System Pattern (CRITICAL):**
+  ```typescript
+  // When using PrioritizedAccountSelect with LEGACY tables:
+  const handleAccountChange = (accountId: string) => {
+    const account = accounts.find(a => a.id === accountId);
+    // ✅ Use notion_id for legacy tables (optimizations, creatives)
+    setSelectedAccountId(account.notion_id);
+    // ❌ DON'T use accountId directly (that's UUID)
+  };
+  ```
+
+  **Reference:** See `docs/ARCHITECTURE.md` - "Dual ID System" section
 
   **Dev Credentials (Local):**
   ```
@@ -362,47 +252,37 @@ next_session_context: |
   Password: senha123
   ```
 
-  **Useful Commands:**
-  ```bash
-  # Use the agent (via Claude Code)
-  # Just ask: "Configure o ambiente de desenvolvimento"
-
-  # Or use script directly (fallback)
-  ./scripts/start-dev.sh
-
-  # Safe database reset
-  ./scripts/db-reset-safe.sh
-  ```
-
 # TODOs pending
 pending_todos: []
 
 # Recently completed (for reference)
 completed_recently:
-  - "✅ [2025-10-21 Afternoon] Dev-setup agent created (v2.0.30) 🤖"
-  - "✅ [2025-10-21 Afternoon] Migration idempotency fix 🐛"
-  - "✅ [2025-10-21 Afternoon] Backup script region fix 🔧"
-  - "✅ [2025-10-21 Afternoon] Complete dev environment setup ⚙️"
-  - "✅ [2025-10-20 Night] Production error 500 fix + naming standardization (v2.0.29) 🚨"
-  - "✅ [2025-10-20 Evening] Comprehensive local dev documentation (v2.0.24-28) 📚"
+  - "✅ [2024-11-05] Critical FK constraint bug fix (v2.0.75) 🚨"
+  - "✅ [2024-11-05] Dual ID System architecture documentation 📚"
+  - "✅ [2024-11-05] Account filtering standardization 🔄"
+  - "✅ [2024-11-05] Navigation headers added to Decks pages 🧭"
+  - "✅ [2024-11-03] Gradient display bug fix in presentations 🎨"
 
 # Deployment status
 deployment:
   production_url: "https://hub.jumper.studio"
   old_url_redirect: "https://ads.jumper.studio → hub.jumper.studio (301)"
-  last_deploy: "2025-10-21T18:20:00Z"
-  last_deploy_status: "Dev-setup agent pushed to GitHub ✅"
-  last_deploy_type: "feature (developer experience improvement)"
-  last_commit: "2d5401e - feat: Add dev-setup agent + fix migration idempotency (v2.0.30)"
-  database_status: "STABLE - All tables functioning correctly ✅"
+  last_deploy: "2024-11-05T22:00:00Z"
+  last_deploy_status: "Critical bug fix deployed ✅"
+  last_deploy_type: "bugfix (FK constraint violation)"
+  last_commit: "9bac8c3 - chore: bump version to v2.0.75"
+  database_status: "STABLE - Dual ID system working correctly ✅"
   known_issues: "None"
   recent_commits:
-    - "2d5401e: feat: Add dev-setup agent + fix migration idempotency (v2.0.30)"
-    - "fc47041: fix(production): Resolve error 500 + standardize j_ads_users → j_hub_users naming (v2.0.29)"
+    - "9bac8c3: chore: bump version to v2.0.75"
+    - "e2a1aaa: fix: FK constraint violation on optimization creation (v2.0.74)"
+    - "10d2777: fix: Account filtering + Headers on Decks pages (v2.0.73)"
 
 # Notes for context rotation
 context_rotation:
-  last_rotation: "never"
-  next_rotation: "2025-10-28"
-  items_to_migrate:
-    - "Dev-setup agent creation (move to ARCHITECTURE.md after testing period)"
+  last_rotation: "2024-11-05"
+  next_rotation: "2024-11-12"
+  items_migrated_today:
+    - "Dual ID System (→ ARCHITECTURE.md, new section created)"
+    - "Dev-setup agent (>7 days, removed from context)"
+    - "Naming standardization (>7 days, already in ARCHITECTURE.md)"

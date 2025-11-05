@@ -6,17 +6,19 @@
 
 ## 📑 Índice
 
-1. [User Management System](#-user-management-system) ⭐ **NOVO**
-2. [Account Selection Pattern](#-account-selection-pattern-standard-pattern) ⭐ **ATUALIZADO (2024-10-28)**
-3. [Estrutura de Pastas](#-estrutura-de-pastas)
-4. [Database Schema](#-database-schema)
-5. [Edge Functions](#-edge-functions)
-6. [Autenticação e Permissões](#-autenticação-e-permissões)
-7. [Integração Notion](#-integração-notion)
-8. [Sistema de Resiliência](#-sistema-de-resiliência)
-9. [Supabase Integration](#-supabase-integration)
-10. [UI/UX Patterns](#-uiux-patterns)
-11. [Performance](#-performance)
+1. [Table Naming Convention](#️-critical-table-naming-convention) ⚠️ **CRITICAL**
+2. [Dual ID System](#️-critical-dual-id-system-uuid-vs-text-notionid) ⚠️ **CRITICAL** ⭐ **NOVO (2024-11-05)**
+3. [User Management System](#-user-management-system)
+4. [Account Selection Pattern](#-account-selection-pattern-standard-pattern) ⭐ **ATUALIZADO (2024-10-28)**
+5. [Estrutura de Pastas](#-estrutura-de-pastas)
+6. [Database Schema](#-database-schema)
+7. [Edge Functions](#-edge-functions)
+8. [Autenticação e Permissões](#-autenticação-e-permissões)
+9. [Integração Notion](#-integração-notion)
+10. [Sistema de Resiliência](#-sistema-de-resiliência)
+11. [Supabase Integration](#-supabase-integration)
+12. [UI/UX Patterns](#-uiux-patterns)
+13. [Performance](#-performance)
 
 ---
 
@@ -50,6 +52,205 @@
 2. Check this document for correct table name
 3. Use `j_hub_users` instead
 4. Report inconsistency to be fixed
+
+---
+
+## ⚠️ CRITICAL: Dual ID System (UUID vs TEXT notion_id)
+
+> **CRITICAL ARCHITECTURAL DECISION (2024-11-05):**
+> The database uses a **dual ID system** for accounts. Understanding this is CRITICAL to avoid FK constraint violations.
+
+### Overview
+
+**Two ID formats coexist:**
+
+| ID Type | Format | Used By | Example |
+|---------|--------|---------|---------|
+| **UUID** | Supabase auto-generated | Modern tables (2024+) | `123e4567-e89b-12d3-a456-426614174000` |
+| **TEXT notion_id** | Notion page ID | Legacy tables (<2024) | `9c4f39ed1234567890abcdef12345678` |
+
+### Table Classification
+
+#### **Modern Tables (use UUID FK)**
+
+Tables created in 2024 or refactored to use Supabase-native IDs:
+
+```sql
+-- Example: j_hub_decks
+CREATE TABLE j_hub_decks (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  account_id UUID,  -- ✅ References j_hub_notion_db_accounts(id)
+  ...
+);
+```
+
+**Tables:**
+- `j_hub_decks` (created 2024-11)
+- `j_hub_users` (refactored 2024-10)
+- Future tables (should use UUID)
+
+#### **Legacy Tables (use TEXT notion_id FK)**
+
+Tables created before 2024 migration, still referencing Notion IDs:
+
+```sql
+-- Example: j_hub_optimization_recordings
+CREATE TABLE j_hub_optimization_recordings (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  account_id TEXT,  -- ⚠️ References j_hub_notion_db_accounts(notion_id), NOT id
+  ...
+  FOREIGN KEY (account_id) REFERENCES j_hub_notion_db_accounts(notion_id)
+);
+```
+
+**Tables:**
+- `j_hub_optimization_recordings`
+- `j_hub_optimization_transcripts`
+- `j_hub_optimization_context`
+- `j_hub_creative_submissions`
+
+### Edge Function Compatibility Layer
+
+**`j_hub_user_accounts` Edge Function returns BOTH formats:**
+
+```typescript
+// Response structure (commit 412a8ec, 2024-11-05)
+{
+  account_ids: ["uuid1", "uuid2", ...],           // UUIDs for modern tables
+  account_notion_ids: ["notion1", "notion2", ...], // TEXT for legacy tables
+  accounts: [
+    {
+      id: "uuid",          // Supabase UUID
+      notion_id: "text",   // Notion page ID
+      name: "Account Name",
+      ...
+    }
+  ]
+}
+```
+
+**Why both formats?**
+- Modern tables (decks) query with `account_ids` (UUID array)
+- Legacy tables (optimizations) query with `account_notion_ids` (TEXT array)
+- Frontend components receive both and choose based on target table
+
+### Frontend Pattern
+
+**React hooks select correct ID format based on table:**
+
+```typescript
+// Modern table example (useMyDecks.ts)
+const { data: accountsData } = await supabase.functions.invoke('j_hub_user_accounts');
+
+const accountIds = accountsData.account_ids; // UUID array
+const { data: decks } = await supabase
+  .from('j_hub_decks')
+  .select('*')
+  .in('account_id', accountIds); // ✅ UUID FK match
+
+// Legacy table example (useMyOptimizations.ts)
+const accountNotionIds = accountsData.account_notion_ids; // TEXT array
+const { data: optimizations } = await supabase
+  .from('j_hub_optimization_recordings')
+  .select('*')
+  .in('account_id', accountNotionIds); // ✅ TEXT FK match
+```
+
+### Common Mistake: PrioritizedAccountSelect
+
+**Problem:** Component returns UUID but form needs TEXT
+
+```typescript
+// ❌ WRONG - Causes FK constraint violation on legacy tables
+<PrioritizedAccountSelect
+  value={selectedAccountId}  // User selects account
+  onChange={(accountId) => {
+    setSelectedAccountId(accountId); // ⚠️ This is UUID!
+    // Later: INSERT account_id = uuid → FK violation if table expects TEXT
+  }}
+/>
+```
+
+**Solution:** Find account object and extract correct ID type
+
+```typescript
+// ✅ CORRECT - OptimizationNew.tsx pattern (lines 95-118)
+const handleAccountChange = (accountId: string) => {
+  // accountId parameter is UUID from PrioritizedAccountSelect
+  const account = accounts.find(a => a.id === accountId);
+  if (account) {
+    // Store notion_id (TEXT) for legacy table
+    setSelectedAccountId(account.notion_id);  // ✅ Correct format
+    setSelectedAccountName(account.name);
+  }
+};
+```
+
+### Incident Report (2024-11-05)
+
+**Symptoms:**
+```
+Error: insert or update on table "j_hub_optimization_recordings"
+violates foreign key constraint "j_ads_optimization_recordings_account_id_fkey"
+```
+
+**Root Cause:**
+- Commit 412a8ec changed `j_hub_user_accounts` to return UUIDs (for decks system)
+- `OptimizationNew.tsx` was storing UUID from `account.id`
+- `j_hub_optimization_recordings.account_id` is TEXT (expects `notion_id`)
+- UUID inserted into TEXT column → FK constraint violation
+
+**Fix Applied (v2.0.75):**
+1. Modified `handleAccountChange` to store `account.notion_id` instead of `accountId`
+2. Modified `handleRecoverDraft` to find accounts by `a.notion_id` instead of `a.id`
+3. Fixed typo in `OptimizationRecorder.tsx`: `selectedAccountName` → `accountName`
+
+### Migration Strategy (Future)
+
+**Option 1: Migrate legacy tables to UUID (RECOMMENDED)**
+
+```sql
+-- Add new UUID column
+ALTER TABLE j_hub_optimization_recordings ADD COLUMN account_uuid UUID;
+
+-- Populate from accounts table
+UPDATE j_hub_optimization_recordings o
+SET account_uuid = a.id
+FROM j_hub_notion_db_accounts a
+WHERE o.account_id = a.notion_id;
+
+-- Drop old FK, add new FK
+ALTER TABLE j_hub_optimization_recordings
+  DROP CONSTRAINT j_ads_optimization_recordings_account_id_fkey,
+  ADD CONSTRAINT j_hub_optimization_recordings_account_uuid_fkey
+    FOREIGN KEY (account_uuid) REFERENCES j_hub_notion_db_accounts(id);
+
+-- Rename columns
+ALTER TABLE j_hub_optimization_recordings
+  DROP COLUMN account_id,
+  RENAME COLUMN account_uuid TO account_id;
+```
+
+**Option 2: Keep dual system (CURRENT)**
+- Less risky (no data migration)
+- Requires careful ID type awareness
+- Edge Function provides both formats
+
+### Decision Checklist
+
+**Before creating/modifying table with account_id FK:**
+
+1. ✅ Check target table: UUID or TEXT?
+2. ✅ Use correct ID format from Edge Function response
+3. ✅ If PrioritizedAccountSelect used: extract `account.notion_id` for legacy tables
+4. ✅ Test FK constraint with actual insert before deploying
+
+**Before querying accounts:**
+
+1. ✅ Identify table type (modern=UUID, legacy=TEXT)
+2. ✅ Use `account_ids` (UUID) for modern tables
+3. ✅ Use `account_notion_ids` (TEXT) for legacy tables
+4. ✅ Never assume ID format without checking table schema
 
 ---
 
