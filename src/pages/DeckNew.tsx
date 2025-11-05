@@ -7,6 +7,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowLeft, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Header from "@/components/Header";
+import { JumperBackground } from "@/components/ui/jumper-background";
 
 export default function DeckNew() {
   const navigate = useNavigate();
@@ -91,93 +93,113 @@ export default function DeckNew() {
   // Loading state
   if (loading) {
     return (
-      <div className="container mx-auto py-8 space-y-6">
-        <Skeleton className="h-10 w-64" />
-        <Skeleton className="h-96" />
-      </div>
+      <JumperBackground overlay={false}>
+        <Header />
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="space-y-6">
+            <Skeleton className="h-10 w-64" />
+            <Skeleton className="h-96" />
+          </div>
+        </main>
+      </JumperBackground>
     );
   }
 
   // Error state (permission denied)
   if (error) {
     return (
-      <div className="container mx-auto py-8 space-y-6">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" onClick={() => navigate("/decks")}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Voltar
-          </Button>
-        </div>
+      <JumperBackground overlay={false}>
+        <Header />
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="space-y-6">
+            <div className="flex items-center gap-4">
+              <Button variant="ghost" onClick={() => navigate("/decks")}>
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Voltar
+              </Button>
+            </div>
 
-        <Alert variant="destructive">
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      </div>
+            <Alert variant="destructive">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          </div>
+        </main>
+      </JumperBackground>
     );
   }
 
   // User doesn't have permission
   if (userRole !== "admin" && userRole !== "staff") {
     return (
-      <div className="container mx-auto py-8 space-y-6">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" onClick={() => navigate("/decks")}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Voltar
-          </Button>
-        </div>
+      <JumperBackground overlay={false}>
+        <Header />
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="space-y-6">
+            <div className="flex items-center gap-4">
+              <Button variant="ghost" onClick={() => navigate("/decks")}>
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Voltar
+              </Button>
+            </div>
 
-        <Alert variant="destructive">
-          <AlertDescription>
-            Você não tem permissão para criar decks. Apenas administradores e staff podem criar
-            decks.
-          </AlertDescription>
-        </Alert>
-      </div>
+            <Alert variant="destructive">
+              <AlertDescription>
+                Você não tem permissão para criar decks. Apenas administradores e staff podem criar
+                decks.
+              </AlertDescription>
+            </Alert>
+          </div>
+        </main>
+      </JumperBackground>
     );
   }
 
   return (
-    <div className="container mx-auto py-8 space-y-6">
-      {/* Header */}
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" onClick={() => navigate("/decks")}>
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Voltar
-        </Button>
-      </div>
+    <JumperBackground overlay={false}>
+      <Header />
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="space-y-6">
+          {/* Header */}
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" onClick={() => navigate("/decks")}>
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Voltar
+            </Button>
+          </div>
 
-      <div className="flex items-center gap-3">
-        <Plus className="h-8 w-8 text-primary" />
-        <div>
-          <h1 className="text-3xl font-bold">Criar Novo Deck</h1>
-          <p className="text-muted-foreground">
-            Preencha as informações para gerar uma apresentação personalizada
-          </p>
-        </div>
-      </div>
-
-      {/* Progress indicator (if generating) */}
-      {isGenerating && (
-        <Alert>
-          <AlertDescription className="flex items-center justify-between">
-            <span>Gerando deck... {progress}%</span>
-            <div className="w-48 h-2 bg-muted rounded-full overflow-hidden">
-              <div
-                className="h-full bg-primary transition-all duration-300"
-                style={{ width: `${progress}%` }}
-              />
+          <div className="flex items-center gap-3">
+            <Plus className="h-8 w-8 text-primary" />
+            <div>
+              <h1 className="text-3xl font-bold">Criar Novo Deck</h1>
+              <p className="text-muted-foreground">
+                Preencha as informações para gerar uma apresentação personalizada
+              </p>
             </div>
-          </AlertDescription>
-        </Alert>
-      )}
+          </div>
 
-      {/* Form */}
-      <DeckConfigForm
-        onSubmit={handleSubmit}
-        onCancel={handleCancel}
-        isSubmitting={isGenerating}
-      />
-    </div>
+          {/* Progress indicator (if generating) */}
+          {isGenerating && (
+            <Alert>
+              <AlertDescription className="flex items-center justify-between">
+                <span>Gerando deck... {progress}%</span>
+                <div className="w-48 h-2 bg-muted rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-primary transition-all duration-300"
+                    style={{ width: `${progress}%` }}
+                  />
+                </div>
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {/* Form */}
+          <DeckConfigForm
+            onSubmit={handleSubmit}
+            onCancel={handleCancel}
+            isSubmitting={isGenerating}
+          />
+        </div>
+      </main>
+    </JumperBackground>
   );
 }

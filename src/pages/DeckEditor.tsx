@@ -22,6 +22,8 @@ import {
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import Header from "@/components/Header";
+import { JumperBackground } from "@/components/ui/jumper-background";
 
 interface Deck {
   id: string;
@@ -152,28 +154,38 @@ export default function DeckEditor() {
   // Loading state
   if (loading) {
     return (
-      <div className="container mx-auto py-8 space-y-6">
-        <Skeleton className="h-10 w-64" />
-        <Skeleton className="h-96" />
-      </div>
+      <JumperBackground overlay={false}>
+        <Header />
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="space-y-6">
+            <Skeleton className="h-10 w-64" />
+            <Skeleton className="h-96" />
+          </div>
+        </main>
+      </JumperBackground>
     );
   }
 
   // Error state
   if (error || !deck) {
     return (
-      <div className="container mx-auto py-8 space-y-6">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" onClick={() => navigate("/decks")}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Voltar
-          </Button>
-        </div>
+      <JumperBackground overlay={false}>
+        <Header />
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="space-y-6">
+            <div className="flex items-center gap-4">
+              <Button variant="ghost" onClick={() => navigate("/decks")}>
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Voltar
+              </Button>
+            </div>
 
-        <Alert variant="destructive">
-          <AlertDescription>{error || "Deck não encontrado"}</AlertDescription>
-        </Alert>
-      </div>
+            <Alert variant="destructive">
+              <AlertDescription>{error || "Deck não encontrado"}</AlertDescription>
+            </Alert>
+          </div>
+        </main>
+      </JumperBackground>
     );
   }
 
@@ -189,131 +201,136 @@ export default function DeckEditor() {
   };
 
   return (
-    <div className="container mx-auto py-8 space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" onClick={() => navigate("/decks")}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Voltar
-          </Button>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={handleOpenPreview}>
-            <Eye className="mr-2 h-4 w-4" />
-            Visualizar
-          </Button>
-
-          <Button variant="outline" onClick={() => setShareModalOpen(true)}>
-            <Share2 className="mr-2 h-4 w-4" />
-            Compartilhar
-          </Button>
-
-          {canEdit && (
-            <>
-              <Button variant="outline" onClick={handleDownload}>
-                <Download className="mr-2 h-4 w-4" />
-                Baixar
+    <JumperBackground overlay={false}>
+      <Header />
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="space-y-6">
+          {/* Header */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Button variant="ghost" onClick={() => navigate("/decks")}>
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Voltar
               </Button>
-
-              <Button variant="destructive" onClick={handleDelete}>
-                <Trash2 className="mr-2 h-4 w-4" />
-                Excluir
-              </Button>
-            </>
-          )}
-        </div>
-      </div>
-
-      {/* Deck info */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-start justify-between">
-            <div className="space-y-2">
-              <CardTitle className="text-2xl">{deck.title}</CardTitle>
-              <CardDescription className="flex items-center gap-4 flex-wrap">
-                <div className="flex items-center gap-2">
-                  <Calendar className="h-4 w-4" />
-                  <span>
-                    {format(new Date(deck.created_at), "dd 'de' MMMM 'de' yyyy", {
-                      locale: ptBR,
-                    })}
-                  </span>
-                </div>
-
-                {deck.account_id && (
-                  <div className="flex items-center gap-2">
-                    <Building2 className="h-4 w-4" />
-                    <span>Conta: {deck.account_id}</span>
-                  </div>
-                )}
-
-                <div className="flex items-center gap-2">
-                  <FileText className="h-4 w-4" />
-                  <span>Template: {deck.template_id}</span>
-                </div>
-              </CardDescription>
             </div>
 
-            <div className="flex gap-2">
-              <Badge variant="outline" className={identityColors[deck.brand_identity]}>
-                {deck.brand_identity === "jumper" ? "Jumper" : "Koko"}
-              </Badge>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" onClick={handleOpenPreview}>
+                <Eye className="mr-2 h-4 w-4" />
+                Visualizar
+              </Button>
 
-              <Badge variant="outline">{typeLabels[deck.type]}</Badge>
+              <Button variant="outline" onClick={() => setShareModalOpen(true)}>
+                <Share2 className="mr-2 h-4 w-4" />
+                Compartilhar
+              </Button>
 
-              {deck.is_public && (
-                <Badge variant="outline">
-                  {deck.slug ? "Público" : "Compartilhado"}
-                </Badge>
+              {canEdit && (
+                <>
+                  <Button variant="outline" onClick={handleDownload}>
+                    <Download className="mr-2 h-4 w-4" />
+                    Baixar
+                  </Button>
+
+                  <Button variant="destructive" onClick={handleDelete}>
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Excluir
+                  </Button>
+                </>
               )}
             </div>
           </div>
-        </CardHeader>
 
-        <CardContent>
-          {/* HTML Preview */}
-          {deck.file_url ? (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-muted-foreground">
-                  Preview da apresentação
-                </p>
-                <Button variant="outline" size="sm" onClick={handleOpenPreview}>
-                  <ExternalLink className="mr-2 h-4 w-4" />
-                  Abrir em nova aba
-                </Button>
+          {/* Deck info */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-start justify-between">
+                <div className="space-y-2">
+                  <CardTitle className="text-2xl">{deck.title}</CardTitle>
+                  <CardDescription className="flex items-center gap-4 flex-wrap">
+                    <div className="flex items-center gap-2">
+                      <Calendar className="h-4 w-4" />
+                      <span>
+                        {format(new Date(deck.created_at), "dd 'de' MMMM 'de' yyyy", {
+                          locale: ptBR,
+                        })}
+                      </span>
+                    </div>
+
+                    {deck.account_id && (
+                      <div className="flex items-center gap-2">
+                        <Building2 className="h-4 w-4" />
+                        <span>Conta: {deck.account_id}</span>
+                      </div>
+                    )}
+
+                    <div className="flex items-center gap-2">
+                      <FileText className="h-4 w-4" />
+                      <span>Template: {deck.template_id}</span>
+                    </div>
+                  </CardDescription>
+                </div>
+
+                <div className="flex gap-2">
+                  <Badge variant="outline" className={identityColors[deck.brand_identity]}>
+                    {deck.brand_identity === "jumper" ? "Jumper" : "Koko"}
+                  </Badge>
+
+                  <Badge variant="outline">{typeLabels[deck.type]}</Badge>
+
+                  {deck.is_public && (
+                    <Badge variant="outline">
+                      {deck.slug ? "Público" : "Compartilhado"}
+                    </Badge>
+                  )}
+                </div>
               </div>
+            </CardHeader>
 
-              <div className="border rounded-lg overflow-hidden bg-muted">
-                <iframe
-                  src={deck.file_url}
-                  className="w-full h-[600px]"
-                  title={`Preview: ${deck.title}`}
-                  sandbox="allow-scripts allow-same-origin"
-                />
-              </div>
-            </div>
-          ) : (
-            <Alert>
-              <AlertDescription>
-                HTML não disponível. O deck pode ainda estar sendo processado.
-              </AlertDescription>
-            </Alert>
-          )}
-        </CardContent>
-      </Card>
+            <CardContent>
+              {/* HTML Preview */}
+              {deck.file_url ? (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm text-muted-foreground">
+                      Preview da apresentação
+                    </p>
+                    <Button variant="outline" size="sm" onClick={handleOpenPreview}>
+                      <ExternalLink className="mr-2 h-4 w-4" />
+                      Abrir em nova aba
+                    </Button>
+                  </div>
 
-      {/* Share Modal */}
-      <DeckShareModal
-        open={shareModalOpen}
-        onOpenChange={setShareModalOpen}
-        deckId={deck.id}
-        deckTitle={deck.title}
-        currentSlug={deck.slug}
-        isPublic={deck.is_public}
-      />
-    </div>
+                  <div className="border rounded-lg overflow-hidden bg-muted">
+                    <iframe
+                      src={deck.file_url}
+                      className="w-full h-[600px]"
+                      title={`Preview: ${deck.title}`}
+                      sandbox="allow-scripts allow-same-origin"
+                    />
+                  </div>
+                </div>
+              ) : (
+                <Alert>
+                  <AlertDescription>
+                    HTML não disponível. O deck pode ainda estar sendo processado.
+                  </AlertDescription>
+                </Alert>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Share Modal */}
+          <DeckShareModal
+            open={shareModalOpen}
+            onOpenChange={setShareModalOpen}
+            deckId={deck.id}
+            deckTitle={deck.title}
+            currentSlug={deck.slug}
+            isPublic={deck.is_public}
+          />
+        </div>
+      </main>
+    </JumperBackground>
   );
 }
