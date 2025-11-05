@@ -12,7 +12,7 @@
 
 **🎯 OBJETIVO PRINCIPAL:** TORNAR-SE O HUB COMPLETO de gestores de tráfego, gerentes parceiros e clientes finais da Jumper Studio para **democratizar serviços de tráfego pago**.
 
-**📍 Missão Atual:** Sistema de criativos completo ✅ + Sistema resiliente ✅ + Deploy em produção ✅ + **9 Dashboards especializados** ✅
+**📍 Missão Atual:** Sistema de criativos ✅ + Sistema resiliente ✅ + 9 Dashboards ✅ + **Decks System (Apresentações IA)** ✅
 **🚀 Visão Futura:** Plataforma self-service que reduz trabalho operacional e permite preços mais baixos
 
 ---
@@ -40,15 +40,19 @@
 - Design system Jumper aplicado
 - Mobile-first responsive
 
-**✅ FASE 2 v2.1 (COMPLETA - Out/2025):**
+**✅ FASE 2 v2.1 (COMPLETA - Nov/2024):**
 - ✅ Nova página `/optimization/new` - Fluxo completo de criação
 - ✅ Seletor de período estilo Facebook (predefinições + calendário duplo)
 - ✅ Auto-save de rascunhos (localStorage + recovery modal)
 - ✅ ContextEditor aprimorado (contador, preview, último contexto)
 - ✅ Database: campos `date_range_start/end`, `is_draft`, `draft_data`
 - ✅ OptimizationRecorder integrado com seleção de período
+- ✅ **Decks System** - Geração de apresentações HTML com IA
+- ✅ Password-protected sharing com Web Crypto API
+- ✅ Anonymous browser access (--no-verify-jwt)
+- ✅ Full-screen preview e compartilhamento público
 
-**🔄 FASE 2 (EM PLANEJAMENTO - Out/2024):**
+**🔄 FASE 2 (EM PLANEJAMENTO - Nov/2024):**
 - Sistema de Insights Comparativos (REPORTS branch)
 - Detecção de anomalias automática
 - Alertas em tempo real
@@ -290,11 +294,18 @@ const handleAccountChange = (accountId: string) => {
 
 ## 📊 Decks System (Presentation Generation)
 
-**Status:** ✅ Fully integrated (v2.0.70, 2024-11-03)
+**Status:** ✅ Fully functional (v2.1.11, 2024-11-05)
 
 ### **Overview**
 
 AI-powered presentation generation system using Claude Sonnet 4.5. Generates branded HTML presentations from Markdown content.
+
+**🔧 Latest Fixes (v2.1.5 - v2.1.11):**
+- ✅ Full-screen preview with dedicated route
+- ✅ Password protection with Web Crypto API (PBKDF2)
+- ✅ Anonymous browser access working
+- ✅ Rendering via srcDoc (bypasses Storage CSP)
+- ✅ Assets with absolute URLs
 
 ### **Features**
 
@@ -303,11 +314,12 @@ AI-powered presentation generation system using Claude Sonnet 4.5. Generates bra
 - Template system (Apple-minimal inspired)
 - Brand identities (Jumper/Koko)
 - Multiple deck types (Report/Plan/Pitch)
+- Assets with absolute URLs (https://hub.jumper.studio/decks/...)
 
 **Sharing:**
 - Public URLs with optional password protection
 - Custom slugs for branded links
-- bcrypt password hashing
+- PBKDF2 password hashing (Web Crypto API, 100k iterations)
 
 **Storage:**
 - HTML files in Supabase Storage
@@ -324,8 +336,9 @@ AI-powered presentation generation system using Claude Sonnet 4.5. Generates bra
 **Frontend (Pages):**
 - `/decks` - Panel view with filters (type, identity, search)
 - `/decks/new` - Creation form with Markdown editor
-- `/decks/:id` - Viewer with iframe preview
-- `/decks/share/:slug` - Public view (no auth)
+- `/decks/:id` - Viewer with iframe preview + full-screen button
+- `/decks/:id/preview` - Full-screen preview (no UI distractions)
+- `/decks/share/:slug` - Public view (no auth required)
 
 **Frontend (Components):**
 - `DecksPanelList` - List/grid view with account filter
@@ -375,6 +388,52 @@ const { accounts, loading } = useMyNotionAccounts();
 - Panel view: Optional filter by account
 - Creation form: Required account selection
 - RLS policies: Automatic filtering by accessible accounts
+
+### **⚠️ Critical Implementation Notes**
+
+**1. Rendering Pattern (MUST USE):**
+```typescript
+// ✅ CORRECT: srcDoc bypasses Storage CSP
+{deck.html_output ? (
+  <iframe srcDoc={deck.html_output} />  // PRIORITY 1
+) : deck.file_url ? (
+  <iframe src={deck.file_url} />        // FALLBACK
+) : null}
+
+// ❌ WRONG: Storage URLs show HTML source code
+{deck.file_url ? <iframe src={deck.file_url} /> : null}
+```
+
+**2. Password Hashing (MUST USE Web Crypto API):**
+```typescript
+// ✅ CORRECT: Edge Runtime compatible
+import { hashPassword, verifyPassword } from '../_shared/crypto.ts';
+
+// ❌ WRONG: ALL bcrypt versions use Workers (not available)
+import * as bcrypt from "https://deno.land/x/bcrypt@v0.4.1/mod.ts";
+```
+
+**3. Anonymous Access (MUST USE --no-verify-jwt):**
+```bash
+# ✅ CORRECT: Allows anonymous browser access
+npx supabase functions deploy j_hub_deck_view_shared --no-verify-jwt --project-ref PROJECT_REF
+
+# ❌ WRONG: Returns 401 for anonymous users
+npx supabase functions deploy j_hub_deck_view_shared --project-ref PROJECT_REF
+```
+
+**4. Public Edge Functions (MUST USE direct fetch):**
+```typescript
+// ✅ CORRECT: Works for anonymous users
+const response = await fetch(`${SUPABASE_URL}/functions/v1/j_hub_deck_view_shared`, {
+  headers: { 'apikey': SUPABASE_ANON_KEY }
+});
+
+// ❌ WRONG: Auto-injects Authorization header (fails for anonymous)
+const { data } = await supabase.functions.invoke("j_hub_deck_view_shared");
+```
+
+**See:** `docs/ARCHITECTURE.md` - "Decks System" section for complete technical details and troubleshooting.
 
 ### **Usage Example**
 
