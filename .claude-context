@@ -3,13 +3,115 @@
 # Tracks recent decisions and work-in-progress (last 7 days)
 # Older decisions migrate to docs/ARCHITECTURE.md
 
-last_updated: "2024-11-05T23:30:00Z"
+last_updated: "2024-11-05T23:45:00Z"
 session_computer: "MacBook Pro (trabalho)"
 session_user: "Bruno Maya"
 
 # Recent decisions (last 7 days)
 # When older than 7 days, migrate to docs/ARCHITECTURE.md
 recent_decisions:
+  - date: "2024-11-05"
+    decision: "MAJOR RELEASE: Documentation Cleanup + Version v2.1.0"
+    status: "completed ✅"
+    details: |
+      📚 DOCUMENTATION CONSOLIDATION + VERSION STRATEGY
+
+      ## Session Summary (2024-11-05 - Part 2):
+
+      ### 1. CLAUDE.md Comprehensive Cleanup
+
+      **User Request:** "REVISE INTEIRAMENTE o claude.md, propondo ajustes e remoções de coisas que são obsoletas"
+
+      **Audit Results:**
+      - Total lines: 1579 (before) → 1288 (after)
+      - Reduction: -291 lines (-18%)
+      - Issues identified: 8 items (2 CRITICAL, 4 HIGH, 1 MEDIUM, 1 LOW)
+
+      **CRITICAL Fixes Applied:**
+      1. ✅ Fixed script paths: `./scripts/` → `./localdev/`
+         - Lines 734, 758-788: Updated all script references
+      2. ✅ Removed "agent deprecated" incorrect statement
+         - Line 98: Changed to "tested and reliable"
+
+      **HIGH Priority Consolidations:**
+      3. ✅ Removed duplicate Vercel env vars section (-59 lines)
+         - Content already covered in lines 490-687
+      4. ✅ Consolidated roadmap sections (-21 lines)
+         - Kept overview (lines 29-59), removed detailed duplicate
+      5. ✅ Moved Optimization v2.1 technical docs to ARCHITECTURE.md (-123 lines)
+         - CLAUDE.md now has reference link only
+         - Complete documentation in ARCHITECTURE.md
+      6. ✅ Consolidated Local Development sections (-32 lines)
+         - Removed duplicate database import instructions
+
+      **MEDIUM Priority Updates:**
+      7. ✅ Fixed stale metadata
+         - Last Updated: 2024-10-07 → 2024-11-05
+         - Project Status updated (FASE 1 ✅, v2.1 ✅, REPORTS ⏳)
+         - Fixed typo: 2025-10-09 → 2024-10-09
+
+      ### 2. ARCHITECTURE.md Enhancement
+
+      **Added Optimization v2.1 Section (+126 lines):**
+      - Complete component documentation (DateRangePicker, useDraftManager, ContextEditor)
+      - Database changes (migration, indexes, constraints)
+      - Usage examples and technical decisions
+      - Future enhancements roadmap
+      - Updated Last Updated: 2024-11-05
+
+      ### 3. Version Strategy Definition
+
+      **User Guidance:**
+      "Renomeei a versão para 2.1 por conta do lançamento da funcionalidade consolidada de /optimization, estamos saindo de 2.0.x para 2.1.x, sendo que quando o decks estiver ok vamos para 2.2.x"
+
+      **Version Roadmap:**
+      - v2.0.x: Optimization system base
+      - v2.1.x: ✅ Consolidated optimization functionality (current)
+      - v2.2.x: 🔜 Decks system completion (upcoming)
+
+      **v2.1.0 Release Notes:**
+      - Documentation cleanup and consolidation
+      - CLAUDE.md: -18% (better organization)
+      - ARCHITECTURE.md: +126 lines (Optimization v2.1 docs)
+      - All technical documentation properly organized
+
+      ### 4. Git Commits
+
+      **Commits Created:**
+      ```
+      7f8cc71: docs: Major CLAUDE.md cleanup and consolidation
+      c03176f: chore: Bump version to v2.1.0 (Documentation Release)
+      ```
+
+      **Files Changed:**
+      - CLAUDE.md (-291 lines: removed duplicates, fixed paths, updated metadata)
+      - docs/ARCHITECTURE.md (+126 lines: Optimization v2.1 section)
+      - src/config/version.ts (v2.1.0 + changelog)
+
+      ## Impact: MAJOR - Documentation Organization
+
+      **Before:**
+      - 1579 lines in CLAUDE.md (duplications, stale info)
+      - Technical details scattered
+      - Unclear version strategy
+
+      **After:**
+      - ✅ 1288 lines in CLAUDE.md (18% reduction, better organized)
+      - ✅ Technical docs in ARCHITECTURE.md (proper location)
+      - ✅ Clear version strategy (2.1.x = optimization, 2.2.x = decks)
+      - ✅ All metadata updated (dates, status, references)
+
+    impact: "MAJOR - Documentation consolidation + version strategy defined"
+    files_changed:
+      - "CLAUDE.md (-291 lines: cleanup, consolidation, metadata updates)"
+      - "docs/ARCHITECTURE.md (+126 lines: Optimization v2.1 technical docs)"
+      - "src/config/version.ts (v2.1.0)"
+    deployed: true
+    deployment_status: "Pushed to production ✅ (commits 7f8cc71, c03176f)"
+    commits:
+      - "7f8cc71: docs: Major CLAUDE.md cleanup and consolidation"
+      - "c03176f: chore: Bump version to v2.1.0 (Documentation Release)"
+    migrate_to_architecture: false
   - date: "2024-11-05"
     decision: "CRITICAL: Dual ID System Fix (UUID vs TEXT notion_id)"
     status: "completed ✅"
@@ -260,52 +362,43 @@ work_in_progress: []
 
 # Context for next session
 next_session_context: |
-  🎯 SESSION 2024-11-05 COMPLETED: DUAL ID SYSTEM FIX + ARCHITECTURE DOCUMENTATION
+  🎯 SESSION 2024-11-05 COMPLETED: DOCUMENTATION CONSOLIDATION + VERSION v2.1.0
 
-  ## ✅ WHAT WAS ACCOMPLISHED:
+  ## ✅ WHAT WAS ACCOMPLISHED TODAY:
 
-  **1. Critical Bug Fix 🚨**
+  **PART 1: Critical Bug Fixes (Morning)**
   - ✅ Fixed FK constraint violation on optimization creation (v2.0.75)
-  - ✅ OptimizationNew.tsx now uses notion_id (TEXT) instead of UUID
-  - ✅ OptimizationRecorder.tsx typo fixed (selectedAccountName → accountName)
-  - ✅ Root cause identified: Dual ID system (UUID for modern, TEXT for legacy tables)
+  - ✅ Dual ID System documented in ARCHITECTURE.md (~200 lines)
+  - ✅ Account filtering standardized across all pages
+  - ✅ Navigation headers added to Decks pages
 
-  **2. Architecture Documentation 📚**
-  - ✅ Created comprehensive "Dual ID System" section in ARCHITECTURE.md (~200 lines)
-  - ✅ Documented table classification (Modern vs Legacy)
-  - ✅ Frontend patterns and common mistakes explained
-  - ✅ Migration strategy outlined for future
-  - ✅ Decision checklists for developers
-
-  **3. Account Filtering Standardization 🔄**
-  - ✅ Fixed /optimization to show ALL accessible accounts (not just with data)
-  - ✅ Added account filter to /decks using PrioritizedAccountSelect
-  - ✅ Migrated /decks/new to use PrioritizedAccountSelect
-  - ✅ Unified account selection pattern across application
-
-  **4. Navigation Headers 🧭**
-  - ✅ Added Header component to Decks.tsx, DeckNew.tsx, DeckEditor.tsx
-  - ✅ Consistent navigation across all pages
-
-  **5. Context Organization 📋**
-  - ✅ Migrated old decisions to ARCHITECTURE.md
-  - ✅ Cleaned up .claude-context (removed >7 day old items)
-  - ✅ Updated deployment status
+  **PART 2: Documentation Cleanup (Evening)**
+  - ✅ CLAUDE.md comprehensive cleanup: 1579 → 1288 lines (-18%)
+  - ✅ Fixed script paths (./scripts/ → ./localdev/)
+  - ✅ Removed duplicates (Vercel env vars, roadmap, Local Dev)
+  - ✅ Moved Optimization v2.1 technical docs to ARCHITECTURE.md
+  - ✅ Updated all stale metadata (dates, status)
+  - ✅ Version bump to v2.1.0 (Documentation Release)
 
   ## 🎯 CURRENT SYSTEM STATUS:
 
   **Production:**
   - URL: https://hub.jumper.studio
-  - Version: v2.0.75 ✅
-  - Status: All features working, critical bug fixed
-  - Last Deploy: 2024-11-05 22:00 UTC
-  - Last Commits: e2a1aaa (fix), 9bac8c3 (version bump)
+  - Version: v2.1.0 ✅ (Documentation Release)
+  - Status: All features working, documentation organized
+  - Last Deploy: 2024-11-05 23:45 UTC
+  - Last Commits: 7f8cc71 (docs cleanup), c03176f (v2.1.0)
 
   **What's Working:**
   - ✅ Optimization creation (FK constraint fixed)
   - ✅ Unified account filtering across all pages
   - ✅ Complete navigation (Headers on all pages)
-  - ✅ Dual ID system documented and understood
+  - ✅ Documentation consolidated and organized
+
+  **Version Strategy:**
+  - v2.0.x: Optimization system base
+  - v2.1.x: ✅ Consolidated optimization functionality (CURRENT)
+  - v2.2.x: 🔜 When decks system is complete
 
   ## 📋 IMPORTANT FOR NEXT SESSION:
 
@@ -320,7 +413,10 @@ next_session_context: |
   };
   ```
 
-  **Reference:** See `docs/ARCHITECTURE.md` - "Dual ID System" section
+  **Key References:**
+  - Dual ID System: `docs/ARCHITECTURE.md` - "Dual ID System" section
+  - Optimization v2.1: `docs/ARCHITECTURE.md` - "Optimization Creation Flow v2.1" section
+  - Local Dev: Use `./localdev.sh` interactive menu or numbered scripts
 
   **Dev Credentials (Local):**
   ```
@@ -328,11 +424,15 @@ next_session_context: |
   Password: senha123
   ```
 
+  **Next Focus:** Decks system completion → v2.2.x release
+
 # TODOs pending
 pending_todos: []
 
 # Recently completed (for reference)
 completed_recently:
+  - "✅ [2024-11-05 23:45] Version v2.1.0 release (Documentation consolidation) 📦"
+  - "✅ [2024-11-05 23:40] CLAUDE.md cleanup: -291 lines (-18%) 📚"
   - "✅ [2024-11-05 23:30] CRITICAL documentation updates (user-requested) 📚"
   - "✅ [2024-11-05 22:00] Dual ID System → ARCHITECTURE.md migration 📋"
   - "✅ [2024-11-05 22:00] Critical FK constraint bug fix (v2.0.75) 🚨"
@@ -344,13 +444,15 @@ completed_recently:
 deployment:
   production_url: "https://hub.jumper.studio"
   old_url_redirect: "https://ads.jumper.studio → hub.jumper.studio (301)"
-  last_deploy: "2024-11-05T23:30:00Z"
-  last_deploy_status: "Documentation corrections deployed ✅"
-  last_deploy_type: "docs (critical corrections per user feedback)"
-  last_commit: "1f11a18 - docs: Critical updates to CLAUDE.md (localdev, decks, account pattern)"
-  database_status: "STABLE - Dual ID system working correctly ✅"
+  last_deploy: "2024-11-05T23:45:00Z"
+  last_deploy_status: "v2.1.0 Documentation Release deployed ✅"
+  last_deploy_type: "major (documentation consolidation + version strategy)"
+  last_commit: "c03176f - chore: Bump version to v2.1.0 (Documentation Release)"
+  database_status: "STABLE - All systems operational ✅"
   known_issues: "None"
   recent_commits:
+    - "c03176f: chore: Bump version to v2.1.0 (Documentation Release)"
+    - "7f8cc71: docs: Major CLAUDE.md cleanup and consolidation"
     - "1f11a18: docs: Critical updates to CLAUDE.md (localdev, decks, account pattern)"
     - "9b38025: docs: Migrate Dual ID System to ARCHITECTURE.md + context cleanup"
     - "9bac8c3: chore: bump version to v2.0.75"
@@ -361,6 +463,13 @@ context_rotation:
   last_rotation: "2024-11-05"
   next_rotation: "2024-11-12"
   items_migrated_today:
+    - "Optimization v2.1 technical docs (→ ARCHITECTURE.md, +126 lines)"
     - "Dual ID System (→ ARCHITECTURE.md, new section created)"
     - "Dev-setup agent (>7 days, removed from context)"
     - "Naming standardization (>7 days, already in ARCHITECTURE.md)"
+  documentation_improvements:
+    - "CLAUDE.md: 1579 → 1288 lines (-18% reduction)"
+    - "Removed duplicates: Vercel env vars, roadmap, Local Dev sections"
+    - "Fixed all script paths: ./scripts/ → ./localdev/"
+    - "Updated all stale metadata (dates, status, references)"
+    - "Version strategy defined: 2.1.x = optimization, 2.2.x = decks"
