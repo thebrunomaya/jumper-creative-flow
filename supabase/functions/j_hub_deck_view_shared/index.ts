@@ -18,18 +18,8 @@ interface ViewShareRequest {
 }
 
 Deno.serve(async (req) => {
-  console.log('🚀 [DECK_VIEW_SHARED] Function invoked:', {
-    method: req.method,
-    url: req.url,
-    headers: {
-      'content-type': req.headers.get('content-type'),
-      'apikey': req.headers.get('apikey')?.substring(0, 20) + '...',
-    }
-  });
-
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
-    console.log('✅ [DECK_VIEW_SHARED] CORS preflight handled');
     return new Response(JSON.stringify({ ok: true }), {
       status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
@@ -39,19 +29,13 @@ Deno.serve(async (req) => {
   try {
     const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-
-    console.log('🔑 [DECK_VIEW_SHARED] Environment check:', {
-      hasUrl: !!SUPABASE_URL,
-      hasServiceKey: !!SUPABASE_SERVICE_ROLE_KEY,
-    });
-
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
     // Parse request body
     const body: ViewShareRequest = await req.json();
     const { slug, password } = body;
 
-    console.log('🔍 [DECK_VIEW_SHARED] Request parsed:', { slug, hasPassword: !!password });
+    console.log('🔍 [DECK_VIEW_SHARED] Request:', { slug, hasPassword: !!password });
 
     if (!slug) {
       return new Response(JSON.stringify({ error: 'slug is required' }), {

@@ -7,10 +7,15 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.10';
+export const APP_VERSION = 'v2.1.11';
 
 /**
  * Version history:
+ * - v2.1.11 (2024-11-05):
+ *   - CLEANUP: Removed debug logs from SharedDeck.tsx and j_hub_deck_view_shared
+ *   - Kept only essential logging (request summary in Edge Function)
+ *   - System confirmed working - cleaned up diagnostic code
+ *
  * - v2.1.10 (2024-11-05):
  *   - FIX: Shared decks now work - deployed Edge Function with --no-verify-jwt
  *   - Root cause: Edge Function was requiring JWT token verification

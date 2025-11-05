@@ -52,19 +52,8 @@ export default function SharedDeck() {
         import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
       if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-        console.error('❌ Missing environment variables:', {
-          SUPABASE_URL: !!SUPABASE_URL,
-          SUPABASE_ANON_KEY: !!SUPABASE_ANON_KEY,
-        });
         throw new Error('Configuração incorreta. Entre em contato com o suporte.');
       }
-
-      console.log('🔍 [SHARED_DECK] Fetching deck:', {
-        slug,
-        hasPassword: !!passwordAttempt,
-        url: `${SUPABASE_URL}/functions/v1/j_hub_deck_view_shared`,
-        apiKeyPrefix: SUPABASE_ANON_KEY.substring(0, 20),
-      });
 
       const response = await fetch(
         `${SUPABASE_URL}/functions/v1/j_hub_deck_view_shared`,
@@ -81,30 +70,9 @@ export default function SharedDeck() {
         }
       );
 
-      console.log('🔍 [SHARED_DECK] Response received:', {
-        status: response.status,
-        statusText: response.statusText,
-        ok: response.ok,
-      });
-
-      // Try to parse response body even on error
-      let data;
-      try {
-        data = await response.json();
-        console.log('🔍 [SHARED_DECK] Response body:', data);
-      } catch (parseError) {
-        console.error('❌ [SHARED_DECK] Failed to parse response:', parseError);
-        throw new Error(`Erro HTTP ${response.status}: Resposta inválida do servidor`);
-      }
+      const data = await response.json();
 
       if (!response.ok) {
-        // Log the actual error from Edge Function
-        console.error('❌ [SHARED_DECK] Edge Function error:', {
-          status: response.status,
-          error: data?.error,
-          message: data?.message,
-          fullResponse: data,
-        });
         throw new Error(data?.error || data?.message || `Erro HTTP ${response.status}`);
       }
 
