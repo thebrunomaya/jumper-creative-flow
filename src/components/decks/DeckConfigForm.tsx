@@ -1,7 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { useMyNotionAccounts } from "@/hooks/useMyNotionAccounts";
+import { useUserRole } from "@/hooks/useUserRole";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -19,13 +22,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { PrioritizedAccountSelect } from "@/components/shared/PrioritizedAccountSelect";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, Upload, FileText, Save, Eye, EyeOff } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 const deckFormSchema = z.object({
@@ -50,11 +53,6 @@ interface DeckConfigFormProps {
   isSubmitting?: boolean;
 }
 
-interface Account {
-  id: string;
-  name: string;
-}
-
 const TEMPLATES = [
   { id: "moldura-minuto", name: "Moldura Minuto", description: "Template para relatório mensal" },
   { id: "plan-template", name: "Planejamento", description: "Template para planejamento estratégico" },
@@ -67,8 +65,9 @@ export function DeckConfigForm({
   onCancel,
   isSubmitting = false,
 }: DeckConfigFormProps) {
-  const [accounts, setAccounts] = useState<Account[]>([]);
-  const [loadingAccounts, setLoadingAccounts] = useState(true);
+  const { accounts, loading: loadingAccounts } = useMyNotionAccounts();
+  const { userRole } = useUserRole();
+  const { currentUser } = useAuth();
   const [showPreview, setShowPreview] = useState(false);
 
   const form = useForm<DeckFormValues>({
@@ -82,38 +81,6 @@ export function DeckConfigForm({
       markdown_source: initialValues?.markdown_source || "",
     },
   });
-
-  // Load user accounts
-  useEffect(() => {
-    const fetchAccounts = async () => {
-      try {
-        setLoadingAccounts(true);
-
-        const { data, error } = await supabase.functions.invoke("j_hub_user_accounts");
-
-        if (error) throw error;
-        if (!data || data.success !== true) {
-          throw new Error(data?.error || "Falha ao carregar contas");
-        }
-
-        const accountsList: Account[] = (data.accounts || []).map((acc: any) => ({
-          id: acc.id,
-          name: acc.name,
-        }));
-
-        setAccounts(accountsList);
-      } catch (err: any) {
-        console.error("Error loading accounts:", err);
-        toast.error("Erro ao carregar contas", {
-          description: err.message,
-        });
-      } finally {
-        setLoadingAccounts(false);
-      }
-    };
-
-    fetchAccounts();
-  }, []);
 
   // Handle file upload
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -178,24 +145,20 @@ export function DeckConfigForm({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Conta</FormLabel>
-                      <Select
-                        disabled={loadingAccounts || isSubmitting}
-                        onValueChange={field.onChange}
-                        value={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecione a conta" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {accounts.map((account) => (
-                            <SelectItem key={account.id} value={account.id}>
-                              {account.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <FormControl>
+                        <PrioritizedAccountSelect
+                          accounts={accounts}
+                          loading={loadingAccounts}
+                          value={field.value}
+                          onChange={field.onChange}
+                          userEmail={currentUser?.email}
+                          userRole={userRole}
+                          placeholder="Selecione a conta"
+                          disabled={isSubmitting}
+                          showAllOption={false}
+                          showInactiveToggle={false}
+                        />
+                      </FormControl>
                       <FormDescription>
                         Conta para a qual o deck será gerado
                       </FormDescription>

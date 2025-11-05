@@ -1,9 +1,13 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMyDecks } from "@/hooks/useMyDecks";
+import { useMyNotionAccounts } from "@/hooks/useMyNotionAccounts";
+import { useUserRole } from "@/hooks/useUserRole";
+import { useAuth } from "@/contexts/AuthContext";
 import { DeckCard } from "./DeckCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PrioritizedAccountSelect } from "@/components/shared/PrioritizedAccountSelect";
 import {
   Select,
   SelectContent,
@@ -13,7 +17,7 @@ import {
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Plus, Search, Filter, SlidersHorizontal, Presentation } from "lucide-react";
+import { Plus, Search, Filter, SlidersHorizontal, Presentation, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -24,8 +28,12 @@ interface DecksPanelListProps {
 export function DecksPanelList({ userRole }: DecksPanelListProps) {
   const navigate = useNavigate();
   const { decks, loading, error, refetch } = useMyDecks();
+  const { accounts, loading: accountsLoading } = useMyNotionAccounts();
+  const { userRole: currentUserRole } = useUserRole();
+  const { currentUser } = useAuth();
 
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedAccountId, setSelectedAccountId] = useState<string | null>(null);
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const [identityFilter, setIdentityFilter] = useState<string>("all");
   const [sortBy, setSortBy] = useState<"date" | "title">("date");
@@ -35,6 +43,11 @@ export function DecksPanelList({ userRole }: DecksPanelListProps) {
   // Filtered and sorted decks
   const filteredDecks = useMemo(() => {
     let result = [...decks];
+
+    // Account filter
+    if (selectedAccountId) {
+      result = result.filter((deck) => deck.account_id === selectedAccountId);
+    }
 
     // Search filter
     if (searchQuery) {
@@ -64,7 +77,7 @@ export function DecksPanelList({ userRole }: DecksPanelListProps) {
     }
 
     return result;
-  }, [decks, searchQuery, typeFilter, identityFilter, sortBy]);
+  }, [decks, selectedAccountId, searchQuery, typeFilter, identityFilter, sortBy]);
 
   const handleView = (deckId: string) => {
     navigate(`/decks/${deckId}`);
@@ -99,6 +112,10 @@ export function DecksPanelList({ userRole }: DecksPanelListProps) {
         description: err.message,
       });
     }
+  };
+
+  const handleClearFilter = () => {
+    setSelectedAccountId(null);
   };
 
   // Loading state
@@ -169,56 +186,88 @@ export function DecksPanelList({ userRole }: DecksPanelListProps) {
       </div>
 
       {/* Filters and search */}
-      <div className="flex flex-col sm:flex-row gap-4">
-        {/* Search */}
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Buscar por título ou conta..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
-          />
+      <div className="flex flex-col gap-4">
+        {/* Account filter */}
+        {accounts.length > 1 && (
+          <div className="flex items-center gap-2">
+            <PrioritizedAccountSelect
+              accounts={accounts}
+              loading={accountsLoading}
+              value={selectedAccountId || "all"}
+              onChange={(value) => setSelectedAccountId(value === "all" ? null : value)}
+              userEmail={currentUser?.email}
+              userRole={currentUserRole}
+              placeholder="Filtrar por conta"
+              className="w-full sm:w-[280px]"
+              showAllOption={true}
+              showInactiveToggle={false}
+            />
+
+            {selectedAccountId && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleClearFilter}
+                className="h-10 px-3"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
+        )}
+
+        {/* Search and other filters */}
+        <div className="flex flex-col sm:flex-row gap-4">
+          {/* Search */}
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Buscar por título ou conta..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+
+          {/* Type filter */}
+          <Select value={typeFilter} onValueChange={setTypeFilter}>
+            <SelectTrigger className="w-full sm:w-[180px]">
+              <Filter className="mr-2 h-4 w-4" />
+              <SelectValue placeholder="Tipo" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos os tipos</SelectItem>
+              <SelectItem value="report">Relatório</SelectItem>
+              <SelectItem value="plan">Planejamento</SelectItem>
+              <SelectItem value="pitch">Pitch</SelectItem>
+            </SelectContent>
+          </Select>
+
+          {/* Identity filter */}
+          <Select value={identityFilter} onValueChange={setIdentityFilter}>
+            <SelectTrigger className="w-full sm:w-[180px]">
+              <Filter className="mr-2 h-4 w-4" />
+              <SelectValue placeholder="Identidade" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas identidades</SelectItem>
+              <SelectItem value="jumper">Jumper</SelectItem>
+              <SelectItem value="koko">Koko</SelectItem>
+            </SelectContent>
+          </Select>
+
+          {/* Sort */}
+          <Select value={sortBy} onValueChange={(value) => setSortBy(value as "date" | "title")}>
+            <SelectTrigger className="w-full sm:w-[180px]">
+              <SlidersHorizontal className="mr-2 h-4 w-4" />
+              <SelectValue placeholder="Ordenar" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="date">Mais recentes</SelectItem>
+              <SelectItem value="title">Título (A-Z)</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
-
-        {/* Type filter */}
-        <Select value={typeFilter} onValueChange={setTypeFilter}>
-          <SelectTrigger className="w-full sm:w-[180px]">
-            <Filter className="mr-2 h-4 w-4" />
-            <SelectValue placeholder="Tipo" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Todos os tipos</SelectItem>
-            <SelectItem value="report">Relatório</SelectItem>
-            <SelectItem value="plan">Planejamento</SelectItem>
-            <SelectItem value="pitch">Pitch</SelectItem>
-          </SelectContent>
-        </Select>
-
-        {/* Identity filter */}
-        <Select value={identityFilter} onValueChange={setIdentityFilter}>
-          <SelectTrigger className="w-full sm:w-[180px]">
-            <Filter className="mr-2 h-4 w-4" />
-            <SelectValue placeholder="Identidade" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Todas identidades</SelectItem>
-            <SelectItem value="jumper">Jumper</SelectItem>
-            <SelectItem value="koko">Koko</SelectItem>
-          </SelectContent>
-        </Select>
-
-        {/* Sort */}
-        <Select value={sortBy} onValueChange={(value) => setSortBy(value as "date" | "title")}>
-          <SelectTrigger className="w-full sm:w-[180px]">
-            <SlidersHorizontal className="mr-2 h-4 w-4" />
-            <SelectValue placeholder="Ordenar" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="date">Mais recentes</SelectItem>
-            <SelectItem value="title">Título (A-Z)</SelectItem>
-          </SelectContent>
-        </Select>
       </div>
 
       {/* Decks grid */}

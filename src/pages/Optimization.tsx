@@ -27,34 +27,9 @@ export default function Optimization() {
   const { currentUser } = useAuth();
   const [selectedAccountId, setSelectedAccountId] = useState<string | null>(null);
 
-  // Get unique accounts from optimizations with complete data
-  const uniqueAccounts = useMemo(() => {
-    // Get unique account IDs from optimizations
-    const accountIdsInOptimizations = new Set<string>();
-    optimizations.forEach(opt => {
-      accountIdsInOptimizations.add(opt.account_id);
-    });
-
-    // Match with complete account data from allAccounts
-    const accountsWithData = allAccounts.filter(account =>
-      accountIdsInOptimizations.has(account.id)
-    );
-
-    // Fallback: If account not in allAccounts, create minimal object
-    const missingAccountIds = Array.from(accountIdsInOptimizations).filter(
-      id => !allAccounts.some(acc => acc.id === id)
-    );
-
-    const fallbackAccounts = missingAccountIds.map(id => {
-      const opt = optimizations.find(o => o.account_id === id);
-      return {
-        id,
-        name: opt?.account_name || 'Conta desconhecida',
-      };
-    });
-
-    return [...accountsWithData, ...fallbackAccounts];
-  }, [optimizations, allAccounts]);
+  // Use ALL accessible accounts (don't filter by optimizations)
+  // This ensures dropdown shows all accounts, even those with 0 optimizations
+  const availableAccounts = allAccounts;
 
   // Filter optimizations by selected account
   const filteredOptimizations = useMemo(() => {
@@ -138,10 +113,10 @@ export default function Optimization() {
               </JumperButton>
 
               {/* Account Filter */}
-              {uniqueAccounts.length > 1 && (
+              {availableAccounts.length > 1 && (
                 <div className="flex items-center gap-2">
                   <PrioritizedAccountSelect
-                    accounts={uniqueAccounts}
+                    accounts={availableAccounts}
                     value={selectedAccountId || "all"}
                     onChange={(value) => setSelectedAccountId(value === "all" ? null : value)}
                     userEmail={currentUser?.email}
