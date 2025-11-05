@@ -93,16 +93,22 @@ export default function OptimizationNew() {
   }, [selectedAccountId, dateRange, customContext, accountObjectives, markDirty, startAutoSave]);
 
   const handleAccountChange = (accountId: string) => {
-    setSelectedAccountId(accountId);
-
+    // accountId parameter is UUID from PrioritizedAccountSelect
     const account = accounts.find(a => a.id === accountId);
     if (account) {
       console.log('🔍 Account loaded:', {
+        uuid: account.id,
+        notion_id: account.notion_id,
         name: account.name,
         objectives: account.objectives,
         contexto: account.contexto_otimizacao
       });
+
+      // ✅ FIX: Store notion_id (TEXT) instead of UUID
+      // j_hub_optimization_recordings.account_id references notion_id, not id
+      setSelectedAccountId(account.notion_id);
       setSelectedAccountName(account.name);
+
       // Use FULL context for optimization (not transcription summary)
       const fullContext = account.contexto_otimizacao || "";
       setAccountContext(fullContext);
@@ -122,7 +128,7 @@ export default function OptimizationNew() {
       setCustomContext(draft.customContext);
 
       // Load account details
-      const account = accounts.find(a => a.id === draft.accountId);
+      const account = accounts.find(a => a.notion_id === draft.accountId);
       if (account) {
         setSelectedAccountName(account.name);
         setAccountContext(account.contexto_otimizacao || "");

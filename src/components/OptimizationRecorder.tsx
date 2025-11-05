@@ -171,7 +171,7 @@ export function OptimizationRecorder({
 
     // Create download link
     const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-    const accountNameSlug = selectedAccountName.replace(/[^a-zA-Z0-9]/g, "-").toLowerCase();
+    const accountNameSlug = accountName.replace(/[^a-zA-Z0-9]/g, "-").toLowerCase();
     const fileName = `otimizacao-${accountNameSlug}-${timestamp}.webm`;
 
     const a = document.createElement('a');
