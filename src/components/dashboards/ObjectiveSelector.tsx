@@ -104,12 +104,7 @@ const OBJECTIVES: ObjectiveOption[] = [
 
 export function ObjectiveSelector({ value, onChange }: ObjectiveSelectorProps) {
   return (
-    <div className="space-y-3">
-      <div className="flex items-center gap-2">
-        <BarChart3 className="h-4 w-4 text-muted-foreground" />
-        <span className="text-sm font-medium">Tipo de Relatório:</span>
-      </div>
-
+    <div>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
         {OBJECTIVES.map((objective) => {
           const Icon = objective.icon;
@@ -126,7 +121,7 @@ export function ObjectiveSelector({ value, onChange }: ObjectiveSelectorProps) {
                   : 'border-border hover:border-muted-foreground bg-card'
               )}
             >
-              <div className="flex items-center gap-2 mb-1">
+              <div className="flex items-center gap-2">
                 <Icon
                   className={cn(
                     'h-4 w-4 transition-colors',
@@ -141,15 +136,6 @@ export function ObjectiveSelector({ value, onChange }: ObjectiveSelectorProps) {
                 >
                   {objective.label}
                 </div>
-              </div>
-
-              <div
-                className={cn(
-                  'text-xs leading-tight',
-                  isSelected ? 'text-[hsl(var(--orange-hero)/0.8)]' : 'text-muted-foreground'
-                )}
-              >
-                {objective.description}
               </div>
 
               {isSelected && (
