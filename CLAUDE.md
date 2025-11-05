@@ -93,44 +93,306 @@ PLATAFORMAS DE ADS (Futuro):
 
 ---
 
-## 🤖 Claude Code Agents
+## 🛠️ Local Development Setup
 
-**Custom agents disponíveis em `.claude/agents/`:**
+**⚠️ CRITICAL: Use scripts in `localdev/` directory - Agent approach was deprecated**
 
-### **dev-setup** (Development Environment Setup) - v2.0
+### **Quick Start (Recommended)**
 
-**Type:** Standalone automation (1225 lines, all logic embedded)
-**Uso:** Configurar ambiente de desenvolvimento local completo
-
-**O que faz automaticamente (11 passos):**
-1. ✅ Valida Supabase CLI authentication
-2. ✅ Verifica Docker está rodando
-3. ✅ **Auto-cria `supabase/functions/.env`** (crítico para Edge Functions)
-4. ✅ **Detecta conflitos de env vars** (previne conexão em produção)
-5. ✅ Cria backup de produção (ou reusa recente <24h)
-6. ✅ Inicia Supabase local com validação de API keys
-7. ✅ Reseta database de forma segura
-8. ✅ Restaura dados de produção
-9. ✅ Configura `.env.local` para LOCAL
-10. ✅ Inicia npm dev server
-11. ✅ **Validação abrangente** (Docker, DB, Edge Functions, Frontend)
-
-**Melhorias críticas (v2.0):**
-- ⭐ **Edge Functions setup automático** - Elimina erro #1 mais comum
-- ⭐ **Detecção de variáveis de sistema** - Previne conexão acidental em produção
-- ⭐ **Validação ponta-a-ponta** - Garante que setup realmente funcionou
-- ⭐ **Error recovery embutido** - Instruções específicas para cada falha
-
-**Resultado:** Ambiente 100% funcional e validado em ~2-3 minutos
-
-**Como usar:**
 ```bash
-# Via Claude Code (única forma recomendada)
-# Apenas peça: "Configure o ambiente de desenvolvimento"
-# Claude detectará e usará o agent automaticamente
+# Interactive menu with all options
+./localdev.sh
+
+# Choose scripts to run:
+# - Type numbers: 1 2 4
+# - Or: all
 ```
 
-**Nota:** Scripts antigos (`./scripts/start-dev.sh`, etc) foram movidos para `scripts/deprecated/`. Todo o conhecimento foi consolidado no agent.
+### **Available Scripts**
+
+**1. Validate Environment** (`1-validate-env.sh`)
+- Checks: Docker, PostgreSQL tools, Node.js, Supabase CLI
+- Validates configurations and required dependencies
+
+**2. Backup Production** (`2-backup-production.sh`)
+- Creates backup from production database
+- Requests password interactively (never stored)
+- Reuses recent backups (<24h) when possible
+
+**3. Complete Setup** (`3-setup-local-env.sh`)
+- **7 automated steps:**
+  1. Create/reuse production backup
+  2. Start Supabase local instance
+  3. Reset database (apply migrations)
+  4. Restore production data
+  5. Set development password (senha123)
+  6. Install npm dependencies
+  7. Start development server
+
+**4. Quick Reset** (`4-quick-reset.sh`)
+- Fast reset workflow:
+  - Clear local data
+  - Reapply migrations
+  - Restore from backup
+- Use when local data gets corrupted
+
+### **Recommended Workflows**
+
+**First time setup:**
+```bash
+./localdev.sh
+# Choose: all
+```
+
+**Daily development (corrupted data):**
+```bash
+./localdev/4-quick-reset.sh
+```
+
+**After migration changes:**
+```bash
+./localdev/3-setup-local-env.sh
+```
+
+### **Local Credentials**
+
+**Development Login:**
+- Email: `bruno@jumper.studio`
+- Password: `senha123`
+
+**Local Endpoints:**
+- Frontend: http://localhost:8080
+- Supabase Studio: http://127.0.0.1:54323
+- Database: postgresql://postgres:postgres@127.0.0.1:54322/postgres
+- Edge Functions: http://127.0.0.1:54321/functions/v1/
+
+### **Visual Features**
+
+All scripts include:
+- ✅ Color-coded status (green=success, red=error, yellow=warning)
+- 📊 Emoji indicators for context
+- 🔍 Visual separators between sections
+- ⏳ Progress indicators
+
+### **Troubleshooting**
+
+See `localdev/README.md` for complete troubleshooting guide.
+
+**Common issues:**
+- Docker not running → Open Docker Desktop
+- Port 8080 occupied → Scripts will ask to kill process
+- Backup failed → Check production password and network
+- Restore incomplete → Run full setup (script 3)
+
+---
+
+## ⚠️ CRITICAL: Account Access Pattern
+
+**🚨 MANDATORY RULE: Always use standardized functions to fetch user-accessible accounts**
+
+### **The Pattern**
+
+**Backend:** `j_hub_user_accounts` Edge Function
+- Single source of truth for account access logic
+- Handles all permission rules (admin/staff/client)
+- Returns accounts with full Notion data
+
+**Frontend:** `useMyNotionAccounts` Hook
+- Standardized React Hook for account access
+- Fetches from `j_hub_user_accounts` Edge Function
+- Provides loading states and error handling
+
+### **Why This Pattern is Critical**
+
+**❌ DON'T do this:**
+```typescript
+// Direct Supabase query - WRONG!
+const { data } = await supabase
+  .from('j_hub_notion_db_accounts')
+  .select('*'); // ⚠️ Bypasses permission logic!
+```
+
+**✅ DO this instead:**
+```typescript
+// Use standardized hook - CORRECT
+const { accounts, loading, error } = useMyNotionAccounts();
+```
+
+### **What Gets Filtered Automatically**
+
+The Edge Function applies these rules:
+- **Admin:** ALL accounts (unrestricted access)
+- **Staff:** Accounts where user is Gestor or Supervisor
+- **Client:** Accounts where user is Gerente (via notion_manager_id)
+
+### **Where to Use**
+
+**Every page that needs accounts:**
+- ✅ `/optimization` - OptimizationsPanelList
+- ✅ `/optimization/new` - OptimizationNew
+- ✅ `/decks` - DecksPanelList
+- ✅ `/decks/new` - DeckConfigForm
+- ✅ `/my-accounts` - MyAccounts
+- ✅ Any future feature that lists/filters accounts
+
+### **Components**
+
+**PrioritizedAccountSelect:**
+- Built on top of `useMyNotionAccounts`
+- Provides consistent account selection UI
+- Prioritizes accounts by role (Gestor → Supervisor → Gerente → Admin)
+- Handles "All accounts" option
+- Supports "Show Inactive" toggle (admin only)
+
+**Usage Example:**
+```typescript
+import { useMyNotionAccounts } from "@/hooks/useMyNotionAccounts";
+import { PrioritizedAccountSelect } from "@/components/shared/PrioritizedAccountSelect";
+
+function MyComponent() {
+  const { accounts, loading } = useMyNotionAccounts();
+  const [selectedAccountId, setSelectedAccountId] = useState("");
+
+  return (
+    <PrioritizedAccountSelect
+      accounts={accounts}
+      loading={loading}
+      value={selectedAccountId}
+      onChange={setSelectedAccountId}
+      userEmail={currentUser?.email}
+      userRole={userRole}
+      placeholder="Selecione uma conta"
+    />
+  );
+}
+```
+
+### **Dual ID System Awareness**
+
+**CRITICAL:** When using selected account, extract correct ID format:
+
+```typescript
+// For MODERN tables (j_hub_decks) - use UUID
+const handleAccountChange = (accountId: string) => {
+  setSelectedAccountId(accountId); // ✅ UUID for modern tables
+};
+
+// For LEGACY tables (j_hub_optimization_recordings) - use notion_id
+const handleAccountChange = (accountId: string) => {
+  const account = accounts.find(a => a.id === accountId);
+  setSelectedAccountId(account.notion_id); // ✅ TEXT for legacy tables
+};
+```
+
+**See:** `docs/ARCHITECTURE.md` - "Dual ID System" section for complete details.
+
+---
+
+## 📊 Decks System (Presentation Generation)
+
+**Status:** ✅ Fully integrated (v2.0.70, 2024-11-03)
+
+### **Overview**
+
+AI-powered presentation generation system using Claude Sonnet 4.5. Generates branded HTML presentations from Markdown content.
+
+### **Features**
+
+**Generation:**
+- Markdown → HTML conversion via AI
+- Template system (Apple-minimal inspired)
+- Brand identities (Jumper/Koko)
+- Multiple deck types (Report/Plan/Pitch)
+
+**Sharing:**
+- Public URLs with optional password protection
+- Custom slugs for branded links
+- bcrypt password hashing
+
+**Storage:**
+- HTML files in Supabase Storage
+- Full metadata in `j_hub_decks` table
+- Account-based organization
+
+### **Key Components**
+
+**Backend (Edge Functions):**
+- `j_hub_deck_generate` - AI generation with Claude
+- `j_hub_deck_create_share` - Public sharing
+- `j_hub_deck_view_shared` - Password-protected viewing
+
+**Frontend (Pages):**
+- `/decks` - Panel view with filters (type, identity, search)
+- `/decks/new` - Creation form with Markdown editor
+- `/decks/:id` - Viewer with iframe preview
+- `/decks/share/:slug` - Public view (no auth)
+
+**Frontend (Components):**
+- `DecksPanelList` - List/grid view with account filter
+- `DeckConfigForm` - Form with tabs (Config/Content)
+- `DeckCard` - Card with badges and metadata
+- `DeckShareModal` - Share dialog with password
+
+**Frontend (Hooks):**
+- `useMyDecks` - Fetch decks with RLS filtering
+- `useDeckGeneration` - Generation workflow with progress
+
+### **Permissions**
+
+- **View:** All users see decks from accessible accounts
+- **Create:** Only Admin and Staff can create
+- **Edit:** Staff edit decks from managed accounts, Clients only own
+- **Delete:** Only Admins can delete
+
+### **Templates**
+
+**Available:**
+- `moldura-minuto` - Monthly report template (Jumper branding)
+- `plan-template` - Strategic planning (coming soon)
+- `pitch-template` - Pitch presentations (coming soon)
+
+**Design Systems:**
+- `jumper` - Orange gradient, modern sans-serif
+- `koko` - Purple palette, creative style
+
+### **Account Integration**
+
+**Uses standardized pattern:**
+```typescript
+// ✅ CORRECT: Uses useMyNotionAccounts + PrioritizedAccountSelect
+const { accounts, loading } = useMyNotionAccounts();
+
+<PrioritizedAccountSelect
+  accounts={accounts}
+  loading={loading}
+  value={field.value}
+  onChange={field.onChange}
+  // ... other props
+/>
+```
+
+**Account filtering:**
+- Panel view: Optional filter by account
+- Creation form: Required account selection
+- RLS policies: Automatic filtering by accessible accounts
+
+### **Usage Example**
+
+```typescript
+// Creating a deck
+const { generateDeck, isGenerating, progress } = useDeckGeneration();
+
+await generateDeck({
+  title: "Relatório Outubro 2024",
+  markdown_source: "# Slide 1\n\nContent...",
+  type: "report",
+  brand_identity: "jumper",
+  template_id: "moldura-minuto",
+  account_id: selectedAccountId, // ✅ UUID (modern table)
+});
+```
+
+**See:** `docs/ARCHITECTURE.md` - "Decks System" section for technical details.
 
 ---
 
