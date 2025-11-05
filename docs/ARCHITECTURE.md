@@ -2181,6 +2181,7 @@ AI-powered presentation system that generates branded HTML slides from Markdown 
 - Returns deck data (html_output + metadata)
 - Does NOT serve HTML directly (returns JSON)
 - **CRITICAL:** Uses native Web Crypto API (NOT bcrypt - see note below)
+- **CRITICAL:** MUST be deployed with `--no-verify-jwt` flag (see note below)
 
 **⚠️ CRITICAL: Password Hashing in Edge Runtime**
 
@@ -2230,6 +2231,63 @@ import * as bcrypt from "https://deno.land/x/bcrypt@v0.2.4/mod.ts"; // ✗ ALSO 
 - `j_hub_deck_view_shared/index.ts`
 - `_shared/crypto.ts` (new shared utility)
 - Any future Edge Functions requiring password hashing
+
+---
+
+**⚠️ CRITICAL: JWT Verification for Public Edge Functions**
+
+> **Issue Date:** 2024-11-05
+> **Version Fixed:** v2.1.10
+
+**Problem:** Edge Functions deployed WITHOUT `--no-verify-jwt` flag require valid JWT tokens, blocking anonymous access.
+
+**Error encountered:**
+```
+HTTP 401 Unauthorized
+(Edge Function never logs, blocked at gateway level)
+```
+
+**Symptoms:**
+- Frontend fetch() returns 401 immediately
+- No console.logs from Edge Function appear in logs
+- Request has correct apikey header
+- Logged-in users work fine (have JWT)
+- Anonymous users get 401 (no JWT)
+
+**Root Cause:**
+Supabase Edge Functions default behavior:
+1. Check for `Authorization: Bearer <jwt>` header
+2. Validate JWT token signature
+3. If invalid/missing JWT → Return 401 BEFORE calling function
+4. Function code never executes
+
+**WORKING Solution:** Deploy with `--no-verify-jwt` flag
+
+```bash
+# ✅ CORRECT: For public Edge Functions (anonymous access)
+npx supabase functions deploy j_hub_deck_view_shared --no-verify-jwt --project-ref PROJECT_REF
+
+# ❌ WRONG: Default deployment (requires JWT)
+npx supabase functions deploy j_hub_deck_view_shared --project-ref PROJECT_REF
+```
+
+**When to use `--no-verify-jwt`:**
+- ✅ Public sharing routes (`j_hub_deck_view_shared`, `j_hub_optimization_view_shared`)
+- ✅ Webhook receivers (external services calling)
+- ✅ Public API endpoints (no authentication needed)
+- ❌ Admin operations (require authentication)
+- ❌ User-specific data (need user identity from JWT)
+
+**Important Notes:**
+- Flag must be used on EVERY deployment of that function
+- Redeploying without flag will re-enable JWT verification
+- Function can still use service role key internally for database access
+- apikey header is still required (validates request is from your app)
+
+**Applies to:**
+- `j_hub_deck_view_shared/index.ts` (public deck sharing)
+- `j_hub_optimization_view_shared/index.ts` (public optimization sharing)
+- Any future public sharing Edge Functions
 
 ---
 
