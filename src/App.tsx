@@ -21,6 +21,7 @@ const AdminUsers = lazy(() => import("./pages/AdminUsers"));
 const Manager = lazy(() => import("./pages/Manager"));
 const MyAccounts = lazy(() => import("./pages/MyAccounts"));
 const CreativeSystem = lazy(() => import("@/components/CreativeSystem"));
+const DashboardsMultiAccountPage = lazy(() => import("./pages/DashboardsMultiAccountPage"));
 const DashboardsPage = lazy(() => import("./pages/DashboardsPage"));
 const Optimization = lazy(() => import("./pages/Optimization"));
 const OptimizationNew = lazy(() => import("./pages/OptimizationNew"));
@@ -101,6 +102,14 @@ const App = () => {
                   <ProtectedRoute>
                     <Suspense fallback={<PageLoading />}>
                       <MyAccounts />
+                    </Suspense>
+                  </ProtectedRoute>
+                } />
+                {/* Dashboards routes - /dashboards (home) must come before /dashboards/:accountName */}
+                <Route path="/dashboards" element={
+                  <ProtectedRoute>
+                    <Suspense fallback={<PageLoading />}>
+                      <DashboardsMultiAccountPage />
                     </Suspense>
                   </ProtectedRoute>
                 } />

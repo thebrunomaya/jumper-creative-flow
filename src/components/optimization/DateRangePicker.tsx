@@ -26,6 +26,7 @@ type PresetKey =
   | "last_7_days"
   | "last_14_days"
   | "last_28_days"
+  | "last_30_days"
   | "this_week"
   | "last_week"
   | "this_month"
@@ -106,6 +107,15 @@ const getDatePresets = (): DatePreset[] => {
       getRange: () => {
         const start = new Date(today);
         start.setDate(start.getDate() - 27);
+        return { start, end: today };
+      },
+    },
+    {
+      key: "last_30_days",
+      label: "Últimos 30 dias",
+      getRange: () => {
+        const start = new Date(today);
+        start.setDate(start.getDate() - 29);
         return { start, end: today };
       },
     },
