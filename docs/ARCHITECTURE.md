@@ -2049,5 +2049,270 @@ CHECK (date_range_start IS NULL OR date_range_end IS NULL OR date_range_end >= d
 
 ---
 
+## 🎨 Decks System - HTML Presentation Generation
+
+### **Overview**
+
+AI-powered presentation system that generates branded HTML slides from Markdown using Claude Sonnet 4.5.
+
+**Key Components:**
+- **Generation:** Edge Function calls Claude API with design system + templates
+- **Storage:** HTML files in Supabase Storage + database cache
+- **Rendering:** iframe with srcDoc (NOT Storage URLs)
+- **Sharing:** Public URLs with optional password protection
+
+---
+
+### **⚠️ CRITICAL: Deck Rendering Pattern**
+
+> **Decision Date:** 2024-11-05
+> **Context:** HTMLs served from Supabase Storage have CSP/sandbox restrictions that block rendering
+
+**ALWAYS use this rendering priority:**
+
+```typescript
+// ✅ CORRECT: srcDoc first, file_url fallback
+{deck.html_output ? (
+  <iframe srcDoc={deck.html_output} />  // PRIORITY 1
+) : deck.file_url ? (
+  <iframe src={deck.file_url} />        // FALLBACK
+) : null}
+```
+
+**❌ NEVER use file_url (Storage URL) as first option:**
+```typescript
+// ❌ WRONG: Storage URLs have CSP that blocks rendering
+{deck.file_url ? (
+  <iframe src={deck.file_url} />  // Broken - shows HTML source code
+) : null}
+```
+
+**Why srcDoc works:**
+- Uses parent page security context (bypasses Storage CSP)
+- Inline HTML execution allowed
+- Assets with absolute URLs load correctly
+- No sandbox restrictions from Storage domain
+
+**Why Storage URLs don't work:**
+- Storage serves with `Content-Security-Policy: default-src 'none'`
+- Sandbox attribute blocks scripts and same-origin access
+- Inline styles/scripts blocked
+- External fonts/images/gradients blocked
+- Result: HTML source code displayed as text
+
+---
+
+### **Asset URLs Pattern**
+
+**CRITICAL:** All asset URLs in generated HTML must be ABSOLUTE.
+
+**✅ CORRECT (absolute URLs):**
+```css
+@font-face {
+  src: url('https://hub.jumper.studio/decks/identities/jumper/fonts/HafferVF.ttf');
+}
+```
+
+```html
+<img src="https://hub.jumper.studio/decks/identities/jumper/logos/jumper-white.png">
+```
+
+**❌ WRONG (relative paths):**
+```css
+@font-face {
+  src: url('/decks/identities/jumper/fonts/HafferVF.ttf');
+  /* ❌ Resolves to supabase.co/decks/... (404) */
+}
+```
+
+**Implementation:**
+- Edge Function `j_hub_deck_generate` includes absolute URLs in Claude prompt
+- Claude instructed to NEVER use relative paths
+- Assets hosted on Vercel (`public/decks/identities/`)
+- HTMLs in Supabase Storage reference Vercel assets
+
+**Trade-off:**
+- ✅ Assets always load (cross-origin works with CORS)
+- ❌ HTMLs hardcoded to production domain
+- ❌ Won't work in local/staging without URL adjustment
+
+---
+
+### **Components Using Decks**
+
+**1. DeckEditor.tsx** (`/decks/:id`)
+- Preview inline with srcDoc ✅
+- Button "Ver em Tela Cheia" → opens `/decks/:id/preview`
+- Removed: "Visualizar" and "Abrir em nova aba" (redundant)
+
+**2. DeckPreview.tsx** (`/decks/:id/preview`)
+- Full-screen preview (no UI, just deck)
+- srcDoc rendering ✅
+- Opens in new tab for presentations
+
+**3. SharedDeck.tsx** (`/decks/share/:slug`)
+- Public sharing with optional password
+- srcDoc rendering ✅
+- No authentication required (Edge Function validates access)
+
+**All three components:**
+- Use srcDoc as primary rendering method
+- Have file_url fallback for compatibility
+- Include sandbox attributes: `allow-scripts allow-same-origin allow-forms`
+
+---
+
+### **Edge Functions**
+
+**j_hub_deck_generate:**
+- Generates HTML from Markdown via Claude Sonnet 4.5
+- **Critical fix (v2.1.2):** Prompt instructs absolute URLs for assets
+- **Critical fix (v2.1.3):** Single TextDecoder declaration (no duplicates)
+- Uploads HTML to Storage with UTF-8 encoding
+- Saves html_output to database for srcDoc rendering
+
+**j_hub_deck_create_share:**
+- Creates public slug for deck
+- Optional password protection (bcrypt)
+
+**j_hub_deck_view_shared:**
+- Validates password for protected decks
+- Returns deck data (html_output + metadata)
+- Does NOT serve HTML directly (returns JSON)
+
+---
+
+### **Database Schema**
+
+**j_hub_decks:**
+```sql
+CREATE TABLE j_hub_decks (
+  id UUID PRIMARY KEY,
+  user_id UUID REFERENCES j_hub_users(id),
+  account_id TEXT REFERENCES j_hub_notion_db_accounts(notion_id),
+  title TEXT NOT NULL,
+  type TEXT CHECK (type IN ('report', 'plan', 'pitch')),
+  brand_identity TEXT CHECK (brand_identity IN ('jumper', 'koko')),
+  template_id TEXT NOT NULL,
+  markdown_source TEXT,
+  html_output TEXT,      -- ⭐ Used for srcDoc rendering
+  file_url TEXT,         -- Storage URL (fallback only)
+  slug TEXT UNIQUE,      -- Public sharing slug
+  is_public BOOLEAN DEFAULT false,
+  password_hash TEXT,    -- bcrypt hash for protected decks
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now()
+);
+```
+
+**Storage Bucket:**
+- Name: `decks`
+- Public: Yes
+- Path: `{user_id}/{deck_id}.html`
+- Content-Type: `text/html; charset=utf-8`
+- Usage: Backup/download only (not for rendering)
+
+---
+
+### **Design System Structure**
+
+**Location:** `public/decks/identities/{brand}/`
+
+**Files per brand identity:**
+```
+identities/jumper/
+├── design-system.md       # Complete design rules (markdown)
+├── fonts/
+│   └── HafferVF.ttf      # Variable font
+├── gradients/
+│   ├── organic-01.png    # Background gradients (6 variations)
+│   └── ...
+└── logos/
+    ├── jumper-white.png  # Logo variations (4 files)
+    └── ...
+```
+
+**Templates:** `public/decks/examples/`
+- 33 HTML templates (Apple-inspired layouts)
+- Used as inspiration by Claude (structure patterns)
+- Not directly copied (Claude generates custom HTML)
+
+**Upload to Storage:**
+- Templates and design systems uploaded to Storage bucket
+- Edge Function fetches from Storage during generation
+- Claude reads templates + design system to generate custom HTML
+
+---
+
+### **Version History**
+
+**v2.1.5 (2024-11-05):**
+- Added full-screen preview with dedicated route `/decks/:id/preview`
+- Removed redundant buttons ("Visualizar", "Abrir em nova aba")
+- Created DeckPreview.tsx component
+
+**v2.1.4 (2024-11-05):**
+- **CRITICAL:** Fixed rendering by inverting priority (srcDoc > file_url)
+- Updated DeckEditor and SharedDeck components
+- Root cause: Storage URLs have CSP restrictions
+
+**v2.1.3 (2024-11-05):**
+- **CRITICAL:** Fixed Edge Function boot failure (duplicate TextDecoder)
+- Consolidated 4 declarations into single shared instance
+
+**v2.1.2 (2024-11-05):**
+- **CRITICAL:** Changed assets to absolute URLs in generated HTML
+- Updated Claude prompt to NEVER use relative paths
+- Fixes cross-origin asset loading issues
+
+**v2.0.70 (2024-11-03):**
+- Initial Decks system integration
+- Edge Functions, components, and database schema created
+
+---
+
+### **Common Pitfalls**
+
+**❌ Using Storage URLs for rendering:**
+```typescript
+<iframe src={deck.file_url} />  // Shows HTML source code
+```
+
+**✅ Use srcDoc instead:**
+```typescript
+<iframe srcDoc={deck.html_output} />  // Renders correctly
+```
+
+---
+
+**❌ Relative asset paths in HTML:**
+```html
+<img src="/decks/identities/jumper/logos/logo.png">
+<!-- Resolves to supabase.co/decks/... (404) -->
+```
+
+**✅ Absolute URLs:**
+```html
+<img src="https://hub.jumper.studio/decks/identities/jumper/logos/logo.png">
+<!-- Works correctly -->
+```
+
+---
+
+**❌ Multiple TextDecoder declarations:**
+```typescript
+const decoder = new TextDecoder('utf-8');  // Line 32
+// ...
+const decoder = new TextDecoder('utf-8');  // Line 112 - ERROR!
+```
+
+**✅ Single shared decoder:**
+```typescript
+const decoder = new TextDecoder('utf-8');  // Declare once at top
+// ... reuse throughout function
+```
+
+---
+
 **Last Updated**: 2024-11-05
 **Maintained by**: Claude Code Assistant
