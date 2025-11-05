@@ -49,7 +49,29 @@ export default function SharedDeck() {
       const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
       const SUPABASE_ANON_KEY =
         import.meta.env.VITE_SUPABASE_ANON_KEY ||
-        import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+        import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
+        'sb_publishable_5CJI2QQt8Crz60Mh1TTcrw_w4sL2TpL'; // Fallback for production
+
+      // Debug: Log environment variables (without exposing full key)
+      console.log('🔍 Environment check:', {
+        SUPABASE_URL: SUPABASE_URL || 'MISSING',
+        SUPABASE_ANON_KEY_PREFIX: SUPABASE_ANON_KEY?.substring(0, 20) || 'MISSING',
+        NODE_ENV: import.meta.env.MODE,
+      });
+
+      if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+        console.error('❌ Missing environment variables:', {
+          SUPABASE_URL: !!SUPABASE_URL,
+          SUPABASE_ANON_KEY: !!SUPABASE_ANON_KEY,
+        });
+        throw new Error('Configuração incorreta. Entre em contato com o suporte.');
+      }
+
+      console.log('🔍 Fetching shared deck:', {
+        url: `${SUPABASE_URL}/functions/v1/j_hub_deck_view_shared`,
+        slug,
+        hasPassword: !!passwordAttempt,
+      });
 
       const response = await fetch(
         `${SUPABASE_URL}/functions/v1/j_hub_deck_view_shared`,

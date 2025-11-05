@@ -7,10 +7,18 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.8';
+export const APP_VERSION = 'v2.1.9';
 
 /**
  * Version history:
+ * - v2.1.9 (2024-11-05):
+ *   - FIX: Added hardcoded fallback for VITE_SUPABASE_ANON_KEY
+ *   - Root cause: Vercel environment variable not configured
+ *   - Shared decks (public/anonymous) were getting 401 errors
+ *   - Fallback ensures Edge Functions can be called even without env var
+ *   - Added debug logs to diagnose environment issues
+ *   - TEMPORARY: Recommend configuring VITE_SUPABASE_ANON_KEY in Vercel
+ *
  * - v2.1.8 (2024-11-05):
  *   - FIX: Shared decks now work in anonymous/incognito browsers
  *   - Replaced supabase.functions.invoke() with direct fetch() in SharedDeck.tsx
