@@ -4,7 +4,7 @@
  */
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import * as bcrypt from "https://deno.land/x/bcrypt@v0.2.4/mod.ts";
+import { verifyPassword } from '../_shared/crypto.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -89,7 +89,7 @@ Deno.serve(async (req) => {
       }
 
       // Verify password
-      const passwordMatch = await bcrypt.compare(password, deck.password_hash);
+      const passwordMatch = await verifyPassword(password, deck.password_hash);
 
       if (!passwordMatch) {
         console.log('❌ [DECK_VIEW_SHARED] Invalid password');

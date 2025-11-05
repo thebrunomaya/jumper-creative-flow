@@ -7,17 +7,22 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.6';
+export const APP_VERSION = 'v2.1.7';
 
 /**
  * Version history:
- * - v2.1.6 (2024-11-05):
- *   - FIX: Password sharing for decks now working (bcrypt Worker error resolved)
- *   - Downgraded bcrypt from v0.4.1 to v0.2.4 (Edge Runtime compatibility)
- *   - Root cause: bcrypt v0.4.1 uses Deno Workers not available in Supabase Edge Runtime
- *   - Fixed both j_hub_deck_create_share and j_hub_deck_view_shared Edge Functions
- *   - Error was: "ReferenceError: Worker is not defined" blocking password hashing
- *   - Password protection now fully functional for deck sharing
+ * - v2.1.7 (2024-11-05):
+ *   - FIX: Password sharing TRULY working now (Web Crypto API solution)
+ *   - CRITICAL: Replaced bcrypt (ALL versions use Workers) with native Web Crypto API
+ *   - Created _shared/crypto.ts with PBKDF2 implementation (100% Edge Runtime compatible)
+ *   - Root cause: ALL bcrypt versions (0.2.4, 0.4.1) use Deno Workers not available in Edge Runtime
+ *   - Solution: hashPassword() and verifyPassword() using crypto.subtle.deriveBits (PBKDF2)
+ *   - 100k iterations + SHA-256 + 16-byte salt for security
+ *   - Format: base64(salt):base64(hash) stored in password_hash column
+ *   - Both Edge Functions deployed and tested: j_hub_deck_create_share + j_hub_deck_view_shared
+ *
+ * - v2.1.6 (2024-11-05): [FAILED ATTEMPT - bcrypt@v0.2.4 also uses Workers]
+ *   - Attempted downgrade bcrypt from v0.4.1 to v0.2.4 (still had Worker error)
  *
  * - v2.1.5 (2024-11-05):
  *   - UX: Added "Ver em Tela Cheia" button for full-screen deck preview

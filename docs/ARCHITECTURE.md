@@ -2173,42 +2173,63 @@ AI-powered presentation system that generates branded HTML slides from Markdown 
 
 **j_hub_deck_create_share:**
 - Creates public slug for deck
-- Optional password protection (bcrypt v0.2.4)
-- **CRITICAL:** Uses bcrypt@v0.2.4 (NOT v0.4.1 - see note below)
+- Optional password protection (Web Crypto API - PBKDF2)
+- **CRITICAL:** Uses native Web Crypto API (NOT bcrypt - see note below)
 
 **j_hub_deck_view_shared:**
 - Validates password for protected decks
 - Returns deck data (html_output + metadata)
 - Does NOT serve HTML directly (returns JSON)
-- **CRITICAL:** Uses bcrypt@v0.2.4 (NOT v0.4.1 - see note below)
+- **CRITICAL:** Uses native Web Crypto API (NOT bcrypt - see note below)
 
-**⚠️ CRITICAL: bcrypt Edge Runtime Compatibility**
+**⚠️ CRITICAL: Password Hashing in Edge Runtime**
 
 > **Issue Date:** 2024-11-05
-> **Version Fixed:** v2.1.6
+> **Version Fixed:** v2.1.7
 
-**Problem:** bcrypt@v0.4.1 uses Deno Workers, which are NOT available in Supabase Edge Runtime.
+**Problem:** ALL bcrypt versions (v0.2.4, v0.4.1, etc.) use Deno Workers, which are NOT available in Supabase Edge Runtime.
 
-**Error encountered:**
+**Error encountered (both versions):**
 ```
 ReferenceError: Worker is not defined
-    at Module.hash (https://deno.land/x/bcrypt@v0.4.1/src/main.ts:11:16)
+    at Module.hash (bcrypt@v0.2.4/src/main.ts:11:16)
 ```
 
-**Solution:** Use bcrypt@v0.2.4 instead (no Workers dependency).
+**FAILED Solution (v2.1.6):** Tried downgrading to bcrypt@v0.2.4 → Still used Workers!
+
+**WORKING Solution (v2.1.7):** Use Web Crypto API natively available in Edge Runtime.
 
 ```typescript
-// ✅ CORRECT: Compatible with Edge Runtime
-import * as bcrypt from "https://deno.land/x/bcrypt@v0.2.4/mod.ts";
+// ✅ CORRECT: Native Web Crypto API (100% compatible)
+import { hashPassword, verifyPassword } from '../_shared/crypto.ts';
 
-// ❌ WRONG: Uses Workers (not available in Edge Runtime)
-import * as bcrypt from "https://deno.land/x/bcrypt@v0.4.1/mod.ts";
+// Hash password (creates salt + PBKDF2 hash)
+const passwordHash = await hashPassword(password);
+
+// Verify password (rehash + compare)
+const isValid = await verifyPassword(password, passwordHash);
+```
+
+**Implementation (`_shared/crypto.ts`):**
+- Algorithm: PBKDF2 with SHA-256
+- Iterations: 100,000 (OWASP recommended)
+- Salt: 16 bytes (randomly generated)
+- Hash: 32 bytes
+- Format: `base64(salt):base64(hash)`
+- Zero dependencies, pure Web Standards
+
+**❌ NEVER use bcrypt in Edge Functions:**
+```typescript
+// ❌ WRONG: ALL bcrypt versions use Workers
+import * as bcrypt from "https://deno.land/x/bcrypt@v0.4.1/mod.ts"; // ✗ Uses Workers
+import * as bcrypt from "https://deno.land/x/bcrypt@v0.2.4/mod.ts"; // ✗ ALSO uses Workers!
 ```
 
 **Applies to:**
-- `j_hub_deck_create_share/index.ts` (line 8)
-- `j_hub_deck_view_shared/index.ts` (line 7)
-- Any future Edge Functions using password hashing
+- `j_hub_deck_create_share/index.ts`
+- `j_hub_deck_view_shared/index.ts`
+- `_shared/crypto.ts` (new shared utility)
+- Any future Edge Functions requiring password hashing
 
 ---
 

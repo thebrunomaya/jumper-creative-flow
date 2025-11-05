@@ -5,7 +5,7 @@
  */
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import * as bcrypt from "https://deno.land/x/bcrypt@v0.2.4/mod.ts";
+import { hashPassword } from '../_shared/crypto.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -117,7 +117,7 @@ Deno.serve(async (req) => {
     // Hash password if provided
     let passwordHash: string | null = null;
     if (password) {
-      passwordHash = await bcrypt.hash(password);
+      passwordHash = await hashPassword(password);
       console.log('🔒 [DECK_CREATE_SHARE] Password protection enabled');
     }
 
