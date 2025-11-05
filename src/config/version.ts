@@ -7,17 +7,22 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.9';
+export const APP_VERSION = 'v2.1.10';
 
 /**
  * Version history:
- * - v2.1.9 (2024-11-05):
- *   - FIX: Added hardcoded fallback for VITE_SUPABASE_ANON_KEY
- *   - Root cause: Vercel environment variable not configured
- *   - Shared decks (public/anonymous) were getting 401 errors
- *   - Fallback ensures Edge Functions can be called even without env var
- *   - Added debug logs to diagnose environment issues
- *   - TEMPORARY: Recommend configuring VITE_SUPABASE_ANON_KEY in Vercel
+ * - v2.1.10 (2024-11-05):
+ *   - FIX: Shared decks now work - deployed Edge Function with --no-verify-jwt
+ *   - Root cause: Edge Function was requiring JWT token verification
+ *   - Anonymous users have no JWT → 401 Unauthorized
+ *   - Solution: Deploy with --no-verify-jwt flag (allows anonymous calls)
+ *   - REMOVED: Hardcoded API key fallback (not needed)
+ *   - ADDED: Comprehensive logging in SharedDeck.tsx
+ *   - ADDED: Comprehensive logging in j_hub_deck_view_shared Edge Function
+ *   - Edge Function now accepts calls with only apikey header (no JWT required)
+ *
+ * - v2.1.9 (2024-11-05): [REVERTED - Hardcoded key removed]
+ *   - Attempted fix with hardcoded fallback API key (incorrect approach)
  *
  * - v2.1.8 (2024-11-05):
  *   - FIX: Shared decks now work in anonymous/incognito browsers
