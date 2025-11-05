@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 import UserMenu from './UserMenu';
 import xWhiteLogo from '../assets/logos/x-white.png';
@@ -8,19 +8,17 @@ import { LazyImage } from '@/components/ui/lazy-image';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Users, LayoutDashboard, TrendingUp, BarChart3, Presentation } from 'lucide-react';
-import { AccountSelectorModal } from '@/components/dashboards/AccountSelectorModal';
-import { Button } from '@/components/ui/button';
 import { APP_VERSION } from '@/config/version';
 
 const Header: React.FC = () => {
   const location = useLocation();
-  const [showReportsModal, setShowReportsModal] = useState(false);
 
   const navLinks = [
     { to: '/my-accounts', label: 'Contas', icon: Users },
     { to: '/creatives', label: 'Criativos', icon: LayoutDashboard },
     { to: '/optimization', label: 'Otimizações', icon: TrendingUp },
     { to: '/decks', label: 'Decks', icon: Presentation },
+    { to: '/dashboards', label: 'Relatórios', icon: BarChart3 },
   ];
 
   return (
@@ -69,7 +67,7 @@ const Header: React.FC = () => {
               <nav className="hidden md:flex items-center gap-1" role="navigation" aria-label="Navegação principal">
                 {navLinks.map((link) => {
                   const Icon = link.icon;
-                  const isActive = location.pathname === link.to;
+                  const isActive = location.pathname === link.to || location.pathname.startsWith(link.to + '/');
 
                   return (
                     <Link
@@ -87,20 +85,6 @@ const Header: React.FC = () => {
                     </Link>
                   );
                 })}
-
-                {/* Reports Button (opens modal instead of navigating) */}
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setShowReportsModal(true)}
-                  className={cn(
-                    'flex items-center gap-2 px-3 py-2 text-sm font-medium transition-colors',
-                    'text-muted-foreground hover:text-foreground hover:bg-muted'
-                  )}
-                >
-                  <BarChart3 className="h-4 w-4" />
-                  <span>Relatórios</span>
-                </Button>
               </nav>
             </div>
 
@@ -111,11 +95,6 @@ const Header: React.FC = () => {
         </div>
       </div>
     </header>
-
-      <AccountSelectorModal
-        isOpen={showReportsModal}
-        onClose={() => setShowReportsModal(false)}
-      />
     </>
   );
 };
