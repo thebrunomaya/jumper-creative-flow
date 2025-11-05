@@ -3,7 +3,7 @@
 # Tracks recent decisions and work-in-progress (last 7 days)
 # Older decisions migrate to docs/ARCHITECTURE.md
 
-last_updated: "2024-11-05T22:00:00Z"
+last_updated: "2024-11-05T23:30:00Z"
 session_computer: "MacBook Pro (trabalho)"
 session_user: "Bruno Maya"
 
@@ -159,6 +159,82 @@ recent_decisions:
       - "9bac8c3: chore: bump version to v2.0.75"
     migrate_to_architecture: true
 
+  - date: "2024-11-05"
+    decision: "CRITICAL: CLAUDE.md documentation updates (user-requested)"
+    status: "completed ✅"
+    details: |
+      🚨 USER-REQUESTED CRITICAL DOCUMENTATION CORRECTIONS
+
+      ## 1. Local Development Setup - Corrected
+
+      **Problem:** CLAUDE.md documented dev-setup agent that didn't work
+      **User Feedback:** "o dev setup agent não deu certo"
+
+      **Fix Applied:**
+      - ❌ Removed entire dev-setup agent section
+      - ✅ Documented correct approach: localdev/ scripts
+      - ✅ Added 4 scripts documentation (validate, backup, setup, quick-reset)
+      - ✅ Interactive menu (./localdev.sh)
+      - ✅ Workflows (first time, daily, after migrations)
+
+      ## 2. Decks System - Documented
+
+      **Problem:** Decks feature (v2.0.70) not documented in CLAUDE.md
+      **User Request:** "precisamos mencionar na documentação a função decks"
+
+      **Fix Applied:**
+      - ✅ New section: "📊 Decks System (Presentation Generation)"
+      - ✅ Overview, Features, Key Components
+      - ✅ Permissions model, Templates, Design Systems
+      - ✅ Account Integration examples
+      - ✅ Usage examples with code
+
+      ## 3. Account Access Pattern - ABSOLUTE RULE
+
+      **Problem:** No clear mandatory rule about account selection
+      **User Emphasis:** "MUITO importante, mencionar que devemos sempre que
+      o aplicativo precisar buscar as contas que o usuário tem acesso,
+      devemos usar as funções padronizadas"
+
+      **User Clarification:** "sempre que precisarmos filtrar as contas do
+      usuário, a PrioritizedAccountSelect deve ser usada, SEMPRE. Nunca
+      deve ser criado um outro meio ou critério."
+
+      **Fix Applied:**
+      - ✅ New section: "⚠️ CRITICAL: Account Access Pattern"
+      - ✅ 🚨 MANDATORY RULE: Always use PrioritizedAccountSelect
+      - ✅ ❌ NEVER create alternative selection methods
+      - ✅ Stack documentation (Edge Function → Hook → Component)
+      - ✅ "DO this / DON'T do this" code examples
+      - ✅ Dual ID System awareness (UUID vs TEXT)
+
+      **Why This Is ABSOLUTE:**
+      - Enforces permission logic consistency
+      - Prevents permission bypass bugs
+      - Ensures UI consistency
+      - No exceptions allowed
+
+      ## Impact
+
+      **Before:**
+      - Incorrect local dev instructions (agent-based)
+      - No Decks system documentation
+      - No mandatory rule about account selection
+
+      **After:**
+      - ✅ Correct local dev setup (localdev/ scripts)
+      - ✅ Complete Decks system documentation
+      - ✅ ABSOLUTE MANDATORY rule: PrioritizedAccountSelect ALWAYS
+
+    impact: "CRITICAL - Corrected fundamental documentation per user feedback"
+    files_changed:
+      - "CLAUDE.md (+290 lines, -28 lines: 3 major corrections)"
+    deployed: true
+    deployment_status: "Documentation pushed ✅ (commit 1f11a18)"
+    commits:
+      - "1f11a18: docs: Critical updates to CLAUDE.md (localdev, decks, account pattern)"
+    migrate_to_architecture: false
+
   - date: "2024-11-03"
     decision: "Fixed gradient display bug in split-layout presentations"
     status: "completed ✅"
@@ -257,26 +333,28 @@ pending_todos: []
 
 # Recently completed (for reference)
 completed_recently:
-  - "✅ [2024-11-05] Critical FK constraint bug fix (v2.0.75) 🚨"
-  - "✅ [2024-11-05] Dual ID System architecture documentation 📚"
-  - "✅ [2024-11-05] Account filtering standardization 🔄"
-  - "✅ [2024-11-05] Navigation headers added to Decks pages 🧭"
+  - "✅ [2024-11-05 23:30] CRITICAL documentation updates (user-requested) 📚"
+  - "✅ [2024-11-05 22:00] Dual ID System → ARCHITECTURE.md migration 📋"
+  - "✅ [2024-11-05 22:00] Critical FK constraint bug fix (v2.0.75) 🚨"
+  - "✅ [2024-11-05 22:00] Account filtering standardization 🔄"
+  - "✅ [2024-11-05 22:00] Navigation headers added to Decks pages 🧭"
   - "✅ [2024-11-03] Gradient display bug fix in presentations 🎨"
 
 # Deployment status
 deployment:
   production_url: "https://hub.jumper.studio"
   old_url_redirect: "https://ads.jumper.studio → hub.jumper.studio (301)"
-  last_deploy: "2024-11-05T22:00:00Z"
-  last_deploy_status: "Critical bug fix deployed ✅"
-  last_deploy_type: "bugfix (FK constraint violation)"
-  last_commit: "9bac8c3 - chore: bump version to v2.0.75"
+  last_deploy: "2024-11-05T23:30:00Z"
+  last_deploy_status: "Documentation corrections deployed ✅"
+  last_deploy_type: "docs (critical corrections per user feedback)"
+  last_commit: "1f11a18 - docs: Critical updates to CLAUDE.md (localdev, decks, account pattern)"
   database_status: "STABLE - Dual ID system working correctly ✅"
   known_issues: "None"
   recent_commits:
+    - "1f11a18: docs: Critical updates to CLAUDE.md (localdev, decks, account pattern)"
+    - "9b38025: docs: Migrate Dual ID System to ARCHITECTURE.md + context cleanup"
     - "9bac8c3: chore: bump version to v2.0.75"
     - "e2a1aaa: fix: FK constraint violation on optimization creation (v2.0.74)"
-    - "10d2777: fix: Account filtering + Headers on Decks pages (v2.0.73)"
 
 # Notes for context rotation
 context_rotation:
