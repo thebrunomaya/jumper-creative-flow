@@ -15,6 +15,9 @@ serve(async (req) => {
   let deckId: string | null = null;
 
   try {
+    // UTF-8 decoder (shared across all text decoding operations)
+    const decoder = new TextDecoder('utf-8');
+
     // Extract authenticated user
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
@@ -28,7 +31,6 @@ serve(async (req) => {
 
     // Parse request body with explicit UTF-8 decoding
     const bodyBytes = await req.arrayBuffer();
-    const decoder = new TextDecoder('utf-8');
     const bodyText = decoder.decode(bodyBytes);
     const body = JSON.parse(bodyText);
 
@@ -108,7 +110,6 @@ serve(async (req) => {
 
       // Force UTF-8 decoding with TextDecoder
       const templateBytes = await templateResponse.arrayBuffer();
-      const decoder = new TextDecoder('utf-8');
       templateHtml = decoder.decode(templateBytes);
 
       console.log('✅ [DECK_GENERATE] Template loaded:', templateHtml.length, 'chars');
@@ -135,7 +136,6 @@ serve(async (req) => {
 
       // Force UTF-8 decoding with TextDecoder
       const dsBytes = await dsResponse.arrayBuffer();
-      const decoder = new TextDecoder('utf-8');
       designSystem = decoder.decode(dsBytes);
 
       console.log('✅ [DECK_GENERATE] Design system loaded:', designSystem.length, 'chars');
@@ -292,7 +292,6 @@ OUTPUT FORMAT: Complete standalone HTML file (no markdown fences, no explanation
 
     // Force UTF-8 decoding of Claude response
     const claudeBytes = await claudeResponse.arrayBuffer();
-    const decoder = new TextDecoder('utf-8');
     const claudeText = decoder.decode(claudeBytes);
     const claudeData = JSON.parse(claudeText);
 
