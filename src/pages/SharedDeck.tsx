@@ -44,17 +44,33 @@ export default function SharedDeck() {
       setError(null);
       setIsSubmitting(true);
 
-      const { data, error: invokeError } = await supabase.functions.invoke(
-        "j_hub_deck_view_shared",
+      // Use direct fetch to bypass automatic auth header injection
+      // This allows anonymous users to access shared decks
+      const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+      const SUPABASE_ANON_KEY =
+        import.meta.env.VITE_SUPABASE_ANON_KEY ||
+        import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+
+      const response = await fetch(
+        `${SUPABASE_URL}/functions/v1/j_hub_deck_view_shared`,
         {
-          body: {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': SUPABASE_ANON_KEY,
+          },
+          body: JSON.stringify({
             slug: slug,
             password: passwordAttempt,
-          },
+          }),
         }
       );
 
-      if (invokeError) throw invokeError;
+      if (!response.ok) {
+        throw new Error(`Erro HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const data = await response.json();
 
       if (!data) {
         throw new Error("Resposta inválida do servidor");

@@ -7,10 +7,20 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.7';
+export const APP_VERSION = 'v2.1.8';
 
 /**
  * Version history:
+ * - v2.1.8 (2024-11-05):
+ *   - FIX: Shared decks now work in anonymous/incognito browsers
+ *   - Replaced supabase.functions.invoke() with direct fetch() in SharedDeck.tsx
+ *   - Root cause: supabase.functions.invoke() auto-injects Authorization header
+ *   - Logged-in browsers worked because they had valid JWT token
+ *   - Anonymous browsers failed because no JWT token existed
+ *   - Solution: Direct fetch() bypasses auth header injection
+ *   - Now works identically for logged-in and anonymous users
+ *   - Password protection still fully functional via Edge Function validation
+ *
  * - v2.1.7 (2024-11-05):
  *   - FIX: Password sharing TRULY working now (Web Crypto API solution)
  *   - CRITICAL: Replaced bcrypt (ALL versions use Workers) with native Web Crypto API
