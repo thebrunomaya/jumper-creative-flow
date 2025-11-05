@@ -7,10 +7,16 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.0';
+export const APP_VERSION = 'v2.1.1';
 
 /**
  * Version history:
+ * - v2.1.1 (2024-11-05):
+ *   - UX: Changed default landing page after login from /creatives to /my-accounts
+ *   - Index route (/) now renders MyAccounts component instead of Manager
+ *   - Users now see their accounts dashboard immediately after login
+ *   - More intuitive starting point focusing on account management
+ *
  * - v2.1.0 (2024-11-05):
  *   - MAJOR RELEASE: Documentation Cleanup and Consolidation
  *   - Cleaned CLAUDE.md: 1579 → 1288 lines (-291 lines, -18%)
