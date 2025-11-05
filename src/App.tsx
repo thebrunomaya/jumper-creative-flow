@@ -29,6 +29,7 @@ const SharedOptimization = lazy(() => import("./pages/SharedOptimization"));
 const Decks = lazy(() => import("./pages/Decks"));
 const DeckNew = lazy(() => import("./pages/DeckNew"));
 const DeckEditor = lazy(() => import("./pages/DeckEditor"));
+const DeckPreview = lazy(() => import("./pages/DeckPreview"));
 const SharedDeck = lazy(() => import("./pages/SharedDeck"));
 
 // Loading component reutilizável com acessibilidade
@@ -156,6 +157,13 @@ const App = () => {
                   <ProtectedRoute>
                     <Suspense fallback={<PageLoading />}>
                       <DeckEditor />
+                    </Suspense>
+                  </ProtectedRoute>
+                } />
+                <Route path="/decks/:deckId/preview" element={
+                  <ProtectedRoute>
+                    <Suspense fallback={<PageLoading />}>
+                      <DeckPreview />
                     </Suspense>
                   </ProtectedRoute>
                 } />

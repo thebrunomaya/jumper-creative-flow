@@ -7,10 +7,18 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.4';
+export const APP_VERSION = 'v2.1.5';
 
 /**
  * Version history:
+ * - v2.1.5 (2024-11-05):
+ *   - UX: Added "Ver em Tela Cheia" button for full-screen deck preview
+ *   - Created DeckPreview.tsx component for distraction-free full-screen viewing
+ *   - Added route /decks/:id/preview for dedicated preview page
+ *   - Removed redundant buttons: "Visualizar" and "Abrir em nova aba" (both opened Storage URL)
+ *   - Cleaner UI: Preview inline works perfectly, full-screen button for presentations
+ *   - Full-screen preview opens in new tab with permanent shareable URL
+ *
  * - v2.1.4 (2024-11-05):
  *   - FIX: Deck previews now render correctly using srcDoc instead of Storage URLs
  *   - Inverted priority in DeckEditor and SharedDeck: html_output (srcDoc) → file_url (fallback)

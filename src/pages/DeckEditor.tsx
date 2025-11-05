@@ -9,12 +9,11 @@ import { Badge } from "@/components/ui/badge";
 import { DeckShareModal } from "@/components/decks/DeckShareModal";
 import {
   ArrowLeft,
-  Eye,
   Share2,
   Download,
   Trash2,
   RefreshCw,
-  ExternalLink,
+  Maximize2,
   Building2,
   Calendar,
   FileText,
@@ -142,13 +141,10 @@ export default function DeckEditor() {
     window.open(deck.file_url, "_blank");
   };
 
-  const handleOpenPreview = () => {
-    if (!deck || !deck.file_url) {
-      toast.error("URL do deck não disponível");
-      return;
-    }
+  const handleFullScreen = () => {
+    if (!deck) return;
 
-    window.open(deck.file_url, "_blank");
+    window.open(`/decks/${deck.id}/preview`, "_blank");
   };
 
   // Loading state
@@ -215,9 +211,9 @@ export default function DeckEditor() {
             </div>
 
             <div className="flex items-center gap-2">
-              <Button variant="outline" onClick={handleOpenPreview}>
-                <Eye className="mr-2 h-4 w-4" />
-                Visualizar
+              <Button variant="outline" onClick={handleFullScreen}>
+                <Maximize2 className="mr-2 h-4 w-4" />
+                Ver em Tela Cheia
               </Button>
 
               <Button variant="outline" onClick={() => setShareModalOpen(true)}>
@@ -290,16 +286,10 @@ export default function DeckEditor() {
             <CardContent>
               {/* HTML Preview */}
               {deck.html_output ? (
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm text-muted-foreground">
-                      Preview da apresentação
-                    </p>
-                    <Button variant="outline" size="sm" onClick={handleOpenPreview}>
-                      <ExternalLink className="mr-2 h-4 w-4" />
-                      Abrir em nova aba
-                    </Button>
-                  </div>
+                <div className="space-y-2">
+                  <p className="text-sm text-muted-foreground">
+                    Preview da apresentação
+                  </p>
 
                   <div className="border rounded-lg overflow-hidden bg-muted">
                     <iframe
@@ -311,16 +301,10 @@ export default function DeckEditor() {
                   </div>
                 </div>
               ) : deck.file_url ? (
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm text-muted-foreground">
-                      Preview da apresentação (fallback)
-                    </p>
-                    <Button variant="outline" size="sm" onClick={handleOpenPreview}>
-                      <ExternalLink className="mr-2 h-4 w-4" />
-                      Abrir em nova aba
-                    </Button>
-                  </div>
+                <div className="space-y-2">
+                  <p className="text-sm text-muted-foreground">
+                    Preview da apresentação (fallback)
+                  </p>
 
                   <div className="border rounded-lg overflow-hidden bg-muted">
                     <iframe
