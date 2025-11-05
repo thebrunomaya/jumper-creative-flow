@@ -7,10 +7,23 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.1';
+export const APP_VERSION = 'v2.1.3';
 
 /**
  * Version history:
+ * - v2.1.3 (2024-11-05):
+ *   - FIX: Removed duplicate TextDecoder declarations causing Edge Function boot failure
+ *   - Consolidated 4 'const decoder' declarations into single shared instance
+ *   - Fixed SyntaxError that prevented j_hub_deck_generate from initializing
+ *   - Root cause: Multiple const declarations in same scope violate JavaScript rules
+ *
+ * - v2.1.2 (2024-11-05):
+ *   - FIX: Deck assets now use absolute URLs to fix rendering issues
+ *   - Modified Claude prompt in j_hub_deck_generate to use https://hub.jumper.studio/...
+ *   - Fonts, gradients, and logos now load correctly in deck previews and shares
+ *   - Root cause: HTMLs served from Storage domain couldn't resolve relative asset paths
+ *   - Added explicit instructions and examples for absolute URL usage in systemPrompt
+ *
  * - v2.1.1 (2024-11-05):
  *   - UX: Changed default landing page after login from /creatives to /my-accounts
  *   - Index route (/) now renders MyAccounts component instead of Manager
