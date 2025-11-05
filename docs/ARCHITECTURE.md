@@ -2173,12 +2173,42 @@ AI-powered presentation system that generates branded HTML slides from Markdown 
 
 **j_hub_deck_create_share:**
 - Creates public slug for deck
-- Optional password protection (bcrypt)
+- Optional password protection (bcrypt v0.2.4)
+- **CRITICAL:** Uses bcrypt@v0.2.4 (NOT v0.4.1 - see note below)
 
 **j_hub_deck_view_shared:**
 - Validates password for protected decks
 - Returns deck data (html_output + metadata)
 - Does NOT serve HTML directly (returns JSON)
+- **CRITICAL:** Uses bcrypt@v0.2.4 (NOT v0.4.1 - see note below)
+
+**⚠️ CRITICAL: bcrypt Edge Runtime Compatibility**
+
+> **Issue Date:** 2024-11-05
+> **Version Fixed:** v2.1.6
+
+**Problem:** bcrypt@v0.4.1 uses Deno Workers, which are NOT available in Supabase Edge Runtime.
+
+**Error encountered:**
+```
+ReferenceError: Worker is not defined
+    at Module.hash (https://deno.land/x/bcrypt@v0.4.1/src/main.ts:11:16)
+```
+
+**Solution:** Use bcrypt@v0.2.4 instead (no Workers dependency).
+
+```typescript
+// ✅ CORRECT: Compatible with Edge Runtime
+import * as bcrypt from "https://deno.land/x/bcrypt@v0.2.4/mod.ts";
+
+// ❌ WRONG: Uses Workers (not available in Edge Runtime)
+import * as bcrypt from "https://deno.land/x/bcrypt@v0.4.1/mod.ts";
+```
+
+**Applies to:**
+- `j_hub_deck_create_share/index.ts` (line 8)
+- `j_hub_deck_view_shared/index.ts` (line 7)
+- Any future Edge Functions using password hashing
 
 ---
 
