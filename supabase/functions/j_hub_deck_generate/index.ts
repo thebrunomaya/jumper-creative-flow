@@ -174,7 +174,10 @@ CRITICAL INSTRUCTIONS:
 3. GENERATE a complete, standalone HTML file with:
    - Complete <head> with <meta charset="UTF-8"> as FIRST tag (CRITICAL for UTF-8 encoding)
    - All CSS embedded (no external dependencies)
-   - Font loading (@font-face for Haffer VF)
+   - Font loading with ABSOLUTE URLs: https://hub.jumper.studio/decks/identities/${brand_identity}/fonts/HafferVF.ttf
+   - Image sources with ABSOLUTE URLs: https://hub.jumper.studio/decks/identities/${brand_identity}/gradients/...
+   - Logo sources with ABSOLUTE URLs: https://hub.jumper.studio/decks/identities/${brand_identity}/logos/...
+   - NEVER use relative paths (no /decks/..., always use full https:// URLs with domain)
    - All animations and interactions
    - Responsive design (mobile-first)
    - Keyboard navigation (arrow keys, spacebar)
@@ -192,14 +195,27 @@ CRITICAL INSTRUCTIONS:
    ${type === 'plan' ? '- Plans: Cover → Strategy → Timeline → Budget → KPIs (7-10 slides)' : ''}
    ${type === 'pitch' ? '- Pitches: Problem → Solution → Proof → Proposal → CTA (7-10 slides)' : ''}
 
-6. QUALITY STANDARDS:
+6. ASSET PATHS (CRITICAL - URLs MUST BE ABSOLUTE):
+   - Font loading example:
+     @font-face {
+       font-family: 'Haffer';
+       src: url('https://hub.jumper.studio/decks/identities/${brand_identity}/fonts/HafferVF.ttf') format('truetype');
+     }
+   - Gradient background example:
+     background-image: url('https://hub.jumper.studio/decks/identities/${brand_identity}/gradients/organic-01.png')
+   - Logo image example:
+     <img src="https://hub.jumper.studio/decks/identities/${brand_identity}/logos/${brand_identity}-white.png" alt="Logo">
+   - CRITICAL: ALL asset URLs MUST start with https://hub.jumper.studio (NEVER use /decks/... relative paths)
+   - Reason: HTML is served from different domain, relative paths will fail to load
+
+7. QUALITY STANDARDS:
    - Every slide must be perfectly centered (flexbox + auto margins)
    - Typography sizes must NOT exceed maximums in design system
    - Gradients only on 2-3 slides maximum (cover, closing, 1 hero)
    - All content must fit in safe zones (no cutoff)
    - Performance colors for metrics (excellent/good/warning/critical)
 
-7. OUTPUT:
+8. OUTPUT:
    - Return ONLY the complete HTML (no markdown fences, no explanations)
    - HTML must be production-ready (can be opened directly in browser)
    - Include closing slide with clear CTA and next steps
