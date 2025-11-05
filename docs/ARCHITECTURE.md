@@ -2350,6 +2350,42 @@ identities/jumper/
 
 ---
 
+**❌ Using supabase.functions.invoke() in public routes:**
+```typescript
+// SharedDeck.tsx - WRONG for anonymous users
+const { data } = await supabase.functions.invoke("j_hub_deck_view_shared", {
+  body: { slug, password }
+});
+// Auto-injects Authorization header → Fails for anonymous users
+```
+
+**✅ Use direct fetch() for public Edge Functions:**
+```typescript
+// SharedDeck.tsx - CORRECT for all users
+const response = await fetch(
+  `${SUPABASE_URL}/functions/v1/j_hub_deck_view_shared`,
+  {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'apikey': SUPABASE_ANON_KEY,
+    },
+    body: JSON.stringify({ slug, password }),
+  }
+);
+const data = await response.json();
+// Bypasses auth header injection → Works for logged-in AND anonymous users
+```
+
+**Why this matters:**
+- `supabase.functions.invoke()` automatically injects `Authorization: Bearer <jwt>` header
+- Logged-in users have valid JWT → Works ✅
+- Anonymous users have no JWT → Edge Function rejects request ❌
+- Direct `fetch()` only sends `apikey` header → Works for everyone ✅
+- Use `fetch()` for ANY Edge Function that should work without authentication
+
+---
+
 **❌ Multiple TextDecoder declarations:**
 ```typescript
 const decoder = new TextDecoder('utf-8');  // Line 32
