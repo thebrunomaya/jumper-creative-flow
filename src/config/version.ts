@@ -7,10 +7,18 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.5';
+export const APP_VERSION = 'v2.1.6';
 
 /**
  * Version history:
+ * - v2.1.6 (2024-11-05):
+ *   - FIX: Password sharing for decks now working (bcrypt Worker error resolved)
+ *   - Downgraded bcrypt from v0.4.1 to v0.2.4 (Edge Runtime compatibility)
+ *   - Root cause: bcrypt v0.4.1 uses Deno Workers not available in Supabase Edge Runtime
+ *   - Fixed both j_hub_deck_create_share and j_hub_deck_view_shared Edge Functions
+ *   - Error was: "ReferenceError: Worker is not defined" blocking password hashing
+ *   - Password protection now fully functional for deck sharing
+ *
  * - v2.1.5 (2024-11-05):
  *   - UX: Added "Ver em Tela Cheia" button for full-screen deck preview
  *   - Created DeckPreview.tsx component for distraction-free full-screen viewing
