@@ -181,6 +181,8 @@ serve(async (req) => {
         JSON.stringify({
           success: true,
           accounts: [],
+          account_ids: [],
+          account_notion_ids: [],
           email: targetEmail,
           is_admin: isAdmin,
           user_role: userRole,
@@ -211,6 +213,9 @@ serve(async (req) => {
     }
 
     console.log(`✅ Found ${accountsData?.length || 0} accounts`);
+
+    // Store notion_ids (TEXT) for legacy tables (j_hub_optimization_recordings)
+    const accountNotionIds = (accountsData || []).map((acc: any) => acc.notion_id);
 
     // Convert notion_ids to UUIDs for foreign key compatibility
     // This ensures account_ids array contains UUIDs that match j_hub_decks.account_id FK
@@ -356,7 +361,8 @@ serve(async (req) => {
       JSON.stringify({
         success: true,
         accounts: formattedAccounts,
-        account_ids: accountIds, // Also return raw IDs for compatibility
+        account_ids: accountIds, // UUIDs for modern tables (j_hub_decks)
+        account_notion_ids: accountNotionIds, // TEXT notion_ids for legacy tables (j_hub_optimization_recordings)
         email: targetEmail,
         is_admin: isAdmin, // Flag to indicate admin access
         user_role: userRole, // User role from j_hub_users

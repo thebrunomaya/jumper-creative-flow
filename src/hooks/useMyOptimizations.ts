@@ -40,9 +40,16 @@ export const useMyOptimizations = () => {
           throw new Error(accountsData?.error || 'Resposta inválida ao buscar contas');
         }
 
-        const accountIds = Array.isArray(accountsData.account_ids) ? accountsData.account_ids : [];
+        // Use account_notion_ids (TEXT) for legacy j_hub_optimization_recordings table
+        // Fallback to account_ids for backward compatibility
+        const accountIds = Array.isArray(accountsData.account_notion_ids)
+          ? accountsData.account_notion_ids
+          : Array.isArray(accountsData.account_ids)
+            ? accountsData.account_ids
+            : [];
+
         const accountsMap = new Map(
-          (accountsData.accounts || []).map((acc: any) => [acc.id, acc.name])
+          (accountsData.accounts || []).map((acc: any) => [acc.notion_id, acc.name])
         );
 
         if (accountIds.length === 0) {
