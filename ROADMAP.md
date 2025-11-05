@@ -1,23 +1,43 @@
 # 🗺️ ROADMAP - Jumper Creative Flow
 
 ## 📊 Status Atual do Projeto
-**Última Atualização:** 2025-08-26  
-**Versão:** 1.8  
-**Ambiente:** Produção (hub.jumper.studio)  
+**Última Atualização:** 2024-11-05
+**Versão:** v2.1.11
+**Ambiente:** Produção (hub.jumper.studio)
 **Status:** ✅ Operacional
 
 ---
 
-## ✅ FASE 1 - COMPLETA
+## ✅ FASE 1 - COMPLETA (Set/2024)
 ### Sistema Base de Upload de Criativos
 - ✅ Sistema de upload e validação de criativos
 - ✅ Integração com Notion API
-- ✅ Autenticação e roles (admin/manager)
+- ✅ Autenticação e roles (admin/staff/client)
 - ✅ Deploy em produção
 - ✅ Edge functions operacionais
 - ✅ Sistema resiliente com retry logic
 - ✅ Validação de mídia por formato
 - ✅ Fluxo multi-step funcional
+- ✅ 9 Dashboards especializados por objetivo
+- ✅ Performance indicators com thresholds
+- ✅ Design system Jumper aplicado
+- ✅ Mobile-first responsive
+
+---
+
+## ✅ FASE 2 v2.1 - COMPLETA (Nov/2024)
+### Optimization System & Decks
+- ✅ Nova página `/optimization/new` com fluxo completo
+- ✅ Seletor de período estilo Facebook
+- ✅ Auto-save de rascunhos (localStorage + recovery)
+- ✅ ContextEditor aprimorado (contador, preview)
+- ✅ Database: `date_range_start/end`, `is_draft`, `draft_data`
+- ✅ **Decks System** - Geração de apresentações HTML com IA (Claude Sonnet 4.5)
+- ✅ Password-protected sharing (PBKDF2 Web Crypto API)
+- ✅ Anonymous browser access (--no-verify-jwt)
+- ✅ Full-screen preview e compartilhamento público
+- ✅ Template system (moldura-minuto)
+- ✅ Brand identities (Jumper/Koko)
 
 ---
 
@@ -107,11 +127,18 @@
 
 ---
 
-## 🚀 FASE 2 - PLANEJADA
+## 🔄 FASE 2.2 - EM PLANEJAMENTO (Nov/2024)
+### Sistema de Insights Comparativos (REPORTS branch)
+- [ ] Detecção de anomalias automática
+- [ ] Alertas em tempo real
+- [ ] Comparação de períodos (MoM, YoY)
+- [ ] Insights acionáveis via IA
+- [ ] Exportação de relatórios PDF
+
+## 🚀 FASE 3 - PLANEJADA (2025)
 ### Expansão de Funcionalidades
-- [ ] Dashboard de métricas e analytics
 - [ ] Sistema de templates de criativos
-- [ ] Integração com Meta Business API
+- [ ] Integração com Meta Business API (ads programáticos)
 - [ ] Integração com Google Ads API
 - [ ] Bulk upload de criativos
 - [ ] A/B testing automático
@@ -119,7 +146,7 @@
 
 ---
 
-## 💎 FASE 3 - FUTURO
+## 💎 FASE 4 - FUTURO (1-2 anos)
 ### Plataforma Self-Service Completa
 - [ ] Portal do cliente final
 - [ ] Sistema de pagamentos integrado
@@ -128,6 +155,7 @@
 - [ ] Mobile app (React Native)
 - [ ] IA para geração de copies
 - [ ] Otimização automática de campanhas
+- [ ] Multi-plataforma ads (Meta, Google, TikTok, LinkedIn)
 
 ---
 
@@ -154,4 +182,4 @@
 
 ---
 
-**Última revisão:** 2025-08-26 por Claude Assistant
+**Última revisão:** 2024-11-05 por Claude Code Assistant
