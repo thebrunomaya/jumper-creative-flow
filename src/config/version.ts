@@ -7,10 +7,19 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.74';
+export const APP_VERSION = 'v2.0.75';
 
 /**
  * Version history:
+ * - v2.0.75 (2024-11-05):
+ *   - FIX: FK constraint violation on optimization creation (critical bug)
+ *   - OptimizationNew.tsx now stores notion_id (TEXT) instead of UUID in account_id
+ *   - Fixed handleAccountChange to use account.notion_id
+ *   - Fixed handleRecoverDraft to find accounts by notion_id
+ *   - Fixed OptimizationRecorder.tsx typo: selectedAccountName → accountName
+ *   - Root cause: Dual ID system (UUID for modern tables, TEXT notion_id for legacy)
+ *   - Optimization creation now working correctly after commit 412a8ec changes
+ *
  * - v2.0.74 (2024-11-03):
  *   - FIX: Upload script authentication issue resolved
  *   - Changed from `npx supabase` to `supabase` (global installation)
