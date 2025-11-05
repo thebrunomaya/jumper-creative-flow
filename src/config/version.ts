@@ -7,10 +7,17 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.3';
+export const APP_VERSION = 'v2.1.4';
 
 /**
  * Version history:
+ * - v2.1.4 (2024-11-05):
+ *   - FIX: Deck previews now render correctly using srcDoc instead of Storage URLs
+ *   - Inverted priority in DeckEditor and SharedDeck: html_output (srcDoc) → file_url (fallback)
+ *   - Fixed issue where iframes showed HTML source code instead of rendered presentation
+ *   - Root cause: Storage URLs have CSP/sandbox restrictions blocking inline scripts and assets
+ *   - Using srcDoc allows HTML to execute with absolute asset URLs working correctly
+ *
  * - v2.1.3 (2024-11-05):
  *   - FIX: Removed duplicate TextDecoder declarations causing Edge Function boot failure
  *   - Consolidated 4 'const decoder' declarations into single shared instance

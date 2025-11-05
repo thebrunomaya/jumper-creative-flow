@@ -289,7 +289,7 @@ export default function DeckEditor() {
 
             <CardContent>
               {/* HTML Preview */}
-              {deck.file_url ? (
+              {deck.html_output ? (
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <p className="text-sm text-muted-foreground">
@@ -303,10 +303,31 @@ export default function DeckEditor() {
 
                   <div className="border rounded-lg overflow-hidden bg-muted">
                     <iframe
+                      srcDoc={deck.html_output}
+                      className="w-full h-[600px]"
+                      title={`Preview: ${deck.title}`}
+                      sandbox="allow-scripts allow-same-origin allow-forms"
+                    />
+                  </div>
+                </div>
+              ) : deck.file_url ? (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm text-muted-foreground">
+                      Preview da apresentação (fallback)
+                    </p>
+                    <Button variant="outline" size="sm" onClick={handleOpenPreview}>
+                      <ExternalLink className="mr-2 h-4 w-4" />
+                      Abrir em nova aba
+                    </Button>
+                  </div>
+
+                  <div className="border rounded-lg overflow-hidden bg-muted">
+                    <iframe
                       src={deck.file_url}
                       className="w-full h-[600px]"
                       title={`Preview: ${deck.title}`}
-                      sandbox="allow-scripts allow-same-origin"
+                      sandbox="allow-scripts allow-same-origin allow-forms"
                     />
                   </div>
                 </div>

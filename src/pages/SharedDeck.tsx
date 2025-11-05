@@ -236,16 +236,16 @@ export default function SharedDeck() {
       </div>
 
       {/* Deck HTML iframe */}
-      {deck.file_url ? (
+      {deck.html_output ? (
         <iframe
-          src={deck.file_url}
+          srcDoc={deck.html_output}
           className="w-full h-[calc(100vh-40px)]"
           title={deck.title}
           sandbox="allow-scripts allow-same-origin allow-forms"
         />
-      ) : deck.html_output ? (
+      ) : deck.file_url ? (
         <iframe
-          srcDoc={deck.html_output}
+          src={deck.file_url}
           className="w-full h-[calc(100vh-40px)]"
           title={deck.title}
           sandbox="allow-scripts allow-same-origin allow-forms"
