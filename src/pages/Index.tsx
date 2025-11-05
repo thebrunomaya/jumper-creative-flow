@@ -1,7 +1,7 @@
-import Manager from '@/pages/Manager';
+import MyAccounts from '@/pages/MyAccounts';
 
 const Index = () => {
-  return <Manager />;
+  return <MyAccounts />;
 };
 
 export default Index;

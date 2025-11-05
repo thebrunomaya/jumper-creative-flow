@@ -7,10 +7,16 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.0.74';
+export const APP_VERSION = 'v2.0.75';
 
 /**
  * Version history:
+ * - v2.0.75 (2024-11-05):
+ *   - UX: Changed default landing page after login from /creatives to /my-accounts
+ *   - Index route (/) now renders MyAccounts component instead of Manager
+ *   - Users now see their accounts dashboard immediately after login
+ *   - More intuitive starting point focusing on account management
+ *
  * - v2.0.74 (2024-11-03):
  *   - FIX: Upload script authentication issue resolved
  *   - Changed from `npx supabase` to `supabase` (global installation)
