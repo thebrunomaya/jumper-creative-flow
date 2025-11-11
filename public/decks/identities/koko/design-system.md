@@ -255,52 +255,273 @@ Right:  32px minimum
 
 ## 🎨 Component Library
 
-### 1. Cards with Cut Corners
+### 1. Cards with Dog-Ear Effect (Paper Fold)
 
-**Standard Card:**
+**The dog-ear effect simulates a folded paper corner in the bottom-right of cards**, creating a realistic "paper back" appearance with diagonal division.
+
+#### Implementation Technique
+
+The dog-ear uses two complementary CSS techniques:
+
+1. **Clip-path on card** - Creates triangular cutout in bottom-right corner
+2. **Linear-gradient on ::after pseudo-element** - Fills cutout with diagonal division
+
+**Visual Structure:**
+```
+┌─────────────────────┐
+│                     │
+│   Card Content      │
+│                     │
+│                  ╱──┤ ← Triangular cutout (clip-path)
+│               ╱  ┃  │
+│            ╱     ┃  │   ┃ = 2px diagonal border
+│         ╱        ┃  │   Upper-left = darker shade (verso)
+│      ╱──────────────┤   Lower-right = background color
+└─────────────────────┘
+```
+
+#### Standard Card (White)
+
 ```html
-<div class="border-2 border-black bg-white p-6 relative">
+<div class="card card-default corner-cut">
     <h3 class="text-xl font-bold mb-3 font-alternate">Card Title</h3>
     <p class="text-sm leading-relaxed font-playfair">
         Card content...
     </p>
-    <!-- Cut corner accent (32px) -->
-    <div class="absolute bottom-0 right-0 w-8 h-8 bg-black transform rotate-45 translate-x-4 translate-y-4"></div>
 </div>
 ```
 
-**Highlighted Card (Yellow):**
+**CSS Implementation:**
+```css
+/* Card base with standardized 2px border */
+.card-default {
+    background: var(--koko-white);
+    border: 2px solid var(--koko-black);
+    padding: 18px;
+    position: relative;
+}
+
+/* Clip-path creates triangular cutout (22px accounts for 2px border) */
+.corner-cut {
+    clip-path: polygon(
+        0 0,                          /* Top-left */
+        100% 0,                       /* Top-right */
+        100% calc(100% - 22px),       /* Right side until cutout */
+        calc(100% - 22px) 100%,       /* Diagonal cutout */
+        0 100%                        /* Left side */
+    );
+}
+
+/* Pseudo-element fills cutout with diagonal gradient */
+.corner-cut::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;  /* Compensates for border width */
+    right: -2px;   /* Compensates for border width */
+    width: 22px;
+    height: 22px;
+    background: linear-gradient(135deg,
+        #d9d9d9 0%,      /* Verso (paper back) - gray */
+        #d9d9d9 45.5%,   /* Until diagonal */
+        #000 45.5%,      /* Diagonal border (2px = 9% of 22px) */
+        #000 54.5%,      /* Diagonal border */
+        #FFFFFF 54.5%,   /* Background color (white) */
+        #FFFFFF 100%     /* Lower-right triangle */
+    );
+}
+```
+
+#### Highlighted Card (Yellow)
+
 ```html
-<div class="bg-koko-yellow border-4 border-black p-6 relative">
+<div class="card card-highlight-yellow corner-cut">
     <h3 class="text-xl font-bold mb-3 font-alternate">🥇 WINNER</h3>
     <p class="text-sm leading-tight font-playfair">
         Bullet points...
     </p>
-    <div class="absolute bottom-0 right-0 w-8 h-8 bg-black transform rotate-45 translate-x-4 translate-y-4"></div>
 </div>
 ```
 
-**Inverted Card (Black):**
+**CSS:**
+```css
+.card-highlight-yellow {
+    background: var(--koko-yellow);
+    border: 2px solid var(--koko-black);  /* Standardized to 2px */
+}
+
+.card-highlight-yellow.corner-cut::after {
+    background: linear-gradient(135deg,
+        #c89420 0%,      /* Darkened yellow (verso) */
+        #c89420 45.5%,
+        #000 45.5%,      /* Black border */
+        #000 54.5%,
+        #FFFFFF 54.5%,   /* White background */
+        #FFFFFF 100%
+    );
+}
+```
+
+#### Inverted Card (Black)
+
 ```html
-<div class="bg-black text-white p-6 relative">
+<div class="card card-dark corner-cut">
     <h3 class="text-xl font-bold mb-3 font-alternate">Card Title</h3>
     <p class="text-sm leading-relaxed font-playfair">
         Card content...
     </p>
-    <!-- White cut corner on black card -->
-    <div class="absolute bottom-0 right-0 w-8 h-8 bg-white transform rotate-45 translate-x-4 translate-y-4"></div>
 </div>
 ```
 
-**Cut Corner Variations:**
-- **Small**: 24px (`w-6 h-6`, translate 3px) - Compact cards
-- **Standard**: 32px (`w-8 h-8`, translate 4px) - Default cards
-- **Large**: 48px (`w-12 h-12`, translate 6px) - Hero cards
+**CSS:**
+```css
+.card-dark {
+    background: var(--koko-black);
+    color: var(--koko-white);
+    border: 2px solid var(--koko-white);  /* White border on dark */
+}
 
-**Border Weights:**
-- **Standard cards**: 2px (`border-2`)
-- **Highlighted cards**: 4px (`border-4`)
-- **Subtle cards**: 1px (`border`)
+.card-dark.corner-cut::after {
+    background: linear-gradient(135deg,
+        #444 0%,         /* Light gray (verso) - contrast with black */
+        #444 45.5%,
+        #fff 45.5%,      /* White border */
+        #fff 54.5%,
+        #FFFFFF 54.5%,   /* White background */
+        #FFFFFF 100%
+    );
+}
+```
+
+#### Pink Accent Card
+
+```html
+<div class="card card-highlight-pink corner-cut">
+    <h3 class="text-xl font-bold mb-3 font-alternate">ALERT</h3>
+    <p class="text-sm leading-tight font-playfair">
+        Important information...
+    </p>
+</div>
+```
+
+**CSS:**
+```css
+.card-highlight-pink {
+    background: var(--koko-pink);
+    color: var(--koko-white);
+    border: 2px solid var(--koko-black);
+}
+
+.card-highlight-pink.corner-cut::after {
+    background: linear-gradient(135deg,
+        #cc0066 0%,      /* Darkened pink (verso) */
+        #cc0066 45.5%,
+        #000 45.5%,      /* Black border */
+        #000 54.5%,
+        #FFFFFF 54.5%,   /* White background */
+        #FFFFFF 100%
+    );
+}
+```
+
+#### Dog-Ear Size Variations
+
+**Standard Cards (22px dog-ear):**
+- Used for: Default cards, highlighted cards, emphasis boxes
+- Clip-path size: `22px`
+- Gradient border: `45.5%` to `54.5%` (9% = 2px)
+
+**Compact Cards (16px dog-ear):**
+- Used for: Metric cards, small data containers
+- Clip-path size: `16px`
+- Gradient border: `43.75%` to `56.25%` (12.5% = 2px)
+
+**CSS for metric cards:**
+```css
+.metric-card {
+    background: var(--koko-black);
+    color: var(--koko-white);
+    padding: 14px;
+    border: 2px solid var(--koko-white);
+}
+
+.metric-card.corner-cut {
+    clip-path: polygon(
+        0 0,
+        100% 0,
+        100% calc(100% - 16px),   /* Smaller cutout */
+        calc(100% - 16px) 100%,
+        0 100%
+    );
+}
+
+.metric-card.corner-cut::after {
+    bottom: -2px;
+    right: -2px;
+    width: 16px;   /* Smaller quadrado */
+    height: 16px;
+    background: linear-gradient(135deg,
+        #444 0%,
+        #444 43.75%,     /* 2px = 12.5% of 16px */
+        #fff 43.75%,
+        #fff 56.25%,
+        #FFFFFF 56.25%,
+        #FFFFFF 100%
+    );
+}
+```
+
+#### Border Standardization
+
+**ALL cards use 2px borders consistently:**
+- Standard cards: `border: 2px solid var(--koko-black)`
+- Dark cards: `border: 2px solid var(--koko-white)`
+- Highlighted cards: `border: 2px solid var(--koko-black)` *(changed from 4px)*
+- Emphasis boxes: `border: 2px solid` *(changed from none)*
+- Metric cards: `border: 2px solid var(--koko-white)` *(changed from none)*
+
+**Why standardization matters:**
+- Ensures dog-ear alignment across all card types
+- Consistent visual weight throughout presentation
+- Simplified gradient calculations (2px = same percentage per size)
+
+#### Gradient Calculation Math
+
+**For 2px diagonal border:**
+
+1. **22px quadrado** (standard cards):
+   - 2px as percentage: `(2 / 22) × 100% = 9.09%`
+   - Center gradient at 50%
+   - Border range: `50% - 4.5%` to `50% + 4.5%` = `45.5%` to `54.5%`
+
+2. **16px quadrado** (metric cards):
+   - 2px as percentage: `(2 / 16) × 100% = 12.5%`
+   - Center gradient at 50%
+   - Border range: `50% - 6.25%` to `50% + 6.25%` = `43.75%` to `56.25%`
+
+#### Color Guidelines for "Verso" (Paper Back)
+
+**Light cards** → Darker verso:
+- White card → `#d9d9d9` (light gray)
+- Yellow card → `#c89420` (darkened yellow)
+
+**Dark cards** → Lighter verso:
+- Black card → `#444` (medium gray for contrast)
+- Pink card → `#cc0066` (darkened pink)
+
+**Contrast principle:** Verso should be noticeably different from card background to create fold illusion.
+
+#### Positioning Details
+
+**Critical:** Pseudo-element uses negative offsets to compensate for border:
+
+```css
+.corner-cut::after {
+    bottom: -2px;  /* Shifts down to cover border */
+    right: -2px;   /* Shifts right to cover border */
+}
+```
+
+**Why:** Card uses `border-box` sizing, but `bottom: 0` positions relative to content-box. The `-2px` offset aligns the quadrado with the clip-path cutout edge.
 
 ---
 
