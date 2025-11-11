@@ -76,23 +76,22 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Construct file path
-    const filePath = `templates/${template_id}.html`;
+    // Construct public URL
+    const filename = `${template_id}.html`;
+    const publicUrl = `https://hub.jumper.studio/decks/templates/${filename}`;
+    const filePath = `/decks/templates/${filename}`;
 
     console.log(`📖 Reading template: ${filePath} for admin user ${user.email}`);
 
-    // Download file from Storage
-    const { data: fileData, error: downloadError } = await supabase
-      .storage
-      .from('decks')
-      .download(filePath);
+    // Fetch file from public URL
+    const response = await fetch(publicUrl);
 
-    if (downloadError) {
-      console.error('Storage download error:', downloadError);
+    if (!response.ok) {
+      console.error(`Failed to fetch template: ${response.status} ${response.statusText}`);
       return new Response(
         JSON.stringify({
-          error: 'Failed to download template',
-          details: downloadError.message,
+          error: 'Failed to fetch template',
+          details: `HTTP ${response.status}: ${response.statusText}`,
           template_id,
           file_path: filePath
         }),
@@ -100,8 +99,8 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Convert Blob to text with explicit UTF-8 encoding
-    const arrayBuffer = await fileData.arrayBuffer();
+    // Read content with explicit UTF-8 encoding
+    const arrayBuffer = await response.arrayBuffer();
     const decoder = new TextDecoder('utf-8');
     const htmlContent = decoder.decode(arrayBuffer);
 

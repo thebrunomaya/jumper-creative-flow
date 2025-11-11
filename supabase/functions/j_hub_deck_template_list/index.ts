@@ -1,15 +1,15 @@
 /**
  * Edge Function: j_hub_deck_template_list
  *
- * Lists all available deck templates from Storage bucket.
+ * Lists all available deck templates from public /decks/templates/ directory.
  * Admin-only access for template management.
  *
  * Returns:
  * - template_id: Filename without extension
- * - file_path: Full path in Storage
- * - brand_identity: 'jumper' or 'koko' (extracted from path)
- * - size: File size in bytes
- * - last_modified: ISO timestamp
+ * - file_path: Public URL path
+ * - brand_identity: 'jumper' or 'koko' (extracted from filename)
+ * - size: File size in bytes (fetched from HEAD request)
+ * - last_modified: ISO timestamp (from Last-Modified header)
  */
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
@@ -18,6 +18,43 @@ const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Hardcoded list of templates (from /public/decks/templates/)
+const TEMPLATE_FILES = [
+  'general-animated-gradients.html',
+  'general-apple-keynote-style-light.html',
+  'general-apple-keynote-style.html',
+  'general-apple-minimal.html',
+  'general-black-neon-glow.html',
+  'general-blue-background-modal.html',
+  'general-brutalist.html',
+  'general-cluely-3d-style.html',
+  'general-cluely-style.html',
+  'general-cyberpunk-neon.html',
+  'general-dark-glowing-style.html',
+  'general-dark-mode-pro.html',
+  'general-editorial-magazine.html',
+  'general-glassmorphism.html',
+  'general-hand-drawn-sketch.html',
+  'general-isometric-3d.html',
+  'general-liquid-metal.html',
+  'general-memphis-design.html',
+  'general-minimalist-clean.html',
+  'general-modern-modal-style.html',
+  'general-modern-saas-dark.html',
+  'general-modern-tech-startup.html',
+  'general-neumorphism.html',
+  'general-old-vide-game.html',
+  'general-old-video-game2.html',
+  'general-retro-synthwave.html',
+  'general-simple-colors-style.html',
+  'general-swiss-design.html',
+  'general-terminal-code.html',
+  'general-white-with-pops-of-color.html',
+  'jumper-flare.html',
+  'koko-classic.html',
+  'koko-rebel.html',
+];
 
 Deno.serve(async (req) => {
   // Handle CORS preflight
@@ -64,43 +101,41 @@ Deno.serve(async (req) => {
       );
     }
 
-    // List all files in decks/templates/ folder
-    const { data: files, error: listError } = await supabase
-      .storage
-      .from('decks')
-      .list('templates', {
-        limit: 100,
-        sortBy: { column: 'name', order: 'asc' },
-      });
+    // Build template list with metadata
+    const templates = await Promise.all(
+      TEMPLATE_FILES.map(async (filename) => {
+        const templateId = filename.replace('.html', '');
+        const publicUrl = `https://hub.jumper.studio/decks/templates/${filename}`;
 
-    if (listError) {
-      console.error('Storage list error:', listError);
-      return new Response(
-        JSON.stringify({ error: 'Failed to list templates', details: listError.message }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    // Filter only HTML files and extract metadata
-    const templates = files
-      .filter(file => file.name.endsWith('.html'))
-      .map(file => {
-        const templateId = file.name.replace('.html', '');
-
-        // Extract brand identity from filename patterns
+        // Extract brand identity from filename
         let brandIdentity: 'jumper' | 'koko' = 'jumper';
-        if (templateId.includes('koko') || templateId.toLowerCase().includes('koko')) {
+        if (templateId.includes('koko')) {
           brandIdentity = 'koko';
+        }
+
+        // Fetch file metadata via HEAD request
+        let size = 0;
+        let lastModified = new Date().toISOString();
+
+        try {
+          const response = await fetch(publicUrl, { method: 'HEAD' });
+          if (response.ok) {
+            size = parseInt(response.headers.get('content-length') || '0', 10);
+            lastModified = response.headers.get('last-modified') || lastModified;
+          }
+        } catch (error) {
+          console.warn(`Failed to fetch metadata for ${filename}:`, error);
         }
 
         return {
           template_id: templateId,
-          file_path: `templates/${file.name}`,
+          file_path: `/decks/templates/${filename}`,
           brand_identity: brandIdentity,
-          size: file.metadata?.size || 0,
-          last_modified: file.metadata?.lastModified || file.created_at,
+          size,
+          last_modified: lastModified,
         };
-      });
+      })
+    );
 
     console.log(`✅ Listed ${templates.length} templates for admin user ${user.email}`);
 

@@ -7,10 +7,30 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.32';
+export const APP_VERSION = 'v2.1.33';
 
 /**
  * Version history:
+ * - v2.1.33 (2024-11-11):
+ *   - ARCHITECTURE FIX: Template Edge Functions now read from /public instead of Storage
+ *   - PROBLEM: 0 templates shown in admin panel (looking in wrong location)
+ *   - ROOT CAUSE: Edge Functions queried Supabase Storage bucket (empty)
+ *   - ACTUAL LOCATION: Templates live in /public/decks/templates/ (37 files)
+ *   - SOLUTION: Rewrote both Edge Functions to read from public URLs
+ *   - CHANGES:
+ *   -   - j_hub_deck_template_list: Hardcoded list + HEAD requests for metadata
+ *   -   - j_hub_deck_template_read: Fetch from https://hub.jumper.studio/decks/templates/
+ *   -   - Removed Storage .list() and .download() calls
+ *   -   - Added Promise.all for parallel metadata fetching (33 templates)
+ *   - TEMPLATE COUNT: 33 templates total
+ *   -   - 30 general-* templates (various design styles)
+ *   -   - 3 branded templates (jumper-flare, koko-classic, koko-rebel)
+ *   - FILES MODIFIED:
+ *   -   - supabase/functions/j_hub_deck_template_list/index.ts
+ *   -   - supabase/functions/j_hub_deck_template_read/index.ts
+ *   - DEPLOYED: Both Edge Functions redeployed to production
+ *   - RESULT: Admin panel now shows all 33 templates correctly
+ *
  * - v2.1.32 (2024-11-11):
  *   - CRITICAL FIX: React hooks order violation in Templates.tsx
  *   - PROBLEM: Page crashed with React error #310 (blank screen)
