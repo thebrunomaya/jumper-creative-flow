@@ -80,7 +80,7 @@ export function TemplateCard({ template }: TemplateCardProps) {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => navigate(`/templates/${template.template_id}/edit`)}
+            onClick={() => navigate(`/decks/templates/${template.template_id}/edit`)}
             className="flex-1"
           >
             <Eye className="h-4 w-4 mr-1" />

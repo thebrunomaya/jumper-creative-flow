@@ -28,7 +28,7 @@ export default function TemplateEditor() {
     toast.error("Acesso negado", {
       description: "Apenas administradores podem acessar esta página",
     });
-    navigate("/templates");
+    navigate("/decks/templates");
     return null;
   }
 
@@ -114,7 +114,7 @@ export default function TemplateEditor() {
             <p className="text-sm text-muted-foreground max-w-md mb-4">
               {error instanceof Error ? error.message : "Erro desconhecido"}
             </p>
-            <Button onClick={() => navigate("/templates")} variant="outline">
+            <Button onClick={() => navigate("/decks/templates")} variant="outline">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Voltar para Templates
             </Button>
@@ -133,7 +133,7 @@ export default function TemplateEditor() {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => navigate("/templates")}
+              onClick={() => navigate("/decks/templates")}
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
               Templates

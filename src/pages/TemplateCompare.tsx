@@ -31,7 +31,7 @@ export default function TemplateCompare() {
     toast.error("Acesso negado", {
       description: "Apenas administradores podem acessar esta página",
     });
-    navigate("/templates");
+    navigate("/decks/templates");
     return null;
   }
 
@@ -59,7 +59,7 @@ export default function TemplateCompare() {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => navigate("/templates")}
+              onClick={() => navigate("/decks/templates")}
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
               Templates

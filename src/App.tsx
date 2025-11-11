@@ -185,21 +185,21 @@ const App = () => {
                     <SharedDeck />
                   </Suspense>
                 } />
-                <Route path="/templates" element={
+                <Route path="/decks/templates" element={
                   <AdminRoute>
                     <Suspense fallback={<PageLoading />}>
                       <Templates />
                     </Suspense>
                   </AdminRoute>
                 } />
-                <Route path="/templates/:templateId/edit" element={
+                <Route path="/decks/templates/:templateId/edit" element={
                   <AdminRoute>
                     <Suspense fallback={<PageLoading />}>
                       <TemplateEditor />
                     </Suspense>
                   </AdminRoute>
                 } />
-                <Route path="/templates/compare" element={
+                <Route path="/decks/templates/compare" element={
                   <AdminRoute>
                     <Suspense fallback={<PageLoading />}>
                       <TemplateCompare />

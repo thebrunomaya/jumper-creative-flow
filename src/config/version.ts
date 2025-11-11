@@ -7,10 +7,27 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.27';
+export const APP_VERSION = 'v2.1.28';
 
 /**
  * Version history:
+ * - v2.1.28 (2024-11-11):
+ *   - REFACTOR: Reorganized template routes under /decks hierarchy
+ *   - ROUTES CHANGED:
+ *   -   - /templates → /decks/templates (list view)
+ *   -   - /templates/:id/edit → /decks/templates/:id/edit (editor)
+ *   -   - /templates/compare → /decks/templates/compare (comparison)
+ *   - RATIONALE: Templates are part of deck system, should be nested under /decks
+ *   - NAVIGATION: Updated all internal links and redirects to use new paths
+ *   - BREADCRUMBS: Updated back buttons and navigation in all template pages
+ *   - FILES MODIFIED:
+ *   -   - src/App.tsx (route definitions)
+ *   -   - src/pages/Templates.tsx (navigation and redirects)
+ *   -   - src/pages/TemplateEditor.tsx (breadcrumb and redirects)
+ *   -   - src/pages/TemplateCompare.tsx (breadcrumb and redirects)
+ *   -   - src/components/templates/TemplateCard.tsx (edit button link)
+ *   - IMPACT: Better URL structure, clearer information architecture
+ *
  * - v2.1.27 (2024-11-11):
  *   - MAJOR FEATURE: Template Management System - Complete admin panel for deck templates
  *   - BACKEND: 2 Edge Functions created for template operations

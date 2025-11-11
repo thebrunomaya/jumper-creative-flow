@@ -105,7 +105,7 @@ export default function Templates() {
 
           <Button
             variant="outline"
-            onClick={() => navigate("/templates/compare")}
+            onClick={() => navigate("/decks/templates/compare")}
           >
             <GitCompare className="h-4 w-4 mr-2" />
             Comparar Templates
