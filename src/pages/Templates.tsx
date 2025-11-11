@@ -39,6 +39,17 @@ export default function Templates() {
     });
   }, [templates, searchQuery, brandFilter]);
 
+  // Separate branded templates from general templates
+  const { brandedTemplates, generalTemplates } = useMemo(() => {
+    const branded = filteredTemplates.filter(
+      (t) => t.template_id.startsWith("jumper-") || t.template_id.startsWith("koko-")
+    );
+    const general = filteredTemplates.filter(
+      (t) => t.template_id.startsWith("general-")
+    );
+    return { brandedTemplates: branded, generalTemplates: general };
+  }, [filteredTemplates]);
+
   // Check if user is admin
   const isAdmin = userRole === "admin";
 
@@ -168,7 +179,7 @@ export default function Templates() {
         </p>
       </div>
 
-      {/* Template Grid */}
+      {/* Template Sections */}
       {filteredTemplates.length === 0 ? (
         <div className="flex items-center justify-center min-h-[300px]">
           <div className="flex flex-col items-center gap-4 text-center">
@@ -184,10 +195,44 @@ export default function Templates() {
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredTemplates.map((template) => (
-            <TemplateCard key={template.template_id} template={template} />
-          ))}
+        <div className="space-y-8">
+          {/* Branded Templates Section */}
+          {brandedTemplates.length > 0 && (
+            <div>
+              <div className="mb-4">
+                <h2 className="text-xl font-semibold text-foreground">
+                  Templates de Marca
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  Templates oficiais Jumper e Koko ({brandedTemplates.length})
+                </p>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {brandedTemplates.map((template) => (
+                  <TemplateCard key={template.template_id} template={template} />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* General Templates Section */}
+          {generalTemplates.length > 0 && (
+            <div>
+              <div className="mb-4">
+                <h2 className="text-xl font-semibold text-foreground">
+                  Templates Gerais
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  Templates padrão para diversos estilos ({generalTemplates.length})
+                </p>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {generalTemplates.map((template) => (
+                  <TemplateCard key={template.template_id} template={template} />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

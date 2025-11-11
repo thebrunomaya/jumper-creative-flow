@@ -7,10 +7,26 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.34';
+export const APP_VERSION = 'v2.1.35';
 
 /**
  * Version history:
+ * - v2.1.35 (2024-11-11):
+ *   - UX: Reorganized template panel with prioritized sections
+ *   - STRUCTURE: Two-section layout for better organization
+ *   - SECTION 1 - Templates de Marca (priority):
+ *   -   - Jumper and Koko branded templates (jumper-*, koko-*)
+ *   -   - Displayed first with count (e.g., "Templates oficiais Jumper e Koko (3)")
+ *   - SECTION 2 - Templates Gerais (secondary):
+ *   -   - General design templates (general-*)
+ *   -   - Displayed below branded templates with count (e.g., "Templates padrão (30)")
+ *   - FILTERING: Sections hide/show based on brand filter selection
+ *   - VISUAL HIERARCHY: Clear section headers with descriptions and counts
+ *   - RATIONALE: Branded templates are business-critical, general templates are fallback options
+ *   - FILES MODIFIED:
+ *   -   - src/pages/Templates.tsx (added section separation logic)
+ *   - IMPACT: Branded templates more discoverable, cleaner visual organization
+ *
  * - v2.1.34 (2024-11-11):
  *   - CRITICAL FIX: React hooks order violation in TemplateEditor.tsx
  *   - PROBLEM: Page crashed with React error #310 (blank screen)
