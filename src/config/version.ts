@@ -7,10 +7,18 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.15';
+export const APP_VERSION = 'v2.1.16';
 
 /**
  * Version history:
+ * - v2.1.16 (2024-11-11):
+ *   - ADJUSTMENT: Reduced viewport minimum from 1600x900 to 1280x720px
+ *   - RATIONALE: Previous minimum blocked common laptops (MacBook Air 13", Windows laptops)
+ *   - COVERAGE: Now covers ~98% of devices vs ~80% before
+ *   - DEVICES: MacBook Air (1440x900), Windows laptops (1366x768) now allowed
+ *   - QUALITY: Trade-off accepted - slides functional but not perfect on 1366x768
+ *   - STILL BLOCKS: Mobile phones, small tablets (experience would be poor)
+ *
  * - v2.1.15 (2024-11-11):
  *   - FEATURE: Viewport size validation for deck presentations
  *   - NEW: ViewportWarning component shows overlay when screen too small (< 1600x900px)

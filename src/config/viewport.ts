@@ -8,15 +8,15 @@
 export const VIEWPORT_REQUIREMENTS = {
   /**
    * Minimum width required to display presentations correctly
-   * @default 1600 - Balanced approach, covers most modern laptops
+   * @default 1280 - HD Ready standard, covers 98% of laptops/desktops
    */
-  minWidth: 1600,
+  minWidth: 1280,
 
   /**
    * Minimum height required to display presentations correctly
-   * @default 900 - Standard 16:9 aspect ratio for minWidth
+   * @default 720 - HD Ready standard, 16:9 aspect ratio
    */
-  minHeight: 900,
+  minHeight: 720,
 
   /**
    * Recommended width for optimal presentation quality
