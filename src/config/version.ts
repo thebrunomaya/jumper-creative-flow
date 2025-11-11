@@ -7,10 +7,29 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.20';
+export const APP_VERSION = 'v2.1.21';
 
 /**
  * Version history:
+ * - v2.1.21 (2024-11-11):
+ *   - FEATURE: 21:9 ultra-wide display support for deck presentations
+ *   - ADJUSTMENT: Increased maxAspectRatio from 16:9 (1.78:1) to 21:9 (2.40:1)
+ *   - RATIONALE: User requested more tolerance for ultra-wide displays
+ *   - STANDARD: Aligns with cinema anamorphic standard (2.39:1)
+ *   - SUPPORTED: Now allows 4:3, 16:10, 16:9, and 21:9 aspect ratios
+ *   - BLOCKED: Only 32:9 super ultra-wide (3.56:1) and beyond
+ *   - RESOLUTIONS ADDED:
+ *     - 21:9 (2560×1080) = 2.37:1 ✅
+ *     - 21:9 (3440×1440) = 2.39:1 ✅
+ *     - 21:9 (3840×1600) = 2.40:1 ✅
+ *   - TEMPLATES: CSS clamp() handles 21:9 well with max-width constraints
+ *   - UX: Updated error messages to reflect 21:9 support
+ *   - MESSAGING: "Super ultra-wide" now refers only to 32:9+
+ *   - BACKWARDS COMPATIBLE: More permissive than previous validation
+ *   - FILES MODIFIED:
+ *     - src/config/viewport.ts (maxAspectRatio: 2.4, updated SUPPORTED_RESOLUTIONS)
+ *     - src/components/decks/ViewportWarning.tsx (updated too_wide message)
+ *
  * - v2.1.20 (2024-11-11):
  *   - FEATURE: Multi-aspect-ratio support for deck presentations
  *   - SUPPORT: Now allows 4:3, 16:10, and 16:9 aspect ratios

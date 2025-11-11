@@ -1,10 +1,10 @@
 /**
  * Viewport Requirements for Deck Presentations
  *
- * Decks support multiple aspect ratios (4:3, 16:10, 16:9) but block:
+ * Decks support multiple aspect ratios (4:3, 16:10, 16:9, 21:9) but block:
  * - Portrait orientation (height > width)
  * - Screens smaller than 768px in smallest dimension
- * - Ultra-wide displays (21:9, 32:9) that distort content
+ * - Super ultra-wide displays (32:9) that have excessive margins
  */
 
 export const VIEWPORT_REQUIREMENTS = {
@@ -22,10 +22,10 @@ export const VIEWPORT_REQUIREMENTS = {
   minAspectRatio: 4 / 3,
 
   /**
-   * Maximum aspect ratio (16:9 format = 1.777...)
-   * Blocks ultra-wide displays (21:9, 32:9) that distort presentations
+   * Maximum aspect ratio (21:9 ultra-wide format = 2.4:1)
+   * Blocks super ultra-wide displays (32:9) that have excessive margins
    */
-  maxAspectRatio: 16 / 9,
+  maxAspectRatio: 2.4,
 
   /**
    * Recommended resolution for optimal quality
@@ -49,14 +49,14 @@ export const SUPPORTED_RESOLUTIONS = {
   '4:3': ['1024x768', '1280x960', '1600x1200'],
   '16:10': ['1280x800', '1440x900', '1920x1200'],
   '16:9': ['1280x720', '1920x1080', '2560x1440', '3840x2160'],
+  '21:9': ['2560x1080', '3440x1440', '3840x1600'],
 } as const;
 
 /**
- * Blocked ultra-wide formats
+ * Blocked super ultra-wide formats
  */
 export const BLOCKED_FORMATS = {
-  '21:9': 'Ultra-wide (apresentações ficam distorcidas)',
-  '32:9': 'Super ultra-wide (conteúdo ilegível)',
+  '32:9': 'Super ultra-wide (margens excessivas)',
 } as const;
 
 /**
@@ -74,7 +74,7 @@ export interface ViewportValidationResult {
  * Rules:
  * 1. Block portrait orientation (height > width)
  * 2. Smallest dimension must be ≥ 768px
- * 3. Aspect ratio must be between 4:3 (1.33) and 16:9 (1.78)
+ * 3. Aspect ratio must be between 4:3 (1.33) and 21:9 (2.40)
  *
  * @param width - Current viewport width
  * @param height - Current viewport height

@@ -23,7 +23,7 @@ interface ViewportWarningProps {
  * Viewport Size Warning Component
  *
  * Shows full-screen overlay when viewport doesn't meet requirements.
- * Supports multiple aspect ratios (4:3, 16:10, 16:9) and blocks ultra-wide.
+ * Supports multiple aspect ratios (4:3, 16:10, 16:9, 21:9) and blocks super ultra-wide.
  * Provides reason-specific feedback and suggestions.
  *
  * @example
@@ -102,12 +102,12 @@ export function ViewportWarning({ showAdminOverride = false }: ViewportWarningPr
 
       case 'too_wide':
         return {
-          title: 'Tela ultra-wide não suportada',
-          description: `Proporção ${aspectRatioLabel} (${aspectRatio?.toFixed(2)}:1) é mais larga que o máximo 16:9 (1.78:1).`,
+          title: 'Tela super ultra-wide não suportada',
+          description: `Proporção ${aspectRatioLabel} (${aspectRatio?.toFixed(2)}:1) é mais larga que o máximo 21:9 (2.40:1).`,
           suggestions: [
-            { icon: Maximize2, text: 'Redimensione a janela do navegador para formato 16:9' },
-            { icon: Monitor, text: 'Use um monitor com proporção padrão (4:3, 16:10, 16:9)' },
-            { icon: AlertCircle, text: 'Apresentações em ultra-wide (21:9, 32:9) ficam distorcidas' },
+            { icon: Maximize2, text: 'Redimensione a janela do navegador' },
+            { icon: Monitor, text: 'Use um monitor com proporção até 21:9' },
+            { icon: AlertCircle, text: 'Apresentações em 32:9 têm margens excessivas' },
           ],
         };
 
@@ -157,7 +157,7 @@ export function ViewportWarning({ showAdminOverride = false }: ViewportWarningPr
               <div className="flex justify-between items-center">
                 <span className="text-sm font-medium">Proporções suportadas:</span>
                 <span className="text-sm font-mono text-green-600">
-                  4:3 até 16:9
+                  4:3 até 21:9
                 </span>
               </div>
             </AlertDescription>
@@ -192,6 +192,12 @@ export function ViewportWarning({ showAdminOverride = false }: ViewportWarningPr
                 <span className="font-medium">16:9:</span>{' '}
                 <span className="text-muted-foreground">
                   {SUPPORTED_RESOLUTIONS['16:9'].slice(0, 2).join(', ')}
+                </span>
+              </div>
+              <div className="col-span-2">
+                <span className="font-medium">21:9:</span>{' '}
+                <span className="text-muted-foreground">
+                  {SUPPORTED_RESOLUTIONS['21:9'].slice(0, 2).join(', ')}
                 </span>
               </div>
             </div>
