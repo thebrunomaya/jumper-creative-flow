@@ -20,11 +20,11 @@ Ask the user for the following (if not already provided in the command arguments
    - `koko` - Koko brand (check design-system.md)
 
 3. **Input File** (required):
-   - Path to content file in `/decks/input/[filename].md`
+   - Path to content file in `/public/decks/input/[filename].md`
    - Example: `atulado.md`
 
 4. **Template Inspiration** (optional):
-   - Choose from `/decks/examples/[template].html`
+   - Choose from `/public/decks/examples/[template].html`
    - Recommended for reports: `apple-minimal.html`, `jumper-stats-focus.html`
    - Recommended for plans: `jumper-dark-premium.html`, `modern-tech-startup.html`
    - Recommended for pitches: `cluely-3d-style.html`, `modern-saas-dark.html`
@@ -34,13 +34,13 @@ Ask the user for the following (if not already provided in the command arguments
 
 **MANDATORY ORDER:**
 
-1. ✅ Read `/decks/identities/[identity]/design-system.md` (source of truth for brand)
-2. ✅ Read `/decks/input/[filename].md` (content to present)
-3. ✅ Read `/decks/examples/[template].html` (inspiration only, if specified)
-4. ✅ Read `/decks/decks.md` (presentation creation guidelines)
+1. ✅ Read `/public/decks/identities/[identity]/design-system.md` (source of truth for brand)
+2. ✅ Read `/public/decks/input/[filename].md` (content to present)
+3. ✅ Read `/public/decks/examples/[template].html` (inspiration only, if specified)
+4. ✅ Read `/public/decks/decks.md` (presentation creation guidelines)
 5. ✅ Generate presentation following all guidelines
 6. ✅ **Determine output filename** (see Step 2.1 below)
-7. ✅ Save to `/decks/output/[generated-filename].html`
+7. ✅ Save to `/public/decks/output/[generated-filename].html`
 
 #### Step 2.1: Output Filename Generation (MANDATORY)
 
@@ -72,7 +72,7 @@ Ask the user for the following (if not already provided in the command arguments
    - Example: January 5, 2026 → "20260105"
 
 4. **Check for duplicates:**
-   - Check if `/decks/output/[type]-[client-slug]-[YYYYMMDD].html` already exists
+   - Check if `/public/decks/output/[type]-[client-slug]-[YYYYMMDD].html` already exists
    - If exists, try `-v2`, then `-v3`, `-v4`, etc. until finding unique filename
    - Maximum 10 versions (if all taken, ask user for manual name)
 
@@ -102,7 +102,7 @@ Before finalizing, verify:
 ### Step 3: Output
 
 Confirm completion with:
-- File path: `/decks/output/[type]-[client]-[YYYYMMDD].html` (e.g., `report-molduraminuto-20251103.html`)
+- File path: `/public/decks/output/[type]-[client]-[YYYYMMDD].html` (e.g., `report-molduraminuto-20251103.html`)
 - Slide count
 - Key features applied (gradients used, animations, visualizations)
 - Next steps (open in browser, iterate if needed)
@@ -114,12 +114,12 @@ Confirm completion with:
 ```
 
 **Process:**
-1. Reads `/decks/input/molduraminuto.md`
+1. Reads `/public/decks/input/molduraminuto.md`
 2. Extracts client name "Moldura Minuto" from markdown
 3. Generates slug "molduraminuto"
 4. Formats today's date (e.g., "20251103")
 5. Checks for duplicates, creates `-v2` if needed
-6. **Saves to:** `/decks/output/report-molduraminuto-20251103.html`
+6. **Saves to:** `/public/decks/output/report-molduraminuto-20251103.html`
 
 This generates a report deck using Jumper identity, inspired by apple-minimal.html, with automatic filename generation.
 
