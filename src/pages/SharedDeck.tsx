@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Lock, Eye, EyeOff, Loader2, AlertCircle } from "lucide-react";
+import { ViewportWarning } from "@/components/decks/ViewportWarning";
 
 interface SharedDeckData {
   id: string;
@@ -246,6 +247,9 @@ export default function SharedDeck() {
   // Render deck HTML
   return (
     <div className="min-h-screen bg-black">
+      {/* Viewport size validation */}
+      <ViewportWarning />
+
       {/* Deck metadata banner (optional, can be removed for cleaner view) */}
       <div className="bg-white border-b py-2 px-4 text-sm text-muted-foreground flex items-center justify-between">
         <span className="truncate">

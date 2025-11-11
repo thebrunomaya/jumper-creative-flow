@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AlertCircle } from "lucide-react";
+import { ViewportWarning } from "@/components/decks/ViewportWarning";
 
 interface Deck {
   id: string;
@@ -17,9 +18,10 @@ export default function DeckPreview() {
   const [deck, setDeck] = useState<Deck | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [userRole, setUserRole] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchDeck = async () => {
+    const fetchDeckAndUser = async () => {
       try {
         setLoading(true);
         setError(null);
@@ -28,6 +30,7 @@ export default function DeckPreview() {
           throw new Error("ID do deck não fornecido");
         }
 
+        // Fetch deck
         const { data, error: fetchError } = await supabase
           .from("j_hub_decks")
           .select("id, title, html_output, file_url")
@@ -38,6 +41,21 @@ export default function DeckPreview() {
         if (!data) throw new Error("Deck não encontrado");
 
         setDeck(data);
+
+        // Fetch user role for admin override
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+
+        if (user) {
+          const { data: userData } = await supabase
+            .from("j_hub_users")
+            .select("role")
+            .eq("id", user.id)
+            .single();
+
+          setUserRole(userData?.role || null);
+        }
       } catch (err: any) {
         console.error("Error fetching deck:", err);
         setError(err.message || "Erro ao carregar deck");
@@ -46,7 +64,7 @@ export default function DeckPreview() {
       }
     };
 
-    fetchDeck();
+    fetchDeckAndUser();
   }, [deckId]);
 
   // Loading state
@@ -78,6 +96,9 @@ export default function DeckPreview() {
   // Render full-screen deck
   return (
     <div className="min-h-screen bg-black">
+      {/* Viewport size validation */}
+      <ViewportWarning showAdminOverride={userRole === "admin"} />
+
       {deck.html_output ? (
         <iframe
           srcDoc={deck.html_output}

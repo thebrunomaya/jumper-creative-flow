@@ -7,10 +7,24 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.14';
+export const APP_VERSION = 'v2.1.15';
 
 /**
  * Version history:
+ * - v2.1.15 (2024-11-11):
+ *   - FEATURE: Viewport size validation for deck presentations
+ *   - NEW: ViewportWarning component shows overlay when screen too small (< 1600x900px)
+ *   - NEW: useViewportSize hook tracks viewport dimensions reactively
+ *   - NEW: viewport.ts config with minimum/recommended resolutions
+ *   - PAGES: DeckPreview and SharedDeck now block access on small screens
+ *   - UX: Helpful suggestions (maximize window, use larger screen, rotate device)
+ *   - ADMIN: "Forçar visualização" override button (DeckPreview only)
+ *   - PERSISTENCE: Admin override saved in localStorage (persists across reloads)
+ *   - RATIONALE: Fixed layout slides break on small screens (elements overlap, unreadable)
+ *   - MINIMUM: 1600x900px (balanced, covers modern laptops)
+ *   - RECOMMENDED: 1920x1080px (Full HD for optimal quality)
+ *   - SCOPE: Preview/share routes only (editor route unchanged)
+ *
  * - v2.1.14 (2024-11-11):
  *   - MAJOR FEATURE: Complete Iterative AI Refinement System for decks
  *   - PHASE 1 - Versionamento:
