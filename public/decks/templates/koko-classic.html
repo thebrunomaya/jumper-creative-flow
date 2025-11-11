@@ -6,14 +6,21 @@
     <title>Koko Classic Template - Agência Koko</title>
     <style>
         /**
-         * KOKO CLASSIC TEMPLATE
-         * Template para apresentações criativas e relatórios de performance
+         * KOKO CLASSIC TEMPLATE v2.0
+         * Template COMPLETO para apresentações criativas e relatórios de performance
          * Design System: Energético, criativo, ousado com elementos visuais únicos
          * Paleta: Amarelo (#F5C542), Rosa (#FF0080), Preto, Branco
          * Font: Alternate Gothic (títulos) + Playfair Display (corpo) + Montserrat (UI)
          *
-         * IMPORTANTE: Este é um TEMPLATE de referência visual.
-         * Claude AI deve usar os padrões aqui como inspiração para gerar slides dinamicamente.
+         * IMPORTANTE: Este é um TEMPLATE de referência visual completo.
+         * Claude AI deve usar os padrões aqui como base para gerar slides dinamicamente.
+         *
+         * NOVIDADES v2.0:
+         * - Sistema de navegação interativo (setas, dots, contador)
+         * - Mais padrões de slides (stack-cards, metric-cards, emphasis-box, two-column-data)
+         * - Exemplos de 12 tipos diferentes de slides
+         * - Slide de contracapa
+         * - Transições suaves entre slides
          *
          * BRANDING: Koko é uma agência criativa independente.
          * NÃO mencionar Jumper Studio em nenhum lugar (somos terceirizados).
@@ -79,7 +86,7 @@
             font-family: 'Alternate Gothic', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             background: #FFFFFF;
             color: #000000;
-            overflow-x: hidden;
+            overflow: hidden;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
         }
@@ -97,15 +104,39 @@
 
         /* ========================================
            PRESENTATION CONTAINER
-           Scroll snap para navegação suave entre slides
+           Sistema de slides com navegação interativa
            ======================================== */
-        .presentation {
+        .presentation-container {
             width: 100vw;
             height: 100vh;
             position: relative;
-            overflow-y: scroll;
-            scroll-snap-type: y mandatory;
-            scroll-behavior: smooth;
+            overflow: hidden;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 700ms ease-out, transform 700ms ease-out;
+            transform: translateX(100%);
+            padding: clamp(100px, 14vh, 160px) clamp(60px, 8vw, 140px) clamp(140px, 16vh, 180px);
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: translateX(0);
+            z-index: 10;
+        }
+
+        .slide.prev {
+            opacity: 0;
+            transform: translateX(-100%);
         }
 
         /* ========================================
@@ -171,51 +202,21 @@
         }
 
         /* ========================================
-           SLIDE SYSTEM
-           Base para todos os slides
+           SLIDE CONTENT BASE
+           Base para conteúdo de todos os slides
            ======================================== */
-        .slide {
-            width: 100%;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            scroll-snap-align: start;
-            padding: clamp(80px, 12vh, 140px) clamp(40px, 6vw, 120px) clamp(120px, 14vh, 160px);
-        }
-
         .slide-content {
-            max-width: 1400px;
+            max-width: 1100px;
             width: 100%;
             margin: 0 auto;
-            opacity: 0;
-            transform: translateY(30px);
-            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards;
-        }
-
-        @keyframes fadeInUp {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            position: relative;
+            z-index: 10;
         }
 
         /* ========================================
            HERO SLIDE PATTERN
            Slide de capa com mãos de gorila
            Uso: Primeira página da apresentação
-
-           Estrutura HTML:
-           <div class="slide hero-slide">
-               <div class="hero-background" style="background-image: url(...)"></div>
-               <img class="gorilla-hand left" src="..." />
-               <img class="gorilla-hand right" src="..." />
-               <div class="hero-content">
-                   <h1>TÍTULO PRINCIPAL</h1>
-                   <p class="hero-subtitle">Subtítulo ou descrição</p>
-               </div>
-           </div>
            ======================================== */
         .hero-slide {
             padding: 0;
@@ -225,10 +226,10 @@
         .hero-background {
             position: absolute;
             inset: 0;
+            background-image: url('https://hub.jumper.studio/decks/identities/koko/elements/fundo da capa.png');
             background-size: cover;
             background-position: center;
-            background-repeat: no-repeat;
-            pointer-events: none;
+            z-index: 0;
         }
 
         .gorilla-hand {
@@ -236,17 +237,19 @@
             width: 43vw;
             max-width: 540px;
             pointer-events: none;
-            z-index: 10;
+            z-index: 5;
         }
 
         .gorilla-hand.left {
             left: -5%;
             top: -5%;
+            transform: rotate(15deg);
         }
 
         .gorilla-hand.right {
             right: -5%;
             bottom: -5%;
+            transform: rotate(315deg);
         }
 
         .hero-content {
@@ -258,26 +261,26 @@
         }
 
         .hero-content h1 {
-            font-family: 'Alternate Gothic', sans-serif;
             font-size: clamp(60px, 10vw, 120px);
             font-weight: 900;
-            line-height: 0.95;
+            line-height: 0.9;
             letter-spacing: -0.02em;
-            margin-bottom: clamp(30px, 5vh, 50px);
+            margin-bottom: 50px;
             text-transform: uppercase;
         }
 
         .hero-subtitle {
             font-family: 'Playfair Display', serif;
-            font-size: clamp(20px, 3vw, 32px);
+            font-size: clamp(24px, 3vw, 32px);
             font-weight: 700;
+            font-style: italic;
             line-height: 1.3;
             margin-bottom: 16px;
         }
 
         .hero-meta {
             font-family: 'Playfair Display', serif;
-            font-size: clamp(14px, 2vw, 18px);
+            font-size: clamp(16px, 2vw, 20px);
             font-weight: 400;
             color: rgba(0, 0, 0, 0.7);
             line-height: 1.5;
@@ -286,93 +289,41 @@
         /* ========================================
            CONTENT SLIDE PATTERN
            Slide padrão com título + subtítulo + conteúdo
-           Uso: Maioria dos slides de conteúdo
-
-           Estrutura HTML:
-           <div class="slide">
-               <div class="slide-content">
-                   <h2 class="slide-title">TÍTULO DO SLIDE</h2>
-                   <p class="slide-subtitle">Subtítulo opcional</p>
-                   <!-- Conteúdo aqui (cards, lista, texto, etc) -->
-               </div>
-           </div>
            ======================================== */
         .slide-title {
-            font-family: 'Alternate Gothic', sans-serif;
-            font-size: clamp(48px, 7vw, 80px);
+            font-size: clamp(36px, 5.5vw, 56px);
             font-weight: 900;
-            line-height: 1;
+            line-height: 0.95;
             letter-spacing: -0.02em;
-            margin-bottom: clamp(15px, 2vh, 25px);
+            margin-bottom: 16px;
             text-transform: uppercase;
         }
 
         .slide-subtitle {
             font-family: 'Playfair Display', serif;
-            font-size: clamp(18px, 2.5vw, 24px);
+            font-size: clamp(16px, 2vw, 20px);
             font-style: italic;
             color: rgba(0, 0, 0, 0.7);
-            margin-bottom: clamp(40px, 6vh, 60px);
+            margin-bottom: 32px;
         }
 
         /* ========================================
            CARDS GRID PATTERN
            Grid de cards para múltiplos itens
-           Uso: Contexto, fases, métricas, insights, etc.
-
-           Tipos de cards:
-           - .card-default: Branco com borda (padrão)
-           - .card-highlight-yellow: Destaque amarelo
-           - .card-highlight-pink: Destaque rosa
-           - .card-dark: Fundo preto com texto branco
-
-           Estrutura HTML:
-           <div class="cards-grid">
-               <div class="card card-default corner-cut">
-                   <h3 class="card-title">TÍTULO</h3>
-                   <p class="card-content">Conteúdo...</p>
-               </div>
-               <div class="card card-highlight-yellow corner-cut">
-                   <h3 class="card-title">DESTAQUE</h3>
-                   <p class="card-content">Conteúdo...</p>
-               </div>
-           </div>
            ======================================== */
         .cards-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: clamp(20px, 3vw, 30px);
-            margin-top: clamp(30px, 5vh, 50px);
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 18px;
+            margin-top: 24px;
         }
 
         .card {
-            padding: clamp(24px, 3vw, 32px);
-            border-radius: 4px;
+            padding: 18px;
             position: relative;
-            overflow: hidden;
-            opacity: 0;
-            transform: translateY(30px);
-            animation: cardSlideUp 0.6s ease-out forwards;
-            transition: transform 0.3s ease;
+            overflow: visible; /* Permite corner-fold aparecer */
         }
 
-        .card:hover {
-            transform: translateY(-4px);
-        }
-
-        .card:nth-child(1) { animation-delay: 0.5s; }
-        .card:nth-child(2) { animation-delay: 0.6s; }
-        .card:nth-child(3) { animation-delay: 0.7s; }
-        .card:nth-child(4) { animation-delay: 0.8s; }
-
-        @keyframes cardSlideUp {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Card variants */
         .card-default {
             background: var(--koko-white);
             border: 2px solid var(--koko-black);
@@ -394,93 +345,267 @@
             color: var(--koko-white);
         }
 
-        /* Corner cut effect (losango) */
+        /* Corner fold effect (dog-ear com diagonal) */
+        .corner-cut {
+            position: relative;
+        }
+
+        /* Quadrado no canto com diagonal dividindo em dois triângulos */
         .corner-cut::after {
             content: '';
             position: absolute;
-            bottom: -16px;
-            right: -16px;
-            width: 32px;
-            height: 32px;
-            background: var(--koko-black);
-            transform: rotate(45deg);
+            bottom: 0;
+            right: 0;
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg,
+                #d9d9d9 0%,      /* Triângulo superior-esquerdo (verso papel) */
+                #d9d9d9 49.5%,   /* Até diagonal */
+                #000 49.5%,      /* Borda preta */
+                #000 50.5%,      /* Borda preta */
+                #f5f5f5 50.5%,   /* Fundo externo */
+                #f5f5f5 100%     /* Triângulo inferior-direito */
+            );
+            clip-path: polygon(0 0, 100% 100%, 0 100%); /* Remove bordas direita/inferior */
         }
 
+        /* Cards escuros - verso preto mais claro */
         .card-dark.corner-cut::after {
-            background: var(--koko-white);
+            background: linear-gradient(135deg,
+                #1a1a1a 0%,
+                #1a1a1a 49.5%,
+                #666 49.5%,
+                #666 50.5%,
+                #f5f5f5 50.5%,
+                #f5f5f5 100%
+            );
+        }
+
+        /* Cards amarelos - verso amarelo escurecido */
+        .card-highlight-yellow.corner-cut::after {
+            background: linear-gradient(135deg,
+                #c89420 0%,
+                #c89420 49.5%,
+                #000 49.5%,
+                #000 50.5%,
+                #f5f5f5 50.5%,
+                #f5f5f5 100%
+            );
+        }
+
+        /* Cards rosa - verso rosa escurecido */
+        .card-highlight-pink.corner-cut::after {
+            background: linear-gradient(135deg,
+                #cc0066 0%,
+                #cc0066 49.5%,
+                #000 49.5%,
+                #000 50.5%,
+                #f5f5f5 50.5%,
+                #f5f5f5 100%
+            );
+        }
+
+        /* Emphasis box amarela - verso marrom */
+        .emphasis-box.corner-cut::after {
+            background: linear-gradient(135deg,
+                #c89420 0%,
+                #c89420 49.5%,
+                #000 49.5%,
+                #000 50.5%,
+                #f5f5f5 50.5%,
+                #f5f5f5 100%
+            );
+        }
+
+        /* Emphasis box dark - verso cinza */
+        .emphasis-box.dark.corner-cut::after {
+            background: linear-gradient(135deg,
+                #1a1a1a 0%,
+                #1a1a1a 49.5%,
+                #666 49.5%,
+                #666 50.5%,
+                #f5f5f5 50.5%,
+                #f5f5f5 100%
+            );
         }
 
         .card-title {
-            font-family: 'Alternate Gothic', sans-serif;
-            font-size: clamp(20px, 2.5vw, 28px);
+            font-size: clamp(16px, 2vw, 18px);
             font-weight: 700;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
             text-transform: uppercase;
+            line-height: 1.2;
         }
 
         .card-content {
             font-family: 'Playfair Display', serif;
-            font-size: clamp(14px, 1.8vw, 18px);
+            font-size: 13px;
             line-height: 1.5;
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-            hyphens: auto;
+        }
+
+        .card-content ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .card-content li {
+            margin-bottom: 6px;
         }
 
         .card-metric {
-            font-family: 'Alternate Gothic', sans-serif;
-            font-size: clamp(32px, 5vw, 48px);
+            font-size: 28px;
             font-weight: 900;
             margin-bottom: 8px;
             line-height: 1;
         }
 
         /* ========================================
+           STACK CARDS PATTERN
+           Cards empilhados verticalmente
+           ======================================== */
+        .stack-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        /* ========================================
+           METRIC CARDS PATTERN
+           Cards compactos para métricas
+           ======================================== */
+        .metric-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .metric-card {
+            background: var(--koko-black);
+            color: var(--koko-white);
+            padding: 14px;
+            position: relative;
+        }
+
+        .metric-label {
+            font-family: 'Playfair Display', serif;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            opacity: 0.8;
+            margin-bottom: 6px;
+        }
+
+        .metric-value {
+            font-size: 26px;
+            font-weight: 900;
+            line-height: 1;
+        }
+
+        /* Metric cards - dog-ear menor (16px) */
+        .metric-card.corner-cut::after {
+            width: 16px;
+            height: 16px;
+            background: linear-gradient(135deg,
+                #1a1a1a 0%,
+                #1a1a1a 49.5%,
+                #666 49.5%,
+                #666 50.5%,
+                #f5f5f5 50.5%,
+                #f5f5f5 100%
+            );
+        }
+
+        /* ========================================
+           EMPHASIS BOX PATTERN
+           Caixas de destaque para informações importantes
+           ======================================== */
+        .emphasis-box {
+            background: var(--koko-yellow);
+            padding: 18px;
+            margin-top: 20px;
+            position: relative;
+        }
+
+        .emphasis-box.dark {
+            background: var(--koko-black);
+            color: var(--koko-white);
+        }
+
+        .emphasis-box p {
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        /* ========================================
+           DATA LIST PATTERN
+           Grid de métricas label + value
+           ======================================== */
+        .data-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-top: 24px;
+        }
+
+        .data-column h3 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 14px;
+            text-transform: uppercase;
+        }
+
+        .data-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+            padding-bottom: 6px;
+            margin-bottom: 10px;
+        }
+
+        .data-label {
+            font-family: 'Playfair Display', serif;
+            font-size: 13px;
+        }
+
+        .data-value {
+            font-size: 18px;
+            font-weight: 900;
+        }
+
+        /* ========================================
+           TWO COLUMN LAYOUT PATTERN
+           Layout de duas colunas
+           ======================================== */
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-top: 24px;
+        }
+
+        /* ========================================
            TIMELINE PATTERN
            Lista vertical com borda à esquerda
-           Uso: Evolução temporal, fases, progresso
-
-           Variantes de borda:
-           - .timeline-item-default: Borda preta
-           - .timeline-item-yellow: Borda amarela
-           - .timeline-item-pink: Borda rosa (destaque)
-
-           Estrutura HTML:
-           <div class="timeline-container">
-               <div class="timeline-item timeline-item-default">
-                   <div class="timeline-item-content">
-                       <h3 class="timeline-title">SEMANA 1</h3>
-                       <p class="timeline-content">Descrição...</p>
-                   </div>
-                   <span class="timeline-icon">📊</span>
-               </div>
-           </div>
            ======================================== */
         .timeline-container {
             display: flex;
             flex-direction: column;
-            gap: 16px;
-            margin-top: clamp(30px, 5vh, 50px);
-            max-width: 1000px;
+            gap: 12px;
+            margin-top: 24px;
         }
 
         .timeline-item {
             background: var(--koko-white);
-            border-left: 8px solid var(--koko-black);
-            padding: 16px 24px;
+            border-left: 6px solid var(--koko-black);
+            padding: 14px 20px;
             position: relative;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            opacity: 0;
-            animation: fadeInUp 0.5s ease-out forwards;
         }
-
-        .timeline-item:nth-child(1) { animation-delay: 0.5s; }
-        .timeline-item:nth-child(2) { animation-delay: 0.6s; }
-        .timeline-item:nth-child(3) { animation-delay: 0.7s; }
-        .timeline-item:nth-child(4) { animation-delay: 0.8s; }
-        .timeline-item:nth-child(5) { animation-delay: 0.9s; }
 
         .timeline-item-yellow {
             border-left-color: var(--koko-yellow);
@@ -497,260 +622,200 @@
         }
 
         .timeline-title {
-            font-family: 'Alternate Gothic', sans-serif;
-            font-size: clamp(20px, 2.5vw, 28px);
+            font-size: clamp(16px, 2vw, 20px);
             font-weight: 700;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             text-transform: uppercase;
         }
 
         .timeline-content {
             font-family: 'Playfair Display', serif;
-            font-size: clamp(14px, 1.8vw, 18px);
+            font-size: clamp(13px, 1.6vw, 15px);
             line-height: 1.4;
         }
 
         .timeline-icon {
-            font-size: clamp(32px, 4vw, 48px);
-            margin-left: 24px;
-        }
-
-        /* ========================================
-           DATA LIST PATTERN
-           Lista horizontal de dados/métricas
-           Uso: Métricas consolidadas, resumos numéricos
-
-           Estrutura HTML:
-           <div class="data-list">
-               <div class="data-item">
-                   <span class="data-label">Total Spend</span>
-                   <span class="data-value">$1,016</span>
-               </div>
-           </div>
-           ======================================== */
-        .data-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: clamp(20px, 3vw, 30px);
-            margin-top: clamp(30px, 5vh, 50px);
-        }
-
-        .data-item {
-            text-align: center;
-            opacity: 0;
-            animation: fadeInUp 0.5s ease-out forwards;
-        }
-
-        .data-item:nth-child(1) { animation-delay: 0.5s; }
-        .data-item:nth-child(2) { animation-delay: 0.6s; }
-        .data-item:nth-child(3) { animation-delay: 0.7s; }
-        .data-item:nth-child(4) { animation-delay: 0.8s; }
-
-        .data-label {
-            font-family: 'Playfair Display', serif;
-            font-size: clamp(16px, 2vw, 20px);
-            display: block;
-            margin-bottom: 12px;
-            color: rgba(0, 0, 0, 0.7);
-        }
-
-        .data-value {
-            font-family: 'Alternate Gothic', sans-serif;
-            font-size: clamp(36px, 5vw, 56px);
-            font-weight: 900;
-            display: block;
-            line-height: 1;
+            font-size: clamp(28px, 3.5vw, 38px);
+            margin-left: 20px;
         }
 
         /* ========================================
            CONCLUSION SLIDE PATTERN
            Slide de conclusão com statement grande
-           Uso: Conclusões, mensagens-chave, CTAs
-
-           Estrutura HTML:
-           <div class="slide conclusion-slide">
-               <div class="slide-content">
-                   <h2 class="conclusion-title">MENSAGEM<br>PRINCIPAL ✅</h2>
-                   <div class="conclusion-box corner-cut">
-                       <p class="conclusion-text">Texto...</p>
-                   </div>
-               </div>
-           </div>
            ======================================== */
         .conclusion-slide .slide-content {
             text-align: center;
         }
 
         .conclusion-title {
-            font-family: 'Alternate Gothic', sans-serif;
-            font-size: clamp(60px, 10vw, 100px);
+            font-size: clamp(48px, 8vw, 76px);
             font-weight: 900;
             line-height: 0.95;
             color: var(--koko-pink);
-            margin-bottom: clamp(40px, 6vh, 60px);
+            margin-bottom: clamp(30px, 5vh, 45px);
             text-transform: uppercase;
         }
 
         .conclusion-box {
             background: var(--koko-yellow);
             border: 4px solid var(--koko-black);
-            padding: clamp(32px, 5vw, 48px);
+            padding: clamp(24px, 4vw, 36px);
             position: relative;
-            max-width: 900px;
+            max-width: 800px;
             margin: 0 auto;
         }
 
         .conclusion-text {
             font-family: 'Playfair Display', serif;
-            font-size: clamp(18px, 2.5vw, 24px);
+            font-size: clamp(15px, 2vw, 19px);
             line-height: 1.6;
         }
 
         /* ========================================
-           ⚠️ TEMPLATE TRUNCATION BOUNDARY (~20KB)
-
-           Claude AI receives approximately the first 20KB of this
-           template for generation context. This captures:
-
-           ✅ INCLUDED (sent to Claude):
-           - Font imports & design system colors
-           - Header/footer marquee structure
-           - Logo positioning
-           - Hero slide pattern (gorilla hands, backgrounds)
-           - Content slide pattern (titles, subtitles)
-           - Cards grid system (all variants: default, yellow, pink, dark)
-           - Timeline pattern (all variants with colored borders)
-           - Data list pattern (metrics display)
-           - Conclusion slide pattern (big statements, highlight boxes)
-
-           ⏸️ PARTIALLY INCLUDED:
-           - Two column layout (may be cut off mid-pattern)
-
-           ❌ NOT INCLUDED (below truncation):
-           - List pattern (bullet lists)
-           - Utility classes (text-center, bg-yellow, etc.)
-           - Responsive adjustments
-           - HTML body examples
-
-           Impact: All MAJOR component patterns are captured.
-           Claude can generate high-quality decks with the patterns above.
-
-           Last updated: 2024-11-11 (v2.1.26)
+           NAVIGATION SYSTEM
+           Setas, dots, contador de slides
            ======================================== */
-
-        /* ========================================
-           TWO COLUMN LAYOUT PATTERN
-           Layout de duas colunas
-           Uso: Comparações, antes/depois
-
-           Estrutura HTML:
-           <div class="two-column-layout">
-               <div class="column">
-                   <h3 class="column-title">COLUNA 1</h3>
-                   <p class="column-content">...</p>
-               </div>
-               <div class="column">
-                   <h3 class="column-title">COLUNA 2</h3>
-                   <p class="column-content">...</p>
-               </div>
-           </div>
-           ======================================== */
-        .two-column-layout {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: clamp(30px, 5vw, 60px);
-            margin-top: clamp(30px, 5vh, 50px);
+        .nav-dots {
+            position: fixed;
+            bottom: 72px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 12px;
+            z-index: 999;
         }
 
-        .column {
-            opacity: 0;
-            animation: fadeInUp 0.6s ease-out forwards;
+        .nav-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            transition: all 300ms ease;
         }
 
-        .column:nth-child(1) { animation-delay: 0.5s; }
-        .column:nth-child(2) { animation-delay: 0.7s; }
+        .nav-dot.active {
+            background: var(--koko-yellow);
+            transform: scale(1.3);
+        }
 
-        .column-title {
-            font-family: 'Alternate Gothic', sans-serif;
-            font-size: clamp(24px, 3vw, 32px);
+        .slide-counter {
+            position: fixed;
+            bottom: 72px;
+            right: 32px;
+            font-size: 14px;
             font-weight: 700;
-            margin-bottom: 20px;
-            text-transform: uppercase;
+            z-index: 999;
         }
 
-        .column-content {
-            font-family: 'Playfair Display', serif;
-            font-size: clamp(16px, 2vw, 20px);
-            line-height: 1.6;
+        .nav-arrow {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 48px;
+            height: 48px;
+            background: var(--koko-black);
+            color: var(--koko-white);
+            border: none;
+            cursor: pointer;
+            font-size: 24px;
+            z-index: 999;
+            transition: opacity 300ms ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        /* ========================================
-           LIST PATTERN
-           Lista simples com bullets
-           Uso: Listas de itens, checklists, features
-
-           Estrutura HTML:
-           <ul class="koko-list">
-               <li>Item 1</li>
-               <li>Item 2</li>
-           </ul>
-           ======================================== */
-        .koko-list {
-            font-family: 'Playfair Display', serif;
-            font-size: clamp(16px, 2vw, 20px);
-            line-height: 1.8;
-            list-style: none;
-            padding-left: 0;
-            max-width: 800px;
-            margin: clamp(30px, 5vh, 50px) auto;
+        .nav-arrow:hover {
+            opacity: 0.8;
         }
 
-        .koko-list li {
-            padding-left: 32px;
-            position: relative;
-            margin-bottom: 16px;
-            opacity: 0;
-            animation: fadeInUp 0.5s ease-out forwards;
+        .nav-arrow.prev {
+            left: 32px;
         }
 
-        .koko-list li:nth-child(1) { animation-delay: 0.5s; }
-        .koko-list li:nth-child(2) { animation-delay: 0.6s; }
-        .koko-list li:nth-child(3) { animation-delay: 0.7s; }
-        .koko-list li:nth-child(4) { animation-delay: 0.8s; }
-
-        .koko-list li::before {
-            content: '•';
-            position: absolute;
-            left: 0;
-            font-size: 28px;
-            line-height: 1;
-            color: var(--koko-yellow);
+        .nav-arrow.next {
+            right: 32px;
         }
 
         /* ========================================
            UTILITY CLASSES
-           Classes auxiliares para uso geral
            ======================================== */
         .text-center { text-align: center; }
         .text-left { text-align: left; }
         .text-yellow { color: var(--koko-yellow); }
         .text-pink { color: var(--koko-pink); }
-        .bg-yellow { background: var(--koko-yellow); }
-        .bg-pink { background: var(--koko-pink); color: var(--koko-white); }
-        .bg-black { background: var(--koko-black); color: var(--koko-white); }
-        .mt-small { margin-top: clamp(20px, 3vh, 30px); }
-        .mt-medium { margin-top: clamp(30px, 5vh, 50px); }
-        .mt-large { margin-top: clamp(50px, 8vh, 80px); }
 
         /* ========================================
            RESPONSIVE ADJUSTMENTS
            ======================================== */
+        @media (max-width: 1024px) {
+            .slide {
+                padding: clamp(90px, 12vh, 140px) clamp(40px, 6vw, 80px) clamp(120px, 14vh, 160px);
+            }
+
+            .slide-content {
+                max-width: 900px;
+            }
+        }
+
         @media (max-width: 768px) {
-            .two-column-layout { grid-template-columns: 1fr; gap: 30px; }
-            .cards-grid { grid-template-columns: 1fr; }
-            .gorilla-hand { width: 60vw; }
-            .logo-container { top: 56px; left: 20px; }
-            .logo-container img { height: 36px; }
+            .slide {
+                padding: 80px 32px 120px;
+            }
+
+            .two-column,
+            .data-list,
+            .metric-cards {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+
+            .cards-grid {
+                grid-template-columns: 1fr;
+                gap: 14px;
+            }
+
+            .slide-title {
+                font-size: 32px;
+                margin-bottom: 12px;
+            }
+
+            .slide-subtitle {
+                font-size: 15px;
+                margin-bottom: 24px;
+            }
+
+            .hero-content h1 {
+                font-size: 48px;
+            }
+
+            .nav-arrow {
+                display: none;
+            }
+
+            .card {
+                padding: 16px;
+            }
+
+            .metric-card {
+                padding: 12px;
+            }
+
+            .timeline-item {
+                padding: 12px 16px;
+            }
+
+            .emphasis-box {
+                padding: 16px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
         }
     </style>
 </head>
@@ -758,12 +823,20 @@
     <!-- Header Marquee -->
     <div class="marquee-container top">
         <div class="marquee-content">
-            <span class="marquee-text">{{PROJECT_NAME}} • {{CLIENT_NAME}}</span>
-            <span class="marquee-text">AGÊNCIA KOKO</span>
-            <span class="marquee-text">{{PROJECT_NAME}} • {{CLIENT_NAME}}</span>
-            <span class="marquee-text">AGÊNCIA KOKO</span>
-            <span class="marquee-text">{{PROJECT_NAME}} • {{CLIENT_NAME}}</span>
-            <span class="marquee-text">AGÊNCIA KOKO</span>
+            <span class="marquee-text">{{PROJECT_NAME}} • {{CLIENT_NAME}} • AGÊNCIA KOKO •</span>
+            <span class="marquee-text">{{PROJECT_NAME}} • {{CLIENT_NAME}} • AGÊNCIA KOKO •</span>
+            <span class="marquee-text">{{PROJECT_NAME}} • {{CLIENT_NAME}} • AGÊNCIA KOKO •</span>
+            <span class="marquee-text">{{PROJECT_NAME}} • {{CLIENT_NAME}} • AGÊNCIA KOKO •</span>
+        </div>
+    </div>
+
+    <!-- Footer Marquee -->
+    <div class="marquee-container bottom">
+        <div class="marquee-content">
+            <span class="marquee-text">{{DATE_RANGE}} • {{PROJECT_DESCRIPTION}} • CREATIVE AGENCY •</span>
+            <span class="marquee-text">{{DATE_RANGE}} • {{PROJECT_DESCRIPTION}} • CREATIVE AGENCY •</span>
+            <span class="marquee-text">{{DATE_RANGE}} • {{PROJECT_DESCRIPTION}} • CREATIVE AGENCY •</span>
+            <span class="marquee-text">{{DATE_RANGE}} • {{PROJECT_DESCRIPTION}} • CREATIVE AGENCY •</span>
         </div>
     </div>
 
@@ -773,80 +846,162 @@
     </div>
 
     <!-- Presentation Container -->
-    <div class="presentation">
+    <div class="presentation-container">
 
-        <!-- EXEMPLO: HERO SLIDE -->
-        <div class="slide hero-slide">
-            <div class="hero-background" style="background-image: url('https://hub.jumper.studio/decks/identities/koko/elements/hero-background.png');"></div>
-
+        <!-- SLIDE 1: CAPA (HERO) -->
+        <div class="slide hero-slide active">
+            <div class="hero-background" style="background-image: url('https://hub.jumper.studio/decks/identities/koko/elements/fundo da capa.png');"></div>
             <img class="gorilla-hand left"
-                 src="https://hub.jumper.studio/decks/identities/koko/elements/gorilla-hand-left.png"
-                 style="transform: rotate(0deg);" />
-
+                 src="https://hub.jumper.studio/decks/identities/koko/elements/Gorila mao pela direita.png"
+                 alt="">
             <img class="gorilla-hand right"
-                 src="https://hub.jumper.studio/decks/identities/koko/elements/gorilla-hand-right.png"
-                 style="transform: rotate(0deg);" />
-
+                 src="https://hub.jumper.studio/decks/identities/koko/elements/Gorila mao pela esquerda.png"
+                 alt="">
             <div class="hero-content">
                 <h1>TÍTULO DO<br>PROJETO</h1>
                 <p class="hero-subtitle">Subtítulo ou Nome do Cliente</p>
-                <p class="hero-meta">Período: Data inicial - Data final • Descrição do projeto</p>
+                <p class="hero-meta">Período: Data inicial - Data final<br>Descrição do projeto ou contexto</p>
             </div>
         </div>
 
-        <!-- EXEMPLO: CONTENT SLIDE com Cards -->
+        <!-- SLIDE 2: RESUMO EXECUTIVO (Cards Grid) -->
         <div class="slide">
             <div class="slide-content">
-                <h2 class="slide-title">TÍTULO DO SLIDE</h2>
-                <p class="slide-subtitle">Subtítulo opcional</p>
+                <h2 class="slide-title">RESUMO EXECUTIVO</h2>
+                <p class="slide-subtitle">Visão geral do projeto</p>
 
                 <div class="cards-grid">
                     <div class="card card-default corner-cut">
-                        <h3 class="card-title">ITEM 1</h3>
-                        <p class="card-content">Descrição do item...</p>
+                        <h3 class="card-title">CONTEXTO</h3>
+                        <div class="card-content">
+                            <ul>
+                                <li>• Ponto principal 1</li>
+                                <li>• Ponto principal 2</li>
+                                <li>• Ponto principal 3</li>
+                            </ul>
+                        </div>
                     </div>
 
                     <div class="card card-highlight-yellow corner-cut">
-                        <h3 class="card-title">DESTAQUE</h3>
-                        <div class="card-metric">$1,234</div>
-                        <p class="card-content">Descrição...</p>
+                        <h3 class="card-title">RESULTADO</h3>
+                        <div class="card-metric">+127%</div>
+                        <div class="card-content">
+                            Métrica principal destacada com aumento significativo
+                        </div>
                     </div>
 
                     <div class="card card-highlight-pink corner-cut">
-                        <h3 class="card-title">ESPECIAL</h3>
-                        <p class="card-content">Descrição...</p>
+                        <h3 class="card-title">DESTAQUE</h3>
+                        <div class="card-content">
+                            Insight ou conquista mais importante do projeto
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- EXEMPLO: TIMELINE SLIDE -->
+        <!-- SLIDE 3: ESTRUTURA DO PROJETO (Stack Cards) -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2 class="slide-title">ESTRUTURA DO PROJETO</h2>
+                <p class="slide-subtitle">Organização e componentes</p>
+
+                <div class="stack-cards">
+                    <div class="card card-default corner-cut">
+                        <h3 class="card-title">FASE 1: DESCOBERTA</h3>
+                        <div class="card-content">
+                            Pesquisa de mercado, análise de concorrência, definição de personas e mapeamento de oportunidades.
+                        </div>
+                    </div>
+
+                    <div class="card card-default corner-cut">
+                        <h3 class="card-title">FASE 2: PLANEJAMENTO</h3>
+                        <div class="card-content">
+                            Estratégia de conteúdo, definição de KPIs, cronograma de execução e alocação de recursos.
+                        </div>
+                    </div>
+
+                    <div class="card card-highlight-yellow corner-cut">
+                        <h3 class="card-title">FASE 3: EXECUÇÃO</h3>
+                        <div class="card-content">
+                            Implementação da campanha, criação de assets, lançamento em canais e monitoramento em tempo real.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 4: MÉTRICAS PRINCIPAIS (Metric Cards) -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2 class="slide-title">MÉTRICAS CONSOLIDADAS</h2>
+                <p class="slide-subtitle">Performance do período</p>
+
+                <div class="metric-cards">
+                    <div class="metric-card corner-cut">
+                        <div class="metric-label">Total Investido</div>
+                        <div class="metric-value">R$ 45K</div>
+                    </div>
+
+                    <div class="metric-card corner-cut">
+                        <div class="metric-label">Conversões</div>
+                        <div class="metric-value">1.234</div>
+                    </div>
+
+                    <div class="metric-card corner-cut">
+                        <div class="metric-label">Custo/Conv</div>
+                        <div class="metric-value">R$ 36</div>
+                    </div>
+
+                    <div class="metric-card corner-cut">
+                        <div class="metric-label">ROAS</div>
+                        <div class="metric-value">4.8x</div>
+                    </div>
+
+                    <div class="metric-card corner-cut">
+                        <div class="metric-label">CTR</div>
+                        <div class="metric-value">3.2%</div>
+                    </div>
+
+                    <div class="metric-card corner-cut">
+                        <div class="metric-label">CPC</div>
+                        <div class="metric-value">R$ 1.45</div>
+                    </div>
+                </div>
+
+                <div class="emphasis-box corner-cut">
+                    <p>RESULTADO: Todas métricas acima da média do mercado (benchmarks da indústria)</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 5: EVOLUÇÃO TEMPORAL (Timeline) -->
         <div class="slide">
             <div class="slide-content">
                 <h2 class="slide-title">EVOLUÇÃO TEMPORAL</h2>
-                <p class="slide-subtitle">Progresso ao longo do tempo</p>
+                <p class="slide-subtitle">Progresso ao longo do período</p>
 
                 <div class="timeline-container">
                     <div class="timeline-item timeline-item-default">
                         <div class="timeline-item-content">
-                            <h3 class="timeline-title">FASE 1</h3>
-                            <p class="timeline-content">Descrição da fase...</p>
+                            <h3 class="timeline-title">SEMANA 1-2</h3>
+                            <p class="timeline-content">Fase de aprendizado do algoritmo. CPA alto: R$ 120. Volume baixo: 45 conversões.</p>
                         </div>
                         <span class="timeline-icon">📊</span>
                     </div>
 
                     <div class="timeline-item timeline-item-yellow">
                         <div class="timeline-item-content">
-                            <h3 class="timeline-title">FASE 2</h3>
-                            <p class="timeline-content">Descrição...</p>
+                            <h3 class="timeline-title">SEMANA 3-4</h3>
+                            <p class="timeline-content">Otimizações aplicadas. CPA reduzido para R$ 65 (-46%). Volume crescente: 120 conversões.</p>
                         </div>
                         <span class="timeline-icon">📈</span>
                     </div>
 
                     <div class="timeline-item timeline-item-pink">
                         <div class="timeline-item-content">
-                            <h3 class="timeline-title">FASE 3</h3>
-                            <p class="timeline-content">Descrição...</p>
+                            <h3 class="timeline-title">SEMANA 5-6</h3>
+                            <p class="timeline-content">Escala otimizada. CPA final: R$ 36 (-45%). Volume máximo: 380 conversões. Meta atingida!</p>
                         </div>
                         <span class="timeline-icon">🏆</span>
                     </div>
@@ -854,57 +1009,369 @@
             </div>
         </div>
 
-        <!-- EXEMPLO: DATA LIST SLIDE -->
+        <!-- SLIDE 6: COMPARAÇÃO DE CANAIS (Two Column) -->
         <div class="slide">
             <div class="slide-content">
-                <h2 class="slide-title">MÉTRICAS</h2>
-                <p class="slide-subtitle">Resumo dos números</p>
+                <h2 class="slide-title">CANAIS DE AQUISIÇÃO</h2>
+                <p class="slide-subtitle">Comparação de performance</p>
+
+                <div class="two-column">
+                    <div class="card card-default corner-cut">
+                        <h3 class="card-title">GOOGLE ADS</h3>
+                        <div class="card-content">
+                            <ul>
+                                <li>• Investimento: R$ 25.000</li>
+                                <li>• Conversões: 720</li>
+                                <li>• CPA: R$ 34,72</li>
+                                <li>• ROAS: 5.2x</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="card card-default corner-cut">
+                        <h3 class="card-title">META ADS</h3>
+                        <div class="card-content">
+                            <ul>
+                                <li>• Investimento: R$ 20.000</li>
+                                <li>• Conversões: 514</li>
+                                <li>• CPA: R$ 38,91</li>
+                                <li>• ROAS: 4.1x</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="emphasis-box dark">
+                    <p>INSIGHT: Google Ads apresentou 40% mais volume com custo 11% menor. Recomendação: aumentar budget no canal.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 7: DADOS DETALHADOS (Data List) -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2 class="slide-title">BREAKDOWN SEMANAL</h2>
+                <p class="slide-subtitle">Detalhamento de métricas</p>
 
                 <div class="data-list">
-                    <div class="data-item">
-                        <span class="data-label">Métrica 1</span>
-                        <span class="data-value">1,234</span>
+                    <div class="data-column">
+                        <h3>INVESTIMENTO</h3>
+                        <div class="data-row">
+                            <span class="data-label">Semana 1</span>
+                            <span class="data-value">R$ 6.500</span>
+                        </div>
+                        <div class="data-row">
+                            <span class="data-label">Semana 2</span>
+                            <span class="data-value">R$ 7.200</span>
+                        </div>
+                        <div class="data-row">
+                            <span class="data-label">Semana 3</span>
+                            <span class="data-value">R$ 8.100</span>
+                        </div>
+                        <div class="data-row">
+                            <span class="data-label">Semana 4</span>
+                            <span class="data-value">R$ 9.800</span>
+                        </div>
+                        <div class="data-row" style="border-bottom: 3px solid var(--koko-yellow);">
+                            <span class="data-label">Semana 5</span>
+                            <span class="data-value">R$ 13.400</span>
+                        </div>
                     </div>
 
-                    <div class="data-item">
-                        <span class="data-label">Métrica 2</span>
-                        <span class="data-value">$5,678</span>
-                    </div>
-
-                    <div class="data-item">
-                        <span class="data-label">Métrica 3</span>
-                        <span class="data-value">90%</span>
+                    <div class="data-column">
+                        <h3>CONVERSÕES</h3>
+                        <div class="data-row">
+                            <span class="data-label">Semana 1</span>
+                            <span class="data-value">54</span>
+                        </div>
+                        <div class="data-row">
+                            <span class="data-label">Semana 2</span>
+                            <span class="data-value">87</span>
+                        </div>
+                        <div class="data-row">
+                            <span class="data-label">Semana 3</span>
+                            <span class="data-value">124</span>
+                        </div>
+                        <div class="data-row">
+                            <span class="data-label">Semana 4</span>
+                            <span class="data-value">189</span>
+                        </div>
+                        <div class="data-row" style="border-bottom: 3px solid var(--koko-yellow);">
+                            <span class="data-label">Semana 5</span>
+                            <span class="data-value">372</span>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- EXEMPLO: CONCLUSION SLIDE -->
+        <!-- SLIDE 8: O QUE FUNCIONOU (Cards Grid) -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2 class="slide-title">O QUE FUNCIONOU ✅</h2>
+                <p class="slide-subtitle">Fatores de sucesso</p>
+
+                <div class="cards-grid" style="grid-template-columns: repeat(2, 1fr);">
+                    <div class="card card-highlight-yellow corner-cut">
+                        <h3 class="card-title">1. SEGMENTAÇÃO PRECISA</h3>
+                        <div class="card-content">
+                            Público de interesse em saúde + comportamentos de compra online. CTR 45% acima da média.
+                        </div>
+                    </div>
+
+                    <div class="card card-highlight-yellow corner-cut">
+                        <h3 class="card-title">2. CRIATIVOS NATIVOS</h3>
+                        <div class="card-content">
+                            Formato UGC com depoimentos reais. Engagement 3x maior que ads tradicionais.
+                        </div>
+                    </div>
+
+                    <div class="card card-highlight-yellow corner-cut">
+                        <h3 class="card-title">3. OTIMIZAÇÃO CONTÍNUA</h3>
+                        <div class="card-content">
+                            Testes A/B semanais. 23 variações testadas. Melhoria progressiva de 79% no CPA.
+                        </div>
+                    </div>
+
+                    <div class="card card-highlight-yellow corner-cut">
+                        <h3 class="card-title">4. TIMING ESTRATÉGICO</h3>
+                        <div class="card-content">
+                            Campanhas ativas em horários de pico. Conversão 60% maior entre 19h-22h.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 9: DESAFIOS ENFRENTADOS (Stack Cards) -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2 class="slide-title">DESAFIOS ENFRENTADOS ⚠️</h2>
+                <p class="slide-subtitle">Obstáculos e soluções aplicadas</p>
+
+                <div class="stack-cards">
+                    <div class="card card-default corner-cut">
+                        <h3 class="card-title" style="color: var(--koko-pink);">1. ALTA CONCORRÊNCIA</h3>
+                        <div class="card-content">
+                            <strong>Problema:</strong> CPCs inflacionados em 40% devido a concorrência acirrada no setor.<br>
+                            <strong>Solução:</strong> Diversificação de canais (Display + Search) e foco em palavras-chave de cauda longa.
+                        </div>
+                    </div>
+
+                    <div class="card card-default corner-cut">
+                        <h3 class="card-title" style="color: var(--koko-pink);">2. APROVAÇÃO DE ANÚNCIOS</h3>
+                        <div class="card-content">
+                            <strong>Problema:</strong> Restrições de policy por terminologia médica. 12 anúncios reprovados inicialmente.<br>
+                            <strong>Solução:</strong> Ajuste de copy focando em benefícios, não em sintomas. Taxa de aprovação: 95%.
+                        </div>
+                    </div>
+
+                    <div class="card card-default corner-cut">
+                        <h3 class="card-title" style="color: var(--koko-pink);">3. SATURAÇÃO DE MERCADO</h3>
+                        <div class="card-content">
+                            <strong>Problema:</strong> Sinais de saturação após 4 semanas (CPC +27% em mercados pequenos).<br>
+                            <strong>Solução:</strong> Expansão geográfica para 2 novos mercados. Volume mantido com eficiência.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 10: PRINCIPAIS APRENDIZADOS (Cards Grid) -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2 class="slide-title">PRINCIPAIS APRENDIZADOS</h2>
+                <p class="slide-subtitle">Insights para projetos futuros</p>
+
+                <div class="cards-grid" style="grid-template-columns: repeat(2, 1fr);">
+                    <div class="card card-dark corner-cut">
+                        <h3 class="card-title">ALGORITMO DE APRENDIZADO</h3>
+                        <div class="card-content">
+                            Necessário mínimo 3 semanas para maturação completa. Paciência na fase inicial é crítica para resultados.
+                        </div>
+                    </div>
+
+                    <div class="card card-dark corner-cut">
+                        <h3 class="card-title">DIVERSIFICAÇÃO GEOGRÁFICA</h3>
+                        <div class="card-content">
+                            Portfolio multi-mercado reduz risco de 74% para 14-23% por país. Essencial para escala sustentável.
+                        </div>
+                    </div>
+
+                    <div class="card card-dark corner-cut">
+                        <h3 class="card-title">CRIATIVO É REI</h3>
+                        <div class="card-content">
+                            Qualidade do criativo impacta 60% da performance. Investir em produção profissional compensa.
+                        </div>
+                    </div>
+
+                    <div class="card card-dark corner-cut">
+                        <h3 class="card-title">DATA-DRIVEN SEMPRE</h3>
+                        <div class="card-content">
+                            Decisões baseadas em 4+ semanas de dados evitam otimizações prematuras. Validação científica essencial.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 11: PRÓXIMOS PASSOS (Timeline) -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2 class="slide-title">PRÓXIMOS PASSOS</h2>
+                <p class="slide-subtitle">Roadmap de continuidade</p>
+
+                <div class="timeline-container">
+                    <div class="timeline-item timeline-item-yellow">
+                        <div class="timeline-item-content">
+                            <h3 class="timeline-title">MÊS 1-2</h3>
+                            <p class="timeline-content">Escalar budget em 50% mantendo eficiência. Teste de novos formatos de criativo (vídeo curto).</p>
+                        </div>
+                        <span class="timeline-icon">🚀</span>
+                    </div>
+
+                    <div class="timeline-item timeline-item-default">
+                        <div class="timeline-item-content">
+                            <h3 class="timeline-title">MÊS 3-4</h3>
+                            <p class="timeline-content">Expansão para 3 novos mercados LATAM. Implementação de remarketing estruturado.</p>
+                        </div>
+                        <span class="timeline-icon">🌎</span>
+                    </div>
+
+                    <div class="timeline-item timeline-item-default">
+                        <div class="timeline-item-content">
+                            <h3 class="timeline-title">MÊS 5-6</h3>
+                            <p class="timeline-content">Integração com CRM para rastreamento completo. Análise de LTV e otimização baseada em valor real.</p>
+                        </div>
+                        <span class="timeline-icon">💎</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 12: CONCLUSÃO -->
         <div class="slide conclusion-slide">
             <div class="slide-content">
-                <h2 class="conclusion-title">MENSAGEM<br>PRINCIPAL ✅</h2>
+                <h2 class="conclusion-title">PROJETO<br>CONCLUÍDO ✅</h2>
 
                 <div class="conclusion-box corner-cut">
                     <p class="conclusion-text">
-                        Texto de conclusão ou mensagem-chave. Pode incluir <strong>destaques em negrito</strong>
-                        e dados importantes.
+                        Redução de <strong>79% no custo</strong> por conversão. Crescimento de <strong>10x no volume</strong>.
+                        Estrutura validada e replicável para novos mercados. <strong>Projeto viável para continuidade.</strong>
                     </p>
                 </div>
+
+                <div class="emphasis-box dark" style="margin-top: 24px;">
+                    <p>Agradecemos a confiança! Estamos prontos para a próxima fase. 🚀</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 13: CONTRACAPA -->
+        <div class="slide hero-slide">
+            <div class="hero-background" style="background-image: url('https://hub.jumper.studio/decks/identities/koko/elements/fundo da capa.png');"></div>
+            <img class="gorilla-hand left"
+                 src="https://hub.jumper.studio/decks/identities/koko/elements/Gorila mao pela direita.png"
+                 alt="">
+            <img class="gorilla-hand right"
+                 src="https://hub.jumper.studio/decks/identities/koko/elements/Gorila mao pela esquerda.png"
+                 alt="">
+            <div class="hero-content">
+                <h1 style="font-size: clamp(40px, 8vw, 80px);">OBRIGADO!</h1>
+                <p class="hero-subtitle">Agência Koko</p>
+                <p class="hero-meta">
+                    contato@agenciakoko.com.br<br>
+                    +55 11 9999-9999<br>
+                    www.agenciakoko.com.br
+                </p>
             </div>
         </div>
 
     </div>
 
-    <!-- Footer Marquee -->
-    <div class="marquee-container bottom">
-        <div class="marquee-content">
-            <span class="marquee-text">{{DATE_RANGE}} • {{PROJECT_DESCRIPTION}}</span>
-            <span class="marquee-text">CREATIVE AGENCY</span>
-            <span class="marquee-text">{{DATE_RANGE}} • {{PROJECT_DESCRIPTION}}</span>
-            <span class="marquee-text">CREATIVE AGENCY</span>
-            <span class="marquee-text">{{DATE_RANGE}} • {{PROJECT_DESCRIPTION}}</span>
-            <span class="marquee-text">CREATIVE AGENCY</span>
-        </div>
+    <!-- Navigation System -->
+    <div class="nav-dots">
+        <div class="nav-dot active" data-slide="0"></div>
+        <div class="nav-dot" data-slide="1"></div>
+        <div class="nav-dot" data-slide="2"></div>
+        <div class="nav-dot" data-slide="3"></div>
+        <div class="nav-dot" data-slide="4"></div>
+        <div class="nav-dot" data-slide="5"></div>
+        <div class="nav-dot" data-slide="6"></div>
+        <div class="nav-dot" data-slide="7"></div>
+        <div class="nav-dot" data-slide="8"></div>
+        <div class="nav-dot" data-slide="9"></div>
+        <div class="nav-dot" data-slide="10"></div>
+        <div class="nav-dot" data-slide="11"></div>
+        <div class="nav-dot" data-slide="12"></div>
     </div>
+
+    <div class="slide-counter">
+        <span id="current-slide">1</span> / <span id="total-slides">13</span>
+    </div>
+
+    <button class="nav-arrow prev" aria-label="Slide anterior">←</button>
+    <button class="nav-arrow next" aria-label="Próximo slide">→</button>
+
+    <!-- Navigation Script -->
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const dots = document.querySelectorAll('.nav-dot');
+        const totalSlides = slides.length;
+
+        document.getElementById('total-slides').textContent = totalSlides;
+
+        function showSlide(index) {
+            if (index < 0) index = 0;
+            if (index >= totalSlides) index = totalSlides - 1;
+
+            slides.forEach((slide, i) => {
+                slide.classList.remove('active', 'prev');
+                if (i < index) {
+                    slide.classList.add('prev');
+                } else if (i === index) {
+                    slide.classList.add('active');
+                }
+            });
+
+            dots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === index);
+            });
+
+            currentSlide = index;
+            document.getElementById('current-slide').textContent = currentSlide + 1;
+        }
+
+        // Arrow navigation
+        document.querySelector('.nav-arrow.prev').addEventListener('click', () => {
+            showSlide(currentSlide - 1);
+        });
+
+        document.querySelector('.nav-arrow.next').addEventListener('click', () => {
+            showSlide(currentSlide + 1);
+        });
+
+        // Dot navigation
+        dots.forEach(dot => {
+            dot.addEventListener('click', (e) => {
+                const slideIndex = parseInt(e.target.dataset.slide);
+                showSlide(slideIndex);
+            });
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                showSlide(currentSlide - 1);
+            } else if (e.key === 'ArrowRight' || e.key === ' ') {
+                e.preventDefault();
+                showSlide(currentSlide + 1);
+            }
+        });
+
+        // Initialize
+        showSlide(0);
+    </script>
 </body>
 </html>
