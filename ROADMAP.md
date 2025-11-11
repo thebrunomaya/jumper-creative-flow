@@ -36,7 +36,7 @@
 - ✅ Password-protected sharing (PBKDF2 Web Crypto API)
 - ✅ Anonymous browser access (--no-verify-jwt)
 - ✅ Full-screen preview e compartilhamento público
-- ✅ Template system (moldura-minuto)
+- ✅ Template system (Jumper Flare)
 - ✅ Brand identities (Jumper/Koko)
 
 ---

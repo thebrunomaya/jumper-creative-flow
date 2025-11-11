@@ -93,8 +93,15 @@ serve(async (req) => {
     // 2. Load template HTML from public/decks/examples/
     console.log('📄 [DECK_GENERATE] Loading template:', template_id);
 
-    // Template files are served as static assets, we need to fetch them
-    const templateUrl = `${supabaseUrl.replace('/rest/v1', '')}/storage/v1/object/public/decks/examples/${template_id}.html`;
+    // Template files are served as static assets from Vercel (production) or Vite dev server (local)
+    // Detect environment based on SUPABASE_URL
+    const isLocal = supabaseUrl.includes('127.0.0.1') || supabaseUrl.includes('localhost');
+    const baseUrl = isLocal
+      ? 'http://localhost:8080'  // Vite dev server
+      : 'https://hub.jumper.studio';  // Vercel production
+    const templateUrl = `${baseUrl}/decks/examples/${template_id}.html`;
+
+    console.log('🔗 [DECK_GENERATE] Template URL:', templateUrl, `(${isLocal ? 'LOCAL' : 'PRODUCTION'})`);
 
     let templateHtml: string;
     try {
@@ -121,7 +128,8 @@ serve(async (req) => {
     // 3. Load design system from public/decks/identities/{brand}/design-system.md
     console.log('🎨 [DECK_GENERATE] Loading design system:', brand_identity);
 
-    const designSystemUrl = `${supabaseUrl.replace('/rest/v1', '')}/storage/v1/object/public/decks/identities/${brand_identity}/design-system.md`;
+    const designSystemUrl = `${baseUrl}/decks/identities/${brand_identity}/design-system.md`;
+    console.log('🔗 [DECK_GENERATE] Design System URL:', designSystemUrl);
 
     let designSystem: string;
     try {

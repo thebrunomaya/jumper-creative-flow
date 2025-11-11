@@ -54,7 +54,7 @@ interface DeckConfigFormProps {
 }
 
 const TEMPLATES = [
-  { id: "moldura-minuto", name: "Moldura Minuto", description: "Template para relatório mensal" },
+  { id: "jumper-flare", name: "Jumper Flare", description: "Template moderno para apresentações e relatórios" },
   { id: "plan-template", name: "Planejamento", description: "Template para planejamento estratégico" },
   { id: "pitch-template", name: "Pitch", description: "Template para apresentação de pitch" },
 ];

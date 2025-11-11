@@ -360,7 +360,7 @@ AI-powered presentation generation system using Claude Sonnet 4.5. Generates bra
 ### **Templates**
 
 **Available:**
-- `moldura-minuto` - Monthly report template (Jumper branding)
+- `jumper-flare` - Modern template for presentations and reports (Jumper branding)
 - `plan-template` - Strategic planning (coming soon)
 - `pitch-template` - Pitch presentations (coming soon)
 
@@ -446,7 +446,7 @@ await generateDeck({
   markdown_source: "# Slide 1\n\nContent...",
   type: "report",
   brand_identity: "jumper",
-  template_id: "moldura-minuto",
+  template_id: "jumper-flare",
   account_id: selectedAccountId, // ✅ UUID (modern table)
 });
 ```
