@@ -1,36 +1,41 @@
 import { useState, useEffect } from "react";
-import { isViewportValid } from "@/config/viewport";
+import { isViewportValid, type ViewportValidationResult } from "@/config/viewport";
 
 interface ViewportSize {
   width: number;
   height: number;
   isValid: boolean;
+  reason?: 'portrait' | 'too_small' | 'too_narrow' | 'too_wide';
+  aspectRatio?: number;
 }
 
 /**
  * Hook to track viewport dimensions and validate against requirements
  *
  * Returns reactive viewport size that updates on window resize
- * Useful for showing warnings on small screens
+ * Includes validation result with optional rejection reason
  *
  * @example
- * const { width, height, isValid } = useViewportSize();
- * if (!isValid) return <ViewportWarning />;
+ * const { width, height, isValid, reason, aspectRatio } = useViewportSize();
+ * if (!isValid) return <ViewportWarning reason={reason} />;
  */
 export function useViewportSize(): ViewportSize {
   const [size, setSize] = useState<ViewportSize>(() => {
     // Initialize with current window size (SSR-safe)
     if (typeof window === "undefined") {
-      return { width: 1920, height: 1080, isValid: true };
+      return { width: 1920, height: 1080, isValid: true, aspectRatio: 16 / 9 };
     }
 
     const width = window.innerWidth;
     const height = window.innerHeight;
+    const validation = isViewportValid(width, height);
 
     return {
       width,
       height,
-      isValid: isViewportValid(width, height),
+      isValid: validation.valid,
+      reason: validation.reason,
+      aspectRatio: validation.aspectRatio,
     };
   });
 
@@ -39,11 +44,14 @@ export function useViewportSize(): ViewportSize {
     const updateSize = () => {
       const width = window.innerWidth;
       const height = window.innerHeight;
+      const validation = isViewportValid(width, height);
 
       setSize({
         width,
         height,
-        isValid: isViewportValid(width, height),
+        isValid: validation.valid,
+        reason: validation.reason,
+        aspectRatio: validation.aspectRatio,
       });
     };
 

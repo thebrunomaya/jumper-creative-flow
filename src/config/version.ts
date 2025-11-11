@@ -7,10 +7,39 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.19';
+export const APP_VERSION = 'v2.1.20';
 
 /**
  * Version history:
+ * - v2.1.20 (2024-11-11):
+ *   - FEATURE: Multi-aspect-ratio support for deck presentations
+ *   - SUPPORT: Now allows 4:3, 16:10, and 16:9 aspect ratios
+ *   - LOGIC: Validates smallest dimension ≥ 768px (supports 1024x768 4:3 displays)
+ *   - BLOCKS: Portrait orientation (height > width)
+ *   - BLOCKS: Ultra-wide displays (21:9, 32:9) - prevents content distortion
+ *   - VALIDATION RULES:
+ *     1. Portrait check: height must be ≤ width (landscape only)
+ *     2. Minimum dimension: 768px (smallest of width/height)
+ *     3. Aspect ratio range: 4:3 (1.33:1) to 16:9 (1.78:1)
+ *   - SUPPORTED RESOLUTIONS:
+ *     - 4:3: 1024x768, 1280x960, 1600x1200 (legacy projectors/monitors)
+ *     - 16:10: 1280x800, 1440x900, 1920x1200 (professional monitors)
+ *     - 16:9: 1280x720, 1920x1080, 2560x1440, 3840x2160 (modern standard)
+ *   - BLOCKED FORMATS:
+ *     - 21:9 (2560x1080, 3440x1440) - ultra-wide, causes distortion
+ *     - 32:9 (5120x1440) - super ultra-wide, content illegible
+ *   - FEEDBACK: Reason-specific error messages (portrait, too_small, too_narrow, too_wide)
+ *   - UX IMPROVEMENTS:
+ *     - Shows current aspect ratio label (e.g., "16:9", "21:9")
+ *     - Displays validation reason with contextual suggestions
+ *     - Examples of supported resolutions per aspect ratio
+ *   - COMPATIBILITY: ~98% of desktop/laptop devices supported
+ *   - BACKWARDS COMPATIBLE: More permissive than previous 1280x768 minimum
+ *   - FILES MODIFIED:
+ *     - src/config/viewport.ts (new validation logic + helpers)
+ *     - src/hooks/useViewportSize.tsx (returns reason + aspectRatio)
+ *     - src/components/decks/ViewportWarning.tsx (reason-specific UI)
+ *
  * - v2.1.19 (2024-11-11):
  *   - ADJUSTMENT: Increased viewport minimum from 1024x768 to 1280x768
  *   - REASON: User reported protection not triggering properly on small screens

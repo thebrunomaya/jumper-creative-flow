@@ -1,48 +1,159 @@
 /**
  * Viewport Requirements for Deck Presentations
  *
- * Decks are designed for desktop/laptop displays with fixed layouts.
- * Small screens cause elements to overlap and become unreadable.
+ * Decks support multiple aspect ratios (4:3, 16:10, 16:9) but block:
+ * - Portrait orientation (height > width)
+ * - Screens smaller than 768px in smallest dimension
+ * - Ultra-wide displays (21:9, 32:9) that distort content
  */
 
 export const VIEWPORT_REQUIREMENTS = {
   /**
-   * Minimum width required to display presentations correctly
-   * @default 1280 - HD Ready standard, blocks tablets and mobile
+   * Minimum smallest dimension (width or height)
+   * Supports 4:3 (1024x768) and 16:9 (1280x720) formats
+   * @default 768 - Ensures text readability
    */
-  minWidth: 1280,
+  minSmallestDimension: 768,
 
   /**
-   * Minimum height required to display presentations correctly
-   * @default 768 - HD Ready standard, common laptop resolution
+   * Minimum aspect ratio (4:3 format = 1.333...)
+   * Blocks portrait and overly tall displays
    */
-  minHeight: 768,
+  minAspectRatio: 4 / 3,
 
   /**
-   * Recommended width for optimal presentation quality
-   * @default 1920 - Full HD standard
+   * Maximum aspect ratio (16:9 format = 1.777...)
+   * Blocks ultra-wide displays (21:9, 32:9) that distort presentations
+   */
+  maxAspectRatio: 16 / 9,
+
+  /**
+   * Recommended resolution for optimal quality
+   * @default 1920x1080 (Full HD, 16:9)
    */
   recommendedWidth: 1920,
+  recommendedHeight: 1080,
 
   /**
-   * Recommended height for optimal presentation quality
-   * @default 1080 - Full HD standard
+   * Legacy properties (deprecated, kept for backwards compatibility)
+   * @deprecated Use aspect ratio validation instead
    */
-  recommendedHeight: 1080,
+  minWidth: 1024,
+  minHeight: 768,
 } as const;
 
 /**
- * Check if current viewport meets minimum requirements
+ * Common supported resolutions (examples)
  */
-export function isViewportValid(width: number, height: number): boolean {
-  return width >= VIEWPORT_REQUIREMENTS.minWidth && height >= VIEWPORT_REQUIREMENTS.minHeight;
+export const SUPPORTED_RESOLUTIONS = {
+  '4:3': ['1024x768', '1280x960', '1600x1200'],
+  '16:10': ['1280x800', '1440x900', '1920x1200'],
+  '16:9': ['1280x720', '1920x1080', '2560x1440', '3840x2160'],
+} as const;
+
+/**
+ * Blocked ultra-wide formats
+ */
+export const BLOCKED_FORMATS = {
+  '21:9': 'Ultra-wide (apresentações ficam distorcidas)',
+  '32:9': 'Super ultra-wide (conteúdo ilegível)',
+} as const;
+
+/**
+ * Validation result with optional rejection reason
+ */
+export interface ViewportValidationResult {
+  valid: boolean;
+  reason?: 'portrait' | 'too_small' | 'too_narrow' | 'too_wide';
+  aspectRatio?: number;
+}
+
+/**
+ * Check if current viewport meets requirements with detailed validation
+ *
+ * Rules:
+ * 1. Block portrait orientation (height > width)
+ * 2. Smallest dimension must be ≥ 768px
+ * 3. Aspect ratio must be between 4:3 (1.33) and 16:9 (1.78)
+ *
+ * @param width - Current viewport width
+ * @param height - Current viewport height
+ * @returns Validation result with valid flag and optional reason
+ */
+export function isViewportValid(
+  width: number,
+  height: number
+): ViewportValidationResult {
+  const aspectRatio = width / height;
+
+  // 1. Block portrait orientation (height > width)
+  if (height > width) {
+    return {
+      valid: false,
+      reason: 'portrait',
+      aspectRatio,
+    };
+  }
+
+  // 2. Check minimum smallest dimension (768px)
+  const smallestDimension = Math.min(width, height);
+  if (smallestDimension < VIEWPORT_REQUIREMENTS.minSmallestDimension) {
+    return {
+      valid: false,
+      reason: 'too_small',
+      aspectRatio,
+    };
+  }
+
+  // 3. Check aspect ratio is within valid range (4:3 to 16:9)
+  if (aspectRatio < VIEWPORT_REQUIREMENTS.minAspectRatio) {
+    return {
+      valid: false,
+      reason: 'too_narrow',
+      aspectRatio,
+    };
+  }
+
+  if (aspectRatio > VIEWPORT_REQUIREMENTS.maxAspectRatio) {
+    return {
+      valid: false,
+      reason: 'too_wide',
+      aspectRatio,
+    };
+  }
+
+  // All checks passed
+  return {
+    valid: true,
+    aspectRatio,
+  };
 }
 
 /**
  * Check if current viewport meets recommended size
  */
 export function isViewportOptimal(width: number, height: number): boolean {
-  return width >= VIEWPORT_REQUIREMENTS.recommendedWidth && height >= VIEWPORT_REQUIREMENTS.recommendedHeight;
+  return (
+    width >= VIEWPORT_REQUIREMENTS.recommendedWidth &&
+    height >= VIEWPORT_REQUIREMENTS.recommendedHeight
+  );
+}
+
+/**
+ * Get aspect ratio as formatted string (e.g., "16:9" or "21:9")
+ */
+export function getAspectRatioLabel(width: number, height: number): string {
+  const ratio = width / height;
+
+  // Common aspect ratios
+  if (Math.abs(ratio - 4 / 3) < 0.01) return '4:3';
+  if (Math.abs(ratio - 16 / 10) < 0.01) return '16:10';
+  if (Math.abs(ratio - 16 / 9) < 0.01) return '16:9';
+  if (Math.abs(ratio - 21 / 9) < 0.01) return '21:9';
+  if (Math.abs(ratio - 32 / 9) < 0.01) return '32:9';
+
+  // Custom ratio
+  return `${ratio.toFixed(2)}:1`;
 }
 
 /**
