@@ -6,13 +6,13 @@ import { TemplatePreview } from "@/components/templates/TemplatePreview";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Save, Eye, EyeOff, Loader2, FileCode } from "lucide-react";
 import { toast } from "sonner";
-import { useAuth } from "@/contexts/AuthContext";
+import { useUserRole } from "@/hooks/useUserRole";
 import { supabase } from "@/integrations/supabase/client";
 
 export default function TemplateEditor() {
   const { templateId } = useParams<{ templateId: string }>();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { userRole, isLoading: roleLoading } = useUserRole();
   const { data: template, isLoading, error } = useTemplateRead(templateId);
 
   const [editedContent, setEditedContent] = useState("");
@@ -21,14 +21,32 @@ export default function TemplateEditor() {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
   // Check if user is admin
-  const isAdmin = user?.user_metadata?.role === "admin";
+  const isAdmin = userRole === "admin";
 
   // Redirect non-admins
+  useEffect(() => {
+    if (!roleLoading && !isAdmin) {
+      toast.error("Acesso negado", {
+        description: "Apenas administradores podem acessar esta página",
+      });
+      navigate("/decks/templates");
+    }
+  }, [roleLoading, isAdmin, navigate]);
+
+  // Show loading while checking role
+  if (roleLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+          <p className="text-sm text-muted-foreground">Verificando permissões...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Don't render if not admin
   if (!isAdmin) {
-    toast.error("Acesso negado", {
-      description: "Apenas administradores podem acessar esta página",
-    });
-    navigate("/decks/templates");
     return null;
   }
 

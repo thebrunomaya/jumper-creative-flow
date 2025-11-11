@@ -10,28 +10,48 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { FileCode, Search, Loader2, GitCompare } from "lucide-react";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
+import { useUserRole } from "@/hooks/useUserRole";
 import { toast } from "sonner";
 
 export default function Templates() {
-  const { user } = useAuth();
   const navigate = useNavigate();
+  const { userRole, isLoading: roleLoading } = useUserRole();
   const { data: templates, isLoading, error } = useTemplateList();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [brandFilter, setBrandFilter] = useState<string>("all");
 
   // Check if user is admin
-  const isAdmin = user?.user_metadata?.role === "admin";
+  const isAdmin = userRole === "admin";
 
   // Redirect non-admins
+  useEffect(() => {
+    if (!roleLoading && !isAdmin) {
+      toast.error("Acesso negado", {
+        description: "Apenas administradores podem acessar esta página",
+      });
+      navigate("/decks");
+    }
+  }, [roleLoading, isAdmin, navigate]);
+
+  // Show loading while checking role
+  if (roleLoading) {
+    return (
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="flex flex-col items-center gap-4">
+            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            <p className="text-sm text-muted-foreground">Verificando permissões...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Don't render if not admin
   if (!isAdmin) {
-    toast.error("Acesso negado", {
-      description: "Apenas administradores podem acessar esta página",
-    });
-    navigate("/decks");
     return null;
   }
 

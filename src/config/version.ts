@@ -7,10 +7,26 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.30';
+export const APP_VERSION = 'v2.1.31';
 
 /**
  * Version history:
+ * - v2.1.31 (2024-11-11):
+ *   - CRITICAL FIX: Template pages now use correct admin role verification
+ *   - PROBLEM: Pages redirected admins back to /decks (authorization check failing)
+ *   - ROOT CAUSE: Pages checked user?.user_metadata?.role (doesn't exist in system)
+ *   - SOLUTION: Replaced with useUserRole() hook (checks j_hub_users.role via RPC)
+ *   - PATTERN: Now matches all other admin pages (DeckEditor, OptimizationEditor, etc.)
+ *   - IMPROVEMENTS:
+ *   -   - Added loading state with "Verificando permissões..." spinner
+ *   -   - Moved redirect logic to useEffect (prevents render-before-check race condition)
+ *   -   - Early return null if not admin (prevents flash of content)
+ *   - FILES FIXED:
+ *   -   - src/pages/Templates.tsx (useUserRole + loading state)
+ *   -   - src/pages/TemplateEditor.tsx (useUserRole + loading state)
+ *   -   - src/pages/TemplateCompare.tsx (useUserRole + loading state)
+ *   - RESULT: Admin users can now access all template management pages successfully
+ *
  * - v2.1.30 (2024-11-11):
  *   - CRITICAL FIX: Template management Edge Functions authentication fixed
  *   - PROBLEM: 401 Unauthorized errors when admins tried to access template management
