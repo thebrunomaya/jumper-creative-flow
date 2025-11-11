@@ -62,6 +62,7 @@ const AVAILABLE_TEMPLATES = [
 
   // Koko templates
   { id: "koko-rebel", name: "Koko Rebel", identity: "koko", description: "Template criativo e ousado" },
+  { id: "koko-classic", name: "Koko Classic", identity: "koko", description: "Template clássico com estética punk e editorial" },
 
   // General templates
   { id: "general-animated-gradients", name: "Animated Gradients", identity: "general", description: "Gradientes animados e dinâmicos" },

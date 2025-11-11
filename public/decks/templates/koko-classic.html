@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Koko Classic Presentation</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+
+    <style>
+        /* ========================================
+           KOKO CLASSIC - CSS VARIABLES
+        ======================================== */
+        :root {
+            /* Colors */
+            --koko-black: #000000;
+            --koko-white: #FFFFFF;
+            --koko-yellow: #F2C541;
+            --koko-pink: #FF0080;
+            --koko-gray-light: #E5E5E5;
+            --koko-gray-mid: #999999;
+
+            /* Typography */
+            --font-gothic: 'Anton', 'Impact', sans-serif;
+            --font-serif: 'Playfair Display', 'Georgia', serif;
+
+            /* Spacing */
+            --spacing-xs: 0.5rem;
+            --spacing-sm: 1rem;
+            --spacing-md: 2rem;
+            --spacing-lg: 4rem;
+            --spacing-xl: 6rem;
+
+            /* Transitions */
+            --transition-fast: 0.2s ease;
+            --transition-normal: 0.4s ease;
+            --transition-slow: 0.6s ease;
+        }
+
+        /* ========================================
+           GLOBAL RESET & BASE STYLES
+        ======================================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-serif);
+            background: var(--koko-black);
+            color: var(--koko-white);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* ========================================
+           SCROLLING TEXT HEADER/FOOTER
+        ======================================== */
+        .scrolling-text {
+            position: fixed;
+            width: 100%;
+            overflow: hidden;
+            background: var(--koko-black);
+            color: var(--koko-white);
+            font-family: var(--font-gothic);
+            font-size: 14px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            z-index: 1000;
+            height: 40px;
+            display: flex;
+            align-items: center;
+        }
+
+        .scrolling-text--header {
+            top: 0;
+            border-bottom: 2px solid var(--koko-white);
+        }
+
+        .scrolling-text--footer {
+            bottom: 0;
+            border-top: 2px solid var(--koko-white);
+        }
+
+        .scrolling-text__content {
+            display: inline-block;
+            white-space: nowrap;
+            animation: scroll-left 40s linear infinite;
+            padding-right: 100%;
+        }
+
+        @keyframes scroll-left {
+            from {
+                transform: translateX(0);
+            }
+            to {
+                transform: translateX(-50%);
+            }
+        }
+
+        /* ========================================
+           LOGO
+        ======================================== */
+        .logo {
+            position: fixed;
+            top: 50px;
+            left: 40px;
+            z-index: 1001;
+            font-family: var(--font-gothic);
+            font-size: 24px;
+            color: var(--koko-white);
+            line-height: 1;
+        }
+
+        .logo__agency {
+            font-size: 10px;
+            letter-spacing: 0.1em;
+        }
+
+        .logo__name {
+            font-size: 32px;
+            letter-spacing: 0.05em;
+        }
+
+        /* ========================================
+           SLIDE CONTAINER
+        ======================================== */
+        .slide {
+            min-height: 100vh;
+            width: 100%;
+            padding: 80px 60px 80px 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background: var(--koko-black);
+        }
+
+        .slide__content {
+            max-width: 1400px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        /* ========================================
+           TYPOGRAPHY
+        ======================================== */
+        h1, h2, h3, .heading {
+            font-family: var(--font-gothic);
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+            line-height: 0.9;
+            font-weight: 400;
+        }
+
+        h1 {
+            font-size: clamp(4rem, 10vw, 8rem);
+            margin-bottom: var(--spacing-md);
+        }
+
+        h2 {
+            font-size: clamp(2.5rem, 6vw, 5rem);
+            margin-bottom: var(--spacing-md);
+        }
+
+        h3 {
+            font-size: clamp(2rem, 4vw, 3.5rem);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        p, .body-text {
+            font-family: var(--font-serif);
+            font-size: clamp(1rem, 2vw, 1.5rem);
+            line-height: 1.6;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .text-italic {
+            font-style: italic;
+        }
+
+        .text-yellow {
+            color: var(--koko-yellow);
+        }
+
+        .text-pink {
+            color: var(--koko-pink);
+        }
+
+        /* ========================================
+           CARDS WITH PAGE CURL
+        ======================================== */
+        .card {
+            position: relative;
+            background: var(--koko-white);
+            color: var(--koko-black);
+            padding: var(--spacing-md);
+            border-radius: 4px;
+            overflow: visible;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .card--with-curl::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg,
+                transparent 0%,
+                transparent 50%,
+                var(--koko-yellow) 50%,
+                var(--koko-yellow) 60%,
+                #D4A82F 60%
+            );
+            border-radius: 0 0 4px 0;
+            box-shadow: -3px 3px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .card__header {
+            background: var(--koko-black);
+            color: var(--koko-white);
+            padding: var(--spacing-sm);
+            margin: calc(-1 * var(--spacing-md)) calc(-1 * var(--spacing-md)) var(--spacing-md) calc(-1 * var(--spacing-md));
+            text-align: center;
+            font-family: var(--font-gothic);
+            text-transform: uppercase;
+            font-size: 1.5rem;
+        }
+
+        .card__image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            filter: grayscale(100%) contrast(1.2);
+            margin-bottom: var(--spacing-sm);
+            border-radius: 4px;
+        }
+
+        .card__title {
+            font-family: var(--font-gothic);
+            font-size: 1.5rem;
+            margin-bottom: var(--spacing-xs);
+            text-transform: uppercase;
+        }
+
+        .card__text {
+            font-family: var(--font-serif);
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+        /* ========================================
+           GRID LAYOUTS
+        ======================================== */
+        .grid {
+            display: grid;
+            gap: var(--spacing-md);
+        }
+
+        .grid--2-col {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .grid--3-col {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .grid--9-cards {
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--spacing-sm);
+        }
+
+        .grid--9-cards .card {
+            padding: var(--spacing-sm);
+        }
+
+        .grid--9-cards .card__image {
+            height: 120px;
+        }
+
+        /* ========================================
+           TWO-COLUMN LAYOUT
+        ======================================== */
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-lg);
+            align-items: center;
+        }
+
+        .two-col--40-60 {
+            grid-template-columns: 40fr 60fr;
+        }
+
+        .two-col--60-40 {
+            grid-template-columns: 60fr 40fr;
+        }
+
+        /* ========================================
+           HALFTONE TEXTURE
+        ======================================== */
+        .halftone {
+            background-image: radial-gradient(circle, var(--koko-gray-light) 2px, transparent 2px);
+            background-size: 12px 12px;
+        }
+
+        .halftone--pink {
+            background-image: radial-gradient(circle, var(--koko-pink) 2px, transparent 2px);
+        }
+
+        /* ========================================
+           BURST/EXPLOSION SHAPE
+        ======================================== */
+        .burst {
+            position: relative;
+            width: 400px;
+            height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .burst__shape {
+            position: absolute;
+            inset: 0;
+            clip-path: polygon(
+                50% 0%, 61% 35%, 98% 35%, 68% 57%,
+                79% 91%, 50% 70%, 21% 91%, 32% 57%,
+                2% 35%, 39% 35%
+            );
+            background: var(--koko-pink);
+            filter: drop-shadow(0 4px 10px rgba(255, 0, 128, 0.5));
+        }
+
+        .burst__content {
+            position: relative;
+            z-index: 1;
+            border-radius: 50%;
+            overflow: hidden;
+            width: 250px;
+            height: 250px;
+        }
+
+        .burst__image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: grayscale(100%) contrast(1.2);
+        }
+
+        /* ========================================
+           TIMELINE ARROWS
+        ======================================== */
+        .timeline {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            flex-wrap: wrap;
+        }
+
+        .timeline__step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--spacing-xs);
+        }
+
+        .timeline__number {
+            background: var(--koko-white);
+            color: var(--koko-black);
+            font-family: var(--font-gothic);
+            font-size: 3rem;
+            width: 100px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid var(--koko-black);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .timeline__label {
+            font-family: var(--font-serif);
+            font-size: 1rem;
+            text-align: center;
+            max-width: 150px;
+        }
+
+        .timeline__arrow {
+            font-size: 2rem;
+            color: var(--koko-yellow);
+            margin: 0 var(--spacing-xs);
+        }
+
+        /* ========================================
+           CATEGORIZED LIST
+        ======================================== */
+        .category-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-md);
+        }
+
+        .category {
+            border-left: 4px solid var(--koko-yellow);
+            padding-left: var(--spacing-md);
+        }
+
+        .category__title {
+            font-family: var(--font-gothic);
+            font-size: 2rem;
+            color: var(--koko-yellow);
+            text-transform: uppercase;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .category__items {
+            list-style: none;
+            font-family: var(--font-serif);
+            font-size: 1.2rem;
+        }
+
+        .category__items li {
+            margin-bottom: var(--spacing-xs);
+            padding-left: var(--spacing-sm);
+            position: relative;
+        }
+
+        .category__items li::before {
+            content: '•';
+            color: var(--koko-yellow);
+            font-size: 1.5rem;
+            position: absolute;
+            left: 0;
+        }
+
+        /* ========================================
+           PUNK COLLAGE ELEMENTS
+        ======================================== */
+        .collage {
+            position: relative;
+            min-height: 500px;
+        }
+
+        .collage__heart {
+            position: absolute;
+            font-size: 120px;
+            color: var(--koko-yellow);
+            filter: drop-shadow(0 4px 10px rgba(242, 197, 65, 0.6));
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .collage__triangles {
+            position: absolute;
+            display: flex;
+            gap: var(--spacing-xs);
+        }
+
+        .triangle {
+            width: 0;
+            height: 0;
+            border-left: 30px solid transparent;
+            border-right: 30px solid transparent;
+            border-bottom: 50px solid var(--koko-pink);
+            transform: rotate(var(--rotation, 0deg));
+        }
+
+        .collage__halftone-frame {
+            position: absolute;
+            width: 400px;
+            height: 300px;
+            border: 10px solid var(--koko-white);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        /* ========================================
+           RESPONSIVE ADJUSTMENTS
+        ======================================== */
+        @media (max-width: 1024px) {
+            .slide {
+                padding: 60px 40px;
+            }
+
+            .grid--2-col,
+            .grid--3-col,
+            .two-col {
+                grid-template-columns: 1fr;
+            }
+
+            .logo {
+                left: 20px;
+                top: 50px;
+            }
+
+            h1 {
+                font-size: clamp(3rem, 8vw, 6rem);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .scrolling-text {
+                font-size: 12px;
+                height: 30px;
+            }
+
+            .slide {
+                padding: 50px 20px;
+            }
+
+            .burst {
+                width: 300px;
+                height: 300px;
+            }
+
+            .burst__content {
+                width: 180px;
+                height: 180px;
+            }
+
+            .timeline {
+                flex-direction: column;
+            }
+
+            .timeline__arrow {
+                transform: rotate(90deg);
+            }
+        }
+
+        /* ========================================
+           UTILITY CLASSES
+        ======================================== */
+        .grayscale {
+            filter: grayscale(100%) contrast(1.2);
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .mb-sm { margin-bottom: var(--spacing-sm); }
+        .mb-md { margin-bottom: var(--spacing-md); }
+        .mb-lg { margin-bottom: var(--spacing-lg); }
+
+        .mt-sm { margin-top: var(--spacing-sm); }
+        .mt-md { margin-top: var(--spacing-md); }
+        .mt-lg { margin-top: var(--spacing-lg); }
+    </style>
+</head>
+<body>
+    <!-- ========================================
+         SCROLLING TEXT HEADER
+    ======================================== -->
+    <div class="scrolling-text scrolling-text--header">
+        <div class="scrolling-text__content">
+            A AGÊNCIA MAIS QUERIDA DO BRASIL • AGÊNCIA KOKO • A AGÊNCIA MAIS QUERIDA DO BRASIL • AGÊNCIA KOKO • A AGÊNCIA MAIS QUERIDA DO BRASIL • AGÊNCIA KOKO • A AGÊNCIA MAIS QUERIDA DO BRASIL • AGÊNCIA KOKO •
+        </div>
+    </div>
+
+    <!-- ========================================
+         LOGO
+    ======================================== -->
+    <div class="logo">
+        <div class="logo__agency">agência</div>
+        <div class="logo__name">KOKO</div>
+    </div>
+
+    <!-- ========================================
+         SLIDE 1: COVER (GORILLA)
+    ======================================== -->
+    <section class="slide" id="slide-1">
+        <div class="slide__content text-center">
+            <h1>{{title}}</h1>
+            <p class="text-italic" style="font-size: 1.5rem;">{{subtitle}}</p>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SLIDE 2: TEXT + 2 VERTICAL CARDS
+    ======================================== -->
+    <section class="slide" id="slide-2">
+        <div class="slide__content">
+            <h2 class="mb-md">{{section_title}}</h2>
+            <p class="text-italic mb-lg">{{section_description}}</p>
+
+            <div class="grid grid--2-col">
+                <div class="card card--with-curl">
+                    <div class="card__header">TEXTO</div>
+                    <img src="https://via.placeholder.com/400x300/000000/FFFFFF?text=Imagem+1" alt="Card 1" class="card__image">
+                    <h3 class="card__title">Card 1</h3>
+                    <p class="card__text">{{card_1_content}}</p>
+                </div>
+
+                <div class="card card--with-curl">
+                    <div class="card__header">TEXTO</div>
+                    <img src="https://via.placeholder.com/400x300/000000/FFFFFF?text=Imagem+2" alt="Card 2" class="card__image">
+                    <h3 class="card__title">Card 2</h3>
+                    <p class="card__text">{{card_2_content}}</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SLIDE 3: TEXT + 3 CARD GRID
+    ======================================== -->
+    <section class="slide" id="slide-3">
+        <div class="slide__content">
+            <h2 class="mb-md">{{section_title}}</h2>
+            <p class="text-italic mb-lg">{{section_description}}</p>
+
+            <div class="grid grid--3-col">
+                <div class="card card--with-curl">
+                    <img src="https://via.placeholder.com/300x200/000000/FFFFFF?text=Imagem+1" alt="Card 1" class="card__image">
+                    <h3 class="card__title">Item 1</h3>
+                    <p class="card__text">{{card_1_content}}</p>
+                </div>
+
+                <div class="card card--with-curl">
+                    <img src="https://via.placeholder.com/300x200/000000/FFFFFF?text=Imagem+2" alt="Card 2" class="card__image">
+                    <h3 class="card__title">Item 2</h3>
+                    <p class="card__text">{{card_2_content}}</p>
+                </div>
+
+                <div class="card card--with-curl">
+                    <img src="https://via.placeholder.com/300x200/000000/FFFFFF?text=Imagem+3" alt="Card 3" class="card__image">
+                    <h3 class="card__title">Item 3</h3>
+                    <p class="card__text">{{card_3_content}}</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SLIDE 4: TEXT + LARGE PHOTO
+    ======================================== -->
+    <section class="slide" id="slide-4">
+        <div class="slide__content">
+            <div class="two-col">
+                <div>
+                    <img src="https://via.placeholder.com/600x400/000000/FFFFFF?text=Gorila" alt="Gorila" class="grayscale" style="width: 100%; border-radius: 4px;">
+                </div>
+                <div>
+                    <h2 class="mb-md">{{section_title}}</h2>
+                    <p class="mb-md">{{paragraph_1}}</p>
+                    <p>{{paragraph_2}}</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SLIDE 5: CATEGORIZED LIST (FUNNEL)
+    ======================================== -->
+    <section class="slide" id="slide-5">
+        <div class="slide__content">
+            <h2 class="mb-lg">{{section_title}}</h2>
+
+            <div class="category-list">
+                <div class="category">
+                    <h3 class="category__title">DESCOBERTA</h3>
+                    <ul class="category__items">
+                        <li>{{discovery_item_1}}</li>
+                        <li>{{discovery_item_2}}</li>
+                        <li>{{discovery_item_3}}</li>
+                    </ul>
+                </div>
+
+                <div class="category">
+                    <h3 class="category__title">NUTRIÇÃO</h3>
+                    <ul class="category__items">
+                        <li>{{nutrition_item_1}}</li>
+                        <li>{{nutrition_item_2}}</li>
+                        <li>{{nutrition_item_3}}</li>
+                    </ul>
+                </div>
+
+                <div class="category">
+                    <h3 class="category__title">CONVERSÃO</h3>
+                    <ul class="category__items">
+                        <li>{{conversion_item_1}}</li>
+                        <li>{{conversion_item_2}}</li>
+                        <li>{{conversion_item_3}}</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SLIDE 6: GRID 3x3 CARDS
+    ======================================== -->
+    <section class="slide" id="slide-6">
+        <div class="slide__content">
+            <h2 class="mb-md">{{section_title}}</h2>
+            <p class="text-italic mb-lg">{{section_description}}</p>
+
+            <div class="card card--with-curl mb-md" style="background: var(--koko-black); color: var(--koko-white); padding: var(--spacing-sm); text-align: center;">
+                <span class="heading" style="font-size: 1.2rem;">TEXTO TEXTO TEXTO TEXTO TEXTO</span>
+            </div>
+
+            <div class="grid grid--9-cards">
+                <div class="card card--with-curl">
+                    <img src="https://via.placeholder.com/200x150/000000/FFFFFF?text=1" alt="Item 1" class="card__image">
+                </div>
+                <div class="card card--with-curl">
+                    <img src="https://via.placeholder.com/200x150/000000/FFFFFF?text=2" alt="Item 2" class="card__image">
+                </div>
+                <div class="card card--with-curl">
+                    <img src="https://via.placeholder.com/200x150/000000/FFFFFF?text=3" alt="Item 3" class="card__image">
+                </div>
+                <div class="card card--with-curl">
+                    <img src="https://via.placeholder.com/200x150/000000/FFFFFF?text=4" alt="Item 4" class="card__image">
+                </div>
+                <div class="card card--with-curl">
+                    <img src="https://via.placeholder.com/200x150/000000/FFFFFF?text=5" alt="Item 5" class="card__image">
+                </div>
+                <div class="card card--with-curl">
+                    <img src="https://via.placeholder.com/200x150/000000/FFFFFF?text=6" alt="Item 6" class="card__image">
+                </div>
+                <div class="card card--with-curl">
+                    <img src="https://via.placeholder.com/200x150/000000/FFFFFF?text=7" alt="Item 7" class="card__image">
+                </div>
+                <div class="card card--with-curl">
+                    <img src="https://via.placeholder.com/200x150/000000/FFFFFF?text=8" alt="Item 8" class="card__image">
+                </div>
+                <div class="card card--with-curl">
+                    <img src="https://via.placeholder.com/200x150/000000/FFFFFF?text=9" alt="Item 9" class="card__image">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SLIDE 7: TIMELINE (5 STEPS)
+    ======================================== -->
+    <section class="slide" id="slide-7">
+        <div class="slide__content">
+            <h2 class="mb-lg">{{section_title}}</h2>
+
+            <div class="timeline mb-lg">
+                <div class="timeline__step">
+                    <div class="timeline__number">01</div>
+                    <p class="timeline__label">{{step_1_label}}</p>
+                </div>
+
+                <div class="timeline__arrow">➔</div>
+
+                <div class="timeline__step">
+                    <div class="timeline__number">02</div>
+                    <p class="timeline__label">{{step_2_label}}</p>
+                </div>
+
+                <div class="timeline__arrow">➔</div>
+
+                <div class="timeline__step">
+                    <div class="timeline__number">03</div>
+                    <p class="timeline__label">{{step_3_label}}</p>
+                </div>
+            </div>
+
+            <div class="timeline">
+                <div class="timeline__step">
+                    <div class="timeline__number">04</div>
+                    <p class="timeline__label">{{step_4_label}}</p>
+                </div>
+
+                <div class="timeline__arrow">➔</div>
+
+                <div class="timeline__step">
+                    <div class="timeline__number">05</div>
+                    <p class="timeline__label">{{step_5_label}}</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SLIDE 8: PUNK COLLAGE (HEART)
+    ======================================== -->
+    <section class="slide" id="slide-8">
+        <div class="slide__content">
+            <h2 class="mb-lg">{{section_title}}</h2>
+
+            <div class="collage">
+                <!-- Yellow Heart -->
+                <div class="collage__heart" style="top: 10%; left: 60%;">❤️</div>
+
+                <!-- Triangles Cluster -->
+                <div class="collage__triangles" style="top: 20%; left: 10%;">
+                    <div class="triangle" style="--rotation: 0deg;"></div>
+                    <div class="triangle" style="--rotation: 45deg;"></div>
+                    <div class="triangle" style="--rotation: -30deg;"></div>
+                </div>
+
+                <!-- Halftone Frame -->
+                <div class="collage__halftone-frame halftone" style="top: 40%; left: 30%;">
+                    <img src="https://via.placeholder.com/400x300/000000/FFFFFF?text=Foto+P%26B" alt="Collage" class="grayscale" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SLIDE 9: TEXT + HALFTONE GRAPHIC
+    ======================================== -->
+    <section class="slide" id="slide-9">
+        <div class="slide__content">
+            <div class="two-col two-col--40-60">
+                <div>
+                    <div class="halftone--pink" style="width: 300px; height: 300px; border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                        <img src="https://via.placeholder.com/250x250/000000/FFFFFF?text=Boca" alt="Boca" class="grayscale" style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+                </div>
+                <div>
+                    <h2 class="mb-md">{{section_title}}</h2>
+                    <p class="mb-md">{{paragraph_1}}</p>
+                    <p class="mb-md">{{paragraph_2}}</p>
+                    <p>{{paragraph_3}}</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SLIDE 10: TEXT + BURST PHOTO
+    ======================================== -->
+    <section class="slide" id="slide-10">
+        <div class="slide__content">
+            <div class="two-col two-col--60-40">
+                <div>
+                    <h2 class="mb-md">{{section_title}}</h2>
+                    <p class="mb-md">{{paragraph_1}}</p>
+                    <p>{{paragraph_2}}</p>
+                </div>
+                <div style="display: flex; justify-content: center;">
+                    <div class="burst">
+                        <div class="burst__shape"></div>
+                        <div class="burst__content">
+                            <img src="https://via.placeholder.com/250x250/000000/FFFFFF?text=Foto" alt="Burst" class="burst__image">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SLIDE 11: CLOSING (THANK YOU)
+    ======================================== -->
+    <section class="slide" id="slide-11">
+        <div class="slide__content text-center">
+            <h1 class="text-yellow">OBRIGADO</h1>
+            <p style="font-size: 1.5rem; margin-top: var(--spacing-md);">
+                <strong>{{contact_name}}</strong><br>
+                {{contact_role}}<br>
+                <a href="mailto:{{contact_email}}" style="color: var(--koko-yellow); text-decoration: none;">{{contact_email}}</a>
+            </p>
+
+            <div style="margin-top: var(--spacing-lg); display: flex; align-items: center; justify-content: center; gap: var(--spacing-sm);">
+                <div class="logo">
+                    <div class="logo__agency">agência</div>
+                    <div class="logo__name">KOKO</div>
+                </div>
+                <p style="font-size: 1.2rem;">www.agenciakoko.com.br</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SCROLLING TEXT FOOTER
+    ======================================== -->
+    <div class="scrolling-text scrolling-text--footer">
+        <div class="scrolling-text__content">
+            AGÊNCIA KOKO • A AGÊNCIA MAIS QUERIDA DO BRASIL • AGÊNCIA KOKO • A AGÊNCIA MAIS QUERIDA DO BRASIL • AGÊNCIA KOKO • A AGÊNCIA MAIS QUERIDA DO BRASIL • AGÊNCIA KOKO • A AGÊNCIA MAIS QUERIDA DO BRASIL •
+        </div>
+    </div>
+</body>
+</html>
