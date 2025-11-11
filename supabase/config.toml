@@ -54,3 +54,19 @@ verify_jwt = false
 
 [functions.j_hub_optimization_extract]
 verify_jwt = true
+
+# ========================================
+# Deck System Functions
+# ========================================
+
+[functions.j_hub_deck_view_shared]
+verify_jwt = false  # Allow anonymous access for public shares
+
+[functions.j_hub_deck_create_share]
+verify_jwt = true  # Requires auth - only authenticated users create shares
+
+[functions.j_hub_deck_generate]
+verify_jwt = true  # Requires auth - only authenticated users generate decks
+
+[functions.j_hub_deck_refine]
+verify_jwt = true  # Requires auth - only authenticated users refine decks

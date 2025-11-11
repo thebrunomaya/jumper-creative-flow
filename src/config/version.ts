@@ -7,10 +7,24 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.17';
+export const APP_VERSION = 'v2.1.18';
 
 /**
  * Version history:
+ * - v2.1.18 (2024-11-11):
+ *   - CRITICAL FIX: Add missing deck functions to supabase/config.toml
+ *   - ROOT CAUSE: j_hub_deck_view_shared was not in config.toml
+ *   - Without config entry, Supabase defaults to verify_jwt=true
+ *   - SYMPTOM: 401 "Missing authorization header" on public shares
+ *   - SOLUTION: Added all 4 deck functions to config.toml:
+ *     - j_hub_deck_view_shared (verify_jwt=false) ← PUBLIC ACCESS
+ *     - j_hub_deck_create_share (verify_jwt=true)
+ *     - j_hub_deck_generate (verify_jwt=true)
+ *     - j_hub_deck_refine (verify_jwt=true)
+ *   - COMPARISON: j_hub_optimization_view_shared works because it WAS in config.toml
+ *   - LESSON: --no-verify-jwt CLI flag is temporary, config.toml is persistent
+ *   - After git push, Supabase auto-syncs config (~2-5 min propagation)
+ *
  * - v2.1.17 (2024-11-11):
  *   - OPTIMIZATION: Reduced viewport minimum to 1024x768px (from 1280x720)
  *   - DISCOVERY: Templates already had fluid typography with clamp() implemented
