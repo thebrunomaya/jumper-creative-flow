@@ -7,10 +7,17 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.18';
+export const APP_VERSION = 'v2.1.19';
 
 /**
  * Version history:
+ * - v2.1.19 (2024-11-11):
+ *   - ADJUSTMENT: Increased viewport minimum from 1024x768 to 1280x768
+ *   - REASON: User reported protection not triggering properly on small screens
+ *   - DEBUG: Added console logs to ViewportWarning component for troubleshooting
+ *   - IMPACT: Now blocks tablets (iPad 10") and allows only standard laptops+
+ *   - COVERAGE: ~98% of desktop/laptop devices (blocks tablets and mobile)
+ *
  * - v2.1.18 (2024-11-11):
  *   - CRITICAL FIX: Add missing deck functions to supabase/config.toml
  *   - ROOT CAUSE: j_hub_deck_view_shared was not in config.toml

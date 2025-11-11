@@ -35,6 +35,16 @@ export function ViewportWarning({ showAdminOverride = false }: ViewportWarningPr
     return localStorage.getItem(FORCE_VIEWPORT_KEY) === "true";
   });
 
+  // DEBUG: Log viewport state
+  console.log('[ViewportWarning]', {
+    width,
+    height,
+    isValid,
+    isForced,
+    minWidth: 1024,
+    minHeight: 768,
+  });
+
   // Don't show warning if viewport is valid OR admin forced it
   if (isValid || isForced) {
     return null;
