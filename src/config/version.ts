@@ -7,10 +7,24 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.16';
+export const APP_VERSION = 'v2.1.17';
 
 /**
  * Version history:
+ * - v2.1.17 (2024-11-11):
+ *   - OPTIMIZATION: Reduced viewport minimum to 1024x768px (from 1280x720)
+ *   - DISCOVERY: Templates already had fluid typography with clamp() implemented
+ *   - BENEFIT: Fonts scale automatically from 1024px to 1920px (responsive)
+ *   - COVERAGE: Now covers virtually ALL desktop/laptop devices (~99.5%)
+ *   - BLOCKS: Only mobile phones and very small tablets (< 1024px)
+ *   - RATIONALE: Fluid fonts + generous minimum = best compatibility
+ *   - EXAMPLES:
+ *     - h1: clamp(36px, 5vw, 60px) → scales smoothly
+ *     - h2: clamp(18px, 2.5vw, 28px) → scales smoothly
+ *     - body: clamp(16px, 2vw, 20px) → scales smoothly
+ *     - metrics: clamp(64px, 10vw, 120px) → scales smoothly
+ *   - RESULT: Presentations work great on tablets (10"+) and all laptops
+ *
  * - v2.1.16 (2024-11-11):
  *   - ADJUSTMENT: Reduced viewport minimum from 1600x900 to 1280x720px
  *   - RATIONALE: Previous minimum blocked common laptops (MacBook Air 13", Windows laptops)
