@@ -32,6 +32,9 @@ const DeckNew = lazy(() => import("./pages/DeckNew"));
 const DeckEditor = lazy(() => import("./pages/DeckEditor"));
 const DeckPreview = lazy(() => import("./pages/DeckPreview"));
 const SharedDeck = lazy(() => import("./pages/SharedDeck"));
+const Templates = lazy(() => import("./pages/Templates"));
+const TemplateEditor = lazy(() => import("./pages/TemplateEditor"));
+const TemplateCompare = lazy(() => import("./pages/TemplateCompare"));
 
 // Loading component reutilizável com acessibilidade
 const PageLoading = () => (
@@ -181,6 +184,27 @@ const App = () => {
                   <Suspense fallback={<PageLoading />}>
                     <SharedDeck />
                   </Suspense>
+                } />
+                <Route path="/templates" element={
+                  <AdminRoute>
+                    <Suspense fallback={<PageLoading />}>
+                      <Templates />
+                    </Suspense>
+                  </AdminRoute>
+                } />
+                <Route path="/templates/:templateId/edit" element={
+                  <AdminRoute>
+                    <Suspense fallback={<PageLoading />}>
+                      <TemplateEditor />
+                    </Suspense>
+                  </AdminRoute>
+                } />
+                <Route path="/templates/compare" element={
+                  <AdminRoute>
+                    <Suspense fallback={<PageLoading />}>
+                      <TemplateCompare />
+                    </Suspense>
+                  </AdminRoute>
                 } />
                 <Route path="/reset-password" element={<ResetPasswordPage />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

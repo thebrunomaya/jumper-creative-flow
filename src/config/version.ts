@@ -7,10 +7,59 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.26';
+export const APP_VERSION = 'v2.1.27';
 
 /**
  * Version history:
+ * - v2.1.27 (2024-11-11):
+ *   - MAJOR FEATURE: Template Management System - Complete admin panel for deck templates
+ *   - BACKEND: 2 Edge Functions created for template operations
+ *   -   - j_hub_deck_template_list: Lists all templates from Storage with metadata
+ *   -   - j_hub_deck_template_read: Fetches template HTML content for editing
+ *   - FRONTEND: 5 new components for template management
+ *   -   - Templates page (/templates): List view with search and brand filters
+ *   -   - TemplateCard: Card component with metadata badges and actions
+ *   -   - TemplateEditor page (/templates/:id/edit): Monaco editor with live preview
+ *   -   - TemplateCompare page (/templates/compare): Side-by-side diff viewer
+ *   -   - DiffViewer: Color-coded line-by-line comparison with stats
+ *   - EDITOR FEATURES:
+ *   -   - Monaco Editor integration (VS Code-style editor in browser)
+ *   -   - HTML syntax highlighting with error detection
+ *   -   - Split view: Editor (left) | Live preview (right)
+ *   -   - Toggle preview visibility for full-screen editing
+ *   -   - Auto-save detection (warns user of unsaved changes)
+ *   -   - Direct Storage upload with UTF-8 encoding
+ *   - COMPARISON TOOL:
+ *   -   - Select any two templates for comparison
+ *   -   - Line-by-line diff with color coding (red=removed, green=added)
+ *   -   - Statistics: lines added/removed/unchanged
+ *   -   - Sync scroll between comparison panels
+ *   - PERMISSIONS: Admin-only access for all template management features
+ *   - NAVIGATION: "Comparar Templates" button added to Templates list page
+ *   - DEPENDENCIES ADDED:
+ *   -   - @monaco-editor/react: Monaco Editor for React (VS Code editor)
+ *   -   - diff: JavaScript diff library for file comparison
+ *   - FILES CREATED:
+ *   -   - supabase/functions/j_hub_deck_template_list/index.ts
+ *   -   - supabase/functions/j_hub_deck_template_read/index.ts
+ *   -   - src/pages/Templates.tsx
+ *   -   - src/pages/TemplateEditor.tsx
+ *   -   - src/pages/TemplateCompare.tsx
+ *   -   - src/components/templates/TemplateCard.tsx
+ *   -   - src/components/templates/MonacoEditor.tsx
+ *   -   - src/components/templates/TemplatePreview.tsx
+ *   -   - src/components/templates/DiffViewer.tsx
+ *   -   - src/hooks/useTemplateList.ts
+ *   -   - src/hooks/useTemplateRead.ts
+ *   - ROUTES ADDED:
+ *   -   - /templates (list view)
+ *   -   - /templates/:id/edit (editor)
+ *   -   - /templates/compare (comparison tool)
+ *   - DEPLOYED: Both Edge Functions deployed to production
+ *   - USE CASE: Admins can now debug template issues, edit templates directly, and compare versions
+ *   - IMPACT: Eliminates need for manual file editing and re-upload workflow
+ *   - ESTIMATED TIME: 22-33 hours of implementation completed in single session
+ *
  * - v2.1.26 (2024-11-11):
  *   - CRITICAL FIX: Increased template truncation limit to restore Koko deck quality
  *   - PROBLEM: Koko decks showing degraded output quality with missing patterns
