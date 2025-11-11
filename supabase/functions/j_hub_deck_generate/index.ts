@@ -199,32 +199,41 @@ serve(async (req) => {
     }
 
     // 5. Build Claude prompt for deck generation
-    const systemPrompt = `You are a professional presentation designer creating beautiful, Apple-inspired HTML presentations for Jumper Studio clients.
+    const systemPrompt = `You are a professional presentation designer creating beautiful HTML presentations that strictly follow brand identity guidelines.
 
-Your task is to transform markdown content into a complete, production-ready HTML presentation following the exact design system and template structure provided.
+Your task is to transform markdown content into a complete, production-ready HTML presentation following EXCLUSIVELY the design system provided for the selected brand identity.
 
 CRITICAL INSTRUCTIONS:
 
-1. READ AND APPLY the complete design system from identities/${brand_identity}/design-system.md
+1. ⚠️ MANDATORY: READ AND APPLY THE COMPLETE DESIGN SYSTEM from identities/${brand_identity}/design-system.md
+   - This is your ONLY source of truth for colors, fonts, spacing, and visual style
+   - DO NOT use colors, fonts, or patterns from other identities
+   - DO NOT mix design systems - use ONLY the ${brand_identity} identity guidelines
+
 2. USE the template structure from ${template_id}.html as inspiration for layout patterns
+   - Copy slide patterns and component structures
+   - Adapt content to match the markdown source
+   - Maintain responsive behavior and animations from template
+
 3. GENERATE a complete, standalone HTML file with:
    - Complete <head> with <meta charset="UTF-8"> as FIRST tag (CRITICAL for UTF-8 encoding)
    - All CSS embedded (no external dependencies)
-   - Font loading with ABSOLUTE URLs: https://hub.jumper.studio/decks/identities/${brand_identity}/fonts/HafferVF.ttf
-   - Image sources with ABSOLUTE URLs: https://hub.jumper.studio/decks/identities/${brand_identity}/gradients/...
+   - Font loading with ABSOLUTE URLs from design system
+   - Image sources with ABSOLUTE URLs: https://hub.jumper.studio/decks/identities/${brand_identity}/...
    - Logo sources with ABSOLUTE URLs: https://hub.jumper.studio/decks/identities/${brand_identity}/logos/...
    - NEVER use relative paths (no /decks/..., always use full https:// URLs with domain)
-   - All animations and interactions
+   - All animations and interactions specified in design system
    - Responsive design (mobile-first)
    - Keyboard navigation (arrow keys, spacebar)
 
-4. FOLLOW these mandatory design principles:
-   - Sophisticated minimalism (90% grays, 5% orange, 5% semantic colors)
-   - Strategic orange usage (#FA4721) for CTAs and key highlights only
-   - Professional typography hierarchy (clamp() for responsive sizing)
-   - Sequential animations (fadeInUp, stagger delays)
-   - Safe padding zones (max 80px vertical, 120px horizontal)
-   - Split layout for gradients (never full-bleed with gray text)
+4. FOLLOW THE DESIGN SYSTEM STRICTLY:
+   - Use ONLY colors defined in ${brand_identity} design system
+   - Use ONLY fonts specified in ${brand_identity} design system
+   - Use ONLY spacing/padding defined in ${brand_identity} design system
+   - Use ONLY animation styles from ${brand_identity} design system
+   - If ${brand_identity} === 'jumper': Use grays + orange (#FA4721), Haffer font, organic gradients
+   - If ${brand_identity} === 'koko': Use black/white + yellow (#F2C541) + pink (#FF0080), AlternateGothic/Playfair, Koko Dust textures
+   - If ${brand_identity} === 'general': Follow generic guidelines, use system fonts
 
 5. DECK TYPE specific structure:
    ${type === 'report' ? '- Reports: Cover → Results → Insights → Recommendations (7-10 slides)' : ''}
@@ -232,31 +241,33 @@ CRITICAL INSTRUCTIONS:
    ${type === 'pitch' ? '- Pitches: Problem → Solution → Proof → Proposal → CTA (7-10 slides)' : ''}
 
 6. ASSET PATHS (CRITICAL - URLs MUST BE ABSOLUTE):
-   - Font loading example:
-     @font-face {
-       font-family: 'Haffer';
-       src: url('https://hub.jumper.studio/decks/identities/${brand_identity}/fonts/HafferVF.ttf') format('truetype');
-     }
-   - Gradient background example:
-     background-image: url('https://hub.jumper.studio/decks/identities/${brand_identity}/gradients/organic-01.png')
-   - Logo image example:
-     <img src="https://hub.jumper.studio/decks/identities/${brand_identity}/logos/${brand_identity}-white.png" alt="Logo">
-   - CRITICAL: ALL asset URLs MUST start with https://hub.jumper.studio (NEVER use /decks/... relative paths)
-   - Reason: HTML is served from different domain, relative paths will fail to load
+   - ALL asset URLs MUST start with https://hub.jumper.studio/decks/identities/${brand_identity}/
+   - Fonts: https://hub.jumper.studio/decks/identities/${brand_identity}/fonts/[font-file]
+   - Backgrounds: https://hub.jumper.studio/decks/identities/${brand_identity}/gradients/[image-file]
+   - Logos: https://hub.jumper.studio/decks/identities/${brand_identity}/logos/[logo-file]
+   - Elements: https://hub.jumper.studio/decks/identities/${brand_identity}/elements/[element-file]
+   - NEVER use relative paths (no /decks/...) - HTML is served from different domain
+   - Refer to design system for correct file names and extensions
 
 7. QUALITY STANDARDS:
    - Every slide must be perfectly centered (flexbox + auto margins)
    - Typography sizes must NOT exceed maximums in design system
-   - Gradients only on 2-3 slides maximum (cover, closing, 1 hero)
-   - All content must fit in safe zones (no cutoff)
-   - Performance colors for metrics (excellent/good/warning/critical)
+   - Use backgrounds/gradients as specified in design system (frequency and style)
+   - All content must fit in safe zones defined in design system
+   - Apply brand-specific animation styles (Jumper = smooth, Koko = aggressive, General = minimal)
 
-8. OUTPUT:
+8. UTF-8 ENCODING (CRITICAL):
+   - ALWAYS preserve Brazilian Portuguese characters: á é í ó ú ã õ ç
+   - Ensure <meta charset="UTF-8"> is FIRST tag in <head>
+   - DO NOT escape or break UTF-8 characters
+   - Test: "Relatório" should render correctly, NOT "RelatÃ³rio"
+
+9. OUTPUT:
    - Return ONLY the complete HTML (no markdown fences, no explanations)
    - HTML must be production-ready (can be opened directly in browser)
    - Include closing slide with clear CTA and next steps
 
-OUTPUT LANGUAGE: HTML with Brazilian Portuguese content`;
+OUTPUT LANGUAGE: HTML with Brazilian Portuguese content (UTF-8 encoded)`;
 
     const userPrompt = `==============================================
 DECK CONFIGURATION
