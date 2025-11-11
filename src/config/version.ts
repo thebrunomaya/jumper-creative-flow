@@ -7,10 +7,20 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.23';
+export const APP_VERSION = 'v2.1.24';
 
 /**
  * Version history:
+ * - v2.1.24 (2024-11-11):
+ *   - UX IMPROVEMENT: Markdown Editor button and behavior updates
+ *   - RENAMED: "Regenerar Deck" → "Recriar Deck" (clearer intent)
+ *   - REMOVED: Validation requiring markdown changes before regeneration
+ *   - RATIONALE: Allow regeneration with same markdown when template is updated
+ *   - USE CASE: User can recreate deck to pick up template improvements
+ *   - BUTTON STATE: Now enabled even without markdown changes (only disabled if empty or over limit)
+ *   - FILES MODIFIED:
+ *     - src/components/decks/MarkdownEditor.tsx (button text + validation logic)
+ *
  * - v2.1.23 (2024-11-11):
  *   - FEATURE: Markdown Editing & Deck Regeneration System
  *   - PROBLEM: Users couldn't edit deck content after generation, required creating new deck

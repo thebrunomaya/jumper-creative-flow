@@ -64,11 +64,6 @@ export function MarkdownEditor({
   }, [markdown, initialMarkdown]);
 
   const handleRegenerate = async () => {
-    if (!hasChanges) {
-      toast.info("Nenhuma alteração detectada no markdown.");
-      return;
-    }
-
     if (markdown.trim().length === 0) {
       toast.error("O markdown não pode estar vazio.");
       return;
@@ -121,7 +116,7 @@ export function MarkdownEditor({
       <Alert>
         <AlertCircle className="h-4 w-4" />
         <AlertDescription>
-          Edite o markdown abaixo e clique em <strong>Regenerar Deck</strong> para criar uma nova versão.
+          Edite o markdown abaixo e clique em <strong>Recriar Deck</strong> para gerar uma nova versão.
           As alterações são salvas automaticamente como rascunho.
         </AlertDescription>
       </Alert>
@@ -180,7 +175,7 @@ Mais conteúdo..."
 
         <Button
           onClick={handleRegenerate}
-          disabled={!hasChanges || isGenerating || disabled || isOverLimit}
+          disabled={isGenerating || disabled || isOverLimit}
           size="lg"
           className="min-w-[200px]"
         >
@@ -192,7 +187,7 @@ Mais conteúdo..."
           ) : (
             <>
               <RefreshCw className="h-4 w-4 mr-2" />
-              Regenerar Deck
+              Recriar Deck
             </>
           )}
         </Button>
@@ -201,7 +196,7 @@ Mais conteúdo..."
       {/* Change indicator */}
       {hasChanges && !isGenerating && (
         <p className="text-sm text-muted-foreground text-center">
-          ⚠️ Você tem alterações não salvas. Clique em "Regenerar Deck" para criar uma nova versão.
+          ⚠️ Você tem alterações não salvas. Clique em "Recriar Deck" para gerar uma nova versão.
         </p>
       )}
     </div>
