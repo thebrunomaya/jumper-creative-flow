@@ -631,19 +631,19 @@ The dog-ear uses two complementary CSS techniques:
 <div class="slide hero relative w-full h-full">
     <!-- Background Pattern (full bleed) -->
     <div class="absolute inset-0 z-0" style="
-        background-image: url('https://hub.jumper.studio/decks/identities/koko/elements/fundo da capa.png');
+        background-image: url('https://hub.jumper.studio/decks/identities/koko/elements/hero-background.png');
         background-size: cover;
         background-position: center;
     "></div>
 
     <!-- Gorilla Hands - Diagonal Composition -->
     <img
-        src="https://hub.jumper.studio/decks/identities/koko/elements/Gorila mao pela direita.png"
+        src="https://hub.jumper.studio/decks/identities/koko/elements/gorilla-hand-left.png"
         class="absolute w-[43vw] max-w-[540px] z-10"
         style="left: -5%; top: -5%; transform: rotate(15deg);">
 
     <img
-        src="https://hub.jumper.studio/decks/identities/koko/elements/Gorila mao pela esquerda.png"
+        src="https://hub.jumper.studio/decks/identities/koko/elements/gorilla-hand-right.png"
         class="absolute w-[43vw] max-w-[540px] z-10"
         style="right: -5%; bottom: -5%; transform: rotate(315deg);">
 
@@ -879,20 +879,20 @@ The dog-ear uses two complementary CSS techniques:
 **1. Gorilla Hand Motifs** (Brand Signature)
 
 Available:
-- `Gorila mao pela direita.png` - Right hand
-- `Gorila mao pela esquerda.png` - Left hand
+- `gorilla-hand-left.png` - Left hand (positioned at top-left)
+- `gorilla-hand-right.png` - Right hand (positioned at bottom-right)
 
 **Usage Pattern (Hero Slide):**
 ```html
 <!-- Left hand from top-left diagonal -->
 <img
-    src="https://hub.jumper.studio/decks/identities/koko/elements/Gorila mao pela direita.png"
+    src="https://hub.jumper.studio/decks/identities/koko/elements/gorilla-hand-left.png"
     class="absolute w-[43vw] max-w-[540px]"
     style="left: -5%; top: -5%; transform: rotate(15deg);">
 
-<!-- Right hand from bottom-right diagonal (mirrored) -->
+<!-- Right hand from bottom-right diagonal -->
 <img
-    src="https://hub.jumper.studio/decks/identities/koko/elements/Gorila mao pela esquerda.png"
+    src="https://hub.jumper.studio/decks/identities/koko/elements/gorilla-hand-right.png"
     class="absolute w-[43vw] max-w-[540px]"
     style="right: -5%; bottom: -5%; transform: rotate(315deg);">
 ```
@@ -900,13 +900,13 @@ Available:
 **2. Pattern Backgrounds**
 
 Available:
-- `fundo da capa.png` - Full-slide hero background
-- `fundo de xadrez.png` - Checkerboard pattern
+- `hero-background.png` - Full-slide hero background pattern
+- `checkered-background.png` - Checkerboard pattern
 
 **Application:**
 ```css
 .pattern-background {
-    background-image: url('https://hub.jumper.studio/decks/identities/koko/elements/fundo da capa.png');
+    background-image: url('https://hub.jumper.studio/decks/identities/koko/elements/hero-background.png');
     background-size: cover;
     background-position: center;
 }
@@ -915,10 +915,10 @@ Available:
 **3. Accent Graphics**
 
 Available:
-- `Coração.png` - Heart (emotional moments)
-- `explosao rosa.png` - Pink splash (dynamic accents)
-- `Boca.png` - Mouth halftone
-- `computador.png` - Computer halftone
+- `heart.png` - Heart (emotional moments)
+- `pink-explosion.png` - Pink splash (dynamic accents)
+- `mouth.png` - Mouth halftone
+- `computer.png` - Computer halftone
 
 ---
 
@@ -1152,14 +1152,14 @@ Base URL: `https://hub.jumper.studio/decks/identities/koko/fonts/`
 Base URL: `https://hub.jumper.studio/decks/identities/koko/logos/`
 
 ### Graphics
-- `fundo da capa.png` (hero background pattern)
-- `fundo de xadrez.png` (checkerboard pattern)
-- `Gorila mao pela direita.png` (right hand)
-- `Gorila mao pela esquerda.png` (left hand)
-- `Coração.png` (heart)
-- `explosao rosa.png` (pink splash)
-- `Boca.png` (mouth halftone)
-- `computador.png` (computer halftone)
+- `hero-background.png` (hero background pattern)
+- `checkered-background.png` (checkerboard pattern)
+- `gorilla-hand-left.png` (left hand for top-left position)
+- `gorilla-hand-right.png` (right hand for bottom-right position)
+- `heart.png` (heart)
+- `pink-explosion.png` (pink splash)
+- `mouth.png` (mouth halftone)
+- `computer.png` (computer halftone)
 
 Base URL: `https://hub.jumper.studio/decks/identities/koko/elements/`
 
