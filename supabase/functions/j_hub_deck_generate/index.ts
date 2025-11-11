@@ -120,7 +120,7 @@ serve(async (req) => {
     const baseUrl = isLocal
       ? 'http://localhost:8080'  // Vite dev server
       : 'https://hub.jumper.studio';  // Vercel production
-    const templateUrl = `${baseUrl}/decks/examples/${template_id}.html`;
+    const templateUrl = `${baseUrl}/decks/templates/${template_id}.html`;
 
     console.log('🔗 [DECK_GENERATE] Template URL:', templateUrl, `(${isLocal ? 'LOCAL' : 'PRODUCTION'})`);
 

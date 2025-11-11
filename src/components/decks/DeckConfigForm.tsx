@@ -18,7 +18,10 @@ import {
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
+  SelectSeparator,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -37,7 +40,7 @@ const deckFormSchema = z.object({
   type: z.enum(["report", "plan", "pitch"], {
     required_error: "Selecione um tipo de deck",
   }),
-  brand_identity: z.enum(["jumper", "koko"], {
+  brand_identity: z.enum(["jumper", "koko", "general"], {
     required_error: "Selecione uma identidade de marca",
   }),
   template_id: z.string().min(1, "Selecione um template"),
@@ -53,10 +56,44 @@ interface DeckConfigFormProps {
   isSubmitting?: boolean;
 }
 
-const TEMPLATES = [
-  { id: "jumper-flare", name: "Jumper Flare", description: "Template moderno para apresentações e relatórios" },
-  { id: "plan-template", name: "Planejamento", description: "Template para planejamento estratégico" },
-  { id: "pitch-template", name: "Pitch", description: "Template para apresentação de pitch" },
+const AVAILABLE_TEMPLATES = [
+  // Jumper templates
+  { id: "jumper-flare", name: "Jumper Flare", identity: "jumper", description: "Template moderno para apresentações e relatórios" },
+
+  // Koko templates
+  { id: "koko-rebel", name: "Koko Rebel", identity: "koko", description: "Template criativo e ousado" },
+
+  // General templates
+  { id: "general-animated-gradients", name: "Animated Gradients", identity: "general", description: "Gradientes animados e dinâmicos" },
+  { id: "general-apple-keynote-style", name: "Apple Keynote Style", identity: "general", description: "Estilo Apple Keynote clássico" },
+  { id: "general-apple-keynote-style-light", name: "Apple Keynote Light", identity: "general", description: "Keynote estilo Apple (tema claro)" },
+  { id: "general-apple-minimal", name: "Apple Minimal", identity: "general", description: "Minimalismo inspirado na Apple" },
+  { id: "general-black-neon-glow", name: "Black Neon Glow", identity: "general", description: "Neon vibrante em fundo escuro" },
+  { id: "general-blue-background-modal", name: "Blue Background Modal", identity: "general", description: "Modal com fundo azul moderno" },
+  { id: "general-brutalist", name: "Brutalist", identity: "general", description: "Design brutalista e impactante" },
+  { id: "general-cluely-3d-style", name: "Cluely 3D Style", identity: "general", description: "Elementos 3D modernos" },
+  { id: "general-cluely-style", name: "Cluely Style", identity: "general", description: "Estilo Cluely limpo e profissional" },
+  { id: "general-cyberpunk-neon", name: "Cyberpunk Neon", identity: "general", description: "Estética cyberpunk futurista" },
+  { id: "general-dark-glowing-style", name: "Dark Glowing", identity: "general", description: "Elementos brilhantes em fundo escuro" },
+  { id: "general-dark-mode-pro", name: "Dark Mode Pro", identity: "general", description: "Dark mode profissional" },
+  { id: "general-editorial-magazine", name: "Editorial Magazine", identity: "general", description: "Layout estilo revista editorial" },
+  { id: "general-glassmorphism", name: "Glassmorphism", identity: "general", description: "Efeito de vidro moderno" },
+  { id: "general-hand-drawn-sketch", name: "Hand Drawn Sketch", identity: "general", description: "Estilo desenhado à mão" },
+  { id: "general-isometric-3d", name: "Isometric 3D", identity: "general", description: "Perspectiva isométrica 3D" },
+  { id: "general-liquid-metal", name: "Liquid Metal", identity: "general", description: "Efeitos de metal líquido" },
+  { id: "general-memphis-design", name: "Memphis Design", identity: "general", description: "Design Memphis colorido" },
+  { id: "general-minimalist-clean", name: "Minimalist Clean", identity: "general", description: "Minimalismo limpo e elegante" },
+  { id: "general-modern-modal-style", name: "Modern Modal", identity: "general", description: "Modal moderno e profissional" },
+  { id: "general-modern-saas-dark", name: "Modern SaaS Dark", identity: "general", description: "Estilo SaaS moderno (dark)" },
+  { id: "general-modern-tech-startup", name: "Modern Tech Startup", identity: "general", description: "Visual de startup tecnológica" },
+  { id: "general-neumorphism", name: "Neumorphism", identity: "general", description: "Neumorfismo suave" },
+  { id: "general-old-vide-game", name: "Old Video Game", identity: "general", description: "Estilo videogame retrô" },
+  { id: "general-old-video-game2", name: "Old Video Game 2", identity: "general", description: "Videogame retrô alternativo" },
+  { id: "general-retro-synthwave", name: "Retro Synthwave", identity: "general", description: "Synthwave anos 80" },
+  { id: "general-simple-colors-style", name: "Simple Colors", identity: "general", description: "Cores simples e vibrantes" },
+  { id: "general-swiss-design", name: "Swiss Design", identity: "general", description: "Design suíço clássico" },
+  { id: "general-terminal-code", name: "Terminal Code", identity: "general", description: "Estilo terminal de código" },
+  { id: "general-white-with-pops-of-color", name: "White with Pops of Color", identity: "general", description: "Branco com toques de cor" },
 ];
 
 export function DeckConfigForm({
@@ -81,6 +118,28 @@ export function DeckConfigForm({
       markdown_source: initialValues?.markdown_source || "",
     },
   });
+
+  // Watch brand_identity to filter templates dynamically
+  const selectedIdentity = form.watch("brand_identity");
+
+  // Filter templates based on selected identity
+  const getFilteredTemplates = () => {
+    const recommended = AVAILABLE_TEMPLATES.filter(
+      (t) => t.identity === selectedIdentity
+    );
+    const others = AVAILABLE_TEMPLATES.filter(
+      (t) => t.identity !== selectedIdentity
+    );
+    return { recommended, others };
+  };
+
+  const { recommended, others } = getFilteredTemplates();
+
+  // Helper to format identity name for display
+  const formatIdentity = (identity: string) => {
+    if (identity === "general") return "Geral";
+    return identity.charAt(0).toUpperCase() + identity.slice(1);
+  };
 
   // Handle file upload
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -239,6 +298,7 @@ export function DeckConfigForm({
                           <SelectContent>
                             <SelectItem value="jumper">Jumper</SelectItem>
                             <SelectItem value="koko">Koko</SelectItem>
+                            <SelectItem value="general">Geral</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -253,7 +313,7 @@ export function DeckConfigForm({
                   name="template_id"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Template</FormLabel>
+                      <FormLabel>Estilo Visual</FormLabel>
                       <Select
                         disabled={isSubmitting}
                         onValueChange={field.onChange}
@@ -261,24 +321,58 @@ export function DeckConfigForm({
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Selecione o template" />
+                            <SelectValue placeholder="Selecione o estilo visual" />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent>
-                          {TEMPLATES.map((template) => (
-                            <SelectItem key={template.id} value={template.id}>
-                              <div className="flex flex-col">
-                                <span className="font-medium">{template.name}</span>
-                                <span className="text-xs text-muted-foreground">
-                                  {template.description}
-                                </span>
-                              </div>
-                            </SelectItem>
-                          ))}
+                        <SelectContent className="max-h-[400px]">
+                          {/* Recommended templates */}
+                          {recommended.length > 0 && (
+                            <SelectGroup>
+                              <SelectLabel>
+                                Recomendados para {formatIdentity(selectedIdentity)}
+                              </SelectLabel>
+                              {recommended.map((template) => (
+                                <SelectItem key={template.id} value={template.id}>
+                                  <div className="flex flex-col">
+                                    <span className="font-medium">
+                                      {template.name} ({formatIdentity(template.identity)})
+                                    </span>
+                                    <span className="text-xs text-muted-foreground">
+                                      {template.description}
+                                    </span>
+                                  </div>
+                                </SelectItem>
+                              ))}
+                            </SelectGroup>
+                          )}
+
+                          {/* Separator if we have both sections */}
+                          {recommended.length > 0 && others.length > 0 && (
+                            <SelectSeparator />
+                          )}
+
+                          {/* Other templates */}
+                          {others.length > 0 && (
+                            <SelectGroup>
+                              <SelectLabel>Outros estilos</SelectLabel>
+                              {others.map((template) => (
+                                <SelectItem key={template.id} value={template.id}>
+                                  <div className="flex flex-col">
+                                    <span className="font-medium">
+                                      {template.name} ({formatIdentity(template.identity)})
+                                    </span>
+                                    <span className="text-xs text-muted-foreground">
+                                      {template.description}
+                                    </span>
+                                  </div>
+                                </SelectItem>
+                              ))}
+                            </SelectGroup>
+                          )}
                         </SelectContent>
                       </Select>
                       <FormDescription>
-                        Template HTML base para o deck
+                        Template HTML que define o visual do deck (compatível com qualquer identidade)
                       </FormDescription>
                       <FormMessage />
                     </FormItem>

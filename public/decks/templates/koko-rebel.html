@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatório Mensal - Agência Koko</title>
+    <style>
+        /* Koko Fonts */
+        @font-face {
+            font-family: 'AlternateGothicCondATF';
+            src: url('/decks/identities/koko/fonts/AlternateGothicCondATF-Black.otf');
+            font-weight: 900;
+        }
+        @font-face {
+            font-family: 'AlternateGothicCondATF';
+            src: url('/decks/identities/koko/fonts/AlternateGothicCondATF-Book.otf');
+            font-weight: 400;
+        }
+        @font-face {
+            font-family: 'PlayfairDisplay';
+            src: url('/decks/identities/koko/fonts/PlayfairDisplay-Regular.ttf');
+            font-weight: 400;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --koko-black: #000000;
+            --koko-white: #FFFFFF;
+            --koko-yellow: #F2C541;
+            --koko-gray: #BBBCBC;
+            --koko-blue: #1E22AA;
+            --koko-pink: #FF0080;
+        }
+
+        body {
+            font-family: 'AlternateGothicCondATF', 'Arial Black', sans-serif;
+            background: var(--koko-white);
+            color: var(--koko-black);
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Koko Dust Background */
+        .koko-dust-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.15;
+            background-image: url('/decks/identities/koko/gradients/Koko Dust 1.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* Pattern Scrolling Header/Footer */
+        .pattern-header,
+        .pattern-footer {
+            position: fixed;
+            left: 0;
+            width: 100%;
+            height: 40px;
+            background: var(--koko-black);
+            color: var(--koko-white);
+            display: flex;
+            align-items: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            white-space: nowrap;
+            overflow: hidden;
+            z-index: 1000;
+        }
+
+        .pattern-header {
+            top: 0;
+        }
+
+        .pattern-footer {
+            bottom: 0;
+        }
+
+        .pattern-text {
+            display: inline-block;
+            animation: scrollLeft 40s linear infinite;
+        }
+
+        @keyframes scrollLeft {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        .presentation-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            padding-top: 40px;
+            padding-bottom: 40px;
+        }
+
+        .slide {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 60px;
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .slide .content {
+            width: 100%;
+            max-width: 1400px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        /* Typography */
+        h1 {
+            font-family: 'AlternateGothicCondATF', sans-serif;
+            font-weight: 900;
+            font-size: clamp(4rem, 10vw, 12rem);
+            line-height: 0.85;
+            text-transform: uppercase;
+            letter-spacing: -0.05em;
+            color: var(--koko-black);
+            margin: 0;
+            position: relative;
+        }
+
+        h2 {
+            font-family: 'AlternateGothicCondATF', sans-serif;
+            font-weight: 900;
+            font-size: clamp(2.5rem, 6vw, 6rem);
+            line-height: 0.9;
+            text-transform: uppercase;
+            letter-spacing: -0.03em;
+            color: var(--koko-black);
+            margin: 0 0 30px 0;
+        }
+
+        h3 {
+            font-family: 'PlayfairDisplay', serif;
+            font-size: clamp(1.5rem, 3vw, 3rem);
+            font-weight: 400;
+            font-style: italic;
+            letter-spacing: 0.01em;
+            line-height: 1.2;
+            color: var(--koko-black);
+            margin: 0 0 20px 0;
+        }
+
+        p {
+            font-family: 'AlternateGothicCondATF', sans-serif;
+            font-weight: 400;
+            font-size: clamp(1rem, 1.5vw, 1.25rem);
+            line-height: 1.6;
+            color: var(--koko-black);
+        }
+
+        /* Koko Cards with Page Curl */
+        .koko-card {
+            background: var(--koko-white);
+            border: 6px solid var(--koko-black);
+            padding: 32px;
+            margin: 16px;
+            position: relative;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 8px 8px 0 var(--koko-black);
+        }
+
+        .koko-card-header {
+            background: var(--koko-black);
+            color: var(--koko-white);
+            padding: 16px 24px;
+            margin: -32px -32px 20px -32px;
+            font-size: clamp(1.25rem, 2vw, 1.75rem);
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        /* Page Curl Effect */
+        .koko-card::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            right: -6px;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, transparent 50%, var(--koko-black) 50%);
+            box-shadow: -3px 3px 8px rgba(0,0,0,0.5);
+            z-index: 10;
+        }
+
+        .koko-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 12px 12px 0 var(--koko-yellow);
+        }
+
+        /* Badge */
+        .koko-badge {
+            display: inline-block;
+            background: var(--koko-yellow);
+            color: var(--koko-black);
+            padding: 12px 24px;
+            font-size: clamp(0.875rem, 1.2vw, 1rem);
+            font-weight: 700;
+            text-transform: uppercase;
+            border: 4px solid var(--koko-black);
+            box-shadow: 6px 6px 0 var(--koko-black);
+            margin: 8px;
+        }
+
+        /* Heart Icon */
+        .heart-icon {
+            width: 80px;
+            height: 80px;
+            margin: 20px auto;
+        }
+
+        /* Gorilla Hands */
+        .gorilla-hand {
+            position: absolute;
+            max-width: 350px;
+            height: auto;
+            z-index: 5;
+            filter: grayscale(1) contrast(1.2);
+        }
+
+        .gorilla-hand-left {
+            left: -50px;
+            top: 15%;
+        }
+
+        .gorilla-hand-right {
+            right: -50px;
+            bottom: 15%;
+        }
+
+        /* Timeline */
+        .koko-timeline {
+            display: flex;
+            background: linear-gradient(90deg, var(--koko-black) 0%, #666 50%, #999 100%);
+            padding: 32px 0;
+            width: 100%;
+            max-width: 1200px;
+            margin: 40px 0;
+        }
+
+        .timeline-step {
+            flex: 1;
+            text-align: center;
+            color: var(--koko-white);
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: clamp(1rem, 1.5vw, 1.25rem);
+            position: relative;
+        }
+
+        .timeline-step::after {
+            content: '▶';
+            position: absolute;
+            right: -20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.5rem;
+            color: var(--koko-white);
+        }
+
+        .timeline-step:last-child::after {
+            display: none;
+        }
+
+        /* Grid Layout */
+        .koko-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            width: 100%;
+            margin: 40px 0;
+        }
+
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            width: 100%;
+            align-items: center;
+        }
+
+        /* Burst Shape Container */
+        .burst-container {
+            position: relative;
+            width: 400px;
+            height: 400px;
+            margin: 0 auto;
+        }
+
+        .burst-shape {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .burst-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2;
+            text-align: center;
+        }
+
+        /* Navigation */
+        .nav {
+            position: fixed;
+            bottom: 60px;
+            right: 32px;
+            display: flex;
+            gap: 16px;
+            z-index: 1001;
+        }
+
+        .nav-btn {
+            background: var(--koko-yellow);
+            border: 4px solid var(--koko-black);
+            color: var(--koko-black);
+            padding: 12px 24px;
+            font-family: 'AlternateGothicCondATF', sans-serif;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            box-shadow: 4px 4px 0 var(--koko-black);
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 6px 6px 0 var(--koko-pink);
+            background: var(--koko-pink);
+            color: var(--koko-white);
+        }
+
+        /* Slide Counter */
+        .slide-counter {
+            position: fixed;
+            top: 60px;
+            left: 32px;
+            background: var(--koko-yellow);
+            border: 4px solid var(--koko-black);
+            padding: 12px 24px;
+            font-family: 'AlternateGothicCondATF', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--koko-black);
+            z-index: 1001;
+            box-shadow: 4px 4px 0 var(--koko-black);
+        }
+
+        .slide-counter .current {
+            color: var(--koko-pink);
+        }
+
+        /* Animations */
+        .slide.active .koko-card {
+            animation: bounceInKoko 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            animation-delay: calc(var(--delay) * 0.15s);
+            opacity: 0;
+        }
+
+        @keyframes bounceInKoko {
+            0% {
+                opacity: 0;
+                transform: translateY(50px) scale(0.8);
+            }
+            50% {
+                opacity: 0.8;
+                transform: translateY(-10px) scale(1.05);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .slide {
+                padding: 40px 20px;
+            }
+
+            .two-col {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .gorilla-hand {
+                display: none;
+            }
+
+            .koko-card {
+                margin: 8px;
+                padding: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="koko-dust-bg"></div>
+
+    <!-- Pattern Header -->
+    <div class="pattern-header">
+        <div class="pattern-text">
+            A AGÊNCIA MAIS QUERIDA DO BRASIL AGÊNCIA KOKO A AGÊNCIA MAIS QUERIDA DO BRASIL AGÊNCIA KOKO A AGÊNCIA MAIS QUERIDA DO BRASIL AGÊNCIA KOKO A AGÊNCIA MAIS QUERIDA DO BRASIL AGÊNCIA KOKO A AGÊNCIA MAIS QUERIDA DO BRASIL AGÊNCIA KOKO
+        </div>
+    </div>
+
+    <div class="presentation-container">
+        <div class="slide-counter">
+            <span class="current" id="currentSlide">01</span> / <span id="totalSlides">05</span>
+        </div>
+
+        <!-- SLIDE 1: COVER -->
+        <div class="slide active">
+            <div class="content">
+                <img src="/decks/identities/koko/elements/Gorila mao pela esquerda.png"
+                     alt="Mão de gorila esquerda"
+                     class="gorilla-hand gorilla-hand-left">
+
+                <div style="text-align: center;">
+                    <h3>agência</h3>
+                    <h1>KOKO</h1>
+
+                    <div style="margin: 30px 0;">
+                        <img src="/decks/identities/koko/elements/Coração.png"
+                             alt="Coração Koko"
+                             class="heart-icon">
+                    </div>
+
+                    <p style="font-size: clamp(1.25rem, 2vw, 1.75rem); font-weight: 700;">
+                        Relatório Mensal<br>Outubro 2024
+                    </p>
+                </div>
+
+                <img src="/decks/identities/koko/elements/Gorila mao pela direita.png"
+                     alt="Mão de gorila direita"
+                     class="gorilla-hand gorilla-hand-right">
+            </div>
+        </div>
+
+        <!-- SLIDE 2: CONTENT + CARDS -->
+        <div class="slide">
+            <div class="content">
+                <div class="two-col" style="align-items: flex-start;">
+                    <div>
+                        <h2>PRINCIPAIS<br>RESULTADOS</h2>
+                        <p style="margin-top: 20px;">
+                            Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                            Aenean porttitor vestibulum leo, vel varius ex scelerisque sed.
+                        </p>
+
+                        <div style="margin-top: 30px;">
+                            <span class="koko-badge">347 CONVERSÕES</span>
+                            <span class="koko-badge">ROAS 4.2X</span>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; gap: 20px;">
+                        <div class="koko-card" style="--delay: 1;">
+                            <div class="koko-card-header">VENDAS</div>
+                            <p>
+                                <strong style="font-size: 2rem; color: var(--koko-pink);">+28%</strong><br>
+                                vs. mês anterior
+                            </p>
+                        </div>
+
+                        <div class="koko-card" style="--delay: 2;">
+                            <div class="koko-card-header">INVESTIMENTO</div>
+                            <p>
+                                <strong style="font-size: 2rem; color: var(--koko-blue);">R$ 15.000</strong><br>
+                                Período completo
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 3: TEXT + IMAGE -->
+        <div class="slide">
+            <div class="content">
+                <h2>AÇÕES<br>REALIZADAS</h2>
+
+                <div class="two-col" style="margin-top: 40px;">
+                    <div>
+                        <p style="margin-bottom: 20px;">
+                            <strong>Lançamento Black November:</strong><br>
+                            Campanha antecipada com foco em produtos de maior margem.
+                            Budget inicial de R$ 5.000.
+                        </p>
+
+                        <p style="margin-bottom: 20px;">
+                            <strong>Testes de Criativos:</strong><br>
+                            Formato Reels teve +45% de engajamento.
+                            Vídeos curtos (7-15s) performaram melhor.
+                        </p>
+
+                        <p>
+                            <strong>Ajuste de Orçamento:</strong><br>
+                            Realocação para campanhas top performers.
+                            Escala gradual (+20% por semana).
+                        </p>
+                    </div>
+
+                    <div>
+                        <img src="/decks/identities/koko/elements/Gorila mao pela direita.png"
+                             alt="Mão de gorila"
+                             style="width: 100%; height: auto; filter: grayscale(1) contrast(1.2);">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 4: TIMELINE -->
+        <div class="slide">
+            <div class="content">
+                <h2>TIMELINE DE<br>OTIMIZAÇÕES</h2>
+
+                <div class="koko-timeline">
+                    <div class="timeline-step">SEMANA 1<br>Análise</div>
+                    <div class="timeline-step">SEMANA 2<br>Testes</div>
+                    <div class="timeline-step">SEMANA 3<br>Escala</div>
+                    <div class="timeline-step">SEMANA 4<br>Otimiza</div>
+                </div>
+
+                <div class="koko-grid" style="margin-top: 40px;">
+                    <div class="koko-card" style="--delay: 1;">
+                        <h3>Insights</h3>
+                        <p>Criativos com mãos em close tiveram +45% de engajamento.</p>
+                    </div>
+
+                    <div class="koko-card" style="--delay: 2;">
+                        <h3>Público</h3>
+                        <p>25-34 anos geraram 60% das conversões totais.</p>
+                    </div>
+
+                    <div class="koko-card" style="--delay: 3;">
+                        <h3>Horários</h3>
+                        <p>Melhor performance entre 20h-22h diariamente.</p>
+                    </div>
+                </div>
+
+                <img src="/decks/identities/koko/elements/Gorila mao pela direita.png"
+                     alt="Mão de gorila"
+                     style="position: absolute; right: 0; bottom: 10%; max-width: 250px; filter: grayscale(1) contrast(1.2);">
+            </div>
+        </div>
+
+        <!-- SLIDE 5: CLOSING -->
+        <div class="slide">
+            <div class="content">
+                <h2>PRÓXIMOS<br>PASSOS</h2>
+
+                <div class="koko-grid" style="margin-top: 40px; max-width: 900px;">
+                    <div class="koko-card" style="--delay: 1;">
+                        <h3>Escalar</h3>
+                        <p>Aumentar budget em 30% nas top 3 campanhas vencedoras.</p>
+                    </div>
+
+                    <div class="koko-card" style="--delay: 2;">
+                        <h3>Testar</h3>
+                        <p>Lookalike 1% dos compradores + interesse em moda online.</p>
+                    </div>
+
+                    <div class="koko-card" style="--delay: 3;">
+                        <h3>Black Friday</h3>
+                        <p>Budget reservado de R$ 25.000 com estratégia de escala.</p>
+                    </div>
+                </div>
+
+                <div style="margin-top: 60px; text-align: center;">
+                    <img src="/decks/identities/koko/logos/Logo_Preferencial_Koko_Preto.png"
+                         alt="Logo Koko"
+                         style="height: 80px; width: auto; margin-bottom: 20px;">
+
+                    <p style="font-weight: 700;">
+                        <strong>Maria Silva</strong> • Gestora de Tráfego<br>
+                        maria@agenciakoko.com.br
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 6: GRID DE MÉTRICAS -->
+        <div class="slide">
+            <div class="content">
+                <h2>MÉTRICAS<br>DETALHADAS</h2>
+
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 40px;">
+                    <div class="koko-card" style="--delay: 1; text-align: center;">
+                        <div style="font-size: 2.5rem; font-weight: 900; color: var(--koko-blue);">2.4M</div>
+                        <div style="font-size: 0.875rem; font-weight: 700; margin-top: 8px;">IMPRESSÕES</div>
+                    </div>
+
+                    <div class="koko-card" style="--delay: 2; text-align: center;">
+                        <div style="font-size: 2.5rem; font-weight: 900; color: var(--koko-pink);">3.2%</div>
+                        <div style="font-size: 0.875rem; font-weight: 700; margin-top: 8px;">CTR</div>
+                    </div>
+
+                    <div class="koko-card" style="--delay: 3; text-align: center;">
+                        <div style="font-size: 2.5rem; font-weight: 900; color: var(--koko-yellow);">R$ 8,50</div>
+                        <div style="font-size: 0.875rem; font-weight: 700; margin-top: 8px;">CPM</div>
+                    </div>
+
+                    <div class="koko-card" style="--delay: 4; text-align: center;">
+                        <div style="font-size: 2.5rem; font-weight: 900; color: var(--koko-blue);">76K</div>
+                        <div style="font-size: 0.875rem; font-weight: 700; margin-top: 8px;">CLIQUES</div>
+                    </div>
+
+                    <div class="koko-card" style="--delay: 5; text-align: center;">
+                        <div style="font-size: 2.5rem; font-weight: 900; color: var(--koko-pink);">R$ 2,10</div>
+                        <div style="font-size: 0.875rem; font-weight: 700; margin-top: 8px;">CPC</div>
+                    </div>
+
+                    <div class="koko-card" style="--delay: 6; text-align: center;">
+                        <div style="font-size: 2.5rem; font-weight: 900; color: var(--koko-yellow);">4,5%</div>
+                        <div style="font-size: 0.875rem; font-weight: 700; margin-top: 8px;">CONV. RATE</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 7: COMPARAÇÃO ANTES/DEPOIS -->
+        <div class="slide">
+            <div class="content">
+                <h2>EVOLUÇÃO<br>MÊS A MÊS</h2>
+
+                <div class="two-col" style="margin-top: 40px; align-items: stretch;">
+                    <div class="koko-card" style="--delay: 1; background: var(--koko-gray);">
+                        <div class="koko-card-header" style="background: var(--koko-black); color: var(--koko-white);">SETEMBRO</div>
+                        <div style="margin-top: 20px;">
+                            <p><strong>Investimento:</strong> R$ 12.000</p>
+                            <p><strong>Conversões:</strong> 271</p>
+                            <p><strong>ROAS:</strong> 3.1x</p>
+                            <p><strong>CPA:</strong> R$ 44,28</p>
+                        </div>
+                    </div>
+
+                    <div class="koko-card" style="--delay: 2; background: var(--koko-yellow);">
+                        <div class="koko-card-header" style="background: var(--koko-black); color: var(--koko-white);">OUTUBRO</div>
+                        <div style="margin-top: 20px;">
+                            <p><strong>Investimento:</strong> R$ 15.000 <span style="color: var(--koko-blue);">(+25%)</span></p>
+                            <p><strong>Conversões:</strong> 347 <span style="color: var(--koko-blue);">(+28%)</span></p>
+                            <p><strong>ROAS:</strong> 4.2x <span style="color: var(--koko-blue);">(+35%)</span></p>
+                            <p><strong>CPA:</strong> R$ 43,23 <span style="color: var(--koko-blue);">(-2,4%)</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 8: DESTAQUE/QUOTE -->
+        <div class="slide">
+            <div class="content">
+                <div style="max-width: 900px; margin: 0 auto; text-align: center;">
+                    <div style="background: var(--koko-yellow); border: 6px solid var(--koko-black); border-radius: 30px; padding: 60px 40px; position: relative; transform: rotate(-1deg); box-shadow: 12px 12px 0 var(--koko-pink), 16px 16px 0 var(--koko-black);">
+                        <div style="position: absolute; top: -20px; left: 50%; transform: translateX(-50%); width: 40px; height: 40px; background: var(--koko-pink); border: 4px solid var(--koko-black); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 900;">!</div>
+
+                        <h2 style="font-size: clamp(2rem, 5vw, 3.5rem); margin-bottom: 30px;">MELHOR<br>PERFORMANCE<br>DO ANO!</h2>
+
+                        <p style="font-size: clamp(1.125rem, 2vw, 1.5rem); font-weight: 600; line-height: 1.6;">
+                            Criativos com testemunhos reais tiveram <strong style="color: var(--koko-blue);">+67% de engajamento</strong> comparado com formatos tradicionais de produto.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 9: LISTA DE INSIGHTS -->
+        <div class="slide">
+            <div class="content">
+                <h2>PRINCIPAIS<br>INSIGHTS</h2>
+
+                <div style="margin-top: 40px; display: flex; flex-direction: column; gap: 20px; max-width: 900px; margin-left: auto; margin-right: auto;">
+                    <div class="koko-card" style="--delay: 1; display: flex; align-items: flex-start; gap: 20px;">
+                        <div style="background: var(--koko-blue); border: 3px solid var(--koko-black); border-radius: 50%; width: 50px; height: 50px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 900;">1</div>
+                        <div>
+                            <h3 style="font-size: 1.25rem; margin-bottom: 8px;">Público 25-34 anos dominou</h3>
+                            <p>Responsável por 60% das conversões totais. Aumentar budget nessa faixa pode maximizar resultados.</p>
+                        </div>
+                    </div>
+
+                    <div class="koko-card" style="--delay: 2; display: flex; align-items: flex-start; gap: 20px;">
+                        <div style="background: var(--koko-pink); border: 3px solid var(--koko-black); border-radius: 50%; width: 50px; height: 50px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 900;">2</div>
+                        <div>
+                            <h3 style="font-size: 1.25rem; margin-bottom: 8px;">Reels superaram Feed</h3>
+                            <p>Formato Reels teve CTR de 4.2% vs 2.1% do Feed. Vídeos curtos (7-15s) tiveram melhor performance.</p>
+                        </div>
+                    </div>
+
+                    <div class="koko-card" style="--delay: 3; display: flex; align-items: flex-start; gap: 20px;">
+                        <div style="background: var(--koko-yellow); border: 3px solid var(--koko-black); border-radius: 50%; width: 50px; height: 50px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 900;">3</div>
+                        <div>
+                            <h3 style="font-size: 1.25rem; margin-bottom: 8px;">Horário nobre: 20h-22h</h3>
+                            <p>Conversões concentradas nesse período. CPA 18% menor que média do dia.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 10: FUNIL DE CONVERSÃO -->
+        <div class="slide">
+            <div class="content">
+                <h2>FUNIL DE<br>CONVERSÃO</h2>
+
+                <div style="margin-top: 60px; max-width: 700px; margin-left: auto; margin-right: auto;">
+                    <div class="koko-card" style="--delay: 1; background: var(--koko-blue); color: var(--koko-white); border-color: var(--koko-black);">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <h3 style="font-size: 1.5rem; color: var(--koko-white);">IMPRESSÕES</h3>
+                            <div style="font-size: 2rem; font-weight: 900;">2.4M</div>
+                        </div>
+                        <div style="margin-top: 12px; font-size: 0.875rem;">100% do topo do funil</div>
+                    </div>
+
+                    <div style="text-align: center; margin: -10px 0; position: relative; z-index: 10;">
+                        <div style="font-size: 3rem; color: var(--koko-black);">▼</div>
+                    </div>
+
+                    <div class="koko-card" style="--delay: 2; background: var(--koko-pink); color: var(--koko-white); border-color: var(--koko-black); width: 85%; margin-left: auto; margin-right: auto;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <h3 style="font-size: 1.5rem; color: var(--koko-white);">CLIQUES</h3>
+                            <div style="font-size: 2rem; font-weight: 900;">76K</div>
+                        </div>
+                        <div style="margin-top: 12px; font-size: 0.875rem;">3.2% CTR</div>
+                    </div>
+
+                    <div style="text-align: center; margin: -10px 0; position: relative; z-index: 10;">
+                        <div style="font-size: 3rem; color: var(--koko-black);">▼</div>
+                    </div>
+
+                    <div class="koko-card" style="--delay: 3; background: var(--koko-yellow); color: var(--koko-black); border-color: var(--koko-black); width: 70%; margin-left: auto; margin-right: auto;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <h3 style="font-size: 1.5rem;">CONVERSÕES</h3>
+                            <div style="font-size: 2rem; font-weight: 900;">347</div>
+                        </div>
+                        <div style="margin-top: 12px; font-size: 0.875rem;">4.5% taxa de conversão</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 11: TABELA DE PERFORMANCE -->
+        <div class="slide">
+            <div class="content">
+                <h2>PERFORMANCE<br>POR CAMPANHA</h2>
+
+                <div style="margin-top: 40px; max-width: 1000px; margin-left: auto; margin-right: auto;">
+                    <div class="koko-card" style="--delay: 1; padding: 0; overflow: hidden;">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="background: var(--koko-black); color: var(--koko-white);">
+                                    <th style="padding: 16px; text-align: left; border-bottom: 3px solid var(--koko-black);">CAMPANHA</th>
+                                    <th style="padding: 16px; text-align: center; border-bottom: 3px solid var(--koko-black);">INVEST.</th>
+                                    <th style="padding: 16px; text-align: center; border-bottom: 3px solid var(--koko-black);">CONV.</th>
+                                    <th style="padding: 16px; text-align: center; border-bottom: 3px solid var(--koko-black);">ROAS</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr style="border-bottom: 2px solid var(--koko-gray);">
+                                    <td style="padding: 16px; font-weight: 700;">Black November</td>
+                                    <td style="padding: 16px; text-align: center;">R$ 5.000</td>
+                                    <td style="padding: 16px; text-align: center; color: var(--koko-blue); font-weight: 700;">142</td>
+                                    <td style="padding: 16px; text-align: center; color: var(--koko-blue); font-weight: 700;">5.2x</td>
+                                </tr>
+                                <tr style="border-bottom: 2px solid var(--koko-gray);">
+                                    <td style="padding: 16px; font-weight: 700;">Conversão Direta</td>
+                                    <td style="padding: 16px; text-align: center;">R$ 6.500</td>
+                                    <td style="padding: 16px; text-align: center; color: var(--koko-blue); font-weight: 700;">128</td>
+                                    <td style="padding: 16px; text-align: center; color: var(--koko-blue); font-weight: 700;">4.1x</td>
+                                </tr>
+                                <tr style="border-bottom: 2px solid var(--koko-gray);">
+                                    <td style="padding: 16px; font-weight: 700;">Remarketing</td>
+                                    <td style="padding: 16px; text-align: center;">R$ 2.000</td>
+                                    <td style="padding: 16px; text-align: center; color: var(--koko-blue); font-weight: 700;">51</td>
+                                    <td style="padding: 16px; text-align: center; color: var(--koko-blue); font-weight: 700;">3.8x</td>
+                                </tr>
+                                <tr style="background: var(--koko-yellow);">
+                                    <td style="padding: 16px; font-weight: 900;">TOTAL</td>
+                                    <td style="padding: 16px; text-align: center; font-weight: 900;">R$ 15.000</td>
+                                    <td style="padding: 16px; text-align: center; font-weight: 900;">347</td>
+                                    <td style="padding: 16px; text-align: center; font-weight: 900;">4.2x</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 12: ALERTAS/RECOMENDAÇÕES -->
+        <div class="slide">
+            <div class="content">
+                <h2>ATENÇÃO<br>ESPECIAL</h2>
+
+                <div style="margin-top: 40px; max-width: 900px; margin-left: auto; margin-right: auto; display: flex; flex-direction: column; gap: 24px;">
+                    <div class="koko-card" style="--delay: 1; background: var(--koko-pink); color: var(--koko-white); border-color: var(--koko-black);">
+                        <div style="display: flex; align-items: flex-start; gap: 16px;">
+                            <div style="font-size: 2.5rem;">⚠️</div>
+                            <div>
+                                <h3 style="font-size: 1.5rem; color: var(--koko-white); margin-bottom: 12px;">OPORTUNIDADE</h3>
+                                <p style="font-size: 1.125rem;">Campanha "Black November" teve ROAS de 5.2x. Recomendamos aumentar budget em 50% para escalar resultados antes da concorrência aumentar.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="koko-card" style="--delay: 2; background: var(--koko-blue); color: var(--koko-white); border-color: var(--koko-black);">
+                        <div style="display: flex; align-items: flex-start; gap: 16px;">
+                            <div style="font-size: 2.5rem;">💡</div>
+                            <div>
+                                <h3 style="font-size: 1.5rem; color: var(--koko-white); margin-bottom: 12px;">TESTE RECOMENDADO</h3>
+                                <p style="font-size: 1.125rem;">Criar variações de Reels testando UGC (conteúdo de usuários) vs produção profissional. Budget sugerido: R$ 2.000 para validação.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="koko-card" style="--delay: 3; background: var(--koko-yellow); color: var(--koko-black); border-color: var(--koko-black);">
+                        <div style="display: flex; align-items: flex-start; gap: 16px;">
+                            <div style="font-size: 2.5rem;">✅</div>
+                            <div>
+                                <h3 style="font-size: 1.5rem; margin-bottom: 12px;">MANTER ESTRATÉGIA</h3>
+                                <p style="font-size: 1.125rem;">Formato de vídeos curtos (7-15s) está performando consistentemente. Continuar produzindo nesse formato para próximo mês.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="nav">
+            <button class="nav-btn" onclick="previousSlide()">← Anterior</button>
+            <button class="nav-btn" onclick="nextSlide()">Próximo →</button>
+        </div>
+    </div>
+
+    <!-- Pattern Footer -->
+    <div class="pattern-footer">
+        <div class="pattern-text">
+            A AGÊNCIA MAIS QUERIDA DO BRASIL AGÊNCIA KOKO A AGÊNCIA MAIS QUERIDA DO BRASIL AGÊNCIA KOKO A AGÊNCIA MAIS QUERIDA DO BRASIL AGÊNCIA KOKO A AGÊNCIA MAIS QUERIDA DO BRASIL AGÊNCIA KOKO A AGÊNCIA MAIS QUERIDA DO BRASIL AGÊNCIA KOKO
+        </div>
+    </div>
+
+    <script>
+        let currentSlideIndex = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+
+        document.getElementById('totalSlides').textContent = totalSlides.toString().padStart(2, '0');
+
+        function showSlide(index) {
+            slides.forEach(slide => slide.classList.remove('active'));
+            slides[index].classList.add('active');
+            document.getElementById('currentSlide').textContent = (index + 1).toString().padStart(2, '0');
+        }
+
+        function nextSlide() {
+            currentSlideIndex = (currentSlideIndex + 1) % totalSlides;
+            showSlide(currentSlideIndex);
+        }
+
+        function previousSlide() {
+            currentSlideIndex = (currentSlideIndex - 1 + totalSlides) % totalSlides;
+            showSlide(currentSlideIndex);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' || e.code === 'ArrowRight') {
+                e.preventDefault();
+                nextSlide();
+            } else if (e.code === 'ArrowLeft') {
+                e.preventDefault();
+                previousSlide();
+            }
+        });
+    </script>
+</body>
+</html>
