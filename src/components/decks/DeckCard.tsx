@@ -12,7 +12,6 @@ import {
   FileText,
   Presentation,
   TrendingUp,
-  Eye,
   Edit,
   Share2,
   Trash2,
@@ -28,7 +27,6 @@ import { ptBR } from "date-fns/locale";
 
 interface DeckCardProps {
   deck: DeckWithDetails;
-  onView?: (deckId: string) => void;
   onEdit?: (deckId: string) => void;
   onShare?: (deckId: string) => void;
   onDelete?: (deckId: string) => void;
@@ -38,7 +36,6 @@ interface DeckCardProps {
 
 export function DeckCard({
   deck,
-  onView,
   onEdit,
   onShare,
   onDelete,
@@ -212,18 +209,6 @@ export function DeckCard({
 
           {/* Quick actions */}
           <div className="flex gap-2">
-            {onView && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => onView(deck.id)}
-                className="h-8 px-2"
-              >
-                <Eye className="h-4 w-4 mr-1" />
-                Ver
-              </Button>
-            )}
-
             {canEdit && onEdit && (
               <Button
                 variant="ghost"

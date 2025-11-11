@@ -3,12 +3,14 @@ import { useNavigate, useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { DeckShareModal } from "@/components/decks/DeckShareModal";
 import { DeckVersionHistory } from "@/components/decks/DeckVersionHistory";
 import { DeckRefineModal } from "@/components/decks/DeckRefineModal";
+import { MarkdownEditor } from "@/components/decks/MarkdownEditor";
 import {
   ArrowLeft,
   Share2,
@@ -21,6 +23,7 @@ import {
   FileText,
   History,
   Sparkles,
+  Eye,
 } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -36,6 +39,7 @@ interface Deck {
   type: "report" | "plan" | "pitch";
   brand_identity: "jumper" | "koko";
   template_id: string;
+  markdown_source: string; // NEW: Original markdown input
   file_url: string | null;
   html_output: string | null;
   slug: string | null;
@@ -56,6 +60,7 @@ export default function DeckEditor() {
   const [userRole, setUserRole] = useState<"admin" | "staff" | "client" | null>(null);
   const [canEdit, setCanEdit] = useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("preview");
 
   useEffect(() => {
     const fetchDeck = async () => {
@@ -151,6 +156,30 @@ export default function DeckEditor() {
     if (!deck) return;
 
     window.open(`/decks/${deck.id}/preview`, "_blank");
+  };
+
+  const handleRegenerate = async (newMarkdown: string) => {
+    if (!deck) return;
+
+    try {
+      toast.info("Regenerando deck com novo markdown...");
+
+      // Call Edge Function j_hub_deck_regenerate
+      const { data, error } = await supabase.functions.invoke("j_hub_deck_regenerate", {
+        body: {
+          deck_id: deck.id,
+          markdown_source: newMarkdown,
+        },
+      });
+
+      if (error) throw error;
+
+      // Reload page to show new version
+      window.location.reload();
+    } catch (err: any) {
+      console.error("Error regenerating deck:", err);
+      throw new Error(err.message || "Falha ao regenerar deck");
+    }
   };
 
   // Loading state
@@ -324,45 +353,94 @@ export default function DeckEditor() {
               </div>
             </CardHeader>
 
-            <CardContent>
-              {/* HTML Preview */}
-              {deck.html_output ? (
-                <div className="space-y-2">
-                  <p className="text-sm text-muted-foreground">
-                    Preview da apresentação
-                  </p>
+            <CardContent className="pt-6">
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                <TabsList className="grid w-full grid-cols-3">
+                  <TabsTrigger value="preview" className="gap-2">
+                    <Eye className="h-4 w-4" />
+                    Preview
+                  </TabsTrigger>
+                  <TabsTrigger value="markdown" className="gap-2" disabled={!canEdit}>
+                    <FileText className="h-4 w-4" />
+                    Markdown
+                  </TabsTrigger>
+                  <TabsTrigger value="versions" className="gap-2">
+                    <History className="h-4 w-4" />
+                    Versões
+                  </TabsTrigger>
+                </TabsList>
 
-                  <div className="border rounded-lg overflow-hidden bg-muted">
-                    <iframe
-                      srcDoc={deck.html_output}
-                      className="w-full h-[600px]"
-                      title={`Preview: ${deck.title}`}
-                      sandbox="allow-scripts allow-same-origin allow-forms"
-                    />
-                  </div>
-                </div>
-              ) : deck.file_url ? (
-                <div className="space-y-2">
-                  <p className="text-sm text-muted-foreground">
-                    Preview da apresentação (fallback)
-                  </p>
+                {/* Tab: Preview */}
+                <TabsContent value="preview" className="space-y-4 mt-6">
+                  {deck.html_output ? (
+                    <div className="space-y-2">
+                      <p className="text-sm text-muted-foreground">
+                        Preview da apresentação
+                      </p>
 
-                  <div className="border rounded-lg overflow-hidden bg-muted">
-                    <iframe
-                      src={deck.file_url}
-                      className="w-full h-[600px]"
-                      title={`Preview: ${deck.title}`}
-                      sandbox="allow-scripts allow-same-origin allow-forms"
+                      <div className="border rounded-lg overflow-hidden bg-muted">
+                        <iframe
+                          srcDoc={deck.html_output}
+                          className="w-full h-[600px]"
+                          title={`Preview: ${deck.title}`}
+                          sandbox="allow-scripts allow-same-origin allow-forms"
+                        />
+                      </div>
+                    </div>
+                  ) : deck.file_url ? (
+                    <div className="space-y-2">
+                      <p className="text-sm text-muted-foreground">
+                        Preview da apresentação (fallback)
+                      </p>
+
+                      <div className="border rounded-lg overflow-hidden bg-muted">
+                        <iframe
+                          src={deck.file_url}
+                          className="w-full h-[600px]"
+                          title={`Preview: ${deck.title}`}
+                          sandbox="allow-scripts allow-same-origin allow-forms"
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <Alert>
+                      <AlertDescription>
+                        HTML não disponível. O deck pode ainda estar sendo processado.
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                </TabsContent>
+
+                {/* Tab: Markdown */}
+                <TabsContent value="markdown" className="space-y-4 mt-6">
+                  {canEdit ? (
+                    <MarkdownEditor
+                      deckId={deck.id}
+                      initialMarkdown={deck.markdown_source}
+                      onRegenerate={handleRegenerate}
                     />
-                  </div>
-                </div>
-              ) : (
-                <Alert>
-                  <AlertDescription>
-                    HTML não disponível. O deck pode ainda estar sendo processado.
-                  </AlertDescription>
-                </Alert>
-              )}
+                  ) : (
+                    <Alert>
+                      <AlertDescription>
+                        Você não tem permissão para editar este deck.
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                </TabsContent>
+
+                {/* Tab: Versions */}
+                <TabsContent value="versions" className="space-y-4 mt-6">
+                  <DeckVersionHistory
+                    deckId={deck.id}
+                    currentVersion={deck.current_version || 1}
+                    onVersionRestore={(versionNumber) => {
+                      // Refresh deck after restore
+                      toast.success(`Versão ${versionNumber} restaurada com sucesso!`);
+                      window.location.reload();
+                    }}
+                  />
+                </TabsContent>
+              </Tabs>
             </CardContent>
           </Card>
 

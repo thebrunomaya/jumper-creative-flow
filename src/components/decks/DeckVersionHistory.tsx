@@ -18,6 +18,8 @@ import {
   RotateCcw,
   FileText,
   Loader2,
+  RefreshCw,
+  File,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
@@ -31,6 +33,7 @@ interface DeckVersion {
   html_output: string;
   refinement_prompt: string | null;
   changes_summary: string | null;
+  version_type: 'original' | 'refined' | 'regenerated';
   created_at: string;
 }
 
@@ -162,10 +165,23 @@ export function DeckVersionHistory({
                           ATUAL
                         </Badge>
                       )}
-                      {version.version_number > 1 && (
-                        <Badge className="bg-amber-100 text-amber-700 border-amber-300">
+                      {/* Version type badge */}
+                      {version.version_type === 'original' && (
+                        <Badge variant="outline" className="bg-gray-100 text-gray-600 border-gray-300">
+                          <File className="h-3 w-3 mr-1" />
+                          Original
+                        </Badge>
+                      )}
+                      {version.version_type === 'refined' && (
+                        <Badge variant="outline" className="bg-amber-100 text-amber-700 border-amber-300">
                           <Sparkles className="h-3 w-3 mr-1" />
                           Refinado
+                        </Badge>
+                      )}
+                      {version.version_type === 'regenerated' && (
+                        <Badge variant="outline" className="bg-blue-100 text-blue-700 border-blue-300">
+                          <RefreshCw className="h-3 w-3 mr-1" />
+                          Regenerado
                         </Badge>
                       )}
                     </div>

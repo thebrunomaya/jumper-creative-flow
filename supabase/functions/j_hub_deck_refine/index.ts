@@ -327,6 +327,7 @@ OUTPUT FORMAT: Complete refined HTML file (no markdown fences, no explanations)`
         html_output: htmlRefined,
         refinement_prompt: refinement_prompt,
         changes_summary: changesSummary,
+        version_type: 'refined', // Refinement creates 'refined' versions
       });
 
     if (versionError) {

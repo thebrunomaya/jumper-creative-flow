@@ -79,12 +79,8 @@ export function DecksPanelList({ userRole }: DecksPanelListProps) {
     return result;
   }, [decks, selectedAccountId, searchQuery, typeFilter, identityFilter, sortBy]);
 
-  const handleView = (deckId: string) => {
-    navigate(`/decks/${deckId}`);
-  };
-
   const handleEdit = (deckId: string) => {
-    navigate(`/decks/${deckId}/edit`);
+    navigate(`/decks/${deckId}`);
   };
 
   const handleShare = (deckId: string) => {
@@ -299,7 +295,6 @@ export function DecksPanelList({ userRole }: DecksPanelListProps) {
             <DeckCard
               key={deck.id}
               deck={deck}
-              onView={handleView}
               onEdit={handleEdit}
               onShare={handleShare}
               onDelete={handleDelete}

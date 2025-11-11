@@ -7,10 +7,50 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.22';
+export const APP_VERSION = 'v2.1.23';
 
 /**
  * Version history:
+ * - v2.1.23 (2024-11-11):
+ *   - FEATURE: Markdown Editing & Deck Regeneration System
+ *   - PROBLEM: Users couldn't edit deck content after generation, required creating new deck
+ *   - PHASE 1 - Deck Card Navigation Simplification:
+ *     - REMOVED: Redundant "Ver" button from deck cards
+ *     - FIXED: "Editar" button now navigates to `/decks/:id` (previously broken `/decks/:id/edit` route)
+ *     - RESULT: Single "Editar" button provides streamlined navigation to DeckEditor
+ *   - PHASE 2 - Markdown Editing Interface:
+ *     - ADDED: New MarkdownEditor component with syntax highlighting
+ *     - FEATURES:
+ *       - Auto-save drafts to localStorage (1-second debounce)
+ *       - Draft recovery modal on mount
+ *       - Character count with 15,000 limit
+ *       - "Regenerar Deck" button (creates new version)
+ *       - "Reverter Original" button (discards changes)
+ *     - TAB SYSTEM: Added tabs to DeckEditor (Preview, Markdown, Versions)
+ *     - PERMISSIONS: Markdown tab disabled for clients, enabled for staff/admin
+ *     - EDGE FUNCTION: Created `j_hub_deck_regenerate` for full regeneration from new markdown
+ *   - PHASE 3 - Version Type System:
+ *     - MIGRATION: Added `version_type` column to `j_hub_deck_versions`
+ *     - TYPES:
+ *       - 'original' (gray badge): Initial generation (v1)
+ *       - 'refined' (amber badge): AI refinement via j_hub_deck_refine
+ *       - 'regenerated' (blue badge): Complete regeneration from new markdown
+ *     - UI: Updated DeckVersionHistory with colored badges for each version type
+ *     - CONSISTENCY: All 3 Edge Functions (generate, refine, regenerate) now set version_type
+ *   - FILES MODIFIED:
+ *     - src/components/decks/DeckCard.tsx (removed "Ver" button)
+ *     - src/components/decks/DecksPanelList.tsx (fixed navigation)
+ *     - src/components/decks/MarkdownEditor.tsx (NEW component)
+ *     - src/pages/DeckEditor.tsx (added tabs system + handleRegenerate)
+ *     - src/components/decks/DeckVersionHistory.tsx (colored badges)
+ *     - supabase/functions/j_hub_deck_regenerate/index.ts (NEW Edge Function)
+ *     - supabase/functions/j_hub_deck_generate/index.ts (set version_type='original')
+ *     - supabase/functions/j_hub_deck_refine/index.ts (set version_type='refined')
+ *     - supabase/migrations/20251111143756_add_version_type_to_deck_versions.sql (NEW)
+ *   - IMPACT: Users can now edit and regenerate decks without creating new records
+ *   - UX: Mobile-friendly tab interface, clear version differentiation
+ *   - VERSIONING: All regenerations create new versions (maintains full history)
+ *
  * - v2.1.22 (2024-11-11):
  *   - CRITICAL FIX: Koko Classic template rendering issues resolved
  *   - PROBLEM 1 - Diamond corner-cut positioning:
