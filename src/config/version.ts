@@ -7,10 +7,34 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.25';
+export const APP_VERSION = 'v2.1.26';
 
 /**
  * Version history:
+ * - v2.1.26 (2024-11-11):
+ *   - CRITICAL FIX: Increased template truncation limit to restore Koko deck quality
+ *   - PROBLEM: Koko decks showing degraded output quality with missing patterns
+ *   - ROOT CAUSE: Templates truncated to 10KB before sending to Claude AI
+ *   -   - koko-classic.html is 30KB total (879 lines)
+ *   -   - Only first 10KB (~300 lines) sent to Claude
+ *   -   - Missing critical patterns: timeline, data lists, conclusion slides
+ *   - SOLUTION: Doubled truncation limit from 10KB to 20KB
+ *   -   - Now includes ~600 lines = ALL major component patterns
+ *   -   - Cards, timeline, data lists, conclusion all captured
+ *   - ALIGNED: Fixed koko-yellow color inconsistency in design system
+ *   -   - Changed from 43 86% 60% (#E5C94F) to 45 91% 61% (#F5C542)
+ *   -   - Matches koko-classic.html template exactly
+ *   - DOCUMENTED: Added truncation boundary marker in template
+ *   -   - HTML comment documents what Claude sees vs doesn't see
+ *   -   - Lists all included/excluded patterns for debugging
+ *   - FILES MODIFIED:
+ *   -   - supabase/functions/j_hub_deck_generate/index.ts (line 371: 10KB→20KB)
+ *   -   - supabase/functions/j_hub_deck_regenerate/index.ts (line 378: 10KB→20KB)
+ *   -   - public/decks/identities/koko/design-system.md (line 39: color alignment)
+ *   -   - public/decks/templates/koko-classic.html (line 609: truncation marker)
+ *   - DEPLOYED: Both Edge Functions deployed to production
+ *   - IMPACT: Koko decks will now have full component variety and quality
+ *
  * - v2.1.25 (2024-11-11):
  *   - CRITICAL FIX: Remove leftover onView reference in DeckCard dropdown menu
  *   - ERROR: "ReferenceError: onView is not defined" when opening /decks page

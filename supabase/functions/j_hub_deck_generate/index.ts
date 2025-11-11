@@ -368,8 +368,8 @@ ${designSystem}
 ==============================================
 TEMPLATE STRUCTURE (INSPIRATION ONLY)
 ==============================================
-${templateHtml.substring(0, 10000)}
-[Template truncated for prompt efficiency - use full template structure patterns]
+${templateHtml.substring(0, 20000)}
+[Template truncated to 20KB for token efficiency - includes all major component patterns]
 
 ${accountContext ? `
 ==============================================

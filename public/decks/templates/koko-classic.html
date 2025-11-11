@@ -607,6 +607,38 @@
         }
 
         /* ========================================
+           ⚠️ TEMPLATE TRUNCATION BOUNDARY (~20KB)
+
+           Claude AI receives approximately the first 20KB of this
+           template for generation context. This captures:
+
+           ✅ INCLUDED (sent to Claude):
+           - Font imports & design system colors
+           - Header/footer marquee structure
+           - Logo positioning
+           - Hero slide pattern (gorilla hands, backgrounds)
+           - Content slide pattern (titles, subtitles)
+           - Cards grid system (all variants: default, yellow, pink, dark)
+           - Timeline pattern (all variants with colored borders)
+           - Data list pattern (metrics display)
+           - Conclusion slide pattern (big statements, highlight boxes)
+
+           ⏸️ PARTIALLY INCLUDED:
+           - Two column layout (may be cut off mid-pattern)
+
+           ❌ NOT INCLUDED (below truncation):
+           - List pattern (bullet lists)
+           - Utility classes (text-center, bg-yellow, etc.)
+           - Responsive adjustments
+           - HTML body examples
+
+           Impact: All MAJOR component patterns are captured.
+           Claude can generate high-quality decks with the patterns above.
+
+           Last updated: 2024-11-11 (v2.1.26)
+           ======================================== */
+
+        /* ========================================
            TWO COLUMN LAYOUT PATTERN
            Layout de duas colunas
            Uso: Comparações, antes/depois

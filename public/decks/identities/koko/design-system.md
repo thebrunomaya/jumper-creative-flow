@@ -36,7 +36,7 @@ Koko presentations embrace **raw visual impact** through stark contrasts and ico
     --koko-white: 0 0% 100%;        /* #FFFFFF */
 
     /* Accent - Primary Highlight */
-    --koko-yellow: 43 86% 60%;      /* #E5C94F */
+    --koko-yellow: 45 91% 61%;      /* #F5C542 */
 
     /* Accent - Secondary */
     --koko-pink: 330 100% 50%;      /* #FF0080 */
