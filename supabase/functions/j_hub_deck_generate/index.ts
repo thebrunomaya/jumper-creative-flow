@@ -269,6 +269,15 @@ CRITICAL INSTRUCTIONS:
    - All content must fit in safe zones defined in design system
    - Apply brand-specific animation styles (Jumper = smooth, Koko = aggressive, General = minimal)
 
+7.1. TEXT FORMATTING FOR CARDS (CRITICAL for Koko Classic):
+   - Card paragraph text MUST be concise (max 60 characters per paragraph)
+   - Break long sentences into multiple short sentences or bullet points
+   - Avoid complex compound sentences in card descriptions
+   - Use line breaks (<br>) to separate ideas instead of long paragraphs
+   - Example WRONG: "EH campaigns showed $7.47 CPA vs account avg of $0.87 by Week 3."
+   - Example CORRECT: "EH campaigns: $7.47 CPA<br>Account avg: $0.87<br>Week 3 performance"
+   - Prioritize readability: SHORT sentences, CLEAR structure, NO text overflow
+
 8. UTF-8 ENCODING (CRITICAL):
    - ALWAYS preserve Brazilian Portuguese characters: á é í ó ú ã õ ç
    - Ensure <meta charset="UTF-8"> is FIRST tag in <head>

@@ -7,10 +7,29 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.21';
+export const APP_VERSION = 'v2.1.22';
 
 /**
  * Version history:
+ * - v2.1.22 (2024-11-11):
+ *   - CRITICAL FIX: Koko Classic template rendering issues resolved
+ *   - PROBLEM 1 - Diamond corner-cut positioning:
+ *     - ROOT CAUSE: `translate(16px, 16px)` pushed diamond outside card boundaries
+ *     - SOLUTION: Changed to `bottom: -16px; right: -16px` with only `rotate(45deg)`
+ *     - RESULT: Diamond now perfectly aligned in card corners (no floating effect)
+ *   - PROBLEM 2 - Text overflow on cards:
+ *     - ROOT CAUSE: Cards missing `overflow: hidden` + long text content
+ *     - SOLUTION 1: Added `overflow: hidden` to `.card` class in template
+ *     - SOLUTION 2: Added `word-wrap: break-word` and `overflow-wrap: break-word` to `.card-content`
+ *     - SOLUTION 3: Updated AI prompt to generate concise card text (max 60 chars per paragraph)
+ *     - RESULT: Text now stays within card boundaries with proper line breaks
+ *   - FILES MODIFIED:
+ *     - public/decks/templates/koko-classic.html (CSS fixes)
+ *     - supabase/functions/j_hub_deck_generate/index.ts (AI prompt enhancement)
+ *   - IMPACT: All future Koko Classic decks will have correct rendering
+ *   - TESTING: Verified fixes resolve issues on slides 2, 3, 5, 8, 12 (multiple cards)
+ *   - NOTE: Existing decks NOT regenerated (user decision - only new decks affected)
+ *
  * - v2.1.21 (2024-11-11):
  *   - FEATURE: 21:9 ultra-wide display support for deck presentations
  *   - ADJUSTMENT: Increased maxAspectRatio from 16:9 (1.78:1) to 21:9 (2.40:1)
