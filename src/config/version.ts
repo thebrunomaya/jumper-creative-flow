@@ -7,10 +7,20 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.28';
+export const APP_VERSION = 'v2.1.29';
 
 /**
  * Version history:
+ * - v2.1.29 (2024-11-11):
+ *   - UX: Added "Gerenciar Templates" button to Decks panel header
+ *   - VISIBILITY: Admins can now access template management directly from /decks page
+ *   - BUTTON: "Gerenciar Templates" appears next to "Criar Novo Deck" (admin-only)
+ *   - NAVIGATION: Button navigates to /decks/templates
+ *   - ICON: FileCode icon for visual consistency with template system
+ *   - FILES MODIFIED:
+ *   -   - src/components/decks/DecksPanelList.tsx (added button in header)
+ *   - IMPACT: Template management no longer requires direct URL access
+ *
  * - v2.1.28 (2024-11-11):
  *   - REFACTOR: Reorganized template routes under /decks hierarchy
  *   - ROUTES CHANGED:

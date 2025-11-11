@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Plus, Search, Filter, SlidersHorizontal, Presentation, X } from "lucide-react";
+import { Plus, Search, Filter, SlidersHorizontal, Presentation, X, FileCode } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -174,10 +174,22 @@ export function DecksPanelList({ userRole }: DecksPanelListProps) {
         </div>
 
         {canCreate && (
-          <Button onClick={() => navigate("/decks/new")} size="lg">
-            <Plus className="mr-2 h-5 w-5" />
-            Criar Novo Deck
-          </Button>
+          <div className="flex gap-2">
+            {userRole === "admin" && (
+              <Button
+                onClick={() => navigate("/decks/templates")}
+                variant="outline"
+                size="lg"
+              >
+                <FileCode className="mr-2 h-5 w-5" />
+                Gerenciar Templates
+              </Button>
+            )}
+            <Button onClick={() => navigate("/decks/new")} size="lg">
+              <Plus className="mr-2 h-5 w-5" />
+              Criar Novo Deck
+            </Button>
+          </div>
         )}
       </div>
 
