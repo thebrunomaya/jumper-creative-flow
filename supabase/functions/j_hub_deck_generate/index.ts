@@ -280,6 +280,66 @@ CRITICAL INSTRUCTIONS:
    - HTML must be production-ready (can be opened directly in browser)
    - Include closing slide with clear CTA and next steps
 
+10. ⚠️⚠️⚠️ DATA FIDELITY (CRITICAL - ZERO TOLERANCE FOR HALLUCINATION) ⚠️⚠️⚠️:
+
+   🚨 MANDATORY RULES - VIOLATION IS UNACCEPTABLE:
+
+   ✅ WHAT YOU CAN DO:
+   - Reorganize data for better didactic flow (e.g., most important metrics first)
+   - Format numbers with commas, currency symbols, percentages (R$ 1.234,56, 45.2%, etc.)
+   - Group related data into visual blocks or cards
+   - Create charts/graphs from numerical data provided in markdown
+   - Translate technical terms if context is clear
+   - Simplify wording while preserving meaning (e.g., "Custo por Lead" → "Investimento por Lead")
+
+   ❌ WHAT YOU CANNOT DO (NEVER):
+   - Invent numbers that don't exist in markdown (e.g., if markdown says "Brasil: 120 conversões", don't add "Argentina: 80 conversões")
+   - Change country names or add countries not mentioned (e.g., markdown says "Brasil, Chile" → don't add "México")
+   - Fabricate metrics not provided (e.g., if markdown has CPA but no ROAS, don't calculate/invent ROAS)
+   - Alter numerical values (e.g., markdown says "42% CTR" → don't round to "40%" or "45%")
+   - Add campaign names, product names, or any proper nouns not in markdown
+   - Create trends or comparisons not explicitly stated (e.g., don't say "crescimento de 20%" if markdown doesn't mention growth)
+   - Invent dates, periods, or timeframes (e.g., if markdown says "Outubro 2024", don't add "vs Setembro 2024")
+
+   ⚠️ EXAMPLES OF VIOLATIONS (NEVER DO THIS):
+
+   BAD EXAMPLE 1 - Inventing countries:
+   Markdown: "Tráfego por país: Brasil (450 cliques), Chile (280 cliques)"
+   WRONG OUTPUT: Adding "Argentina (320 cliques)" because it "makes sense geographically"
+   CORRECT OUTPUT: Show ONLY Brasil and Chile as provided
+
+   BAD EXAMPLE 2 - Fabricating metrics:
+   Markdown: "CPA: R$ 87,50 | Conversões: 342"
+   WRONG OUTPUT: Calculating "ROAS: 4.2x" or "ROI: 320%" not mentioned in markdown
+   CORRECT OUTPUT: Show ONLY CPA and Conversões as provided
+
+   BAD EXAMPLE 3 - Inventing comparisons:
+   Markdown: "Outubro: 1.234 leads"
+   WRONG OUTPUT: Adding "Setembro: 987 leads (↑25% crescimento)"
+   CORRECT OUTPUT: Show ONLY Outubro data as provided
+
+   BAD EXAMPLE 4 - Altering numbers:
+   Markdown: "CTR: 2.34%"
+   WRONG OUTPUT: Rounding to "2.3%" or "2%" for "cleaner visuals"
+   CORRECT OUTPUT: Keep exact value "2.34%"
+
+   🔍 VALIDATION CHECKLIST (Mental check before outputting):
+   [ ] Every country/location name appears in markdown?
+   [ ] Every metric value matches markdown exactly?
+   [ ] Every campaign/product name exists in markdown?
+   [ ] Every date/period is from markdown?
+   [ ] No calculations performed on data not explicitly requested?
+   [ ] No trends/comparisons added beyond what markdown states?
+
+   💡 WHEN IN DOUBT:
+   If you're unsure if a data point is in the markdown → DON'T INCLUDE IT
+   Better to have fewer slides with accurate data than more slides with fabricated data
+
+   🎯 WHY THIS MATTERS:
+   These decks are presented to REAL CLIENTS making BUSINESS DECISIONS based on this data.
+   Fabricated data destroys trust, can lead to wrong decisions, and damages professional reputation.
+   There is ZERO tolerance for data hallucination in this system.
+
 OUTPUT LANGUAGE: HTML with Brazilian Portuguese content (UTF-8 encoded)`;
 
     const userPrompt = `==============================================
@@ -436,6 +496,37 @@ OUTPUT FORMAT: Complete standalone HTML file (no markdown fences, no explanation
     if (updateError) {
       console.error('❌ [DECK_GENERATE] Update failed:', updateError);
       throw new Error(`Failed to update deck record: ${updateError.message}`);
+    }
+
+    // 8.5. Create v1 in deck_versions table (auto-versioning)
+    console.log('📌 [DECK_GENERATE] Creating version 1...');
+
+    const { error: versionError } = await supabase
+      .from('j_hub_deck_versions')
+      .insert({
+        deck_id: deckId,
+        version_number: 1,
+        html_output: htmlOutput,
+        refinement_prompt: null, // v1 is original generation (no refinement)
+        changes_summary: 'Initial generation from markdown source',
+      });
+
+    if (versionError) {
+      console.error('⚠️ [DECK_GENERATE] Version creation failed:', versionError);
+      // Non-fatal error - deck still works without versioning
+      // But log for debugging
+    } else {
+      console.log('✅ [DECK_GENERATE] Version 1 created successfully');
+
+      // Update deck to set current_version = 1
+      const { error: currentVersionError } = await supabase
+        .from('j_hub_decks')
+        .update({ current_version: 1 })
+        .eq('id', deckId);
+
+      if (currentVersionError) {
+        console.error('⚠️ [DECK_GENERATE] Current version update failed:', currentVersionError);
+      }
     }
 
     // 9. Count slides (rough estimate by counting <div class="slide">)

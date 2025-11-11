@@ -7,6 +7,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { DeckShareModal } from "@/components/decks/DeckShareModal";
+import { DeckVersionHistory } from "@/components/decks/DeckVersionHistory";
+import { DeckRefineModal } from "@/components/decks/DeckRefineModal";
 import {
   ArrowLeft,
   Share2,
@@ -17,6 +19,8 @@ import {
   Building2,
   Calendar,
   FileText,
+  History,
+  Sparkles,
 } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -36,6 +40,8 @@ interface Deck {
   html_output: string | null;
   slug: string | null;
   is_public: boolean;
+  current_version: number; // Version currently displayed (v1, v2, v3, ...)
+  is_refined: boolean; // TRUE if deck has been refined (has versions > 1)
   created_at: string;
   updated_at: string;
 }
@@ -215,6 +221,41 @@ export default function DeckEditor() {
                 <Maximize2 className="mr-2 h-4 w-4" />
                 Ver em Tela Cheia
               </Button>
+
+              {/* Version History */}
+              <DeckVersionHistory
+                deckId={deck.id}
+                currentVersion={deck.current_version || 1}
+                onVersionRestore={(versionNumber) => {
+                  // Refresh deck after restore
+                  window.location.reload();
+                }}
+                trigger={
+                  <Button variant="outline">
+                    <History className="mr-2 h-4 w-4" />
+                    Histórico
+                  </Button>
+                }
+              />
+
+              {/* AI Refinement (only for editors) */}
+              {canEdit && (
+                <DeckRefineModal
+                  deckId={deck.id}
+                  currentVersion={deck.current_version || 1}
+                  onRefineComplete={(newVersion, changesSummary) => {
+                    // Refresh deck after refinement
+                    toast.success(`Versão ${newVersion} criada com sucesso!`);
+                    window.location.reload();
+                  }}
+                  trigger={
+                    <Button variant="default">
+                      <Sparkles className="mr-2 h-4 w-4" />
+                      Refinar com IA
+                    </Button>
+                  }
+                />
+              )}
 
               <Button variant="outline" onClick={() => setShareModalOpen(true)}>
                 <Share2 className="mr-2 h-4 w-4" />

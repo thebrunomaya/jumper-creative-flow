@@ -105,6 +105,19 @@ export function DeckCard({
                 {deck.brand_identity === "jumper" ? "Jumper" : "Koko"}
               </Badge>
 
+              {/* Version badge */}
+              <Badge
+                variant="outline"
+                className={`${
+                  deck.is_refined
+                    ? "bg-amber-100 text-amber-700 border-amber-300"
+                    : "bg-gray-100 text-gray-600 border-gray-300"
+                } text-xs font-medium`}
+              >
+                v{deck.current_version}
+                {deck.is_refined && " ✨"}
+              </Badge>
+
               {deck.is_public && (
                 <Badge variant="outline" className="text-xs font-medium">
                   {deck.slug ? (

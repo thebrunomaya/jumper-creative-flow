@@ -16,6 +16,8 @@ export interface DeckWithDetails {
   file_url: string | null;
   slug: string | null;
   is_public: boolean;
+  current_version: number; // Version currently displayed (v1, v2, v3, ...)
+  is_refined: boolean; // TRUE if deck has been refined (has versions > 1)
   created_at: string;
   updated_at: string;
 }
@@ -75,6 +77,8 @@ export const useMyDecks = () => {
           file_url: deck.file_url,
           slug: deck.slug,
           is_public: deck.is_public,
+          current_version: deck.current_version || 1, // Default to v1 for legacy decks
+          is_refined: deck.is_refined || false, // Default to false for legacy decks
           created_at: deck.created_at,
           updated_at: deck.updated_at,
         }));
