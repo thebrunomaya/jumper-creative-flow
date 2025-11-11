@@ -7,10 +7,22 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.29';
+export const APP_VERSION = 'v2.1.30';
 
 /**
  * Version history:
+ * - v2.1.30 (2024-11-11):
+ *   - CRITICAL FIX: Template management Edge Functions authentication fixed
+ *   - PROBLEM: 401 Unauthorized errors when admins tried to access template management
+ *   - ROOT CAUSE: Edge Functions were using Service Role Key with getUser(authHeader)
+ *   - SOLUTION: Extract JWT token from header: token = authHeader.replace('Bearer ', '')
+ *   - PATTERN: Now matches j_hub_deck_generate pattern (line 82)
+ *   - FILES FIXED:
+ *   -   - supabase/functions/j_hub_deck_template_list/index.ts (auth fix)
+ *   -   - supabase/functions/j_hub_deck_template_read/index.ts (auth fix)
+ *   - DEPLOYED: Both Edge Functions redeployed to production
+ *   - RESULT: Admin users can now access /decks/templates successfully
+ *
  * - v2.1.29 (2024-11-11):
  *   - UX: Added "Gerenciar Templates" button to Decks panel header
  *   - VISIBILITY: Admins can now access template management directly from /decks page
