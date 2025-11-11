@@ -146,13 +146,6 @@ export function DeckCard({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              {onView && (
-                <DropdownMenuItem onClick={() => onView(deck.id)}>
-                  <Eye className="mr-2 h-4 w-4" />
-                  Visualizar
-                </DropdownMenuItem>
-              )}
-
               {canEdit && onEdit && (
                 <DropdownMenuItem onClick={() => onEdit(deck.id)}>
                   <Edit className="mr-2 h-4 w-4" />

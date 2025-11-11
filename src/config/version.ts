@@ -7,10 +7,18 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.24';
+export const APP_VERSION = 'v2.1.25';
 
 /**
  * Version history:
+ * - v2.1.25 (2024-11-11):
+ *   - CRITICAL FIX: Remove leftover onView reference in DeckCard dropdown menu
+ *   - ERROR: "ReferenceError: onView is not defined" when opening /decks page
+ *   - ROOT CAUSE: Incomplete removal of onView in Phase 1 (v2.1.23)
+ *   - SOLUTION: Removed onView check from dropdown menu (lines 149-154)
+ *   - FILES MODIFIED:
+ *     - src/components/decks/DeckCard.tsx (removed dropdown menu item)
+ *
  * - v2.1.24 (2024-11-11):
  *   - UX IMPROVEMENT: Markdown Editor button and behavior updates
  *   - RENAMED: "Regenerar Deck" → "Recriar Deck" (clearer intent)
