@@ -7,10 +7,26 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.31';
+export const APP_VERSION = 'v2.1.32';
 
 /**
  * Version history:
+ * - v2.1.32 (2024-11-11):
+ *   - CRITICAL FIX: React hooks order violation in Templates.tsx
+ *   - PROBLEM: Page crashed with React error #310 (blank screen)
+ *   - ROOT CAUSE: useMemo called AFTER conditional return statements
+ *   - VIOLATION: Hooks must be called in same order every render (Rules of Hooks)
+ *   - SOLUTION: Moved useMemo (filteredTemplates) BEFORE conditional returns
+ *   - HOOK ORDER (correct):
+ *   -   1. useNavigate, useUserRole, useTemplateList
+ *   -   2. useState (searchQuery, brandFilter)
+ *   -   3. useMemo (filteredTemplates) ← MOVED HERE
+ *   -   4. useEffect (redirect logic)
+ *   -   5. Conditional returns (if roleLoading / if !isAdmin)
+ *   - FILES FIXED:
+ *   -   - src/pages/Templates.tsx (hook order corrected)
+ *   - RESULT: Page renders successfully without React errors
+ *
  * - v2.1.31 (2024-11-11):
  *   - CRITICAL FIX: Template pages now use correct admin role verification
  *   - PROBLEM: Pages redirected admins back to /decks (authorization check failing)

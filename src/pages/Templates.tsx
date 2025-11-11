@@ -23,6 +23,22 @@ export default function Templates() {
   const [searchQuery, setSearchQuery] = useState("");
   const [brandFilter, setBrandFilter] = useState<string>("all");
 
+  // Filter and search templates (MUST be before conditional returns)
+  const filteredTemplates = useMemo(() => {
+    if (!templates) return [];
+
+    return templates.filter((template) => {
+      const matchesSearch = template.template_id
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase());
+
+      const matchesBrand =
+        brandFilter === "all" || template.brand_identity === brandFilter;
+
+      return matchesSearch && matchesBrand;
+    });
+  }, [templates, searchQuery, brandFilter]);
+
   // Check if user is admin
   const isAdmin = userRole === "admin";
 
@@ -54,22 +70,6 @@ export default function Templates() {
   if (!isAdmin) {
     return null;
   }
-
-  // Filter and search templates
-  const filteredTemplates = useMemo(() => {
-    if (!templates) return [];
-
-    return templates.filter((template) => {
-      const matchesSearch = template.template_id
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase());
-
-      const matchesBrand =
-        brandFilter === "all" || template.brand_identity === brandFilter;
-
-      return matchesSearch && matchesBrand;
-    });
-  }, [templates, searchQuery, brandFilter]);
 
   // Loading state
   if (isLoading) {
