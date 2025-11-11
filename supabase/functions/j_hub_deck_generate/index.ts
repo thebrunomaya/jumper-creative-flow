@@ -7,6 +7,27 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Helper: Fetch with timeout
+async function fetchWithTimeout(url: string, options: RequestInit = {}, timeoutMs = 30000) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal,
+    });
+    clearTimeout(timeout);
+    return response;
+  } catch (error) {
+    clearTimeout(timeout);
+    if (error.name === 'AbortError') {
+      throw new Error(`Fetch timeout after ${timeoutMs}ms: ${url}`);
+    }
+    throw error;
+  }
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -105,14 +126,17 @@ serve(async (req) => {
 
     let templateHtml: string;
     try {
-      const templateResponse = await fetch(templateUrl, {
+      console.log('🔄 [DECK_GENERATE] Fetching template with 30s timeout...');
+      const templateResponse = await fetchWithTimeout(templateUrl, {
         headers: {
           'Accept': 'text/html; charset=utf-8',
         },
-      });
+      }, 30000);
+
+      console.log('📡 [DECK_GENERATE] Template response status:', templateResponse.status);
+
       if (!templateResponse.ok) {
-        // Fallback: Try loading from local file path if in dev
-        throw new Error(`Template not found in storage: ${template_id}`);
+        throw new Error(`Template HTTP ${templateResponse.status}: ${template_id}`);
       }
 
       // Force UTF-8 decoding with TextDecoder
@@ -133,13 +157,17 @@ serve(async (req) => {
 
     let designSystem: string;
     try {
-      const dsResponse = await fetch(designSystemUrl, {
+      console.log('🔄 [DECK_GENERATE] Fetching design system with 30s timeout...');
+      const dsResponse = await fetchWithTimeout(designSystemUrl, {
         headers: {
           'Accept': 'text/markdown; charset=utf-8',
         },
-      });
+      }, 30000);
+
+      console.log('📡 [DECK_GENERATE] Design system response status:', dsResponse.status);
+
       if (!dsResponse.ok) {
-        throw new Error(`Design system not found in storage: ${brand_identity}`);
+        throw new Error(`Design system HTTP ${dsResponse.status}: ${brand_identity}`);
       }
 
       // Force UTF-8 decoding with TextDecoder
