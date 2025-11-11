@@ -7,10 +7,31 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.33';
+export const APP_VERSION = 'v2.1.34';
 
 /**
  * Version history:
+ * - v2.1.34 (2024-11-11):
+ *   - CRITICAL FIX: React hooks order violation in TemplateEditor.tsx
+ *   - PROBLEM: Page crashed with React error #310 (blank screen)
+ *   - ROOT CAUSE: useEffect hooks called AFTER conditional return statements
+ *   - VIOLATION: Hooks must be called in same order every render (Rules of Hooks)
+ *   - SOLUTION: Moved ALL useEffect hooks BEFORE conditional returns
+ *   - HOOKS MOVED:
+ *   -   - useEffect (initialize editedContent from template)
+ *   -   - useEffect (track unsaved changes)
+ *   - CORRECT ORDER NOW:
+ *   -   1. useParams, useNavigate, useUserRole, useTemplateRead
+ *   -   2. useState (editedContent, showPreview, isSaving, hasUnsavedChanges)
+ *   -   3. useEffect (initialize content) ← MOVED HERE
+ *   -   4. useEffect (track changes) ← MOVED HERE
+ *   -   5. useEffect (redirect logic)
+ *   -   6. Conditional returns (if roleLoading / if !isAdmin)
+ *   - FILES FIXED:
+ *   -   - src/pages/TemplateEditor.tsx (hook order corrected)
+ *   - VERIFIED: TemplateCompare.tsx hook order already correct
+ *   - RESULT: Template editor page renders successfully
+ *
  * - v2.1.33 (2024-11-11):
  *   - ARCHITECTURE FIX: Template Edge Functions now read from /public instead of Storage
  *   - PROBLEM: 0 templates shown in admin panel (looking in wrong location)

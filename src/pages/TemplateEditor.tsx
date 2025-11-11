@@ -20,6 +20,22 @@ export default function TemplateEditor() {
   const [isSaving, setSaving] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
+  // Initialize edited content when template loads (MUST be before conditional returns)
+  useEffect(() => {
+    if (template?.html_content) {
+      setEditedContent(template.html_content);
+    }
+  }, [template]);
+
+  // Track unsaved changes (MUST be before conditional returns)
+  useEffect(() => {
+    if (template?.html_content && editedContent !== template.html_content) {
+      setHasUnsavedChanges(true);
+    } else {
+      setHasUnsavedChanges(false);
+    }
+  }, [editedContent, template]);
+
   // Check if user is admin
   const isAdmin = userRole === "admin";
 
@@ -49,22 +65,6 @@ export default function TemplateEditor() {
   if (!isAdmin) {
     return null;
   }
-
-  // Initialize edited content when template loads
-  useEffect(() => {
-    if (template?.html_content) {
-      setEditedContent(template.html_content);
-    }
-  }, [template]);
-
-  // Track unsaved changes
-  useEffect(() => {
-    if (template?.html_content && editedContent !== template.html_content) {
-      setHasUnsavedChanges(true);
-    } else {
-      setHasUnsavedChanges(false);
-    }
-  }, [editedContent, template]);
 
   // Save template to Storage
   const handleSave = async () => {
