@@ -3,46 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Koko Classic Presentation</title>
-
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
-
+    <title>Koko Classic Template - Agência Koko</title>
     <style>
+        /**
+         * KOKO CLASSIC TEMPLATE
+         * Template para apresentações criativas e relatórios de performance
+         * Design System: Energético, criativo, ousado com elementos visuais únicos
+         * Paleta: Amarelo (#F5C542), Rosa (#FF0080), Preto, Branco
+         * Font: Alternate Gothic (títulos) + Playfair Display (corpo) + Montserrat (UI)
+         *
+         * IMPORTANTE: Este é um TEMPLATE de referência visual.
+         * Claude AI deve usar os padrões aqui como inspiração para gerar slides dinamicamente.
+         *
+         * BRANDING: Koko é uma agência criativa independente.
+         * NÃO mencionar Jumper Studio em nenhum lugar (somos terceirizados).
+         */
+
         /* ========================================
-           KOKO CLASSIC - CSS VARIABLES
-        ======================================== */
-        :root {
-            /* Colors */
-            --koko-black: #000000;
-            --koko-white: #FFFFFF;
-            --koko-yellow: #F2C541;
-            --koko-pink: #FF0080;
-            --koko-gray-light: #E5E5E5;
-            --koko-gray-mid: #999999;
+           FONT IMPORTS
+           URLs ABSOLUTAS (CRÍTICO para compartilhamento)
+           ======================================== */
 
-            /* Typography */
-            --font-gothic: 'Anton', 'Impact', sans-serif;
-            --font-serif: 'Playfair Display', 'Georgia', serif;
-
-            /* Spacing */
-            --spacing-xs: 0.5rem;
-            --spacing-sm: 1rem;
-            --spacing-md: 2rem;
-            --spacing-lg: 4rem;
-            --spacing-xl: 6rem;
-
-            /* Transitions */
-            --transition-fast: 0.2s ease;
-            --transition-normal: 0.4s ease;
-            --transition-slow: 0.6s ease;
+        /* Alternate Gothic - Títulos (Book, Bold, Black) */
+        @font-face {
+            font-family: 'Alternate Gothic';
+            src: url('https://hub.jumper.studio/decks/identities/koko/fonts/AlternateGothicCondATF-Book.otf') format('opentype');
+            font-weight: 400;
+            font-style: normal;
+            font-display: swap;
         }
 
-        /* ========================================
-           GLOBAL RESET & BASE STYLES
-        ======================================== */
+        @font-face {
+            font-family: 'Alternate Gothic';
+            src: url('https://hub.jumper.studio/decks/identities/koko/fonts/AlternateGothicCondATF-Bold.otf') format('opentype');
+            font-weight: 700;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: 'Alternate Gothic';
+            src: url('https://hub.jumper.studio/decks/identities/koko/fonts/AlternateGothicCondATF-Black.otf') format('opentype');
+            font-weight: 900;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        /* Playfair Display - Corpo de texto (Regular, Bold) */
+        @font-face {
+            font-family: 'Playfair Display';
+            src: url('https://hub.jumper.studio/decks/identities/koko/fonts/PlayfairDisplay-Regular.ttf') format('truetype');
+            font-weight: 400;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: 'Playfair Display';
+            src: url('https://hub.jumper.studio/decks/identities/koko/fonts/PlayfairDisplay-Bold.ttf') format('truetype');
+            font-weight: 700;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        /* Montserrat - Header/Footer e UI elements */
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
+
         * {
             margin: 0;
             padding: 0;
@@ -50,845 +76,798 @@
         }
 
         body {
-            font-family: var(--font-serif);
-            background: var(--koko-white);
-            color: var(--koko-black);
+            font-family: 'Alternate Gothic', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #FFFFFF;
+            color: #000000;
             overflow-x: hidden;
-            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
         /* ========================================
-           SCROLLING TEXT HEADER/FOOTER
-        ======================================== */
-        .scrolling-text {
+           KOKO DESIGN SYSTEM - CORES
+           ======================================== */
+        :root {
+            --koko-yellow: #F5C542;
+            --koko-pink: #FF0080;
+            --koko-black: #000000;
+            --koko-white: #FFFFFF;
+            --koko-gray: #BDBDBD;
+        }
+
+        /* ========================================
+           PRESENTATION CONTAINER
+           Scroll snap para navegação suave entre slides
+           ======================================== */
+        .presentation {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            overflow-y: scroll;
+            scroll-snap-type: y mandatory;
+            scroll-behavior: smooth;
+        }
+
+        /* ========================================
+           HEADER & FOOTER MARQUEE
+           Faixas animadas no topo e rodapé
+           Uso: SEMPRE presente em todas as páginas
+           ======================================== */
+        .marquee-container {
             position: fixed;
-            width: 100%;
-            overflow: hidden;
+            left: 0;
+            right: 0;
+            height: 48px;
             background: var(--koko-black);
-            color: var(--koko-white);
-            font-family: var(--font-gothic);
-            font-size: 14px;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
+            overflow: hidden;
             z-index: 1000;
-            height: 40px;
-            display: flex;
-            align-items: center;
         }
 
-        .scrolling-text--header {
+        .marquee-container.top {
             top: 0;
-            border-bottom: 2px solid var(--koko-white);
         }
 
-        .scrolling-text--footer {
+        .marquee-container.bottom {
             bottom: 0;
-            border-top: 2px solid var(--koko-white);
         }
 
-        .scrolling-text__content {
-            display: inline-block;
+        .marquee-content {
+            display: flex;
+            animation: marqueeScroll 30s linear infinite;
             white-space: nowrap;
-            animation: scroll-left 40s linear infinite;
-            padding-right: 100%;
         }
 
-        @keyframes scroll-left {
-            from {
-                transform: translateX(0);
-            }
-            to {
-                transform: translateX(-50%);
-            }
-        }
-
-        /* ========================================
-           LOGO
-        ======================================== */
-        .logo {
-            position: fixed;
-            top: 50px;
-            left: 40px;
-            z-index: 1001;
-            font-family: var(--font-gothic);
-            font-size: 24px;
-            color: var(--koko-black);
-            line-height: 1;
-        }
-
-        .logo__agency {
-            font-size: 10px;
-            letter-spacing: 0.1em;
-        }
-
-        .logo__name {
-            font-size: 32px;
+        .marquee-text {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--koko-white);
+            padding: 0 64px;
+            line-height: 48px;
+            text-transform: uppercase;
             letter-spacing: 0.05em;
         }
 
+        @keyframes marqueeScroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
         /* ========================================
-           SLIDE CONTAINER
-        ======================================== */
+           LOGO KOKO
+           Logo no canto superior esquerdo
+           Uso: SEMPRE presente (exceto em hero slides de capa)
+           ======================================== */
+        .logo-container {
+            position: fixed;
+            top: 64px;
+            left: 32px;
+            z-index: 999;
+        }
+
+        .logo-container img {
+            height: 48px;
+            mix-blend-mode: multiply;
+        }
+
+        /* ========================================
+           SLIDE SYSTEM
+           Base para todos os slides
+           ======================================== */
         .slide {
-            min-height: 100vh;
             width: 100%;
-            padding: 80px 60px 80px 60px;
+            min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
-            background: var(--koko-white);
+            scroll-snap-align: start;
+            padding: clamp(80px, 12vh, 140px) clamp(40px, 6vw, 120px) clamp(120px, 14vh, 160px);
         }
 
-        .slide__content {
+        .slide-content {
             max-width: 1400px;
             width: 100%;
             margin: 0 auto;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         /* ========================================
-           TYPOGRAPHY
-        ======================================== */
-        h1, h2, h3, .heading {
-            font-family: var(--font-gothic);
-            text-transform: uppercase;
-            letter-spacing: 0.02em;
-            line-height: 0.9;
-            font-weight: 400;
+           HERO SLIDE PATTERN
+           Slide de capa com mãos de gorila
+           Uso: Primeira página da apresentação
+
+           Estrutura HTML:
+           <div class="slide hero-slide">
+               <div class="hero-background" style="background-image: url(...)"></div>
+               <img class="gorilla-hand left" src="..." />
+               <img class="gorilla-hand right" src="..." />
+               <div class="hero-content">
+                   <h1>TÍTULO PRINCIPAL</h1>
+                   <p class="hero-subtitle">Subtítulo ou descrição</p>
+               </div>
+           </div>
+           ======================================== */
+        .hero-slide {
+            padding: 0;
+            overflow: hidden;
         }
 
-        h1 {
-            font-size: clamp(4rem, 10vw, 8rem);
-            margin-bottom: var(--spacing-md);
-        }
-
-        h2 {
-            font-size: clamp(2.5rem, 6vw, 5rem);
-            margin-bottom: var(--spacing-md);
-        }
-
-        h3 {
-            font-size: clamp(2rem, 4vw, 3.5rem);
-            margin-bottom: var(--spacing-sm);
-        }
-
-        p, .body-text {
-            font-family: var(--font-serif);
-            font-size: clamp(1rem, 2vw, 1.5rem);
-            line-height: 1.6;
-            margin-bottom: var(--spacing-sm);
-        }
-
-        .text-italic {
-            font-style: italic;
-        }
-
-        .text-yellow {
-            color: var(--koko-yellow);
-        }
-
-        .text-pink {
-            color: var(--koko-pink);
-        }
-
-        /* ========================================
-           CARDS WITH PAGE CURL
-        ======================================== */
-        .card {
-            position: relative;
-            background: var(--koko-white);
-            color: var(--koko-black);
-            padding: var(--spacing-md);
-            border-radius: 4px;
-            overflow: visible;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-        }
-
-        .card--with-curl::after {
-            content: '';
+        .hero-background {
             position: absolute;
-            bottom: 0;
-            right: 0;
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg,
-                transparent 0%,
-                transparent 50%,
-                var(--koko-yellow) 50%,
-                var(--koko-yellow) 60%,
-                #D4A82F 60%
-            );
-            border-radius: 0 0 4px 0;
-            box-shadow: -3px 3px 6px rgba(0, 0, 0, 0.3);
+            inset: 0;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            pointer-events: none;
         }
 
-        .card__header {
-            background: var(--koko-black);
-            color: var(--koko-white);
-            padding: var(--spacing-sm);
-            margin: calc(-1 * var(--spacing-md)) calc(-1 * var(--spacing-md)) var(--spacing-md) calc(-1 * var(--spacing-md));
+        .gorilla-hand {
+            position: absolute;
+            width: 43vw;
+            max-width: 540px;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .gorilla-hand.left {
+            left: -5%;
+            top: -5%;
+        }
+
+        .gorilla-hand.right {
+            right: -5%;
+            bottom: -5%;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 20;
             text-align: center;
-            font-family: var(--font-gothic);
-            text-transform: uppercase;
-            font-size: 1.5rem;
+            max-width: 900px;
+            margin: 0 auto;
         }
 
-        .card__image {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-            filter: grayscale(100%) contrast(1.2);
-            margin-bottom: var(--spacing-sm);
-            border-radius: 4px;
-        }
-
-        .card__title {
-            font-family: var(--font-gothic);
-            font-size: 1.5rem;
-            margin-bottom: var(--spacing-xs);
+        .hero-content h1 {
+            font-family: 'Alternate Gothic', sans-serif;
+            font-size: clamp(60px, 10vw, 120px);
+            font-weight: 900;
+            line-height: 0.95;
+            letter-spacing: -0.02em;
+            margin-bottom: clamp(30px, 5vh, 50px);
             text-transform: uppercase;
         }
 
-        .card__text {
-            font-family: var(--font-serif);
-            font-size: 1rem;
+        .hero-subtitle {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(20px, 3vw, 32px);
+            font-weight: 700;
+            line-height: 1.3;
+            margin-bottom: 16px;
+        }
+
+        .hero-meta {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(14px, 2vw, 18px);
+            font-weight: 400;
+            color: rgba(0, 0, 0, 0.7);
             line-height: 1.5;
         }
 
         /* ========================================
-           GRID LAYOUTS
-        ======================================== */
-        .grid {
-            display: grid;
-            gap: var(--spacing-md);
-        }
+           CONTENT SLIDE PATTERN
+           Slide padrão com título + subtítulo + conteúdo
+           Uso: Maioria dos slides de conteúdo
 
-        .grid--2-col {
-            grid-template-columns: repeat(2, 1fr);
-        }
-
-        .grid--3-col {
-            grid-template-columns: repeat(3, 1fr);
-        }
-
-        .grid--9-cards {
-            grid-template-columns: repeat(3, 1fr);
-            gap: var(--spacing-sm);
-        }
-
-        .grid--9-cards .card {
-            padding: var(--spacing-sm);
-        }
-
-        .grid--9-cards .card__image {
-            height: 120px;
-        }
-
-        /* ========================================
-           TWO-COLUMN LAYOUT
-        ======================================== */
-        .two-col {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: var(--spacing-lg);
-            align-items: center;
-        }
-
-        .two-col--40-60 {
-            grid-template-columns: 40fr 60fr;
-        }
-
-        .two-col--60-40 {
-            grid-template-columns: 60fr 40fr;
-        }
-
-        /* ========================================
-           HALFTONE TEXTURE
-        ======================================== */
-        .halftone {
-            background-image: radial-gradient(circle, var(--koko-gray-light) 2px, transparent 2px);
-            background-size: 12px 12px;
-        }
-
-        .halftone--pink {
-            background-image: radial-gradient(circle, var(--koko-pink) 2px, transparent 2px);
-        }
-
-        /* ========================================
-           BURST/EXPLOSION SHAPE
-        ======================================== */
-        .burst {
-            position: relative;
-            width: 400px;
-            height: 400px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .burst__shape {
-            position: absolute;
-            inset: 0;
-            clip-path: polygon(
-                50% 0%, 61% 35%, 98% 35%, 68% 57%,
-                79% 91%, 50% 70%, 21% 91%, 32% 57%,
-                2% 35%, 39% 35%
-            );
-            background: var(--koko-pink);
-            filter: drop-shadow(0 4px 10px rgba(255, 0, 128, 0.5));
-        }
-
-        .burst__content {
-            position: relative;
-            z-index: 1;
-            border-radius: 50%;
-            overflow: hidden;
-            width: 250px;
-            height: 250px;
-        }
-
-        .burst__image {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            filter: grayscale(100%) contrast(1.2);
-        }
-
-        /* ========================================
-           TIMELINE ARROWS
-        ======================================== */
-        .timeline {
-            display: flex;
-            align-items: center;
-            gap: var(--spacing-sm);
-            flex-wrap: wrap;
-        }
-
-        .timeline__step {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: var(--spacing-xs);
-        }
-
-        .timeline__number {
-            background: var(--koko-white);
-            color: var(--koko-black);
-            font-family: var(--font-gothic);
-            font-size: 3rem;
-            width: 100px;
-            height: 100px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 3px solid var(--koko-black);
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-        }
-
-        .timeline__label {
-            font-family: var(--font-serif);
-            font-size: 1rem;
-            text-align: center;
-            max-width: 150px;
-        }
-
-        .timeline__arrow {
-            font-size: 2rem;
-            color: var(--koko-yellow);
-            margin: 0 var(--spacing-xs);
-        }
-
-        /* ========================================
-           CATEGORIZED LIST
-        ======================================== */
-        .category-list {
-            display: flex;
-            flex-direction: column;
-            gap: var(--spacing-md);
-        }
-
-        .category {
-            border-left: 4px solid var(--koko-yellow);
-            padding-left: var(--spacing-md);
-        }
-
-        .category__title {
-            font-family: var(--font-gothic);
-            font-size: 2rem;
-            color: var(--koko-yellow);
+           Estrutura HTML:
+           <div class="slide">
+               <div class="slide-content">
+                   <h2 class="slide-title">TÍTULO DO SLIDE</h2>
+                   <p class="slide-subtitle">Subtítulo opcional</p>
+                   <!-- Conteúdo aqui (cards, lista, texto, etc) -->
+               </div>
+           </div>
+           ======================================== */
+        .slide-title {
+            font-family: 'Alternate Gothic', sans-serif;
+            font-size: clamp(48px, 7vw, 80px);
+            font-weight: 900;
+            line-height: 1;
+            letter-spacing: -0.02em;
+            margin-bottom: clamp(15px, 2vh, 25px);
             text-transform: uppercase;
-            margin-bottom: var(--spacing-sm);
         }
 
-        .category__items {
-            list-style: none;
-            font-family: var(--font-serif);
-            font-size: 1.2rem;
+        .slide-subtitle {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(18px, 2.5vw, 24px);
+            font-style: italic;
+            color: rgba(0, 0, 0, 0.7);
+            margin-bottom: clamp(40px, 6vh, 60px);
         }
 
-        .category__items li {
-            margin-bottom: var(--spacing-xs);
-            padding-left: var(--spacing-sm);
+        /* ========================================
+           CARDS GRID PATTERN
+           Grid de cards para múltiplos itens
+           Uso: Contexto, fases, métricas, insights, etc.
+
+           Tipos de cards:
+           - .card-default: Branco com borda (padrão)
+           - .card-highlight-yellow: Destaque amarelo
+           - .card-highlight-pink: Destaque rosa
+           - .card-dark: Fundo preto com texto branco
+
+           Estrutura HTML:
+           <div class="cards-grid">
+               <div class="card card-default corner-cut">
+                   <h3 class="card-title">TÍTULO</h3>
+                   <p class="card-content">Conteúdo...</p>
+               </div>
+               <div class="card card-highlight-yellow corner-cut">
+                   <h3 class="card-title">DESTAQUE</h3>
+                   <p class="card-content">Conteúdo...</p>
+               </div>
+           </div>
+           ======================================== */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: clamp(20px, 3vw, 30px);
+            margin-top: clamp(30px, 5vh, 50px);
+        }
+
+        .card {
+            padding: clamp(24px, 3vw, 32px);
+            border-radius: 4px;
             position: relative;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: cardSlideUp 0.6s ease-out forwards;
+            transition: transform 0.3s ease;
         }
 
-        .category__items li::before {
+        .card:hover {
+            transform: translateY(-4px);
+        }
+
+        .card:nth-child(1) { animation-delay: 0.5s; }
+        .card:nth-child(2) { animation-delay: 0.6s; }
+        .card:nth-child(3) { animation-delay: 0.7s; }
+        .card:nth-child(4) { animation-delay: 0.8s; }
+
+        @keyframes cardSlideUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Card variants */
+        .card-default {
+            background: var(--koko-white);
+            border: 2px solid var(--koko-black);
+        }
+
+        .card-highlight-yellow {
+            background: var(--koko-yellow);
+            border: 4px solid var(--koko-black);
+        }
+
+        .card-highlight-pink {
+            background: var(--koko-pink);
+            color: var(--koko-white);
+            border: 4px solid var(--koko-black);
+        }
+
+        .card-dark {
+            background: var(--koko-black);
+            color: var(--koko-white);
+        }
+
+        /* Corner cut effect (losango) */
+        .corner-cut::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 32px;
+            height: 32px;
+            background: var(--koko-black);
+            transform: rotate(45deg) translate(16px, 16px);
+        }
+
+        .card-dark.corner-cut::after {
+            background: var(--koko-white);
+        }
+
+        .card-title {
+            font-family: 'Alternate Gothic', sans-serif;
+            font-size: clamp(20px, 2.5vw, 28px);
+            font-weight: 700;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+        }
+
+        .card-content {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(14px, 1.8vw, 18px);
+            line-height: 1.5;
+        }
+
+        .card-metric {
+            font-family: 'Alternate Gothic', sans-serif;
+            font-size: clamp(32px, 5vw, 48px);
+            font-weight: 900;
+            margin-bottom: 8px;
+            line-height: 1;
+        }
+
+        /* ========================================
+           TIMELINE PATTERN
+           Lista vertical com borda à esquerda
+           Uso: Evolução temporal, fases, progresso
+
+           Variantes de borda:
+           - .timeline-item-default: Borda preta
+           - .timeline-item-yellow: Borda amarela
+           - .timeline-item-pink: Borda rosa (destaque)
+
+           Estrutura HTML:
+           <div class="timeline-container">
+               <div class="timeline-item timeline-item-default">
+                   <div class="timeline-item-content">
+                       <h3 class="timeline-title">SEMANA 1</h3>
+                       <p class="timeline-content">Descrição...</p>
+                   </div>
+                   <span class="timeline-icon">📊</span>
+               </div>
+           </div>
+           ======================================== */
+        .timeline-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-top: clamp(30px, 5vh, 50px);
+            max-width: 1000px;
+        }
+
+        .timeline-item {
+            background: var(--koko-white);
+            border-left: 8px solid var(--koko-black);
+            padding: 16px 24px;
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            opacity: 0;
+            animation: fadeInUp 0.5s ease-out forwards;
+        }
+
+        .timeline-item:nth-child(1) { animation-delay: 0.5s; }
+        .timeline-item:nth-child(2) { animation-delay: 0.6s; }
+        .timeline-item:nth-child(3) { animation-delay: 0.7s; }
+        .timeline-item:nth-child(4) { animation-delay: 0.8s; }
+        .timeline-item:nth-child(5) { animation-delay: 0.9s; }
+
+        .timeline-item-yellow {
+            border-left-color: var(--koko-yellow);
+        }
+
+        .timeline-item-pink {
+            background: var(--koko-pink);
+            color: var(--koko-white);
+            border-left-color: var(--koko-black);
+        }
+
+        .timeline-item-content {
+            flex: 1;
+        }
+
+        .timeline-title {
+            font-family: 'Alternate Gothic', sans-serif;
+            font-size: clamp(20px, 2.5vw, 28px);
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .timeline-content {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(14px, 1.8vw, 18px);
+            line-height: 1.4;
+        }
+
+        .timeline-icon {
+            font-size: clamp(32px, 4vw, 48px);
+            margin-left: 24px;
+        }
+
+        /* ========================================
+           DATA LIST PATTERN
+           Lista horizontal de dados/métricas
+           Uso: Métricas consolidadas, resumos numéricos
+
+           Estrutura HTML:
+           <div class="data-list">
+               <div class="data-item">
+                   <span class="data-label">Total Spend</span>
+                   <span class="data-value">$1,016</span>
+               </div>
+           </div>
+           ======================================== */
+        .data-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: clamp(20px, 3vw, 30px);
+            margin-top: clamp(30px, 5vh, 50px);
+        }
+
+        .data-item {
+            text-align: center;
+            opacity: 0;
+            animation: fadeInUp 0.5s ease-out forwards;
+        }
+
+        .data-item:nth-child(1) { animation-delay: 0.5s; }
+        .data-item:nth-child(2) { animation-delay: 0.6s; }
+        .data-item:nth-child(3) { animation-delay: 0.7s; }
+        .data-item:nth-child(4) { animation-delay: 0.8s; }
+
+        .data-label {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(16px, 2vw, 20px);
+            display: block;
+            margin-bottom: 12px;
+            color: rgba(0, 0, 0, 0.7);
+        }
+
+        .data-value {
+            font-family: 'Alternate Gothic', sans-serif;
+            font-size: clamp(36px, 5vw, 56px);
+            font-weight: 900;
+            display: block;
+            line-height: 1;
+        }
+
+        /* ========================================
+           CONCLUSION SLIDE PATTERN
+           Slide de conclusão com statement grande
+           Uso: Conclusões, mensagens-chave, CTAs
+
+           Estrutura HTML:
+           <div class="slide conclusion-slide">
+               <div class="slide-content">
+                   <h2 class="conclusion-title">MENSAGEM<br>PRINCIPAL ✅</h2>
+                   <div class="conclusion-box corner-cut">
+                       <p class="conclusion-text">Texto...</p>
+                   </div>
+               </div>
+           </div>
+           ======================================== */
+        .conclusion-slide .slide-content {
+            text-align: center;
+        }
+
+        .conclusion-title {
+            font-family: 'Alternate Gothic', sans-serif;
+            font-size: clamp(60px, 10vw, 100px);
+            font-weight: 900;
+            line-height: 0.95;
+            color: var(--koko-pink);
+            margin-bottom: clamp(40px, 6vh, 60px);
+            text-transform: uppercase;
+        }
+
+        .conclusion-box {
+            background: var(--koko-yellow);
+            border: 4px solid var(--koko-black);
+            padding: clamp(32px, 5vw, 48px);
+            position: relative;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .conclusion-text {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(18px, 2.5vw, 24px);
+            line-height: 1.6;
+        }
+
+        /* ========================================
+           TWO COLUMN LAYOUT PATTERN
+           Layout de duas colunas
+           Uso: Comparações, antes/depois
+
+           Estrutura HTML:
+           <div class="two-column-layout">
+               <div class="column">
+                   <h3 class="column-title">COLUNA 1</h3>
+                   <p class="column-content">...</p>
+               </div>
+               <div class="column">
+                   <h3 class="column-title">COLUNA 2</h3>
+                   <p class="column-content">...</p>
+               </div>
+           </div>
+           ======================================== */
+        .two-column-layout {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: clamp(30px, 5vw, 60px);
+            margin-top: clamp(30px, 5vh, 50px);
+        }
+
+        .column {
+            opacity: 0;
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        .column:nth-child(1) { animation-delay: 0.5s; }
+        .column:nth-child(2) { animation-delay: 0.7s; }
+
+        .column-title {
+            font-family: 'Alternate Gothic', sans-serif;
+            font-size: clamp(24px, 3vw, 32px);
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+
+        .column-content {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(16px, 2vw, 20px);
+            line-height: 1.6;
+        }
+
+        /* ========================================
+           LIST PATTERN
+           Lista simples com bullets
+           Uso: Listas de itens, checklists, features
+
+           Estrutura HTML:
+           <ul class="koko-list">
+               <li>Item 1</li>
+               <li>Item 2</li>
+           </ul>
+           ======================================== */
+        .koko-list {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(16px, 2vw, 20px);
+            line-height: 1.8;
+            list-style: none;
+            padding-left: 0;
+            max-width: 800px;
+            margin: clamp(30px, 5vh, 50px) auto;
+        }
+
+        .koko-list li {
+            padding-left: 32px;
+            position: relative;
+            margin-bottom: 16px;
+            opacity: 0;
+            animation: fadeInUp 0.5s ease-out forwards;
+        }
+
+        .koko-list li:nth-child(1) { animation-delay: 0.5s; }
+        .koko-list li:nth-child(2) { animation-delay: 0.6s; }
+        .koko-list li:nth-child(3) { animation-delay: 0.7s; }
+        .koko-list li:nth-child(4) { animation-delay: 0.8s; }
+
+        .koko-list li::before {
             content: '•';
-            color: var(--koko-yellow);
-            font-size: 1.5rem;
             position: absolute;
             left: 0;
-        }
-
-        /* ========================================
-           PUNK COLLAGE ELEMENTS
-        ======================================== */
-        .collage {
-            position: relative;
-            min-height: 500px;
-        }
-
-        .collage__heart {
-            position: absolute;
-            font-size: 120px;
-            filter: drop-shadow(0 4px 10px rgba(242, 197, 65, 0.6))
-                    grayscale(100%)
-                    brightness(0)
-                    saturate(100%)
-                    invert(84%)
-                    sepia(50%)
-                    saturate(500%)
-                    hue-rotate(360deg);
-            animation: pulse 2s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-
-        .collage__triangles {
-            position: absolute;
-            display: flex;
-            gap: var(--spacing-xs);
-        }
-
-        .triangle {
-            width: 0;
-            height: 0;
-            border-left: 30px solid transparent;
-            border-right: 30px solid transparent;
-            border-bottom: 50px solid var(--koko-pink);
-            transform: rotate(var(--rotation, 0deg));
-        }
-
-        .collage__halftone-frame {
-            position: absolute;
-            width: 400px;
-            height: 300px;
-            border: 10px solid var(--koko-white);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-        }
-
-        /* ========================================
-           RESPONSIVE ADJUSTMENTS
-        ======================================== */
-        @media (max-width: 1024px) {
-            .slide {
-                padding: 60px 40px;
-            }
-
-            .grid--2-col,
-            .grid--3-col,
-            .two-col {
-                grid-template-columns: 1fr;
-            }
-
-            .logo {
-                left: 20px;
-                top: 50px;
-            }
-
-            h1 {
-                font-size: clamp(3rem, 8vw, 6rem);
-            }
-        }
-
-        @media (max-width: 768px) {
-            .scrolling-text {
-                font-size: 12px;
-                height: 30px;
-            }
-
-            .slide {
-                padding: 50px 20px;
-            }
-
-            .burst {
-                width: 300px;
-                height: 300px;
-            }
-
-            .burst__content {
-                width: 180px;
-                height: 180px;
-            }
-
-            .timeline {
-                flex-direction: column;
-            }
-
-            .timeline__arrow {
-                transform: rotate(90deg);
-            }
+            font-size: 28px;
+            line-height: 1;
+            color: var(--koko-yellow);
         }
 
         /* ========================================
            UTILITY CLASSES
-        ======================================== */
-        .grayscale {
-            filter: grayscale(100%) contrast(1.2);
+           Classes auxiliares para uso geral
+           ======================================== */
+        .text-center { text-align: center; }
+        .text-left { text-align: left; }
+        .text-yellow { color: var(--koko-yellow); }
+        .text-pink { color: var(--koko-pink); }
+        .bg-yellow { background: var(--koko-yellow); }
+        .bg-pink { background: var(--koko-pink); color: var(--koko-white); }
+        .bg-black { background: var(--koko-black); color: var(--koko-white); }
+        .mt-small { margin-top: clamp(20px, 3vh, 30px); }
+        .mt-medium { margin-top: clamp(30px, 5vh, 50px); }
+        .mt-large { margin-top: clamp(50px, 8vh, 80px); }
+
+        /* ========================================
+           RESPONSIVE ADJUSTMENTS
+           ======================================== */
+        @media (max-width: 768px) {
+            .two-column-layout { grid-template-columns: 1fr; gap: 30px; }
+            .cards-grid { grid-template-columns: 1fr; }
+            .gorilla-hand { width: 60vw; }
+            .logo-container { top: 56px; left: 20px; }
+            .logo-container img { height: 36px; }
         }
-
-        .text-center {
-            text-align: center;
-        }
-
-        .mb-sm { margin-bottom: var(--spacing-sm); }
-        .mb-md { margin-bottom: var(--spacing-md); }
-        .mb-lg { margin-bottom: var(--spacing-lg); }
-
-        .mt-sm { margin-top: var(--spacing-sm); }
-        .mt-md { margin-top: var(--spacing-md); }
-        .mt-lg { margin-top: var(--spacing-lg); }
     </style>
 </head>
 <body>
-    <!-- ========================================
-         SCROLLING TEXT HEADER
-    ======================================== -->
-    <div class="scrolling-text scrolling-text--header">
-        <div class="scrolling-text__content">
-            A AGÊNCIA MAIS QUERIDA DO BRASIL • AGÊNCIA KOKO • A AGÊNCIA MAIS QUERIDA DO BRASIL • AGÊNCIA KOKO • A AGÊNCIA MAIS QUERIDA DO BRASIL • AGÊNCIA KOKO • A AGÊNCIA MAIS QUERIDA DO BRASIL • AGÊNCIA KOKO •
+    <!-- Header Marquee -->
+    <div class="marquee-container top">
+        <div class="marquee-content">
+            <span class="marquee-text">{{PROJECT_NAME}} • {{CLIENT_NAME}}</span>
+            <span class="marquee-text">AGÊNCIA KOKO</span>
+            <span class="marquee-text">{{PROJECT_NAME}} • {{CLIENT_NAME}}</span>
+            <span class="marquee-text">AGÊNCIA KOKO</span>
+            <span class="marquee-text">{{PROJECT_NAME}} • {{CLIENT_NAME}}</span>
+            <span class="marquee-text">AGÊNCIA KOKO</span>
         </div>
     </div>
 
-    <!-- ========================================
-         LOGO
-    ======================================== -->
-    <div class="logo">
-        <div class="logo__agency">agência</div>
-        <div class="logo__name">KOKO</div>
+    <!-- Logo Koko -->
+    <div class="logo-container">
+        <img src="https://hub.jumper.studio/decks/identities/koko/logos/Logo_Preferencial_Koko_Preto.png" alt="Agência Koko">
     </div>
 
-    <!-- ========================================
-         SLIDE 1: COVER (GORILLA)
-    ======================================== -->
-    <section class="slide" id="slide-1">
-        <div class="slide__content text-center">
-            <h1>{{title}}</h1>
-            <p class="text-italic" style="font-size: 1.5rem;">{{subtitle}}</p>
-        </div>
-    </section>
+    <!-- Presentation Container -->
+    <div class="presentation">
 
-    <!-- ========================================
-         SLIDE 2: TEXT + 2 VERTICAL CARDS
-    ======================================== -->
-    <section class="slide" id="slide-2">
-        <div class="slide__content">
-            <h2 class="mb-md">{{section_title}}</h2>
-            <p class="text-italic mb-lg">{{section_description}}</p>
+        <!-- EXEMPLO: HERO SLIDE -->
+        <div class="slide hero-slide">
+            <div class="hero-background" style="background-image: url('https://hub.jumper.studio/decks/identities/koko/elements/hero-background.png');"></div>
 
-            <div class="grid grid--2-col">
-                <div class="card card--with-curl">
-                    <div class="card__header">TEXTO</div>
-                    <img src="https://via.placeholder.com/400x300/000000/FFFFFF?text=Imagem+1" alt="Card 1" class="card__image">
-                    <h3 class="card__title">Card 1</h3>
-                    <p class="card__text">{{card_1_content}}</p>
-                </div>
+            <img class="gorilla-hand left"
+                 src="https://hub.jumper.studio/decks/identities/koko/elements/gorilla-hand-left.png"
+                 style="transform: rotate(0deg);" />
 
-                <div class="card card--with-curl">
-                    <div class="card__header">TEXTO</div>
-                    <img src="https://via.placeholder.com/400x300/000000/FFFFFF?text=Imagem+2" alt="Card 2" class="card__image">
-                    <h3 class="card__title">Card 2</h3>
-                    <p class="card__text">{{card_2_content}}</p>
-                </div>
+            <img class="gorilla-hand right"
+                 src="https://hub.jumper.studio/decks/identities/koko/elements/gorilla-hand-right.png"
+                 style="transform: rotate(0deg);" />
+
+            <div class="hero-content">
+                <h1>TÍTULO DO<br>PROJETO</h1>
+                <p class="hero-subtitle">Subtítulo ou Nome do Cliente</p>
+                <p class="hero-meta">Período: Data inicial - Data final • Descrição do projeto</p>
             </div>
         </div>
-    </section>
 
-    <!-- ========================================
-         SLIDE 3: TEXT + 3 CARD GRID
-    ======================================== -->
-    <section class="slide" id="slide-3">
-        <div class="slide__content">
-            <h2 class="mb-md">{{section_title}}</h2>
-            <p class="text-italic mb-lg">{{section_description}}</p>
+        <!-- EXEMPLO: CONTENT SLIDE com Cards -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2 class="slide-title">TÍTULO DO SLIDE</h2>
+                <p class="slide-subtitle">Subtítulo opcional</p>
 
-            <div class="grid grid--3-col">
-                <div class="card card--with-curl">
-                    <img src="https://via.placeholder.com/300x200/000000/FFFFFF?text=Imagem+1" alt="Card 1" class="card__image">
-                    <h3 class="card__title">Item 1</h3>
-                    <p class="card__text">{{card_1_content}}</p>
-                </div>
+                <div class="cards-grid">
+                    <div class="card card-default corner-cut">
+                        <h3 class="card-title">ITEM 1</h3>
+                        <p class="card-content">Descrição do item...</p>
+                    </div>
 
-                <div class="card card--with-curl">
-                    <img src="https://via.placeholder.com/300x200/000000/FFFFFF?text=Imagem+2" alt="Card 2" class="card__image">
-                    <h3 class="card__title">Item 2</h3>
-                    <p class="card__text">{{card_2_content}}</p>
-                </div>
+                    <div class="card card-highlight-yellow corner-cut">
+                        <h3 class="card-title">DESTAQUE</h3>
+                        <div class="card-metric">$1,234</div>
+                        <p class="card-content">Descrição...</p>
+                    </div>
 
-                <div class="card card--with-curl">
-                    <img src="https://via.placeholder.com/300x200/000000/FFFFFF?text=Imagem+3" alt="Card 3" class="card__image">
-                    <h3 class="card__title">Item 3</h3>
-                    <p class="card__text">{{card_3_content}}</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ========================================
-         SLIDE 4: TEXT + LARGE PHOTO
-    ======================================== -->
-    <section class="slide" id="slide-4">
-        <div class="slide__content">
-            <div class="two-col">
-                <div>
-                    <img src="https://via.placeholder.com/600x400/000000/FFFFFF?text=Gorila" alt="Gorila" class="grayscale" style="width: 100%; border-radius: 4px;">
-                </div>
-                <div>
-                    <h2 class="mb-md">{{section_title}}</h2>
-                    <p class="mb-md">{{paragraph_1}}</p>
-                    <p>{{paragraph_2}}</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ========================================
-         SLIDE 5: CATEGORIZED LIST (FUNNEL)
-    ======================================== -->
-    <section class="slide" id="slide-5">
-        <div class="slide__content">
-            <h2 class="mb-lg">{{section_title}}</h2>
-
-            <div class="category-list">
-                <div class="category">
-                    <h3 class="category__title">DESCOBERTA</h3>
-                    <ul class="category__items">
-                        <li>{{discovery_item_1}}</li>
-                        <li>{{discovery_item_2}}</li>
-                        <li>{{discovery_item_3}}</li>
-                    </ul>
-                </div>
-
-                <div class="category">
-                    <h3 class="category__title">NUTRIÇÃO</h3>
-                    <ul class="category__items">
-                        <li>{{nutrition_item_1}}</li>
-                        <li>{{nutrition_item_2}}</li>
-                        <li>{{nutrition_item_3}}</li>
-                    </ul>
-                </div>
-
-                <div class="category">
-                    <h3 class="category__title">CONVERSÃO</h3>
-                    <ul class="category__items">
-                        <li>{{conversion_item_1}}</li>
-                        <li>{{conversion_item_2}}</li>
-                        <li>{{conversion_item_3}}</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ========================================
-         SLIDE 6: GRID 3x3 CARDS
-    ======================================== -->
-    <section class="slide" id="slide-6">
-        <div class="slide__content">
-            <h2 class="mb-md">{{section_title}}</h2>
-            <p class="text-italic mb-lg">{{section_description}}</p>
-
-            <div class="card card--with-curl mb-md" style="background: var(--koko-black); color: var(--koko-white); padding: var(--spacing-sm); text-align: center;">
-                <span class="heading" style="font-size: 1.2rem;">TEXTO TEXTO TEXTO TEXTO TEXTO</span>
-            </div>
-
-            <div class="grid grid--9-cards">
-                <div class="card card--with-curl">
-                    <img src="https://via.placeholder.com/200x150/000000/FFFFFF?text=1" alt="Item 1" class="card__image">
-                </div>
-                <div class="card card--with-curl">
-                    <img src="https://via.placeholder.com/200x150/000000/FFFFFF?text=2" alt="Item 2" class="card__image">
-                </div>
-                <div class="card card--with-curl">
-                    <img src="https://via.placeholder.com/200x150/000000/FFFFFF?text=3" alt="Item 3" class="card__image">
-                </div>
-                <div class="card card--with-curl">
-                    <img src="https://via.placeholder.com/200x150/000000/FFFFFF?text=4" alt="Item 4" class="card__image">
-                </div>
-                <div class="card card--with-curl">
-                    <img src="https://via.placeholder.com/200x150/000000/FFFFFF?text=5" alt="Item 5" class="card__image">
-                </div>
-                <div class="card card--with-curl">
-                    <img src="https://via.placeholder.com/200x150/000000/FFFFFF?text=6" alt="Item 6" class="card__image">
-                </div>
-                <div class="card card--with-curl">
-                    <img src="https://via.placeholder.com/200x150/000000/FFFFFF?text=7" alt="Item 7" class="card__image">
-                </div>
-                <div class="card card--with-curl">
-                    <img src="https://via.placeholder.com/200x150/000000/FFFFFF?text=8" alt="Item 8" class="card__image">
-                </div>
-                <div class="card card--with-curl">
-                    <img src="https://via.placeholder.com/200x150/000000/FFFFFF?text=9" alt="Item 9" class="card__image">
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ========================================
-         SLIDE 7: TIMELINE (5 STEPS)
-    ======================================== -->
-    <section class="slide" id="slide-7">
-        <div class="slide__content">
-            <h2 class="mb-lg">{{section_title}}</h2>
-
-            <div class="timeline mb-lg">
-                <div class="timeline__step">
-                    <div class="timeline__number">01</div>
-                    <p class="timeline__label">{{step_1_label}}</p>
-                </div>
-
-                <div class="timeline__arrow">➔</div>
-
-                <div class="timeline__step">
-                    <div class="timeline__number">02</div>
-                    <p class="timeline__label">{{step_2_label}}</p>
-                </div>
-
-                <div class="timeline__arrow">➔</div>
-
-                <div class="timeline__step">
-                    <div class="timeline__number">03</div>
-                    <p class="timeline__label">{{step_3_label}}</p>
-                </div>
-            </div>
-
-            <div class="timeline">
-                <div class="timeline__step">
-                    <div class="timeline__number">04</div>
-                    <p class="timeline__label">{{step_4_label}}</p>
-                </div>
-
-                <div class="timeline__arrow">➔</div>
-
-                <div class="timeline__step">
-                    <div class="timeline__number">05</div>
-                    <p class="timeline__label">{{step_5_label}}</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ========================================
-         SLIDE 8: PUNK COLLAGE (HEART)
-    ======================================== -->
-    <section class="slide" id="slide-8">
-        <div class="slide__content">
-            <h2 class="mb-lg">{{section_title}}</h2>
-
-            <div class="collage">
-                <!-- Yellow Heart -->
-                <div class="collage__heart" style="top: 10%; left: 60%;">❤️</div>
-
-                <!-- Triangles Cluster -->
-                <div class="collage__triangles" style="top: 20%; left: 10%;">
-                    <div class="triangle" style="--rotation: 0deg;"></div>
-                    <div class="triangle" style="--rotation: 45deg;"></div>
-                    <div class="triangle" style="--rotation: -30deg;"></div>
-                </div>
-
-                <!-- Halftone Frame -->
-                <div class="collage__halftone-frame halftone" style="top: 40%; left: 30%;">
-                    <img src="https://via.placeholder.com/400x300/000000/FFFFFF?text=Foto+P%26B" alt="Collage" class="grayscale" style="width: 100%; height: 100%; object-fit: cover;">
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ========================================
-         SLIDE 9: TEXT + HALFTONE GRAPHIC
-    ======================================== -->
-    <section class="slide" id="slide-9">
-        <div class="slide__content">
-            <div class="two-col two-col--40-60">
-                <div>
-                    <div class="halftone--pink" style="width: 300px; height: 300px; border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden;">
-                        <img src="https://via.placeholder.com/250x250/000000/FFFFFF?text=Boca" alt="Boca" class="grayscale" style="width: 100%; height: 100%; object-fit: cover;">
+                    <div class="card card-highlight-pink corner-cut">
+                        <h3 class="card-title">ESPECIAL</h3>
+                        <p class="card-content">Descrição...</p>
                     </div>
                 </div>
-                <div>
-                    <h2 class="mb-md">{{section_title}}</h2>
-                    <p class="mb-md">{{paragraph_1}}</p>
-                    <p class="mb-md">{{paragraph_2}}</p>
-                    <p>{{paragraph_3}}</p>
-                </div>
             </div>
         </div>
-    </section>
 
-    <!-- ========================================
-         SLIDE 10: TEXT + BURST PHOTO
-    ======================================== -->
-    <section class="slide" id="slide-10">
-        <div class="slide__content">
-            <div class="two-col two-col--60-40">
-                <div>
-                    <h2 class="mb-md">{{section_title}}</h2>
-                    <p class="mb-md">{{paragraph_1}}</p>
-                    <p>{{paragraph_2}}</p>
-                </div>
-                <div style="display: flex; justify-content: center;">
-                    <div class="burst">
-                        <div class="burst__shape"></div>
-                        <div class="burst__content">
-                            <img src="https://via.placeholder.com/250x250/000000/FFFFFF?text=Foto" alt="Burst" class="burst__image">
+        <!-- EXEMPLO: TIMELINE SLIDE -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2 class="slide-title">EVOLUÇÃO TEMPORAL</h2>
+                <p class="slide-subtitle">Progresso ao longo do tempo</p>
+
+                <div class="timeline-container">
+                    <div class="timeline-item timeline-item-default">
+                        <div class="timeline-item-content">
+                            <h3 class="timeline-title">FASE 1</h3>
+                            <p class="timeline-content">Descrição da fase...</p>
                         </div>
+                        <span class="timeline-icon">📊</span>
+                    </div>
+
+                    <div class="timeline-item timeline-item-yellow">
+                        <div class="timeline-item-content">
+                            <h3 class="timeline-title">FASE 2</h3>
+                            <p class="timeline-content">Descrição...</p>
+                        </div>
+                        <span class="timeline-icon">📈</span>
+                    </div>
+
+                    <div class="timeline-item timeline-item-pink">
+                        <div class="timeline-item-content">
+                            <h3 class="timeline-title">FASE 3</h3>
+                            <p class="timeline-content">Descrição...</p>
+                        </div>
+                        <span class="timeline-icon">🏆</span>
                     </div>
                 </div>
             </div>
         </div>
-    </section>
 
-    <!-- ========================================
-         SLIDE 11: CLOSING (THANK YOU)
-    ======================================== -->
-    <section class="slide" id="slide-11">
-        <div class="slide__content text-center">
-            <h1 class="text-yellow">OBRIGADO</h1>
-            <p style="font-size: 1.5rem; margin-top: var(--spacing-md);">
-                <strong>{{contact_name}}</strong><br>
-                {{contact_role}}<br>
-                <a href="mailto:{{contact_email}}" style="color: var(--koko-yellow); text-decoration: none;">{{contact_email}}</a>
-            </p>
+        <!-- EXEMPLO: DATA LIST SLIDE -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2 class="slide-title">MÉTRICAS</h2>
+                <p class="slide-subtitle">Resumo dos números</p>
 
-            <div style="margin-top: var(--spacing-lg); display: flex; align-items: center; justify-content: center; gap: var(--spacing-sm);">
-                <div class="logo">
-                    <div class="logo__agency">agência</div>
-                    <div class="logo__name">KOKO</div>
+                <div class="data-list">
+                    <div class="data-item">
+                        <span class="data-label">Métrica 1</span>
+                        <span class="data-value">1,234</span>
+                    </div>
+
+                    <div class="data-item">
+                        <span class="data-label">Métrica 2</span>
+                        <span class="data-value">$5,678</span>
+                    </div>
+
+                    <div class="data-item">
+                        <span class="data-label">Métrica 3</span>
+                        <span class="data-value">90%</span>
+                    </div>
                 </div>
-                <p style="font-size: 1.2rem;">www.agenciakoko.com.br</p>
             </div>
         </div>
-    </section>
 
-    <!-- ========================================
-         SCROLLING TEXT FOOTER
-    ======================================== -->
-    <div class="scrolling-text scrolling-text--footer">
-        <div class="scrolling-text__content">
-            AGÊNCIA KOKO • A AGÊNCIA MAIS QUERIDA DO BRASIL • AGÊNCIA KOKO • A AGÊNCIA MAIS QUERIDA DO BRASIL • AGÊNCIA KOKO • A AGÊNCIA MAIS QUERIDA DO BRASIL • AGÊNCIA KOKO • A AGÊNCIA MAIS QUERIDA DO BRASIL •
+        <!-- EXEMPLO: CONCLUSION SLIDE -->
+        <div class="slide conclusion-slide">
+            <div class="slide-content">
+                <h2 class="conclusion-title">MENSAGEM<br>PRINCIPAL ✅</h2>
+
+                <div class="conclusion-box corner-cut">
+                    <p class="conclusion-text">
+                        Texto de conclusão ou mensagem-chave. Pode incluir <strong>destaques em negrito</strong>
+                        e dados importantes.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Footer Marquee -->
+    <div class="marquee-container bottom">
+        <div class="marquee-content">
+            <span class="marquee-text">{{DATE_RANGE}} • {{PROJECT_DESCRIPTION}}</span>
+            <span class="marquee-text">CREATIVE AGENCY</span>
+            <span class="marquee-text">{{DATE_RANGE}} • {{PROJECT_DESCRIPTION}}</span>
+            <span class="marquee-text">CREATIVE AGENCY</span>
+            <span class="marquee-text">{{DATE_RANGE}} • {{PROJECT_DESCRIPTION}}</span>
+            <span class="marquee-text">CREATIVE AGENCY</span>
         </div>
     </div>
 </body>

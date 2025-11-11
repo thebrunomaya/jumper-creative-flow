@@ -7,10 +7,19 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.11';
+export const APP_VERSION = 'v2.1.12';
 
 /**
  * Version history:
+ * - v2.1.12 (2024-11-11):
+ *   - FEATURE: Koko Classic template system - modular slide patterns for AI generation
+ *   - FIX: jumper-flare.html gray background on cover/closing slides (added background: #000000)
+ *   - FIX: Edge Function deck generation now enforces absolute HTTPS URLs for all assets
+ *   - Added post-generation validation to detect relative paths and fail fast
+ *   - Documented asset URL requirements in design-system.md
+ *   - Root cause: Claude AI was generating relative paths (/decks/...) instead of absolute (https://...)
+ *   - Impact: Fonts, gradients, and logos now load correctly in all generated decks
+ *
  * - v2.1.11 (2024-11-05):
  *   - CLEANUP: Removed debug logs from SharedDeck.tsx and j_hub_deck_view_shared
  *   - Kept only essential logging (request summary in Edge Function)

@@ -241,13 +241,26 @@ CRITICAL INSTRUCTIONS:
    ${type === 'pitch' ? '- Pitches: Problem → Solution → Proof → Proposal → CTA (7-10 slides)' : ''}
 
 6. ASSET PATHS (CRITICAL - URLs MUST BE ABSOLUTE):
-   - ALL asset URLs MUST start with https://hub.jumper.studio/decks/identities/${brand_identity}/
-   - Fonts: https://hub.jumper.studio/decks/identities/${brand_identity}/fonts/[font-file]
-   - Backgrounds: https://hub.jumper.studio/decks/identities/${brand_identity}/gradients/[image-file]
-   - Logos: https://hub.jumper.studio/decks/identities/${brand_identity}/logos/[logo-file]
-   - Elements: https://hub.jumper.studio/decks/identities/${brand_identity}/elements/[element-file]
-   - NEVER use relative paths (no /decks/...) - HTML is served from different domain
-   - Refer to design system for correct file names and extensions
+   ⚠️ MANDATORY: ALL asset URLs MUST use full HTTPS URLs starting with https://hub.jumper.studio/
+
+   CORRECT EXAMPLES (COPY THESE EXACTLY):
+   ✅ src: url('https://hub.jumper.studio/decks/identities/${brand_identity}/fonts/HafferVF.ttf')
+   ✅ background-image: url('https://hub.jumper.studio/decks/identities/${brand_identity}/gradients/organic-01.png')
+   ✅ <img src="https://hub.jumper.studio/decks/identities/${brand_identity}/logos/jumper-white.png">
+
+   WRONG EXAMPLES (NEVER USE THESE):
+   ❌ url('/decks/...')  → WRONG - missing domain
+   ❌ url('../fonts/...')  → WRONG - relative path
+   ❌ url('fonts/...')  → WRONG - relative path
+
+   WHY THIS MATTERS:
+   - HTML is served from Supabase Storage domain (different from hub.jumper.studio)
+   - Relative paths resolve to wrong domain → 404 errors
+   - Fonts fail to load → fallback to system fonts (no Haffer)
+   - Gradients fail to load → empty divs (no visual impact)
+   - Logo fails to load → broken image
+
+   VALIDATION: Search your output for url(' and src=" and verify ALL start with https://
 
 7. QUALITY STANDARDS:
    - Every slide must be perfectly centered (flexbox + auto margins)
@@ -352,6 +365,34 @@ OUTPUT FORMAT: Complete standalone HTML file (no markdown fences, no explanation
     console.log('📏 [DECK_GENERATE] HTML length:', htmlOutput.length, 'chars');
     console.log('⏱️ [DECK_GENERATE] Latency:', latency, 'ms');
     console.log('🎫 [DECK_GENERATE] Tokens used:', (claudeData.usage?.input_tokens || 0) + (claudeData.usage?.output_tokens || 0));
+
+    // Validate: Check for relative paths in generated HTML
+    console.log('🔍 [DECK_GENERATE] Validating asset paths...');
+
+    const relativePathPatterns = [
+      /url\(['"]\/decks\//gi,           // url('/decks/...)
+      /url\(['"]\.\.?\//gi,              // url('../...) or url('./...)
+      /src=['"]\/decks\//gi,             // src="/decks/..."
+      /src=['"]\.\.?\//gi,               // src="../..." or src=".../..."
+    ];
+
+    let hasRelativePaths = false;
+    const relativePathExamples: string[] = [];
+
+    relativePathPatterns.forEach(pattern => {
+      const matches = htmlOutput.match(pattern);
+      if (matches) {
+        hasRelativePaths = true;
+        relativePathExamples.push(...matches.slice(0, 3)); // First 3 examples
+      }
+    });
+
+    if (hasRelativePaths) {
+      console.error('❌ [DECK_GENERATE] VALIDATION FAILED: Relative paths detected:', relativePathExamples);
+      throw new Error(`Generated HTML contains relative paths (must be absolute HTTPS URLs). Examples: ${relativePathExamples.join(', ')}`);
+    }
+
+    console.log('✅ [DECK_GENERATE] Validation passed: All paths are absolute');
 
     // 7. Upload HTML to Supabase Storage (decks/{user_id}/{deck_id}.html)
     const fileName = `${user.id}/${deckId}.html`;

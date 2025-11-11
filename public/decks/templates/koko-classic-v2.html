@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Ads Viability Test - Koko Classic v2</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style type="text/tailwindcss">
+        /* ========================================
+           KOKO CLASSIC V2 - FONT SYSTEM
+           Based on Lovable Implementation
+        ======================================== */
+
+        /* Playfair Display Font Family */
+        @font-face {
+            font-family: 'Playfair Display';
+            src: url('../identities/koko/fonts/PlayfairDisplay-Regular.ttf') format('truetype');
+            font-weight: 400;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: 'Playfair Display';
+            src: url('../identities/koko/fonts/PlayfairDisplay-Bold.ttf') format('truetype');
+            font-weight: 700;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        /* Alternate Gothic Condensed ATF Font Family */
+        @font-face {
+            font-family: 'Alternate Gothic';
+            src: url('../identities/koko/fonts/AlternateGothicCondATF-Book.otf') format('opentype');
+            font-weight: 400;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: 'Alternate Gothic';
+            src: url('../identities/koko/fonts/AlternateGothicCondATF-Bold.otf') format('opentype');
+            font-weight: 700;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: 'Alternate Gothic';
+            src: url('../identities/koko/fonts/AlternateGothicCondATF-Black.otf') format('opentype');
+            font-weight: 900;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        /* ========================================
+           DESIGN SYSTEM - HSL COLORS
+        ======================================== */
+        @layer base {
+            :root {
+                --background: 0 0% 100%;
+                --foreground: 0 0% 0%;
+
+                /* Koko Brand Colors */
+                --koko-yellow: 43 86% 60%;
+                --koko-black: 0 0% 0%;
+                --koko-white: 0 0% 100%;
+                --koko-gray: 180 1% 74%;
+                --koko-pink: 330 100% 50%;
+            }
+
+            body {
+                @apply bg-background text-foreground;
+                font-family: 'Alternate Gothic', -apple-system, BlinkMacSystemFont, sans-serif;
+            }
+        }
+
+        /* ========================================
+           MARQUEE ANIMATION
+        ======================================== */
+        @keyframes marquee {
+            0% {
+                transform: translateX(0);
+            }
+            100% {
+                transform: translateX(-50%);
+            }
+        }
+
+        .animate-marquee {
+            animation: marquee 30s linear infinite;
+        }
+
+        /* ========================================
+           SLIDE TRANSITIONS
+        ======================================== */
+        .slide {
+            transition: all 700ms ease-out;
+        }
+    </style>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'playfair': ['Playfair Display', 'serif'],
+                        'alternate': ['Alternate Gothic', 'sans-serif'],
+                        'sans': ['Alternate Gothic', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+                    },
+                    colors: {
+                        'koko': {
+                            yellow: 'hsl(var(--koko-yellow))',
+                            black: 'hsl(var(--koko-black))',
+                            white: 'hsl(var(--koko-white))',
+                            gray: 'hsl(var(--koko-gray))',
+                            pink: 'hsl(var(--koko-pink))',
+                        },
+                        background: 'hsl(var(--background))',
+                        foreground: 'hsl(var(--foreground))',
+                    },
+                }
+            }
+        }
+    </script>
+</head>
+<body class="overflow-hidden">
+    <!-- Container Principal -->
+    <div class="relative w-screen h-screen overflow-hidden bg-white">
+
+        <!-- Top Marquee -->
+        <div class="absolute top-0 left-0 right-0 h-12 bg-black overflow-hidden z-30">
+            <div class="animate-marquee whitespace-nowrap flex items-center h-full">
+                <span class="text-white text-xs font-medium mx-16 font-alternate">GOOGLE ADS VIABILITY TEST • A TU LADO LATAM MARKETS</span>
+                <span class="text-white text-xs font-medium mx-16 font-alternate">PREPARED BY JUMPER STUDIO</span>
+                <span class="text-white text-xs font-medium mx-16 font-alternate">GOOGLE ADS VIABILITY TEST • A TU LADO LATAM MARKETS</span>
+                <span class="text-white text-xs font-medium mx-16 font-alternate">PREPARED BY JUMPER STUDIO</span>
+                <span class="text-white text-xs font-medium mx-16 font-alternate">GOOGLE ADS VIABILITY TEST • A TU LADO LATAM MARKETS</span>
+                <span class="text-white text-xs font-medium mx-16 font-alternate">PREPARED BY JUMPER STUDIO</span>
+                <span class="text-white text-xs font-medium mx-16 font-alternate">GOOGLE ADS VIABILITY TEST • A TU LADO LATAM MARKETS</span>
+                <span class="text-white text-xs font-medium mx-16 font-alternate">PREPARED BY JUMPER STUDIO</span>
+                <span class="text-white text-xs font-medium mx-16 font-alternate">GOOGLE ADS VIABILITY TEST • A TU LADO LATAM MARKETS</span>
+                <span class="text-white text-xs font-medium mx-16 font-alternate">PREPARED BY JUMPER STUDIO</span>
+            </div>
+        </div>
+
+        <!-- Logo Koko -->
+        <div class="absolute top-16 left-8 z-20">
+            <img src="../identities/koko/logos/Logo_Preferencial_Koko_Preto.png" alt="Logo Koko" class="h-12 mix-blend-multiply">
+        </div>
+
+        <!-- Slides Container -->
+        <div class="relative w-full h-full pt-12" id="slides-container">
+
+            <!-- SLIDE 1: HERO -->
+            <div class="slide absolute inset-0 opacity-100 translate-x-0" data-slide="1">
+                <div class="w-full h-full flex items-center justify-center relative">
+                    <!-- Background Pattern -->
+                    <div class="absolute inset-0 pointer-events-none" style="
+                        background-image: url('../identities/koko/elements/hero-background.png');
+                        background-repeat: no-repeat;
+                        background-size: cover;
+                        background-position: center;
+                    "></div>
+
+                    <!-- Gorilla Hands - Diagonal Composition -->
+                    <img src="../identities/koko/elements/gorilla-hand-left.png"
+                         alt=""
+                         class="absolute w-[43vw] max-w-[540px] pointer-events-none z-10"
+                         style="left: -5%; top: -5%; transform: rotate(0deg);">
+
+                    <img src="../identities/koko/elements/gorilla-hand-right.png"
+                         alt=""
+                         class="absolute w-[43vw] max-w-[540px] pointer-events-none z-10"
+                         style="right: -5%; bottom: -5%; transform: rotate(0deg);">
+
+                    <!-- Main Title - Centered -->
+                    <div class="absolute inset-0 flex flex-col items-center justify-center z-20">
+                        <h1 class="text-[120px] leading-none font-black font-alternate text-center">
+                            GOOGLE ADS<br>VIABILITY TEST
+                        </h1>
+                    </div>
+
+                    <!-- Bottom Left Metadata -->
+                    <div class="absolute bottom-24 left-8 text-left z-20 max-w-2xl">
+                        <p class="font-playfair text-3xl mb-2 font-bold">A Tu Lado - LATAM Markets</p>
+                        <p class="font-playfair font-light text-base">Test Period: September 22 - October 30, 2024 • 5-Week Pilot Program</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 2: EXECUTIVE SUMMARY -->
+            <div class="slide absolute inset-0 opacity-0 translate-x-full" data-slide="2">
+                <div class="w-full max-w-7xl mx-auto relative px-8 pt-24">
+                    <div class="mb-12 relative z-10">
+                        <h2 class="text-7xl font-black mb-4 font-alternate">EXECUTIVE SUMMARY</h2>
+                        <p class="text-2xl font-playfair italic text-black/80">KEY ACHIEVEMENTS</p>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-6 relative z-10">
+                        <!-- Card 1 -->
+                        <div class="bg-black text-white p-6 relative">
+                            <h3 class="text-xl font-bold mb-4 font-alternate">INVESTMENT</h3>
+                            <div class="text-4xl font-bold mb-2 font-alternate">$1,016</div>
+                            <div class="text-sm leading-relaxed font-playfair">Total ad spend across 5 weeks</div>
+                            <div class="absolute bottom-0 right-0 w-8 h-8 bg-white transform rotate-45 translate-x-4 translate-y-4"></div>
+                        </div>
+
+                        <!-- Card 2 - HIGHLIGHTED -->
+                        <div class="bg-koko-yellow text-black border-4 border-black p-6 relative">
+                            <h3 class="text-xl font-bold mb-4 font-alternate">KEY ACHIEVEMENTS</h3>
+                            <div class="text-sm leading-relaxed whitespace-pre-line font-playfair">
+✅ 79% cost reduction
+✅ 10x volume growth
+✅ $0.69 avg CPA
+                            </div>
+                            <div class="absolute bottom-0 right-0 w-8 h-8 bg-black transform rotate-45 translate-x-4 translate-y-4"></div>
+                        </div>
+
+                        <!-- Card 3 -->
+                        <div class="bg-koko-pink text-white p-6 relative">
+                            <h3 class="text-xl font-bold mb-4 font-alternate">WINNING FORMULA</h3>
+                            <div class="text-sm leading-relaxed font-playfair">Display EVC + Quiz CTA = Optimal Performance</div>
+                            <div class="absolute bottom-0 right-0 w-8 h-8 bg-black transform rotate-45 translate-x-4 translate-y-4"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 3: TEST STRUCTURE -->
+            <div class="slide absolute inset-0 opacity-0 translate-x-full" data-slide="3">
+                <div class="w-full max-w-7xl mx-auto relative px-8 pt-24">
+                    <div class="mb-12 relative z-10">
+                        <h2 class="text-7xl font-black mb-4 font-alternate">TEST STRUCTURE</h2>
+                        <p class="text-2xl font-playfair italic text-black/80">5-WEEK PILOT FRAMEWORK</p>
+                    </div>
+
+                    <div class="grid grid-cols-4 gap-4 relative z-10">
+                        <div class="bg-white border-2 border-black p-6 relative">
+                            <h3 class="text-xl font-bold mb-4 font-alternate">DURATION</h3>
+                            <div class="text-4xl font-bold mb-2 font-alternate">35 days</div>
+                            <div class="text-sm font-playfair">Sept 22 - Oct 30, 2024</div>
+                            <div class="absolute bottom-0 right-0 w-8 h-8 bg-black transform rotate-45 translate-x-4 translate-y-4"></div>
+                        </div>
+
+                        <div class="bg-white border-2 border-black p-6 relative">
+                            <h3 class="text-xl font-bold mb-4 font-alternate">MARKETS</h3>
+                            <div class="text-4xl font-bold mb-2 font-alternate">6</div>
+                            <div class="text-sm font-playfair">LATAM countries</div>
+                            <div class="absolute bottom-0 right-0 w-8 h-8 bg-black transform rotate-45 translate-x-4 translate-y-4"></div>
+                        </div>
+
+                        <div class="bg-white border-2 border-black p-6 relative">
+                            <h3 class="text-xl font-bold mb-4 font-alternate">CAMPAIGNS</h3>
+                            <div class="text-4xl font-bold mb-2 font-alternate">16</div>
+                            <div class="text-sm font-playfair">Display + Search</div>
+                            <div class="absolute bottom-0 right-0 w-8 h-8 bg-black transform rotate-45 translate-x-4 translate-y-4"></div>
+                        </div>
+
+                        <div class="bg-white border-2 border-black p-6 relative">
+                            <h3 class="text-xl font-bold mb-4 font-alternate">OBJECTIVES</h3>
+                            <div class="text-4xl font-bold mb-2 font-alternate">2</div>
+                            <div class="text-sm font-playfair">EVC + EH testing</div>
+                            <div class="absolute bottom-0 right-0 w-8 h-8 bg-black transform rotate-45 translate-x-4 translate-y-4"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 4: WEEKLY EVOLUTION -->
+            <div class="slide absolute inset-0 opacity-0 translate-x-full" data-slide="4">
+                <div class="w-full max-w-7xl mx-auto relative px-8 pt-24">
+                    <div class="mb-8 relative z-10">
+                        <h2 class="text-6xl font-black mb-4 font-alternate">WEEKLY EVOLUTION</h2>
+                        <p class="text-xl font-playfair italic text-black/80">COST PER CONVERSION TRAJECTORY</p>
+                    </div>
+
+                    <div class="space-y-4 relative z-10">
+                        <div class="bg-white border-l-8 border-black p-4">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h3 class="text-2xl font-bold mb-2 font-alternate">WEEK 1 (Sep 22-28)</h3>
+                                    <p class="font-playfair">Learning phase • 74 conversions • $2.03 CPA</p>
+                                </div>
+                                <span class="text-4xl">📊</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-white border-l-8 border-koko-yellow p-4">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h3 class="text-2xl font-bold mb-2 font-alternate">WEEK 2 (Sep 29 - Oct 5)</h3>
+                                    <p class="font-playfair">Optimization begins • 180 conversions • $1.23 CPA</p>
+                                </div>
+                                <span class="text-4xl">📈</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-white border-l-8 border-koko-yellow p-4">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h3 class="text-2xl font-bold mb-2 font-alternate">WEEK 3 (Oct 6-12)</h3>
+                                    <p class="font-playfair">Acceleration • 323 conversions • $0.65 CPA</p>
+                                </div>
+                                <span class="text-4xl">🚀</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-koko-pink text-white border-l-8 border-black p-4">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h3 class="text-2xl font-bold mb-2 font-alternate">WEEK 4 (Oct 13-19)</h3>
+                                    <p class="font-playfair">Pause underperformers • 750 conversions • $0.42 CPA (BEST)</p>
+                                </div>
+                                <span class="text-4xl">🏆</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-white border-l-8 border-koko-yellow p-4">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h3 class="text-2xl font-bold mb-2 font-alternate">WEEK 5 (Oct 20-30)</h3>
+                                    <p class="font-playfair">Consolidation • 150 conversions • $0.56 CPA</p>
+                                </div>
+                                <span class="text-4xl">✅</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 5: THE WINNING FORMULA -->
+            <div class="slide absolute inset-0 opacity-0 translate-x-full" data-slide="5">
+                <div class="w-full max-w-7xl mx-auto relative px-6 pt-24">
+                    <div class="mb-6 relative z-10">
+                        <h2 class="text-6xl font-black mb-4 font-alternate">THE WINNING FORMULA</h2>
+                        <p class="text-xl font-playfair italic text-black/80">PERFORMANCE HIERARCHY</p>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 mb-4 relative z-10">
+                        <!-- Left Column -->
+                        <div class="space-y-4">
+                            <!-- Winner Card -->
+                            <div class="bg-koko-yellow border-4 border-black p-4 relative">
+                                <h3 class="text-xl font-bold mb-3 font-alternate">🥇 DISPLAY EVC (WINNER)</h3>
+                                <div class="text-sm leading-tight whitespace-pre-line font-playfair">
+• Cost/Conversion: $0.35
+• Volume Share: 56% (826 conversions)
+• CPC: $0.02 (ultra-low)
+                                </div>
+                                <div class="absolute bottom-0 right-0 w-8 h-8 bg-black transform rotate-45 translate-x-4 translate-y-4"></div>
+                            </div>
+
+                            <!-- Strong Card -->
+                            <div class="border-2 border-black bg-white p-4 relative">
+                                <h3 class="text-xl font-bold mb-3 font-alternate">🥈 SEARCH EVC (STRONG)</h3>
+                                <div class="text-sm leading-tight whitespace-pre-line font-playfair">
+• Cost/Conversion: $0.50
+• Volume Share: 44% (651 conversions)
+• Conv Rate: 14.91% (high intent)
+                                </div>
+                                <div class="absolute bottom-0 right-0 w-8 h-8 bg-black transform rotate-45 translate-x-4 translate-y-4"></div>
+                            </div>
+                        </div>
+
+                        <!-- Right Column -->
+                        <div class="space-y-4">
+                            <!-- Failed Card -->
+                            <div class="border-2 border-black bg-white p-4 relative">
+                                <h3 class="text-xl font-bold mb-3 font-alternate">❌ EH CAMPAIGNS (FAILED)</h3>
+                                <div class="text-sm leading-tight whitespace-pre-line font-playfair">
+• Cost/Conversion: $7.47
+• 8.6x worse than account average
+• Paused Week 4
+                                </div>
+                                <div class="absolute bottom-0 right-0 w-8 h-8 bg-black transform rotate-45 translate-x-4 translate-y-4"></div>
+                            </div>
+
+                            <!-- Key Insight Box -->
+                            <div class="p-4 bg-black text-white">
+                                <p class="font-playfair text-base">KEY INSIGHT: Quiz CTA outperformed direct action 8.2:1</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 6: GEOGRAPHIC PERFORMANCE -->
+            <div class="slide absolute inset-0 opacity-0 translate-x-full" data-slide="6">
+                <div class="w-full max-w-7xl mx-auto relative px-8 pt-24">
+                    <div class="mb-8 relative z-10">
+                        <h2 class="text-6xl font-black mb-4 font-alternate">GEOGRAPHIC PERFORMANCE</h2>
+                        <p class="text-xl font-playfair italic text-black/80">6 LATAM MARKETS TESTED</p>
+                    </div>
+
+                    <div class="space-y-4 relative z-10">
+                        <div class="bg-koko-yellow border-2 border-black p-4 relative">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h3 class="text-2xl font-bold font-alternate">MEXICO 🇲🇽</h3>
+                                    <p class="font-playfair">412 conversions • $0.58 CPA • Best volume</p>
+                                </div>
+                                <span class="text-5xl">🏆</span>
+                            </div>
+                            <div class="absolute bottom-0 right-0 w-8 h-8 bg-black transform rotate-45 translate-x-4 translate-y-4"></div>
+                        </div>
+
+                        <div class="bg-white border-2 border-black p-4 relative">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h3 class="text-2xl font-bold font-alternate">COLOMBIA 🇨🇴</h3>
+                                    <p class="font-playfair">298 conversions • $0.62 CPA • Strong efficiency</p>
+                                </div>
+                                <span class="text-5xl">🥈</span>
+                            </div>
+                            <div class="absolute bottom-0 right-0 w-8 h-8 bg-black transform rotate-45 translate-x-4 translate-y-4"></div>
+                        </div>
+
+                        <div class="bg-white border-2 border-black p-4 relative">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h3 class="text-2xl font-bold font-alternate">ARGENTINA 🇦🇷</h3>
+                                    <p class="font-playfair">224 conversions • $0.71 CPA • Solid performer</p>
+                                </div>
+                                <span class="text-5xl">🥉</span>
+                            </div>
+                            <div class="absolute bottom-0 right-0 w-8 h-8 bg-black transform rotate-45 translate-x-4 translate-y-4"></div>
+                        </div>
+
+                        <div class="bg-white border-2 border-black p-4 relative">
+                            <div>
+                                <h3 class="text-xl font-bold mb-2 font-alternate">CHILE 🇨🇱 + PERU 🇵🇪 + ECUADOR 🇪🇨</h3>
+                                <p class="font-playfair">Combined: 543 conversions • $0.75 avg CPA</p>
+                            </div>
+                            <div class="absolute bottom-0 right-0 w-8 h-8 bg-black transform rotate-45 translate-x-4 translate-y-4"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 7: DISPLAY VS SEARCH -->
+            <div class="slide absolute inset-0 opacity-0 translate-x-full" data-slide="7">
+                <div class="w-full max-w-7xl mx-auto relative px-6 pt-24">
+                    <div class="mb-6 relative z-10">
+                        <h2 class="text-7xl font-black mb-4 font-alternate">DISPLAY VS SEARCH</h2>
+                        <p class="text-xl font-playfair italic text-black/80">FORMAT COMPARISON</p>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-6 mb-6 relative z-10">
+                        <!-- Display Card -->
+                        <div class="bg-koko-pink text-white p-6 relative">
+                            <h3 class="text-2xl font-bold mb-6 font-alternate">DISPLAY CAMPAIGNS</h3>
+                            <div class="space-y-3">
+                                <div>
+                                    <p class="text-lg font-playfair">Avg CPC</p>
+                                    <p class="text-4xl font-bold font-alternate">$0.02</p>
+                                </div>
+                                <div>
+                                    <p class="text-lg font-playfair">Cost/Conversion</p>
+                                    <p class="text-4xl font-bold font-alternate">$0.62</p>
+                                </div>
+                                <div>
+                                    <p class="text-lg font-playfair">Volume Share</p>
+                                    <p class="text-4xl font-bold font-alternate">56%</p>
+                                </div>
+                            </div>
+                            <div class="absolute bottom-0 right-0 w-8 h-8 bg-black transform rotate-45 translate-x-4 translate-y-4"></div>
+                        </div>
+
+                        <!-- Search Card -->
+                        <div class="bg-white border-2 border-black p-6 relative">
+                            <h3 class="text-2xl font-bold mb-6 font-alternate">SEARCH CAMPAIGNS</h3>
+                            <div class="space-y-3">
+                                <div>
+                                    <p class="text-lg font-playfair">Avg CPC</p>
+                                    <p class="text-4xl font-bold font-alternate">$0.08</p>
+                                </div>
+                                <div>
+                                    <p class="text-lg font-playfair">Cost/Conversion</p>
+                                    <p class="text-4xl font-bold font-alternate">$0.77</p>
+                                </div>
+                                <div>
+                                    <p class="text-lg font-playfair">Volume Share</p>
+                                    <p class="text-4xl font-bold font-alternate">44%</p>
+                                </div>
+                            </div>
+                            <div class="absolute bottom-0 right-0 w-8 h-8 bg-black transform rotate-45 translate-x-4 translate-y-4"></div>
+                        </div>
+                    </div>
+
+                    <!-- Key Finding Box -->
+                    <div class="p-4 bg-black text-white">
+                        <p class="font-playfair text-lg">KEY FINDING: Display = 30% more efficient despite lower CTR</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 8: CRITICAL DECISION -->
+            <div class="slide absolute inset-0 opacity-0 translate-x-full" data-slide="8">
+                <div class="w-full max-w-7xl mx-auto relative px-8 pt-24">
+                    <div class="mb-12 relative z-10">
+                        <h2 class="text-6xl font-black mb-4 font-alternate">CRITICAL DECISION</h2>
+                        <p class="text-xl font-playfair italic text-black/80">WEEK 4 STRATEGIC PIVOT</p>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-6 relative z-10">
+                        <div class="bg-white border-2 border-black p-6 relative">
+                            <h3 class="text-xl font-bold mb-4 font-alternate">SITUATION</h3>
+                            <p class="font-playfair text-sm">EH campaigns showed $7.47 CPA vs account avg of $0.87 by Week 3.</p>
+                            <div class="absolute bottom-0 right-0 w-8 h-8 bg-black transform rotate-45 translate-x-4 translate-y-4"></div>
+                        </div>
+
+                        <div class="bg-koko-yellow border-4 border-black p-6 relative">
+                            <h3 class="text-xl font-bold mb-4 font-alternate">DECISION</h3>
+                            <p class="font-playfair text-sm">Paused all EH campaigns Week 4. Reallocated budget to Display EVC.</p>
+                            <div class="absolute bottom-0 right-0 w-8 h-8 bg-black transform rotate-45 translate-x-4 translate-y-4"></div>
+                        </div>
+
+                        <div class="bg-koko-pink text-white p-6 relative">
+                            <h3 class="text-xl font-bold mb-4 font-alternate">RESULTS</h3>
+                            <p class="font-playfair text-sm">Week 4: 750 conversions at $0.42 CPA - best week performance.</p>
+                            <div class="absolute bottom-0 right-0 w-8 h-8 bg-black transform rotate-45 translate-x-4 translate-y-4"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 9: WHAT WORKED - PART 1 -->
+            <div class="slide absolute inset-0 opacity-0 translate-x-full" data-slide="9">
+                <div class="w-full max-w-7xl mx-auto relative px-8 pt-24">
+                    <div class="mb-8 relative z-10">
+                        <h2 class="text-6xl font-black mb-4 font-alternate">WHAT WORKED ✅</h2>
+                        <p class="text-xl font-playfair italic text-black/80">SUCCESS FACTORS PART 1</p>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-6 relative z-10">
+                        <div class="bg-white border-l-8 border-koko-pink p-6">
+                            <h3 class="text-2xl font-bold mb-4 font-alternate">QUIZ-BASED FUNNEL</h3>
+                            <p class="font-playfair mb-4">Interactive quiz CTA dramatically outperformed direct registration forms.</p>
+                            <ul class="font-playfair text-sm space-y-2">
+                                <li>• Lower barrier to entry</li>
+                                <li>• Higher engagement rates</li>
+                                <li>• Better qualified leads</li>
+                            </ul>
+                        </div>
+
+                        <div class="bg-white border-l-8 border-koko-yellow p-6">
+                            <h3 class="text-2xl font-bold mb-4 font-alternate">DISPLAY REMARKETING</h3>
+                            <p class="font-playfair mb-4">Display campaigns targeting warm audiences delivered exceptional efficiency.</p>
+                            <ul class="font-playfair text-sm space-y-2">
+                                <li>• Ultra-low CPCs ($0.02)</li>
+                                <li>• Highest volume (56%)</li>
+                                <li>• Best CPA ($0.35)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 10: WHAT WORKED - PART 2 -->
+            <div class="slide absolute inset-0 opacity-0 translate-x-full" data-slide="10">
+                <div class="w-full max-w-7xl mx-auto relative px-8 pt-24">
+                    <div class="mb-8 relative z-10">
+                        <h2 class="text-6xl font-black mb-4 font-alternate">WHAT WORKED ✅</h2>
+                        <p class="text-xl font-playfair italic text-black/80">SUCCESS FACTORS PART 2</p>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-6 relative z-10">
+                        <div class="bg-white border-l-8 border-koko-pink p-6">
+                            <h3 class="text-2xl font-bold mb-4 font-alternate">GEOGRAPHIC FOCUS</h3>
+                            <p class="font-playfair mb-4">Mexico, Colombia, Argentina delivered 63% of total conversions.</p>
+                            <ul class="font-playfair text-sm space-y-2">
+                                <li>• Clear market winners</li>
+                                <li>• Scale opportunity</li>
+                                <li>• Lower CPAs</li>
+                            </ul>
+                        </div>
+
+                        <div class="bg-white border-l-8 border-koko-yellow p-6">
+                            <h3 class="text-2xl font-bold mb-4 font-alternate">RAPID OPTIMIZATION</h3>
+                            <p class="font-playfair mb-4">Quick decisions to pause underperformers unlocked major efficiency gains.</p>
+                            <ul class="font-playfair text-sm space-y-2">
+                                <li>• Weekly performance reviews</li>
+                                <li>• Data-driven pivots</li>
+                                <li>• Budget reallocation</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 11: WHAT DIDN'T WORK -->
+            <div class="slide absolute inset-0 opacity-0 translate-x-full" data-slide="11">
+                <div class="w-full max-w-7xl mx-auto relative px-8 pt-24">
+                    <div class="mb-8 relative z-10">
+                        <h2 class="text-6xl font-black mb-4 font-alternate">WHAT DIDN'T WORK ⚠️</h2>
+                        <p class="text-xl font-playfair italic text-black/80">LESSONS LEARNED</p>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-6 relative z-10">
+                        <div class="bg-white border-4 border-koko-gray p-6 relative">
+                            <h3 class="text-xl font-bold mb-4 font-alternate">EH CAMPAIGNS</h3>
+                            <p class="font-playfair text-sm">Direct registration CTAs performed 8.6x worse than quiz funnel ($7.47 vs $0.87 CPA).</p>
+                            <div class="absolute bottom-0 right-0 w-8 h-8 bg-black transform rotate-45 translate-x-4 translate-y-4"></div>
+                        </div>
+
+                        <div class="bg-white border-4 border-koko-gray p-6 relative">
+                            <h3 class="text-xl font-bold mb-4 font-alternate">COLD AUDIENCES</h3>
+                            <p class="font-playfair text-sm">Broad targeting without remarketing showed limited efficiency and scale potential.</p>
+                            <div class="absolute bottom-0 right-0 w-8 h-8 bg-black transform rotate-45 translate-x-4 translate-y-4"></div>
+                        </div>
+
+                        <div class="bg-white border-4 border-koko-gray p-6 relative">
+                            <h3 class="text-xl font-bold mb-4 font-alternate">GENERIC MESSAGING</h3>
+                            <p class="font-playfair text-sm">One-size-fits-all ad copy underperformed localized, benefit-focused creatives.</p>
+                            <div class="absolute bottom-0 right-0 w-8 h-8 bg-black transform rotate-45 translate-x-4 translate-y-4"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 12: KEY LEARNINGS -->
+            <div class="slide absolute inset-0 opacity-0 translate-x-full" data-slide="12">
+                <div class="w-full max-w-7xl mx-auto relative px-8 pt-24">
+                    <div class="mb-8 relative z-10">
+                        <h2 class="text-6xl font-black mb-4 font-alternate">KEY LEARNINGS</h2>
+                        <p class="text-xl font-playfair italic text-black/80">STRATEGIC INSIGHTS</p>
+                    </div>
+
+                    <div class="grid grid-cols-4 gap-4 relative z-10">
+                        <div class="bg-koko-yellow p-6 relative">
+                            <h3 class="text-xl font-bold mb-4 font-alternate">PATIENCE</h3>
+                            <p class="font-playfair text-sm">Week 1-2 learning period essential. Performance improved 79% by Week 5.</p>
+                            <div class="absolute bottom-0 right-0 w-8 h-8 bg-black transform rotate-45 translate-x-4 translate-y-4"></div>
+                        </div>
+
+                        <div class="bg-white border-2 border-black p-6 relative">
+                            <h3 class="text-xl font-bold mb-4 font-alternate">AGILITY</h3>
+                            <p class="font-playfair text-sm">Quick pivot from EH to EVC focus in Week 4 unlocked best performance.</p>
+                            <div class="absolute bottom-0 right-0 w-8 h-8 bg-black transform rotate-45 translate-x-4 translate-y-4"></div>
+                        </div>
+
+                        <div class="bg-white border-2 border-black p-6 relative">
+                            <h3 class="text-xl font-bold mb-4 font-alternate">DATA-DRIVEN</h3>
+                            <p class="font-playfair text-sm">Weekly analysis enabled evidence-based decisions over assumptions.</p>
+                            <div class="absolute bottom-0 right-0 w-8 h-8 bg-black transform rotate-45 translate-x-4 translate-y-4"></div>
+                        </div>
+
+                        <div class="bg-koko-pink text-white p-6 relative">
+                            <h3 class="text-xl font-bold mb-4 font-alternate">FOCUS</h3>
+                            <p class="font-playfair text-sm">Double down on winners: Display EVC + Quiz = 8.2:1 advantage.</p>
+                            <div class="absolute bottom-0 right-0 w-8 h-8 bg-black transform rotate-45 translate-x-4 translate-y-4"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 13: VIABILITY CONCLUSION -->
+            <div class="slide absolute inset-0 opacity-0 translate-x-full" data-slide="13">
+                <div class="w-full h-full flex items-center justify-center relative">
+                    <div class="text-center max-w-5xl px-8">
+                        <h2 class="text-[100px] leading-none font-black mb-12 font-alternate text-koko-pink">
+                            GOOGLE ADS<br>IS VIABLE ✅
+                        </h2>
+                        <div class="bg-koko-yellow border-4 border-black p-8 relative">
+                            <p class="font-playfair text-2xl leading-relaxed">
+                                Based on 35 days of testing across 6 LATAM markets, we achieved <strong>$0.69 avg CPA</strong> with
+                                <strong>1,477 conversions</strong>. The platform demonstrates strong viability with clear optimization
+                                opportunities: Display EVC + Quiz funnel = scalable growth formula.
+                            </p>
+                            <div class="absolute bottom-0 right-0 w-12 h-12 bg-black transform rotate-45 translate-x-6 translate-y-6"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 14: VIABILITY CONCLUSION - DECISION FACTORS -->
+            <div class="slide absolute inset-0 opacity-0 translate-x-full" data-slide="14">
+                <div class="w-full max-w-7xl mx-auto relative px-8 pt-24">
+                    <div class="mb-12 relative z-10">
+                        <h2 class="text-6xl font-black mb-4 font-alternate">DECISION FACTORS</h2>
+                        <p class="text-xl font-playfair italic text-black/80">WHY GOOGLE ADS WORKS</p>
+                    </div>
+
+                    <div class="grid grid-cols-4 gap-4 relative z-10">
+                        <div class="bg-koko-pink text-white p-6 relative">
+                            <h3 class="text-xl font-bold mb-4 font-alternate">PERFORMANCE</h3>
+                            <p class="font-playfair text-sm">79% CPA improvement from Week 1 to Week 5 demonstrates optimization success.</p>
+                            <div class="absolute bottom-0 right-0 w-8 h-8 bg-black transform rotate-45 translate-x-4 translate-y-4"></div>
+                        </div>
+
+                        <div class="bg-white border-2 border-black p-6 relative">
+                            <h3 class="text-xl font-bold mb-4 font-alternate">SCALE</h3>
+                            <p class="font-playfair text-sm">10x volume growth (74 to 750 conv/week) proves scalability across markets.</p>
+                            <div class="absolute bottom-0 right-0 w-8 h-8 bg-black transform rotate-45 translate-x-4 translate-y-4"></div>
+                        </div>
+
+                        <div class="bg-white border-2 border-black p-6 relative">
+                            <h3 class="text-xl font-bold mb-4 font-alternate">EFFICIENCY</h3>
+                            <p class="font-playfair text-sm">Best performers achieved $0.35 CPA - well below target thresholds.</p>
+                            <div class="absolute bottom-0 right-0 w-8 h-8 bg-black transform rotate-45 translate-x-4 translate-y-4"></div>
+                        </div>
+
+                        <div class="bg-koko-yellow p-6 relative">
+                            <h3 class="text-xl font-bold mb-4 font-alternate">PLAYBOOK</h3>
+                            <p class="font-playfair text-sm">Clear winning formula: Display EVC + Quiz CTA + Top 3 markets.</p>
+                            <div class="absolute bottom-0 right-0 w-8 h-8 bg-black transform rotate-45 translate-x-4 translate-y-4"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 15: APPENDIX - CONSOLIDATED METRICS -->
+            <div class="slide absolute inset-0 opacity-0 translate-x-full" data-slide="15">
+                <div class="w-full max-w-7xl mx-auto relative px-8 pt-24">
+                    <div class="mb-8 relative z-10">
+                        <h2 class="text-5xl font-black mb-4 font-alternate">APPENDIX: CONSOLIDATED METRICS</h2>
+                        <p class="text-xl font-playfair italic text-black/80">5-WEEK TOTALS</p>
+                    </div>
+
+                    <div class="space-y-4 relative z-10">
+                        <div class="bg-koko-yellow p-6 relative">
+                            <div class="grid grid-cols-4 gap-6">
+                                <div>
+                                    <p class="text-lg mb-2 font-playfair">Total Spend</p>
+                                    <p class="text-4xl font-bold font-alternate">$1,016</p>
+                                </div>
+                                <div>
+                                    <p class="text-lg mb-2 font-playfair">Conversions</p>
+                                    <p class="text-4xl font-bold font-alternate">1,477</p>
+                                </div>
+                                <div>
+                                    <p class="text-lg mb-2 font-playfair">Avg CPA</p>
+                                    <p class="text-4xl font-bold font-alternate">$0.69</p>
+                                </div>
+                                <div>
+                                    <p class="text-lg mb-2 font-playfair">Avg CVR</p>
+                                    <p class="text-4xl font-bold font-alternate">5.89%</p>
+                                </div>
+                            </div>
+                            <div class="absolute bottom-0 right-0 w-8 h-8 bg-black transform rotate-45 translate-x-4 translate-y-4"></div>
+                        </div>
+
+                        <div class="bg-white border-2 border-black p-6 relative">
+                            <div class="grid grid-cols-4 gap-6">
+                                <div>
+                                    <p class="text-lg mb-2 font-playfair">Clicks</p>
+                                    <p class="text-3xl font-bold font-alternate">25,061</p>
+                                </div>
+                                <div>
+                                    <p class="text-lg mb-2 font-playfair">Impressions</p>
+                                    <p class="text-3xl font-bold font-alternate">858K</p>
+                                </div>
+                                <div>
+                                    <p class="text-lg mb-2 font-playfair">CTR</p>
+                                    <p class="text-3xl font-bold font-alternate">2.92%</p>
+                                </div>
+                                <div>
+                                    <p class="text-lg mb-2 font-playfair">Avg CPC</p>
+                                    <p class="text-3xl font-bold font-alternate">$0.04</p>
+                                </div>
+                            </div>
+                            <div class="absolute bottom-0 right-0 w-8 h-8 bg-black transform rotate-45 translate-x-4 translate-y-4"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 16: APPENDIX - TOP CAMPAIGNS 1-5 -->
+            <div class="slide absolute inset-0 opacity-0 translate-x-full" data-slide="16">
+                <div class="w-full max-w-7xl mx-auto relative px-8 pt-24">
+                    <div class="mb-8 relative z-10">
+                        <h2 class="text-5xl font-black mb-4 font-alternate">TOP CAMPAIGNS (1-5)</h2>
+                        <p class="text-xl font-playfair italic text-black/80">BEST PERFORMERS</p>
+                    </div>
+
+                    <div class="space-y-3 relative z-10">
+                        <div class="bg-koko-pink text-white p-4 relative">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h3 class="text-xl font-bold mb-2 font-alternate">1. Display EVC - Mexico</h3>
+                                    <p class="font-playfair">234 conversions • $0.31 CPA • 4.8% CVR</p>
+                                </div>
+                                <span class="text-4xl">🏆</span>
+                            </div>
+                            <div class="absolute bottom-0 right-0 w-8 h-8 bg-black transform rotate-45 translate-x-4 translate-y-4"></div>
+                        </div>
+
+                        <div class="bg-white border-2 border-black p-4 relative">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h3 class="text-xl font-bold mb-2 font-alternate">2. Display EVC - Colombia</h3>
+                                    <p class="font-playfair">198 conversions • $0.34 CPA • 4.3% CVR</p>
+                                </div>
+                                <span class="text-4xl">🥈</span>
+                            </div>
+                            <div class="absolute bottom-0 right-0 w-8 h-8 bg-black transform rotate-45 translate-x-4 translate-y-4"></div>
+                        </div>
+
+                        <div class="bg-white border-2 border-black p-4 relative">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h3 class="text-xl font-bold mb-2 font-alternate">3. Search EVC - Mexico</h3>
+                                    <p class="font-playfair">167 conversions • $0.42 CPA • 16.2% CVR</p>
+                                </div>
+                                <span class="text-4xl">🥉</span>
+                            </div>
+                            <div class="absolute bottom-0 right-0 w-8 h-8 bg-black transform rotate-45 translate-x-4 translate-y-4"></div>
+                        </div>
+
+                        <div class="bg-white border-2 border-black p-4 relative">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h3 class="text-xl font-bold mb-2 font-alternate">4. Display EVC - Argentina</h3>
+                                    <p class="font-playfair">143 conversions • $0.48 CPA • 3.9% CVR</p>
+                                </div>
+                                <span class="text-4xl">4️⃣</span>
+                            </div>
+                            <div class="absolute bottom-0 right-0 w-8 h-8 bg-black transform rotate-45 translate-x-4 translate-y-4"></div>
+                        </div>
+
+                        <div class="bg-white border-2 border-black p-4 relative">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h3 class="text-xl font-bold mb-2 font-alternate">5. Search EVC - Colombia</h3>
+                                    <p class="font-playfair">128 conversions • $0.52 CPA • 14.7% CVR</p>
+                                </div>
+                                <span class="text-4xl">5️⃣</span>
+                            </div>
+                            <div class="absolute bottom-0 right-0 w-8 h-8 bg-black transform rotate-45 translate-x-4 translate-y-4"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 17: APPENDIX - TOP CAMPAIGNS 6-10 -->
+            <div class="slide absolute inset-0 opacity-0 translate-x-full" data-slide="17">
+                <div class="w-full max-w-7xl mx-auto relative px-8 pt-24">
+                    <div class="mb-8 relative z-10">
+                        <h2 class="text-5xl font-black mb-4 font-alternate">TOP CAMPAIGNS (6-10)</h2>
+                        <p class="text-xl font-playfair italic text-black/80">STRONG PERFORMERS</p>
+                    </div>
+
+                    <div class="space-y-3 relative z-10">
+                        <div class="bg-white border-2 border-black p-4 relative">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h3 class="text-xl font-bold mb-2 font-alternate">6. Display EVC - Chile</h3>
+                                    <p class="font-playfair">112 conversions • $0.57 CPA • 3.6% CVR</p>
+                                </div>
+                                <span class="text-4xl">6️⃣</span>
+                            </div>
+                            <div class="absolute bottom-0 right-0 w-8 h-8 bg-black transform rotate-45 translate-x-4 translate-y-4"></div>
+                        </div>
+
+                        <div class="bg-white border-2 border-black p-4 relative">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h3 class="text-xl font-bold mb-2 font-alternate">7. Search EVC - Argentina</h3>
+                                    <p class="font-playfair">98 conversions • $0.61 CPA • 13.8% CVR</p>
+                                </div>
+                                <span class="text-4xl">7️⃣</span>
+                            </div>
+                            <div class="absolute bottom-0 right-0 w-8 h-8 bg-black transform rotate-45 translate-x-4 translate-y-4"></div>
+                        </div>
+
+                        <div class="bg-white border-2 border-black p-4 relative">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h3 class="text-xl font-bold mb-2 font-alternate">8. Display EVC - Peru</h3>
+                                    <p class="font-playfair">87 conversions • $0.64 CPA • 3.4% CVR</p>
+                                </div>
+                                <span class="text-4xl">8️⃣</span>
+                            </div>
+                            <div class="absolute bottom-0 right-0 w-8 h-8 bg-black transform rotate-45 translate-x-4 translate-y-4"></div>
+                        </div>
+
+                        <div class="bg-white border-2 border-black p-4 relative">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h3 class="text-xl font-bold mb-2 font-alternate">9. Search EVC - Chile</h3>
+                                    <p class="font-playfair">76 conversions • $0.68 CPA • 12.4% CVR</p>
+                                </div>
+                                <span class="text-4xl">9️⃣</span>
+                            </div>
+                            <div class="absolute bottom-0 right-0 w-8 h-8 bg-black transform rotate-45 translate-x-4 translate-y-4"></div>
+                        </div>
+
+                        <div class="bg-white border-2 border-black p-4 relative">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h3 class="text-xl font-bold mb-2 font-alternate">10. Display EVC - Ecuador</h3>
+                                    <p class="font-playfair">64 conversions • $0.72 CPA • 3.1% CVR</p>
+                                </div>
+                                <span class="text-4xl">🔟</span>
+                            </div>
+                            <div class="absolute bottom-0 right-0 w-8 h-8 bg-black transform rotate-45 translate-x-4 translate-y-4"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 18: APPENDIX - METHODOLOGY -->
+            <div class="slide absolute inset-0 opacity-0 translate-x-full" data-slide="18">
+                <div class="w-full max-w-7xl mx-auto relative px-8 pt-24">
+                    <div class="mb-8 relative z-10">
+                        <h2 class="text-5xl font-black mb-4 font-alternate">METHODOLOGY</h2>
+                        <p class="text-xl font-playfair italic text-black/80">TEST FRAMEWORK</p>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-6 mb-6 relative z-10">
+                        <div class="bg-white border-l-8 border-koko-yellow p-6">
+                            <h3 class="text-2xl font-bold mb-4 font-alternate">TEST DESIGN</h3>
+                            <p class="font-playfair mb-3 text-sm">Structured testing approach with clear hypotheses for each campaign objective and format.</p>
+                            <ul class="font-playfair text-sm space-y-2">
+                                <li>• Equal budget allocation initially</li>
+                                <li>• Weekly performance reviews</li>
+                                <li>• Statistical significance thresholds</li>
+                                <li>• Consistent tracking implementation</li>
+                            </ul>
+                        </div>
+
+                        <div class="bg-white border-l-8 border-koko-pink p-6">
+                            <h3 class="text-2xl font-bold mb-4 font-alternate">DATA COLLECTION</h3>
+                            <p class="font-playfair mb-3 text-sm">Comprehensive tracking covering full customer journey from impression to conversion.</p>
+                            <ul class="font-playfair text-sm space-y-2">
+                                <li>• Google Analytics 4 integration</li>
+                                <li>• Conversion pixel validation</li>
+                                <li>• UTM parameter standardization</li>
+                                <li>• Cross-market attribution</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="bg-koko-yellow p-6 relative">
+                        <p class="font-playfair text-center text-lg">
+                            <strong>Test Period:</strong> September 22 - October 30, 2024 (35 days) •
+                            <strong>Sample Size:</strong> 25,061 clicks •
+                            <strong>Confidence Level:</strong> 95%
+                        </p>
+                        <div class="absolute bottom-0 right-0 w-8 h-8 bg-black transform rotate-45 translate-x-4 translate-y-4"></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Bottom Marquee -->
+        <div class="absolute bottom-0 left-0 right-0 h-12 bg-black overflow-hidden z-30">
+            <div class="animate-marquee whitespace-nowrap flex items-center h-full">
+                <span class="text-white text-xs font-medium mx-16 font-alternate">SEPTEMBER 22 - OCTOBER 30, 2024 • 5-WEEK PILOT PROGRAM</span>
+                <span class="text-white text-xs font-medium mx-16 font-alternate">TRAFFIC MANAGEMENT TEAM</span>
+                <span class="text-white text-xs font-medium mx-16 font-alternate">SEPTEMBER 22 - OCTOBER 30, 2024 • 5-WEEK PILOT PROGRAM</span>
+                <span class="text-white text-xs font-medium mx-16 font-alternate">TRAFFIC MANAGEMENT TEAM</span>
+                <span class="text-white text-xs font-medium mx-16 font-alternate">SEPTEMBER 22 - OCTOBER 30, 2024 • 5-WEEK PILOT PROGRAM</span>
+                <span class="text-white text-xs font-medium mx-16 font-alternate">TRAFFIC MANAGEMENT TEAM</span>
+                <span class="text-white text-xs font-medium mx-16 font-alternate">SEPTEMBER 22 - OCTOBER 30, 2024 • 5-WEEK PILOT PROGRAM</span>
+                <span class="text-white text-xs font-medium mx-16 font-alternate">TRAFFIC MANAGEMENT TEAM</span>
+                <span class="text-white text-xs font-medium mx-16 font-alternate">SEPTEMBER 22 - OCTOBER 30, 2024 • 5-WEEK PILOT PROGRAM</span>
+                <span class="text-white text-xs font-medium mx-16 font-alternate">TRAFFIC MANAGEMENT TEAM</span>
+            </div>
+        </div>
+
+        <!-- Navigation Dots -->
+        <div class="absolute bottom-24 left-1/2 -translate-x-1/2 flex gap-2 z-20" id="navigation-dots"></div>
+
+        <!-- Navigation Arrows -->
+        <button id="prev-arrow" class="absolute left-8 top-1/2 -translate-y-1/2 z-20 w-12 h-12 flex items-center justify-center opacity-20 hover:opacity-100 transition-opacity">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            </svg>
+        </button>
+
+        <button id="next-arrow" class="absolute right-8 top-1/2 -translate-y-1/2 z-20 w-12 h-12 flex items-center justify-center hover:opacity-100 transition-opacity">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+        </button>
+
+        <!-- Slide Counter -->
+        <div class="absolute bottom-24 right-8 text-2xl font-bold z-20" id="slide-counter">1 / 18</div>
+
+    </div>
+
+    <!-- JavaScript: Navigation Logic -->
+    <script>
+        let currentSlide = 1;
+        const totalSlides = 18;
+
+        // Initialize navigation dots
+        function initDots() {
+            const dotsContainer = document.getElementById('navigation-dots');
+            for (let i = 1; i <= totalSlides; i++) {
+                const dot = document.createElement('button');
+                dot.className = i === 1 ? 'w-10 h-2 bg-black transition-all' : 'w-2 h-2 bg-black/30 hover:bg-black/50 transition-all';
+                dot.dataset.slide = i;
+                dot.setAttribute('aria-label', `Go to slide ${i}`);
+                dotsContainer.appendChild(dot);
+            }
+        }
+
+        function goToSlide(slideNumber) {
+            if (slideNumber < 1 || slideNumber > totalSlides) return;
+
+            const direction = slideNumber > currentSlide ? 'next' : 'prev';
+
+            // Hide current slide
+            const currentSlideEl = document.querySelector(`[data-slide="${currentSlide}"]`);
+            if (direction === 'next') {
+                currentSlideEl.classList.remove('opacity-100', 'translate-x-0');
+                currentSlideEl.classList.add('opacity-0', '-translate-x-full');
+            } else {
+                currentSlideEl.classList.remove('opacity-100', 'translate-x-0');
+                currentSlideEl.classList.add('opacity-0', 'translate-x-full');
+            }
+
+            // Show target slide
+            const targetSlideEl = document.querySelector(`[data-slide="${slideNumber}"]`);
+            if (direction === 'next') {
+                targetSlideEl.classList.remove('opacity-0', 'translate-x-full');
+                targetSlideEl.classList.add('opacity-100', 'translate-x-0');
+            } else {
+                targetSlideEl.classList.remove('opacity-0', '-translate-x-full');
+                targetSlideEl.classList.add('opacity-100', 'translate-x-0');
+            }
+
+            // Update navigation dots
+            document.querySelectorAll('#navigation-dots button').forEach((btn, idx) => {
+                if (idx + 1 === slideNumber) {
+                    btn.classList.remove('w-2', 'bg-black/30', 'hover:bg-black/50');
+                    btn.classList.add('w-10', 'bg-black');
+                } else {
+                    btn.classList.remove('w-10', 'bg-black');
+                    btn.classList.add('w-2', 'bg-black/30', 'hover:bg-black/50');
+                }
+            });
+
+            // Update slide counter
+            document.getElementById('slide-counter').textContent = `${slideNumber} / ${totalSlides}`;
+
+            // Update arrow states
+            document.getElementById('prev-arrow').disabled = slideNumber === 1;
+            document.getElementById('next-arrow').disabled = slideNumber === totalSlides;
+
+            currentSlide = slideNumber;
+        }
+
+        // Initialize on load
+        window.addEventListener('DOMContentLoaded', () => {
+            initDots();
+
+            // Navigation dots click handlers
+            document.querySelectorAll('#navigation-dots button').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const slideNum = parseInt(btn.dataset.slide);
+                    goToSlide(slideNum);
+                });
+            });
+
+            // Arrow click handlers
+            document.getElementById('prev-arrow').addEventListener('click', () => {
+                if (currentSlide > 1) goToSlide(currentSlide - 1);
+            });
+
+            document.getElementById('next-arrow').addEventListener('click', () => {
+                if (currentSlide < totalSlides) goToSlide(currentSlide + 1);
+            });
+
+            // Keyboard navigation
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowRight' && currentSlide < totalSlides) {
+                    goToSlide(currentSlide + 1);
+                } else if (e.key === 'ArrowLeft' && currentSlide > 1) {
+                    goToSlide(currentSlide - 1);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -177,6 +177,34 @@ Use `clamp(min, preferred, max)` for fluid scaling across devices. This ensures 
 
 ---
 
+### ⚠️ CRITICAL: Asset URL Format
+
+**MANDATORY RULE:** ALL asset references in generated HTML MUST use absolute HTTPS URLs.
+
+**Correct Format (ALWAYS):**
+```css
+/* Fonts */
+src: url('https://hub.jumper.studio/decks/identities/jumper/fonts/HafferVF.ttf')
+
+/* Backgrounds */
+background-image: url('https://hub.jumper.studio/decks/identities/jumper/gradients/organic-01.png')
+
+/* Images */
+<img src="https://hub.jumper.studio/decks/identities/jumper/logos/jumper-white.png">
+```
+
+**Wrong Formats (NEVER USE):**
+```css
+/* ❌ Relative paths - BREAKS when served from Storage */
+src: url('/decks/identities/jumper/fonts/HafferVF.ttf')
+background-image: url('../gradients/organic-01.png')
+<img src="./logos/jumper-white.png">
+```
+
+**Why:** HTML files are served from Supabase Storage domain, not hub.jumper.studio. Relative paths resolve to wrong domain and return 404 errors.
+
+---
+
 ## 📐 Presentation Design Guidelines
 
 ### Interface Rules

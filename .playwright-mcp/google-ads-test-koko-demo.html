@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Ads Viability Test - A Tu Lado</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+
+    <style>
+        /* ========================================
+           KOKO CLASSIC - CSS VARIABLES
+        ======================================== */
+        :root {
+            /* Colors */
+            --koko-black: #000000;
+            --koko-white: #FFFFFF;
+            --koko-yellow: #F2C541;
+            --koko-pink: #FF0080;
+            --koko-gray-light: #E5E5E5;
+            --koko-gray-mid: #999999;
+
+            /* Typography */
+            --font-gothic: 'Anton', 'Impact', sans-serif;
+            --font-serif: 'Playfair Display', 'Georgia', serif;
+
+            /* Spacing */
+            --spacing-xs: 0.5rem;
+            --spacing-sm: 1rem;
+            --spacing-md: 2rem;
+            --spacing-lg: 4rem;
+            --spacing-xl: 6rem;
+
+            /* Transitions */
+            --transition-fast: 0.2s ease;
+            --transition-normal: 0.4s ease;
+            --transition-slow: 0.6s ease;
+        }
+
+        /* ========================================
+           GLOBAL RESET & BASE STYLES
+        ======================================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-serif);
+            background: var(--koko-white);
+            color: var(--koko-black);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* ========================================
+           SCROLLING TEXT HEADER/FOOTER
+        ======================================== */
+        .scrolling-text {
+            position: fixed;
+            width: 100%;
+            overflow: hidden;
+            background: var(--koko-black);
+            color: var(--koko-white);
+            font-family: var(--font-gothic);
+            font-size: 14px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            z-index: 1000;
+            height: 40px;
+            display: flex;
+            align-items: center;
+        }
+
+        .scrolling-text--header {
+            top: 0;
+            border-bottom: 2px solid var(--koko-white);
+        }
+
+        .scrolling-text--footer {
+            bottom: 0;
+            border-top: 2px solid var(--koko-white);
+        }
+
+        .scrolling-text__content {
+            display: inline-block;
+            white-space: nowrap;
+            animation: scroll-left 40s linear infinite;
+            padding-right: 100%;
+        }
+
+        @keyframes scroll-left {
+            from {
+                transform: translateX(0);
+            }
+            to {
+                transform: translateX(-50%);
+            }
+        }
+
+        /* ========================================
+           LOGO
+        ======================================== */
+        .logo {
+            position: fixed;
+            top: 50px;
+            left: 40px;
+            z-index: 1001;
+            font-family: var(--font-gothic);
+            font-size: 24px;
+            color: var(--koko-black);
+            line-height: 1;
+        }
+
+        .logo__agency {
+            font-size: 10px;
+            letter-spacing: 0.1em;
+        }
+
+        .logo__name {
+            font-size: 32px;
+            letter-spacing: 0.05em;
+        }
+
+        /* ========================================
+           SLIDE CONTAINER
+        ======================================== */
+        .slide {
+            min-height: 100vh;
+            width: 100%;
+            padding: 80px 60px 80px 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background: var(--koko-white);
+        }
+
+        .slide__content {
+            max-width: 1400px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        /* ========================================
+           TYPOGRAPHY
+        ======================================== */
+        h1, h2, h3, .heading {
+            font-family: var(--font-gothic);
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+            line-height: 0.9;
+            font-weight: 400;
+        }
+
+        h1 {
+            font-size: clamp(4rem, 10vw, 8rem);
+            margin-bottom: var(--spacing-md);
+        }
+
+        h2 {
+            font-size: clamp(2.5rem, 6vw, 5rem);
+            margin-bottom: var(--spacing-md);
+        }
+
+        h3 {
+            font-size: clamp(2rem, 4vw, 3.5rem);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        p, .body-text {
+            font-family: var(--font-serif);
+            font-size: clamp(1rem, 2vw, 1.5rem);
+            line-height: 1.6;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .text-italic {
+            font-style: italic;
+        }
+
+        .text-yellow {
+            color: var(--koko-yellow);
+        }
+
+        .text-pink {
+            color: var(--koko-pink);
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        /* ========================================
+           CARDS
+        ======================================== */
+        .card {
+            position: relative;
+            background: var(--koko-white);
+            color: var(--koko-black);
+            padding: var(--spacing-md);
+            border-radius: 4px;
+            overflow: visible;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            border: 2px solid var(--koko-black);
+        }
+
+        .card--with-curl::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg,
+                transparent 0%,
+                transparent 50%,
+                var(--koko-yellow) 50%,
+                var(--koko-yellow) 60%,
+                #D4A82F 60%
+            );
+            border-radius: 0 0 4px 0;
+            box-shadow: -3px 3px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .card__header {
+            background: var(--koko-black);
+            color: var(--koko-white);
+            padding: var(--spacing-sm);
+            margin: calc(-1 * var(--spacing-md)) calc(-1 * var(--spacing-md)) var(--spacing-md) calc(-1 * var(--spacing-md));
+            text-align: center;
+            font-family: var(--font-gothic);
+            text-transform: uppercase;
+            font-size: 1.5rem;
+        }
+
+        .stat-value {
+            font-family: var(--font-gothic);
+            font-size: 3rem;
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .stat-label {
+            font-family: var(--font-serif);
+            font-size: 1rem;
+            color: var(--koko-gray-mid);
+        }
+
+        /* ========================================
+           GRID LAYOUTS
+        ======================================== */
+        .grid {
+            display: grid;
+            gap: var(--spacing-md);
+        }
+
+        .grid--2-col {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .grid--3-col {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .grid--4-col {
+            grid-template-columns: repeat(4, 1fr);
+        }
+
+        /* ========================================
+           LISTS
+        ======================================== */
+        .category-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-md);
+        }
+
+        .category {
+            border-left: 4px solid var(--koko-yellow);
+            padding-left: var(--spacing-md);
+        }
+
+        .category__title {
+            font-family: var(--font-gothic);
+            font-size: 2rem;
+            color: var(--koko-yellow);
+            text-transform: uppercase;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .category__items {
+            list-style: none;
+            font-family: var(--font-serif);
+            font-size: 1.2rem;
+        }
+
+        .category__items li {
+            margin-bottom: var(--spacing-xs);
+            padding-left: var(--spacing-sm);
+            position: relative;
+        }
+
+        .category__items li::before {
+            content: '•';
+            color: var(--koko-yellow);
+            font-size: 1.5rem;
+            position: absolute;
+            left: 0;
+        }
+
+        /* ========================================
+           TIMELINE
+        ======================================== */
+        .timeline {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+        }
+
+        .timeline__item {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            padding: var(--spacing-sm);
+            border-left: 4px solid var(--koko-yellow);
+            padding-left: var(--spacing-md);
+        }
+
+        .timeline__label {
+            font-family: var(--font-gothic);
+            font-size: 1.5rem;
+            min-width: 200px;
+        }
+
+        .timeline__value {
+            font-family: var(--font-gothic);
+            font-size: 2rem;
+            color: var(--koko-yellow);
+            min-width: 150px;
+        }
+
+        .timeline__change {
+            font-family: var(--font-serif);
+            font-size: 1.2rem;
+            color: var(--koko-gray-mid);
+        }
+
+        /* ========================================
+           BURST/STAR SHAPES
+        ======================================== */
+        .burst {
+            position: relative;
+            width: 400px;
+            height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+        }
+
+        .burst__shape {
+            position: absolute;
+            inset: 0;
+            clip-path: polygon(
+                50% 0%, 61% 35%, 98% 35%, 68% 57%,
+                79% 91%, 50% 70%, 21% 91%, 32% 57%,
+                2% 35%, 39% 35%
+            );
+            background: var(--koko-pink);
+            filter: drop-shadow(0 4px 10px rgba(255, 0, 128, 0.5));
+        }
+
+        .burst__content {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            padding: var(--spacing-lg);
+        }
+
+        .burst__content h2 {
+            font-size: 3rem;
+            color: var(--koko-white);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .burst__content p {
+            font-size: 1.5rem;
+            color: var(--koko-white);
+        }
+
+        /* ========================================
+           TWO-COLUMN LAYOUT
+        ======================================== */
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-lg);
+            align-items: center;
+        }
+
+        .two-col--60-40 {
+            grid-template-columns: 60fr 40fr;
+        }
+
+        /* ========================================
+           RESPONSIVE
+        ======================================== */
+        @media (max-width: 1024px) {
+            .slide {
+                padding: 60px 40px;
+            }
+
+            .grid--2-col,
+            .grid--3-col,
+            .grid--4-col,
+            .two-col {
+                grid-template-columns: 1fr;
+            }
+
+            .logo {
+                left: 20px;
+                top: 50px;
+            }
+
+            h1 {
+                font-size: clamp(3rem, 8vw, 6rem);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .scrolling-text {
+                font-size: 12px;
+                height: 30px;
+            }
+
+            .slide {
+                padding: 50px 20px;
+            }
+
+            .burst {
+                width: 300px;
+                height: 300px;
+            }
+        }
+
+        /* ========================================
+           UTILITY CLASSES
+        ======================================== */
+        .mb-sm { margin-bottom: var(--spacing-sm); }
+        .mb-md { margin-bottom: var(--spacing-md); }
+        .mb-lg { margin-bottom: var(--spacing-lg); }
+
+        .mt-sm { margin-top: var(--spacing-sm); }
+        .mt-md { margin-top: var(--spacing-md); }
+        .mt-lg { margin-top: var(--spacing-lg); }
+    </style>
+</head>
+<body>
+    <!-- ========================================
+         SCROLLING TEXT HEADER
+    ======================================== -->
+    <div class="scrolling-text scrolling-text--header">
+        <div class="scrolling-text__content">
+            GOOGLE ADS • VIABILITY TEST • A TU LADO • LATAM MARKETS • GOOGLE ADS • VIABILITY TEST • A TU LADO • LATAM MARKETS •
+        </div>
+    </div>
+
+    <!-- ========================================
+         LOGO
+    ======================================== -->
+    <div class="logo">
+        <div class="logo__agency">agência</div>
+        <div class="logo__name">KOKO</div>
+    </div>
+
+    <!-- ========================================
+         SLIDE 1: COVER
+    ======================================== -->
+    <section class="slide" id="slide-1">
+        <div class="slide__content text-center">
+            <h1>GOOGLE ADS<br>VIABILITY TEST</h1>
+            <p class="text-italic" style="font-size: 2rem; margin-bottom: var(--spacing-md);">A Tu Lado - LATAM Markets</p>
+            <p style="font-size: 1.5rem; margin-bottom: var(--spacing-md);">
+                <strong>Test Period:</strong> September 22 - October 30, 2025<br>
+                5-Week Pilot Program
+            </p>
+            <p style="font-size: 1.2rem; color: var(--koko-gray-mid);">
+                Prepared by: Jumper Studio<br>
+                Traffic Management Team
+            </p>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SLIDE 2: EXECUTIVE SUMMARY
+    ======================================== -->
+    <section class="slide" id="slide-2">
+        <div class="slide__content">
+            <h2 class="mb-md">EXECUTIVE SUMMARY</h2>
+            <p class="text-italic mb-lg" style="font-size: 1.5rem;">Test Results at a Glance</p>
+
+            <div class="grid grid--3-col">
+                <div class="card card--with-curl">
+                    <div class="card__header">INVESTMENT & RESULTS</div>
+                    <div class="stat-value text-yellow">$1,016.35</div>
+                    <div class="stat-label">Total Spend</div>
+                    <div class="stat-value text-yellow mt-md">1,477</div>
+                    <div class="stat-label">Total Conversions</div>
+                    <div class="stat-value text-yellow mt-md">$0.69</div>
+                    <div class="stat-label">Avg Cost/Conversion</div>
+                </div>
+
+                <div class="card card--with-curl">
+                    <div class="card__header">KEY ACHIEVEMENTS</div>
+                    <ul class="category__items">
+                        <li>79% cost reduction (from $2.03 to $0.42/conv)</li>
+                        <li>10x volume growth (74 to 750 conv/week)</li>
+                        <li>Viability confirmed across 6 markets</li>
+                    </ul>
+                </div>
+
+                <div class="card card--with-curl">
+                    <div class="card__header">WINNING FORMULA</div>
+                    <p style="font-size: 2rem; text-align: center; margin-top: var(--spacing-md);">
+                        <span class="text-yellow">EVC</span> +
+                        <span class="text-pink">Quiz</span> +
+                        <span class="text-yellow">Display</span>
+                    </p>
+                    <p style="text-align: center; margin-top: var(--spacing-md);">= Optimal Performance</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SLIDE 3: TEST STRUCTURE
+    ======================================== -->
+    <section class="slide" id="slide-3">
+        <div class="slide__content">
+            <h2 class="mb-md">TEST STRUCTURE</h2>
+            <p class="text-italic mb-lg">Pilot Program Design</p>
+
+            <div class="grid grid--4-col">
+                <div class="card card--with-curl">
+                    <h3 style="font-size: 1.5rem; margin-bottom: var(--spacing-sm);">MARKETS (6)</h3>
+                    <ul class="category__items">
+                        <li>Honduras</li>
+                        <li>Colombia</li>
+                        <li>Panama</li>
+                        <li>Guatemala</li>
+                        <li>Costa Rica</li>
+                        <li>Ecuador</li>
+                    </ul>
+                </div>
+
+                <div class="card card--with-curl">
+                    <h3 style="font-size: 1.5rem; margin-bottom: var(--spacing-sm);">THERAPEUTIC (2)</h3>
+                    <ul class="category__items">
+                        <li>EVC (Venous Conditions)</li>
+                        <li>EH (Hemorrhoidal)</li>
+                    </ul>
+                </div>
+
+                <div class="card card--with-curl">
+                    <h3 style="font-size: 1.5rem; margin-bottom: var(--spacing-sm);">AD FORMATS (2)</h3>
+                    <ul class="category__items">
+                        <li>Search Campaigns</li>
+                        <li>Display Campaigns</li>
+                    </ul>
+                </div>
+
+                <div class="card card--with-curl">
+                    <h3 style="font-size: 1.5rem; margin-bottom: var(--spacing-sm);">CALL-TO-ACTION (2)</h3>
+                    <ul class="category__items">
+                        <li>Quiz (Self-Assessment)</li>
+                        <li>Find a Doctor</li>
+                    </ul>
+                </div>
+            </div>
+
+            <p style="text-align: center; margin-top: var(--spacing-lg); font-size: 2rem;" class="text-yellow">
+                <strong>TOTAL: 26 campaigns</strong> across all combinations
+            </p>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SLIDE 4: WEEKLY EVOLUTION
+    ======================================== -->
+    <section class="slide" id="slide-4">
+        <div class="slide__content">
+            <h2 class="mb-md">WEEKLY EVOLUTION</h2>
+            <p class="text-italic mb-lg">Performance Trajectory</p>
+
+            <div class="two-col">
+                <div>
+                    <h3 class="mb-md">COST PER CONVERSION</h3>
+                    <div class="timeline">
+                        <div class="timeline__item">
+                            <span class="timeline__label">Week 1 (Sep 22-Oct 1):</span>
+                            <span class="timeline__value">$2.03</span>
+                            <span class="timeline__change">[baseline]</span>
+                        </div>
+                        <div class="timeline__item">
+                            <span class="timeline__label">Week 2 (Oct 2-9):</span>
+                            <span class="timeline__value">$1.32</span>
+                            <span class="timeline__change">[-35%]</span>
+                        </div>
+                        <div class="timeline__item">
+                            <span class="timeline__label">Week 3 (Oct 10-16):</span>
+                            <span class="timeline__value">$0.83</span>
+                            <span class="timeline__change">[-37%]</span>
+                        </div>
+                        <div class="timeline__item">
+                            <span class="timeline__label">Week 4 (Oct 17-23):</span>
+                            <span class="timeline__value">$0.54</span>
+                            <span class="timeline__change">[-35%]</span>
+                        </div>
+                        <div class="timeline__item">
+                            <span class="timeline__label">Week 5 (Oct 24-30):</span>
+                            <span class="timeline__value">$0.42</span>
+                            <span class="timeline__change">[-22%]</span>
+                        </div>
+                    </div>
+                    <p style="margin-top: var(--spacing-md); font-size: 1.5rem;" class="text-yellow">
+                        <strong>TOTAL IMPROVEMENT: 79%</strong>
+                    </p>
+                </div>
+
+                <div>
+                    <h3 class="mb-md">CONVERSION VOLUME</h3>
+                    <div class="timeline">
+                        <div class="timeline__item">
+                            <span class="timeline__label">Week 1:</span>
+                            <span class="timeline__value">74</span>
+                            <span class="timeline__change">conversions</span>
+                        </div>
+                        <div class="timeline__item">
+                            <span class="timeline__label">Week 2:</span>
+                            <span class="timeline__value">174</span>
+                            <span class="timeline__change">conversions</span>
+                        </div>
+                        <div class="timeline__item">
+                            <span class="timeline__label">Week 3:</span>
+                            <span class="timeline__value">205</span>
+                            <span class="timeline__change">conversions</span>
+                        </div>
+                        <div class="timeline__item">
+                            <span class="timeline__label">Week 4:</span>
+                            <span class="timeline__value">274</span>
+                            <span class="timeline__change">conversions</span>
+                        </div>
+                        <div class="timeline__item">
+                            <span class="timeline__label">Week 5:</span>
+                            <span class="timeline__value">750</span>
+                            <span class="timeline__change">conversions</span>
+                        </div>
+                    </div>
+                    <p style="margin-top: var(--spacing-md); font-size: 1.5rem;" class="text-yellow">
+                        <strong>TOTAL GROWTH: 10x</strong>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SLIDE 5: THE WINNING FORMULA
+    ======================================== -->
+    <section class="slide" id="slide-5">
+        <div class="slide__content">
+            <h2 class="mb-md">THE WINNING FORMULA</h2>
+            <p class="text-italic mb-lg">Performance Hierarchy</p>
+
+            <div class="category-list">
+                <div class="category">
+                    <h3 class="category__title">🥇 DISPLAY EVC (WINNER)</h3>
+                    <ul class="category__items">
+                        <li>Cost/Conversion: $0.35</li>
+                        <li>Volume Share: 56% (826 conversions)</li>
+                        <li>CPC: $0.02 (ultra-low)</li>
+                    </ul>
+                </div>
+
+                <div class="category">
+                    <h3 class="category__title">🥈 SEARCH EVC (STRONG)</h3>
+                    <ul class="category__items">
+                        <li>Cost/Conversion: $0.50</li>
+                        <li>Volume Share: 44% (651 conversions)</li>
+                        <li>Conv Rate: 14.91% (high intent)</li>
+                    </ul>
+                </div>
+
+                <div class="category" style="border-left-color: var(--koko-pink);">
+                    <h3 class="category__title" style="color: var(--koko-pink);">❌ EH CAMPAIGNS (FAILED)</h3>
+                    <ul class="category__items">
+                        <li>Cost/Conversion: $7.47</li>
+                        <li>8.6x worse than account average</li>
+                        <li>Paused Week 4</li>
+                    </ul>
+                </div>
+            </div>
+
+            <p style="margin-top: var(--spacing-lg); font-size: 1.5rem; text-align: center; background: var(--koko-yellow); padding: var(--spacing-md); border-radius: 4px;">
+                <strong>KEY INSIGHT:</strong> Quiz CTA outperformed direct action 8.2:1
+            </p>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SLIDE 6: GEOGRAPHIC PERFORMANCE
+    ======================================== -->
+    <section class="slide" id="slide-6">
+        <div class="slide__content">
+            <h2 class="mb-md">GEOGRAPHIC PERFORMANCE</h2>
+            <p class="text-italic mb-lg">Market Efficiency (Week 5 Peak)</p>
+
+            <div class="grid grid--3-col">
+                <div class="card card--with-curl">
+                    <h3 style="font-size: 1.5rem;">Panama ⭐</h3>
+                    <div class="stat-value text-yellow">130</div>
+                    <div class="stat-label">conversions</div>
+                    <div class="stat-value text-pink mt-sm">$0.23</div>
+                    <div class="stat-label">per conversion</div>
+                    <p style="margin-top: var(--spacing-sm); font-size: 0.9rem; color: var(--koko-gray-mid);">Best Efficiency</p>
+                </div>
+
+                <div class="card card--with-curl">
+                    <h3 style="font-size: 1.5rem;">Colombia ⭐</h3>
+                    <div class="stat-value text-yellow">172</div>
+                    <div class="stat-label">conversions</div>
+                    <div class="stat-value text-pink mt-sm">$0.40</div>
+                    <div class="stat-label">per conversion</div>
+                    <p style="margin-top: var(--spacing-sm); font-size: 0.9rem; color: var(--koko-gray-mid);">Highest Volume</p>
+                </div>
+
+                <div class="card card--with-curl">
+                    <h3 style="font-size: 1.5rem;">Ecuador</h3>
+                    <div class="stat-value text-yellow">121</div>
+                    <div class="stat-label">conversions</div>
+                    <div class="stat-value text-pink mt-sm">$0.41</div>
+                    <div class="stat-label">per conversion</div>
+                </div>
+
+                <div class="card card--with-curl">
+                    <h3 style="font-size: 1.5rem;">Guatemala</h3>
+                    <div class="stat-value text-yellow">115</div>
+                    <div class="stat-label">conversions</div>
+                    <div class="stat-value text-pink mt-sm">$0.42</div>
+                    <div class="stat-label">per conversion</div>
+                </div>
+
+                <div class="card card--with-curl">
+                    <h3 style="font-size: 1.5rem;">Honduras</h3>
+                    <div class="stat-value text-yellow">108</div>
+                    <div class="stat-label">conversions</div>
+                    <div class="stat-value text-pink mt-sm">$0.34</div>
+                    <div class="stat-label">per conversion</div>
+                </div>
+
+                <div class="card card--with-curl">
+                    <h3 style="font-size: 1.5rem;">Costa Rica</h3>
+                    <div class="stat-value text-yellow">103</div>
+                    <div class="stat-label">conversions</div>
+                    <div class="stat-value text-pink mt-sm">$0.39</div>
+                    <div class="stat-label">per conversion</div>
+                </div>
+            </div>
+
+            <p style="margin-top: var(--spacing-lg); font-size: 1.3rem; text-align: center;">
+                <strong>GEOGRAPHIC DIVERSIFICATION:</strong> Week 1 = Honduras 74% (high risk) → Week 5 = Balanced portfolio (14-23% per country)
+            </p>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SLIDE 7: DISPLAY VS SEARCH
+    ======================================== -->
+    <section class="slide" id="slide-7">
+        <div class="slide__content">
+            <h2 class="mb-md">DISPLAY VS SEARCH</h2>
+            <p class="text-italic mb-lg">Format Comparison (5-Week Consolidated)</p>
+
+            <div class="grid grid--2-col">
+                <div class="card card--with-curl">
+                    <div class="card__header">DISPLAY CAMPAIGNS</div>
+                    <ul class="category__items">
+                        <li>Average CPC: <strong class="text-yellow">$0.02</strong></li>
+                        <li>Conversion Rate: <strong>3.89%</strong></li>
+                        <li>Cost/Conversion: <strong class="text-yellow">$0.62</strong></li>
+                        <li>Volume Share: <strong>56%</strong> (826 conv)</li>
+                        <li>Total Spend: $515.27</li>
+                    </ul>
+                </div>
+
+                <div class="card card--with-curl">
+                    <div class="card__header">SEARCH CAMPAIGNS</div>
+                    <ul class="category__items">
+                        <li>Average CPC: <strong>$0.08</strong></li>
+                        <li>Conversion Rate: <strong class="text-yellow">14.91%</strong></li>
+                        <li>Cost/Conversion: <strong>$0.77</strong></li>
+                        <li>Volume Share: <strong>44%</strong> (651 conv)</li>
+                        <li>Total Spend: $501.08</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div style="margin-top: var(--spacing-lg); background: var(--koko-yellow); padding: var(--spacing-md); border-radius: 4px;">
+                <h3 style="margin-bottom: var(--spacing-sm);">KEY FINDING</h3>
+                <p style="font-size: 1.3rem;">
+                    Display = <strong>30% more efficient</strong> despite lower CTR<br>
+                    Driven by <strong>4x lower CPCs</strong> ($0.02 vs $0.08)
+                </p>
+                <p style="margin-top: var(--spacing-sm); font-style: italic;">
+                    Contradicts conventional wisdom: "Search always best for direct response"
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SLIDE 8: CRITICAL DECISION
+    ======================================== -->
+    <section class="slide" id="slide-8">
+        <div class="slide__content">
+            <h2 class="mb-md">CRITICAL DECISION - EH PAUSE</h2>
+            <p class="text-italic mb-lg">Strategic Optimization (Week 4)</p>
+
+            <div class="category-list">
+                <div class="category">
+                    <h3 class="category__title">SITUATION (Weeks 1-3)</h3>
+                    <ul class="category__items">
+                        <li>26 campaigns running (13 EVC + 13 EH)</li>
+                        <li>EH consistently underperforming</li>
+                        <li>8.6x higher cost/conversion than EVC</li>
+                        <li>Budget diluted across failing campaigns</li>
+                    </ul>
+                </div>
+
+                <div class="category">
+                    <h3 class="category__title">DECISION (October 23, Week 4)</h3>
+                    <ul class="category__items">
+                        <li>→ Paused ALL 12 EH campaigns</li>
+                        <li>→ Reallocated $10.35/day to proven EVC structure</li>
+                    </ul>
+                </div>
+
+                <div class="category">
+                    <h3 class="category__title">RESULTS (Week 5)</h3>
+                    <ul class="category__items">
+                        <li>14 EVC campaigns only</li>
+                        <li>+476 additional conversions vs Week 4</li>
+                        <li>Best efficiency achieved: $0.42/conv</li>
+                        <li>Budget reallocation ROI: 2x projected impact</li>
+                    </ul>
+                </div>
+            </div>
+
+            <p style="margin-top: var(--spacing-lg); font-size: 1.5rem; text-align: center; background: var(--koko-pink); color: var(--koko-white); padding: var(--spacing-md); border-radius: 4px;">
+                <strong>VALIDATION:</strong> 4 weeks of data confirmed EH structural failure
+            </p>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SLIDE 9: WHAT WORKED
+    ======================================== -->
+    <section class="slide" id="slide-9">
+        <div class="slide__content">
+            <h2 class="mb-md">WHAT WORKED ✅</h2>
+            <p class="text-italic mb-lg">Success Factors</p>
+
+            <div class="category-list">
+                <div class="category">
+                    <h3 class="category__title">1. QUIZ AS ENTRY POINT</h3>
+                    <ul class="category__items">
+                        <li>Psychological "safe space" for symptom assessment</li>
+                        <li>8.2:1 conversion advantage over direct CTA</li>
+                        <li>Essential for sensitive health topics</li>
+                        <li>Creates ownership of health decision</li>
+                    </ul>
+                </div>
+
+                <div class="category">
+                    <h3 class="category__title">2. DISPLAY EFFICIENCY</h3>
+                    <ul class="category__items">
+                        <li>Ultra-low CPCs: $0.01-0.03 average</li>
+                        <li>56% of total conversion volume</li>
+                        <li>Scales without efficiency loss</li>
+                        <li>Receptive audience to visual + quiz</li>
+                    </ul>
+                </div>
+
+                <div class="category">
+                    <h3 class="category__title">3. ALGORITHM MATURITY</h3>
+                    <ul class="category__items">
+                        <li>Week 1-2: Exploration phase</li>
+                        <li>Week 3-4: Optimization gains (-35-37% weekly)</li>
+                        <li>Week 5: Mature scaling (2x budget absorbed)</li>
+                        <li>CPC optimization: $0.08 → $0.028</li>
+                    </ul>
+                </div>
+
+                <div class="category">
+                    <h3 class="category__title">4. GEOGRAPHIC DIVERSIFICATION</h3>
+                    <ul class="category__items">
+                        <li>Reduced single-market risk (74% → 23%)</li>
+                        <li>Colombia & Panama emerged as scale leaders</li>
+                        <li>6-market portfolio proved manageable</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SLIDE 10: WHAT DIDN'T WORK
+    ======================================== -->
+    <section class="slide" id="slide-10">
+        <div class="slide__content">
+            <h2 class="mb-md">WHAT DIDN'T WORK ⚠️</h2>
+            <p class="text-italic mb-lg">Constraints Identified</p>
+
+            <div class="category-list">
+                <div class="category" style="border-left-color: var(--koko-pink);">
+                    <h3 class="category__title" style="color: var(--koko-pink);">1. EH CAMPAIGNS - STRUCTURAL FAILURE</h3>
+                    <ul class="category__items">
+                        <li>Display EH: 0 conversions in 5 of 6 countries</li>
+                        <li>Search EH: $0.88-4.22/conversion (prohibitive)</li>
+                        <li>Diagnosis: Topic too sensitive without quiz buffer</li>
+                        <li>Total waste: ~$180 for 79 conversions</li>
+                    </ul>
+                </div>
+
+                <div class="category" style="border-left-color: var(--koko-pink);">
+                    <h3 class="category__title" style="color: var(--koko-pink);">2. POLICY RESTRICTIONS - SCALE CEILING</h3>
+                    <ul class="category__items">
+                        <li>15 of 24 campaigns "limited by policy"</li>
+                        <li>Artificial delivery cap at ~$400/week</li>
+                        <li>Root cause: Medical terminology + symptom focus</li>
+                        <li>Impact: Cannot scale beyond current level</li>
+                        <li>Status: Unresolved throughout 5 weeks</li>
+                    </ul>
+                </div>
+
+                <div class="category" style="border-left-color: var(--koko-pink);">
+                    <h3 class="category__title" style="color: var(--koko-pink);">3. MARKET SATURATION SIGNALS</h3>
+                    <ul class="category__items">
+                        <li>Honduras Search: $0.41 → $0.88 (+114% in 1 week)</li>
+                        <li>Costa Rica & Panama: High CPCs from start</li>
+                        <li>Small markets saturate quickly</li>
+                        <li>CPC inflation: +27% in Week 5 (scale pressure)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SLIDE 11: KEY LEARNINGS
+    ======================================== -->
+    <section class="slide" id="slide-11">
+        <div class="slide__content">
+            <h2 class="mb-md">KEY LEARNINGS</h2>
+            <p class="text-italic mb-lg">Insights for Future Application</p>
+
+            <div class="grid grid--2-col">
+                <div class="card card--with-curl">
+                    <h3 style="font-size: 1.5rem; margin-bottom: var(--spacing-sm);">PLATFORM VIABILITY ✅</h3>
+                    <ul class="category__items">
+                        <li>Google Ads works for LATAM pharma</li>
+                        <li>Ultra-low CPCs achievable ($0.02-0.03)</li>
+                        <li>Display = viable primary channel</li>
+                        <li>Geographic diversity manageable centrally</li>
+                    </ul>
+                </div>
+
+                <div class="card card--with-curl">
+                    <h3 style="font-size: 1.5rem; margin-bottom: var(--spacing-sm);">CREATIVE STRATEGY 💡</h3>
+                    <ul class="category__items">
+                        <li>Quiz CTA essential for sensitive topics</li>
+                        <li>Lifestyle/wellness language > medical terms</li>
+                        <li>Visual format effective for venous conditions</li>
+                        <li>Direct action fails without engagement layer</li>
+                    </ul>
+                </div>
+
+                <div class="card card--with-curl">
+                    <h3 style="font-size: 1.5rem; margin-bottom: var(--spacing-sm);">GEOGRAPHIC CONSIDERATIONS 🌎</h3>
+                    <ul class="category__items">
+                        <li>6-market diversification reduces risk</li>
+                        <li>Small markets saturate at ~$50-70/week</li>
+                        <li>Colombia/Panama = highest scale potential</li>
+                        <li>Honduras = high efficiency but limited ceiling</li>
+                    </ul>
+                </div>
+
+                <div class="card card--with-curl">
+                    <h3 style="font-size: 1.5rem; margin-bottom: var(--spacing-sm);">BUDGET & SCALE 💰</h3>
+                    <ul class="category__items">
+                        <li>Minimum 3 weeks for algorithm maturity</li>
+                        <li>2x scaling absorbed successfully (Week 5)</li>
+                        <li>Optimal range: $400-500/week current structure</li>
+                        <li>Policy compliance required for further scale</li>
+                        <li>CPC inflation acceptable within $0.02-0.03 range</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SLIDE 12: VIABILITY CONCLUSION
+    ======================================== -->
+    <section class="slide" id="slide-12">
+        <div class="slide__content">
+            <h2 class="mb-md text-center">VIABILITY CONCLUSION</h2>
+            <p class="text-italic mb-lg text-center">Final Assessment</p>
+
+            <div class="burst">
+                <div class="burst__shape"></div>
+                <div class="burst__content">
+                    <h2>VIABILITY<br>CONFIRMED</h2>
+                </div>
+            </div>
+
+            <div style="margin-top: var(--spacing-lg);">
+                <h3 class="mb-md text-center text-yellow">PROVEN RESULTS</h3>
+                <div class="grid grid--4-col mb-lg">
+                    <div class="card">
+                        <div class="stat-value text-yellow">79%</div>
+                        <div class="stat-label">cost efficiency improvement</div>
+                    </div>
+                    <div class="card">
+                        <div class="stat-value text-yellow">10x</div>
+                        <div class="stat-label">volume scaling achieved</div>
+                    </div>
+                    <div class="card">
+                        <div class="stat-value text-yellow">$0.42</div>
+                        <div class="stat-label">final cost/conversion</div>
+                    </div>
+                    <div class="card">
+                        <div class="stat-value text-yellow">✓</div>
+                        <div class="stat-label">winning formula identified</div>
+                    </div>
+                </div>
+
+                <div style="background: var(--koko-gray-light); padding: var(--spacing-md); border-radius: 4px;">
+                    <h3 class="mb-sm">CLIENT DECISION FACTORS</h3>
+                    <p style="margin-bottom: var(--spacing-sm);"><strong>Lead Quality (Not Measured)</strong><br>
+                    → What % of quiz conversions became consultations?<br>
+                    → Cost per actual patient vs LTV?</p>
+
+                    <p style="margin-bottom: var(--spacing-sm);"><strong>Operational Capacity</strong><br>
+                    → Can organization handle 750+ leads/week?<br>
+                    → Follow-up structure exists in each country?</p>
+
+                    <p style="margin-bottom: var(--spacing-sm);"><strong>Economics</strong><br>
+                    → What cost/consultation is profitable?<br>
+                    → Budget appetite for scale: $400-500/week minimum</p>
+
+                    <p><strong>Policy Compliance</strong><br>
+                    → Investment in creative refresh required<br>
+                    → Timeline for policy-compliant ads?</p>
+                </div>
+
+                <p style="margin-top: var(--spacing-md); font-size: 1.5rem; text-align: center; background: var(--koko-yellow); padding: var(--spacing-md); border-radius: 4px;">
+                    <strong>BOTTOM LINE:</strong> Data validates channel viability.<br>
+                    Continuation depends on backend metrics and organizational readiness.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SLIDE 13: OBRIGADO
+    ======================================== -->
+    <section class="slide" id="slide-13">
+        <div class="slide__content text-center">
+            <h1 class="text-yellow">THANK YOU</h1>
+            <p style="font-size: 1.5rem; margin-top: var(--spacing-md);">
+                <strong>Jumper Studio</strong><br>
+                Traffic Management Team<br>
+                <a href="mailto:traffic@jumper.studio" style="color: var(--koko-yellow); text-decoration: none;">traffic@jumper.studio</a>
+            </p>
+
+            <div style="margin-top: var(--spacing-lg); display: flex; align-items: center; justify-content: center; gap: var(--spacing-sm);">
+                <div class="logo">
+                    <div class="logo__agency">agência</div>
+                    <div class="logo__name">KOKO</div>
+                </div>
+                <p style="font-size: 1.2rem;">www.agenciakoko.com.br</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================
+         SCROLLING TEXT FOOTER
+    ======================================== -->
+    <div class="scrolling-text scrolling-text--footer">
+        <div class="scrolling-text__content">
+            GOOGLE ADS • VIABILITY TEST • A TU LADO • LATAM MARKETS • GOOGLE ADS • VIABILITY TEST • A TU LADO • LATAM MARKETS •
+        </div>
+    </div>
+</body>
+</html>
