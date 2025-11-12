@@ -1,5 +1,6 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.56.0';
 import { validateEnvironment } from '../_shared/env-validation.ts';
 import { loadPatternMetadata } from '../_shared/template-utils.ts';
 import { formatPatternCatalogForPrompt } from '../_shared/pattern-catalog.ts';
@@ -23,6 +24,8 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  let deckId: string | null = null;
+
   try {
     // UTF-8 decoder
     const decoder = new TextDecoder('utf-8');
@@ -31,6 +34,9 @@ serve(async (req) => {
     console.log('🔒 [DECK_ANALYZE] Validating environment variables...');
     const env = validateEnvironment();
     console.log('✅ [DECK_ANALYZE] Environment validation passed');
+
+    // Create Supabase client
+    const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY);
 
     console.log('🔍 [DECK_ANALYZE] Starting content analysis...');
 
@@ -48,10 +54,22 @@ serve(async (req) => {
     });
 
     const {
+      deck_id, // Optional: for status updates and logging
       markdown_source,
       deck_type, // 'report', 'pitch', 'plan'
       template_id = 'koko-classic'
     } = body;
+
+    deckId = deck_id; // Store for error handling
+
+    // Update analysis_status if deck_id provided
+    if (deck_id) {
+      console.log('🔄 [DECK_ANALYZE] Updating analysis_status to processing...');
+      await supabase
+        .from('j_hub_decks')
+        .update({ analysis_status: 'processing', updated_at: new Date().toISOString() })
+        .eq('id', deck_id);
+    }
 
     // Enhanced input validation
     console.log('✅ [DECK_ANALYZE] Starting input validation...');
@@ -292,6 +310,38 @@ Output valid JSON only (no markdown fences, no extra text).`;
 
     console.log('📊 [DECK_ANALYZE] Pattern distribution:', patternCounts);
 
+    // Update analysis_status + save plan if deck_id provided
+    if (deck_id) {
+      console.log('💾 [DECK_ANALYZE] Saving plan to database...');
+      await supabase
+        .from('j_hub_decks')
+        .update({
+          generation_plan: plan,
+          analysis_status: 'completed',
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', deck_id);
+
+      // Log API call
+      console.log('📝 [DECK_ANALYZE] Logging API call...');
+      await supabase
+        .from('j_hub_deck_api_logs')
+        .insert({
+          deck_id: deck_id,
+          stage: 'analysis',
+          prompt_sent: systemPrompt + '\n\n' + userPrompt,
+          response_received: JSON.stringify(plan),
+          tokens_used: {
+            input: claudeData.usage?.input_tokens || 0,
+            output: claudeData.usage?.output_tokens || 0,
+            total: (claudeData.usage?.input_tokens || 0) + (claudeData.usage?.output_tokens || 0)
+          },
+          latency_ms: latency,
+          model_used: 'claude-sonnet-4-5-20250929',
+          success: true
+        });
+    }
+
     // Return successful response
     return new Response(
       JSON.stringify({
@@ -314,6 +364,34 @@ Output valid JSON only (no markdown fences, no extra text).`;
 
   } catch (error) {
     console.error('❌ [DECK_ANALYZE] Error:', error);
+
+    // Update status to 'failed' if we have deck_id
+    if (deckId) {
+      try {
+        const env = validateEnvironment();
+        const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY);
+
+        await supabase
+          .from('j_hub_decks')
+          .update({
+            analysis_status: 'failed',
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', deckId);
+
+        // Log failed API call
+        await supabase
+          .from('j_hub_deck_api_logs')
+          .insert({
+            deck_id: deckId,
+            stage: 'analysis',
+            success: false,
+            error_message: error.message
+          });
+      } catch (logError) {
+        console.error('Failed to update error status:', logError);
+      }
+    }
 
     return new Response(
       JSON.stringify({
