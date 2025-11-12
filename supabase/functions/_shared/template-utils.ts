@@ -46,16 +46,37 @@ export function extractStyleBlock(templateHtml: string): string {
  * - Brand colors
  * - Template version info
  *
+ * Edge Functions don't have access to local files, so we fetch from the deployed URL.
+ *
  * @param templateId - Template identifier (e.g., 'koko-classic')
  * @returns Parsed JSON object with pattern metadata
  * @throws Error if file not found or invalid JSON
  */
 export async function loadPatternMetadata(templateId: string): Promise<any> {
-  // Path is relative to Deno Deploy working directory
-  const filePath = `./public/decks/templates/${templateId}-patterns.json`;
+  // Detect environment
+  const supabaseUrl = Deno.env.get('SUPABASE_URL') || '';
+  const isLocal = supabaseUrl.includes('127.0.0.1') || supabaseUrl.includes('localhost');
+
+  const baseUrl = isLocal
+    ? 'http://localhost:8080'  // Vite dev server
+    : 'https://hub.jumper.studio';  // Vercel production
+
+  const patternUrl = `${baseUrl}/decks/templates/${templateId}-patterns.json`;
 
   try {
-    const content = await Deno.readTextFile(filePath);
+    console.log(`[TEMPLATE_UTILS] Fetching pattern metadata from: ${patternUrl}`);
+
+    const response = await fetch(patternUrl, {
+      headers: {
+        'Accept': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    const content = await response.text();
     const metadata = JSON.parse(content);
 
     // Validate structure
@@ -71,7 +92,7 @@ export async function loadPatternMetadata(templateId: string): Promise<any> {
     return metadata;
   } catch (error) {
     console.error(`[TEMPLATE_UTILS] Failed to load pattern metadata for ${templateId}:`, error);
-    throw new Error(`Pattern metadata not found or invalid: ${templateId}-patterns.json`);
+    throw new Error(`Pattern metadata not found or invalid: ${templateId}-patterns.json - ${error.message}`);
   }
 }
 
