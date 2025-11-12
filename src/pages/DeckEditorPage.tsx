@@ -61,6 +61,7 @@ export default function DeckEditorPage() {
 
   // Stage loading states
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isApproving, setIsApproving] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
 
   // UI states
@@ -150,6 +151,34 @@ export default function DeckEditorPage() {
       toast.error('Erro na análise: ' + error.message);
     } finally {
       setIsAnalyzing(false);
+    }
+  };
+
+  // Stage 2: Approve Plan
+  const handleApprovePlan = async () => {
+    if (!deck) return;
+
+    try {
+      setIsApproving(true);
+
+      const { error } = await supabase
+        .from('j_hub_decks')
+        .update({
+          review_status: 'completed',
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', deck.id);
+
+      if (error) throw error;
+
+      toast.success('Plano aprovado! ✅');
+      await loadDeck(); // Reload to update status
+
+    } catch (error: any) {
+      console.error('Error approving plan:', error);
+      toast.error('Erro ao aprovar: ' + error.message);
+    } finally {
+      setIsApproving(false);
     }
   };
 
@@ -428,6 +457,34 @@ export default function DeckEditorPage() {
                     </div>
                   ))}
                 </div>
+
+                {/* Approve Plan Button */}
+                {deck.review_status === 'pending' && (
+                  <div className="pt-4 border-t">
+                    <JumperButton
+                      onClick={handleApprovePlan}
+                      disabled={isApproving}
+                      className="w-full"
+                    >
+                      {isApproving ? (
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      ) : (
+                        <FileText className="h-4 w-4 mr-2" />
+                      )}
+                      Aprovar Plano e Prosseguir
+                    </JumperButton>
+                  </div>
+                )}
+
+                {/* Already Approved Message */}
+                {deck.review_status === 'completed' && (
+                  <div className="pt-4 border-t">
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
+                      <p className="text-green-700 font-medium">✅ Plano aprovado!</p>
+                      <p className="text-sm text-green-600 mt-1">Stage 3 desbloqueado. Role para cima para gerar a apresentação.</p>
+                    </div>
+                  </div>
+                )}
               </div>
             ) : (
               <p className="text-gray-600 text-center py-4">
