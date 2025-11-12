@@ -905,11 +905,26 @@
             display: flex;
             flex-direction: column;
             gap: 32px;
+            align-items: flex-end; /* Alinha à direita para efeito funil */
         }
 
         .toc-category {
             display: flex;
             flex-direction: column;
+            transition: all 300ms ease;
+        }
+
+        /* Efeito funil: cada categoria é progressivamente menor */
+        .toc-category:nth-child(1) {
+            width: 100%; /* Descoberta - mais largo */
+        }
+
+        .toc-category:nth-child(2) {
+            width: 85%; /* Nutrição - médio */
+        }
+
+        .toc-category:nth-child(3) {
+            width: 70%; /* Conversão - mais estreito (funil) */
         }
 
         .toc-category-header {
@@ -965,7 +980,7 @@
         .process-steps-container {
             display: flex;
             align-items: flex-start;
-            gap: 0;
+            gap: 16px;
             position: relative;
         }
 
@@ -976,6 +991,22 @@
             position: relative;
         }
 
+        /* Seta conectora entre steps */
+        .process-step::after {
+            content: '→';
+            position: absolute;
+            right: -20px;
+            top: 16px;
+            font-size: 24px;
+            font-weight: 900;
+            color: var(--koko-black);
+            z-index: 10;
+        }
+
+        .process-step:last-child::after {
+            display: none; /* Remove seta do último step */
+        }
+
         .process-step-header {
             background: var(--koko-black);
             color: var(--koko-white);
@@ -984,15 +1015,8 @@
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.05em;
-            clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%);
-            margin-right: -12px;
             position: relative;
             z-index: 1;
-        }
-
-        .process-step:last-child .process-step-header {
-            clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
-            margin-right: 0;
         }
 
         .process-step-content {
@@ -1165,6 +1189,14 @@
 
             .toc-categories {
                 gap: 24px;
+                align-items: stretch; /* Remove alinhamento para mobile */
+            }
+
+            /* Remove efeito funil no mobile - todas largura 100% */
+            .toc-category:nth-child(1),
+            .toc-category:nth-child(2),
+            .toc-category:nth-child(3) {
+                width: 100%;
             }
 
             .process-steps-container {
@@ -1172,9 +1204,18 @@
                 gap: 16px;
             }
 
-            .process-step-header {
-                clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
-                margin-right: 0;
+            /* Seta vertical no mobile */
+            .process-step::after {
+                content: '↓';
+                right: auto;
+                left: 50%;
+                transform: translateX(-50%);
+                top: auto;
+                bottom: -28px;
+            }
+
+            .process-step:last-child::after {
+                display: none;
             }
 
             .process-graphic-wrapper {
