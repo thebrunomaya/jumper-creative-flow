@@ -77,8 +77,8 @@ export default function DeckNew() {
       });
 
       if (result.success && result.deck_id) {
-        // Navigate to deck view page
-        navigate(`/decks/${result.deck_id}`);
+        // Navigate to new 3-stage deck editor
+        navigate(`/decks/editor/${result.deck_id}`);
       }
     } catch (err: any) {
       console.error("Error creating deck:", err);

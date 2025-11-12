@@ -80,7 +80,7 @@ export function DecksPanelList({ userRole }: DecksPanelListProps) {
   }, [decks, selectedAccountId, searchQuery, typeFilter, identityFilter, sortBy]);
 
   const handleEdit = (deckId: string) => {
-    navigate(`/decks/${deckId}`);
+    navigate(`/decks/editor/${deckId}`);
   };
 
   const handleShare = (deckId: string) => {
