@@ -121,7 +121,7 @@ serve(async (req) => {
 
     // Template files are served as static assets from Vercel (production) or Vite dev server (local)
     // Detect environment based on SUPABASE_URL
-    const isLocal = supabaseUrl.includes('127.0.0.1') || supabaseUrl.includes('localhost');
+    const isLocal = env.SUPABASE_URL.includes('127.0.0.1') || env.SUPABASE_URL.includes('localhost');
     const baseUrl = isLocal
       ? 'http://localhost:8080'  // Vite dev server
       : 'https://hub.jumper.studio';  // Vercel production
