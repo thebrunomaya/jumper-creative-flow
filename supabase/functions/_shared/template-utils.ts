@@ -97,7 +97,7 @@ export async function loadPatternMetadata(templateId: string): Promise<any> {
 }
 
 /**
- * Loads full template HTML file
+ * Loads full template HTML file via HTTP
  *
  * Used for:
  * - Extracting CSS with extractStyleBlock()
@@ -108,10 +108,28 @@ export async function loadPatternMetadata(templateId: string): Promise<any> {
  * @throws Error if file not found
  */
 export async function loadTemplateHTML(templateId: string): Promise<string> {
-  const filePath = `./public/decks/templates/${templateId}.html`;
-
   try {
-    const html = await Deno.readTextFile(filePath);
+    // Detect environment (local vs production)
+    const supabaseUrl = Deno.env.get('SUPABASE_URL') || '';
+    const isLocal = supabaseUrl.includes('127.0.0.1') || supabaseUrl.includes('localhost');
+
+    // Build URL based on environment
+    const baseUrl = isLocal ? 'http://localhost:8080' : 'https://hub.jumper.studio';
+    const templateUrl = `${baseUrl}/decks/templates/${templateId}.html`;
+
+    console.log(`[TEMPLATE_UTILS] Fetching template HTML from: ${templateUrl}`);
+
+    const response = await fetch(templateUrl, {
+      headers: {
+        'Accept': 'text/html',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    const html = await response.text();
 
     // Validate HTML structure
     if (!html.includes('<!DOCTYPE html>') && !html.includes('<html')) {
