@@ -1534,12 +1534,12 @@
             justify-content: center;
             position: relative;
             transition: all 0.3s ease;
-            /* Trapezoid shape via clip-path - steeper angles for stronger funnel effect */
+            /* Trapezoid shape via clip-path - inverted for funnel effect (wide top, narrow bottom) */
             clip-path: polygon(
-                8% 0,
-                92% 0,
-                100% 100%,
-                0 100%
+                0 0,
+                100% 0,
+                92% 100%,
+                8% 100%
             );
         }
 
