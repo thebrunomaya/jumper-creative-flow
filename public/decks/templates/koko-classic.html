@@ -1487,13 +1487,13 @@
         .funnel-slide .slide-content {
             display: flex;
             flex-direction: column;
-            gap: clamp(24px, 3vw, 40px);
+            gap: clamp(8px, 1vw, 16px); /* Reduced from 24-40px to fit vertically */
         }
 
         .funnel-stage {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 6px; /* Reduced from 12px for compactness */
             position: relative;
         }
 
@@ -1501,7 +1501,7 @@
             display: flex;
             justify-content: space-between;
             align-items: baseline;
-            padding: 0 clamp(16px, 2vw, 24px);
+            padding: 0 clamp(12px, 1.5vw, 18px); /* Reduced from 16-24px */
         }
 
         .funnel-stage-label {
@@ -1526,7 +1526,7 @@
 
         /* Funnel bars with decreasing widths */
         .funnel-bar {
-            height: clamp(50px, 6vw, 80px);
+            height: clamp(35px, 3.5vw, 50px); /* Reduced from 50-80px to fit vertically */
             background: var(--koko-black);
             border: 2px solid var(--koko-black);
             display: flex;
@@ -1534,10 +1534,10 @@
             justify-content: center;
             position: relative;
             transition: all 0.3s ease;
-            /* Trapezoid shape via clip-path */
+            /* Trapezoid shape via clip-path - steeper angles for stronger funnel effect */
             clip-path: polygon(
-                5% 0,
-                95% 0,
+                8% 0,
+                92% 0,
                 100% 100%,
                 0 100%
             );
@@ -1563,26 +1563,24 @@
             color: var(--koko-black); /* Yellow bar needs black text */
         }
 
-        /* Drop-off indicators */
+        /* Drop-off indicators - positioned inline below each stage */
         .funnel-drop-off {
-            position: absolute;
-            right: 0;
-            top: 50%;
-            transform: translate(110%, -50%);
+            align-self: center; /* Center below the funnel bar */
             background: var(--koko-white);
             border: 2px solid var(--koko-black);
-            padding: 8px 12px;
+            padding: 4px 12px; /* Reduced padding for compactness */
             font-family: 'Alternate Gothic', sans-serif;
-            font-size: clamp(12px, 1.5vw, 16px);
+            font-size: clamp(11px, 1.3vw, 14px); /* Slightly smaller */
             font-weight: 700;
             white-space: nowrap;
             color: var(--chart-negative);
+            margin-top: -2px; /* Slight overlap with bar for tighter spacing */
         }
 
         /* Insight box for funnel */
         .funnel-insight {
-            margin-top: clamp(16px, 2vw, 24px);
-            padding: clamp(16px, 2vw, 24px);
+            margin-top: clamp(8px, 1vw, 12px); /* Reduced from 16-24px */
+            padding: clamp(12px, 1.5vw, 18px); /* Reduced from 16-24px */
             background: var(--koko-yellow);
             border: 2px solid var(--koko-black);
             clip-path: polygon(
