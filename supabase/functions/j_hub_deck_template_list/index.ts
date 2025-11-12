@@ -8,8 +8,7 @@
  * - template_id: Filename without extension
  * - file_path: Public URL path
  * - brand_identity: 'jumper' or 'koko' (extracted from filename)
- * - size: File size in bytes (fetched from HEAD request)
- * - last_modified: ISO timestamp (from Last-Modified header)
+ * - last_modified: ISO timestamp (current time)
  */
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
@@ -101,41 +100,23 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Build template list with metadata
-    const templates = await Promise.all(
-      TEMPLATE_FILES.map(async (filename) => {
-        const templateId = filename.replace('.html', '');
-        const publicUrl = `https://hub.jumper.studio/decks/templates/${filename}`;
+    // Build template list (no external fetches for performance)
+    const templates = TEMPLATE_FILES.map((filename) => {
+      const templateId = filename.replace('.html', '');
 
-        // Extract brand identity from filename
-        let brandIdentity: 'jumper' | 'koko' = 'jumper';
-        if (templateId.includes('koko')) {
-          brandIdentity = 'koko';
-        }
+      // Extract brand identity from filename
+      let brandIdentity: 'jumper' | 'koko' = 'jumper';
+      if (templateId.includes('koko')) {
+        brandIdentity = 'koko';
+      }
 
-        // Fetch file metadata via HEAD request
-        let size = 0;
-        let lastModified = new Date().toISOString();
-
-        try {
-          const response = await fetch(publicUrl, { method: 'HEAD' });
-          if (response.ok) {
-            size = parseInt(response.headers.get('content-length') || '0', 10);
-            lastModified = response.headers.get('last-modified') || lastModified;
-          }
-        } catch (error) {
-          console.warn(`Failed to fetch metadata for ${filename}:`, error);
-        }
-
-        return {
-          template_id: templateId,
-          file_path: `/decks/templates/${filename}`,
-          brand_identity: brandIdentity,
-          size,
-          last_modified: lastModified,
-        };
-      })
-    );
+      return {
+        template_id: templateId,
+        file_path: `/decks/templates/${filename}`,
+        brand_identity: brandIdentity,
+        last_modified: new Date().toISOString(),
+      };
+    });
 
     console.log(`✅ Listed ${templates.length} templates for admin user ${user.email}`);
 

@@ -20,13 +20,6 @@ export function TemplateCard({ template }: TemplateCardProps) {
     koko: "bg-purple-100 text-purple-700 border-purple-300",
   };
 
-  // Format file size (bytes to KB/MB)
-  const formatSize = (bytes: number) => {
-    if (bytes < 1024) return `${bytes} B`;
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-  };
-
   // Format last modified date
   const formattedDate = format(
     new Date(template.last_modified),
@@ -46,24 +39,15 @@ export function TemplateCard({ template }: TemplateCardProps) {
               </h3>
             </div>
 
-            {/* Badges */}
-            <div className="flex flex-wrap gap-2">
-              <Badge
-                variant="outline"
-                className={`${
-                  identityColors[template.brand_identity]
-                } text-xs font-medium`}
-              >
-                {template.brand_identity === "jumper" ? "Jumper" : "Koko"}
-              </Badge>
-
-              <Badge
-                variant="outline"
-                className="bg-gray-100 text-gray-600 border-gray-300 text-xs font-medium"
-              >
-                {formatSize(template.size)}
-              </Badge>
-            </div>
+            {/* Brand Badge */}
+            <Badge
+              variant="outline"
+              className={`${
+                identityColors[template.brand_identity]
+              } text-xs font-medium`}
+            >
+              {template.brand_identity === "jumper" ? "Jumper" : "Koko"}
+            </Badge>
           </div>
         </div>
       </CardHeader>

@@ -5,7 +5,6 @@ export interface Template {
   template_id: string;
   file_path: string;
   brand_identity: "jumper" | "koko";
-  size: number;
   last_modified: string;
 }
 
