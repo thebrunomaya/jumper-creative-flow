@@ -555,6 +555,13 @@ OUTPUT FORMAT: Complete standalone HTML file (no markdown fences, no explanation
 
     console.log('🤖 [DECK_GENERATE] Calling Claude Sonnet 4.5 for HTML generation...');
     console.log('📏 [DECK_GENERATE] Markdown length:', markdown_source.length, 'chars');
+    console.log('📊 [DECK_GENERATE] Stage 3 prompt size estimate:', {
+      system_prompt_chars: systemPrompt.length,
+      user_prompt_chars: userPrompt.length,
+      system_tokens: Math.ceil(systemPrompt.length / 4),
+      user_tokens: Math.ceil(userPrompt.length / 4),
+      total_tokens_estimate: Math.ceil((systemPrompt.length + userPrompt.length) / 4)
+    });
 
     // 6. Call Claude API to generate HTML (with retry logic)
     const startTime = Date.now();
@@ -568,14 +575,14 @@ OUTPUT FORMAT: Complete standalone HTML file (no markdown fences, no explanation
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-5-20250929',
-        max_tokens: 16000, // Large enough for complete HTML presentations
+        max_tokens: 8000, // Reduced from 16K to speed up generation
         system: systemPrompt,
         messages: [
           { role: 'user', content: userPrompt }
         ],
       }),
-      maxRetries: 3,
-      timeoutMs: 120000, // 2 minutes for HTML generation
+      maxRetries: 2, // Reduced from 3 to avoid total timeout
+      timeoutMs: 180000, // 3 minutes for HTML generation (was 2min)
       retryOn5xx: true,
     });
 
