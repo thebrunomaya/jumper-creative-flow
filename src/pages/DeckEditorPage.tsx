@@ -180,7 +180,6 @@ export default function DeckEditorPage() {
   if (isLoadingData) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
-        <JumperBackground />
         <div className="text-center z-10">
           <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-jumper-primary" />
           <p className="text-gray-600">Carregando deck...</p>
@@ -192,7 +191,6 @@ export default function DeckEditorPage() {
   if (!deck) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
-        <JumperBackground />
         <div className="text-center z-10">
           <p className="text-gray-600">Deck não encontrado</p>
           <JumperButton onClick={() => navigate('/decks')} className="mt-4">
