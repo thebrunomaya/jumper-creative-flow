@@ -1034,6 +1034,531 @@ The dog-ear uses two complementary CSS techniques:
 
 ---
 
+## 📊 Data Visualization Patterns (Slides 18-22)
+
+**Added:** 2024-11-11 (Template v2.0)
+
+Five standardized chart patterns for analytics presentations. All charts share:
+- **Dog-ear corners** (18px corner fold effect)
+- **2px black borders** (consistent with card system)
+- **Responsive sizing** using `clamp()` for mobile-to-desktop
+- **Semantic color coding** (green = positive, blue = info, yellow = warning, red = negative)
+
+---
+
+### Pattern 1: Line Chart (Temporal Evolution)
+
+**Use Case:** Time-series data, performance trends, growth/decline over time
+
+**HTML Structure:**
+```html
+<div class="slide line-chart-slide">
+    <h1 class="slide-title">EVOLUÇÃO DE CONVERSÕES</h1>
+    <p class="slide-subtitle">Performance ao longo de 6 semanas</p>
+
+    <div class="line-chart-container">
+        <svg class="line-chart" viewBox="0 0 600 300">
+            <!-- Y-axis labels -->
+            <g class="y-axis">
+                <text x="40" y="50">400</text>
+                <text x="40" y="100">300</text>
+                <!-- ... -->
+            </g>
+
+            <!-- Line path -->
+            <path class="line-path"
+                  d="M 80,250 L 160,220 L 240,180 L 320,150 L 400,90 L 480,50"
+                  stroke="#10B981"
+                  stroke-width="3"
+                  fill="none"/>
+
+            <!-- Data points -->
+            <circle cx="80" cy="250" r="5" fill="#10B981"/>
+            <!-- ... -->
+
+            <!-- X-axis labels -->
+            <g class="x-axis">
+                <text x="80" y="280">Sem 1</text>
+                <!-- ... -->
+            </g>
+        </svg>
+
+        <div class="chart-legend">
+            <span class="legend-item">
+                <span class="legend-color" style="background: #10B981"></span>
+                Conversões totais
+            </span>
+        </div>
+    </div>
+
+    <div class="line-chart-metrics">
+        <div class="metric-card">
+            <div class="metric-label">Total de Conversões</div>
+            <div class="metric-value">1.476</div>
+        </div>
+        <!-- More metrics -->
+    </div>
+</div>
+```
+
+**CSS:**
+```css
+.line-chart-container {
+    background: var(--koko-white);
+    border: 2px solid var(--koko-black);
+    padding: clamp(20px, 3vw, 40px);
+    clip-path: polygon(/* Dog-ear corner */);
+}
+
+.line-chart {
+    width: 100%;
+    height: auto;
+}
+
+.line-path {
+    stroke: #10B981; /* Green for positive growth */
+    stroke-width: 3;
+    fill: none;
+}
+```
+
+---
+
+### Pattern 2: Horizontal Bar Chart (Comparison)
+
+**Use Case:** Comparing values across categories, performance benchmarks
+
+**HTML Structure:**
+```html
+<div class="slide bar-chart-slide">
+    <h1 class="slide-title">PERFORMANCE POR CANAL</h1>
+    <p class="slide-subtitle">Comparação de resultados</p>
+
+    <div class="slide-content">
+        <div class="bar-chart-item">
+            <div class="bar-chart-header">
+                <span class="bar-label">GOOGLE ADS</span>
+                <span class="bar-value">R$ 247.890</span>
+            </div>
+            <div class="bar-chart-track">
+                <div class="bar-chart-fill" style="width: 100%; background: #10B981">
+                    <span class="bar-chart-label">ROAS 5.2x</span>
+                </div>
+            </div>
+        </div>
+        <!-- More bars -->
+    </div>
+</div>
+```
+
+**CSS:**
+```css
+.bar-chart-slide .slide-content {
+    gap: clamp(16px, 2vw, 24px); /* Compact vertical spacing */
+}
+
+.bar-chart-track {
+    width: 100%;
+    height: clamp(36px, 4.5vw, 54px);
+    background: rgba(0, 0, 0, 0.1);
+    border: 2px solid var(--koko-black);
+    position: relative;
+    overflow: hidden;
+    clip-path: polygon(/* Trapezoid shape */);
+}
+
+.bar-chart-fill {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: width 0.8s ease-out;
+}
+```
+
+**Color Semantics:**
+- Green (#10B981): Top performer, positive results
+- Blue (#3B82F6): Good performance, secondary
+- Yellow (#F5C542): Warning, needs attention
+- Red (#EF4444): Underperforming, critical
+
+---
+
+### Pattern 3: Donut Chart (Distribution)
+
+**Use Case:** Budget allocation, market share, portfolio distribution
+
+**HTML Structure:**
+```html
+<div class="slide donut-chart-slide">
+    <div class="donut-chart-container">
+        <h1 class="slide-title">DISTRIBUIÇÃO DE BUDGET</h1>
+        <p class="slide-subtitle">Alocação por plataforma (Outubro 2024)</p>
+
+        <div class="donut-chart-wrapper">
+            <svg class="donut-chart" viewBox="0 0 200 200">
+                <!-- Donut segments using stroke-dasharray -->
+                <circle class="donut-segment"
+                        cx="100" cy="100" r="80"
+                        stroke="#F5C542"
+                        stroke-width="40"
+                        stroke-dasharray="226 565"
+                        transform="rotate(-90 100 100)"/>
+                <!-- More segments -->
+            </svg>
+            <div class="donut-center">
+                <div class="donut-center-value">R$ 300k</div>
+                <div class="donut-center-label">Budget Total</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="donut-legend">
+        <div class="legend-item">
+            <span class="legend-color" style="background: #F5C542"></span>
+            <span class="legend-text">Google Ads</span>
+            <span class="legend-value">R$ 135k (45%)</span>
+        </div>
+        <!-- More legend items -->
+    </div>
+</div>
+```
+
+**CSS:**
+```css
+.donut-chart-wrapper {
+    position: relative;
+    width: clamp(200px, 40vw, 400px);
+    aspect-ratio: 1;
+}
+
+.donut-segment {
+    fill: none;
+    stroke-width: 40;
+    stroke-linecap: butt;
+}
+
+.donut-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+```
+
+**Segment Calculation:**
+```javascript
+// For a circle with radius 80:
+const circumference = 2 * Math.PI * 80; // 502.65
+const segmentLength = (percentage / 100) * circumference;
+const gap = circumference - segmentLength;
+
+// stroke-dasharray: segmentLength gap
+// Example: 45% = "226 277"
+```
+
+---
+
+### Pattern 4: Funnel Visualization (Conversion Path)
+
+**Use Case:** Multi-stage funnels, drop-off analysis, user journey mapping
+
+**HTML Structure:**
+```html
+<div class="slide funnel-slide">
+    <h1 class="slide-title">FUNIL DE CONVERSÃO</h1>
+    <p class="slide-subtitle">Jornada completa - Outubro 2024</p>
+
+    <div class="slide-content">
+        <div class="funnel-stage">
+            <div class="funnel-stage-header">
+                <span class="funnel-stage-label">1. IMPRESSÕES</span>
+                <span class="funnel-stage-value">
+                    1.250.000
+                    <span class="funnel-stage-percentage">(100%)</span>
+                </span>
+            </div>
+            <div class="funnel-bar">
+                <span class="funnel-bar-label">TOPO DO FUNIL</span>
+            </div>
+            <div class="funnel-drop-off">-15%</div>
+        </div>
+        <!-- More stages -->
+    </div>
+
+    <div class="funnel-insight">
+        <strong>OPORTUNIDADE:</strong> Drop-off crítico Leads → Conversões (65%).
+        Sugestão: remarketing + melhor copy nas LPs.
+    </div>
+</div>
+```
+
+**CSS (Critical - Empirically Validated):**
+```css
+.funnel-slide .slide-content {
+    gap: clamp(16px, 2vw, 24px); /* Space for drop-off badges */
+}
+
+.funnel-stage {
+    gap: 4px; /* Minimal internal gap */
+    position: relative;
+}
+
+.funnel-bar {
+    height: clamp(35px, 3.5vw, 50px);
+    border: 2px solid var(--koko-black);
+    /* Trapezoid: wide top, narrow bottom */
+    clip-path: polygon(0 0, 100% 0, 92% 100%, 8% 100%);
+}
+
+/* Width progression creates funnel effect */
+.funnel-stage:nth-of-type(1) .funnel-bar { width: 100%; }
+.funnel-stage:nth-of-type(2) .funnel-bar { width: 85%; margin: 0 auto; }
+.funnel-stage:nth-of-type(3) .funnel-bar { width: 60%; margin: 0 auto; }
+.funnel-stage:nth-of-type(4) .funnel-bar { width: 35%; margin: 0 auto; }
+
+/* Drop-off badges: CRITICAL positioning */
+.funnel-drop-off {
+    position: absolute;
+    bottom: calc(-1 * clamp(40px, 5vw, 47px));
+    /* ↑ Empirically measured: gap center - badge half height */
+    left: 50%;
+    transform: translate(-50%, 0%);
+    background: var(--koko-white);
+    border: 2px solid var(--koko-black);
+    padding: 4px 12px;
+    z-index: 10;
+}
+```
+
+**Badge Positioning Math:**
+- Gap between stages: 16-24px (CSS) → **63px real** (computed)
+- Badge height: ~30px
+- Gap center: 31.5px from bar bottom
+- Badge center from top: 15px
+- **Bottom offset needed:** 31.5px + 15px = ~47px
+- **Result:** Badges perfectly centered (±1px validated via Playwright)
+
+**Critical Notes:**
+1. **Use `:nth-of-type()` not `:nth-child()`** - Counts only `.funnel-stage` elements
+2. **Bottom offset is negative** - Pushes badge DOWN into gap
+3. **Empirical validation required** - CSS clamp ≠ computed gap size
+4. **Responsive sizing** - All values use clamp() for mobile-to-desktop
+
+---
+
+### Pattern 5: Stacked Area Chart (Multi-Channel Evolution)
+
+**Use Case:** Multi-source trends, channel contribution, portfolio evolution
+
+**HTML Structure:**
+```html
+<div class="slide stacked-area-slide">
+    <h1 class="slide-title">EVOLUÇÃO MULTI-CANAL</h1>
+    <p class="slide-subtitle">Receita mensal por plataforma (Mai-Out 2024)</p>
+
+    <div class="slide-content">
+        <div class="chart-container">
+            <svg class="stacked-area-chart" viewBox="0 0 600 300">
+                <!-- Y-axis -->
+                <g class="y-axis">
+                    <text x="40" y="50">400k</text>
+                    <!-- ... -->
+                </g>
+
+                <!-- Stacked areas (bottom to top) -->
+                <path class="area-path area-google"
+                      d="M 80,250 L 160,240 ... L 480,180 L 480,300 L 80,300 Z"
+                      fill="url(#google-gradient)"/>
+                <path class="area-path area-meta"
+                      d="M 80,180 L 160,170 ... L 480,120 L 480,180 L 80,250 Z"
+                      fill="url(#meta-gradient)"/>
+                <!-- TikTok area -->
+
+                <!-- X-axis -->
+                <g class="x-axis">
+                    <text x="80" y="280">Mai</text>
+                    <!-- ... -->
+                </g>
+            </svg>
+        </div>
+
+        <div class="channel-metrics">
+            <div class="channel-card">
+                <div class="channel-color" style="background: #F5C542"></div>
+                <div class="channel-name">Google Ads</div>
+                <div class="channel-stats">
+                    <div class="stat">
+                        <span class="stat-label">Receita</span>
+                        <span class="stat-value">R$ 160k</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Crescimento</span>
+                        <span class="stat-value">+100%</span>
+                    </div>
+                </div>
+            </div>
+            <!-- More channels -->
+        </div>
+    </div>
+</div>
+```
+
+**CSS:**
+```css
+.stacked-area-slide .slide-content {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr; /* 60% chart, 40% legend */
+    gap: clamp(40px, 5vw, 80px);
+}
+
+.area-path {
+    opacity: 0.8;
+    stroke-width: 2;
+    stroke: var(--koko-black);
+}
+
+.channel-card {
+    display: grid;
+    grid-template-columns: 8px 1fr;
+    gap: 16px;
+    padding: 16px;
+    background: var(--koko-white);
+    border: 2px solid var(--koko-black);
+    clip-path: polygon(/* Dog-ear */);
+}
+
+.channel-color {
+    width: 8px;
+    height: 100%;
+    background: var(--channel-color);
+}
+```
+
+**Gradients for Depth:**
+```html
+<defs>
+    <linearGradient id="google-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stop-color="#F5C542" stop-opacity="0.8"/>
+        <stop offset="100%" stop-color="#F5C542" stop-opacity="0.4"/>
+    </linearGradient>
+</defs>
+```
+
+---
+
+### Shared Chart Styling
+
+**Common Container CSS:**
+```css
+/* All chart slides share base structure */
+.chart-container,
+.line-chart-container,
+.donut-chart-container {
+    background: var(--koko-white);
+    border: 2px solid var(--koko-black);
+    padding: clamp(20px, 3vw, 40px);
+    position: relative;
+
+    /* Dog-ear corner (18px) */
+    clip-path: polygon(
+        0 0,
+        100% 0,
+        100% calc(100% - 18px),
+        calc(100% - 18px) 100%,
+        0 100%
+    );
+}
+
+.chart-container::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    width: 18px;
+    height: 18px;
+    background: linear-gradient(135deg,
+        #d9d9d9 0%,      /* Verso (paper back) */
+        #d9d9d9 45.5%,
+        #000 45.5%,      /* 2px border */
+        #000 54.5%,
+        #FFFFFF 54.5%,   /* Background */
+        #FFFFFF 100%
+    );
+}
+```
+
+**Typography:**
+```css
+.slide-title {
+    font-size: clamp(40px, 5vw, 64px);
+    margin-bottom: 8px;
+}
+
+.slide-subtitle {
+    font-size: clamp(16px, 2vw, 24px);
+    margin-bottom: 24px;
+    opacity: 0.8;
+}
+
+.chart-legend {
+    display: flex;
+    gap: 16px;
+    margin-top: 16px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: clamp(12px, 1.4vw, 16px);
+}
+
+.legend-color {
+    width: 16px;
+    height: 16px;
+    border: 2px solid var(--koko-black);
+}
+```
+
+**Responsive Breakpoints:**
+```css
+@media (max-width: 768px) {
+    /* Stack chart + legend vertically on mobile */
+    .stacked-area-slide .slide-content {
+        grid-template-columns: 1fr;
+    }
+
+    /* Reduce chart height */
+    .line-chart,
+    .stacked-area-chart {
+        height: 200px;
+    }
+}
+```
+
+---
+
+### Chart Pattern Selection Guide
+
+| Pattern | Best For | Avoid When |
+|---------|----------|------------|
+| **Line Chart** | Time-series, trends, growth | Comparing categories, discrete data |
+| **Bar Chart** | Category comparison, rankings | Temporal data, distributions |
+| **Donut Chart** | Part-to-whole, percentages | Too many categories (>6), time-series |
+| **Funnel** | Multi-stage processes, drop-offs | Non-sequential data, parallel paths |
+| **Stacked Area** | Multi-source evolution, composition | Too many sources (>4), negative values |
+
+**Data Density Guidelines:**
+- Maximum 6 data points for mobile line charts
+- Maximum 4 bars for vertical bar charts
+- Maximum 5 segments for donut charts
+- Maximum 4 stages for funnels
+- Maximum 3 channels for stacked areas
+
+---
+
 ## 🎬 Marquee System
 
 **Top & Bottom Marquees** (Continuous Brand Presence)
