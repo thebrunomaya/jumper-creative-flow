@@ -278,6 +278,76 @@ CRITICAL INSTRUCTIONS:
    - Example CORRECT: "EH campaigns: $7.47 CPA<br>Account avg: $0.87<br>Week 3 performance"
    - Prioritize readability: SHORT sentences, CLEAR structure, NO text overflow
 
+7.2. AUTOMATIC CONTENT DENSITY ADAPTATION (CRITICAL - Prevent Overflow):
+
+   ⚠️ MANDATORY: Analyze content density BEFORE generating each slide and apply appropriate adjustments.
+
+   🎯 DENSITY DETECTION CRITERIA:
+
+   A) COUNT these elements per slide:
+      - Cards/boxes: Each counts as 2 points
+      - Bullet points: Each counts as 1 point
+      - Paragraphs: Each counts as 1 point
+      - Table rows: Each counts as 1 point
+
+   B) DENSITY LEVELS:
+      - NORMAL (0-10 points): Use design system defaults
+      - MEDIUM (11-16 points): Apply medium density adjustments
+      - HIGH (17-24 points): Apply high density adjustments
+      - ULTRA (25+ points): Apply ultra-dense adjustments OR split slide
+
+   📐 AUTOMATIC ADJUSTMENTS BY DENSITY LEVEL:
+
+   NORMAL DENSITY (0-10 points):
+   ✅ Use design system defaults:
+      - Body text: 16px | Card titles: 20px | Section titles: 72px
+      - Card padding: 18px | Grid gap: 24px | Line height: 1.6
+
+   MEDIUM DENSITY (11-16 points):
+   ⚙️ Reduce sizes by ~15%:
+      - Body text: 14px | Card titles: 18px | Section titles: 56px
+      - Card padding: 14px | Grid gap: 16px | Line height: 1.5
+
+   HIGH DENSITY (17-24 points):
+   ⚙️ Reduce sizes by ~25%:
+      - Body text: 13px | Card titles: 16px | Section titles: 48px
+      - Card padding: 12px | Grid gap: 12px | Line height: 1.4
+
+   ULTRA DENSITY (25+ points):
+   🚨 FIRST TRY ultra-compact sizing:
+      - Body text: 12px | Card titles: 14px | Section titles: 42px
+      - Card padding: 10px | Grid gap: 10px | Line height: 1.3
+
+   🚨 IF STILL OVERFLOWS: Split into multiple slides
+      - Example: "RESULTS (PART 1)" + "RESULTS (PART 2)"
+      - Each slide max 12 points density
+      - Add navigation hints: "Continued →" or "← Previous"
+
+   💡 CONTENT SUMMARIZATION STRATEGY:
+
+   When markdown provides excessive detail (>20 bullet points per topic):
+   1. Identify KEY insights (top 6-8 items)
+   2. Group similar items: "Campaigns 1-4 showed similar CPA ($0.40-0.45)"
+   3. Move detailed breakdowns to separate "Details" or "Appendix" slides
+   4. Preserve ALL data but reorganize for didactic flow
+
+   🔍 OVERFLOW VALIDATION (Before finalizing each slide):
+
+   Mental checklist:
+   [ ] Estimated content height < 70vh? (safe zone = 800px max)
+   [ ] Content doesn't overlap top marquee? (112px from top clear)
+   [ ] Content doesn't overlap bottom marquee? (144px from bottom clear)
+   [ ] Text readable at chosen font size? (min 12px)
+   [ ] Cards have breathing room? (min 10px padding)
+
+   IF ANY CHECK FAILS → Apply next density level OR split slide
+
+   🎯 PRIORITY ORDER (Decision Tree):
+   1. TRY: Apply appropriate density level (MEDIUM/HIGH/ULTRA)
+   2. IF STILL OVERFLOWS: Summarize content (group similar items)
+   3. IF STILL OVERFLOWS: Split into multiple slides
+   4. NEVER: Let content overflow viewport or overlap marquees
+
 8. UTF-8 ENCODING (CRITICAL):
    - ALWAYS preserve Brazilian Portuguese characters: á é í ó ú ã õ ç
    - Ensure <meta charset="UTF-8"> is FIRST tag in <head>
