@@ -6,7 +6,7 @@
     <title>Koko Classic Template - Agência Koko</title>
     <style>
         /**
-         * KOKO CLASSIC TEMPLATE v2.1
+         * KOKO CLASSIC TEMPLATE v2.0.1 (WIP - Data Visualization)
          * Template COMPLETO para apresentações criativas e relatórios de performance
          * Design System: Energético, criativo, ousado com elementos visuais únicos
          * Paleta: Amarelo (#F5C542), Rosa (#FF0080), Preto, Branco
@@ -15,24 +15,28 @@
          * IMPORTANTE: Este é um TEMPLATE de referência visual completo.
          * Claude AI deve usar os padrões aqui como base para gerar slides dinamicamente.
          *
+         * NOVIDADES v2.0.1 (PARCIAL - 1/5 charts implementados):
+         * - DATA VISUALIZATION CHARTS para relatórios de tráfego:
+         *   ✅ Slide 18: LINE CHART (temporal evolution - conversions over time)
+         *   ⏳ Slide 19: Horizontal Bar Chart (channel comparison)
+         *   ⏳ Slide 20: Donut Chart (budget distribution)
+         *   ⏳ Slide 21: Funnel Visualization (conversion path)
+         *   ⏳ Slide 22: Stacked Area Chart (multi-channel evolution)
+         * - Chart semantic colors (green=success, yellow=warning, pink=alert)
+         * - CSS base compartilhado para todos os charts (corner-fold, typography)
+         * - Grid 2-column: Chart (60%) + Insights (40%)
+         * - SVG paths para visualizações escaláveis
+         * - Responsivo (mobile stacks vertically)
+         *
          * NOVIDADES v2.1:
-         * - Statement Slide Pattern com 2 variantes:
-         *   • Default: Texto esquerda + Pink mouth direita (declarações simples)
-         *   • Reverse: Loud mouth esquerda + Texto direita (conteúdo denso)
-         * - Section Divider Pattern:
-         *   • Título + Computer graphic + Checkered borders (chapter breaks)
-         * - Table of Contents Pattern:
-         *   • Sumário com categorias e subcategorias (agenda/estrutura)
-         * - Process Timeline Pattern:
-         *   • Timeline horizontal com steps conectados por setas (processos/fluxos)
-         * - Elementos gráficos Koko: pink-mouth.png, loud.png, computer.png, gorilla-hand.png
-         * - Layout two-column clean (sem corner-fold)
+         * - Statement Slide Pattern com 2 variantes (loud mouth + text)
+         * - Section Divider Pattern (title + computer graphic)
+         * - Table of Contents Pattern (funnel effect)
+         * - Elementos gráficos Koko: pink-mouth.png, loud.png, computer.png
          *
          * NOVIDADES v2.0:
          * - Sistema de navegação interativo (setas, dots, contador)
-         * - Mais padrões de slides (stack-cards, metric-cards, emphasis-box, two-column-data)
-         * - Exemplos de 18 tipos diferentes de slides
-         * - Slide de contracapa
+         * - 17 slides base + contracapa
          * - Transições suaves entre slides
          *
          * BRANDING: Koko é uma agência criativa independente.
@@ -1036,6 +1040,193 @@
         .text-pink { color: var(--koko-pink); }
 
         /* ========================================
+           DATA VISUALIZATION CHARTS
+           Base components for traffic reports
+           Semantic colors for performance data
+           ======================================== */
+
+        /* Chart semantic colors (traffic data) */
+        :root {
+            --chart-positive: #2AA876;  /* Green - growth, success, high ROAS */
+            --chart-neutral: #F5C542;   /* Yellow - standard, warning */
+            --chart-negative: #FF0080;  /* Pink - decline, alert, high CPA */
+            --chart-google: #2AA876;    /* Google Ads */
+            --chart-meta: #4285F4;      /* Meta Ads */
+            --chart-tiktok: #FF0080;    /* TikTok Ads */
+            --chart-other: #666666;     /* Other channels */
+        }
+
+        /* Base chart container with corner-fold */
+        .chart-container {
+            background: var(--koko-white);
+            border: 2px solid var(--koko-black);
+            padding: clamp(24px, 3vw, 40px);
+            position: relative;
+            clip-path: polygon(
+                0 0,
+                100% 0,
+                100% calc(100% - 22px),
+                calc(100% - 22px) 100%,
+                0 100%
+            );
+        }
+
+        .chart-container::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            width: 22px;
+            height: 22px;
+            background: linear-gradient(135deg,
+                #d9d9d9 0%,
+                #d9d9d9 45.5%,
+                #000 45.5%,
+                #000 54.5%,
+                #FFFFFF 54.5%,
+                #FFFFFF 100%
+            );
+        }
+
+        .chart-title {
+            font-family: 'Alternate Gothic', sans-serif;
+            font-size: clamp(32px, 4vw, 48px);
+            font-weight: 900;
+            text-transform: uppercase;
+            margin-bottom: 24px;
+            line-height: 0.9;
+        }
+
+        .chart-subtitle {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(16px, 2vw, 20px);
+            font-weight: 400;
+            font-style: italic;
+            color: rgba(0, 0, 0, 0.7);
+            margin-bottom: 32px;
+        }
+
+        .chart-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-top: 16px;
+            font-family: 'Playfair Display', serif;
+            font-size: 14px;
+        }
+
+        .chart-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .chart-legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        /* ========================================
+           LINE CHART PATTERN
+           Temporal evolution - performance over time
+           ======================================== */
+        .line-chart-slide .slide-content {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: clamp(32px, 4vw, 60px);
+            align-items: flex-start;
+        }
+
+        .line-chart-wrapper {
+            position: relative;
+            height: 400px;
+        }
+
+        .line-chart-svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .line-chart-path {
+            fill: none;
+            stroke: var(--chart-positive);
+            stroke-width: 3;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .line-chart-dots circle {
+            fill: var(--koko-white);
+            stroke: var(--chart-positive);
+            stroke-width: 3;
+        }
+
+        .line-chart-grid line {
+            stroke: rgba(0, 0, 0, 0.1);
+            stroke-width: 1;
+        }
+
+        .line-chart-axis {
+            font-family: 'Playfair Display', serif;
+            font-size: 12px;
+            fill: rgba(0, 0, 0, 0.6);
+        }
+
+        .line-chart-insights {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .line-chart-metric {
+            padding: 16px;
+            background: var(--koko-black);
+            color: var(--koko-white);
+            position: relative;
+            clip-path: polygon(
+                0 0,
+                100% 0,
+                100% calc(100% - 16px),
+                calc(100% - 16px) 100%,
+                0 100%
+            );
+        }
+
+        .line-chart-metric::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            width: 16px;
+            height: 16px;
+            background: linear-gradient(135deg,
+                #444 0%,
+                #444 43.75%,
+                #fff 43.75%,
+                #fff 56.25%,
+                #FFFFFF 56.25%,
+                #FFFFFF 100%
+            );
+        }
+
+        .line-chart-metric-label {
+            font-family: 'Playfair Display', serif;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            opacity: 0.8;
+            margin-bottom: 4px;
+        }
+
+        .line-chart-metric-value {
+            font-family: 'Alternate Gothic', sans-serif;
+            font-size: clamp(24px, 3vw, 32px);
+            font-weight: 900;
+        }
+
+        /* ========================================
            RESPONSIVE ADJUSTMENTS
            ======================================== */
         @media (max-width: 1024px) {
@@ -1139,6 +1330,20 @@
             .cards-grid {
                 grid-template-columns: 1fr;
                 gap: 14px;
+            }
+
+            /* Line Chart responsive */
+            .line-chart-slide .slide-content {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+
+            .line-chart-wrapper {
+                height: 280px;
+            }
+
+            .line-chart-metric {
+                padding: 12px;
             }
 
             .slide-title {
@@ -1756,6 +1961,92 @@
             </div>
         </div>
 
+        <!-- SLIDE 18: LINE CHART PATTERN (Temporal Evolution) -->
+        <div class="slide line-chart-slide">
+            <div class="slide-content">
+                <!-- Left: Chart Area -->
+                <div class="chart-container">
+                    <h2 class="chart-title">EVOLUÇÃO DE CONVERSÕES</h2>
+                    <p class="chart-subtitle">Performance ao longo de 6 semanas</p>
+
+                    <div class="line-chart-wrapper">
+                        <svg class="line-chart-svg" viewBox="0 0 600 300" preserveAspectRatio="none">
+                            <!-- Grid lines (horizontal) -->
+                            <g class="line-chart-grid">
+                                <line x1="60" y1="50" x2="580" y2="50" />
+                                <line x1="60" y1="112.5" x2="580" y2="112.5" />
+                                <line x1="60" y1="175" x2="580" y2="175" />
+                                <line x1="60" y1="237.5" x2="580" y2="237.5" />
+                            </g>
+
+                            <!-- Y-axis labels -->
+                            <g class="line-chart-axis">
+                                <text x="45" y="54" text-anchor="end">400</text>
+                                <text x="45" y="116.5" text-anchor="end">300</text>
+                                <text x="45" y="179" text-anchor="end">200</text>
+                                <text x="45" y="241.5" text-anchor="end">100</text>
+                                <text x="45" y="304" text-anchor="end">0</text>
+                            </g>
+
+                            <!-- Line path (conversions growth from 54 to 372) -->
+                            <path class="line-chart-path"
+                                  d="M 85,276 L 180,241 L 275,204 L 370,162 L 465,78 L 560,30" />
+
+                            <!-- Data dots -->
+                            <g class="line-chart-dots">
+                                <circle cx="85" cy="276" r="5" />
+                                <circle cx="180" cy="241" r="5" />
+                                <circle cx="275" cy="204" r="5" />
+                                <circle cx="370" cy="162" r="5" />
+                                <circle cx="465" cy="78" r="5" />
+                                <circle cx="560" cy="30" r="5" />
+                            </g>
+
+                            <!-- X-axis labels -->
+                            <g class="line-chart-axis">
+                                <text x="85" y="295" text-anchor="middle">Sem 1</text>
+                                <text x="180" y="295" text-anchor="middle">Sem 2</text>
+                                <text x="275" y="295" text-anchor="middle">Sem 3</text>
+                                <text x="370" y="295" text-anchor="middle">Sem 4</text>
+                                <text x="465" y="295" text-anchor="middle">Sem 5</text>
+                                <text x="560" y="295" text-anchor="middle">Sem 6</text>
+                            </g>
+                        </svg>
+                    </div>
+
+                    <div class="chart-legend">
+                        <div class="chart-legend-item">
+                            <span class="chart-legend-dot" style="background: var(--chart-positive);"></span>
+                            <span>Conversões totais</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Insights -->
+                <div class="line-chart-insights">
+                    <div class="line-chart-metric">
+                        <div class="line-chart-metric-label">Total de Conversões</div>
+                        <div class="line-chart-metric-value">1.476</div>
+                    </div>
+
+                    <div class="line-chart-metric">
+                        <div class="line-chart-metric-label">Crescimento</div>
+                        <div class="line-chart-metric-value">+588%</div>
+                    </div>
+
+                    <div class="line-chart-metric">
+                        <div class="line-chart-metric-label">Média Semanal</div>
+                        <div class="line-chart-metric-value">246 conv/sem</div>
+                    </div>
+
+                    <div style="padding: 16px; background: var(--koko-yellow); font-family: 'Playfair Display', serif; font-size: 14px; line-height: 1.6;">
+                        <strong style="font-family: 'Alternate Gothic', sans-serif; font-size: 16px; text-transform: uppercase; display: block; margin-bottom: 8px;">KEY INSIGHT:</strong>
+                        Crescimento exponencial nas últimas 2 semanas após otimizações de lances e criativos. Tendência positiva sustentável.
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <!-- Navigation System -->
@@ -1777,10 +2068,11 @@
         <div class="nav-dot" data-slide="14"></div>
         <div class="nav-dot" data-slide="15"></div>
         <div class="nav-dot" data-slide="16"></div>
+        <div class="nav-dot" data-slide="17"></div>
     </div>
 
     <div class="slide-counter">
-        <span id="current-slide">1</span> / <span id="total-slides">17</span>
+        <span id="current-slide">1</span> / <span id="total-slides">18</span>
     </div>
 
     <button class="nav-arrow prev" aria-label="Slide anterior">←</button>
