@@ -17,18 +17,21 @@
          *
          * NOVIDADES v2.1:
          * - Statement Slide Pattern com 2 variantes:
-         *   • Default: Texto esquerda + Pink mouth direita
-         *   • Reverse: Loud mouth esquerda + Texto direita (com subtítulo)
+         *   • Default: Texto esquerda + Pink mouth direita (declarações simples)
+         *   • Reverse: Loud mouth esquerda + Texto direita (conteúdo denso)
          * - Section Divider Pattern:
-         *   • Título grande + Computer graphic + Checkered borders
-         *   • Perfect para chapter breaks e transições de seção
-         * - Elementos gráficos Koko: pink-mouth.png, loud.png, computer.png
+         *   • Título + Computer graphic + Checkered borders (chapter breaks)
+         * - Table of Contents Pattern:
+         *   • Sumário com categorias e subcategorias (agenda/estrutura)
+         * - Process Timeline Pattern:
+         *   • Timeline horizontal com steps conectados por setas (processos/fluxos)
+         * - Elementos gráficos Koko: pink-mouth.png, loud.png, computer.png, gorilla-hand.png
          * - Layout two-column clean (sem corner-fold)
          *
          * NOVIDADES v2.0:
          * - Sistema de navegação interativo (setas, dots, contador)
          * - Mais padrões de slides (stack-cards, metric-cards, emphasis-box, two-column-data)
-         * - Exemplos de 16 tipos diferentes de slides
+         * - Exemplos de 18 tipos diferentes de slides
          * - Slide de contracapa
          * - Transições suaves entre slides
          *
@@ -872,6 +875,146 @@
         }
 
         /* ========================================
+           TABLE OF CONTENTS SLIDE PATTERN
+           Sumário/Índice com categorias e subcategorias
+           Uso: Agenda, table of contents, estrutura de conteúdo
+           Layout: Título à esquerda, blocos de categoria à direita
+           Style: Categorias com header preto + yellow underline
+           ======================================== */
+        .toc-slide .slide-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 60px;
+            align-items: flex-start;
+        }
+
+        .toc-title-wrapper {
+            position: sticky;
+            top: 0;
+        }
+
+        .toc-main-title {
+            font-size: clamp(48px, 8vw, 96px);
+            font-weight: 900;
+            line-height: 0.9;
+            letter-spacing: -0.02em;
+            text-transform: uppercase;
+        }
+
+        .toc-categories {
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+        }
+
+        .toc-category {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .toc-category-header {
+            background: var(--koko-black);
+            color: var(--koko-white);
+            padding: 12px 24px;
+            font-size: clamp(14px, 1.8vw, 18px);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 4px solid var(--koko-yellow);
+        }
+
+        .toc-category-content {
+            padding: 16px 24px;
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(13px, 1.6vw, 15px);
+            line-height: 1.8;
+        }
+
+        .toc-category-content ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .toc-category-content li {
+            margin-bottom: 6px;
+        }
+
+        /* ========================================
+           PROCESS TIMELINE SLIDE PATTERN
+           Timeline horizontal com steps + gorilla hand
+           Uso: Processos, metodologias, fluxos de trabalho
+           Layout: Título acima, timeline horizontal, graphic abaixo
+           Style: Setas conectando steps, gorilla hand decorativo
+           ======================================== */
+        .process-timeline-slide .slide-content {
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+        }
+
+        .process-main-title {
+            font-size: clamp(32px, 5vw, 48px);
+            font-weight: 900;
+            line-height: 0.95;
+            letter-spacing: -0.02em;
+            text-transform: uppercase;
+            margin-bottom: 0;
+        }
+
+        .process-steps-container {
+            display: flex;
+            align-items: flex-start;
+            gap: 0;
+            position: relative;
+        }
+
+        .process-step {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .process-step-header {
+            background: var(--koko-black);
+            color: var(--koko-white);
+            padding: 10px 16px;
+            font-size: clamp(11px, 1.4vw, 14px);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%);
+            margin-right: -12px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .process-step:last-child .process-step-header {
+            clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+            margin-right: 0;
+        }
+
+        .process-step-content {
+            padding: 16px 12px;
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(11px, 1.3vw, 13px);
+            line-height: 1.6;
+        }
+
+        .process-graphic-wrapper {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin-top: 16px;
+        }
+
+        .process-graphic-wrapper img {
+            max-width: clamp(200px, 25vw, 320px);
+            height: auto;
+        }
+
+        /* ========================================
            NAVIGATION SYSTEM
            Setas, dots, contador de slides
            ======================================== */
@@ -1008,6 +1151,39 @@
 
             .section-divider-logo img {
                 height: 24px;
+            }
+
+            .toc-slide .slide-content {
+                grid-template-columns: 1fr;
+                gap: 32px;
+            }
+
+            .toc-main-title {
+                font-size: 48px;
+                text-align: center;
+            }
+
+            .toc-categories {
+                gap: 24px;
+            }
+
+            .process-steps-container {
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .process-step-header {
+                clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+                margin-right: 0;
+            }
+
+            .process-graphic-wrapper {
+                justify-content: center;
+                margin-top: 24px;
+            }
+
+            .process-graphic-wrapper img {
+                max-width: 180px;
             }
 
             .cards-grid {
@@ -1520,7 +1696,96 @@
             </div>
         </div>
 
-        <!-- SLIDE 14: PRÓXIMOS PASSOS (Timeline) -->
+        <!-- SLIDE 14: TABLE OF CONTENTS (Sumário com categorias) -->
+        <div class="slide toc-slide">
+            <div class="slide-content">
+                <div class="toc-title-wrapper">
+                    <h2 class="toc-main-title">TÍTULO</h2>
+                </div>
+                <div class="toc-categories">
+                    <div class="toc-category">
+                        <div class="toc-category-header">DESCOBERTA</div>
+                        <div class="toc-category-content">
+                            <ul>
+                                <li>Formatos prioritários:</li>
+                                <li>Objetivos:</li>
+                                <li>Linhas editoriais:</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="toc-category">
+                        <div class="toc-category-header">NUTRIÇÃO</div>
+                        <div class="toc-category-content">
+                            <ul>
+                                <li>Formatos prioritários:</li>
+                                <li>Objetivos:</li>
+                                <li>Linhas editoriais:</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="toc-category">
+                        <div class="toc-category-header">CONVERSÃO</div>
+                        <div class="toc-category-content">
+                            <ul>
+                                <li>Formatos prioritários:</li>
+                                <li>Objetivos:</li>
+                                <li>Linhas editoriais:</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 15: PROCESS TIMELINE (Timeline horizontal com steps) -->
+        <div class="slide process-timeline-slide">
+            <div class="slide-content">
+                <h2 class="process-main-title">TÍTULO TÍTULO TÍTULO:</h2>
+                <div class="process-steps-container">
+                    <div class="process-step">
+                        <div class="process-step-header">TEXTO</div>
+                        <div class="process-step-content">
+                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean porttitor
+                            vestibulum leo, vel varius ex scelerisque sed. Vestibulum ut lectus odio.
+                        </div>
+                    </div>
+                    <div class="process-step">
+                        <div class="process-step-header">TEXTO</div>
+                        <div class="process-step-content">
+                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean porttitor
+                            vestibulum leo, vel varius ex scelerisque sed. Vestibulum ut lectus odio.
+                        </div>
+                    </div>
+                    <div class="process-step">
+                        <div class="process-step-header">TEXTO</div>
+                        <div class="process-step-content">
+                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean porttitor
+                            vestibulum leo, vel varius ex scelerisque sed. Vestibulum ut lectus odio.
+                        </div>
+                    </div>
+                    <div class="process-step">
+                        <div class="process-step-header">TEXTO</div>
+                        <div class="process-step-content">
+                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean porttitor
+                            vestibulum leo, vel varius ex scelerisque sed. Vestibulum ut lectus odio.
+                        </div>
+                    </div>
+                    <div class="process-step">
+                        <div class="process-step-header">TEXTO</div>
+                        <div class="process-step-content">
+                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean porttitor
+                            vestibulum leo, vel varius ex scelerisque sed. Vestibulum ut lectus odio.
+                        </div>
+                    </div>
+                </div>
+                <div class="process-graphic-wrapper">
+                    <img src="https://hub.jumper.studio/decks/identities/koko/elements/gorilla-hand-right.png"
+                         alt="Gorilla hand">
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 16: PRÓXIMOS PASSOS (Timeline) -->
         <div class="slide">
             <div class="slide-content">
                 <h2 class="slide-title">PRÓXIMOS PASSOS</h2>
@@ -1554,7 +1819,7 @@
             </div>
         </div>
 
-        <!-- SLIDE 15: CONCLUSÃO -->
+        <!-- SLIDE 17: CONCLUSÃO -->
         <div class="slide conclusion-slide">
             <div class="slide-content">
                 <h2 class="conclusion-title">PROJETO<br>CONCLUÍDO ✅</h2>
@@ -1572,7 +1837,7 @@
             </div>
         </div>
 
-        <!-- SLIDE 16: CONTRACAPA -->
+        <!-- SLIDE 18: CONTRACAPA -->
         <div class="slide hero-slide">
             <div class="hero-background" style="background-image: url('https://hub.jumper.studio/decks/identities/koko/elements/hero-background.png');"></div>
             <img class="gorilla-hand left"
@@ -1612,10 +1877,12 @@
         <div class="nav-dot" data-slide="13"></div>
         <div class="nav-dot" data-slide="14"></div>
         <div class="nav-dot" data-slide="15"></div>
+        <div class="nav-dot" data-slide="16"></div>
+        <div class="nav-dot" data-slide="17"></div>
     </div>
 
     <div class="slide-counter">
-        <span id="current-slide">1</span> / <span id="total-slides">16</span>
+        <span id="current-slide">1</span> / <span id="total-slides">18</span>
     </div>
 
     <button class="nav-arrow prev" aria-label="Slide anterior">←</button>
