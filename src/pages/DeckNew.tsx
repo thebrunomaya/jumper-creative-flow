@@ -68,29 +68,24 @@ export default function DeckNew() {
 
   const handleSubmit = async (values: any) => {
     try {
-      // Create deck record directly in database (no HTML generation yet)
-      const { data: newDeck, error: insertError } = await supabase
-        .from('j_hub_decks')
-        .insert({
+      // Call Edge Function to create deck (bypasses RLS)
+      const { data, error: invokeError } = await supabase.functions.invoke('j_hub_deck_create', {
+        body: {
           title: values.title,
           markdown_source: values.markdown_source,
           type: values.type,
           brand_identity: values.brand_identity,
           template_id: values.template_id,
           account_id: values.account_id || null,
-          analysis_status: 'pending',
-          review_status: 'pending',
-          generation_status: 'pending',
-        })
-        .select('id')
-        .single();
+        },
+      });
 
-      if (insertError) {
-        throw insertError;
+      if (invokeError) {
+        throw new Error(invokeError.message || 'Falha ao criar deck');
       }
 
-      if (!newDeck?.id) {
-        throw new Error('Falha ao criar deck');
+      if (!data || !data.success || !data.deck_id) {
+        throw new Error(data?.error || 'Resposta inválida do servidor');
       }
 
       toast.success('Deck criado!', {
@@ -99,7 +94,7 @@ export default function DeckNew() {
       });
 
       // Navigate to new 3-stage deck editor
-      navigate(`/decks/editor/${newDeck.id}`);
+      navigate(`/decks/editor/${data.deck_id}`);
     } catch (err: any) {
       console.error("Error creating deck:", err);
       toast.error('Erro ao criar deck', {
