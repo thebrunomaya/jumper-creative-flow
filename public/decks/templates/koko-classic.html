@@ -6,7 +6,7 @@
     <title>Koko Classic Template - Agência Koko</title>
     <style>
         /**
-         * KOKO CLASSIC TEMPLATE v2.0
+         * KOKO CLASSIC TEMPLATE v2.1
          * Template COMPLETO para apresentações criativas e relatórios de performance
          * Design System: Energético, criativo, ousado com elementos visuais únicos
          * Paleta: Amarelo (#F5C542), Rosa (#FF0080), Preto, Branco
@@ -15,10 +15,15 @@
          * IMPORTANTE: Este é um TEMPLATE de referência visual completo.
          * Claude AI deve usar os padrões aqui como base para gerar slides dinamicamente.
          *
+         * NOVIDADES v2.1:
+         * - Statement Slide Pattern (título + texto + elemento gráfico)
+         * - Pink mouth graphic element (assinatura visual Koko)
+         * - Layout two-column clean (sem corner-fold)
+         *
          * NOVIDADES v2.0:
          * - Sistema de navegação interativo (setas, dots, contador)
          * - Mais padrões de slides (stack-cards, metric-cards, emphasis-box, two-column-data)
-         * - Exemplos de 12 tipos diferentes de slides
+         * - Exemplos de 14 tipos diferentes de slides
          * - Slide de contracapa
          * - Transições suaves entre slides
          *
@@ -705,6 +710,53 @@
         }
 
         /* ========================================
+           STATEMENT SLIDE PATTERN
+           Bold title with body text and pink mouth graphic
+           Uso: Section introductions, key statements, context setting
+           Layout: Two-column grid (text left, graphic right)
+           Style: Clean minimal (no corner-fold)
+           ======================================== */
+        .statement-slide .slide-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: center;
+        }
+
+        .statement-text {
+            max-width: 520px;
+        }
+
+        .statement-title {
+            font-size: clamp(40px, 6vw, 64px);
+            font-weight: 900;
+            line-height: 0.95;
+            letter-spacing: -0.02em;
+            text-transform: uppercase;
+            margin-bottom: 24px;
+        }
+
+        .statement-body {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(14px, 1.8vw, 17px);
+            line-height: 1.6;
+            color: rgba(0, 0, 0, 0.85);
+        }
+
+        .statement-graphic {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .statement-graphic img {
+            max-width: 100%;
+            height: auto;
+            max-height: 400px;
+        }
+
+        /* ========================================
            NAVIGATION SYSTEM
            Setas, dots, contador de slides
            ======================================== */
@@ -802,6 +854,15 @@
             .metric-cards {
                 grid-template-columns: 1fr;
                 gap: 16px;
+            }
+
+            .statement-slide .slide-content {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+
+            .statement-graphic img {
+                max-height: 280px;
             }
 
             .cards-grid {
@@ -1248,7 +1309,28 @@
             </div>
         </div>
 
-        <!-- SLIDE 11: PRÓXIMOS PASSOS (Timeline) -->
+        <!-- SLIDE 11: STATEMENT (New Pattern - Bold statement with graphic) -->
+        <div class="slide statement-slide">
+            <div class="slide-content">
+                <div class="statement-text">
+                    <h2 class="statement-title">TÍTULO</h2>
+                    <p class="statement-body">
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam
+                        condimentum augue a velit fermentum consectetur. Pellentesque rutrum
+                        velit eget odio venenatis ac sem lorem dapibus. Sed felis odio,
+                        consequat non lobortis ut, luctus vel arcu. Integer at augue id odio
+                        aliquet dictum ut ut lectus. Curabitur ac erat sem, ac consequat mi.
+                        Mauris sit amet arcu velit. Nunc tempor nibh massa, ac accumsan lectus.
+                    </p>
+                </div>
+                <div class="statement-graphic">
+                    <img src="https://hub.jumper.studio/decks/identities/koko/elements/pink-mouth.png"
+                         alt="Koko graphic element">
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 12: PRÓXIMOS PASSOS (Timeline) -->
         <div class="slide">
             <div class="slide-content">
                 <h2 class="slide-title">PRÓXIMOS PASSOS</h2>
@@ -1282,7 +1364,7 @@
             </div>
         </div>
 
-        <!-- SLIDE 12: CONCLUSÃO -->
+        <!-- SLIDE 13: CONCLUSÃO -->
         <div class="slide conclusion-slide">
             <div class="slide-content">
                 <h2 class="conclusion-title">PROJETO<br>CONCLUÍDO ✅</h2>
@@ -1300,7 +1382,7 @@
             </div>
         </div>
 
-        <!-- SLIDE 13: CONTRACAPA -->
+        <!-- SLIDE 14: CONTRACAPA -->
         <div class="slide hero-slide">
             <div class="hero-background" style="background-image: url('https://hub.jumper.studio/decks/identities/koko/elements/hero-background.png');"></div>
             <img class="gorilla-hand left"
@@ -1337,10 +1419,11 @@
         <div class="nav-dot" data-slide="10"></div>
         <div class="nav-dot" data-slide="11"></div>
         <div class="nav-dot" data-slide="12"></div>
+        <div class="nav-dot" data-slide="13"></div>
     </div>
 
     <div class="slide-counter">
-        <span id="current-slide">1</span> / <span id="total-slides">13</span>
+        <span id="current-slide">1</span> / <span id="total-slides">14</span>
     </div>
 
     <button class="nav-arrow prev" aria-label="Slide anterior">←</button>
