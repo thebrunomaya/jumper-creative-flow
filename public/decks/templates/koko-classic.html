@@ -764,38 +764,69 @@
             max-height: 400px;
         }
 
-        /* Statement slide variant: graphic on left, text on right */
+        /* Statement slide variant: Large graphic left (~50%), text right (~50%) */
         .statement-slide-reverse .slide-content {
-            grid-template-columns: 1fr 1fr;
-            gap: 40px;
-            align-items: flex-start;
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* 50% graphic, 50% text */
+            gap: clamp(30px, 4vw, 60px); /* Reduced gap */
+            align-items: center;
+            padding: 80px clamp(60px, 8vw, 140px);
         }
 
         .statement-slide-reverse .statement-graphic {
             order: -1; /* Move graphic to the left */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .statement-slide-reverse .statement-graphic img {
+            width: 100%; /* Fill container */
+            height: auto;
+            max-height: 90vh; /* Large vertical size */
+            object-fit: contain;
         }
 
         .statement-slide-reverse .statement-text {
             max-width: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0; /* Remove gap - control spacing individually */
         }
 
         .statement-slide-reverse .statement-title {
+            font-size: clamp(48px, 6vw, 72px);
+            font-weight: 900;
+            line-height: 0.95;
             text-align: left;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+            margin-bottom: 8px; /* Small gap to subtitle */
         }
 
         .statement-slide-reverse .statement-subtitle {
-            font-size: clamp(18px, 2.2vw, 24px);
+            font-size: clamp(20px, 2.4vw, 28px);
             font-weight: 700;
-            margin-bottom: 20px;
             line-height: 1.3;
+            margin: 0 0 12px 0; /* Small gap to body text */
+        }
+
+        .statement-slide-reverse .statement-body {
+            font-size: clamp(13px, 1.4vw, 16px); /* Considerably smaller */
+            line-height: 1.5;
+            margin: 0 0 8px 0; /* Small gap between paragraphs */
+        }
+
+        .statement-slide-reverse .statement-body:last-child {
+            margin-bottom: 0; /* Remove margin from last paragraph */
         }
 
         /* ========================================
            SECTION DIVIDER SLIDE PATTERN
-           Bold section title with computer graphic and checkered borders
+           Simple two-column layout: title left, computer graphic right
            Uso: Chapter breaks, major section transitions
-           Layout: Centered content with decorative top/bottom borders
-           Style: Energetic with checkered pattern borders
+           Layout: 50/50 grid, clean and minimal
+           Style: Bold title + large computer graphic
            ======================================== */
         .section-divider-slide {
             padding: 0;
@@ -803,75 +834,49 @@
         }
 
         .section-divider-slide .slide-content {
-            display: flex;
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* 50% title, 50% graphic */
+            gap: clamp(40px, 5vw, 80px);
             align-items: center;
-            justify-content: space-between;
             max-width: 100%;
             height: 100%;
-            padding: 0 clamp(60px, 8vw, 140px);
-            position: relative;
-        }
-
-        /* Checkered pattern borders */
-        .section-divider-slide::before,
-        .section-divider-slide::after {
-            content: '';
-            position: absolute;
-            left: 0;
-            right: 0;
-            height: 48px;
-            background-image: repeating-linear-gradient(
-                90deg,
-                var(--koko-black) 0px,
-                var(--koko-black) 24px,
-                var(--koko-white) 24px,
-                var(--koko-white) 48px
-            );
-            z-index: 5;
-        }
-
-        .section-divider-slide::before {
-            top: 48px; /* Below header marquee */
-        }
-
-        .section-divider-slide::after {
-            bottom: 48px; /* Above footer marquee */
+            padding: 80px clamp(60px, 8vw, 140px);
         }
 
         .section-divider-title-wrapper {
-            flex: 0 0 auto;
-            max-width: 50%;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
         }
 
         .section-divider-title {
-            font-size: clamp(48px, 8vw, 96px);
+            font-size: clamp(56px, 8vw, 112px);
             font-weight: 900;
             line-height: 0.9;
             letter-spacing: -0.02em;
             text-transform: uppercase;
+            text-align: left;
         }
 
+        .section-divider-subtitle {
+            font-size: clamp(20px, 2.4vw, 28px);
+            font-weight: 700;
+            line-height: 1.3;
+            text-align: left;
+        }
+
+        /* Computer graphic - large on right side */
         .section-divider-graphic {
-            flex: 0 0 auto;
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
         .section-divider-graphic img {
-            max-width: clamp(280px, 35vw, 480px);
+            width: 100%;
             height: auto;
-        }
-
-        .section-divider-logo {
-            position: absolute;
-            bottom: clamp(72px, 10vh, 120px);
-            left: clamp(60px, 8vw, 140px);
-            z-index: 10;
-        }
-
-        .section-divider-logo img {
-            height: 32px;
+            max-height: 80vh; /* Large vertical size */
+            object-fit: contain;
         }
 
         /* ========================================
@@ -953,89 +958,6 @@
 
         .toc-category-content li {
             margin-bottom: 6px;
-        }
-
-        /* ========================================
-           PROCESS TIMELINE SLIDE PATTERN
-           Timeline horizontal com steps + gorilla hand
-           Uso: Processos, metodologias, fluxos de trabalho
-           Layout: Título acima, timeline horizontal, graphic abaixo
-           Style: Setas conectando steps, gorilla hand decorativo
-           ======================================== */
-        .process-timeline-slide .slide-content {
-            display: flex;
-            flex-direction: column;
-            gap: 32px;
-        }
-
-        .process-main-title {
-            font-size: clamp(32px, 5vw, 48px);
-            font-weight: 900;
-            line-height: 0.95;
-            letter-spacing: -0.02em;
-            text-transform: uppercase;
-            margin-bottom: 0;
-        }
-
-        .process-steps-container {
-            display: flex;
-            align-items: flex-start;
-            gap: 16px;
-            position: relative;
-        }
-
-        .process-step {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-        }
-
-        /* Seta conectora entre steps */
-        .process-step::after {
-            content: '→';
-            position: absolute;
-            right: -20px;
-            top: 16px;
-            font-size: 24px;
-            font-weight: 900;
-            color: var(--koko-black);
-            z-index: 10;
-        }
-
-        .process-step:last-child::after {
-            display: none; /* Remove seta do último step */
-        }
-
-        .process-step-header {
-            background: var(--koko-black);
-            color: var(--koko-white);
-            padding: 10px 16px;
-            font-size: clamp(11px, 1.4vw, 14px);
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            position: relative;
-            z-index: 1;
-        }
-
-        .process-step-content {
-            padding: 16px 12px;
-            font-family: 'Playfair Display', serif;
-            font-size: clamp(11px, 1.3vw, 13px);
-            line-height: 1.6;
-        }
-
-        .process-graphic-wrapper {
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-            margin-top: 16px;
-        }
-
-        .process-graphic-wrapper img {
-            max-width: clamp(200px, 25vw, 320px);
-            height: auto;
         }
 
         /* ========================================
@@ -1141,7 +1063,8 @@
             .statement-slide .slide-content,
             .statement-slide-reverse .slide-content {
                 grid-template-columns: 1fr;
-                gap: 24px;
+                gap: 32px;
+                padding: 48px 32px;
             }
 
             .statement-graphic img {
@@ -1152,29 +1075,43 @@
                 order: 0; /* Reset order on mobile - graphic goes below */
             }
 
-            .section-divider-slide .slide-content {
-                flex-direction: column;
-                gap: 32px;
-                padding: 0 32px;
-                justify-content: center;
+            .statement-slide-reverse .statement-graphic img {
+                max-height: 300px; /* Smaller on mobile */
             }
 
-            .section-divider-title-wrapper {
-                max-width: 100%;
+            .statement-slide-reverse .statement-title {
+                font-size: 36px; /* Smaller title on mobile */
+                margin-bottom: 6px;
+            }
+
+            .statement-slide-reverse .statement-subtitle {
+                font-size: 18px;
+                margin-bottom: 10px;
+            }
+
+            .statement-slide-reverse .statement-body {
+                font-size: 13px; /* Smaller body text on mobile */
+                margin-bottom: 6px;
+            }
+
+            .section-divider-slide .slide-content {
+                grid-template-columns: 1fr; /* Stack vertically on mobile */
+                gap: 32px;
+                padding: 48px 32px;
+            }
+
+            .section-divider-title {
+                font-size: 40px; /* Smaller on mobile */
+                text-align: center;
+            }
+
+            .section-divider-subtitle {
+                font-size: 18px;
                 text-align: center;
             }
 
             .section-divider-graphic img {
-                max-width: 240px;
-            }
-
-            .section-divider-logo {
-                bottom: 72px;
-                left: 32px;
-            }
-
-            .section-divider-logo img {
-                height: 24px;
+                max-height: 400px; /* Limit size on mobile */
             }
 
             .toc-slide .slide-content {
@@ -1197,34 +1134,6 @@
             .toc-category:nth-child(2),
             .toc-category:nth-child(3) {
                 width: 100%;
-            }
-
-            .process-steps-container {
-                flex-direction: column;
-                gap: 16px;
-            }
-
-            /* Seta vertical no mobile */
-            .process-step::after {
-                content: '↓';
-                right: auto;
-                left: 50%;
-                transform: translateX(-50%);
-                top: auto;
-                bottom: -28px;
-            }
-
-            .process-step:last-child::after {
-                display: none;
-            }
-
-            .process-graphic-wrapper {
-                justify-content: center;
-                margin-top: 24px;
-            }
-
-            .process-graphic-wrapper img {
-                max-width: 180px;
             }
 
             .cards-grid {
@@ -1720,20 +1629,17 @@
             </div>
         </div>
 
-        <!-- SLIDE 13: SECTION DIVIDER (Chapter break with checkered borders) -->
+        <!-- SLIDE 13: SECTION DIVIDER (Simple two-column: title left, computer right) -->
         <div class="slide section-divider-slide">
             <div class="slide-content">
                 <div class="section-divider-title-wrapper">
                     <h2 class="section-divider-title">TÍTULO</h2>
+                    <p class="section-divider-subtitle">Subtítulo opcional (pode remover se não usar)</p>
                 </div>
                 <div class="section-divider-graphic">
                     <img src="https://hub.jumper.studio/decks/identities/koko/elements/computer.png"
                          alt="Koko computer graphic">
                 </div>
-            </div>
-            <div class="section-divider-logo">
-                <img src="https://hub.jumper.studio/decks/identities/koko/logos/Logo_Preferencial_Koko_Preto.png"
-                     alt="Agência Koko">
             </div>
         </div>
 
@@ -1778,55 +1684,7 @@
             </div>
         </div>
 
-        <!-- SLIDE 15: PROCESS TIMELINE (Timeline horizontal com steps) -->
-        <div class="slide process-timeline-slide">
-            <div class="slide-content">
-                <h2 class="process-main-title">TÍTULO TÍTULO TÍTULO:</h2>
-                <div class="process-steps-container">
-                    <div class="process-step">
-                        <div class="process-step-header">TEXTO</div>
-                        <div class="process-step-content">
-                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean porttitor
-                            vestibulum leo, vel varius ex scelerisque sed. Vestibulum ut lectus odio.
-                        </div>
-                    </div>
-                    <div class="process-step">
-                        <div class="process-step-header">TEXTO</div>
-                        <div class="process-step-content">
-                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean porttitor
-                            vestibulum leo, vel varius ex scelerisque sed. Vestibulum ut lectus odio.
-                        </div>
-                    </div>
-                    <div class="process-step">
-                        <div class="process-step-header">TEXTO</div>
-                        <div class="process-step-content">
-                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean porttitor
-                            vestibulum leo, vel varius ex scelerisque sed. Vestibulum ut lectus odio.
-                        </div>
-                    </div>
-                    <div class="process-step">
-                        <div class="process-step-header">TEXTO</div>
-                        <div class="process-step-content">
-                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean porttitor
-                            vestibulum leo, vel varius ex scelerisque sed. Vestibulum ut lectus odio.
-                        </div>
-                    </div>
-                    <div class="process-step">
-                        <div class="process-step-header">TEXTO</div>
-                        <div class="process-step-content">
-                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean porttitor
-                            vestibulum leo, vel varius ex scelerisque sed. Vestibulum ut lectus odio.
-                        </div>
-                    </div>
-                </div>
-                <div class="process-graphic-wrapper">
-                    <img src="https://hub.jumper.studio/decks/identities/koko/elements/gorilla-hand-right.png"
-                         alt="Gorilla hand">
-                </div>
-            </div>
-        </div>
-
-        <!-- SLIDE 16: PRÓXIMOS PASSOS (Timeline) -->
+        <!-- SLIDE 15: PRÓXIMOS PASSOS (Timeline) -->
         <div class="slide">
             <div class="slide-content">
                 <h2 class="slide-title">PRÓXIMOS PASSOS</h2>
@@ -1860,7 +1718,7 @@
             </div>
         </div>
 
-        <!-- SLIDE 17: CONCLUSÃO -->
+        <!-- SLIDE 16: CONCLUSÃO -->
         <div class="slide conclusion-slide">
             <div class="slide-content">
                 <h2 class="conclusion-title">PROJETO<br>CONCLUÍDO ✅</h2>
@@ -1878,7 +1736,7 @@
             </div>
         </div>
 
-        <!-- SLIDE 18: CONTRACAPA -->
+        <!-- SLIDE 17: CONTRACAPA -->
         <div class="slide hero-slide">
             <div class="hero-background" style="background-image: url('https://hub.jumper.studio/decks/identities/koko/elements/hero-background.png');"></div>
             <img class="gorilla-hand left"
@@ -1919,11 +1777,10 @@
         <div class="nav-dot" data-slide="14"></div>
         <div class="nav-dot" data-slide="15"></div>
         <div class="nav-dot" data-slide="16"></div>
-        <div class="nav-dot" data-slide="17"></div>
     </div>
 
     <div class="slide-counter">
-        <span id="current-slide">1</span> / <span id="total-slides">18</span>
+        <span id="current-slide">1</span> / <span id="total-slides">17</span>
     </div>
 
     <button class="nav-arrow prev" aria-label="Slide anterior">←</button>

@@ -785,6 +785,255 @@ The dog-ear uses two complementary CSS techniques:
 
 ---
 
+### 5. Statement Slide (Text Left + Graphic Right)
+
+**Purpose:** Present a statement or message with supporting visual element.
+
+**Structure:**
+```html
+<div class="slide statement-slide">
+    <div class="slide-content">
+        <div class="statement-text">
+            <h2 class="statement-title">TÍTULO</h2>
+            <p class="statement-body">
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit...
+            </p>
+        </div>
+        <div class="statement-graphic">
+            <img src="https://hub.jumper.studio/decks/identities/koko/elements/pink-mouth.png"
+                 alt="Koko graphic element">
+        </div>
+    </div>
+</div>
+```
+
+**CSS:**
+```css
+.statement-slide .slide-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    align-items: center;
+}
+
+.statement-graphic img {
+    max-width: 100%;
+    height: auto;
+    max-height: 400px;
+}
+```
+
+**Key Elements:**
+- Grid 50/50: text left, graphic right
+- Graphic max-height: 400px
+- Centered vertical alignment
+
+---
+
+### 6. Statement Slide Reverse (Graphic Left + Text Right)
+
+**Purpose:** Statement with emphasis on large graphic element (loud mouth, etc).
+
+**Structure:**
+```html
+<div class="slide statement-slide-reverse">
+    <div class="slide-content">
+        <div class="statement-graphic">
+            <img src="https://hub.jumper.studio/decks/identities/koko/elements/loud.png"
+                 alt="Koko loud graphic element">
+        </div>
+        <div class="statement-text">
+            <h2 class="statement-title">TÍTULO</h2>
+            <p class="statement-subtitle">Lorem ipsum dolor sit amet...</p>
+            <p class="statement-body">
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit...
+            </p>
+        </div>
+    </div>
+</div>
+```
+
+**CSS:**
+```css
+.statement-slide-reverse .slide-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* 50% graphic, 50% text */
+    gap: clamp(30px, 4vw, 60px);
+    align-items: center;
+    padding: 80px clamp(60px, 8vw, 140px);
+}
+
+.statement-slide-reverse .statement-graphic {
+    order: -1; /* Move graphic to the left */
+}
+
+.statement-slide-reverse .statement-graphic img {
+    width: 100%;
+    max-height: 90vh; /* Large vertical size */
+}
+
+.statement-slide-reverse .statement-title {
+    font-size: clamp(48px, 6vw, 72px);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+}
+
+.statement-slide-reverse .statement-subtitle {
+    font-size: clamp(20px, 2.4vw, 28px);
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+.statement-slide-reverse .statement-body {
+    font-size: clamp(13px, 1.4vw, 16px);
+    line-height: 1.5;
+    margin-bottom: 8px;
+}
+```
+
+**Key Elements:**
+- Grid 50/50: graphic left, text right
+- Graphic fills entire left column (90vh max-height)
+- Tight spacing between title/subtitle/body (8-12px)
+- Small body text (13-16px) for high density
+
+---
+
+### 7. Section Divider (Title Left + Computer Right)
+
+**Purpose:** Chapter breaks, major section transitions with minimal design.
+
+**Structure:**
+```html
+<div class="slide section-divider-slide">
+    <div class="slide-content">
+        <div class="section-divider-title-wrapper">
+            <h2 class="section-divider-title">TÍTULO</h2>
+            <p class="section-divider-subtitle">Subtítulo opcional</p>
+        </div>
+        <div class="section-divider-graphic">
+            <img src="https://hub.jumper.studio/decks/identities/koko/elements/computer.png"
+                 alt="Koko computer graphic">
+        </div>
+    </div>
+</div>
+```
+
+**CSS:**
+```css
+.section-divider-slide .slide-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* 50% title, 50% graphic */
+    gap: clamp(40px, 5vw, 80px);
+    align-items: center;
+    padding: 80px clamp(60px, 8vw, 140px);
+}
+
+.section-divider-title {
+    font-size: clamp(56px, 8vw, 112px);
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.section-divider-subtitle {
+    font-size: clamp(20px, 2.4vw, 28px);
+    font-weight: 700;
+}
+
+.section-divider-graphic img {
+    width: 100%;
+    max-height: 80vh; /* Large graphic */
+}
+```
+
+**Key Elements:**
+- Grid 50/50: title left, computer graphic right
+- Large title (56-112px) uppercase
+- Optional subtitle support
+- Computer graphic fills right column (80vh max-height)
+- Clean white background, no borders or patterns
+
+---
+
+### 8. Table of Contents (Funnel Effect)
+
+**Purpose:** Present categories/sections with visual funnel hierarchy.
+
+**Structure:**
+```html
+<div class="slide toc-slide">
+    <div class="slide-content">
+        <div class="toc-title-wrapper">
+            <h2 class="toc-main-title">TÍTULO</h2>
+        </div>
+        <div class="toc-categories">
+            <div class="toc-category">
+                <div class="toc-category-title">DESCOBERTA</div>
+                <ul class="toc-category-list">
+                    <li>Formatos prioritários:</li>
+                    <li>Objetivos:</li>
+                </ul>
+            </div>
+            <div class="toc-category">
+                <div class="toc-category-title">NUTRIÇÃO</div>
+                <ul class="toc-category-list">
+                    <li>Formatos prioritários:</li>
+                </ul>
+            </div>
+            <div class="toc-category">
+                <div class="toc-category-title">CONVERSÃO</div>
+                <ul class="toc-category-list">
+                    <li>Formatos prioritários:</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+```
+
+**CSS:**
+```css
+.toc-categories {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    align-items: flex-start; /* Left-aligned for funnel */
+}
+
+/* Funnel effect: progressive width reduction */
+.toc-category:nth-child(1) {
+    width: 100%; /* Widest - Discovery */
+}
+
+.toc-category:nth-child(2) {
+    width: 85%; /* Medium - Nurturing */
+}
+
+.toc-category:nth-child(3) {
+    width: 70%; /* Narrowest - Conversion (funnel bottom) */
+}
+
+.toc-category {
+    background: var(--koko-black);
+    color: var(--koko-white);
+    padding: clamp(20px, 3vw, 32px);
+}
+
+.toc-category-title {
+    font-size: clamp(24px, 3vw, 36px);
+    font-weight: 900;
+    margin-bottom: 16px;
+}
+```
+
+**Key Elements:**
+- Vertical stack with progressive width reduction (100% → 85% → 70%)
+- Creates visual funnel representing user journey
+- Black background cards with white text
+- Left-aligned for clear funnel visualization
+
+---
+
 ## 🎬 Marquee System
 
 **Top & Bottom Marquees** (Continuous Brand Presence)
