@@ -15,12 +15,12 @@
          * IMPORTANTE: Este é um TEMPLATE de referência visual completo.
          * Claude AI deve usar os padrões aqui como base para gerar slides dinamicamente.
          *
-         * NOVIDADES v2.0.1 (PARCIAL - 3/5 charts implementados):
+         * NOVIDADES v2.0.1 (PARCIAL - 4/5 charts implementados):
          * - DATA VISUALIZATION CHARTS para relatórios de tráfego:
          *   ✅ Slide 18: LINE CHART (temporal evolution - conversions over time)
          *   ✅ Slide 19: Horizontal Bar Chart (channel comparison - ROAS by platform)
          *   ✅ Slide 20: Donut Chart (budget distribution - R$ 300k allocation)
-         *   ⏳ Slide 21: Funnel Visualization (conversion path)
+         *   ✅ Slide 21: Funnel Visualization (conversion path - 4 stages with drop-offs)
          *   ⏳ Slide 22: Stacked Area Chart (multi-channel evolution)
          * - Chart semantic colors (green=success, yellow=warning, pink=alert)
          * - CSS base compartilhado para todos os charts (corner-fold, typography)
@@ -1472,6 +1472,132 @@
         }
 
         /* ========================================
+           FUNNEL VISUALIZATION PATTERN (Conversion Path)
+           Use case: Conversion funnel, drop-off analysis, multi-stage process
+           ======================================== */
+        .funnel-slide .slide-content {
+            display: flex;
+            flex-direction: column;
+            gap: clamp(24px, 3vw, 40px);
+        }
+
+        .funnel-stage {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            position: relative;
+        }
+
+        .funnel-stage-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            padding: 0 clamp(16px, 2vw, 24px);
+        }
+
+        .funnel-stage-label {
+            font-family: 'Alternate Gothic', sans-serif;
+            font-size: clamp(16px, 2vw, 22px);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .funnel-stage-value {
+            font-family: 'Alternate Gothic', sans-serif;
+            font-size: clamp(18px, 2.5vw, 28px);
+            font-weight: 900;
+        }
+
+        .funnel-stage-percentage {
+            font-size: clamp(14px, 1.8vw, 18px);
+            opacity: 0.7;
+            margin-left: 8px;
+        }
+
+        /* Funnel bars with decreasing widths */
+        .funnel-bar {
+            height: clamp(50px, 6vw, 80px);
+            background: var(--koko-black);
+            border: 2px solid var(--koko-black);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: all 0.3s ease;
+            /* Trapezoid shape via clip-path */
+            clip-path: polygon(
+                5% 0,
+                95% 0,
+                100% 100%,
+                0 100%
+            );
+        }
+
+        /* Width variants for funnel effect */
+        .funnel-stage:nth-child(1) .funnel-bar { width: 100%; background: var(--chart-positive); }
+        .funnel-stage:nth-child(2) .funnel-bar { width: 85%; background: #4285F4; margin: 0 auto; }
+        .funnel-stage:nth-child(3) .funnel-bar { width: 60%; background: var(--chart-neutral); margin: 0 auto; color: var(--koko-black); }
+        .funnel-stage:nth-child(4) .funnel-bar { width: 35%; background: var(--chart-negative); margin: 0 auto; }
+
+        .funnel-bar-label {
+            font-family: 'Alternate Gothic', sans-serif;
+            font-size: clamp(14px, 1.8vw, 20px);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--koko-white);
+            z-index: 1;
+        }
+
+        .funnel-stage:nth-child(3) .funnel-bar-label {
+            color: var(--koko-black); /* Yellow bar needs black text */
+        }
+
+        /* Drop-off indicators */
+        .funnel-drop-off {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translate(110%, -50%);
+            background: var(--koko-white);
+            border: 2px solid var(--koko-black);
+            padding: 8px 12px;
+            font-family: 'Alternate Gothic', sans-serif;
+            font-size: clamp(12px, 1.5vw, 16px);
+            font-weight: 700;
+            white-space: nowrap;
+            color: var(--chart-negative);
+        }
+
+        /* Insight box for funnel */
+        .funnel-insight {
+            margin-top: clamp(16px, 2vw, 24px);
+            padding: clamp(16px, 2vw, 24px);
+            background: var(--koko-yellow);
+            border: 2px solid var(--koko-black);
+            clip-path: polygon(
+                0 0, 100% 0, 100% calc(100% - 18px),
+                calc(100% - 18px) 100%, 0 100%
+            );
+            position: relative;
+        }
+
+        .funnel-insight::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            width: 18px;
+            height: 18px;
+            background: linear-gradient(135deg,
+                #d9d9d9 0%, #d9d9d9 45.5%,
+                #000 45.5%, #000 54.5%,
+                #F5C542 54.5%, #F5C542 100%
+            );
+        }
+
+        /* ========================================
            RESPONSIVE ADJUSTMENTS
            ======================================== */
         @media (max-width: 1024px) {
@@ -1625,6 +1751,20 @@
 
             .donut-legend-item {
                 padding: 10px;
+            }
+
+            /* Funnel responsive */
+            .funnel-bar {
+                height: 50px; /* Smaller bars on mobile */
+            }
+
+            .funnel-drop-off {
+                display: none; /* Hide drop-off labels on mobile to avoid overflow */
+            }
+
+            .funnel-insight {
+                padding: 16px;
+                margin-top: 16px;
             }
 
             .slide-title {
@@ -2527,6 +2667,82 @@
         </div>
     </div>
 
+    <!-- SLIDE 21: FUNNEL VISUALIZATION PATTERN (Conversion Path) -->
+    <div class="slide funnel-slide">
+        <div class="slide-content">
+            <h1 class="slide-title">FUNIL DE CONVERSÃO</h1>
+            <p class="slide-subtitle">Jornada completa do usuário - Outubro 2024</p>
+
+            <!-- Stage 1: Impressions (100% width - GREEN) -->
+            <div class="funnel-stage">
+                <div class="funnel-stage-header">
+                    <span class="funnel-stage-label">1. IMPRESSÕES</span>
+                    <span class="funnel-stage-value">
+                        1.250.000
+                        <span class="funnel-stage-percentage">(100%)</span>
+                    </span>
+                </div>
+                <div class="funnel-bar">
+                    <span class="funnel-bar-label">TOPO DO FUNIL</span>
+                </div>
+                <div class="funnel-drop-off">-15%</div>
+            </div>
+
+            <!-- Stage 2: Clicks (85% width - BLUE) -->
+            <div class="funnel-stage">
+                <div class="funnel-stage-header">
+                    <span class="funnel-stage-label">2. CLIQUES</span>
+                    <span class="funnel-stage-value">
+                        37.500
+                        <span class="funnel-stage-percentage">(3.0%)</span>
+                    </span>
+                </div>
+                <div class="funnel-bar">
+                    <span class="funnel-bar-label">CTR: 3.0%</span>
+                </div>
+                <div class="funnel-drop-off">-40%</div>
+            </div>
+
+            <!-- Stage 3: Leads (60% width - YELLOW) -->
+            <div class="funnel-stage">
+                <div class="funnel-stage-header">
+                    <span class="funnel-stage-label">3. LEADS</span>
+                    <span class="funnel-stage-value">
+                        7.500
+                        <span class="funnel-stage-percentage">(0.6%)</span>
+                    </span>
+                </div>
+                <div class="funnel-bar">
+                    <span class="funnel-bar-label">TAXA DE CONVERSÃO: 20%</span>
+                </div>
+                <div class="funnel-drop-off">-65%</div>
+            </div>
+
+            <!-- Stage 4: Conversions (35% width - PINK) -->
+            <div class="funnel-stage">
+                <div class="funnel-stage-header">
+                    <span class="funnel-stage-label">4. CONVERSÕES</span>
+                    <span class="funnel-stage-value">
+                        2.625
+                        <span class="funnel-stage-percentage">(0.21%)</span>
+                    </span>
+                </div>
+                <div class="funnel-bar">
+                    <span class="funnel-bar-label">FUNDO DO FUNIL</span>
+                </div>
+            </div>
+
+            <!-- Insight Box -->
+            <div class="funnel-insight">
+                <strong style="font-family: 'Alternate Gothic', sans-serif; font-size: 18px; text-transform: uppercase; display: block; margin-bottom: 8px;">OPORTUNIDADE DE OTIMIZAÇÃO:</strong>
+                <p style="font-family: 'Playfair Display', serif; font-size: 16px; line-height: 1.6; margin: 0;">
+                    Drop-off mais crítico: Leads → Conversões (65%). Sugerimos: (1) implementar remarketing para leads frios, (2) melhorar copy de Landing Pages para reduzir abandono, (3) testar automação de e-mails para nutrição de leads. Meta: reduzir drop-off para 45% (+50% conversões).
+                </p>
+            </div>
+
+        </div>
+    </div>
+
     <!-- Navigation System -->
     <div class="nav-dots">
         <div class="nav-dot active" data-slide="0"></div>
@@ -2549,10 +2765,11 @@
         <div class="nav-dot" data-slide="17"></div>
         <div class="nav-dot" data-slide="18"></div>
         <div class="nav-dot" data-slide="19"></div>
+        <div class="nav-dot" data-slide="20"></div>
     </div>
 
     <div class="slide-counter">
-        <span id="current-slide">1</span> / <span id="total-slides">20</span>
+        <span id="current-slide">1</span> / <span id="total-slides">21</span>
     </div>
 
     <button class="nav-arrow prev" aria-label="Slide anterior">←</button>
