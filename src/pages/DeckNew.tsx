@@ -9,6 +9,7 @@ import { ArrowLeft, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import { JumperBackground } from "@/components/ui/jumper-background";
+import { toast } from "sonner";
 
 export default function DeckNew() {
   const navigate = useNavigate();
@@ -67,22 +68,44 @@ export default function DeckNew() {
 
   const handleSubmit = async (values: any) => {
     try {
-      const result = await generateDeck({
-        title: values.title,
-        markdown_source: values.markdown_source,
-        type: values.type,
-        brand_identity: values.brand_identity,
-        template_id: values.template_id,
-        account_id: values.account_id,
+      // Create deck record directly in database (no HTML generation yet)
+      const { data: newDeck, error: insertError } = await supabase
+        .from('j_hub_decks')
+        .insert({
+          title: values.title,
+          markdown_source: values.markdown_source,
+          type: values.type,
+          brand_identity: values.brand_identity,
+          template_id: values.template_id,
+          account_id: values.account_id || null,
+          analysis_status: 'pending',
+          review_status: 'pending',
+          generation_status: 'pending',
+        })
+        .select('id')
+        .single();
+
+      if (insertError) {
+        throw insertError;
+      }
+
+      if (!newDeck?.id) {
+        throw new Error('Falha ao criar deck');
+      }
+
+      toast.success('Deck criado!', {
+        description: 'Redirecionando para o editor...',
+        duration: 2000,
       });
 
-      if (result.success && result.deck_id) {
-        // Navigate to new 3-stage deck editor
-        navigate(`/decks/editor/${result.deck_id}`);
-      }
+      // Navigate to new 3-stage deck editor
+      navigate(`/decks/editor/${newDeck.id}`);
     } catch (err: any) {
       console.error("Error creating deck:", err);
-      // Error handling is done in useDeckGeneration hook
+      toast.error('Erro ao criar deck', {
+        description: err.message || 'Falha ao criar deck',
+        duration: 5000,
+      });
     }
   };
 

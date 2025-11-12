@@ -1,0 +1,153 @@
+═══════════════════════════════════════════════════════════════════════════════
+                    OLD DeckEditor.tsx - CRITICAL FEATURES ANALYSIS
+═══════════════════════════════════════════════════════════════════════════════
+
+6 MAJOR FEATURES TO PRESERVE:
+
+1. PREVIEW FUNCTIONALITY ✅
+   Location: DeckEditor.tsx lines 373-411
+   Status: PARTIAL in DeckEditorPage (Stage 3)
+   Missing: html_output inline rendering fallback
+
+2. FULLSCREEN MODE ✅
+   Location: DeckEditor.tsx lines 155-159
+   Status: Route exists (DeckPreview.tsx) but NOT integrated
+   Action: Add "Ver em Tela Cheia" button to DeckEditorPage Stage 3
+   Target URL: /decks/{id}/preview
+
+3. SHARE FUNCTIONALITY ✅
+   Location: DeckShareModal.tsx (complete)
+   Status: NOT integrated into DeckEditorPage
+   Features:
+     - Public share links (slug-based)
+     - Optional password protection (bcrypt)
+     - Copy to clipboard
+     - Revoke sharing
+   Action: Import DeckShareModal + add Share button to header
+
+4. DOWNLOAD FUNCTIONALITY ✅
+   Location: DeckEditor.tsx lines 146-153
+   Status: IMPLEMENTED in DeckEditorPage (lines 265-276)
+   Features: Download HTML to disk with proper filename
+   Action: Ensure button always visible
+
+5. MARKDOWN EDITING & REGENERATION ✅
+   Location: MarkdownEditor.tsx (complete)
+   Status: NOT integrated into DeckEditorPage
+   Features:
+     - Auto-save drafts to localStorage
+     - Regenerate from new markdown
+     - Max 15,000 characters
+     - "Reverter Original" reset button
+   Calls: j_hub_deck_regenerate Edge Function
+   Action: Add Markdown tab to DeckEditorPage
+
+6. VERSION HISTORY & ROLLBACK ✅
+   Location: DeckVersionHistory.tsx (complete)
+   Status: NOT integrated into DeckEditorPage
+   Features:
+     - View all versions with type badges (Original/Refined/Regenerated)
+     - Restore previous versions
+     - See changes summary & refinement prompts
+     - Current version highlighted
+   Action: Add History button/tab to DeckEditorPage
+
+BONUS: AI REFINEMENT SYSTEM ✅
+   Location: DeckRefineModal.tsx (complete)
+   Status: NOT integrated into DeckEditorPage
+   Features:
+     - User describes desired changes
+     - AI refines deck automatically
+     - Creates new version
+     - ~30-60 second processing time
+   Calls: j_hub_deck_refine Edge Function
+   Permissions: Editors only
+   Action: Add to DeckEditorPage (editors only)
+
+═══════════════════════════════════════════════════════════════════════════════
+                              INTEGRATION CHECKLIST
+═══════════════════════════════════════════════════════════════════════════════
+
+PHASE 1: CORE (HIGH PRIORITY)
+□ Add Fullscreen button → window.open(`/decks/${deck.id}/preview`, "_blank")
+□ Import & integrate DeckShareModal
+□ Add Share button (Share2 icon)
+□ Verify Download button always visible
+□ Import & integrate DeckVersionHistory
+□ Add History button/tab
+
+PHASE 2: ADVANCED
+□ Import & integrate MarkdownEditor
+□ Add Markdown editing tab/section
+□ Implement handleRegenerate callback
+□ Import & integrate DeckRefineModal
+□ Add "Refinar com IA" button (editors only)
+
+PHASE 3: COMPLETION
+□ Add Delete button with confirmation
+□ Add user role display/checks
+□ Add permission guards (canEdit)
+□ Breadcrumbs/navigation polish
+□ Test all 6 features end-to-end
+
+═══════════════════════════════════════════════════════════════════════════════
+                            DATABASE REQUIREMENTS
+═══════════════════════════════════════════════════════════════════════════════
+
+j_hub_decks table MUST have:
+✓ current_version: INTEGER          (which version to display)
+✓ generation_plan: JSONB             (Stage 1 output)
+✓ analysis_status, review_status, generation_status: TEXT
+✓ slug: TEXT UNIQUE                  (for sharing)
+✓ is_public: BOOLEAN                 (share flag)
+✓ password_hash: TEXT                (optional password protection)
+✓ html_output: TEXT                  (cached HTML)
+✓ file_url: TEXT                     (Supabase Storage URL)
+✓ markdown_source: TEXT              (original markdown)
+
+j_hub_deck_versions table MUST have:
+✓ deck_id: UUID REFERENCES j_hub_decks
+✓ version_number: INTEGER
+✓ html_output: TEXT (snapshot)
+✓ refinement_prompt: TEXT (what user asked)
+✓ changes_summary: TEXT (what AI did)
+✓ version_type: TEXT ('original'|'refined'|'regenerated')
+✓ created_at: TIMESTAMPTZ
+✓ UNIQUE(deck_id, version_number)
+
+═══════════════════════════════════════════════════════════════════════════════
+                            COMPONENT FILE PATHS
+═══════════════════════════════════════════════════════════════════════════════
+
+TO IMPORT IN DeckEditorPage.tsx:
+
+import { DeckShareModal } from "@/components/decks/DeckShareModal";
+import { DeckVersionHistory } from "@/components/decks/DeckVersionHistory";
+import { MarkdownEditor } from "@/components/decks/MarkdownEditor";
+import { DeckRefineModal } from "@/components/decks/DeckRefineModal";
+import { Maximize2, Share2, Download, History, Sparkles, Trash2 } from "lucide-react";
+
+═══════════════════════════════════════════════════════════════════════════════
+                            EDGE FUNCTIONS USED
+═══════════════════════════════════════════════════════════════════════════════
+
+j_hub_deck_analyze       → Stage 1 (already integrated)
+j_hub_deck_generate      → Stage 3 (already integrated)
+j_hub_deck_regenerate    → MarkdownEditor calls this
+j_hub_deck_refine        → DeckRefineModal calls this
+j_hub_deck_create_share  → DeckShareModal calls this
+
+═══════════════════════════════════════════════════════════════════════════════
+                              QUICK SUMMARY
+═══════════════════════════════════════════════════════════════════════════════
+
+STATUS: 4 of 6 features fully ready to integrate
+        2 of 6 features partially implemented
+
+TIME ESTIMATE: 2-3 hours to fully integrate all features
+
+NO BACKEND WORK NEEDED - All Edge Functions already exist!
+NO COMPLEX STATE MANAGEMENT - Each component self-contained!
+NO NEW DATABASE SCHEMA - All tables already created!
+
+═══════════════════════════════════════════════════════════════════════════════

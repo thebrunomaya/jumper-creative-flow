@@ -16,6 +16,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import Header from "@/components/Header";
 import { DeckEditorStepCard } from "@/components/decks/DeckEditorStepCard";
+import { DeckShareModal } from "@/components/decks/DeckShareModal";
 import {
   ChevronLeft,
   FileText,
@@ -24,6 +25,9 @@ import {
   Loader2,
   Download,
   ExternalLink,
+  Maximize2,
+  Share2,
+  Trash2,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -61,6 +65,8 @@ export default function DeckEditorPage() {
 
   // UI states
   const [openStep, setOpenStep] = useState<number | null>(null);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Load deck data
   useEffect(() => {
@@ -177,6 +183,41 @@ export default function DeckEditorPage() {
     }
   };
 
+  // Handle Fullscreen (opens preview page in new window)
+  const handleFullscreen = () => {
+    window.open(`/decks/${deckId}/preview`, '_blank', 'width=1920,height=1080');
+  };
+
+  // Handle Delete
+  const handleDelete = async () => {
+    if (!deck) return;
+
+    const confirmed = window.confirm(
+      `Tem certeza que deseja excluir o deck "${deck.title}"?\n\nEsta ação não pode ser desfeita.`
+    );
+
+    if (!confirmed) return;
+
+    try {
+      setIsDeleting(true);
+
+      const { error } = await supabase
+        .from('j_hub_decks')
+        .delete()
+        .eq('id', deckId);
+
+      if (error) throw error;
+
+      toast.success('Deck excluído com sucesso');
+      navigate('/decks');
+    } catch (error: any) {
+      console.error('Error deleting deck:', error);
+      toast.error('Erro ao excluir deck: ' + error.message);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   if (isLoadingData) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
@@ -252,14 +293,23 @@ export default function DeckEditorPage() {
                     title="Deck Preview"
                   />
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
+                  {/* Primary Actions */}
                   <JumperButton
-                    onClick={() => window.open(deck.file_url!, '_blank')}
+                    onClick={handleFullscreen}
                     variant="outline"
                     size="sm"
                   >
-                    <ExternalLink className="h-4 w-4 mr-2" />
-                    Abrir em Nova Aba
+                    <Maximize2 className="h-4 w-4 mr-2" />
+                    Tela Cheia
+                  </JumperButton>
+                  <JumperButton
+                    onClick={() => setIsShareModalOpen(true)}
+                    variant="outline"
+                    size="sm"
+                  >
+                    <Share2 className="h-4 w-4 mr-2" />
+                    Compartilhar
                   </JumperButton>
                   <JumperButton
                     onClick={() => {
@@ -274,6 +324,8 @@ export default function DeckEditorPage() {
                     <Download className="h-4 w-4 mr-2" />
                     Download HTML
                   </JumperButton>
+
+                  {/* Secondary Actions */}
                   <JumperButton
                     onClick={handleGenerate}
                     disabled={isGenerating}
@@ -286,6 +338,22 @@ export default function DeckEditorPage() {
                       <Sparkles className="h-4 w-4 mr-2" />
                     )}
                     Regerar
+                  </JumperButton>
+
+                  {/* Danger Zone */}
+                  <JumperButton
+                    onClick={handleDelete}
+                    disabled={isDeleting}
+                    variant="outline"
+                    size="sm"
+                    className="ml-auto border-red-300 text-red-600 hover:bg-red-50"
+                  >
+                    {isDeleting ? (
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    ) : (
+                      <Trash2 className="h-4 w-4 mr-2" />
+                    )}
+                    Excluir
                   </JumperButton>
                 </div>
               </div>
@@ -425,6 +493,20 @@ export default function DeckEditorPage() {
 
         </div>
       </div>
+
+      {/* Share Modal */}
+      {deck && (
+        <DeckShareModal
+          deck={{
+            id: deck.id,
+            title: deck.title,
+            html_output: deck.html_output,
+            file_url: deck.file_url,
+          }}
+          isOpen={isShareModalOpen}
+          onClose={() => setIsShareModalOpen(false)}
+        />
+      )}
     </div>
   );
 }
