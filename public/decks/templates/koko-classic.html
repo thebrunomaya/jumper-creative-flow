@@ -19,13 +19,16 @@
          * - Statement Slide Pattern com 2 variantes:
          *   • Default: Texto esquerda + Pink mouth direita
          *   • Reverse: Loud mouth esquerda + Texto direita (com subtítulo)
-         * - Elementos gráficos Koko: pink-mouth.png e loud.png
+         * - Section Divider Pattern:
+         *   • Título grande + Computer graphic + Checkered borders
+         *   • Perfect para chapter breaks e transições de seção
+         * - Elementos gráficos Koko: pink-mouth.png, loud.png, computer.png
          * - Layout two-column clean (sem corner-fold)
          *
          * NOVIDADES v2.0:
          * - Sistema de navegação interativo (setas, dots, contador)
          * - Mais padrões de slides (stack-cards, metric-cards, emphasis-box, two-column-data)
-         * - Exemplos de 15 tipos diferentes de slides
+         * - Exemplos de 16 tipos diferentes de slides
          * - Slide de contracapa
          * - Transições suaves entre slides
          *
@@ -785,6 +788,90 @@
         }
 
         /* ========================================
+           SECTION DIVIDER SLIDE PATTERN
+           Bold section title with computer graphic and checkered borders
+           Uso: Chapter breaks, major section transitions
+           Layout: Centered content with decorative top/bottom borders
+           Style: Energetic with checkered pattern borders
+           ======================================== */
+        .section-divider-slide {
+            padding: 0;
+            background: var(--koko-white);
+        }
+
+        .section-divider-slide .slide-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            max-width: 100%;
+            height: 100%;
+            padding: 0 clamp(60px, 8vw, 140px);
+            position: relative;
+        }
+
+        /* Checkered pattern borders */
+        .section-divider-slide::before,
+        .section-divider-slide::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 48px;
+            background-image: repeating-linear-gradient(
+                90deg,
+                var(--koko-black) 0px,
+                var(--koko-black) 24px,
+                var(--koko-white) 24px,
+                var(--koko-white) 48px
+            );
+            z-index: 5;
+        }
+
+        .section-divider-slide::before {
+            top: 48px; /* Below header marquee */
+        }
+
+        .section-divider-slide::after {
+            bottom: 48px; /* Above footer marquee */
+        }
+
+        .section-divider-title-wrapper {
+            flex: 0 0 auto;
+            max-width: 50%;
+        }
+
+        .section-divider-title {
+            font-size: clamp(48px, 8vw, 96px);
+            font-weight: 900;
+            line-height: 0.9;
+            letter-spacing: -0.02em;
+            text-transform: uppercase;
+        }
+
+        .section-divider-graphic {
+            flex: 0 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .section-divider-graphic img {
+            max-width: clamp(280px, 35vw, 480px);
+            height: auto;
+        }
+
+        .section-divider-logo {
+            position: absolute;
+            bottom: clamp(72px, 10vh, 120px);
+            left: clamp(60px, 8vw, 140px);
+            z-index: 10;
+        }
+
+        .section-divider-logo img {
+            height: 32px;
+        }
+
+        /* ========================================
            NAVIGATION SYSTEM
            Setas, dots, contador de slides
            ======================================== */
@@ -896,6 +983,31 @@
 
             .statement-slide-reverse .statement-graphic {
                 order: 0; /* Reset order on mobile - graphic goes below */
+            }
+
+            .section-divider-slide .slide-content {
+                flex-direction: column;
+                gap: 32px;
+                padding: 0 32px;
+                justify-content: center;
+            }
+
+            .section-divider-title-wrapper {
+                max-width: 100%;
+                text-align: center;
+            }
+
+            .section-divider-graphic img {
+                max-width: 240px;
+            }
+
+            .section-divider-logo {
+                bottom: 72px;
+                left: 32px;
+            }
+
+            .section-divider-logo img {
+                height: 24px;
             }
 
             .cards-grid {
@@ -1391,7 +1503,24 @@
             </div>
         </div>
 
-        <!-- SLIDE 13: PRÓXIMOS PASSOS (Timeline) -->
+        <!-- SLIDE 13: SECTION DIVIDER (Chapter break with checkered borders) -->
+        <div class="slide section-divider-slide">
+            <div class="slide-content">
+                <div class="section-divider-title-wrapper">
+                    <h2 class="section-divider-title">TÍTULO</h2>
+                </div>
+                <div class="section-divider-graphic">
+                    <img src="https://hub.jumper.studio/decks/identities/koko/elements/computer.png"
+                         alt="Koko computer graphic">
+                </div>
+            </div>
+            <div class="section-divider-logo">
+                <img src="https://hub.jumper.studio/decks/identities/koko/logos/Logo_Preferencial_Koko_Preto.png"
+                     alt="Agência Koko">
+            </div>
+        </div>
+
+        <!-- SLIDE 14: PRÓXIMOS PASSOS (Timeline) -->
         <div class="slide">
             <div class="slide-content">
                 <h2 class="slide-title">PRÓXIMOS PASSOS</h2>
@@ -1425,7 +1554,7 @@
             </div>
         </div>
 
-        <!-- SLIDE 14: CONCLUSÃO -->
+        <!-- SLIDE 15: CONCLUSÃO -->
         <div class="slide conclusion-slide">
             <div class="slide-content">
                 <h2 class="conclusion-title">PROJETO<br>CONCLUÍDO ✅</h2>
@@ -1443,7 +1572,7 @@
             </div>
         </div>
 
-        <!-- SLIDE 15: CONTRACAPA -->
+        <!-- SLIDE 16: CONTRACAPA -->
         <div class="slide hero-slide">
             <div class="hero-background" style="background-image: url('https://hub.jumper.studio/decks/identities/koko/elements/hero-background.png');"></div>
             <img class="gorilla-hand left"
@@ -1482,10 +1611,11 @@
         <div class="nav-dot" data-slide="12"></div>
         <div class="nav-dot" data-slide="13"></div>
         <div class="nav-dot" data-slide="14"></div>
+        <div class="nav-dot" data-slide="15"></div>
     </div>
 
     <div class="slide-counter">
-        <span id="current-slide">1</span> / <span id="total-slides">15</span>
+        <span id="current-slide">1</span> / <span id="total-slides">16</span>
     </div>
 
     <button class="nav-arrow prev" aria-label="Slide anterior">←</button>
