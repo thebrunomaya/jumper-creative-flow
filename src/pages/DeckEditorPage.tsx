@@ -313,14 +313,22 @@ export default function DeckEditorPage() {
             onToggle={() => setOpenStep(openStep === 3 ? null : 3)}
             isLocked={deck.review_status !== 'completed'}
           >
-            {deck.generation_status === 'completed' && deck.file_url ? (
+            {deck.generation_status === 'completed' && (deck.html_output || deck.file_url) ? (
               <div className="space-y-4">
                 <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden border-2 border-gray-200">
-                  <iframe
-                    src={deck.file_url}
-                    className="w-full h-full"
-                    title="Deck Preview"
-                  />
+                  {deck.html_output ? (
+                    <iframe
+                      srcDoc={deck.html_output}
+                      className="w-full h-full"
+                      title="Deck Preview"
+                    />
+                  ) : deck.file_url ? (
+                    <iframe
+                      src={deck.file_url}
+                      className="w-full h-full"
+                      title="Deck Preview"
+                    />
+                  ) : null}
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {/* Primary Actions */}
