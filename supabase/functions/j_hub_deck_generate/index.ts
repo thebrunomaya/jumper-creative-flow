@@ -622,15 +622,12 @@ OUTPUT FORMAT: Complete standalone HTML file (no markdown fences, no explanation
       console.error('❌ [DECK_GENERATE] Claude returned suspiciously short HTML:', htmlOutput.length, 'chars');
       throw new Error('Claude returned suspiciously short HTML output (less than 100 characters)');
     }
-    const latency = Date.now() - startTime;
 
     // Clean up markdown fences if Claude included them (shouldn't, but safe fallback)
     htmlOutput = htmlOutput.replace(/^```html\n/, '').replace(/\n```$/, '').trim();
 
     console.log('✅ [DECK_GENERATE] HTML generated');
     console.log('📏 [DECK_GENERATE] HTML length:', htmlOutput.length, 'chars');
-    console.log('⏱️ [DECK_GENERATE] Latency:', latency, 'ms');
-    console.log('🎫 [DECK_GENERATE] Tokens used:', (claudeData.usage?.input_tokens || 0) + (claudeData.usage?.output_tokens || 0));
 
     // Validate: Check for relative paths in generated HTML
     console.log('🔍 [DECK_GENERATE] Validating asset paths...');
