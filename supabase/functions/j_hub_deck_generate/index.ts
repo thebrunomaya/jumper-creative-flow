@@ -513,21 +513,20 @@ APPROVED SLIDE PLAN (FOLLOW EXACTLY)
 ${formatPlanForGenerationPrompt(approvedPlan)}
 
 ==============================================
-PATTERN CATALOG (REFERENCE)
-==============================================
-${formatPatternCatalogForPrompt(pattern_metadata)}
-
-==============================================
-DESIGN SYSTEM (SOURCE OF TRUTH FOR COLORS/FONTS)
-==============================================
-${designSystem}
-
-==============================================
 CSS PATTERNS (USE THESE EXACT STYLES)
 ==============================================
 <style>
 ${templateCSS}
 </style>
+
+==============================================
+BRAND COLORS (FROM DESIGN SYSTEM)
+==============================================
+Yellow: #F5C542
+Pink: #FF0080
+Black: #000000
+White: #FFFFFF
+Gray: #BDBDBD
 
 ${accountContext ? `
 ==============================================
@@ -557,9 +556,9 @@ OUTPUT FORMAT: Complete standalone HTML file (no markdown fences, no explanation
     console.log('🤖 [DECK_GENERATE] Calling Claude Sonnet 4.5 for HTML generation...');
     console.log('📏 [DECK_GENERATE] Markdown length:', markdown_source.length, 'chars');
 
-    // 6. Call Claude API to generate HTML
+    // 6. Call Claude API to generate HTML (with retry logic)
     const startTime = Date.now();
-    const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
+    const claudeResponse = await fetchWithRetry('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
         'x-api-key': env.ANTHROPIC_API_KEY,
@@ -575,18 +574,35 @@ OUTPUT FORMAT: Complete standalone HTML file (no markdown fences, no explanation
           { role: 'user', content: userPrompt }
         ],
       }),
+      maxRetries: 3,
+      timeoutMs: 120000, // 2 minutes for HTML generation
+      retryOn5xx: true,
+    });
+
+    console.log('✅ [DECK_GENERATE] Claude API responded:', {
+      status: claudeResponse.status,
+      statusText: claudeResponse.statusText
     });
 
     if (!claudeResponse.ok) {
       const errorText = await claudeResponse.text();
       console.error('❌ [DECK_GENERATE] Claude API error:', errorText);
-      throw new Error(`Claude API error: ${claudeResponse.status}`);
+      throw new Error(`Claude API error: ${claudeResponse.status} - ${errorText.substring(0, 200)}`);
     }
 
     // Force UTF-8 decoding of Claude response
+    console.log('📦 [DECK_GENERATE] Parsing Claude response...');
     const claudeBytes = await claudeResponse.arrayBuffer();
     const claudeText = decoder.decode(claudeBytes);
     const claudeData = JSON.parse(claudeText);
+
+    const latency = Date.now() - startTime;
+    console.log('⏱️ [DECK_GENERATE] Claude API latency:', {
+      latency_ms: latency,
+      latency_seconds: (latency / 1000).toFixed(1),
+      input_tokens: claudeData.usage?.input_tokens || 0,
+      output_tokens: claudeData.usage?.output_tokens || 0
+    });
 
     // Validate Claude API response structure
     if (!claudeData.content || !Array.isArray(claudeData.content) || claudeData.content.length === 0) {
