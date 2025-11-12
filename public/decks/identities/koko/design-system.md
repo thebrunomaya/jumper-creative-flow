@@ -640,12 +640,12 @@ The dog-ear uses two complementary CSS techniques:
     <img
         src="https://hub.jumper.studio/decks/identities/koko/elements/gorilla-hand-left.png"
         class="absolute w-[43vw] max-w-[540px] z-10"
-        style="left: -5%; top: -5%; transform: rotate(15deg);">
+        style="left: -5%; top: -5%;">
 
     <img
         src="https://hub.jumper.studio/decks/identities/koko/elements/gorilla-hand-right.png"
         class="absolute w-[43vw] max-w-[540px] z-10"
-        style="right: -5%; bottom: -5%; transform: rotate(315deg);">
+        style="right: -5%; bottom: -5%;">
 
     <!-- Main Title - Centered -->
     <div class="absolute inset-0 flex flex-col items-center justify-center z-20">
@@ -888,13 +888,13 @@ Available:
 <img
     src="https://hub.jumper.studio/decks/identities/koko/elements/gorilla-hand-left.png"
     class="absolute w-[43vw] max-w-[540px]"
-    style="left: -5%; top: -5%; transform: rotate(15deg);">
+    style="left: -5%; top: -5%;">
 
 <!-- Right hand from bottom-right diagonal -->
 <img
     src="https://hub.jumper.studio/decks/identities/koko/elements/gorilla-hand-right.png"
     class="absolute w-[43vw] max-w-[540px]"
-    style="right: -5%; bottom: -5%; transform: rotate(315deg);">
+    style="right: -5%; bottom: -5%;">
 ```
 
 **2. Pattern Backgrounds**
