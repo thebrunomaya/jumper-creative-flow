@@ -15,11 +15,11 @@
          * IMPORTANTE: Este é um TEMPLATE de referência visual completo.
          * Claude AI deve usar os padrões aqui como base para gerar slides dinamicamente.
          *
-         * NOVIDADES v2.0.1 (PARCIAL - 2/5 charts implementados):
+         * NOVIDADES v2.0.1 (PARCIAL - 3/5 charts implementados):
          * - DATA VISUALIZATION CHARTS para relatórios de tráfego:
          *   ✅ Slide 18: LINE CHART (temporal evolution - conversions over time)
          *   ✅ Slide 19: Horizontal Bar Chart (channel comparison - ROAS by platform)
-         *   ⏳ Slide 20: Donut Chart (budget distribution)
+         *   ✅ Slide 20: Donut Chart (budget distribution - R$ 300k allocation)
          *   ⏳ Slide 21: Funnel Visualization (conversion path)
          *   ⏳ Slide 22: Stacked Area Chart (multi-channel evolution)
          * - Chart semantic colors (green=success, yellow=warning, pink=alert)
@@ -1352,6 +1352,126 @@
         }
 
         /* ========================================
+           DONUT CHART PATTERN (Budget Distribution)
+           Use case: Budget allocation, market share, composition
+           ======================================== */
+        .donut-chart-slide .slide-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* 50/50 split: Chart + Legend */
+            gap: clamp(40px, 5vw, 80px);
+            align-items: center;
+        }
+
+        .donut-chart-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .donut-chart-svg {
+            width: 100%;
+            max-width: 400px;
+            height: auto;
+            filter: drop-shadow(2px 4px 0px rgba(0, 0, 0, 0.15));
+        }
+
+        /* Center label in donut hole */
+        .donut-center-label {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .donut-center-value {
+            font-family: 'Alternate Gothic', sans-serif;
+            font-size: clamp(32px, 4vw, 48px);
+            font-weight: 900;
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+
+        .donut-center-label-text {
+            font-family: 'Alternate Gothic', sans-serif;
+            font-size: clamp(12px, 1.5vw, 16px);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            opacity: 0.7;
+        }
+
+        /* Legend items for donut */
+        .donut-legend {
+            display: flex;
+            flex-direction: column;
+            gap: clamp(16px, 2vw, 24px);
+        }
+
+        .donut-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: clamp(12px, 1.5vw, 16px);
+            background: var(--koko-white);
+            border: 2px solid var(--koko-black);
+            position: relative;
+            clip-path: polygon(
+                0 0, 100% 0, 100% calc(100% - 14px),
+                calc(100% - 14px) 100%, 0 100%
+            );
+        }
+
+        .donut-legend-item::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            width: 14px;
+            height: 14px;
+            background: linear-gradient(135deg,
+                #d9d9d9 0%, #d9d9d9 45.5%,
+                #000 45.5%, #000 54.5%,
+                #FFFFFF 54.5%, #FFFFFF 100%
+            );
+        }
+
+        .donut-legend-color {
+            width: 24px;
+            height: 24px;
+            border: 2px solid var(--koko-black);
+            flex-shrink: 0;
+        }
+
+        .donut-legend-text {
+            flex: 1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .donut-legend-label {
+            font-family: 'Alternate Gothic', sans-serif;
+            font-size: clamp(14px, 1.8vw, 18px);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .donut-legend-value {
+            font-family: 'Alternate Gothic', sans-serif;
+            font-size: clamp(16px, 2vw, 20px);
+            font-weight: 900;
+        }
+
+        .donut-legend-percentage {
+            font-size: clamp(12px, 1.5vw, 14px);
+            opacity: 0.7;
+            margin-left: 8px;
+        }
+
+        /* ========================================
            RESPONSIVE ADJUSTMENTS
            ======================================== */
         @media (max-width: 1024px) {
@@ -1483,6 +1603,28 @@
             .bar-chart-insight {
                 padding: 16px;
                 margin-top: 16px;
+            }
+
+            /* Donut Chart responsive */
+            .donut-chart-slide .slide-content {
+                grid-template-columns: 1fr; /* Stack vertically on mobile */
+                gap: 32px;
+            }
+
+            .donut-chart-svg {
+                max-width: 300px; /* Smaller on mobile */
+            }
+
+            .donut-center-value {
+                font-size: 28px;
+            }
+
+            .donut-legend {
+                gap: 12px;
+            }
+
+            .donut-legend-item {
+                padding: 10px;
             }
 
             .slide-title {
@@ -2257,6 +2399,134 @@
         </div>
     </div>
 
+    <!-- SLIDE 20: DONUT CHART PATTERN (Budget Distribution) -->
+    <div class="slide donut-chart-slide">
+        <div class="slide-content">
+            <!-- Left: Donut Chart -->
+            <div>
+                <h1 class="slide-title">DISTRIBUIÇÃO DE BUDGET</h1>
+                <p class="slide-subtitle">Alocação de investimento por plataforma (Outubro 2024)</p>
+
+                <div class="donut-chart-wrapper">
+                    <svg class="donut-chart-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Background circle (optional) -->
+                        <circle cx="100" cy="100" r="80" fill="none" stroke="#f0f0f0" stroke-width="40"/>
+
+                        <!-- Segment 1: Google Ads 45% (GREEN) -->
+                        <!-- circumference = 2π * 80 = 502.65 -->
+                        <!-- 45% of 502.65 = 226.19 -->
+                        <circle
+                            cx="100" cy="100" r="80"
+                            fill="none"
+                            stroke="#2AA876"
+                            stroke-width="40"
+                            stroke-dasharray="226.19 276.46"
+                            stroke-dashoffset="125.66"
+                            transform="rotate(-90 100 100)"
+                            stroke-linecap="butt"
+                        />
+
+                        <!-- Segment 2: Meta Ads 30% (BLUE/META COLOR) -->
+                        <!-- 30% of 502.65 = 150.79 -->
+                        <!-- Start at 45% = offset -226.19 -->
+                        <circle
+                            cx="100" cy="100" r="80"
+                            fill="none"
+                            stroke="#4285F4"
+                            stroke-width="40"
+                            stroke-dasharray="150.79 351.86"
+                            stroke-dashoffset="-100.53"
+                            transform="rotate(-90 100 100)"
+                            stroke-linecap="butt"
+                        />
+
+                        <!-- Segment 3: TikTok Ads 15% (PINK) -->
+                        <!-- 15% of 502.65 = 75.40 -->
+                        <!-- Start at 75% = offset -376.99 -->
+                        <circle
+                            cx="100" cy="100" r="80"
+                            fill="none"
+                            stroke="#FF0080"
+                            stroke-width="40"
+                            stroke-dasharray="75.40 427.25"
+                            stroke-dashoffset="-251.32"
+                            transform="rotate(-90 100 100)"
+                            stroke-linecap="butt"
+                        />
+
+                        <!-- Segment 4: LinkedIn Ads 10% (YELLOW) -->
+                        <!-- 10% of 502.65 = 50.27 -->
+                        <!-- Start at 90% = offset -452.39 -->
+                        <circle
+                            cx="100" cy="100" r="80"
+                            fill="none"
+                            stroke="#F5C542"
+                            stroke-width="40"
+                            stroke-dasharray="50.27 452.38"
+                            stroke-dashoffset="-326.72"
+                            transform="rotate(-90 100 100)"
+                            stroke-linecap="butt"
+                        />
+                    </svg>
+
+                    <!-- Center label -->
+                    <div class="donut-center-label">
+                        <div class="donut-center-value">R$ 300k</div>
+                        <div class="donut-center-label-text">Budget Total</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Legend -->
+            <div class="donut-legend">
+                <div class="donut-legend-item">
+                    <div class="donut-legend-color" style="background: #2AA876;"></div>
+                    <div class="donut-legend-text">
+                        <span class="donut-legend-label">Google Ads</span>
+                        <span class="donut-legend-value">
+                            R$ 135k
+                            <span class="donut-legend-percentage">(45%)</span>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="donut-legend-item">
+                    <div class="donut-legend-color" style="background: #4285F4;"></div>
+                    <div class="donut-legend-text">
+                        <span class="donut-legend-label">Meta Ads</span>
+                        <span class="donut-legend-value">
+                            R$ 90k
+                            <span class="donut-legend-percentage">(30%)</span>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="donut-legend-item">
+                    <div class="donut-legend-color" style="background: #FF0080;"></div>
+                    <div class="donut-legend-text">
+                        <span class="donut-legend-label">TikTok Ads</span>
+                        <span class="donut-legend-value">
+                            R$ 45k
+                            <span class="donut-legend-percentage">(15%)</span>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="donut-legend-item">
+                    <div class="donut-legend-color" style="background: #F5C542;"></div>
+                    <div class="donut-legend-text">
+                        <span class="donut-legend-label">LinkedIn Ads</span>
+                        <span class="donut-legend-value">
+                            R$ 30k
+                            <span class="donut-legend-percentage">(10%)</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
     <!-- Navigation System -->
     <div class="nav-dots">
         <div class="nav-dot active" data-slide="0"></div>
@@ -2278,10 +2548,11 @@
         <div class="nav-dot" data-slide="16"></div>
         <div class="nav-dot" data-slide="17"></div>
         <div class="nav-dot" data-slide="18"></div>
+        <div class="nav-dot" data-slide="19"></div>
     </div>
 
     <div class="slide-counter">
-        <span id="current-slide">1</span> / <span id="total-slides">19</span>
+        <span id="current-slide">1</span> / <span id="total-slides">20</span>
     </div>
 
     <button class="nav-arrow prev" aria-label="Slide anterior">←</button>
