@@ -3,6 +3,8 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.56.0';
 import { validateEnvironment } from '../_shared/env-validation.ts';
 import { fetchWithRetry, fetchTextWithRetry } from '../_shared/fetch-with-retry.ts';
+import { loadTemplateHTML, extractStyleBlock } from '../_shared/template-utils.ts';
+import { formatPatternCatalogForPrompt, formatPlanForGenerationPrompt } from '../_shared/pattern-catalog.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -185,22 +187,110 @@ serve(async (req) => {
       }
     }
 
-    // 5. Build Claude prompt for deck generation
+    // ========================================================================
+    // STAGE 1: CONTENT ANALYSIS (Call j_hub_deck_analyze)
+    // ========================================================================
+    console.log('📋 [DECK_GENERATE] Stage 1: Analyzing content and proposing slide patterns...');
+
+    const analyzeResponse = await fetchWithRetry(
+      `${env.SUPABASE_URL}/functions/v1/j_hub_deck_analyze`,
+      {
+        method: 'POST',
+        headers: {
+          'authorization': authHeader,
+          'apikey': env.SUPABASE_SERVICE_ROLE_KEY,
+          'Content-Type': 'application/json; charset=utf-8',
+        },
+        body: JSON.stringify({
+          markdown_source: markdown_source,
+          deck_type: type, // report/mediaplan/pitch
+          template_id: template_id
+        }),
+        maxRetries: 3,
+        timeoutMs: 45000, // 45s for analysis
+      }
+    );
+
+    if (!analyzeResponse.ok) {
+      const errorText = await analyzeResponse.text();
+      console.error('❌ [DECK_GENERATE] Content analysis failed:', errorText);
+      throw new Error(`Content analysis failed (Stage 1): ${errorText}`);
+    }
+
+    const analyzeBytes = await analyzeResponse.arrayBuffer();
+    const analyzeText = decoder.decode(analyzeBytes);
+    const analyzeData = JSON.parse(analyzeText);
+
+    if (!analyzeData.success || !analyzeData.plan) {
+      throw new Error('Content analysis returned invalid response');
+    }
+
+    const { plan, pattern_metadata } = analyzeData;
+
+    console.log('✅ [DECK_GENERATE] Stage 1 complete:', {
+      total_slides: plan.total_slides,
+      diversity_score: plan.pattern_diversity_score,
+      tokens_used: analyzeData.tokens_used?.total || 0
+    });
+
+    // Log pattern distribution for debugging
+    const patternCounts: Record<string, number> = {};
+    plan.slides.forEach((slide: any) => {
+      const pattern = slide.recommended_pattern;
+      patternCounts[pattern] = (patternCounts[pattern] || 0) + 1;
+    });
+    console.log('📊 [DECK_GENERATE] Pattern distribution:', patternCounts);
+
+    // ========================================================================
+    // STAGE 2: AUTO-APPROVE PLAN (future: add UI for review)
+    // ========================================================================
+    const approvedPlan = plan;
+    console.log('✅ [DECK_GENERATE] Stage 2: Plan auto-approved (no user review for now)');
+
+    // ========================================================================
+    // STAGE 3: HTML GENERATION (Guided by approved plan + CSS-only template)
+    // ========================================================================
+    console.log('🎨 [DECK_GENERATE] Stage 3: Generating HTML following approved plan...');
+
+    // Extract CSS from template (CSS-Only strategy for token efficiency)
+    const fullTemplate = templateHtml; // Already loaded from lines 130-145
+    const templateCSS = extractStyleBlock(fullTemplate);
+
+    console.log('📄 [DECK_GENERATE] Template processed:', {
+      template_id,
+      full_size_kb: (fullTemplate.length / 1024).toFixed(1),
+      css_only_kb: (templateCSS.length / 1024).toFixed(1),
+      token_savings: `${(((fullTemplate.length - templateCSS.length) / fullTemplate.length) * 100).toFixed(0)}%`
+    });
+
+    // 5. Build Claude prompt for GUIDED HTML generation
     const systemPrompt = `You are a professional presentation designer creating beautiful HTML presentations that strictly follow brand identity guidelines.
+
+⚠️ CRITICAL: You are generating HTML based on an APPROVED SLIDE PLAN.
+You MUST follow the plan exactly - use the specified pattern for each slide.
 
 Your task is to transform markdown content into a complete, production-ready HTML presentation following EXCLUSIVELY the design system provided for the selected brand identity.
 
 CRITICAL INSTRUCTIONS:
+
+0. ⚠️ MANDATORY: FOLLOW THE APPROVED PLAN STRICTLY
+   - An expert content analyzer has created an optimal slide-by-slide plan for you
+   - For each slide in the plan, use EXACTLY the recommended pattern
+   - If slide says pattern "timeline", you MUST use Timeline pattern CSS (.timeline-container)
+   - If slide says pattern "statement-slide-reverse", you MUST use Statement Reverse pattern
+   - DO NOT improvise, DO NOT change patterns, DO NOT skip slides from the plan
+   - Pattern fidelity is MANDATORY - the plan was carefully optimized for content matching
 
 1. ⚠️ MANDATORY: READ AND APPLY THE COMPLETE DESIGN SYSTEM from identities/${brand_identity}/design-system.md
    - This is your ONLY source of truth for colors, fonts, spacing, and visual style
    - DO NOT use colors, fonts, or patterns from other identities
    - DO NOT mix design systems - use ONLY the ${brand_identity} identity guidelines
 
-2. USE the template structure from ${template_id}.html as inspiration for layout patterns
-   - Copy slide patterns and component structures
-   - Adapt content to match the markdown source
-   - Maintain responsive behavior and animations from template
+2. USE the CSS patterns from ${template_id}.html (CSS provided below)
+   - Complete CSS is provided - use it exactly as-is
+   - Copy pattern structures from CSS (class names, nesting)
+   - DO NOT modify CSS rules or invent new classes
+   - Adapt content to match the markdown source while maintaining pattern structure
 
 3. GENERATE a complete, standalone HTML file with:
    - Complete <head> with <meta charset="UTF-8"> as FIRST tag (CRITICAL for UTF-8 encoding)
@@ -414,19 +504,30 @@ DECK CONFIGURATION
 Title: ${title}
 Type: ${type}
 Brand Identity: ${brand_identity}
-Template Inspiration: ${template_id}
+Template: ${template_id}
 ${accountName ? `Account: ${accountName}` : ''}
 
 ==============================================
-DESIGN SYSTEM (SOURCE OF TRUTH)
+APPROVED SLIDE PLAN (FOLLOW EXACTLY)
+==============================================
+${formatPlanForGenerationPrompt(approvedPlan)}
+
+==============================================
+PATTERN CATALOG (REFERENCE)
+==============================================
+${formatPatternCatalogForPrompt(pattern_metadata)}
+
+==============================================
+DESIGN SYSTEM (SOURCE OF TRUTH FOR COLORS/FONTS)
 ==============================================
 ${designSystem}
 
 ==============================================
-TEMPLATE STRUCTURE (INSPIRATION ONLY)
+CSS PATTERNS (USE THESE EXACT STYLES)
 ==============================================
-${templateHtml.substring(0, 20000)}
-[Template truncated to 20KB for token efficiency - includes all major component patterns]
+<style>
+${templateCSS}
+</style>
 
 ${accountContext ? `
 ==============================================
@@ -436,14 +537,20 @@ ${accountContext}
 ` : ''}
 
 ==============================================
-CONTENT TO TRANSFORM INTO PRESENTATION
+MARKDOWN SOURCE (DATA ONLY - NO HALLUCINATION)
 ==============================================
 ${markdown_source}
 
 ==============================================
 TASK
 ==============================================
-Generate a complete, production-ready HTML presentation following ALL design system rules and template patterns.
+Generate COMPLETE HTML presentation following the approved plan above.
+
+For each slide in the plan:
+1. Use the recommended pattern (e.g., timeline → .timeline-container CSS)
+2. Replace template content with data from markdown source
+3. Maintain all CSS structure and classes from patterns above
+4. Use brand colors/fonts from design system
 
 OUTPUT FORMAT: Complete standalone HTML file (no markdown fences, no explanations)`;
 
@@ -567,14 +674,20 @@ OUTPUT FORMAT: Complete standalone HTML file (no markdown fences, no explanation
 
     console.log('✅ [DECK_GENERATE] Uploaded to:', publicUrl);
 
-    // 8. Update deck record with HTML output and file URL
+    // 8. Update deck record with HTML output, file URL, and generation plan
     const { error: updateError } = await supabase
       .from('j_hub_decks')
       .update({
-        html_output: htmlOutput, // Cache in database for quick preview
-        file_url: publicUrl,     // Storage URL for serving to clients
+        html_output: htmlOutput,      // Cache in database for quick preview
+        file_url: publicUrl,           // Storage URL for serving to clients
+        generation_plan: approvedPlan, // Save plan for debugging and analytics
       })
       .eq('id', deckId);
+
+    console.log('💾 [DECK_GENERATE] Generation plan saved to database:', {
+      total_slides: approvedPlan.total_slides,
+      diversity_score: approvedPlan.pattern_diversity_score
+    });
 
     if (updateError) {
       console.error('❌ [DECK_GENERATE] Update failed:', updateError);
@@ -618,13 +731,25 @@ OUTPUT FORMAT: Complete standalone HTML file (no markdown fences, no explanation
 
     console.log('✅ [DECK_GENERATE] Deck generation completed successfully');
 
+    // Calculate total tokens (Stage 1 + Stage 3)
+    const stage1Tokens = analyzeData.tokens_used?.total || 0;
+    const stage3Tokens = (claudeData.usage?.input_tokens || 0) + (claudeData.usage?.output_tokens || 0);
+    const totalTokens = stage1Tokens + stage3Tokens;
+
     return new Response(
       JSON.stringify({
         success: true,
         deck_id: deckId,
         html_url: publicUrl,
         slide_count: slideCount,
-        tokens_used: (claudeData.usage?.input_tokens || 0) + (claudeData.usage?.output_tokens || 0),
+        tokens_used: totalTokens,
+        tokens_breakdown: {
+          stage1_analysis: stage1Tokens,
+          stage3_generation: stage3Tokens,
+          total: totalTokens
+        },
+        pattern_diversity_score: approvedPlan.pattern_diversity_score,
+        patterns_used: Object.keys(patternCounts).length,
         latency_ms: latency,
       }),
       {
