@@ -1233,7 +1233,16 @@
         .bar-chart-slide .slide-content {
             display: flex;
             flex-direction: column;
-            gap: clamp(32px, 4vw, 60px);
+            gap: clamp(16px, 2vw, 24px);
+        }
+
+        /* Reduce title/subtitle spacing specifically for bar chart */
+        .bar-chart-slide .slide-title {
+            margin-bottom: 8px;
+        }
+
+        .bar-chart-slide .slide-subtitle {
+            margin-bottom: 16px;
         }
 
         .bar-chart-item {
