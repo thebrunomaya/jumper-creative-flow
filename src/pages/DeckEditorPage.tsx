@@ -11,7 +11,6 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { JumperBackground } from "@/components/ui/jumper-background";
 import { JumperButton } from "@/components/ui/jumper-button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
@@ -206,7 +205,6 @@ export default function DeckEditorPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      <JumperBackground overlay={false} />
       <Header />
 
       <div className="container mx-auto px-4 py-8 relative z-10">
