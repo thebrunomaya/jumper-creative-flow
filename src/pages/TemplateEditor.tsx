@@ -3,8 +3,10 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useTemplateRead } from "@/hooks/useTemplateRead";
 import { MonacoEditor } from "@/components/templates/MonacoEditor";
 import { TemplatePreview } from "@/components/templates/TemplatePreview";
+import { TemplateVersionHistory } from "@/components/templates/TemplateVersionHistory";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Save, Eye, EyeOff, Loader2, FileCode } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ArrowLeft, Save, Loader2, FileCode, Eye, History } from "lucide-react";
 import { toast } from "sonner";
 import { useUserRole } from "@/hooks/useUserRole";
 import { supabase } from "@/integrations/supabase/client";
@@ -16,9 +18,9 @@ export default function TemplateEditor() {
   const { data: template, isLoading, error } = useTemplateRead(templateId);
 
   const [editedContent, setEditedContent] = useState("");
-  const [showPreview, setShowPreview] = useState(true);
   const [isSaving, setSaving] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [showVersionHistory, setShowVersionHistory] = useState(false);
 
   // Initialize edited content when template loads (MUST be before conditional returns)
   useEffect(() => {
@@ -66,7 +68,7 @@ export default function TemplateEditor() {
     return null;
   }
 
-  // Save template to Storage
+  // Save template to Storage + create version
   const handleSave = async () => {
     if (!templateId || !editedContent) return;
 
@@ -89,8 +91,36 @@ export default function TemplateEditor() {
 
       if (uploadError) throw uploadError;
 
+      // Create version entry in database
+      // Get next version number
+      const { data: existingVersions } = await supabase
+        .from("j_hub_template_versions")
+        .select("version_number")
+        .eq("template_id", templateId)
+        .order("version_number", { ascending: false })
+        .limit(1);
+
+      const nextVersion = existingVersions && existingVersions.length > 0
+        ? existingVersions[0].version_number + 1
+        : 1;
+
+      // Insert new version
+      const { error: versionError } = await supabase
+        .from("j_hub_template_versions")
+        .insert({
+          template_id: templateId,
+          version_number: nextVersion,
+          html_content: editedContent,
+          description: `Versão ${nextVersion}`,
+        });
+
+      if (versionError) {
+        console.warn("Failed to create version:", versionError);
+        // Don't fail the save if versioning fails
+      }
+
       toast.success("Template salvo com sucesso!", {
-        description: "As alterações foram aplicadas ao template",
+        description: `Salvo como versão ${nextVersion}`,
       });
 
       setHasUnsavedChanges(false);
@@ -169,19 +199,10 @@ export default function TemplateEditor() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setShowPreview(!showPreview)}
+              onClick={() => setShowVersionHistory(!showVersionHistory)}
             >
-              {showPreview ? (
-                <>
-                  <EyeOff className="h-4 w-4 mr-2" />
-                  Ocultar Preview
-                </>
-              ) : (
-                <>
-                  <Eye className="h-4 w-4 mr-2" />
-                  Mostrar Preview
-                </>
-              )}
+              <History className="h-4 w-4 mr-2" />
+              Histórico
             </Button>
 
             <Button
@@ -205,28 +226,44 @@ export default function TemplateEditor() {
         </div>
       </div>
 
-      {/* Editor + Preview */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* Monaco Editor */}
-        <div
-          className={`${
-            showPreview ? "w-1/2" : "w-full"
-          } border-r transition-all duration-300`}
-        >
+      {/* Tabs: Editor / Preview */}
+      <Tabs defaultValue="editor" className="flex-1 flex flex-col overflow-hidden">
+        <div className="border-b px-6">
+          <TabsList className="h-12">
+            <TabsTrigger value="editor" className="gap-2">
+              <FileCode className="h-4 w-4" />
+              Editor
+            </TabsTrigger>
+            <TabsTrigger value="preview" className="gap-2">
+              <Eye className="h-4 w-4" />
+              Preview
+            </TabsTrigger>
+          </TabsList>
+        </div>
+
+        <TabsContent value="editor" className="flex-1 m-0 data-[state=active]:flex">
           <MonacoEditor
             value={editedContent}
             onChange={setEditedContent}
             readOnly={false}
           />
-        </div>
+        </TabsContent>
 
-        {/* Preview */}
-        {showPreview && (
-          <div className="w-1/2">
-            <TemplatePreview htmlContent={editedContent} />
-          </div>
-        )}
-      </div>
+        <TabsContent value="preview" className="flex-1 m-0 data-[state=active]:flex">
+          <TemplatePreview htmlContent={editedContent} />
+        </TabsContent>
+      </Tabs>
+
+      {/* Version History Sheet */}
+      <TemplateVersionHistory
+        templateId={templateId || ""}
+        isOpen={showVersionHistory}
+        onClose={() => setShowVersionHistory(false)}
+        onVersionRestore={(htmlContent) => {
+          setEditedContent(htmlContent);
+          toast.success("Versão restaurada no editor");
+        }}
+      />
     </div>
   );
 }
