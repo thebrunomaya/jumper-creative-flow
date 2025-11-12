@@ -1493,7 +1493,7 @@
         .funnel-stage {
             display: flex;
             flex-direction: column;
-            gap: 6px; /* Reduced from 12px for compactness */
+            gap: 4px; /* Minimal gap - drop-off badges now float between stages */
             position: relative;
         }
 
@@ -1563,18 +1563,21 @@
             color: var(--koko-black); /* Yellow bar needs black text */
         }
 
-        /* Drop-off indicators - positioned inline below each stage */
+        /* Drop-off indicators - positioned between stages to save vertical space */
         .funnel-drop-off {
-            align-self: center; /* Center below the funnel bar */
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translate(-50%, 50%); /* Center horizontally, position halfway between stages */
             background: var(--koko-white);
             border: 2px solid var(--koko-black);
-            padding: 4px 12px; /* Reduced padding for compactness */
+            padding: 4px 12px;
             font-family: 'Alternate Gothic', sans-serif;
-            font-size: clamp(11px, 1.3vw, 14px); /* Slightly smaller */
+            font-size: clamp(11px, 1.3vw, 14px);
             font-weight: 700;
             white-space: nowrap;
             color: var(--chart-negative);
-            margin-top: -2px; /* Slight overlap with bar for tighter spacing */
+            z-index: 10; /* Above bars */
         }
 
         /* Insight box for funnel */
