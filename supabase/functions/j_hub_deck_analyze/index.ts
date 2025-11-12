@@ -3,7 +3,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { validateEnvironment } from '../_shared/env-validation.ts';
 import { loadPatternMetadata } from '../_shared/template-utils.ts';
 import { formatPatternCatalogForPrompt } from '../_shared/pattern-catalog.ts';
-import { fetchTextWithRetry } from '../_shared/fetch-with-retry.ts';
+import { fetchWithRetry } from '../_shared/fetch-with-retry.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -11,7 +11,15 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
+  // Log EVERY request immediately
+  console.log('📨 [DECK_ANALYZE] Request received:', {
+    method: req.method,
+    url: req.url,
+    headers: Object.fromEntries(req.headers.entries())
+  });
+
   if (req.method === 'OPTIONS') {
+    console.log('✅ [DECK_ANALYZE] Responding to OPTIONS (CORS preflight)');
     return new Response(null, { headers: corsHeaders });
   }
 
@@ -20,14 +28,24 @@ serve(async (req) => {
     const decoder = new TextDecoder('utf-8');
 
     // Validate environment variables
+    console.log('🔒 [DECK_ANALYZE] Validating environment variables...');
     const env = validateEnvironment();
+    console.log('✅ [DECK_ANALYZE] Environment validation passed');
 
     console.log('🔍 [DECK_ANALYZE] Starting content analysis...');
 
     // Parse request body with explicit UTF-8 decoding
+    console.log('📦 [DECK_ANALYZE] Parsing request body...');
     const bodyBytes = await req.arrayBuffer();
     const bodyText = decoder.decode(bodyBytes);
     const body = JSON.parse(bodyText);
+
+    console.log('📦 [DECK_ANALYZE] Body parsed:', {
+      has_markdown: !!body.markdown_source,
+      markdown_length: body.markdown_source?.length || 0,
+      deck_type: body.deck_type,
+      template_id: body.template_id
+    });
 
     const {
       markdown_source,
@@ -36,6 +54,7 @@ serve(async (req) => {
     } = body;
 
     // Enhanced input validation
+    console.log('✅ [DECK_ANALYZE] Starting input validation...');
     if (!markdown_source || typeof markdown_source !== 'string') {
       throw new Error('Markdown source is required');
     }
@@ -174,7 +193,7 @@ Output valid JSON only (no markdown fences, no extra text).`;
 
     const startTime = Date.now();
 
-    const claudeResponse = await fetchTextWithRetry(
+    const claudeResponse = await fetchWithRetry(
       'https://api.anthropic.com/v1/messages',
       {
         method: 'POST',
@@ -192,8 +211,6 @@ Output valid JSON only (no markdown fences, no extra text).`;
             { role: 'user', content: userPrompt }
           ],
         }),
-      },
-      {
         maxRetries: 3,
         timeoutMs: 30000,
         retryOn5xx: true,
