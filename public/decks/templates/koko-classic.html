@@ -6,7 +6,7 @@
     <title>Koko Classic Template - Agência Koko</title>
     <style>
         /**
-         * KOKO CLASSIC TEMPLATE v2.0.1 (WIP - Data Visualization)
+         * KOKO CLASSIC TEMPLATE v2.0 COMPLETE - Data Visualization Edition ✅
          * Template COMPLETO para apresentações criativas e relatórios de performance
          * Design System: Energético, criativo, ousado com elementos visuais únicos
          * Paleta: Amarelo (#F5C542), Rosa (#FF0080), Preto, Branco
@@ -15,18 +15,18 @@
          * IMPORTANTE: Este é um TEMPLATE de referência visual completo.
          * Claude AI deve usar os padrões aqui como base para gerar slides dinamicamente.
          *
-         * NOVIDADES v2.0.1 (PARCIAL - 4/5 charts implementados):
+         * NOVIDADES v2.0 (COMPLETE - 5/5 charts implementados):
          * - DATA VISUALIZATION CHARTS para relatórios de tráfego:
          *   ✅ Slide 18: LINE CHART (temporal evolution - conversions over time)
          *   ✅ Slide 19: Horizontal Bar Chart (channel comparison - ROAS by platform)
          *   ✅ Slide 20: Donut Chart (budget distribution - R$ 300k allocation)
          *   ✅ Slide 21: Funnel Visualization (conversion path - 4 stages with drop-offs)
-         *   ⏳ Slide 22: Stacked Area Chart (multi-channel evolution)
+         *   ✅ Slide 22: Stacked Area Chart (multi-channel evolution - 3 channels stacked)
          * - Chart semantic colors (green=success, yellow=warning, pink=alert)
          * - CSS base compartilhado para todos os charts (corner-fold, typography)
-         * - Grid 2-column: Chart (60%) + Insights (40%)
-         * - SVG paths para visualizações escaláveis
-         * - Responsivo (mobile stacks vertically)
+         * - Grid layouts: Chart (60%) + Insights/Legend (40%)
+         * - SVG paths para visualizações escaláveis e estáticas (PDF-ready)
+         * - Responsivo (mobile stacks vertically, adapts sizes)
          *
          * NOVIDADES v2.1:
          * - Statement Slide Pattern com 2 variantes (loud mouth + text)
@@ -1598,6 +1598,127 @@
         }
 
         /* ========================================
+           STACKED AREA CHART PATTERN (Multi-channel Evolution)
+           Use case: Multi-source trends, channel contribution over time
+           ======================================== */
+        .stacked-area-slide .slide-content {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr; /* 60% chart, 40% legend */
+            gap: clamp(40px, 5vw, 80px);
+            align-items: flex-start;
+        }
+
+        .stacked-area-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .stacked-area-svg {
+            width: 100%;
+            height: auto;
+            filter: drop-shadow(2px 4px 0px rgba(0, 0, 0, 0.1));
+        }
+
+        /* SVG styling for stacked areas */
+        .stacked-area-path {
+            stroke-width: 0;
+            opacity: 0.85;
+        }
+
+        .stacked-area-grid line {
+            stroke: #e0e0e0;
+            stroke-width: 1;
+        }
+
+        .stacked-area-axis text {
+            font-family: 'Alternate Gothic', sans-serif;
+            font-size: 11px;
+            fill: #666;
+        }
+
+        /* Multi-channel legend for stacked area */
+        .stacked-area-legend {
+            display: flex;
+            flex-direction: column;
+            gap: clamp(16px, 2vw, 24px);
+        }
+
+        .stacked-area-legend-item {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: clamp(12px, 1.5vw, 16px);
+            background: var(--koko-white);
+            border: 2px solid var(--koko-black);
+            position: relative;
+            clip-path: polygon(
+                0 0, 100% 0, 100% calc(100% - 14px),
+                calc(100% - 14px) 100%, 0 100%
+            );
+        }
+
+        .stacked-area-legend-item::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            width: 14px;
+            height: 14px;
+            background: linear-gradient(135deg,
+                #d9d9d9 0%, #d9d9d9 45.5%,
+                #000 45.5%, #000 54.5%,
+                #FFFFFF 54.5%, #FFFFFF 100%
+            );
+        }
+
+        .stacked-area-legend-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .stacked-area-legend-color {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--koko-black);
+            flex-shrink: 0;
+        }
+
+        .stacked-area-legend-label {
+            font-family: 'Alternate Gothic', sans-serif;
+            font-size: clamp(14px, 1.8vw, 18px);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .stacked-area-legend-metrics {
+            display: flex;
+            justify-content: space-between;
+            padding-left: 32px;
+        }
+
+        .stacked-area-legend-metric {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .stacked-area-legend-metric-label {
+            font-family: 'Alternate Gothic', sans-serif;
+            font-size: clamp(10px, 1.2vw, 12px);
+            text-transform: uppercase;
+            opacity: 0.6;
+        }
+
+        .stacked-area-legend-metric-value {
+            font-family: 'Alternate Gothic', sans-serif;
+            font-size: clamp(14px, 1.8vw, 18px);
+            font-weight: 900;
+        }
+
+        /* ========================================
            RESPONSIVE ADJUSTMENTS
            ======================================== */
         @media (max-width: 1024px) {
@@ -1765,6 +1886,20 @@
             .funnel-insight {
                 padding: 16px;
                 margin-top: 16px;
+            }
+
+            /* Stacked Area Chart responsive */
+            .stacked-area-slide .slide-content {
+                grid-template-columns: 1fr; /* Stack vertically on mobile */
+                gap: 32px;
+            }
+
+            .stacked-area-legend {
+                gap: 12px;
+            }
+
+            .stacked-area-legend-item {
+                padding: 12px;
             }
 
             .slide-title {
@@ -2743,6 +2878,126 @@
         </div>
     </div>
 
+    <!-- SLIDE 22: STACKED AREA CHART PATTERN (Multi-channel Evolution) -->
+    <div class="slide stacked-area-slide">
+        <div class="slide-content">
+            <!-- Left: Chart -->
+            <div class="stacked-area-wrapper">
+                <h1 class="slide-title">EVOLUÇÃO MULTI-CANAL</h1>
+                <p class="slide-subtitle">Receita mensal por plataforma (Mai-Out 2024)</p>
+
+                <svg class="stacked-area-svg" viewBox="0 0 600 300" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Grid lines -->
+                    <g class="stacked-area-grid">
+                        <line x1="60" y1="50" x2="580" y2="50" />
+                        <line x1="60" y1="112.5" x2="580" y2="112.5" />
+                        <line x1="60" y1="175" x2="580" y2="175" />
+                        <line x1="60" y1="237.5" x2="580" y2="237.5" />
+                    </g>
+
+                    <!-- Y-axis labels (R$ 0-400k) -->
+                    <g class="stacked-area-axis">
+                        <text x="45" y="54" text-anchor="end">400k</text>
+                        <text x="45" y="116.5" text-anchor="end">300k</text>
+                        <text x="45" y="179" text-anchor="end">200k</text>
+                        <text x="45" y="241.5" text-anchor="end">100k</text>
+                        <text x="45" y="304" text-anchor="end">0</text>
+                    </g>
+
+                    <!-- Area 1: Google Ads (bottom - GREEN) -->
+                    <!-- Data: 80k, 95k, 110k, 125k, 140k, 160k -->
+                    <path class="stacked-area-path" fill="#2AA876"
+                          d="M 85,250 L 180,231 L 275,213 L 370,194 L 465,175 L 560,150 L 560,300 L 85,300 Z" />
+
+                    <!-- Area 2: Meta Ads (middle - BLUE) -->
+                    <!-- Additional: 50k, 60k, 65k, 70k, 75k, 85k -->
+                    <!-- Cumulative: 130k, 155k, 175k, 195k, 215k, 245k -->
+                    <path class="stacked-area-path" fill="#4285F4"
+                          d="M 85,250 L 180,231 L 275,213 L 370,194 L 465,175 L 560,150
+                             L 560,106 L 465,131 L 370,147 L 275,163 L 180,181 L 85,206 Z" />
+
+                    <!-- Area 3: TikTok Ads (top - PINK) -->
+                    <!-- Additional: 20k, 25k, 30k, 35k, 40k, 50k -->
+                    <!-- Cumulative: 150k, 180k, 205k, 230k, 255k, 295k -->
+                    <path class="stacked-area-path" fill="#FF0080"
+                          d="M 85,206 L 180,181 L 275,163 L 370,147 L 465,131 L 560,106
+                             L 560,69 L 465,94 L 370,109 L 275,125 L 180,144 L 85,175 Z" />
+
+                    <!-- X-axis labels -->
+                    <g class="stacked-area-axis">
+                        <text x="85" y="295" text-anchor="middle">Mai</text>
+                        <text x="180" y="295" text-anchor="middle">Jun</text>
+                        <text x="275" y="295" text-anchor="middle">Jul</text>
+                        <text x="370" y="295" text-anchor="middle">Ago</text>
+                        <text x="465" y="295" text-anchor="middle">Set</text>
+                        <text x="560" y="295" text-anchor="middle">Out</text>
+                    </g>
+                </svg>
+            </div>
+
+            <!-- Right: Legend -->
+            <div class="stacked-area-legend">
+                <div class="stacked-area-legend-item">
+                    <div class="stacked-area-legend-header">
+                        <div class="stacked-area-legend-color" style="background: #2AA876;"></div>
+                        <span class="stacked-area-legend-label">Google Ads</span>
+                    </div>
+                    <div class="stacked-area-legend-metrics">
+                        <div class="stacked-area-legend-metric">
+                            <span class="stacked-area-legend-metric-label">Receita</span>
+                            <span class="stacked-area-legend-metric-value">R$ 160k</span>
+                        </div>
+                        <div class="stacked-area-legend-metric">
+                            <span class="stacked-area-legend-metric-label">Crescimento</span>
+                            <span class="stacked-area-legend-metric-value">+100%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stacked-area-legend-item">
+                    <div class="stacked-area-legend-header">
+                        <div class="stacked-area-legend-color" style="background: #4285F4;"></div>
+                        <span class="stacked-area-legend-label">Meta Ads</span>
+                    </div>
+                    <div class="stacked-area-legend-metrics">
+                        <div class="stacked-area-legend-metric">
+                            <span class="stacked-area-legend-metric-label">Receita</span>
+                            <span class="stacked-area-legend-metric-value">R$ 85k</span>
+                        </div>
+                        <div class="stacked-area-legend-metric">
+                            <span class="stacked-area-legend-metric-label">Crescimento</span>
+                            <span class="stacked-area-legend-metric-value">+70%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stacked-area-legend-item">
+                    <div class="stacked-area-legend-header">
+                        <div class="stacked-area-legend-color" style="background: #FF0080;"></div>
+                        <span class="stacked-area-legend-label">TikTok Ads</span>
+                    </div>
+                    <div class="stacked-area-legend-metrics">
+                        <div class="stacked-area-legend-metric">
+                            <span class="stacked-area-legend-metric-label">Receita</span>
+                            <span class="stacked-area-legend-metric-value">R$ 50k</span>
+                        </div>
+                        <div class="stacked-area-legend-metric">
+                            <span class="stacked-area-legend-metric-label">Crescimento</span>
+                            <span class="stacked-area-legend-metric-value">+150%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Total -->
+                <div style="margin-top: 16px; padding: 16px; background: var(--koko-yellow); border: 2px solid var(--koko-black); font-family: 'Playfair Display', serif; font-size: 14px; line-height: 1.6;">
+                    <strong style="font-family: 'Alternate Gothic', sans-serif; font-size: 16px; text-transform: uppercase; display: block; margin-bottom: 6px;">RECEITA TOTAL (OUT):</strong>
+                    R$ 295k (+96% vs Mai). TikTok é o canal que mais cresce, mas Google mantém maior volume absoluto.
+                </div>
+            </div>
+
+        </div>
+    </div>
+
     <!-- Navigation System -->
     <div class="nav-dots">
         <div class="nav-dot active" data-slide="0"></div>
@@ -2766,10 +3021,11 @@
         <div class="nav-dot" data-slide="18"></div>
         <div class="nav-dot" data-slide="19"></div>
         <div class="nav-dot" data-slide="20"></div>
+        <div class="nav-dot" data-slide="21"></div>
     </div>
 
     <div class="slide-counter">
-        <span id="current-slide">1</span> / <span id="total-slides">21</span>
+        <span id="current-slide">1</span> / <span id="total-slides">22</span>
     </div>
 
     <button class="nav-arrow prev" aria-label="Slide anterior">←</button>
