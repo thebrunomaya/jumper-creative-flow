@@ -1566,9 +1566,9 @@
         /* Drop-off indicators - positioned between stages to save vertical space */
         .funnel-drop-off {
             position: absolute;
-            bottom: calc(-1 * clamp(16px, 2vw, 24px)); /* Offset by full gap value to position in gap center */
+            bottom: calc(-1 * clamp(20px, 2.5vw, 26px)); /* gap/2 + badge-height/2 for perfect centering */
             left: 50%;
-            transform: translate(-50%, 0%); /* Center horizontally, no vertical transform needed */
+            transform: translate(-50%, 0%); /* Center horizontally only */
             background: var(--koko-white);
             border: 2px solid var(--koko-black);
             padding: 4px 12px;
