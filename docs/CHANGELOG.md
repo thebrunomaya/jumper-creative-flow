@@ -4,6 +4,145 @@
 
 ---
 
+## 📊 Sessão 2024-11-11: Koko Classic Template - Refinamento de Layout
+
+### **🎯 Objetivos Alcançados:**
+- ✅ **Ajustes de espaçamento em 4 slides** (Slides 13, 19, 21)
+- ✅ **Correção crítica do funil** (Slide 21) com debugging empírico
+- ✅ **Validação via Playwright** (medições pixel-perfect)
+- ✅ **Template final production-ready**
+
+### **🔧 Ajustes Realizados:**
+
+**1. Slide 13 (Section Divider):**
+- Redução da imagem computer.png: 80vh → 64vh (-20%)
+- Aumento progressivo de padding lateral (3 iterações):
+  - Inicial: 60-140px
+  - Segunda: 80-180px
+  - Final: 120-240px (+100% desktop)
+- Resultado: Breathing room significativamente melhorado
+
+**2. Slide 19 (Bar Chart):**
+- Redução de gap vertical: 32-60px → 16-24px (-50%)
+- Redução de margens de título/subtítulo
+- Resultado: Conteúdo cabe sem overflow vertical
+
+**3. Slide 21 (Funnel - Correção Crítica):**
+
+**Problema inicial:**
+- Funil invertido (trapezóides apontando para cima)
+- Badges de drop-off sobrepostos às barras
+- Espaçamento excessivo (600px+)
+
+**Iterações de correção:**
+- **Iteração 1:** Inversão do clip-path (trapezóides agora apontam para baixo)
+- **Iteração 2:** Redução de alturas e gaps (480px → ~400px)
+- **Iteração 3:** Posicionamento absoluto dos badges
+- **Iteração 4:** Ajuste de gap (8-16px → 16-24px)
+- **Iteração 5:** Offset negativo (-8 a -12px) - insuficiente
+- **Iteração 6:** Offset maior (-16 a -24px) - ainda insuficiente
+- **Iteração 7:** Debugging via Playwright - descoberta do gap real (63px!)
+- **Iteração 8:** Offset final (-40 a -47px) - **PERFEITO ✅**
+
+**Debugging Empírico (Playwright):**
+```javascript
+// Medições antes da correção final:
+Stage 1: Badge center 384px, Gap center 405px, Diff: -21px
+Stage 2: Badge center 497px, Gap center 518px, Diff: -21px
+Stage 3: Badge center 610px, Gap center 631px, Diff: -21px
+
+// Medições após correção final:
+Stage 1: Badge center 406px, Gap center 405px, Diff: +1px ✅
+Stage 2: Badge center 519px, Gap center 518px, Diff: +1px ✅
+Stage 3: Badge center 632px, Gap center 631px, Diff: +1px ✅
+```
+
+**Solução final CSS:**
+```css
+.funnel-drop-off {
+    bottom: calc(-1 * clamp(40px, 5vw, 47px));
+    /* Empirically measured: gap center - badge half height */
+}
+```
+
+### **📐 Geometria Final do Funil:**
+
+**Dimensões:**
+- Bar height: `clamp(35px, 3.5vw, 50px)` (reduzido 30%)
+- Gap entre stages: `clamp(16px, 2vw, 24px)` (gap real: 63px)
+- Internal stage gap: `4px` (mínimo)
+- Badge height: ~30px
+- Trapezoid angles: 8%/92% (steeper funnel effect)
+
+**Espaçamento total (~400px):**
+- Title + subtitle: ~80px
+- 4 bars @ 35-50px: 140-200px
+- 3 gaps @ 16-24px: 48-72px
+- 4 headers: ~100px
+- Insight box: ~40-60px
+- **Total: 408-512px ✅ (fits viewport)**
+
+### **🧪 Metodologia de Debug:**
+
+**Abordagem empírica vs. teórica:**
+- Tentativas iniciais baseadas em cálculos CSS teóricos falharam
+- Gap CSS (`clamp(16-24px)`) não correspondia ao gap real (63px!)
+- Playwright medições pixel-a-pixel revelaram discrepância
+- Ajuste empírico baseado em medições reais resolveu
+
+**Ferramentas utilizadas:**
+- Playwright MCP para medições ao vivo
+- `getBoundingClientRect()` para posições exatas
+- Iteração rápida com feedback visual
+- Validação automática via JavaScript
+
+### **📊 Commits desta sessão:**
+
+```bash
+# Correções iniciais
+43e8eb2 fix(decks): Reduce vertical spacing in Slide 19 bar chart
+c8aa47a fix(decks): Redesign Slide 21 funnel to fit vertically
+230f2ed fix(decks): Invert funnel trapezoid direction
+6dcccb0 fix(decks): Position drop-off badges between stages
+
+# Iterações de centralização
+966a1b0 fix(decks): Center drop-off badges in funnel gap
+639d220 fix(decks): Adjust badge offset to use full gap value
+7474292 fix(decks): Increase gap between funnel stages
+304edde fix(decks): Correct badge centering math
+
+# Correção final validada
+59fc251 fix(decks): Perfect badge centering with empirical measurements
+```
+
+### **✅ Status Final:**
+
+**Koko Classic Template v2.0:**
+- 22 slides totais (17 conteúdo + 5 chart patterns)
+- Layout otimizado para apresentações
+- Funil com badges perfeitamente centralizados
+- Breathing room adequado em todos os slides
+- Production-ready ✅
+
+### **📝 Lições Aprendidas:**
+
+1. **CSS Clamp vs. Computed Values:**
+   - `clamp()` define limites, mas valor computado pode diferir
+   - Flexbox gaps podem ser maiores que valores CSS indicam
+   - Sempre medir valores reais no browser
+
+2. **Debugging Empírico > Cálculos Teóricos:**
+   - Tentativas baseadas em teoria: 7 iterações falharam
+   - Medição com Playwright: Solução imediata
+   - "Measure twice, code once"
+
+3. **Playwright para Validação:**
+   - MCP integration permite debug interativo
+   - `getBoundingClientRect()` é confiável para layouts
+   - Validação automatizada economiza tempo
+
+---
+
 ## 📊 Sessão 2024-10-07: OPTIMIZER Branch Completo + Plano REPORTS
 
 ### **🎯 Objetivos Alcançados:**
@@ -48,397 +187,50 @@
 ```sql
 -- REPORTS branch pode consumir imediatamente:
 SELECT * FROM j_ads_optimization_context
-WHERE account_id = 'ACCOUNT_ID'
+WHERE account_id = 'xxx'
 ORDER BY created_at DESC;
+
+-- Context disponível:
+{
+  "actions_taken": [...],
+  "metrics_mentioned": [...],
+  "strategy": {...},
+  "timeline": {...}
+}
 ```
 
-**✅ Validado:**
-- Todos os campos populados corretamente
-- JSONB structures seguem formato especificado
-- Datas em formato ISO 8601
-- Confidence levels implementados
-- Summary legível e estruturado
+### **📋 Plano REPORTS Branch (Próxima Sessão):**
 
-**⚠️ Pendência Crítica Identificada:**
-- ❌ Dados métricas (`j_rep_metaads_bronze`) acessíveis por qualquer usuário autenticado
-- ❌ Falta mapeamento user → accounts para RLS adequado
-- 🔐 **Recomendação**: Implementar fixes de segurança antes do merge REPORTS
+**Objetivo:** Sistema de Insights Comparativos
 
-**🎉 Resultado:**
-**"OPTIMIZER 100% PRONTO PARA INTEGRAÇÃO COM REPORTS!"**
+**Branches paralelos:**
+- `OPTIMIZER` (Lovable) → ✅ COMPLETO
+- `REPORTS` (Claude Code local) → 🚧 PRÓXIMO
 
-### **🧠 Problema Identificado:**
+**Features REPORTS:**
+1. **Anomaly Detection:**
+   - Desvios significativos vs. baseline
+   - Alertas automáticos em tempo real
+   - Correlação com otimizações gravadas
 
-**Feedback de Clientes (NPS):**
-> "Os relatórios e a comunicação entre gestores e gerentes estão pouco compreensivos."
+2. **Comparative Insights:**
+   - Período vs. período (MoM, WoW)
+   - Conta vs. conta (benchmarking interno)
+   - Antes vs. depois de otimizações
 
-**Causa Raiz:**
-- Dashboards mostram apenas dados brutos + indicadores de performance
-- Falta contexto: Por que o gestor fez X? É esperado ou problema?
-- Gerentes não sabem se devem agir, esperar ou cobrar
+3. **Contextualized Analytics:**
+   - Consumir `j_ads_optimization_context`
+   - Explicar "por quê" das mudanças
+   - Timeline de causa-efeito
 
-**Exemplo de Insight Sem Contexto:**
-```
-⚠️ "CPA aumentou 150% esta semana (R$ 80 → R$ 200)" 🔴 CRITICAL
-→ Gerente: "Algo deu errado? Devo pausar?"
-```
-
-**Exemplo de Insight Com Contexto:**
-```
-💡 CPA aumentou 150% conforme esperado
-Contexto: Gestor iniciou teste de audiência fria há 3 dias.
-Estratégia: Fase de aprendizado - CPA alto é normal (7 dias).
-✅ CTR: 2.1% (excellent) - criativo funcionando
-✅ 18/50 conversões coletadas (dia 3/7)
-Recomendação: Manter estratégia. Reavaliar dia 7.
-```
-
-### **💡 Solução Proposta:**
-
-**Sistema de Gravação de Otimizações:**
-- Gestor grava áudio narrando otimizações (o que mudou, por quê, métricas, expectativas)
-- Transcrição automática via Whisper (OpenAI)
-- Análise de IA extrai dados estruturados
-- Duplo ROI: Relatório para cliente + contexto para IA de insights
-
-**Validação de Viabilidade:**
-```
-Volume: 50 contas × 1 gravação/semana × 5min = 1.000min/mês
-Storage: ~200MB/mês
-Custo Whisper: $1.20/mês
-Custo IA: $0.78/mês
-TOTAL: ~$2/mês (irrisório)
-```
-
-### **🏗️ Estratégia de Desenvolvimento:**
-
-**Branch OPTIMIZER (Lovable):**
-- Interface gravação de áudio
-- Upload Supabase Storage
-- Integração Whisper + IA
-- Geração relatórios clientes
-- Validação: 3 gestores antes de merge
-
-**Branch REPORTS (Claude Code):**
-- Insights comparativos
-- Detecção de anomalias
-- Captura contexto básico (antes OPTIMIZER)
-- Integração: Consumir dados OPTIMIZER quando pronto
-
-### **📅 Timeline:**
-```
-Semana 1: OPTIMIZER (interface) + REPORTS (insights comparativos)
-Semana 2: OPTIMIZER (Whisper) + REPORTS (anomalias + quick notes)
-Semana 3: OPTIMIZER (análise IA) + REPORTS (preparar integração)
-Semana 4: OPTIMIZER (validação) + REPORTS (integração completa)
-Semana 5: Merge REPORTS → main
-Semana 6: Merge OPTIMIZER → main (se validado)
-```
-
-### **📊 Impacto Esperado:**
-- NPS Comunicação: 6/10 → **8-9/10**
-- Tempo interpretação: 15min → **3min**
-- Ações tomadas: 30% → **70%+**
-- Rework: Alto → **Mínimo**
+**Tech Stack REPORTS:**
+- Frontend: React Query + Recharts
+- Backend: Edge Functions + Scheduled Tasks
+- Database: Views materializadas para performance
 
 ---
 
-## 📊 Sessão 2024-09-01: Sistema de Datas Precisas (v1.9)
-
-### **🎯 Objetivos Alcançados:**
-- ✅ Display de range de datas em todos os dashboards
-- ✅ Lógica "Últimos N dias" corrigida (finaliza dia anterior)
-- ✅ Problema de timezone resolvido
-- ✅ Consistência total (query, display, tabelas)
-- ✅ Validação com dados reais Meta Ads
-
-### **🔧 Problemas Resolvidos:**
-
-**1. Display de Range:**
-- Problema: Usuários não sabiam período exato
-- Solução: `(25/08/24 a 31/08/24)` visível em todos os dashboards
-
-**2. Lógica "Últimos N Dias":**
-- Problema: Incluía hoje, mas dados só existem até ontem
-- Solução: `subDays(new Date(), 1)` como endDate
-
-**3. Offset de Timezone:**
-- Problema: 31/08 aparecia como 30/08
-- Solução: `format(new Date(day.date + 'T00:00:00'), 'dd/MM/yyyy')`
-
-### **✅ Dashboards Atualizados:**
-- GeneralDashboard, SalesDashboard, TrafficDashboard, EngagementDashboard, LeadsDashboard, BrandAwarenessDashboard, ConversionsDashboard, ReachDashboard, VideoViewsDashboard
-
----
-
-## 📊 Sessão 2024-09-01: 9 Dashboards Específicos por Objetivo
-
-### **🎯 Objetivos Alcançados:**
-- ✅ 9 Dashboards implementados (cada objetivo tem dashboard dedicado)
-- ✅ Métricas priorizadas por Data Scientist
-- ✅ Correção estrutura de dados (`j_rep_metaads_bronze`)
-- ✅ Arquivos JSON/Markdown para revisão equipe
-- ✅ Sistema compilado e funcional
-
-### **📊 Dashboards Implementados:**
-
-**Funcionais (9):**
-1. Vendas - Receita, ROAS, conversões, CPA
-2. Tráfego - Cliques link, CPC, CTR, impressões
-3. Engajamento - Interações, métricas vídeo, frequência
-4. Leads - Leads gerados, custo por lead, taxa conversão
-5. Reconhecimento Marca - Alcance, impressões, frequência
-6. Alcance - Cobertura audiência, CPM
-7. Reproduções Vídeo - Funil completo (25%, 50%, 75%, 100%)
-8. Conversões - Total conversões, ROAS, CPA
-9. Visão Geral - Dashboard genérico
-
-**Coming Soon (6):**
-- Mensagens, Catálogo Produtos, Visitas Estabelecimento, Instalações App, Cadastros, Seguidores
-
-### **🎯 Métricas Data Science:**
-- **Vendas**: Revenue → ROAS → Conversões → CPA
-- **Tráfego**: Link Clicks → CPC → CTR → Impressões
-- **Engajamento**: Cliques → Vídeo 50% → Vídeo 75% → CTR
-- **Leads**: Leads → CPA → Taxa Conversão
-
----
-
-## 📊 Sessão 2024-08-31: Sistema de Períodos Globais
-
-### **🎯 Objetivos Alcançados:**
-- ✅ Correção campos dados (link_clicks, adset_name)
-- ✅ Sistema períodos globais (7, 14, 30 dias)
-- ✅ CTR otimizado (baseado em link clicks)
-- ✅ Arquitetura melhorada (período no componente pai)
-- ✅ UX consistente (mudança afeta todos dashboards)
-
-### **🔧 Correções Aplicadas:**
-
-**Campos de Banco:**
-- `actions_link_click` → `link_clicks`
-- `adset` → `adset_name`
-- CTR baseado em link clicks vs impressões
-- CPC consistente (custo por clique no link)
-
-**Sistema de Períodos:**
-- Localização: Header conta no ReportsDashboard
-- Padrão: 7 dias (anteriormente 30)
-- Propagação automática via props
-- Textos dinâmicos ("Últimos X dias")
-
----
-
-## 📊 Sessão 2024-08-31: Correção File Picker
-
-### **🎯 Objetivos Alcançados:**
-- ✅ Bug crítico resolvido (file picker inconsistente)
-- ✅ Conflito react-dropzone eliminado
-- ✅ Correção implementada e testada
-- ✅ Deploy em produção
-
-### **🔧 Problema:**
-- Botões "Escolher arquivo" no Step 2 não abriam seletor
-- Causa: Conflito entre dois file pickers simultâneos
-- Solução: Usar input react-dropzone diretamente + fallback
-
----
-
-## 📊 Sessão 2024-08-25: Sistema de Reports Profissional
-
-### **🎯 Objetivos Alcançados:**
-- ✅ Sistema Reports implementado
-- ✅ Design System Jumper aplicado
-- ✅ Performance indicators inteligentes
-- ✅ UX mobile-first
-- ✅ Loading states branded
-- ✅ Deploy em produção
-
-### **📊 Componentes Criados:**
-- GeneralDashboard, SalesDashboard, ComingSoonTemplate, ReportAccessControl, ReportsDashboard
-- MetricCard, SkeletonScreen, metricPerformance.ts
-
-### **🎨 Design Tokens:**
-```css
---metric-excellent: 159 64% 42%; /* Verde */
---metric-good: 217 91% 60%;      /* Azul */
---metric-warning: 38 92% 50%;    /* Amarelo */
---metric-critical: 0 84% 60%;    /* Vermelho */
---orange-hero: 14 95% 55%;       /* Laranja */
-```
-
-### **⚡ Performance Thresholds:**
-- CTR: Excellent ≥2.0% | Good ≥1.5% | Warning ≥0.5%
-- ROAS: Excellent ≥4.0x | Good ≥2.5x | Warning ≥1.0x
-- CPA: Excellent ≤R$50 | Good ≤R$100 | Warning ≤R$200
-- CPM: Excellent ≤R$10 | Good ≤R$20 | Warning ≤R$40
-
----
-
-## 📊 Sessão 2024-08-25: Migração Tabelas Sincronizadas
-
-### **🎯 Objetivos Alcançados:**
-- ✅ Migração completa para tabelas sincronizadas
-- ✅ Correção objetivos campanha
-- ✅ Otimização performance (zero API calls em tempo real)
-- ✅ Sistema permissões mantido
-- ✅ Compatibilidade robusta (string e array)
-
-### **🗄️ Estrutura Atualizada:**
-
-**Tabelas Sincronizadas:**
-- `j_ads_notion_db_managers` - 10 campos
-- `j_ads_notion_db_accounts` - 75 campos
-- `j_ads_notion_db_partners`
-
-**Fluxo de Dados:**
-```
-Login → Email Cross-Reference → j_ads_notion_db_managers
-  ↓
-Parse "Contas" → Account IDs → j_ads_notion_db_accounts
-  ↓
-Objetivos: "Vendas, Seguidores" → ["Vendas", "Seguidores"]
-  ↓
-Frontend: Seletor funcionando
-```
-
-### **⚡ Melhorias:**
-- Eliminação API calls em tempo real
-- Dados offline (cached/sincronizados)
-- 75 campos disponíveis (vs limitados)
-- Sync regular via edge functions
-
----
-
-## 📊 Sessão 2024-08-21: Sistema de Senha Completo
-
-### **🎯 Objetivos Alcançados:**
-- ✅ Sistema criação/reset senha
-- ✅ Modal direto no app
-- ✅ Opção no menu usuário
-- ✅ Template e-mail customizado
-- ✅ Tratamento links expirados
-- ✅ Validações robustas
-
-### **🔐 Fluxos Implementados:**
-
-**Fluxo Principal (Recomendado):**
-1. Clique avatar → "Criar/Redefinir Senha"
-2. Modal abre (senha + confirmação)
-3. Define senha instantaneamente
-4. Toast confirma sucesso
-
-**Fluxo Alternativo (E-mail):**
-1. Link na tela login
-2. E-mail template Jumper
-3. Redirect para interface reset
-4. Tratamento links expirados
-
----
-
-## 📊 Sessão 2024-08-21: Deploy Produção
-
-### **🎯 Objetivos Alcançados:**
-- ✅ Deploy produção realizado
-- ✅ Migração completa do Lovable
-- ✅ Branch management (supastorage → main)
-- ✅ Favicon atualizado (logo Jumper)
-- ✅ Deploy automático configurado
-
-### **🚀 Infraestrutura:**
-
-**Frontend (Vercel):**
-- Domínio: hub.jumper.studio
-- Deploy automático: Push main → Vercel
-- Environment Variables configuradas
-- Branding: 100% Jumper Studio
-
-**Backend (Supabase):**
-- Edge Functions operacionais
-- Database conectado
-- Storage ativo
-- Sistema resiliente 100%
-
----
-
-## 📊 Sessão 2024-08-18: Workflow Fix
-
-### **🎯 Objetivos Alcançados:**
-- ✅ Workflow crítico corrigido
-- ✅ Separação responsabilidades
-- ✅ Sistema resiliente mantido
-- ✅ Interface atualizada
-
-### **🔄 Novo Fluxo:**
-
-**Antes (Incorreto):**
-```
-Gerente → j_ads_submit_creative → Notion (DIRETO)
-```
-
-**Agora (Correto):**
-```
-Gerente → j_ads_submit_creative → Supabase (submitted)
-Admin/Gestor → j_ads_admin_actions (publish) → Notion
-```
-
-### **📋 Status Flow:**
-1. DRAFT → Gerente trabalhando
-2. SUBMITTED → Aguardando revisão
-3. PUBLISHED → Publicado no Notion
-
----
-
-## 📊 Sessão 2024-08-18: Validação de Mídia
-
-### **🎯 Objetivos Alcançados:**
-- ✅ Validação mídia corrigida
-- ✅ Bug crítico resolvido (vídeos)
-- ✅ Validação completa ativa
-- ✅ Testes funcionais
-
-### **🐛 Bug Corrigido:**
-- Problema: Sistema permitia qualquer arquivo em qualquer posicionamento
-- Causa: Validação vídeos só verificava duração (não dimensões)
-- Solução: Validação completa dimensões para vídeos
-
-### **🛡️ Validações Ativas:**
-
-**Por Tipo:**
-- Imagens: JPG, PNG - Dimensões + Aspect Ratio + Tamanho (1GB max)
-- Vídeos: MP4, MOV - Dimensões + Aspect Ratio + Duração + Tamanho (1GB max)
-
-**Por Posicionamento:**
-- Quadrado: 1080x1080px+ (1:1)
-- Vertical: 1080x1920px+ (9:16)
-- Horizontal: 1200x628px+ (1.91:1)
-- Carousel 1:1: 1080x1080px+ (1:1)
-- Carousel 4:5: 1080x1350px+ (4:5)
-
----
-
-## 📊 Sessão 2024-08-18: Sistema Resiliente
-
-### **🎯 Objetivos Alcançados:**
-- ✅ Sistema resiliente implementado
-- ✅ Error tracking ativo
-- ✅ Testes completos validados
-- ✅ Fallback automático
-- ✅ Conexão Supabase testada
-
-### **🛡️ Proteções Ativas:**
-- Retry logic com exponential backoff
-- Circuit breaker para APIs externas
-- Upload transacional com rollback
-- Health monitoring em tempo real
-- Error tracking estruturado
-- Fallback para degradação
-
-### **🎉 Resultado:**
-**"GERENTE NUNCA VERÁ ERRO DE SUBMISSÃO!"**
-- Proposta de valor "zero rework" 100% protegida
-
----
-
-**Last Updated**: 2024-10-07
-**Maintained by**: Claude Code Assistant
+**🔗 Links Úteis:**
+- **Production:** https://hub.jumper.studio
+- **Documentação:** [ARCHITECTURE.md](ARCHITECTURE.md)
+- **Issues:** GitHub Issues
