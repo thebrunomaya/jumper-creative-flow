@@ -551,6 +551,11 @@ For each slide in the plan:
 3. Maintain all CSS structure and classes from patterns above
 4. Use brand colors/fonts from design system
 
+CRITICAL OPTIMIZATION:
+- Remove ALL CSS comments to save tokens
+- Keep CSS minified and compact
+- Focus output tokens on <body> content, not CSS documentation
+
 OUTPUT FORMAT: Complete standalone HTML file (no markdown fences, no explanations)`;
 
     console.log('🤖 [DECK_GENERATE] Calling Claude Sonnet 4.5 for HTML generation...');
@@ -575,7 +580,7 @@ OUTPUT FORMAT: Complete standalone HTML file (no markdown fences, no explanation
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-5-20250929',
-        max_tokens: 8000, // Reduced from 16K to speed up generation
+        max_tokens: 16000, // Need full capacity for complete HTML
         system: systemPrompt,
         messages: [
           { role: 'user', content: userPrompt }
