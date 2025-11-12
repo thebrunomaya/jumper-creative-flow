@@ -30,6 +30,7 @@ const SharedOptimization = lazy(() => import("./pages/SharedOptimization"));
 const Decks = lazy(() => import("./pages/Decks"));
 const DeckNew = lazy(() => import("./pages/DeckNew"));
 const DeckEditor = lazy(() => import("./pages/DeckEditor"));
+const DeckEditorPage = lazy(() => import("./pages/DeckEditorPage"));
 const DeckPreview = lazy(() => import("./pages/DeckPreview"));
 const SharedDeck = lazy(() => import("./pages/SharedDeck"));
 const Templates = lazy(() => import("./pages/Templates"));
@@ -162,6 +163,13 @@ const App = () => {
                   <ProtectedRoute>
                     <Suspense fallback={<PageLoading />}>
                       <DeckNew />
+                    </Suspense>
+                  </ProtectedRoute>
+                } />
+                <Route path="/decks/editor/:deckId" element={
+                  <ProtectedRoute>
+                    <Suspense fallback={<PageLoading />}>
+                      <DeckEditorPage />
                     </Suspense>
                   </ProtectedRoute>
                 } />
