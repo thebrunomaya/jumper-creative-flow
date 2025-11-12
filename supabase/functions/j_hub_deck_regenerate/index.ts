@@ -1,32 +1,13 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.56.0';
+import { validateEnvironment } from '../_shared/env-validation.ts';
+import { fetchTextWithRetry } from '../_shared/fetch-with-retry.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
-
-// Helper: Fetch with timeout
-async function fetchWithTimeout(url: string, options: RequestInit = {}, timeoutMs = 30000) {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), timeoutMs);
-
-  try {
-    const response = await fetch(url, {
-      ...options,
-      signal: controller.signal,
-    });
-    clearTimeout(timeout);
-    return response;
-  } catch (error) {
-    clearTimeout(timeout);
-    if (error.name === 'AbortError') {
-      throw new Error(`Fetch timeout after ${timeoutMs}ms: ${url}`);
-    }
-    throw error;
-  }
-}
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -37,16 +18,16 @@ serve(async (req) => {
     // UTF-8 decoder
     const decoder = new TextDecoder('utf-8');
 
+    // Validate environment variables
+    const env = validateEnvironment();
+
     // Extract authenticated user
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
       throw new Error('Missing authorization header');
     }
 
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const anthropicKey = Deno.env.get('ANTHROPIC_API_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY);
 
     // Parse request body with explicit UTF-8 decoding
     const bodyBytes = await req.arrayBuffer();
@@ -58,9 +39,17 @@ serve(async (req) => {
       markdown_source,
     } = body;
 
-    // Validate required fields
-    if (!deck_id || !markdown_source) {
-      throw new Error('Missing required fields: deck_id, markdown_source');
+    // Enhanced input validation
+    if (!deck_id || typeof deck_id !== 'string' || deck_id.trim().length === 0) {
+      throw new Error('Deck ID is required and cannot be empty');
+    }
+
+    if (!markdown_source || typeof markdown_source !== 'string' || markdown_source.trim().length < 10) {
+      throw new Error('Markdown source must contain meaningful content (minimum 10 characters)');
+    }
+
+    if (markdown_source.length > 500000) {
+      throw new Error('Markdown source too large (maximum 500KB)');
     }
 
     console.log('🔄 [DECK_REGENERATE] Starting deck regeneration:', {
@@ -105,18 +94,17 @@ serve(async (req) => {
 
     console.log('✅ [DECK_REGENERATE] Permission granted:', userRole);
 
-    // 2. Get latest version number
-    const { data: versionsData } = await supabase
-      .from('j_hub_deck_versions')
-      .select('version_number')
-      .eq('deck_id', deck_id)
-      .order('version_number', { ascending: false })
-      .limit(1);
+    // 2. Get next version number atomically (prevents race conditions)
+    console.log('📊 [DECK_REGENERATE] Getting next version number with locking...');
+    const { data: newVersionNumber, error: versionError } = await supabase
+      .rpc('get_next_version_number', { p_deck_id: deck_id });
 
-    const currentVersionNumber = versionsData?.[0]?.version_number || 1;
-    const newVersionNumber = currentVersionNumber + 1;
+    if (versionError || !newVersionNumber) {
+      console.error('❌ [DECK_REGENERATE] Failed to get version number:', versionError);
+      throw new Error(`Failed to get version number: ${versionError?.message}`);
+    }
 
-    console.log('📊 [DECK_REGENERATE] Version progression:', currentVersionNumber, '→', newVersionNumber);
+    console.log('📊 [DECK_REGENERATE] New version number:', newVersionNumber);
 
     // 3. Use deck's existing configuration (type, brand_identity, template_id, account_id)
     const { type, brand_identity, template_id, account_id, title } = deckData;
@@ -139,23 +127,16 @@ serve(async (req) => {
 
     let templateHtml: string;
     try {
-      console.log('🔄 [DECK_REGENERATE] Fetching template with 30s timeout...');
-      const templateResponse = await fetchWithTimeout(templateUrl, {
+      console.log('🔄 [DECK_REGENERATE] Fetching template with retry logic (3 attempts, 30s timeout)...');
+      templateHtml = await fetchTextWithRetry(templateUrl, {
         headers: { 'Accept': 'text/html; charset=utf-8' },
-      }, 30000);
-
-      console.log('📡 [DECK_REGENERATE] Template response status:', templateResponse.status);
-
-      if (!templateResponse.ok) {
-        throw new Error(`Template HTTP ${templateResponse.status}: ${template_id}`);
-      }
-
-      const templateBytes = await templateResponse.arrayBuffer();
-      templateHtml = decoder.decode(templateBytes);
+        maxRetries: 3,
+        timeoutMs: 30000,
+      });
 
       console.log('✅ [DECK_REGENERATE] Template loaded:', templateHtml.length, 'chars');
     } catch (templateError) {
-      console.error('❌ [DECK_REGENERATE] Template load failed:', templateError);
+      console.error('❌ [DECK_REGENERATE] Template load failed after retries:', templateError);
       throw new Error(`Failed to load template ${template_id}: ${templateError.message}`);
     }
 
@@ -167,23 +148,16 @@ serve(async (req) => {
 
     let designSystem: string;
     try {
-      console.log('🔄 [DECK_REGENERATE] Fetching design system with 30s timeout...');
-      const dsResponse = await fetchWithTimeout(designSystemUrl, {
+      console.log('🔄 [DECK_REGENERATE] Fetching design system with retry logic (3 attempts, 30s timeout)...');
+      designSystem = await fetchTextWithRetry(designSystemUrl, {
         headers: { 'Accept': 'text/markdown; charset=utf-8' },
-      }, 30000);
-
-      console.log('📡 [DECK_REGENERATE] Design system response status:', dsResponse.status);
-
-      if (!dsResponse.ok) {
-        throw new Error(`Design system HTTP ${dsResponse.status}: ${brand_identity}`);
-      }
-
-      const dsBytes = await dsResponse.arrayBuffer();
-      designSystem = decoder.decode(dsBytes);
+        maxRetries: 3,
+        timeoutMs: 30000,
+      });
 
       console.log('✅ [DECK_REGENERATE] Design system loaded:', designSystem.length, 'chars');
     } catch (dsError) {
-      console.error('❌ [DECK_REGENERATE] Design system load failed:', dsError);
+      console.error('❌ [DECK_REGENERATE] Design system load failed after retries:', dsError);
       throw new Error(`Failed to load design system ${brand_identity}: ${dsError.message}`);
     }
 
@@ -405,7 +379,7 @@ OUTPUT FORMAT: Complete standalone HTML file (no markdown fences, no explanation
     const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
-        'x-api-key': anthropicKey,
+        'x-api-key': env.ANTHROPIC_API_KEY,
         'anthropic-version': '2023-06-01',
         'Content-Type': 'application/json; charset=utf-8',
         'Accept': 'application/json; charset=utf-8',
@@ -430,7 +404,24 @@ OUTPUT FORMAT: Complete standalone HTML file (no markdown fences, no explanation
     const claudeText = decoder.decode(claudeBytes);
     const claudeData = JSON.parse(claudeText);
 
-    let htmlOutput = claudeData.content[0].text;
+    // Validate Claude API response structure
+    if (!claudeData.content || !Array.isArray(claudeData.content) || claudeData.content.length === 0) {
+      console.error('❌ [DECK_REGENERATE] Invalid Claude response structure:', claudeData);
+      throw new Error('Invalid Claude API response: missing content array');
+    }
+
+    if (!claudeData.content[0] || !claudeData.content[0].text) {
+      console.error('❌ [DECK_REGENERATE] Invalid Claude response structure:', claudeData.content[0]);
+      throw new Error('Invalid Claude API response: missing text in content[0]');
+    }
+
+    let htmlOutput = claudeData.content[0].text.trim();
+
+    // Sanity check: HTML should not be empty or suspiciously short
+    if (htmlOutput.length < 100) {
+      console.error('❌ [DECK_REGENERATE] Claude returned suspiciously short HTML:', htmlOutput.length, 'chars');
+      throw new Error('Claude returned suspiciously short HTML output (less than 100 characters)');
+    }
     const latency = Date.now() - startTime;
 
     // Clean up markdown fences if Claude included them

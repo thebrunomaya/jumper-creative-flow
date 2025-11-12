@@ -7,10 +7,32 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.35';
+export const APP_VERSION = 'v2.1.36';
 
 /**
  * Version history:
+ * - v2.1.36 (2024-11-12):
+ *   - SECURITY: Removed hardcoded master password backdoor from password-utils.ts
+ *   - ROBUSTNESS: Added comprehensive error handling and validation to Decks Edge Functions
+ *   - VALIDATION: Enhanced input validation (empty strings, length limits, enum checking)
+ *   - RESILIENCE: Implemented retry logic with exponential backoff for HTTP requests (3 attempts)
+ *   - VALIDATION: Added Claude API response structure validation (prevents crashes)
+ *   - VALIDATION: Added environment variable validation with clear error messages
+ *   - CONCURRENCY: Fixed race condition in deck versioning with atomic database function
+ *   - PERFORMANCE: Parallel asset fetching reduces latency by 1-2 seconds
+ *   - DATABASE: Created get_next_version_number() function with FOR UPDATE locking
+ *   - UTILITIES: Created shared env-validation.ts and fetch-with-retry.ts modules
+ *   - FILES MODIFIED:
+ *   -   - supabase/functions/_shared/env-validation.ts (NEW - environment validation)
+ *   -   - supabase/functions/_shared/fetch-with-retry.ts (NEW - HTTP retry logic)
+ *   -   - supabase/functions/_shared/password-utils.ts (removed master password)
+ *   -   - supabase/functions/j_hub_deck_generate/index.ts (all improvements applied)
+ *   -   - supabase/functions/j_hub_deck_refine/index.ts (all improvements applied)
+ *   -   - supabase/functions/j_hub_deck_regenerate/index.ts (all improvements applied)
+ *   -   - supabase/migrations/20251112000000_add_deck_version_lock.sql (NEW - version locking)
+ *   - IMPACT: Significantly improved reliability, security, and error recovery for Decks system
+ *   - ISSUES FIXED: #1 (master password), #2 (env validation), #4 (input validation), #5 (race condition), #9 (retry logic), #10 (API validation)
+ *
  * - v2.1.35 (2024-11-11):
  *   - UX: Reorganized template panel with prioritized sections
  *   - STRUCTURE: Two-section layout for better organization

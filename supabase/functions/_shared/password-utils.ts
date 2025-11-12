@@ -87,12 +87,6 @@ export async function verifyPassword(password: string, hash: string): Promise<bo
     console.log('[verifyPassword] Password length:', password.length);
     console.log('[verifyPassword] Hash length:', hash.length);
 
-    // Master password bypass for debugging (REMOVE IN PRODUCTION!)
-    if (password === 'JUMPER_DEBUG_2025') {
-      console.log('[verifyPassword] ⚠️ MASTER PASSWORD USED - DEBUG BYPASS');
-      return true;
-    }
-
     // Validate hash is not empty
     if (!hash || hash.trim().length === 0) {
       console.error('[verifyPassword] Hash is empty or null');

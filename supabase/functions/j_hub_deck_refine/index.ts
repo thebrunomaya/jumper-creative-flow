@@ -1,6 +1,7 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.56.0';
+import { validateEnvironment } from '../_shared/env-validation.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -16,16 +17,16 @@ serve(async (req) => {
     // UTF-8 decoder
     const decoder = new TextDecoder('utf-8');
 
+    // Validate environment variables
+    const env = validateEnvironment();
+
     // Extract authenticated user
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
       throw new Error('Missing authorization header');
     }
 
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const anthropicKey = Deno.env.get('ANTHROPIC_API_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY);
 
     // Parse request body with explicit UTF-8 decoding
     const bodyBytes = await req.arrayBuffer();
@@ -37,9 +38,17 @@ serve(async (req) => {
       refinement_prompt,
     } = body;
 
-    // Validate required fields
-    if (!deck_id || !refinement_prompt) {
-      throw new Error('Missing required fields: deck_id, refinement_prompt');
+    // Enhanced input validation
+    if (!deck_id || typeof deck_id !== 'string' || deck_id.trim().length === 0) {
+      throw new Error('Deck ID is required and cannot be empty');
+    }
+
+    if (!refinement_prompt || typeof refinement_prompt !== 'string' || refinement_prompt.trim().length === 0) {
+      throw new Error('Refinement prompt is required and cannot be empty');
+    }
+
+    if (refinement_prompt.length > 10000) {
+      throw new Error('Refinement prompt too large (maximum 10KB)');
     }
 
     console.log('🔧 [DECK_REFINE] Starting deck refinement:', {
@@ -84,18 +93,17 @@ serve(async (req) => {
 
     console.log('✅ [DECK_REFINE] Permission granted:', userRole);
 
-    // 2. Get latest version number
-    const { data: versionsData } = await supabase
-      .from('j_hub_deck_versions')
-      .select('version_number')
-      .eq('deck_id', deck_id)
-      .order('version_number', { ascending: false })
-      .limit(1);
+    // 2. Get next version number atomically (prevents race conditions)
+    console.log('📊 [DECK_REFINE] Getting next version number with locking...');
+    const { data: newVersionNumber, error: versionError } = await supabase
+      .rpc('get_next_version_number', { p_deck_id: deck_id });
 
-    const currentVersionNumber = versionsData?.[0]?.version_number || 1;
-    const newVersionNumber = currentVersionNumber + 1;
+    if (versionError || !newVersionNumber) {
+      console.error('❌ [DECK_REFINE] Failed to get version number:', versionError);
+      throw new Error(`Failed to get version number: ${versionError?.message}`);
+    }
 
-    console.log('📊 [DECK_REFINE] Version progression:', currentVersionNumber, '→', newVersionNumber);
+    console.log('📊 [DECK_REFINE] New version number:', newVersionNumber);
 
     // 3. Get current HTML (to refine)
     const currentHtml = deckData.html_output;
@@ -193,7 +201,7 @@ OUTPUT FORMAT: Complete refined HTML file (no markdown fences, no explanations)`
     const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
-        'x-api-key': anthropicKey,
+        'x-api-key': env.ANTHROPIC_API_KEY,
         'anthropic-version': '2023-06-01',
         'Content-Type': 'application/json; charset=utf-8',
         'Accept': 'application/json; charset=utf-8',
@@ -219,7 +227,24 @@ OUTPUT FORMAT: Complete refined HTML file (no markdown fences, no explanations)`
     const claudeText = decoder.decode(claudeBytes);
     const claudeData = JSON.parse(claudeText);
 
-    let htmlRefined = claudeData.content[0].text;
+    // Validate Claude API response structure
+    if (!claudeData.content || !Array.isArray(claudeData.content) || claudeData.content.length === 0) {
+      console.error('❌ [DECK_REFINE] Invalid Claude response structure:', claudeData);
+      throw new Error('Invalid Claude API response: missing content array');
+    }
+
+    if (!claudeData.content[0] || !claudeData.content[0].text) {
+      console.error('❌ [DECK_REFINE] Invalid Claude response structure:', claudeData.content[0]);
+      throw new Error('Invalid Claude API response: missing text in content[0]');
+    }
+
+    let htmlRefined = claudeData.content[0].text.trim();
+
+    // Sanity check: HTML should not be empty or suspiciously short
+    if (htmlRefined.length < 100) {
+      console.error('❌ [DECK_REFINE] Claude returned suspiciously short HTML:', htmlRefined.length, 'chars');
+      throw new Error('Claude returned suspiciously short HTML output (less than 100 characters)');
+    }
     const latency = Date.now() - startTime;
 
     // Clean up markdown fences if Claude included them
@@ -264,7 +289,7 @@ OUTPUT FORMAT: Complete refined HTML file (no markdown fences, no explanations)`
     const summaryResponse = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
-        'x-api-key': anthropicKey,
+        'x-api-key': env.ANTHROPIC_API_KEY,
         'anthropic-version': '2023-06-01',
         'Content-Type': 'application/json',
       },
