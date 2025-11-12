@@ -15,10 +15,10 @@
          * IMPORTANTE: Este é um TEMPLATE de referência visual completo.
          * Claude AI deve usar os padrões aqui como base para gerar slides dinamicamente.
          *
-         * NOVIDADES v2.0.1 (PARCIAL - 1/5 charts implementados):
+         * NOVIDADES v2.0.1 (PARCIAL - 2/5 charts implementados):
          * - DATA VISUALIZATION CHARTS para relatórios de tráfego:
          *   ✅ Slide 18: LINE CHART (temporal evolution - conversions over time)
-         *   ⏳ Slide 19: Horizontal Bar Chart (channel comparison)
+         *   ✅ Slide 19: Horizontal Bar Chart (channel comparison - ROAS by platform)
          *   ⏳ Slide 20: Donut Chart (budget distribution)
          *   ⏳ Slide 21: Funnel Visualization (conversion path)
          *   ⏳ Slide 22: Stacked Area Chart (multi-channel evolution)
@@ -1227,6 +1227,131 @@
         }
 
         /* ========================================
+           HORIZONTAL BAR CHART PATTERN (Comparison)
+           Use case: Channel comparison, performance benchmarks
+           ======================================== */
+        .bar-chart-slide .slide-content {
+            display: flex;
+            flex-direction: column;
+            gap: clamp(24px, 3vw, 40px);
+        }
+
+        .bar-chart-item {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .bar-chart-label {
+            font-family: 'Alternate Gothic', sans-serif;
+            font-size: clamp(16px, 2vw, 20px);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .bar-chart-label-value {
+            font-size: clamp(18px, 2.2vw, 24px);
+            font-weight: 900;
+        }
+
+        .bar-chart-track {
+            width: 100%;
+            height: clamp(40px, 5vw, 60px);
+            background: var(--koko-white);
+            border: 2px solid var(--koko-black);
+            position: relative;
+            overflow: hidden;
+            /* Corner-fold effect on bars */
+            clip-path: polygon(
+                0 0, 100% 0, 100% calc(100% - 16px),
+                calc(100% - 16px) 100%, 0 100%
+            );
+        }
+
+        .bar-chart-track::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            width: 16px;
+            height: 16px;
+            background: linear-gradient(135deg,
+                #d9d9d9 0%, #d9d9d9 45.5%,
+                #000 45.5%, #000 54.5%,
+                #FFFFFF 54.5%, #FFFFFF 100%
+            );
+            z-index: 2;
+        }
+
+        .bar-chart-fill {
+            height: 100%;
+            background: var(--koko-black);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 0 16px;
+            position: relative;
+            transition: width 0.3s ease-out;
+        }
+
+        /* Color modifiers */
+        .bar-chart-fill.positive {
+            background: var(--chart-positive);
+        }
+
+        .bar-chart-fill.neutral {
+            background: var(--chart-neutral);
+            color: var(--koko-black);
+        }
+
+        .bar-chart-fill.negative {
+            background: var(--chart-negative);
+        }
+
+        .bar-chart-fill-value {
+            font-family: 'Alternate Gothic', sans-serif;
+            font-size: clamp(16px, 2vw, 20px);
+            font-weight: 900;
+            color: var(--koko-white);
+            z-index: 1;
+        }
+
+        .bar-chart-fill.neutral .bar-chart-fill-value {
+            color: var(--koko-black);
+        }
+
+        /* Insight box for bar charts */
+        .bar-chart-insight {
+            margin-top: clamp(16px, 2vw, 24px);
+            padding: clamp(16px, 2vw, 24px);
+            background: var(--koko-yellow);
+            border: 2px solid var(--koko-black);
+            clip-path: polygon(
+                0 0, 100% 0, 100% calc(100% - 18px),
+                calc(100% - 18px) 100%, 0 100%
+            );
+            position: relative;
+        }
+
+        .bar-chart-insight::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            width: 18px;
+            height: 18px;
+            background: linear-gradient(135deg,
+                #d9d9d9 0%, #d9d9d9 45.5%,
+                #000 45.5%, #000 54.5%,
+                #F5C542 54.5%, #F5C542 100%
+            );
+        }
+
+        /* ========================================
            RESPONSIVE ADJUSTMENTS
            ======================================== */
         @media (max-width: 1024px) {
@@ -1344,6 +1469,20 @@
 
             .line-chart-metric {
                 padding: 12px;
+            }
+
+            /* Bar Chart responsive */
+            .bar-chart-track {
+                height: 36px; /* Smaller bars on mobile */
+            }
+
+            .bar-chart-fill-value {
+                font-size: 14px;
+            }
+
+            .bar-chart-insight {
+                padding: 16px;
+                margin-top: 16px;
             }
 
             .slide-title {
@@ -2049,6 +2188,75 @@
 
     </div>
 
+    <!-- SLIDE 19: HORIZONTAL BAR CHART PATTERN (Channel Comparison) -->
+    <div class="slide bar-chart-slide">
+        <div class="slide-content">
+            <h1 class="slide-title">PERFORMANCE POR CANAL</h1>
+            <p class="slide-subtitle">Comparação de resultados entre plataformas de anúncios (últimos 30 dias)</p>
+
+            <!-- Bar 1: Google Ads (Best performer - GREEN) -->
+            <div class="bar-chart-item">
+                <div class="bar-chart-label">
+                    <span>GOOGLE ADS</span>
+                    <span class="bar-chart-label-value">R$ 247.890</span>
+                </div>
+                <div class="bar-chart-track">
+                    <div class="bar-chart-fill positive" style="width: 100%;">
+                        <span class="bar-chart-fill-value">ROAS 5.2x</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bar 2: Meta Ads (Standard performer - YELLOW) -->
+            <div class="bar-chart-item">
+                <div class="bar-chart-label">
+                    <span>META ADS</span>
+                    <span class="bar-chart-label-value">R$ 186.420</span>
+                </div>
+                <div class="bar-chart-track">
+                    <div class="bar-chart-fill neutral" style="width: 75.2%;">
+                        <span class="bar-chart-fill-value">ROAS 3.1x</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bar 3: TikTok Ads (Needs improvement - PINK) -->
+            <div class="bar-chart-item">
+                <div class="bar-chart-label">
+                    <span>TIKTOK ADS</span>
+                    <span class="bar-chart-label-value">R$ 94.310</span>
+                </div>
+                <div class="bar-chart-track">
+                    <div class="bar-chart-fill negative" style="width: 38.1%;">
+                        <span class="bar-chart-fill-value">ROAS 1.8x</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bar 4: LinkedIn Ads (New channel - BLACK) -->
+            <div class="bar-chart-item">
+                <div class="bar-chart-label">
+                    <span>LINKEDIN ADS</span>
+                    <span class="bar-chart-label-value">R$ 52.870</span>
+                </div>
+                <div class="bar-chart-track">
+                    <div class="bar-chart-fill" style="width: 21.3%;">
+                        <span class="bar-chart-fill-value">ROAS 2.4x</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Insight Box -->
+            <div class="bar-chart-insight">
+                <strong style="font-family: 'Alternate Gothic', sans-serif; font-size: 18px; text-transform: uppercase; display: block; margin-bottom: 8px;">RECOMENDAÇÃO ESTRATÉGICA:</strong>
+                <p style="font-family: 'Playfair Display', serif; font-size: 16px; line-height: 1.6; margin: 0;">
+                    Google Ads lidera com ROAS 67% superior à média. Sugerimos: (1) aumentar budget em Google em 30%, (2) testar criativos vencedores do Google no TikTok para melhorar desempenho, (3) pausar campanhas de awareness no LinkedIn e focar apenas em retargeting.
+                </p>
+            </div>
+
+        </div>
+    </div>
+
     <!-- Navigation System -->
     <div class="nav-dots">
         <div class="nav-dot active" data-slide="0"></div>
@@ -2069,10 +2277,11 @@
         <div class="nav-dot" data-slide="15"></div>
         <div class="nav-dot" data-slide="16"></div>
         <div class="nav-dot" data-slide="17"></div>
+        <div class="nav-dot" data-slide="18"></div>
     </div>
 
     <div class="slide-counter">
-        <span id="current-slide">1</span> / <span id="total-slides">18</span>
+        <span id="current-slide">1</span> / <span id="total-slides">19</span>
     </div>
 
     <button class="nav-arrow prev" aria-label="Slide anterior">←</button>
