@@ -16,14 +16,16 @@
          * Claude AI deve usar os padrões aqui como base para gerar slides dinamicamente.
          *
          * NOVIDADES v2.1:
-         * - Statement Slide Pattern (título + texto + elemento gráfico)
-         * - Pink mouth graphic element (assinatura visual Koko)
+         * - Statement Slide Pattern com 2 variantes:
+         *   • Default: Texto esquerda + Pink mouth direita
+         *   • Reverse: Loud mouth esquerda + Texto direita (com subtítulo)
+         * - Elementos gráficos Koko: pink-mouth.png e loud.png
          * - Layout two-column clean (sem corner-fold)
          *
          * NOVIDADES v2.0:
          * - Sistema de navegação interativo (setas, dots, contador)
          * - Mais padrões de slides (stack-cards, metric-cards, emphasis-box, two-column-data)
-         * - Exemplos de 14 tipos diferentes de slides
+         * - Exemplos de 15 tipos diferentes de slides
          * - Slide de contracapa
          * - Transições suaves entre slides
          *
@@ -756,6 +758,32 @@
             max-height: 400px;
         }
 
+        /* Statement slide variant: graphic on left, text on right */
+        .statement-slide-reverse .slide-content {
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: flex-start;
+        }
+
+        .statement-slide-reverse .statement-graphic {
+            order: -1; /* Move graphic to the left */
+        }
+
+        .statement-slide-reverse .statement-text {
+            max-width: none;
+        }
+
+        .statement-slide-reverse .statement-title {
+            text-align: left;
+        }
+
+        .statement-slide-reverse .statement-subtitle {
+            font-size: clamp(18px, 2.2vw, 24px);
+            font-weight: 700;
+            margin-bottom: 20px;
+            line-height: 1.3;
+        }
+
         /* ========================================
            NAVIGATION SYSTEM
            Setas, dots, contador de slides
@@ -856,13 +884,18 @@
                 gap: 16px;
             }
 
-            .statement-slide .slide-content {
+            .statement-slide .slide-content,
+            .statement-slide-reverse .slide-content {
                 grid-template-columns: 1fr;
                 gap: 24px;
             }
 
             .statement-graphic img {
                 max-height: 280px;
+            }
+
+            .statement-slide-reverse .statement-graphic {
+                order: 0; /* Reset order on mobile - graphic goes below */
             }
 
             .cards-grid {
@@ -1330,7 +1363,35 @@
             </div>
         </div>
 
-        <!-- SLIDE 12: PRÓXIMOS PASSOS (Timeline) -->
+        <!-- SLIDE 12: STATEMENT REVERSE (Variant - Graphic on left, text on right) -->
+        <div class="slide statement-slide-reverse">
+            <div class="slide-content">
+                <div class="statement-graphic">
+                    <img src="https://hub.jumper.studio/decks/identities/koko/elements/loud.png"
+                         alt="Koko loud graphic element">
+                </div>
+                <div class="statement-text">
+                    <h2 class="statement-title">TÍTULO</h2>
+                    <p class="statement-subtitle">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+                    <p class="statement-body">
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean porttitor
+                        vestibulum leo, vel varius ex scelerisque sed. Vestibulum ut lectus odio.
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean porttitor
+                        vestibulum leo, vel varius ex scelerisque sed. Vestibulum ut lectus odio.
+                    </p>
+                    <p class="statement-body">
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean porttitor
+                        vestibulum leo, vel varius ex scelerisque sed. Vestibulum ut lectus odio.
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean porttitor
+                        vestibulum leo, vel varius ex scelerisque sed. Vestibulum ut lectus odio.
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean porttitor
+                        vestibulum leo, vel varius ex scelerisque sed.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 13: PRÓXIMOS PASSOS (Timeline) -->
         <div class="slide">
             <div class="slide-content">
                 <h2 class="slide-title">PRÓXIMOS PASSOS</h2>
@@ -1364,7 +1425,7 @@
             </div>
         </div>
 
-        <!-- SLIDE 13: CONCLUSÃO -->
+        <!-- SLIDE 14: CONCLUSÃO -->
         <div class="slide conclusion-slide">
             <div class="slide-content">
                 <h2 class="conclusion-title">PROJETO<br>CONCLUÍDO ✅</h2>
@@ -1382,7 +1443,7 @@
             </div>
         </div>
 
-        <!-- SLIDE 14: CONTRACAPA -->
+        <!-- SLIDE 15: CONTRACAPA -->
         <div class="slide hero-slide">
             <div class="hero-background" style="background-image: url('https://hub.jumper.studio/decks/identities/koko/elements/hero-background.png');"></div>
             <img class="gorilla-hand left"
@@ -1420,10 +1481,11 @@
         <div class="nav-dot" data-slide="11"></div>
         <div class="nav-dot" data-slide="12"></div>
         <div class="nav-dot" data-slide="13"></div>
+        <div class="nav-dot" data-slide="14"></div>
     </div>
 
     <div class="slide-counter">
-        <span id="current-slide">1</span> / <span id="total-slides">14</span>
+        <span id="current-slide">1</span> / <span id="total-slides">15</span>
     </div>
 
     <button class="nav-arrow prev" aria-label="Slide anterior">←</button>
