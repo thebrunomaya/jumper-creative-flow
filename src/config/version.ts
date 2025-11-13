@@ -7,10 +7,26 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.37';
+export const APP_VERSION = 'v2.1.38';
 
 /**
  * Version history:
+ * - v2.1.38 (2024-11-13):
+ *   - CRITICAL DATABASE FIX: Database trigger causing 500 errors on ALL login methods
+ *   - ROOT CAUSE: handle_new_user() trigger referenced old table name j_ads_notion_db_managers
+ *   - ERROR: "relation public.j_ads_notion_db_managers does not exist (SQLSTATE 42P01)"
+ *   - IMPACT: Magic link, email+password, and OAuth all failing with "Database error saving new user"
+ *   - SOLUTION: Updated trigger function to use correct table name j_hub_notion_db_managers
+ *   - MIGRATION: 20251113170000_fix_handle_new_user_table_name.sql
+ *   - DEPLOYED: Applied to production database successfully
+ *   - TESTING: All login methods (magic link, email+password, OAuth) now working
+ *   - FILES MODIFIED:
+ *   -   - supabase/migrations/20251113170000_fix_handle_new_user_table_name.sql (NEW)
+ *   -   - scripts/diagnose-database-error.sql (NEW - diagnostic tools)
+ *   -   - scripts/fix-database-error.sql (NEW - fix procedures)
+ *   -   - scripts/verify-user-yan.sql (NEW - user verification)
+ *   -   - scripts/verify-user-yan-simple.sql (NEW - quick verification)
+ *
  * - v2.1.37 (2024-11-13):
  *   - CRITICAL FIX: Notion OAuth login timing issue resolved (Fix #1-#4)
  *   - ROOT CAUSE: ensureUserRole() called BEFORE OAuth redirect (setTimeout timing bug)
