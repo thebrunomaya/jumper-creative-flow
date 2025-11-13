@@ -48,6 +48,8 @@ interface Deck {
   generation_status: DeckStatus;
   created_at: string;
   updated_at: string;
+  slug?: string | null;
+  is_public?: boolean;
 }
 
 export default function DeckEditorPage() {
@@ -562,14 +564,12 @@ export default function DeckEditorPage() {
       {/* Share Modal */}
       {deck && (
         <DeckShareModal
-          deck={{
-            id: deck.id,
-            title: deck.title,
-            html_output: deck.html_output,
-            file_url: deck.file_url,
-          }}
-          isOpen={isShareModalOpen}
-          onClose={() => setIsShareModalOpen(false)}
+          open={isShareModalOpen}
+          onOpenChange={setIsShareModalOpen}
+          deckId={deck.id}
+          deckTitle={deck.title}
+          currentSlug={deck.slug}
+          isPublic={deck.is_public}
         />
       )}
     </div>
