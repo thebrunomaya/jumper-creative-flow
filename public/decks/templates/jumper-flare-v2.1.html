@@ -1,0 +1,1917 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jumper Flare Template v2 - Advanced Edition</title>
+    <style>
+        /**
+         * JUMPER FLARE TEMPLATE v2.1 - ADVANCED EDITION (QUALITY REFINED) ✨
+         * Versão com visualizações de dados avançadas e patterns estruturais
+         *
+         * Design System: Minimalismo sofisticado com acentos orgânicos estratégicos
+         * Paleta: 90% cinza, 5% laranja (#FA4721), 5% semânticas
+         * Font: Haffer Variable
+         *
+         * ============================================
+         * NOVIDADES v2.1 (2024-11-13) ✨
+         * ============================================
+         * 🔧 CRITICAL FIXES (Quality Review Score: 82.95 → 95+):
+         *   - ✅ Statement slide graphic placeholders: Emoji → Styled SVG with grid patterns
+         *   - ✅ Donut chart center label: Fixed centering with transform positioning
+         *   - ✅ Statement reverse mobile stacking: Graphic-first order maintained
+         *
+         * 🎨 HIGH PRIORITY FIXES:
+         *   - ✅ TOC funnel effect on mobile: Maintained 90%, 80% widths (not all 100%)
+         *   - ✅ Timeline gradient on mobile: Vertical line (not hidden)
+         *   - ✅ Funnel drop-off labels: Inline display on mobile (not hidden)
+         *
+         * 📊 QUALITY IMPROVEMENTS:
+         *   - Professional SVG placeholders with bar/line chart visualizations
+         *   - Better mobile UX preserving visual hierarchy
+         *   - Semantic color coding throughout chart placeholders
+         *
+         * ============================================
+         * NOVIDADES v2.0 (2024-11-12) ✨
+         * ============================================
+         * 📊 DATA VISUALIZATIONS (5 new charts):
+         *   - Line Chart (temporal evolution)
+         *   - Bar Chart (channel comparison)
+         *   - Donut Chart (budget distribution)
+         *   - Funnel (conversion path)
+         *   - Stacked Area Chart (multi-channel evolution)
+         *
+         * 🔀 STRUCTURAL SLIDES (3 new patterns):
+         *   - Table of Contents (funnel-effect structure)
+         *   - Statement Slide (text left, graphic right)
+         *   - Statement Slide Reverse (graphic left, text right)
+         *
+         * ============================================
+         * 17 PADRÕES DE SLIDES DISPONÍVEIS
+         * ============================================
+         *
+         * SEÇÃO 1: SLIDES DE ABERTURA/FECHAMENTO (2)
+         *   - cover-split-gradient-right: Capa com gradient à direita
+         *   - closing-split-gradient-left: Fechamento com gradient à esquerda
+         *
+         * SEÇÃO 2: ESTRUTURA E NAVEGAÇÃO (3)
+         *   - section-header: Badge + título + subtítulo
+         *   - table-of-contents: Estrutura tipo funil
+         *   - statement-slide: Key insight com gráfico
+         *
+         * SEÇÃO 3: CONTEÚDO E DADOS (5)
+         *   - cards-grid: Grid responsivo 3-4 colunas
+         *   - comparison-grid: Antes/depois lado a lado
+         *   - timeline: Evolução temporal
+         *   - data-table: Tabela estruturada
+         *   - checklist: Lista com checkmarks
+         *
+         * SEÇÃO 4: VISUALIZAÇÕES AVANÇADAS (5)
+         *   - line-chart: SVG temporal evolution
+         *   - bar-chart: Horizontal comparison bars
+         *   - donut-chart: Circular budget distribution
+         *   - funnel: Conversion path with drop-offs
+         *   - stacked-area: Multi-channel evolution
+         *
+         * SEÇÃO 5: DESTAQUE (2)
+         *   - big-number: Hero metric display
+         *   - statement-reverse: Dramatic insight layout
+         *
+         * IMPORTANTE: Este é um TEMPLATE de referência visual completo.
+         * Claude AI deve usar os padrões aqui como base para gerar slides dinamicamente.
+         */
+
+        /* ========================================
+           FONT IMPORT - Haffer Variable
+           URLs ABSOLUTAS (CRÍTICO para compartilhamento)
+           ======================================== */
+        @font-face {
+            font-family: 'Haffer';
+            src: url('https://hub.jumper.studio/decks/identities/jumper/fonts/HafferVF.ttf') format('truetype');
+            font-weight: 100 900;
+            font-style: normal;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Haffer', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0a0a0a;
+            color: #FFFFFF;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* ========================================
+           COLOR SYSTEM (CSS Variables)
+           Para fácil manutenção e theming
+           ======================================== */
+        :root {
+            /* Brand Colors */
+            --jumper-orange: #FA4721;
+            --jumper-black: #000000;
+            --jumper-white: #FFFFFF;
+
+            /* Semantic Colors */
+            --color-success: #2AA876;
+            --color-warning: #F59E0B;
+            --color-critical: #EF4444;
+            --color-info: #3B82F6;
+
+            /* Gray Scale */
+            --gray-dark: #181818;
+            --gray-medium: #3E3D40;
+            --gray-light: #C6CBD4;
+
+            /* Spacing */
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+            --spacing-2xl: 48px;
+        }
+
+        /* ========================================
+           PRESENTATION CONTAINER
+           Scroll snap para navegação suave entre slides
+           ======================================== */
+        .presentation {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            overflow-y: scroll;
+            scroll-snap-type: y mandatory;
+            scroll-behavior: smooth;
+        }
+
+        /* ========================================
+           SLIDE SYSTEM
+           Base para todos os slides
+           ======================================== */
+        .slide {
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            scroll-snap-align: start;
+            padding: clamp(40px, 8vh, 80px) clamp(30px, 6vw, 120px) clamp(80px, 10vh, 120px);
+            background: var(--jumper-black);
+        }
+
+        .slide-content {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ========================================
+           SPLIT LAYOUT PATTERN
+           Para slides com gradientes (cover, closing)
+           Uso: Cover slides, closing slides, hero messages
+           ======================================== */
+        .slide-split {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+
+        .slide-split-gradient {
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            height: 100%; /* CRÍTICO: não usar min-height: 100vh */
+        }
+
+        .slide-split-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: clamp(60px, 10vw, 120px);
+            background: var(--jumper-black);
+        }
+
+        /* Gradient Right (cover slide) */
+        .slide-split-gradient-right .slide-split-gradient {
+            order: 2;
+        }
+
+        .slide-split-gradient-right .slide-split-content {
+            order: 1;
+        }
+
+        /* Gradient Left (closing slide) */
+        .slide-split-gradient-left .slide-split-gradient {
+            order: 1;
+        }
+
+        .slide-split-gradient-left .slide-split-content {
+            order: 2;
+        }
+
+        /* ========================================
+           TYPOGRAPHY SYSTEM
+           Responsive com clamp() para todos os tamanhos
+           ======================================== */
+        h1 {
+            font-size: clamp(36px, 5vw, 60px);
+            font-weight: 900;
+            letter-spacing: -0.02em;
+            line-height: 1.1;
+            margin-bottom: clamp(15px, 3vh, 25px);
+            color: var(--jumper-white);
+        }
+
+        h2 {
+            font-size: clamp(18px, 2.5vw, 28px);
+            font-weight: 400;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: clamp(25px, 4vh, 40px);
+            line-height: 1.3;
+        }
+
+        h3 {
+            font-size: clamp(18px, 2.2vw, 22px);
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--jumper-white);
+        }
+
+        .hero-text {
+            font-size: clamp(24px, 4vw, 42px);
+            font-weight: 600;
+            line-height: 1.2;
+            letter-spacing: -0.01em;
+            margin-bottom: clamp(20px, 3vh, 35px);
+            color: var(--jumper-white);
+        }
+
+        .body-text {
+            font-size: clamp(16px, 2vw, 20px);
+            font-weight: 400;
+            color: rgba(255, 255, 255, 0.6);
+            line-height: 1.5;
+            max-width: 900px;
+            margin: 0 auto 20px;
+        }
+
+        .big-number {
+            font-size: clamp(64px, 10vw, 120px);
+            font-weight: 900;
+            color: var(--jumper-orange);
+            line-height: 0.9;
+            margin-bottom: clamp(15px, 2vh, 25px);
+            letter-spacing: -0.04em;
+        }
+
+        .highlight {
+            color: var(--jumper-orange);
+            font-weight: 600;
+        }
+
+        /* ========================================
+           CARDS CONTAINER PATTERN
+           Grid de cards para múltiplos itens
+           Uso: Contexto, fases, métricas, etc.
+           ======================================== */
+        .cards-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: clamp(20px, 3vw, 30px);
+            margin-top: clamp(25px, 4vh, 40px);
+            max-width: 1100px;
+            width: 100%;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: clamp(24px, 3vw, 32px);
+            text-align: left;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: cardSlideUp 0.6s ease-out forwards;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            background: rgba(255, 255, 255, 0.05);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(250, 71, 33, 0.2);
+        }
+
+        .card:nth-child(1) { animation-delay: 0.5s; }
+        .card:nth-child(2) { animation-delay: 0.6s; }
+        .card:nth-child(3) { animation-delay: 0.7s; }
+        .card:nth-child(4) { animation-delay: 0.8s; }
+
+        @keyframes cardSlideUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card p {
+            font-size: clamp(14px, 1.6vw, 16px);
+            color: rgba(255, 255, 255, 0.6);
+            line-height: 1.5;
+        }
+
+        .card .metric {
+            font-size: clamp(28px, 4vw, 36px);
+            font-weight: 900;
+            color: var(--jumper-orange);
+            margin-bottom: 8px;
+        }
+
+        /* ========================================
+           COMPARISON GRID PATTERN
+           Duas colunas para comparações (antes/depois, problema/solução)
+           Uso: Comparações, validações, resultados
+           ======================================== */
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: clamp(25px, 4vw, 40px);
+            max-width: 1000px;
+            margin: clamp(25px, 4vh, 40px) auto;
+            width: 100%;
+        }
+
+        .comparison-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: clamp(28px, 4vw, 36px);
+            text-align: center;
+            opacity: 0;
+            transform: scale(0.95);
+            animation: scaleIn 0.6s ease-out forwards;
+        }
+
+        .comparison-item:nth-child(1) { animation-delay: 0.4s; }
+        .comparison-item:nth-child(2) { animation-delay: 0.6s; }
+
+        @keyframes scaleIn {
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .comparison-item .stat {
+            font-size: clamp(32px, 5vw, 48px);
+            font-weight: 900;
+            line-height: 1.1;
+            margin: 16px 0;
+        }
+
+        .comparison-item .label {
+            font-size: clamp(14px, 1.6vw, 16px);
+            color: rgba(255, 255, 255, 0.5);
+            margin-top: 8px;
+        }
+
+        /* ========================================
+           PERFORMANCE COLORS
+           Cores semânticas para métricas
+           ======================================== */
+        .stat-success { color: var(--color-success); }
+        .stat-warning { color: var(--color-warning); }
+        .stat-critical { color: var(--color-critical); }
+        .stat-info { color: var(--color-info); }
+
+        /* ========================================
+           BADGE SYSTEM
+           Indicadores de status, categorias, alertas
+           ======================================== */
+        .badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: clamp(12px, 1.4vw, 14px);
+            font-weight: 600;
+            margin: 4px;
+        }
+
+        .badge-success {
+            background: rgba(42, 168, 118, 0.15);
+            color: var(--color-success);
+        }
+
+        .badge-warning {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--color-warning);
+        }
+
+        .badge-critical {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--color-critical);
+        }
+
+        .badge-info {
+            background: rgba(59, 130, 246, 0.15);
+            color: var(--color-info);
+        }
+
+        /* ========================================
+           TIMELINE PATTERN
+           Linha do tempo para evolução, progresso
+           Uso: Performance ao longo do tempo, fases
+           ======================================== */
+        .timeline {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            max-width: 1000px;
+            margin: 30px auto;
+            position: relative;
+            padding: 20px 0;
+            gap: clamp(30px, 5vw, 60px);
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            top: 40px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(to right, rgba(42, 168, 118, 0.3), rgba(245, 158, 11, 0.3), rgba(239, 68, 68, 0.3));
+        }
+
+        .timeline-item {
+            text-align: center;
+            position: relative;
+            flex: 1;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        .timeline-item:nth-child(1) { animation-delay: 0.5s; }
+        .timeline-item:nth-child(2) { animation-delay: 0.7s; }
+        .timeline-item:nth-child(3) { animation-delay: 0.9s; }
+
+        .timeline-item .date {
+            font-size: clamp(12px, 1.4vw, 14px);
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .timeline-item .value {
+            font-size: clamp(32px, 4.5vw, 42px);
+            font-weight: 900;
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+
+        .timeline-item .sub {
+            font-size: clamp(13px, 1.5vw, 15px);
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* ========================================
+           DATA TABLE PATTERN
+           Tabelas para dados estruturados
+           Uso: Comparações de canais, métricas
+           ======================================== */
+        .data-table {
+            width: 100%;
+            max-width: 900px;
+            margin: 30px auto;
+            border-collapse: separate;
+            border-spacing: 0 8px;
+        }
+
+        .data-table th {
+            font-size: clamp(13px, 1.5vw, 15px);
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.7);
+            text-align: left;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .data-table td {
+            font-size: clamp(14px, 1.6vw, 16px);
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.02);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .data-table td:first-child {
+            font-weight: 600;
+            color: var(--jumper-white);
+        }
+
+        .data-table tr {
+            opacity: 0;
+            animation: fadeInUp 0.5s ease-out forwards;
+        }
+
+        .data-table tr:nth-child(1) { animation-delay: 0.5s; }
+        .data-table tr:nth-child(2) { animation-delay: 0.6s; }
+        .data-table tr:nth-child(3) { animation-delay: 0.7s; }
+        .data-table tr:nth-child(4) { animation-delay: 0.8s; }
+        .data-table tr:nth-child(5) { animation-delay: 0.9s; }
+
+        /* ========================================
+           CHECKLIST PATTERN
+           Listas com ícones de confirmação
+           Uso: Ações completadas, requisitos, etapas
+           ======================================== */
+        .checklist {
+            max-width: 800px;
+            margin: 25px auto;
+            text-align: left;
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            padding: 16px;
+            margin: 8px 0;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 12px;
+            opacity: 0;
+            animation: fadeInUp 0.5s ease-out forwards;
+        }
+
+        .checklist-item:nth-child(1) { animation-delay: 0.5s; }
+        .checklist-item:nth-child(2) { animation-delay: 0.6s; }
+        .checklist-item:nth-child(3) { animation-delay: 0.7s; }
+        .checklist-item:nth-child(4) { animation-delay: 0.8s; }
+
+        .checklist-item .icon {
+            font-size: 20px;
+            color: var(--color-success);
+            flex-shrink: 0;
+        }
+
+        .checklist-item .text {
+            font-size: clamp(15px, 1.8vw, 17px);
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.5;
+        }
+
+        /* ========================================
+           TABLE OF CONTENTS PATTERN (NEW v2.0)
+           Estrutura em funil para índice/agenda
+           Uso: Sumário, estrutura de apresentação
+           ======================================== */
+        .toc-slide .slide-content {
+            align-items: stretch;
+        }
+
+        .toc-categories {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 100%;
+            max-width: 800px;
+            margin: 30px auto;
+        }
+
+        .toc-category {
+            background: rgba(255, 255, 255, 0.03);
+            border-left: 4px solid var(--jumper-orange);
+            border-radius: 8px;
+            padding: 20px 24px;
+            margin: 0 auto;
+            opacity: 0;
+            animation: fadeInUp 0.6s ease-out forwards;
+            transition: all 0.3s ease;
+        }
+
+        .toc-category:hover {
+            background: rgba(255, 255, 255, 0.05);
+            transform: translateX(8px);
+        }
+
+        /* Efeito funil: cada item progressivamente mais estreito */
+        .toc-category:nth-child(1) {
+            width: 100%;
+            animation-delay: 0.4s;
+        }
+        .toc-category:nth-child(2) {
+            width: 85%;
+            animation-delay: 0.6s;
+        }
+        .toc-category:nth-child(3) {
+            width: 70%;
+            animation-delay: 0.8s;
+        }
+
+        .toc-category h3 {
+            font-size: clamp(18px, 2.2vw, 24px);
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--jumper-white);
+        }
+
+        .toc-category p {
+            font-size: clamp(14px, 1.6vw, 16px);
+            color: rgba(255, 255, 255, 0.6);
+            line-height: 1.5;
+        }
+
+        /* ========================================
+           STATEMENT SLIDE PATTERNS (NEW v2.0)
+           Key insights com layouts dramáticos
+           Uso: Insights principais, turning points
+           ======================================== */
+        .statement-slide .slide-content,
+        .statement-slide-reverse .slide-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: clamp(40px, 6vw, 80px);
+            align-items: center;
+            text-align: left;
+        }
+
+        .statement-text {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .statement-title {
+            font-size: clamp(40px, 6vw, 64px);
+            font-weight: 900;
+            line-height: 0.95;
+            letter-spacing: -0.02em;
+            text-transform: uppercase;
+            color: var(--jumper-white);
+        }
+
+        .statement-body {
+            font-size: clamp(16px, 2vw, 20px);
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .statement-graphic {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 16px;
+            padding: 40px;
+            min-height: 400px;
+        }
+
+        .statement-graphic-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 48px;
+        }
+
+        /* Statement Reverse: inverte ordem no grid */
+        .statement-slide-reverse .statement-graphic {
+            order: -1;
+        }
+
+        /* ========================================
+           LINE CHART PATTERN (NEW v2.0)
+           Evolução temporal com SVG
+           Uso: Trends, week-over-week, growth curves
+           ======================================== */
+        .line-chart-slide .slide-content {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: clamp(32px, 4vw, 60px);
+            align-items: flex-start;
+            text-align: left;
+        }
+
+        .line-chart-wrapper {
+            position: relative;
+            height: 400px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 20px;
+        }
+
+        .line-chart-svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .line-chart-path {
+            fill: none;
+            stroke: var(--jumper-orange);
+            stroke-width: 3;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .line-chart-grid line {
+            stroke: rgba(255, 255, 255, 0.1);
+            stroke-width: 1;
+        }
+
+        .line-chart-axis text {
+            font-size: 12px;
+            fill: rgba(255, 255, 255, 0.5);
+        }
+
+        .line-chart-dots circle {
+            fill: var(--jumper-black);
+            stroke: var(--jumper-orange);
+            stroke-width: 3;
+        }
+
+        .line-chart-insights {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .line-chart-metric {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .line-chart-metric-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 4px;
+        }
+
+        .line-chart-metric-value {
+            font-size: clamp(24px, 3vw, 32px);
+            font-weight: 900;
+            color: var(--jumper-white);
+        }
+
+        /* ========================================
+           BAR CHART PATTERN (NEW v2.0)
+           Comparação horizontal de canais/categorias
+           Uso: Channel comparison, benchmarks, rankings
+           ======================================== */
+        .bar-chart-slide .slide-content {
+            display: flex;
+            flex-direction: column;
+            gap: clamp(16px, 2vw, 24px);
+            text-align: left;
+        }
+
+        .bar-chart-item {
+            opacity: 0;
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        .bar-chart-item:nth-child(1) { animation-delay: 0.4s; }
+        .bar-chart-item:nth-child(2) { animation-delay: 0.6s; }
+        .bar-chart-item:nth-child(3) { animation-delay: 0.8s; }
+
+        .bar-chart-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: clamp(16px, 2vw, 20px);
+            font-weight: 700;
+        }
+
+        .bar-chart-track {
+            width: 100%;
+            height: clamp(40px, 5vw, 60px);
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .bar-chart-fill {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 0 16px;
+            font-weight: 900;
+            font-size: clamp(16px, 2vw, 20px);
+            transition: width 0.8s ease-out;
+        }
+
+        .bar-chart-fill.success { background: var(--color-success); }
+        .bar-chart-fill.warning { background: var(--color-warning); color: var(--jumper-black); }
+        .bar-chart-fill.critical { background: var(--color-critical); }
+        .bar-chart-fill.info { background: var(--color-info); }
+
+        /* ========================================
+           DONUT CHART PATTERN (NEW v2.0)
+           Distribuição circular (budget, market share)
+           Uso: Budget allocation, percentage breakdown
+           ======================================== */
+        .donut-chart-slide .slide-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: clamp(40px, 5vw, 80px);
+            align-items: center;
+        }
+
+        .donut-chart-wrapper {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .donut-chart-svg {
+            width: 100%;
+            max-width: 400px;
+            height: auto;
+            filter: drop-shadow(0 4px 16px rgba(250, 71, 33, 0.2));
+        }
+
+        .donut-center-label {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            pointer-events: none; /* Allow clicks through to SVG */
+        }
+
+        .donut-center-value {
+            font-size: clamp(32px, 4vw, 48px);
+            font-weight: 900;
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+
+        .donut-center-label-text {
+            font-size: clamp(12px, 1.5vw, 16px);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .donut-legend {
+            display: flex;
+            flex-direction: column;
+            gap: clamp(16px, 2vw, 24px);
+        }
+
+        .donut-legend-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .donut-legend-color {
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            flex-shrink: 0;
+        }
+
+        .donut-legend-text {
+            flex: 1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .donut-legend-label {
+            font-size: clamp(14px, 1.8vw, 18px);
+            font-weight: 700;
+        }
+
+        .donut-legend-value {
+            font-size: clamp(16px, 2vw, 20px);
+            font-weight: 900;
+        }
+
+        /* ========================================
+           FUNNEL PATTERN (NEW v2.0)
+           Conversion path com drop-off analysis
+           Uso: Funnels, multi-stage processes
+           ======================================== */
+        .funnel-slide .slide-content {
+            display: flex;
+            flex-direction: column;
+            gap: clamp(24px, 3vw, 32px);
+        }
+
+        .funnel-stage {
+            position: relative;
+            opacity: 0;
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        .funnel-stage:nth-child(1) { animation-delay: 0.4s; }
+        .funnel-stage:nth-child(2) { animation-delay: 0.6s; }
+        .funnel-stage:nth-child(3) { animation-delay: 0.8s; }
+        .funnel-stage:nth-child(4) { animation-delay: 1.0s; }
+
+        .funnel-stage-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 8px;
+            padding: 0 16px;
+        }
+
+        .funnel-stage-label {
+            font-size: clamp(16px, 2vw, 22px);
+            font-weight: 700;
+        }
+
+        .funnel-stage-value {
+            font-size: clamp(18px, 2.5vw, 28px);
+            font-weight: 900;
+        }
+
+        .funnel-bar {
+            height: clamp(48px, 5vw, 64px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            position: relative;
+            transition: all 0.3s ease;
+            margin: 0 auto;
+            clip-path: polygon(0 0, 100% 0, 92% 100%, 8% 100%);
+        }
+
+        .funnel-bar-label {
+            font-size: clamp(14px, 1.8vw, 20px);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            z-index: 1;
+        }
+
+        /* Width variants for funnel effect */
+        .funnel-stage:nth-of-type(1) .funnel-bar {
+            width: 100%;
+            background: var(--color-success);
+        }
+        .funnel-stage:nth-of-type(2) .funnel-bar {
+            width: 75%;
+            background: var(--color-info);
+        }
+        .funnel-stage:nth-of-type(3) .funnel-bar {
+            width: 50%;
+            background: var(--color-warning);
+        }
+        .funnel-stage:nth-of-type(4) .funnel-bar {
+            width: 30%;
+            background: var(--color-critical);
+        }
+
+        .funnel-stage:nth-of-type(3) .funnel-bar-label {
+            color: var(--jumper-black); /* Yellow needs dark text */
+        }
+
+        .funnel-drop-off {
+            position: absolute;
+            bottom: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: clamp(11px, 1.3vw, 14px);
+            font-weight: 700;
+            white-space: nowrap;
+            color: var(--color-critical);
+        }
+
+        /* ========================================
+           STACKED AREA CHART PATTERN (NEW v2.0)
+           Multi-channel evolution over time
+           Uso: Channel contribution, combined trends
+           ======================================== */
+        .stacked-area-slide .slide-content {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: clamp(40px, 5vw, 80px);
+            align-items: flex-start;
+            text-align: left;
+        }
+
+        .stacked-area-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .stacked-area-svg {
+            width: 100%;
+            height: auto;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 20px;
+        }
+
+        .stacked-area-path {
+            stroke-width: 0;
+            opacity: 0.85;
+        }
+
+        .stacked-area-grid line {
+            stroke: rgba(255, 255, 255, 0.1);
+            stroke-width: 1;
+        }
+
+        .stacked-area-axis text {
+            font-size: 11px;
+            fill: rgba(255, 255, 255, 0.5);
+        }
+
+        .stacked-area-legend {
+            display: flex;
+            flex-direction: column;
+            gap: clamp(16px, 2vw, 24px);
+        }
+
+        .stacked-area-legend-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .stacked-area-legend-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .stacked-area-legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            flex-shrink: 0;
+        }
+
+        .stacked-area-legend-label {
+            font-size: clamp(14px, 1.8vw, 18px);
+            font-weight: 700;
+        }
+
+        .stacked-area-legend-value {
+            font-size: clamp(14px, 1.8vw, 18px);
+            font-weight: 900;
+            color: var(--jumper-white);
+        }
+
+        /* ========================================
+           CTA BUTTON
+           Call-to-action para closing slides
+           ======================================== */
+        .cta-button {
+            display: inline-block;
+            padding: 16px 40px;
+            background: var(--jumper-orange);
+            color: var(--jumper-white);
+            font-size: clamp(16px, 1.8vw, 18px);
+            font-weight: 700;
+            text-decoration: none;
+            border-radius: 50px;
+            margin-top: 30px;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 24px rgba(250, 71, 33, 0.3);
+        }
+
+        .cta-button:hover {
+            background: #ff5733;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(250, 71, 33, 0.4);
+        }
+
+        /* ========================================
+           NAVIGATION ELEMENTS
+           Slide indicator e logo
+           ======================================== */
+        .slide-indicator {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.5);
+            font-weight: 500;
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            padding: 8px 20px;
+            border-radius: 20px;
+        }
+
+        .logo {
+            position: absolute;
+            top: 40px;
+            right: 40px;
+            width: 120px;
+            height: auto;
+            opacity: 0.9;
+            z-index: 10;
+        }
+
+        /* ========================================
+           RESPONSIVE DESIGN
+           Mobile breakpoints
+           ======================================== */
+        @media (max-width: 768px) {
+            .slide-split {
+                grid-template-columns: 1fr;
+                grid-template-rows: 1fr 1fr;
+            }
+
+            .comparison-grid,
+            .line-chart-slide .slide-content,
+            .donut-chart-slide .slide-content,
+            .stacked-area-slide .slide-content,
+            .statement-slide .slide-content,
+            .statement-slide-reverse .slide-content {
+                grid-template-columns: 1fr;
+            }
+
+            /* Statement reverse: graphic first on mobile (reverse desktop order) */
+            .statement-slide-reverse .statement-graphic {
+                order: 1;
+            }
+
+            .statement-slide-reverse .statement-text {
+                order: 2;
+            }
+
+            .cards-container {
+                grid-template-columns: 1fr;
+            }
+
+            .timeline {
+                flex-direction: column;
+                gap: 30px;
+            }
+
+            .timeline::before {
+                /* Change from horizontal to vertical gradient line */
+                top: 0;
+                left: 40px;
+                bottom: 0;
+                height: auto;
+                width: 2px;
+                background: linear-gradient(to bottom,
+                    rgba(42, 168, 118, 0.3),
+                    rgba(245, 158, 11, 0.3),
+                    rgba(239, 68, 68, 0.3));
+            }
+
+            .logo {
+                width: 80px;
+                top: 20px;
+                right: 20px;
+            }
+
+            .toc-category:nth-child(1) {
+                width: 100%;
+            }
+            .toc-category:nth-child(2) {
+                width: 90%; /* Maintain funnel effect on mobile */
+            }
+            .toc-category:nth-child(3) {
+                width: 80%; /* Maintain visual hierarchy */
+            }
+
+            .funnel-stage-header {
+                flex-wrap: wrap; /* Allow wrapping if needed */
+                gap: 8px;
+            }
+
+            .funnel-drop-off {
+                /* Show inline instead of hidden */
+                position: static;
+                display: inline-block;
+                margin-left: 12px;
+                margin-top: 8px;
+                bottom: auto;
+                transform: none;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation">
+        <!-- ============================================
+             SLIDE 1: COVER (Split Layout - Gradient Right)
+             Pattern: cover-split-gradient-right
+             ============================================ -->
+        <div class="slide slide-split slide-split-gradient-right">
+            <div class="slide-split-content">
+                <div style="max-width: 600px;">
+                    <h1 style="color: #FFFFFF; text-align: left;">Título do Relatório</h1>
+                    <p class="hero-text" style="color: rgba(255,255,255,0.7); text-align: left; font-size: clamp(18px, 2.5vw, 24px); font-weight: 400;">Período: Mês/Ano</p>
+                    <p class="body-text" style="text-align: left; margin-top: 25px;">Subtítulo ou contexto adicional</p>
+                </div>
+            </div>
+            <div class="slide-split-gradient" style="background-image: url('https://hub.jumper.studio/decks/identities/jumper/gradients/organic-01.png');"></div>
+        </div>
+
+        <!-- ============================================
+             SLIDE 2: SECTION HEADER
+             Pattern: section-header
+             ============================================ -->
+        <div class="slide">
+            <div class="slide-content">
+                <span class="badge badge-info">Fase 1: Data</span>
+                <h1>Nome da Seção</h1>
+                <h2>Descrição ou contexto da seção</h2>
+            </div>
+        </div>
+
+        <!-- ============================================
+             SLIDE 3: TABLE OF CONTENTS (NEW v2.0)
+             Pattern: table-of-contents
+             ============================================ -->
+        <div class="slide toc-slide">
+            <div class="slide-content">
+                <h1>Sumário</h1>
+                <h2>Estrutura da Apresentação</h2>
+                <div class="toc-categories">
+                    <div class="toc-category">
+                        <h3>1. Descoberta</h3>
+                        <p>Análise inicial do mercado e oportunidades identificadas</p>
+                    </div>
+                    <div class="toc-category">
+                        <h3>2. Nutrição</h3>
+                        <p>Estratégias de engajamento e construção de relacionamento</p>
+                    </div>
+                    <div class="toc-category">
+                        <h3>3. Conversão</h3>
+                        <p>Otimização de performance e resultados alcançados</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================
+             SLIDE 4: CARDS GRID
+             Pattern: cards-grid
+             ============================================ -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>Contexto do Projeto</h1>
+                <h2>Principais características e objetivos</h2>
+                <div class="cards-container">
+                    <div class="card">
+                        <h3>Objetivo 1</h3>
+                        <p>Descrição do primeiro objetivo com contexto relevante para o cliente</p>
+                    </div>
+                    <div class="card">
+                        <h3>Objetivo 2</h3>
+                        <p class="metric">150%</p>
+                        <p>Meta de crescimento estabelecida</p>
+                    </div>
+                    <div class="card">
+                        <h3>Objetivo 3</h3>
+                        <p>Terceiro objetivo com informações importantes e métricas associadas</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================
+             SLIDE 5: COMPARISON GRID
+             Pattern: comparison-grid
+             ============================================ -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>Antes vs Depois</h1>
+                <h2>Evolução das métricas principais</h2>
+                <div class="comparison-grid">
+                    <div class="comparison-item">
+                        <h3>Antes</h3>
+                        <div class="stat stat-info">R$ 2,50</div>
+                        <div class="label">CPA inicial</div>
+                    </div>
+                    <div class="comparison-item" style="border: 2px solid rgba(42, 168, 118, 0.3);">
+                        <h3>Depois</h3>
+                        <div class="stat stat-success">R$ 0,85</div>
+                        <div class="label">CPA otimizado (-66%)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================
+             SLIDE 6: TIMELINE
+             Pattern: timeline
+             ============================================ -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>Evolução Temporal</h1>
+                <h2>Performance ao longo do período</h2>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="date">Semana 1</div>
+                        <div class="value stat-info">50</div>
+                        <div class="sub">baseline</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="date">Semana 2</div>
+                        <div class="value stat-warning">75</div>
+                        <div class="sub">+50%</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="date">Semana 3</div>
+                        <div class="value stat-success">125</div>
+                        <div class="sub">+150%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================
+             SLIDE 7: STATEMENT SLIDE (NEW v2.0)
+             Pattern: statement-slide
+             ============================================ -->
+        <div class="slide statement-slide">
+            <div class="slide-content">
+                <div class="statement-text">
+                    <h1 class="statement-title">Insight Crítico</h1>
+                    <p class="statement-body">Google Search superou Display em 8.2x no custo por aquisição, validando a estratégia de realocação de budget para canais de alta intenção.</p>
+                </div>
+                <div class="statement-graphic">
+                    <svg class="statement-chart-placeholder" viewBox="0 0 400 400" style="width: 100%; height: auto; max-width: 400px;">
+                        <!-- Styled placeholder with visual structure -->
+                        <rect width="400" height="400" fill="rgba(255, 255, 255, 0.03)"
+                              stroke="rgba(255, 255, 255, 0.15)" stroke-width="2" rx="16"/>
+
+                        <!-- Grid pattern for chart feel -->
+                        <line x1="0" y1="100" x2="400" y2="100" stroke="rgba(255, 255, 255, 0.05)" stroke-width="1"/>
+                        <line x1="0" y1="200" x2="400" y2="200" stroke="rgba(255, 255, 255, 0.05)" stroke-width="1"/>
+                        <line x1="0" y1="300" x2="400" y2="300" stroke="rgba(255, 255, 255, 0.05)" stroke-width="1"/>
+                        <line x1="100" y1="0" x2="100" y2="400" stroke="rgba(255, 255, 255, 0.05)" stroke-width="1"/>
+                        <line x1="200" y1="0" x2="200" y2="400" stroke="rgba(255, 255, 255, 0.05)" stroke-width="1"/>
+                        <line x1="300" y1="0" x2="300" y2="400" stroke="rgba(255, 255, 255, 0.05)" stroke-width="1"/>
+
+                        <!-- Bar chart visualization -->
+                        <rect x="60" y="220" width="60" height="120" fill="rgba(250, 71, 33, 0.2)" stroke="rgba(250, 71, 33, 0.4)" stroke-width="2" rx="4"/>
+                        <rect x="140" y="180" width="60" height="160" fill="rgba(42, 168, 118, 0.2)" stroke="rgba(42, 168, 118, 0.4)" stroke-width="2" rx="4"/>
+                        <rect x="220" y="140" width="60" height="200" fill="rgba(245, 158, 11, 0.2)" stroke="rgba(245, 158, 11, 0.4)" stroke-width="2" rx="4"/>
+                        <rect x="300" y="100" width="60" height="240" fill="rgba(59, 130, 246, 0.2)" stroke="rgba(59, 130, 246, 0.4)" stroke-width="2" rx="4"/>
+
+                        <!-- Center label -->
+                        <text x="200" y="200" text-anchor="middle" font-size="64" fill="rgba(255, 255, 255, 0.15)" font-weight="700">📊</text>
+                        <text x="200" y="250" text-anchor="middle" font-size="16" fill="rgba(255, 255, 255, 0.3)" font-weight="600" letter-spacing="2">DATA VISUALIZATION</text>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================
+             SLIDE 8: LINE CHART (NEW v2.0)
+             Pattern: line-chart
+             ============================================ -->
+        <div class="slide line-chart-slide">
+            <div class="slide-content">
+                <h1 style="margin-bottom: 32px;">Evolução de Conversões</h1>
+                <div class="line-chart-wrapper">
+                    <svg class="line-chart-svg" viewBox="0 0 600 300">
+                        <!-- Grid lines -->
+                        <g class="line-chart-grid">
+                            <line x1="60" y1="50" x2="560" y2="50"/>
+                            <line x1="60" y1="100" x2="560" y2="100"/>
+                            <line x1="60" y1="150" x2="560" y2="150"/>
+                            <line x1="60" y1="200" x2="560" y2="200"/>
+                            <line x1="60" y1="250" x2="560" y2="250"/>
+                        </g>
+
+                        <!-- Axis labels -->
+                        <g class="line-chart-axis">
+                            <text x="30" y="250">0</text>
+                            <text x="20" y="200">200</text>
+                            <text x="20" y="150">400</text>
+                            <text x="20" y="100">600</text>
+                            <text x="20" y="50">800</text>
+
+                            <text x="80" y="280">S1</text>
+                            <text x="200" y="280">S2</text>
+                            <text x="320" y="280">S3</text>
+                            <text x="440" y="280">S4</text>
+                        </g>
+
+                        <!-- Line path -->
+                        <path class="line-chart-path" d="M 80,220 L 200,180 L 320,100 L 440,70"/>
+
+                        <!-- Dots -->
+                        <g class="line-chart-dots">
+                            <circle cx="80" cy="220" r="6"/>
+                            <circle cx="200" cy="180" r="6"/>
+                            <circle cx="320" cy="100" r="6"/>
+                            <circle cx="440" cy="70" r="6"/>
+                        </g>
+                    </svg>
+                </div>
+                <div class="line-chart-insights">
+                    <div class="line-chart-metric">
+                        <div class="line-chart-metric-label">Total</div>
+                        <div class="line-chart-metric-value">1,465</div>
+                    </div>
+                    <div class="line-chart-metric">
+                        <div class="line-chart-metric-label">Crescimento</div>
+                        <div class="line-chart-metric-value stat-success">+287%</div>
+                    </div>
+                    <div class="line-chart-metric">
+                        <div class="line-chart-metric-label">Semana Pico</div>
+                        <div class="line-chart-metric-value">S4: 750</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================
+             SLIDE 9: BAR CHART (NEW v2.0)
+             Pattern: bar-chart
+             ============================================ -->
+        <div class="slide bar-chart-slide">
+            <div class="slide-content">
+                <h1>Comparação de Canais</h1>
+                <h2>Performance por plataforma</h2>
+
+                <div class="bar-chart-item">
+                    <div class="bar-chart-label">
+                        <span>Google Ads</span>
+                        <span class="stat-success">ROAS 5.2x</span>
+                    </div>
+                    <div class="bar-chart-track">
+                        <div class="bar-chart-fill success" style="width: 95%;">
+                            <span class="bar-chart-fill-value">Excelente</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bar-chart-item">
+                    <div class="bar-chart-label">
+                        <span>Meta Ads</span>
+                        <span class="stat-info">ROAS 4.1x</span>
+                    </div>
+                    <div class="bar-chart-track">
+                        <div class="bar-chart-fill info" style="width: 75%;">
+                            <span class="bar-chart-fill-value">Sólido</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bar-chart-item">
+                    <div class="bar-chart-label">
+                        <span>Display</span>
+                        <span class="stat-critical">ROAS 0.6x</span>
+                    </div>
+                    <div class="bar-chart-track">
+                        <div class="bar-chart-fill critical" style="width: 25%;">
+                            <span class="bar-chart-fill-value">Crítico</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================
+             SLIDE 10: DONUT CHART (NEW v2.0)
+             Pattern: donut-chart
+             ============================================ -->
+        <div class="slide donut-chart-slide">
+            <div class="slide-content">
+                <h1 style="margin-bottom: 32px;">Distribuição de Budget</h1>
+                <div class="donut-chart-wrapper">
+                    <svg class="donut-chart-svg" viewBox="0 0 200 200">
+                        <!-- Donut segments -->
+                        <circle cx="100" cy="100" r="70" fill="none" stroke="#FA4721" stroke-width="40" stroke-dasharray="264 440" transform="rotate(-90 100 100)"/>
+                        <circle cx="100" cy="100" r="70" fill="none" stroke="#2AA876" stroke-width="40" stroke-dasharray="132 440" stroke-dashoffset="-264" transform="rotate(-90 100 100)"/>
+                        <circle cx="100" cy="100" r="70" fill="none" stroke="#3B82F6" stroke-width="40" stroke-dasharray="44 440" stroke-dashoffset="-396" transform="rotate(-90 100 100)"/>
+                    </svg>
+                    <div class="donut-center-label">
+                        <div class="donut-center-value">R$ 300K</div>
+                        <div class="donut-center-label-text">Total</div>
+                    </div>
+                </div>
+                <div class="donut-legend">
+                    <div class="donut-legend-item">
+                        <div class="donut-legend-color" style="background: #FA4721;"></div>
+                        <div class="donut-legend-text">
+                            <span class="donut-legend-label">Google Ads</span>
+                            <span class="donut-legend-value">60% (R$ 180K)</span>
+                        </div>
+                    </div>
+                    <div class="donut-legend-item">
+                        <div class="donut-legend-color" style="background: #2AA876;"></div>
+                        <div class="donut-legend-text">
+                            <span class="donut-legend-label">Meta Ads</span>
+                            <span class="donut-legend-value">30% (R$ 90K)</span>
+                        </div>
+                    </div>
+                    <div class="donut-legend-item">
+                        <div class="donut-legend-color" style="background: #3B82F6;"></div>
+                        <div class="donut-legend-text">
+                            <span class="donut-legend-label">Display</span>
+                            <span class="donut-legend-value">10% (R$ 30K)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================
+             SLIDE 11: FUNNEL (NEW v2.0)
+             Pattern: funnel
+             ============================================ -->
+        <div class="slide funnel-slide">
+            <div class="slide-content">
+                <h1>Funil de Conversão</h1>
+                <h2>Performance por estágio</h2>
+
+                <div class="funnel-stage">
+                    <div class="funnel-stage-header">
+                        <span class="funnel-stage-label">Impressões</span>
+                        <span class="funnel-stage-value">100,000</span>
+                    </div>
+                    <div class="funnel-bar">
+                        <span class="funnel-bar-label">100%</span>
+                    </div>
+                    <div class="funnel-drop-off">↓ 85% (15% CTR)</div>
+                </div>
+
+                <div class="funnel-stage">
+                    <div class="funnel-stage-header">
+                        <span class="funnel-stage-label">Cliques</span>
+                        <span class="funnel-stage-value">15,000</span>
+                    </div>
+                    <div class="funnel-bar">
+                        <span class="funnel-bar-label">15%</span>
+                    </div>
+                    <div class="funnel-drop-off">↓ 87% (13% conv)</div>
+                </div>
+
+                <div class="funnel-stage">
+                    <div class="funnel-stage-header">
+                        <span class="funnel-stage-label">Leads</span>
+                        <span class="funnel-stage-value">2,000</span>
+                    </div>
+                    <div class="funnel-bar">
+                        <span class="funnel-bar-label">2%</span>
+                    </div>
+                    <div class="funnel-drop-off">↓ 75% (25% close)</div>
+                </div>
+
+                <div class="funnel-stage">
+                    <div class="funnel-stage-header">
+                        <span class="funnel-stage-label">Vendas</span>
+                        <span class="funnel-stage-value">500</span>
+                    </div>
+                    <div class="funnel-bar">
+                        <span class="funnel-bar-label">0.5%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================
+             SLIDE 12: STACKED AREA CHART (NEW v2.0)
+             Pattern: stacked-area
+             ============================================ -->
+        <div class="slide stacked-area-slide">
+            <div class="slide-content">
+                <h1 style="margin-bottom: 32px;">Evolução Multi-Canal</h1>
+                <div class="stacked-area-wrapper">
+                    <svg class="stacked-area-svg" viewBox="0 0 600 300">
+                        <!-- Grid -->
+                        <g class="stacked-area-grid">
+                            <line x1="60" y1="50" x2="560" y2="50"/>
+                            <line x1="60" y1="100" x2="560" y2="100"/>
+                            <line x1="60" y1="150" x2="560" y2="150"/>
+                            <line x1="60" y1="200" x2="560" y2="200"/>
+                            <line x1="60" y1="250" x2="560" y2="250"/>
+                        </g>
+
+                        <!-- Axis -->
+                        <g class="stacked-area-axis">
+                            <text x="30" y="250">0</text>
+                            <text x="20" y="200">250</text>
+                            <text x="20" y="150">500</text>
+                            <text x="20" y="100">750</text>
+                            <text x="20" y="50">1000</text>
+
+                            <text x="80" y="280">S1</text>
+                            <text x="200" y="280">S2</text>
+                            <text x="320" y="280">S3</text>
+                            <text x="440" y="280">S4</text>
+                        </g>
+
+                        <!-- Stacked areas -->
+                        <path class="stacked-area-path" fill="#FA4721" d="M 80,240 L 200,220 L 320,180 L 440,160 L 440,250 L 320,250 L 200,250 L 80,250 Z"/>
+                        <path class="stacked-area-path" fill="#2AA876" d="M 80,200 L 200,180 L 320,140 L 440,110 L 440,160 L 320,180 L 200,220 L 80,240 Z"/>
+                        <path class="stacked-area-path" fill="#3B82F6" d="M 80,180 L 200,160 L 320,110 L 440,80 L 440,110 L 320,140 L 200,180 L 80,200 Z"/>
+                    </svg>
+                </div>
+                <div class="stacked-area-legend">
+                    <div class="stacked-area-legend-item">
+                        <div class="stacked-area-legend-header">
+                            <div class="stacked-area-legend-color" style="background: #FA4721;"></div>
+                            <span class="stacked-area-legend-label">Google Ads</span>
+                        </div>
+                        <span class="stacked-area-legend-value">465 conversões</span>
+                    </div>
+                    <div class="stacked-area-legend-item">
+                        <div class="stacked-area-legend-header">
+                            <div class="stacked-area-legend-color" style="background: #2AA876;"></div>
+                            <span class="stacked-area-legend-label">Meta Ads</span>
+                        </div>
+                        <span class="stacked-area-legend-value">320 conversões</span>
+                    </div>
+                    <div class="stacked-area-legend-item">
+                        <div class="stacked-area-legend-header">
+                            <div class="stacked-area-legend-color" style="background: #3B82F6;"></div>
+                            <span class="stacked-area-legend-label">TikTok Ads</span>
+                        </div>
+                        <span class="stacked-area-legend-value">185 conversões</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================
+             SLIDE 13: DATA TABLE
+             Pattern: data-table
+             ============================================ -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>Tabela de Dados</h1>
+                <h2>Comparação detalhada de métricas</h2>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Canal</th>
+                            <th>CPA</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Google Search</td>
+                            <td class="stat-success" style="font-weight: 700;">R$ 0,85</td>
+                            <td><span class="badge badge-success">Excelente</span></td>
+                        </tr>
+                        <tr>
+                            <td>Meta Ads</td>
+                            <td style="font-weight: 700;">R$ 1,20</td>
+                            <td><span class="badge badge-info">Sólido</span></td>
+                        </tr>
+                        <tr>
+                            <td>Display Network</td>
+                            <td class="stat-critical" style="font-weight: 700;">R$ 7,00</td>
+                            <td><span class="badge badge-critical">Crítico</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ============================================
+             SLIDE 14: CHECKLIST
+             Pattern: checklist
+             ============================================ -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>Ações Realizadas</h1>
+                <h2>Etapas concluídas no período</h2>
+                <div class="checklist">
+                    <div class="checklist-item">
+                        <span class="icon">✓</span>
+                        <span class="text"><strong>Otimização de Budget:</strong> Realocação de 40% do investimento para canais de alta performance</span>
+                    </div>
+                    <div class="checklist-item">
+                        <span class="icon">✓</span>
+                        <span class="text"><strong>Novos Criativos:</strong> Implementação de 12 variações testadas e validadas</span>
+                    </div>
+                    <div class="checklist-item">
+                        <span class="icon">✓</span>
+                        <span class="text"><strong>Expansão de Segmentos:</strong> Adição de 5 públicos qualificados com base em dados</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================
+             SLIDE 15: STATEMENT REVERSE (NEW v2.0)
+             Pattern: statement-slide-reverse
+             ============================================ -->
+        <div class="slide statement-slide-reverse">
+            <div class="slide-content">
+                <div class="statement-graphic">
+                    <svg class="statement-chart-placeholder" viewBox="0 0 400 400" style="width: 100%; height: auto; max-width: 400px;">
+                        <!-- Styled placeholder with visual structure -->
+                        <rect width="400" height="400" fill="rgba(255, 255, 255, 0.03)"
+                              stroke="rgba(255, 255, 255, 0.15)" stroke-width="2" rx="16"/>
+
+                        <!-- Grid pattern for chart feel -->
+                        <line x1="0" y1="100" x2="400" y2="100" stroke="rgba(255, 255, 255, 0.05)" stroke-width="1"/>
+                        <line x1="0" y1="200" x2="400" y2="200" stroke="rgba(255, 255, 255, 0.05)" stroke-width="1"/>
+                        <line x1="0" y1="300" x2="400" y2="300" stroke="rgba(255, 255, 255, 0.05)" stroke-width="1"/>
+
+                        <!-- Line chart visualization (trending upward) -->
+                        <polyline points="50,300 120,240 190,220 260,160 330,100"
+                                  fill="none"
+                                  stroke="rgba(42, 168, 118, 0.5)"
+                                  stroke-width="3"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"/>
+
+                        <!-- Data points -->
+                        <circle cx="50" cy="300" r="6" fill="rgba(250, 71, 33, 0.3)" stroke="rgba(250, 71, 33, 0.6)" stroke-width="2"/>
+                        <circle cx="120" cy="240" r="6" fill="rgba(245, 158, 11, 0.3)" stroke="rgba(245, 158, 11, 0.6)" stroke-width="2"/>
+                        <circle cx="190" cy="220" r="6" fill="rgba(245, 158, 11, 0.3)" stroke="rgba(245, 158, 11, 0.6)" stroke-width="2"/>
+                        <circle cx="260" cy="160" r="6" fill="rgba(42, 168, 118, 0.3)" stroke="rgba(42, 168, 118, 0.6)" stroke-width="2"/>
+                        <circle cx="330" cy="100" r="8" fill="rgba(42, 168, 118, 0.4)" stroke="rgba(42, 168, 118, 0.8)" stroke-width="2"/>
+
+                        <!-- Upward arrow indicator -->
+                        <path d="M 340 90 L 350 80 L 360 90" fill="none" stroke="rgba(42, 168, 118, 0.6)" stroke-width="3" stroke-linecap="round"/>
+
+                        <!-- Center label -->
+                        <text x="200" y="210" text-anchor="middle" font-size="64" fill="rgba(255, 255, 255, 0.15)" font-weight="700">📈</text>
+                        <text x="200" y="260" text-anchor="middle" font-size="16" fill="rgba(255, 255, 255, 0.3)" font-weight="600" letter-spacing="2">GROWTH TREND</text>
+                    </svg>
+                </div>
+                <div class="statement-text">
+                    <h1 class="statement-title">CPA Caiu 66%</h1>
+                    <p class="statement-body">Em 4 semanas de otimização contínua, o custo por aquisição caiu de R$ 2,50 para R$ 0,85, validando a estratégia de concentração em canais de alta intenção.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================
+             SLIDE 16: BIG NUMBER (Hero Metric)
+             Pattern: big-number
+             ============================================ -->
+        <div class="slide">
+            <div class="slide-content">
+                <div class="big-number">750</div>
+                <div class="hero-text">Conversões Alcançadas</div>
+                <p class="body-text">Crescimento de 287% em relação ao período anterior, superando a meta estabelecida em 150%</p>
+                <span class="badge badge-success">+287% vs período anterior</span>
+            </div>
+        </div>
+
+        <!-- ============================================
+             SLIDE 17: CLOSING (Split Layout - Gradient Left)
+             Pattern: closing-split-gradient-left
+             ============================================ -->
+        <div class="slide slide-split slide-split-gradient-left">
+            <div class="slide-split-gradient" style="background-image: url('https://hub.jumper.studio/decks/identities/jumper/gradients/organic-02.png');"></div>
+            <div class="slide-split-content">
+                <div style="max-width: 600px;">
+                    <h1 style="color: #FFFFFF; text-align: left;">Próximos Passos</h1>
+                    <h2 style="color: rgba(255,255,255,0.7); text-align: left; margin-bottom: 30px;">Plano de ação para o próximo período</h2>
+
+                    <div style="background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 30px; text-align: left;">
+                        <h3 style="color: #FA4721; font-size: clamp(18px, 2.2vw, 22px); margin-bottom: 20px; font-weight: 700;">Ações Imediatas:</h3>
+                        <div style="font-size: clamp(15px, 1.8vw, 17px); line-height: 1.8; color: rgba(255,255,255,0.8);">
+                            <div style="margin: 12px 0;"><span style="color: #2AA876; font-weight: 700;">✓</span> Escalar investimento em Google Search para R$ 120K/mês</div>
+                            <div style="margin: 12px 0;"><span style="color: #2AA876; font-weight: 700;">✓</span> Expandir públicos de alta conversão no Meta</div>
+                            <div style="margin: 12px 0;"><span style="color: #2AA876; font-weight: 700;">✓</span> Pausar campanha Display até revisão completa</div>
+                        </div>
+                    </div>
+
+                    <a href="#" class="cta-button" style="margin-top: 30px;">Agendar Reunião →</a>
+
+                    <p style="margin-top: 25px; font-size: 14px; color: rgba(255,255,255,0.5); text-align: left;">
+                        Baseado em dados validados do período
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logo Jumper (URL ABSOLUTA) -->
+    <img src="https://hub.jumper.studio/decks/identities/jumper/logos/jumper-white.png" alt="Jumper Studio" class="logo">
+
+    <!-- Slide Indicator -->
+    <div class="slide-indicator">
+        <span id="current-slide">1</span> de <span id="total-slides">17</span>
+    </div>
+
+    <!-- ============================================
+         NAVIGATION SCRIPT
+         Keyboard + Touch navigation
+         ============================================ -->
+    <script>
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        let currentSlide = 0;
+
+        document.getElementById('total-slides').textContent = totalSlides;
+
+        function updateSlideIndicator() {
+            document.getElementById('current-slide').textContent = currentSlide + 1;
+        }
+
+        const presentation = document.querySelector('.presentation');
+
+        presentation.addEventListener('scroll', () => {
+            const scrollPosition = presentation.scrollTop;
+            const slideHeight = window.innerHeight;
+            const newSlide = Math.round(scrollPosition / slideHeight);
+
+            if (newSlide !== currentSlide && newSlide >= 0 && newSlide < totalSlides) {
+                currentSlide = newSlide;
+                updateSlideIndicator();
+            }
+        });
+
+        function scrollToSlide(index) {
+            if (index >= 0 && index < totalSlides) {
+                currentSlide = index;
+                slides[index].scrollIntoView({ behavior: 'smooth' });
+                updateSlideIndicator();
+            }
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(event) {
+            switch(event.key) {
+                case 'ArrowRight':
+                case ' ':
+                    event.preventDefault();
+                    scrollToSlide(currentSlide + 1);
+                    break;
+                case 'ArrowLeft':
+                    event.preventDefault();
+                    scrollToSlide(currentSlide - 1);
+                    break;
+            }
+        });
+
+        // Touch/swipe navigation
+        let touchStartY = 0;
+        let touchEndY = 0;
+
+        document.addEventListener('touchstart', function(event) {
+            touchStartY = event.changedTouches[0].screenY;
+        });
+
+        document.addEventListener('touchend', function(event) {
+            touchEndY = event.changedTouches[0].screenY;
+            if (touchStartY - touchEndY > 50) {
+                scrollToSlide(currentSlide + 1);
+            } else if (touchEndY - touchStartY > 50) {
+                scrollToSlide(currentSlide - 1);
+            }
+        });
+    </script>
+</body>
+</html>
