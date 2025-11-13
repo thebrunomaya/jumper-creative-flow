@@ -3,355 +3,172 @@
 # Tracks recent decisions and work-in-progress (last 7 days)
 # Older decisions migrate to docs/ARCHITECTURE.md
 
-last_updated: "2024-11-05T23:45:00Z"
+last_updated: "2024-11-12T15:30:00Z"
 session_computer: "MacBook Pro (trabalho)"
 session_user: "Bruno Maya"
 
 # Recent decisions (last 7 days)
 # When older than 7 days, migrate to docs/ARCHITECTURE.md
 recent_decisions:
-  - date: "2024-11-05"
-    decision: "MAJOR RELEASE: Documentation Cleanup + Version v2.1.0"
+  - date: "2024-11-12"
+    decision: "Decks System v2.1 - Template Editor Redesign + Version History"
     status: "completed ✅"
     details: |
-      📚 DOCUMENTATION CONSOLIDATION + VERSION STRATEGY
+      🎨 TEMPLATE EDITOR UX OVERHAUL + VERSIONING SYSTEM
 
-      ## Session Summary (2024-11-05 - Part 2):
+      ## Session Summary (2024-11-12):
 
-      ### 1. CLAUDE.md Comprehensive Cleanup
+      ### 1. Template Editor Blank Screen Fix
 
-      **User Request:** "REVISE INTEIRAMENTE o claude.md, propondo ajustes e remoções de coisas que são obsoletas"
+      **Problem:** Massive white space before header in template editor
+      **Root cause:** JumperBackground component with min-h-screen creating 100vh empty space
+      **Fix:** Removed all JumperBackground imports/usages from TemplateEditor.tsx
 
-      **Audit Results:**
-      - Total lines: 1579 (before) → 1288 (after)
-      - Reduction: -291 lines (-18%)
-      - Issues identified: 8 items (2 CRITICAL, 4 HIGH, 1 MEDIUM, 1 LOW)
+      ### 2. Deck Preview Rendering Fix
 
-      **CRITICAL Fixes Applied:**
-      1. ✅ Fixed script paths: `./scripts/` → `./localdev/`
-         - Lines 734, 758-788: Updated all script references
-      2. ✅ Removed "agent deprecated" incorrect statement
-         - Line 98: Changed to "tested and reliable"
+      **Problem:** Preview showing HTML source code instead of rendered presentation
+      **Root cause:** Using `src={file_url}` which displays Storage content as-is
+      **Fix:** Changed to `srcDoc={html_output}` with fallback pattern
+      **Result:** ✅ Preview renders correctly ("funcionou muito bem!")
 
-      **HIGH Priority Consolidations:**
-      3. ✅ Removed duplicate Vercel env vars section (-59 lines)
-         - Content already covered in lines 490-687
-      4. ✅ Consolidated roadmap sections (-21 lines)
-         - Kept overview (lines 29-59), removed detailed duplicate
-      5. ✅ Moved Optimization v2.1 technical docs to ARCHITECTURE.md (-123 lines)
-         - CLAUDE.md now has reference link only
-         - Complete documentation in ARCHITECTURE.md
-      6. ✅ Consolidated Local Development sections (-32 lines)
-         - Removed duplicate database import instructions
+      ### 3. KB Counter Removal
 
-      **MEDIUM Priority Updates:**
-      7. ✅ Fixed stale metadata
-         - Last Updated: 2024-10-07 → 2024-11-05
-         - Project Status updated (FASE 1 ✅, v2.1 ✅, REPORTS ⏳)
-         - Fixed typo: 2025-10-09 → 2024-10-09
+      **Problem:** Template list loading 60+ seconds, timing out
+      **Root cause:** Edge Function making 34 simultaneous HEAD requests (60s+ each)
+      **User decision:** "tire esse medidor de kb, e remova essa funcao do cache, isso é besteira"
+      **Fix:**
+      - Removed formatSize function from TemplateCard
+      - Removed size field from Template interface
+      - Simplified j_hub_deck_template_list Edge Function (no HTTP calls)
+      **Result:** ✅ Function returns instantly
 
-      ### 2. ARCHITECTURE.md Enhancement
+      ### 4. Template Editor Redesign: Split → Tabs
 
-      **Added Optimization v2.1 Section (+126 lines):**
-      - Complete component documentation (DateRangePicker, useDraftManager, ContextEditor)
-      - Database changes (migration, indexes, constraints)
-      - Usage examples and technical decisions
-      - Future enhancements roadmap
-      - Updated Last Updated: 2024-11-05
+      **Problem:** 50/50 bipartite split layout was confusing
+      **User feedback:** "a tela bipartida está muyito confusa. Proponha outra"
+      **Solution chosen:** Tabs layout (Editor / Preview separate)
+      **Implementation:**
+      - Replaced split view with shadcn/ui Tabs component
+      - Full-width Monaco editor (better readability)
+      - Full-width preview (better testing)
+      - Cleaner navigation with FileCode/Eye icons
+      **Result:** ✅ "sucesso"
 
-      ### 3. Version Strategy Definition
+      ### 5. Template Version History System
 
-      **User Guidance:**
-      "Renomeei a versão para 2.1 por conta do lançamento da funcionalidade consolidada de /optimization, estamos saindo de 2.0.x para 2.1.x, sendo que quando o decks estiver ok vamos para 2.2.x"
+      **NEW FEATURE IMPLEMENTED:**
 
-      **Version Roadmap:**
-      - v2.0.x: Optimization system base
-      - v2.1.x: ✅ Consolidated optimization functionality (current)
-      - v2.2.x: 🔜 Decks system completion (upcoming)
+      **Database Schema:**
+      - Created migration: `20251112235504_create_template_versions.sql`
+      - Table: `j_hub_template_versions`
+      - Fields: id, template_id, version_number, html_content, description, created_at, created_by
+      - Unique constraint: (template_id, version_number)
+      - RLS policies: Admin-only access
 
-      **v2.1.0 Release Notes:**
-      - Documentation cleanup and consolidation
-      - CLAUDE.md: -18% (better organization)
-      - ARCHITECTURE.md: +126 lines (Optimization v2.1 docs)
-      - All technical documentation properly organized
+      **Edge Function:**
+      - Created: `supabase/functions/j_hub_template_versions/index.ts`
+      - Lists all versions for a template
+      - Admin authentication + role check
+      - Returns versions ordered by version_number DESC
 
-      ### 4. Git Commits
+      **Frontend Component:**
+      - Created: `src/components/templates/TemplateVersionHistory.tsx`
+      - Sheet component with version list
+      - Version restoration to editor
+      - Formatted timestamps (date-fns, pt-BR)
+      - Loading/error states
 
-      **Commits Created:**
-      ```
-      7f8cc71: docs: Major CLAUDE.md cleanup and consolidation
-      c03176f: chore: Bump version to v2.1.0 (Documentation Release)
-      ```
+      **Auto-versioning:**
+      - TemplateEditor.tsx now creates version entry on every save
+      - Auto-increments version number (1, 2, 3...)
+      - Stores complete HTML snapshot
+      - Description: "Versão N"
 
-      **Files Changed:**
-      - CLAUDE.md (-291 lines: removed duplicates, fixed paths, updated metadata)
-      - docs/ARCHITECTURE.md (+126 lines: Optimization v2.1 section)
-      - src/config/version.ts (v2.1.0 + changelog)
+      **UI Integration:**
+      - "Histórico" button in template editor header
+      - Restore version → loads HTML into editor
+      - Toast feedback on restore
+      - Refresh list button
 
-      ## Impact: MAJOR - Documentation Organization
+      ### 6. Roadmap Completion Review
+
+      **User request:** "Veja se implementamos tudo que planejamos"
+      **Files reviewed:**
+      - `.tmp-roadmap-deck-3stage.md`
+      - `decks-roadmap.md`
+      **Result:** 100% completion confirmed
+      **Action:** Both roadmap files deleted (user approval)
+
+      ### 7. Pattern Catalog Documentation
+
+      **User question:** "está documentado em algum lugar como esse arquivo deve ser criado?"
+      **Context:** User wants to create `jumper-flare-patterns.json` similar to `koko-classic-patterns.json`
+
+      **Created comprehensive guide:**
+      - File: `public/decks/templates/PATTERN-CATALOG-GUIDE.md`
+      - 460 lines of documentation
+      - Complete JSON schema with field definitions
+      - 13 content type categories documented
+      - Step-by-step creation process (7 steps)
+      - Pattern identification guide from HTML/CSS
+      - Quality checklist (15+ validation points)
+      - Complete jumper-flare example (9 patterns)
+      - Testing and deployment instructions
+
+      **Purpose:** Enable creation of pattern catalogs for AI deck generation
+      **Next step:** User will create `jumper-flare-patterns.json` using this guide
+
+      ## Files Changed:
+
+      **Modified:**
+      - `src/pages/TemplateEditor.tsx` (Tabs layout + version history integration)
+      - `src/pages/DeckEditorPage.tsx` (srcDoc preview fix)
+      - `src/components/templates/TemplateCard.tsx` (KB badge removed)
+      - `src/hooks/useTemplateList.ts` (size field removed)
+      - `supabase/functions/j_hub_deck_template_list/index.ts` (simplified, no HTTP calls)
+
+      **Created:**
+      - `src/components/templates/TemplateVersionHistory.tsx` (NEW - version history UI)
+      - `supabase/migrations/20251112235504_create_template_versions.sql` (NEW - database schema)
+      - `supabase/functions/j_hub_template_versions/index.ts` (NEW - Edge Function)
+      - `public/decks/templates/PATTERN-CATALOG-GUIDE.md` (NEW - comprehensive guide)
+
+      **Deleted:**
+      - `.tmp-roadmap-deck-3stage.md` (tasks completed)
+      - `decks-roadmap.md` (tasks completed)
+
+      ## Impact: MAJOR - Decks System v2.1 Feature Complete
 
       **Before:**
-      - 1579 lines in CLAUDE.md (duplications, stale info)
-      - Technical details scattered
-      - Unclear version strategy
+      - ❌ Confusing template editor UI
+      - ❌ Broken deck preview
+      - ❌ Slow template loading (60s+)
+      - ❌ No version history for templates
+      - ❌ No pattern catalog documentation
 
       **After:**
-      - ✅ 1288 lines in CLAUDE.md (18% reduction, better organized)
-      - ✅ Technical docs in ARCHITECTURE.md (proper location)
-      - ✅ Clear version strategy (2.1.x = optimization, 2.2.x = decks)
-      - ✅ All metadata updated (dates, status, references)
+      - ✅ Clean Tabs-based editor UI
+      - ✅ Working deck preview (srcDoc)
+      - ✅ Instant template loading (<1s)
+      - ✅ Complete version history system
+      - ✅ Comprehensive pattern catalog guide
+      - ✅ All roadmap items completed
 
-    impact: "MAJOR - Documentation consolidation + version strategy defined"
+    impact: "MAJOR - Template editor redesign + version history + pattern guide"
     files_changed:
-      - "CLAUDE.md (-291 lines: cleanup, consolidation, metadata updates)"
-      - "docs/ARCHITECTURE.md (+126 lines: Optimization v2.1 technical docs)"
-      - "src/config/version.ts (v2.1.0)"
-    deployed: true
-    deployment_status: "Pushed to production ✅ (commits 7f8cc71, c03176f)"
-    commits:
-      - "7f8cc71: docs: Major CLAUDE.md cleanup and consolidation"
-      - "c03176f: chore: Bump version to v2.1.0 (Documentation Release)"
-    migrate_to_architecture: false
-  - date: "2024-11-05"
-    decision: "CRITICAL: Dual ID System Fix (UUID vs TEXT notion_id)"
-    status: "completed ✅"
-    details: |
-      🚨 CRITICAL BUG FIX: FK constraint violation on optimization creation resolved
-
-      ## Session Summary (2024-11-05):
-
-      ### 1. Problem Discovery
-
-      **User Report:**
-      "Claude, provavelmente em virtude dos ajustes que fizemos nessa sessão, quando tento criar uma nova otimização dá erro permanente."
-
-      **Error Message:**
-      ```
-      Error: insert or update on table "j_hub_optimization_recordings"
-      violates foreign key constraint "j_ads_optimization_recordings_account_id_fkey"
-
-      ReferenceError: selectedAccountName is not defined
-      ```
-
-      **Root Cause Investigation:**
-      - Commit 412a8ec changed `j_hub_user_accounts` Edge Function to return UUIDs (for decks system)
-      - `OptimizationNew.tsx` was storing UUID from `account.id`
-      - `j_hub_optimization_recordings.account_id` is TEXT (expects `notion_id`)
-      - UUID inserted into TEXT column → FK constraint violation
-
-      **Discovery: Dual ID System**
-      - Modern tables (j_hub_decks) use UUID foreign keys
-      - Legacy tables (j_hub_optimization_recordings) use TEXT notion_id foreign keys
-      - `j_hub_user_accounts` now returns BOTH formats for compatibility
-
-      ### 2. Fix Implementation (v2.0.75)
-
-      **FIX 1: OptimizationNew.tsx (lines 109, 131)**
-      ```typescript
-      // Before: Stored UUID from PrioritizedAccountSelect
-      setSelectedAccountId(accountId); // ❌ UUID in TEXT column
-
-      // After: Extract notion_id from account object
-      const account = accounts.find(a => a.id === accountId);
-      setSelectedAccountId(account.notion_id); // ✅ TEXT in TEXT column
-      ```
-
-      Also fixed `handleRecoverDraft` to search by `a.notion_id` instead of `a.id`.
-
-      **FIX 2: OptimizationRecorder.tsx (line 174)**
-      ```typescript
-      // Before: ReferenceError
-      const accountNameSlug = selectedAccountName.replace(...); // ❌ undefined
-
-      // After: Use correct prop name
-      const accountNameSlug = accountName.replace(...); // ✅ defined prop
-      ```
-
-      ### 3. Architecture Documentation
-
-      **Created comprehensive ARCHITECTURE.md section:**
-      - Overview of dual ID system (UUID vs TEXT)
-      - Table classification (Modern vs Legacy)
-      - Edge Function compatibility layer
-      - Frontend patterns and common mistakes
-      - Incident report with symptoms/cause/fix
-      - Migration strategy for future
-      - Decision checklists
-
-      **Location:** `docs/ARCHITECTURE.md` - "Dual ID System" section
-
-      ### 4. Account Filtering Standardization
-
-      **Problem:** Inconsistent account filtering across pages
-      - `/optimization` showed ONLY accounts with optimizations (incorrect)
-      - `/decks` had NO account filter
-      - `/decks/new` used standard Select instead of PrioritizedAccountSelect
-
-      **Solution:**
-      - **PHASE 1:** Fixed `/optimization` to show ALL accessible accounts
-      - **PHASE 2:** Added account filter to `/decks` using PrioritizedAccountSelect
-      - **PHASE 3:** Migrated `/decks/new` to use PrioritizedAccountSelect
-
-      **Result:** Unified account selection pattern across entire application
-
-      ### 5. Navigation Headers Added
-
-      **Problem:** Decks pages missing Header component
-
-      **Fix:** Added Header and JumperBackground to:
-      - `Decks.tsx` (panel view)
-      - `DeckNew.tsx` (creation page)
-      - `DeckEditor.tsx` (viewer page)
-
-      **Result:** Consistent navigation across all pages
-
-      ### 6. Git Commits
-
-      **Commits Created:**
-      ```
-      e2a1aaa: fix: FK constraint violation on optimization creation (v2.0.74)
-      9bac8c3: chore: bump version to v2.0.75
-      ```
-
-      **Files Changed:**
-      - `src/pages/OptimizationNew.tsx` (handleAccountChange + handleRecoverDraft fixes)
-      - `src/components/OptimizationRecorder.tsx` (selectedAccountName typo fix)
-      - `src/config/version.ts` (version bump + changelog)
-      - `docs/ARCHITECTURE.md` (new Dual ID System section, ~200 lines)
-
-      ### 7. Context Organization
-
-      **Migrated to ARCHITECTURE.md:**
-      - Dual ID System architectural decision (permanent documentation)
-      - Table classification and FK patterns
-      - Frontend integration patterns
-
-      **Cleaned up `.claude-context`:**
-      - Removed decisions >7 days old (dev-setup agent, naming standardization)
-      - Kept only recent work (last 3 days)
-      - Updated deployment status
-
-      ## Impact: CRITICAL - Production Bug Fix
-
-      **Before:**
-      - ❌ Creating new optimizations caused FK constraint errors
-      - ❌ Inconsistent account filtering across pages
-      - ❌ Missing navigation headers on decks pages
-
-      **After:**
-      - ✅ Optimization creation working correctly (v2.0.75 deployed)
-      - ✅ Unified account selection pattern everywhere
-      - ✅ Complete navigation across all pages
-      - ✅ Comprehensive architecture documentation prevents future incidents
-
-    impact: "CRITICAL - Fixed production bug + documented dual ID system architecture"
-    files_changed:
-      - "src/pages/OptimizationNew.tsx (UUID → notion_id fix)"
-      - "src/components/OptimizationRecorder.tsx (typo fix)"
-      - "src/pages/Optimization.tsx (account filtering fix)"
-      - "src/components/decks/DecksPanelList.tsx (account filter added)"
-      - "src/components/decks/DeckConfigForm.tsx (migrated to PrioritizedAccountSelect)"
-      - "src/pages/Decks.tsx, DeckNew.tsx, DeckEditor.tsx (Header added)"
-      - "docs/ARCHITECTURE.md (+200 lines: Dual ID System section)"
-      - "src/config/version.ts (v2.0.75)"
-    deployed: true
-    deployment_status: "Pushed to production ✅ (commits e2a1aaa, 9bac8c3)"
-    commits:
-      - "e2a1aaa: fix: FK constraint violation on optimization creation (v2.0.74)"
-      - "9bac8c3: chore: bump version to v2.0.75"
-    migrate_to_architecture: true
-
-  - date: "2024-11-05"
-    decision: "CRITICAL: CLAUDE.md documentation updates (user-requested)"
-    status: "completed ✅"
-    details: |
-      🚨 USER-REQUESTED CRITICAL DOCUMENTATION CORRECTIONS
-
-      ## 1. Local Development Setup - Corrected
-
-      **Problem:** CLAUDE.md documented dev-setup agent that didn't work
-      **User Feedback:** "o dev setup agent não deu certo"
-
-      **Fix Applied:**
-      - ❌ Removed entire dev-setup agent section
-      - ✅ Documented correct approach: localdev/ scripts
-      - ✅ Added 4 scripts documentation (validate, backup, setup, quick-reset)
-      - ✅ Interactive menu (./localdev.sh)
-      - ✅ Workflows (first time, daily, after migrations)
-
-      ## 2. Decks System - Documented
-
-      **Problem:** Decks feature (v2.0.70) not documented in CLAUDE.md
-      **User Request:** "precisamos mencionar na documentação a função decks"
-
-      **Fix Applied:**
-      - ✅ New section: "📊 Decks System (Presentation Generation)"
-      - ✅ Overview, Features, Key Components
-      - ✅ Permissions model, Templates, Design Systems
-      - ✅ Account Integration examples
-      - ✅ Usage examples with code
-
-      ## 3. Account Access Pattern - ABSOLUTE RULE
-
-      **Problem:** No clear mandatory rule about account selection
-      **User Emphasis:** "MUITO importante, mencionar que devemos sempre que
-      o aplicativo precisar buscar as contas que o usuário tem acesso,
-      devemos usar as funções padronizadas"
-
-      **User Clarification:** "sempre que precisarmos filtrar as contas do
-      usuário, a PrioritizedAccountSelect deve ser usada, SEMPRE. Nunca
-      deve ser criado um outro meio ou critério."
-
-      **Fix Applied:**
-      - ✅ New section: "⚠️ CRITICAL: Account Access Pattern"
-      - ✅ 🚨 MANDATORY RULE: Always use PrioritizedAccountSelect
-      - ✅ ❌ NEVER create alternative selection methods
-      - ✅ Stack documentation (Edge Function → Hook → Component)
-      - ✅ "DO this / DON'T do this" code examples
-      - ✅ Dual ID System awareness (UUID vs TEXT)
-
-      **Why This Is ABSOLUTE:**
-      - Enforces permission logic consistency
-      - Prevents permission bypass bugs
-      - Ensures UI consistency
-      - No exceptions allowed
-
-      ## Impact
-
-      **Before:**
-      - Incorrect local dev instructions (agent-based)
-      - No Decks system documentation
-      - No mandatory rule about account selection
-
-      **After:**
-      - ✅ Correct local dev setup (localdev/ scripts)
-      - ✅ Complete Decks system documentation
-      - ✅ ABSOLUTE MANDATORY rule: PrioritizedAccountSelect ALWAYS
-
-    impact: "CRITICAL - Corrected fundamental documentation per user feedback"
-    files_changed:
-      - "CLAUDE.md (+290 lines, -28 lines: 3 major corrections)"
-    deployed: true
-    deployment_status: "Documentation pushed ✅ (commit 1f11a18)"
-    commits:
-      - "1f11a18: docs: Critical updates to CLAUDE.md (localdev, decks, account pattern)"
-    migrate_to_architecture: false
-
-  - date: "2024-11-03"
-    decision: "Fixed gradient display bug in split-layout presentations"
-    status: "completed ✅"
-    details: |
-      Fixed CSS issue causing gradients to not display correctly in split-layout slides.
-      Changed `.slide-split-gradient` from `min-height: 100vh` (viewport-based) to `height: 100%` (parent-based).
-      Gradient now fills entire grid cell edge-to-edge without borders.
-      Documented in `decks/identities/jumper/design-system.md` and `decks/decks.md`.
-    impact: "MEDIUM - Prevents gradient display issues in future presentations"
-    files_changed:
-      - "decks/output/molduraminuto-report.html (CSS fix applied)"
-      - "decks/identities/jumper/design-system.md (troubleshooting section)"
-      - "decks/decks.md (troubleshooting section)"
+      - "src/pages/TemplateEditor.tsx (Tabs layout + version history)"
+      - "src/pages/DeckEditorPage.tsx (srcDoc preview fix)"
+      - "src/components/templates/TemplateCard.tsx (KB removed)"
+      - "src/hooks/useTemplateList.ts (size field removed)"
+      - "supabase/functions/j_hub_deck_template_list/index.ts (simplified)"
+      - "src/components/templates/TemplateVersionHistory.tsx (NEW)"
+      - "supabase/migrations/20251112235504_create_template_versions.sql (NEW)"
+      - "supabase/functions/j_hub_template_versions/index.ts (NEW)"
+      - "public/decks/templates/PATTERN-CATALOG-GUIDE.md (NEW - 460 lines)"
     deployed: false
-    deployment_status: "Documentation only (no production deploy needed)"
+    deployment_status: "Ready for deployment (all features tested) 🚀"
+    commits:
+      - "58026c2: docs(decks): Add comprehensive Pattern Catalog creation guide"
     migrate_to_architecture: false
 
 # Current issues being worked on
@@ -362,83 +179,93 @@ work_in_progress: []
 
 # Context for next session
 next_session_context: |
-  🎯 SESSION 2024-11-05 COMPLETED: DOCUMENTATION CONSOLIDATION + VERSION v2.1.0
+  🎯 SESSION 2024-11-12 COMPLETED: DECKS SYSTEM v2.1 - TEMPLATE EDITOR REDESIGN
 
   ## ✅ WHAT WAS ACCOMPLISHED TODAY:
 
-  **PART 1: Critical Bug Fixes (Morning)**
-  - ✅ Fixed FK constraint violation on optimization creation (v2.0.75)
-  - ✅ Dual ID System documented in ARCHITECTURE.md (~200 lines)
-  - ✅ Account filtering standardized across all pages
-  - ✅ Navigation headers added to Decks pages
+  **Template Editor Improvements:**
+  - ✅ Fixed blank screen bug (removed JumperBackground)
+  - ✅ Fixed deck preview rendering (src → srcDoc)
+  - ✅ Removed KB counter (performance issue)
+  - ✅ Redesigned UI: Split view → Tabs layout
+  - ✅ Much cleaner, more intuitive interface
 
-  **PART 2: Documentation Cleanup (Evening)**
-  - ✅ CLAUDE.md comprehensive cleanup: 1579 → 1288 lines (-18%)
-  - ✅ Fixed script paths (./scripts/ → ./localdev/)
-  - ✅ Removed duplicates (Vercel env vars, roadmap, Local Dev)
-  - ✅ Moved Optimization v2.1 technical docs to ARCHITECTURE.md
-  - ✅ Updated all stale metadata (dates, status)
-  - ✅ Version bump to v2.1.0 (Documentation Release)
+  **Version History System (NEW):**
+  - ✅ Database table created (j_hub_template_versions)
+  - ✅ Edge Function implemented (admin-only)
+  - ✅ Frontend component (Sheet with version list)
+  - ✅ Auto-versioning on template save
+  - ✅ Version restoration to editor
+  - ✅ Complete audit trail for template changes
+
+  **Documentation:**
+  - ✅ Pattern Catalog Guide created (460 lines)
+  - ✅ Complete JSON schema documentation
+  - ✅ Step-by-step creation process
+  - ✅ Example for jumper-flare template
+  - ✅ Roadmaps reviewed and deleted (100% complete)
 
   ## 🎯 CURRENT SYSTEM STATUS:
 
   **Production:**
-  - URL: https://hub.jumper.studio
-  - Version: v2.1.0 ✅ (Documentation Release)
-  - Status: All features working, documentation organized
-  - Last Deploy: 2024-11-05 23:45 UTC
-  - Last Commits: 7f8cc71 (docs cleanup), c03176f (v2.1.0)
+  - Version: v2.1.0 (from previous session)
+  - Next deploy: v2.1.1 or v2.2.0 (with today's changes)
+  - Status: All features working, ready for deployment
 
   **What's Working:**
-  - ✅ Optimization creation (FK constraint fixed)
-  - ✅ Unified account filtering across all pages
-  - ✅ Complete navigation (Headers on all pages)
-  - ✅ Documentation consolidated and organized
+  - ✅ Template editor with Tabs layout
+  - ✅ Template version history system
+  - ✅ Deck preview rendering correctly
+  - ✅ Fast template loading (<1s)
+  - ✅ Complete pattern catalog guide
 
-  **Version Strategy:**
-  - v2.0.x: Optimization system base
-  - v2.1.x: ✅ Consolidated optimization functionality (CURRENT)
-  - v2.2.x: 🔜 When decks system is complete
+  **Ready to Deploy:**
+  - All code committed (58026c2)
+  - Migrations created (j_hub_template_versions)
+  - Edge Functions ready (j_hub_template_versions)
+  - Frontend tested and working
 
   ## 📋 IMPORTANT FOR NEXT SESSION:
 
-  **Dual ID System Pattern (CRITICAL):**
-  ```typescript
-  // When using PrioritizedAccountSelect with LEGACY tables:
-  const handleAccountChange = (accountId: string) => {
-    const account = accounts.find(a => a.id === accountId);
-    // ✅ Use notion_id for legacy tables (optimizations, creatives)
-    setSelectedAccountId(account.notion_id);
-    // ❌ DON'T use accountId directly (that's UUID)
-  };
+  **Creating Pattern Catalogs:**
+  User can now create pattern catalogs for templates using simple commands like:
+  ```
+  Crie o arquivo jumper-flare-patterns.json seguindo o guia PATTERN-CATALOG-GUIDE.md
   ```
 
-  **Key References:**
-  - Dual ID System: `docs/ARCHITECTURE.md` - "Dual ID System" section
-  - Optimization v2.1: `docs/ARCHITECTURE.md` - "Optimization Creation Flow v2.1" section
-  - Local Dev: Use `./localdev.sh` interactive menu or numbered scripts
+  **Pattern Guide Location:**
+  `public/decks/templates/PATTERN-CATALOG-GUIDE.md`
 
-  **Dev Credentials (Local):**
-  ```
-  Email: bruno@jumper.studio
-  Password: senha123
-  ```
+  **Version History Usage:**
+  - Admins can view template version history via "Histórico" button
+  - Versions auto-increment on every save (1, 2, 3...)
+  - Click "Restaurar" to load any previous version
+  - Complete HTML snapshot stored for each version
 
-  **Next Focus:** Decks system completion → v2.2.x release
+  **Template Editor:**
+  - Tabs layout (Editor / Preview separate)
+  - Full-width Monaco editor
+  - Full-width preview testing
+  - Clean navigation with icons
+
+  **Next Focus:**
+  - Deploy changes to production (migration + Edge Function)
+  - User will create jumper-flare-patterns.json
+  - Consider version bump to v2.2.0 (Decks complete)
 
 # TODOs pending
 pending_todos: []
 
 # Recently completed (for reference)
 completed_recently:
+  - "✅ [2024-11-12 15:30] Pattern Catalog Guide created (460 lines) 📚"
+  - "✅ [2024-11-12 15:00] Template version history system implemented 🎨"
+  - "✅ [2024-11-12 14:30] Template editor redesigned (Tabs layout) 🖥️"
+  - "✅ [2024-11-12 14:00] Deck preview fix (srcDoc) 🔧"
+  - "✅ [2024-11-12 13:30] KB counter removed (performance) ⚡"
+  - "✅ [2024-11-12 13:00] Template editor blank screen fixed 🐛"
   - "✅ [2024-11-05 23:45] Version v2.1.0 release (Documentation consolidation) 📦"
   - "✅ [2024-11-05 23:40] CLAUDE.md cleanup: -291 lines (-18%) 📚"
-  - "✅ [2024-11-05 23:30] CRITICAL documentation updates (user-requested) 📚"
-  - "✅ [2024-11-05 22:00] Dual ID System → ARCHITECTURE.md migration 📋"
-  - "✅ [2024-11-05 22:00] Critical FK constraint bug fix (v2.0.75) 🚨"
-  - "✅ [2024-11-05 22:00] Account filtering standardization 🔄"
-  - "✅ [2024-11-05 22:00] Navigation headers added to Decks pages 🧭"
-  - "✅ [2024-11-03] Gradient display bug fix in presentations 🎨"
 
 # Deployment status
 deployment:
@@ -446,30 +273,21 @@ deployment:
   old_url_redirect: "https://ads.jumper.studio → hub.jumper.studio (301)"
   last_deploy: "2024-11-05T23:45:00Z"
   last_deploy_status: "v2.1.0 Documentation Release deployed ✅"
-  last_deploy_type: "major (documentation consolidation + version strategy)"
-  last_commit: "c03176f - chore: Bump version to v2.1.0 (Documentation Release)"
-  database_status: "STABLE - All systems operational ✅"
+  next_deploy: "v2.1.1 or v2.2.0 (Template editor + version history)"
+  pending_deployment:
+    - "Migration: 20251112235504_create_template_versions.sql"
+    - "Edge Function: j_hub_template_versions"
+    - "Frontend: Template editor redesign"
+    - "Documentation: PATTERN-CATALOG-GUIDE.md"
+  last_commit: "58026c2 - docs(decks): Add comprehensive Pattern Catalog creation guide"
+  database_status: "STABLE - Migration ready to apply ✅"
   known_issues: "None"
   recent_commits:
-    - "c03176f: chore: Bump version to v2.1.0 (Documentation Release)"
-    - "7f8cc71: docs: Major CLAUDE.md cleanup and consolidation"
-    - "1f11a18: docs: Critical updates to CLAUDE.md (localdev, decks, account pattern)"
-    - "9b38025: docs: Migrate Dual ID System to ARCHITECTURE.md + context cleanup"
-    - "9bac8c3: chore: bump version to v2.0.75"
-    - "e2a1aaa: fix: FK constraint violation on optimization creation (v2.0.74)"
+    - "58026c2: docs(decks): Add comprehensive Pattern Catalog creation guide"
 
 # Notes for context rotation
 context_rotation:
   last_rotation: "2024-11-05"
-  next_rotation: "2024-11-12"
-  items_migrated_today:
-    - "Optimization v2.1 technical docs (→ ARCHITECTURE.md, +126 lines)"
-    - "Dual ID System (→ ARCHITECTURE.md, new section created)"
-    - "Dev-setup agent (>7 days, removed from context)"
-    - "Naming standardization (>7 days, already in ARCHITECTURE.md)"
-  documentation_improvements:
-    - "CLAUDE.md: 1579 → 1288 lines (-18% reduction)"
-    - "Removed duplicates: Vercel env vars, roadmap, Local Dev sections"
-    - "Fixed all script paths: ./scripts/ → ./localdev/"
-    - "Updated all stale metadata (dates, status, references)"
-    - "Version strategy defined: 2.1.x = optimization, 2.2.x = decks"
+  next_rotation: "2024-11-19"
+  items_ready_to_migrate:
+    - "Documentation cleanup (2024-11-05) - can migrate after next session"
