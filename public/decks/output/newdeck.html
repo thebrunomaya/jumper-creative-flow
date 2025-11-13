@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RelatÃ³rio de Performance - Outubro</title>
+    <style>
+        @font-face {
+            font-family: 'Haffer';
+            src: url('https://hub.jumper.studio/decks/identities/jumper/fonts/HafferVF.ttf') format('truetype');
+            font-weight: 100 900;
+            font-style: normal;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Haffer', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0a0a0a;
+            color: #FFFFFF;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .presentation {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            overflow-y: scroll;
+            scroll-snap-type: y mandatory;
+            scroll-behavior: smooth;
+        }
+
+        .slide {
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            scroll-snap-align: start;
+            padding: clamp(40px, 8vh, 80px) clamp(30px, 6vw, 120px) clamp(80px, 10vh, 120px);
+            background: #000000;
+        }
+
+        .slide-content {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .slide-split {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+
+        .slide-split-gradient {
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            height: 100%;
+        }
+
+        .slide-split-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: clamp(60px, 10vw, 120px);
+            background: #000000;
+        }
+
+        .slide-split-gradient-right .slide-split-gradient {
+            order: 2;
+        }
+
+        .slide-split-gradient-right .slide-split-content {
+            order: 1;
+        }
+
+        .slide-split-gradient-left .slide-split-gradient {
+            order: 1;
+        }
+
+        .slide-split-gradient-left .slide-split-content {
+            order: 2;
+        }
+
+        h1 {
+            font-size: clamp(36px, 5vw, 60px);
+            font-weight: 900;
+            letter-spacing: -0.02em;
+            line-height: 1.1;
+            margin-bottom: clamp(15px, 3vh, 25px);
+            color: #FFFFFF;
+        }
+
+        h2 {
+            font-size: clamp(18px, 2.5vw, 28px);
+            font-weight: 400;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: clamp(25px, 4vh, 40px);
+            line-height: 1.3;
+        }
+
+        .hero-text {
+            font-size: clamp(24px, 4vw, 42px);
+            font-weight: 600;
+            line-height: 1.2;
+            letter-spacing: -0.01em;
+            margin-bottom: clamp(20px, 3vh, 35px);
+            color: #FFFFFF;
+        }
+
+        .body-text {
+            font-size: clamp(16px, 2vw, 20px);
+            font-weight: 400;
+            color: rgba(255, 255, 255, 0.6);
+            line-height: 1.5;
+            max-width: 900px;
+            margin: 0 auto 20px;
+        }
+
+        .big-number {
+            font-size: clamp(64px, 10vw, 120px);
+            font-weight: 900;
+            color: #FA4721;
+            line-height: 0.9;
+            margin-bottom: clamp(15px, 2vh, 25px);
+            letter-spacing: -0.04em;
+        }
+
+        .highlight {
+            color: #FA4721;
+            font-weight: 600;
+        }
+
+        .cards-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: clamp(20px, 3vw, 30px);
+            margin-top: clamp(25px, 4vh, 40px);
+            max-width: 1100px;
+            width: 100%;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: clamp(24px, 3vw, 32px);
+            text-align: left;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: cardSlideUp 0.6s ease-out forwards;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            background: rgba(255, 255, 255, 0.05);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(250, 71, 33, 0.2);
+        }
+
+        .card:nth-child(1) { animation-delay: 0.5s; }
+        .card:nth-child(2) { animation-delay: 0.6s; }
+        .card:nth-child(3) { animation-delay: 0.7s; }
+        .card:nth-child(4) { animation-delay: 0.8s; }
+
+        @keyframes cardSlideUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card h3 {
+            font-size: clamp(18px, 2.2vw, 22px);
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #FFFFFF;
+        }
+
+        .card p {
+            font-size: clamp(14px, 1.6vw, 16px);
+            color: rgba(255, 255, 255, 0.6);
+            line-height: 1.5;
+        }
+
+        .card .metric {
+            font-size: clamp(28px, 4vw, 36px);
+            font-weight: 900;
+            color: #FA4721;
+            margin-bottom: 8px;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: clamp(25px, 4vw, 40px);
+            max-width: 1000px;
+            margin: clamp(25px, 4vh, 40px) auto;
+            width: 100%;
+        }
+
+        .comparison-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: clamp(28px, 4vw, 36px);
+            text-align: center;
+            opacity: 0;
+            transform: scale(0.95);
+            animation: scaleIn 0.6s ease-out forwards;
+        }
+
+        .comparison-item:nth-child(1) { animation-delay: 0.4s; }
+        .comparison-item:nth-child(2) { animation-delay: 0.6s; }
+
+        @keyframes scaleIn {
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .comparison-item h3 {
+            font-size: clamp(20px, 2.8vw, 26px);
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: #FFFFFF;
+        }
+
+        .comparison-item .stat {
+            font-size: clamp(32px, 5vw, 48px);
+            font-weight: 900;
+            line-height: 1.1;
+            margin: 16px 0;
+        }
+
+        .comparison-item .label {
+            font-size: clamp(14px, 1.6vw, 16px);
+            color: rgba(255, 255, 255, 0.5);
+            margin-top: 8px;
+        }
+
+        .stat-success { color: #2AA876; }
+        .stat-warning { color: #F59E0B; }
+        .stat-critical { color: #EF4444; }
+
+        .badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: clamp(12px, 1.4vw, 14px);
+            font-weight: 600;
+            margin: 4px;
+        }
+
+        .badge-success {
+            background: rgba(42, 168, 118, 0.15);
+            color: #2AA876;
+        }
+
+        .badge-warning {
+            background: rgba(245, 158, 11, 0.15);
+            color: #F59E0B;
+        }
+
+        .badge-critical {
+            background: rgba(239, 68, 68, 0.15);
+            color: #EF4444;
+        }
+
+        .badge-info {
+            background: rgba(59, 130, 246, 0.15);
+            color: #3B82F6;
+        }
+
+        .timeline {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            max-width: 1000px;
+            margin: 30px auto;
+            position: relative;
+            padding: 20px 0;
+            gap: clamp(30px, 5vw, 60px);
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            top: 40px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(to right, rgba(42, 168, 118, 0.3), rgba(245, 158, 11, 0.3), rgba(239, 68, 68, 0.3));
+        }
+
+        .timeline-item {
+            text-align: center;
+            position: relative;
+            flex: 1;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        .timeline-item:nth-child(1) { animation-delay: 0.5s; }
+        .timeline-item:nth-child(2) { animation-delay: 0.7s; }
+        .timeline-item:nth-child(3) { animation-delay: 0.9s; }
+
+        .timeline-item .date {
+            font-size: clamp(12px, 1.4vw, 14px);
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .timeline-item .value {
+            font-size: clamp(32px, 4.5vw, 42px);
+            font-weight: 900;
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+
+        .timeline-item .sub {
+            font-size: clamp(13px, 1.5vw, 15px);
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .data-table {
+            width: 100%;
+            max-width: 900px;
+            margin: 30px auto;
+            border-collapse: separate;
+            border-spacing: 0 8px;
+        }
+
+        .data-table th {
+            font-size: clamp(13px, 1.5vw, 15px);
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.7);
+            text-align: left;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .data-table td {
+            font-size: clamp(14px, 1.6vw, 16px);
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.02);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .data-table td:first-child {
+            font-weight: 600;
+            color: #FFFFFF;
+        }
+
+        .data-table tr {
+            opacity: 0;
+            animation: fadeInUp 0.5s ease-out forwards;
+        }
+
+        .data-table tr:nth-child(1) { animation-delay: 0.5s; }
+        .data-table tr:nth-child(2) { animation-delay: 0.6s; }
+        .data-table tr:nth-child(3) { animation-delay: 0.7s; }
+        .data-table tr:nth-child(4) { animation-delay: 0.8s; }
+        .data-table tr:nth-child(5) { animation-delay: 0.9s; }
+
+        .checklist {
+            max-width: 800px;
+            margin: 25px auto;
+            text-align: left;
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            padding: 16px;
+            margin: 8px 0;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 12px;
+            opacity: 0;
+            animation: fadeInUp 0.5s ease-out forwards;
+        }
+
+        .checklist-item:nth-child(1) { animation-delay: 0.5s; }
+        .checklist-item:nth-child(2) { animation-delay: 0.6s; }
+        .checklist-item:nth-child(3) { animation-delay: 0.7s; }
+        .checklist-item:nth-child(4) { animation-delay: 0.8s; }
+        .checklist-item:nth-child(5) { animation-delay: 0.9s; }
+        .checklist-item:nth-child(6) { animation-delay: 1.0s; }
+
+        .checklist-item .icon {
+            font-size: 20px;
+            color: #2AA876;
+            flex-shrink: 0;
+        }
+
+        .checklist-item .text {
+            font-size: clamp(15px, 1.8vw, 17px);
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.5;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 16px 40px;
+            background: #FA4721;
+            color: #FFFFFF;
+            font-size: clamp(16px, 1.8vw, 18px);
+            font-weight: 700;
+            text-decoration: none;
+            border-radius: 50px;
+            margin-top: 30px;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 24px rgba(250, 71, 33, 0.3);
+        }
+
+        .cta-button:hover {
+            background: #ff5733;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(250, 71, 33, 0.4);
+        }
+
+        .slide-indicator {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.5);
+            font-weight: 500;
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            padding: 8px 20px;
+            border-radius: 20px;
+        }
+
+        .logo {
+            position: absolute;
+            top: 40px;
+            right: 40px;
+            width: 120px;
+            height: auto;
+            opacity: 0.9;
+            z-index: 10;
+        }
+
+        .section-header-slide {
+            background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
+        }
+
+        .section-header-slide .slide-content {
+            text-align: center;
+        }
+
+        .section-header-slide h1 {
+            font-size: clamp(48px, 7vw, 80px);
+            color: #FA4721;
+        }
+
+        @media (max-width: 768px) {
+            .slide-split {
+                grid-template-columns: 1fr;
+                grid-template-rows: 1fr 1fr;
+            }
+
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .cards-container {
+                grid-template-columns: 1fr;
+            }
+
+            .timeline {
+                flex-direction: column;
+                gap: 30px;
+            }
+
+            .timeline::before {
+                display: none;
+            }
+
+            .logo {
+                width: 80px;
+                top: 20px;
+                right: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation">
+        
+        <!-- SLIDE 1: COVER -->
+        <div class="slide slide-split slide-split-gradient-right">
+            <div class="slide-split-content">
+                <div style="max-width: 600px;">
+                    <h1 style="animation-delay: 0.3s; opacity: 0; animation: fadeInUp 0.8s ease-out 0.3s forwards;">SEVEN SUPERFOOD</h1>
+                    <h2 style="animation-delay: 0.5s; opacity: 0; animation: fadeInUp 0.8s ease-out 0.5s forwards;">Resumo Executivo Consolidado<br>Meta Ads + Google Ads</h2>
+                    <div class="body-text" style="animation-delay: 0.7s; opacity: 0; animation: fadeInUp 0.8s ease-out 0.7s forwards;">Outubro 2025</div>
+                </div>
+            </div>
+            <div class="slide-split-gradient" style="background: linear-gradient(135deg, #FA4721 0%, #ff8960 100%);"></div>
+        </div>
+
+        <!-- SLIDE 2: MONTHLY RESULTS TABLE -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>ðŸŽ¯ Resultados do MÃªs</h1>
+                <h2>VisÃ£o consolidada de performance</h2>
+                
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>MÃ©trica</th>
+                            <th>Meta Ads</th>
+                            <th>Google Ads</th>
+                            <th style="color: #FA4721;">TOTAL</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>ðŸ’° Investimento</td>
+                            <td>R$ 57.356</td>
+                            <td>R$ 12.152</td>
+                            <td style="color: #FA4721; font-weight: 700;">R$ 69.508</td>
+                        </tr>
+                        <tr>
+                            <td>ðŸ›’ Compras</td>
+                            <td>370</td>
+                            <td>55</td>
+                            <td style="color: #FA4721; font-weight: 700;">425</td>
+                        </tr>
+                        <tr>
+                            <td>ðŸ’µ Receita</td>
+                            <td>R$ 193.710</td>
+                            <td>R$ 32.835</td>
+                            <td style="color: #FA4721; font-weight: 700;">R$ 226.545</td>
+                        </tr>
+                        <tr>
+                            <td>ðŸ“ˆ ROAS</td>
+                            <td>3.38x</td>
+                            <td>2.70x</td>
+                            <td style="color: #FA4721; font-weight: 700;">3.26x</td>
+                        </tr>
+                        <tr>
+                            <td>ðŸ’¸ CPA</td>
+                            <td>R$ 155</td>
+                            <td>R$ 221</td>
+                            <td style="color: #FA4721; font-weight: 700;">R$ 164</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="body-text" style="margin-top: 30px;">
+                    <span class="badge badge-success">OperaÃ§Ã£o RentÃ¡vel</span>
+                    Retorno de R$ 3,26 para cada R$ 1 investido
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 3: HERO RESULT -->
+        <div class="slide">
+            <div class="slide-content">
+                <div class="big-number">R$ 3.26</div>
+                <h1>ROAS Consolidado</h1>
+                <h2>Principal resultado do mÃªs</h2>
+                <div class="body-text" style="margin-top: 30px;">
+                    OperaÃ§Ã£o multi-canal rentÃ¡vel gerando retorno positivo em ambas plataformas
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 4: WHAT'S WORKING -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>âœ… O Que EstÃ¡ Funcionando</h1>
+                <h2>Pontos fortes da operaÃ§Ã£o atual</h2>
+                
+                <div class="cards-container">
+                    <div class="card">
+                        <h3>ROAS Positivo Multi-Canal</h3>
+                        <p>Ambas plataformas gerando retorno acima de 2.5x, validando estratÃ©gia diversificada</p>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>Meta como Motor</h3>
+                        <p>87% das conversÃµes concentradas no Meta Ads com escala consistente e CPA competitivo</p>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>Google com Potencial</h3>
+                        <p>12.8% de share atual significa 87% de mercado disponÃ­vel para crescimento</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 5: SECTION BREAK - OPPORTUNITIES -->
+        <div class="slide section-header-slide">
+            <div class="slide-content">
+                <h1>PRINCIPAIS<br>OPORTUNIDADES</h1>
+                <h2>PrÃ³ximos 30 dias de otimizaÃ§Ã£o</h2>
+            </div>
+        </div>
+
+        <!-- SLIDE 6: OPPORTUNITY 1 - SCALE WINNERS -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>1ï¸âƒ£ Escalar Winners Meta Ads</h1>
+                <h2>Aumentar budget dos ad sets com ROAS > 4x em 50%</h2>
+                
+                <div class="comparison-grid">
+                    <div class="comparison-item">
+                        <h3>Video V2 â€” CÃ³pia</h3>
+                        <div class="stat stat-success">6.92x</div>
+                        <div class="label">ROAS Atual</div>
+                        <div class="body-text" style="margin-top: 20px;">De R$ 43/dia</div>
+                    </div>
+                    
+                    <div class="comparison-item">
+                        <h3>Hotel de Luxo</h3>
+                        <div class="stat stat-success">4.02x</div>
+                        <div class="label">ROAS Atual</div>
+                        <div class="body-text" style="margin-top: 20px;">De R$ 252/dia</div>
+                    </div>
+                </div>
+
+                <div class="cards-container" style="grid-template-columns: 1fr 1fr; margin-top: 40px;">
+                    <div class="card">
+                        <div class="metric">+R$ 86k</div>
+                        <p>Receita adicional esperada por mÃªs</p>
+                    </div>
+                    <div class="card">
+                        <div class="metric">+R$ 372/dia</div>
+                        <p>Investimento incremental necessÃ¡rio</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 7: OPPORTUNITY 2 - LANDING PAGE -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>2ï¸âƒ£ Otimizar Landing Page</h1>
+                <h2>85% dos visitantes abandonam antes do carrinho</h2>
+                
+                <div class="checklist">
+                    <div class="checklist-item">
+                        <div class="icon">âœ“</div>
+                        <div class="text">Instalar Hotjar/Clarity para mapear fricÃ§Ãµes no fluxo de conversÃ£o</div>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="icon">âœ“</div>
+                        <div class="text">Testar social proof e preÃ§o antecipado na primeira dobra</div>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="icon">âœ“</div>
+                        <div class="text">Simplificar fluxo de add to cart reduzindo etapas</div>
+                    </div>
+                </div>
+
+                <div class="cards-container" style="grid-template-columns: 1fr 1fr; margin-top: 40px;">
+                    <div class="card">
+                        <div class="metric stat-success">-20%</div>
+                        <p>ReduÃ§Ã£o esperada no CPA de ambos canais</p>
+                    </div>
+                    <div class="card">
+                        <div class="metric">R$ 0</div>
+                        <p>Investimento adicional (apenas desenvolvimento)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 8: OPPORTUNITY 3 - GOOGLE ADS -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>3ï¸âƒ£ Melhorar EficiÃªncia Google Ads</h1>
+                <h2>CPA R$ 221 vs R$ 155 do Meta (43% mais caro)</h2>
+                
+                <div class="comparison-grid">
+                    <div class="comparison-item">
+                        <h3>Atual</h3>
+                        <div class="stat stat-warning">R$ 221</div>
+                        <div class="label">CPA Google Ads</div>
+                        <div class="body-text" style="margin-top: 20px;">43% acima do Meta</div>
+                    </div>
+                    
+                    <div class="comparison-item">
+                        <h3>Meta</h3>
+                        <div class="stat stat-success">R$ 190-200</div>
+                        <div class="label">CPA Target</div>
+                        <div class="body-text" style="margin-top: 20px;">Melhoria de ~10%</div>
+                    </div>
+                </div>
+
+                <div class="checklist" style="margin-top: 40px;">
+                    <div class="checklist-item">
+                        <div class="icon">âœ“</div>
+                        <div class="text">Negativar termos de baixa conversÃ£o identificados</div>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="icon">âœ“</div>
+                        <div class="text">Implementar CPA target em R$ 190 nas campanhas</div>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="icon">âœ“</div>
+                        <div class="text">Otimizar feed Shopping priorizando top produtos</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 9: INVESTMENT PLAN TIMELINE -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>ðŸ’° Plano de Investimento</h1>
+                <h2>EvoluÃ§Ã£o de budget e objetivos</h2>
+                
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="date">NOVEMBRO</div>
+                        <div class="value stat-info">R$ 69.5k</div>
+                        <div class="sub">Fase OtimizaÃ§Ã£o</div>
+                        <div class="body-text" style="margin-top: 15px; font-size: 14px;">
+                            Implementar melhorias sem aumentar risco<br>
+                            <span class="highlight">ROAS 3.50x | 479 conversÃµes</span>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="date">DEZEMBRO</div>
+                        <div class="value stat-success">R$ 86k</div>
+                        <div class="sub">Fase Scaling (+24%)</div>
+                        <div class="body-text" style="margin-top: 15px; font-size: 14px;">
+                            Escalar winners + capturar sazonalidade<br>
+                            <span class="highlight">ROAS 3.80x | 599 conversÃµes</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="body-text" style="margin-top: 40px;">
+                    <span class="badge badge-info">Condicionado Ã  ValidaÃ§Ã£o</span>
+                    Dezembro serÃ¡ executado apenas apÃ³s validaÃ§Ã£o dos resultados de Novembro
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 10: 7-DAY ACTION CHECKLIST -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>ðŸ“‹ Checklist - PrÃ³ximos 7 Dias</h1>
+                <h2>Plano de implementaÃ§Ã£o imediata</h2>
+                
+                <div class="checklist">
+                    <div class="checklist-item">
+                        <div class="icon">âœ“</div>
+                        <div class="text"><strong>Dia 1-2:</strong> Configurar GA4 com tracking integrado entre Meta e Google</div>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="icon">âœ“</div>
+                        <div class="text"><strong>Dia 2-3:</strong> Instalar Hotjar na landing page e configurar heatmaps</div>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="icon">âœ“</div>
+                        <div class="text"><strong>Dia 3-4:</strong> Aumentar budget winners Meta (+50% Video V2 e Hotel de Luxo)</div>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="icon">âœ“</div>
+                        <div class="text"><strong>Dia 4-5:</strong> Otimizar Google Ads (negativos + CPA target R$ 190)</div>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="icon">âœ“</div>
+                        <div class="text"><strong>Dia 6-7:</strong> Criar 2 novos criativos em vÃ­deo para testes</div>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="icon">âœ“</div>
+                        <div class="text"><strong>Dia 7:</strong> Checkpoint - revisar resultados e ajustar estratÃ©gia</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 11: NEXT STEPS OVERVIEW -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>ðŸŽ¯ PrÃ³ximos Passos</h1>
+                <h2>Ãreas de aÃ§Ã£o prioritÃ¡rias</h2>
+                
+                <div class="cards-container">
+                    <div class="card">
+                        <h3>Validar com Cliente</h3>
+                        <p>â€¢ Ticket mÃ©dio real (pÃ³s-cancelamento)<br>
+                        â€¢ Capacidade de absorver +50-100% pedidos em Dezembro<br>
+                        â€¢ Budget disponÃ­vel para scaling</p>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>Implementar Quick Wins</h3>
+                        <p>â€¢ Landing page otimizada com Hotjar<br>
+                        â€¢ Realocar budget para winners Meta<br>
+                        â€¢ Tracking integrado GA4</p>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>Preparar Dezembro</h3>
+                        <p>â€¢ Criativos sazonais (Black Friday + Natal)<br>
+                        â€¢ Budget 50-100% maior aprovado<br>
+                        â€¢ Validar estoque + logÃ­stica</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 12: PROJECTION TIMELINE -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>ðŸ“Š ProjeÃ§Ã£o de Resultados</h1>
+                <h2>Com implementaÃ§Ã£o do plano completo</h2>
+                
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="date">OUT/25</div>
+                        <div class="value">R$ 69.5k</div>
+                        <div class="sub">425 conversÃµes</div>
+                        <div class="body-text" style="margin-top: 15px; font-size: 14px;">
+                            ROAS <span class="highlight">3.26x</span><br>
+                            Receita <span class="highlight">R$ 226k</span>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="date">NOV/25</div>
+                        <div class="value stat-info">R$ 69.5k</div>
+                        <div class="sub">479 conversÃµes</div>
+                        <div class="body-text" style="margin-top: 15px; font-size: 14px;">
+                            ROAS <span class="highlight">3.50x</span><br>
+                            Receita <span class="highlight">R$ 243k</span>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <div class="date">DEZ/25</div>
+                        <div class="value stat-success">R$ 86k</div>
+                        <div class="sub">599 conversÃµes</div>
+                        <div class="body-text" style="margin-top: 15px; font-size: 14px;">
+                            ROAS <span class="highlight">3.80x</span><br>
+                            Receita <span class="highlight">R$ 326k</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="cards-container" style="grid-template-columns: repeat(3, 1fr); margin-top: 50px;">
+                    <div class="card">
+                        <div class="metric stat-success">+41%</div>
+                        <p>Crescimento em conversÃµes</p>
+                    </div>
+                    <div class="card">
+                        <div class="metric stat-success">+44%</div>
+                        <p>Crescimento em receita</p>
+                    </div>
+                    <div class="card">
+                        <div class="metric stat-success">+17%</div>
+                        <p>Melhoria no ROAS</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 13: CLOSING -->
+        <div class="slide slide-split slide-split-gradient-left">
+            <div class="slide-split-gradient" style="background: linear-gradient(135deg, #FA4721 0%, #ff8960 100%);"></div>
+            <div class="slide-split-content">
+                <div style="max-width: 600px;">
+                    <h1 style="animation-delay: 0.3s; opacity: 0; animation: fadeInUp 0.8s ease-out 0.3s forwards;">PrÃ³ximo Passo</h1>
+                    <h2 style="animation-delay: 0.5s; opacity: 0; animation: fadeInUp 0.8s ease-out 0.5s forwards;">Agendar alinhamento para validaÃ§Ã£o e inÃ­cio da implementaÃ§Ã£o</h2>
+                    <div class="body-text" style="animation-delay: 0.7s; opacity: 0; animation: fadeInUp 0.8s ease-out 0.7s forwards; margin-top: 30px;">
+                        Jumper Studio | 12/Nov/2025
+                    </div>
+                    <a href="#" class="cta-button" style="animation-delay: 0.9s; opacity: 0; animation: fadeInUp 0.8s ease-out 0.9s forwards;">Agendar ReuniÃ£o</a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="slide-indicator">Slide <span id="current-slide">1</span> / 13</div>
+
+    <script>
+        const slides = document.querySelectorAll('.slide');
+        const indicator = document.getElementById('current-slide');
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const index = Array.from(slides).indexOf(entry.target) + 1;
+                    indicator.textContent = index;
+                }
+            });
+        }, { threshold: 0.5 });
+        
+        slides.forEach(slide => observer.observe(slide));
+    </script>
+</body>
+</html>

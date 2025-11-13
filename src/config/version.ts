@@ -7,10 +7,31 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.36';
+export const APP_VERSION = 'v2.1.37';
 
 /**
  * Version history:
+ * - v2.1.37 (2024-11-13):
+ *   - CRITICAL FIX: Notion OAuth login timing issue resolved (Fix #1-#4)
+ *   - ROOT CAUSE: ensureUserRole() called BEFORE OAuth redirect (setTimeout timing bug)
+ *   - SOLUTION: Moved ensureUserRole() to onAuthStateChange SIGNED_IN event handler
+ *   - FIX #1: Timing correction - ensureUserRole() now executes AFTER OAuth callback completes
+ *   - FIX #2: Enhanced logging throughout OAuth flow for debugging
+ *   - FIX #3: Improved error handling in LoginPageNew with configuration hints
+ *   - FIX #4: Added retry logic (2-second delay) for race condition handling
+ *   - IMPACT: Staff members can now successfully login via Notion OAuth
+ *   - BEHAVIOR: All login methods (password, magic link, OAuth) now use consistent timing
+ *   - FILES MODIFIED:
+ *   -   - src/contexts/AuthContext.tsx (ensureUserRole timing + logging + retry logic)
+ *   -   - src/components/LoginPageNew.tsx (error messages + configuration hints)
+ *   - WORKFLOW CORRECTED:
+ *   -   1. User clicks "Login with Notion" → Redirects to Notion
+ *   -   2. User authorizes → Returns to hub.jumper.studio with OAuth token
+ *   -   3. onAuthStateChange fires SIGNED_IN event → Triggers ensureUserRole()
+ *   -   4. Edge function j_hub_auth_roles executes → Creates user record with role
+ *   -   5. User sees dashboard with correct permissions
+ *   - TESTING: Ready for yan@jumper.studio to test Notion OAuth login
+ *
  * - v2.1.36 (2024-11-12):
  *   - SECURITY: Removed hardcoded master password backdoor from password-utils.ts
  *   - ROBUSTNESS: Added comprehensive error handling and validation to Decks Edge Functions

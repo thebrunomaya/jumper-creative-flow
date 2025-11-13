@@ -357,17 +357,35 @@ const LoginPageNew: React.FC = () => {
                   variant="outline"
                   className="w-full h-12 bg-white/5 border-white/30 text-white hover:bg-white/10 hover:border-white/40 transition-all duration-200 flex items-center justify-center gap-2"
                   onClick={async () => {
+                    console.log('🎯 User clicked "Login with Notion" button');
                     setIsNotionLoading(true);
+
                     const { error } = await loginWithNotion();
+
                     if (error) {
+                      console.error('❌ Notion OAuth error:', error);
+
+                      // Detailed error message based on error type
+                      let errorDescription = error.message || "Não foi possível conectar com Notion";
+
+                      // Check for common OAuth configuration issues
+                      if (error.message?.includes('provider') || error.message?.includes('not enabled')) {
+                        errorDescription = "Notion OAuth não está configurado no Supabase. Verifique o Dashboard > Authentication > Providers.";
+                      } else if (error.message?.includes('redirect')) {
+                        errorDescription = "Erro na URL de redirecionamento. Verifique a configuração do Notion OAuth.";
+                      }
+
                       toast({
-                        title: "Erro no login",
-                        description: error.message || "Não foi possível conectar com Notion",
+                        title: "Erro no login com Notion",
+                        description: errorDescription,
                         variant: "destructive"
                       });
                       setIsNotionLoading(false);
+                    } else {
+                      console.log('✅ OAuth redirect initiated - user will leave page');
+                      // OAuth redirect will happen automatically - don't reset loading state
+                      // User will be redirected to Notion, then back to our app
                     }
-                    // Se sucesso, será redirecionado automaticamente
                   }}
                   disabled={isNotionLoading || isLoading}
                 >

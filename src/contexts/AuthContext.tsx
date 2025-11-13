@@ -43,6 +43,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Ensure the user has at least a default role after auth
   const ensureUserRole = async () => {
     try {
+      console.log('🔧 ensureUserRole() called - starting role detection...');
+
       // Get current session to ensure JWT is included
       const { data: { session } } = await supabase.auth.getSession();
       if (!session?.access_token) {
@@ -50,7 +52,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return;
       }
 
-      console.log('🔧 Calling j_hub_auth_roles edge function...');
+      console.log('🔧 Session found - calling j_hub_auth_roles edge function...', {
+        email: session.user.email,
+        provider: session.user.app_metadata?.provider,
+        isOAuth: !!window.location.hash.includes('access_token')
+      });
 
       // Explicitly pass Authorization header with JWT
       const { data, error } = await supabase.functions.invoke('j_hub_auth_roles', {
@@ -86,8 +92,44 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (!userData) {
         console.warn('⚠️ User not found in j_hub_users yet (timing issue?)');
-        // Edge function just ran, entry might not be visible yet due to RLS or timing
-        // Don't logout, allow login to proceed
+        console.warn('⚠️ This could mean:');
+        console.warn('   1. Edge function j_hub_auth_roles failed silently');
+        console.warn('   2. RLS policies blocking the query');
+        console.warn('   3. Race condition - entry not visible yet');
+        console.warn('⚠️ Attempting ONE retry in 2 seconds...');
+
+        // Retry ONCE after brief delay to handle race conditions
+        await new Promise(resolve => setTimeout(resolve, 2000));
+
+        const { data: retryUserData, error: retryError } = await supabase
+          .from('j_hub_users')
+          .select('is_active, role, nome')
+          .eq('id', session.user.id)
+          .maybeSingle();
+
+        if (retryError || !retryUserData) {
+          console.error('❌ Retry failed - user still not found');
+          console.error('⚠️ CRITICAL: User authenticated but has no role/permissions');
+          console.error('⚠️ Check: 1) Notion OAuth configured? 2) j_hub_auth_roles deployed? 3) Notion sync ran?');
+
+          // Show user-friendly error toast
+          // (toast not available here, but we can throw to surface the issue)
+          throw new Error('Erro de configuração: usuário autenticado mas sem permissões. Contate o administrador.');
+        }
+
+        console.log('✅ Retry successful - user found:', {
+          email: session.user.email,
+          role: retryUserData.role,
+          nome: retryUserData.nome
+        });
+
+        // Continue with the retry data
+        if (!retryUserData.is_active) {
+          console.warn('⚠️ User is inactive - logging out');
+          await supabase.auth.signOut();
+          throw new Error('Conta desativada. Entre em contato com o administrador.');
+        }
+
         return;
       }
 
@@ -120,6 +162,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.log('🔐 Auth state changed:', event, newSession?.user?.email);
       setSession(newSession);
       setUser(newSession?.user ?? null);
+
+      // When user signs in, ensure role is set via edge function
+      if (event === 'SIGNED_IN') {
+        console.log('✅ SIGNED_IN event detected - calling ensureUserRole()');
+        ensureUserRole();
+      }
 
       // Clean OAuth hash from URL after successful login
       if (event === 'SIGNED_IN' && window.location.hash.includes('access_token')) {
@@ -173,9 +221,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (!error) {
-      setTimeout(() => { ensureUserRole(); }, 0);
-    }
+    // ensureUserRole() will be called by onAuthStateChange when SIGNED_IN event fires
     return { error };
   };
 
@@ -186,9 +232,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       password,
       options: { emailRedirectTo: redirectUrl },
     });
-    if (!error) {
-      setTimeout(() => { ensureUserRole(); }, 0);
-    }
+    // ensureUserRole() will be called by onAuthStateChange when SIGNED_IN event fires
     return { error };
   };
 
@@ -202,13 +246,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       email,
       options: { emailRedirectTo: redirectUrl },
     });
-    if (!error) {
-      setTimeout(() => { ensureUserRole(); }, 0);
-    }
+    // ensureUserRole() will be called by onAuthStateChange when SIGNED_IN event fires
     return { error };
   };
 
   const loginWithNotion = async () => {
+    console.log('🎯 Starting Notion OAuth login...');
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'notion',
       options: {
@@ -216,9 +259,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         scopes: 'email', // Request email scope to get user info
       }
     });
-    if (!error) {
-      setTimeout(() => { ensureUserRole(); }, 0);
+
+    if (error) {
+      console.error('❌ Notion OAuth failed:', error);
+    } else {
+      console.log('✅ Notion OAuth redirect initiated - user will be redirected to Notion');
     }
+    // ensureUserRole() will be called by onAuthStateChange when SIGNED_IN event fires
     return { error };
   };
 
