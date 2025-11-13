@@ -810,9 +810,9 @@
         /* Statement slide variant: Large graphic left (~50%), text right (~50%) */
         .statement-slide-reverse .slide-content {
             display: grid;
-            grid-template-columns: 1fr 1fr; /* 50% graphic, 50% text - proporção original mantida */
+            grid-template-columns: auto 1fr; /* Auto for image, rest for text */
             gap: clamp(60px, 8vw, 120px); /* Doubled gap for better spacing */
-            align-items: stretch; /* Stretch both columns to same height */
+            align-items: center; /* Center vertically */
             padding: 80px clamp(60px, 8vw, 140px);
         }
 
@@ -821,13 +821,12 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            height: 100%; /* Match text column height */
         }
 
         .statement-slide-reverse .statement-graphic img {
             width: auto; /* Let width be determined by height */
             height: auto; /* Auto height to respect max-height */
-            max-height: 55vh; /* Balanced with text column height */
+            max-height: 44vh; /* Reduced by 20% (55vh * 0.8 = 44vh) */
             max-width: 100%; /* Don't overflow container */
             object-fit: contain;
         }
