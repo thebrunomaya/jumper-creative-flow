@@ -1,0 +1,125 @@
+{
+  "template_id": "jumper-flare",
+  "template_version": "1.0",
+  "template_name": "Jumper Flare Template",
+  "description": "Minimalist dark theme with Jumper orange (#FA4721) accents and strategic organic gradients. Sophisticated design for professional reports and presentations with 90% grayscale, 5% orange, 5% semantic colors.",
+  "brand_colors": {
+    "primary": "#FA4721",
+    "black": "#000000",
+    "white": "#FFFFFF",
+    "success": "#2AA876",
+    "warning": "#F59E0B",
+    "critical": "#EF4444",
+    "info": "#3B82F6"
+  },
+  "patterns": [
+    {
+      "id": "cover-split-gradient-right",
+      "name": "Cover Slide (Gradient Right)",
+      "css_class": "slide-split slide-split-gradient-right",
+      "section": "1. Abertura / Fechamento",
+      "best_for": ["cover", "title-page", "opening", "hero", "first-slide"],
+      "content_type": "cover",
+      "description": "Dramatic two-column split with content on left (50%) and organic gradient background on right (50%). Maximum visual impact for opening slides.",
+      "when_to_use": "First slide of any presentation, major project kickoffs, cover pages requiring strong visual presence",
+      "required_elements": ["title", "subtitle", "period or context", "optional logo"],
+      "example": "RELATÓRIO DE PERFORMANCE + Período: Outubro 2024 + Cliente: Acme Corp + [organic gradient background]"
+    },
+    {
+      "id": "section-header",
+      "name": "Section Header",
+      "css_class": "slide",
+      "section": "2. Estrutura e Navegação",
+      "best_for": ["section-break", "chapter-title", "phase-intro", "divider"],
+      "content_type": "divider",
+      "description": "Centered layout with badge, title, and subtitle for introducing new sections or phases",
+      "when_to_use": "Start of major sections, phase transitions, chapter breaks in longer presentations",
+      "required_elements": ["badge with phase/section", "title", "subtitle"],
+      "example": "Badge: Fase 1 + DESCOBERTA + Análise inicial do mercado"
+    },
+    {
+      "id": "cards-grid",
+      "name": "Cards Grid Pattern",
+      "css_class": "cards-container",
+      "section": "3. Conteúdo e Dados",
+      "best_for": ["multiple-items", "features", "objectives", "context", "benefits", "insights"],
+      "content_type": "grid",
+      "description": "Responsive auto-fit grid (3-4 columns desktop, 1 column mobile) with glass-morphism cards. Hover effects with orange glow.",
+      "when_to_use": "Presenting 3-6 related items with titles and descriptions, project objectives, feature lists, context cards",
+      "required_elements": ["card-title", "card-content or metric"],
+      "example": "Objetivo 1 + descrição | Objetivo 2 + 150% meta | Objetivo 3 + descrição"
+    },
+    {
+      "id": "comparison-grid",
+      "name": "Comparison Grid (Before/After)",
+      "css_class": "comparison-grid",
+      "section": "3. Conteúdo e Dados",
+      "best_for": ["before-after", "problem-solution", "a-b-comparison", "validation"],
+      "content_type": "comparison",
+      "description": "Two-column side-by-side comparison with large stats and semantic color coding. Scale-in animation on load.",
+      "when_to_use": "Showing improvements, validating results, comparing two scenarios or time periods",
+      "required_elements": ["comparison-title", "stat", "label"],
+      "example": "Antes: R$ 2,50 CPA | Depois: R$ 0,85 CPA (-66%) com destaque em verde"
+    },
+    {
+      "id": "timeline",
+      "name": "Timeline (Temporal Evolution)",
+      "css_class": "timeline",
+      "section": "3. Conteúdo e Dados",
+      "best_for": ["evolution", "progression", "weekly-data", "phases", "milestones"],
+      "content_type": "timeline",
+      "description": "Horizontal timeline with 3-5 data points showing evolution. Gradient line connecting points. Sequential fade-in animation.",
+      "when_to_use": "Time-series data, week-over-week changes, project phases, chronological progression",
+      "required_elements": ["date/period", "value", "sub-label"],
+      "example": "Semana 1: 50 baseline | Semana 2: 75 (+50%) | Semana 3: 125 (+150%)"
+    },
+    {
+      "id": "data-table",
+      "name": "Data Table (Structured Comparison)",
+      "css_class": "data-table",
+      "section": "3. Conteúdo e Dados",
+      "best_for": ["channel-comparison", "detailed-metrics", "specifications", "benchmarks"],
+      "content_type": "data",
+      "description": "Table with animated rows showing structured data comparison. Semantic colors for values, badges for status.",
+      "when_to_use": "Comparing metrics across channels, campaigns, or periods with detailed numerical data",
+      "required_elements": ["table-headers", "table-rows with channel names", "metric-values", "status badges"],
+      "example": "Google Search: R$ 0,85 CPA (Excelente verde) | Meta: R$ 1,20 (Sólido azul) | Display: R$ 7,00 (Crítico vermelho)"
+    },
+    {
+      "id": "checklist",
+      "name": "Checklist (Actions Completed)",
+      "css_class": "checklist",
+      "section": "3. Conteúdo e Dados",
+      "best_for": ["completed-actions", "requirements", "steps-done", "deliverables"],
+      "content_type": "narrative",
+      "description": "List with green checkmark icons and descriptions of completed items. Sequential fade-in animation.",
+      "when_to_use": "Showing accomplished tasks, delivered features, completed phases, action items done",
+      "required_elements": ["checklist-item", "icon (✓)", "text with bold label"],
+      "example": "✓ Otimização de Budget: Realocação de 40% do investimento | ✓ Novos Criativos: 12 variações testadas"
+    },
+    {
+      "id": "big-number",
+      "name": "Big Number (Hero Metric)",
+      "css_class": "slide",
+      "section": "4. Destaque e Impacto",
+      "best_for": ["hero-metric", "main-result", "key-achievement", "headline-number"],
+      "content_type": "statement",
+      "description": "Large highlighted number in orange with label and context text. Success badge below. Centered layout.",
+      "when_to_use": "Emphasizing the single most important metric or achievement of the presentation",
+      "required_elements": ["big-number", "hero-text label", "body-text context", "badge with change"],
+      "example": "750 (huge orange) + Conversões Alcançadas + Crescimento de 287%... + Badge: +287% vs período"
+    },
+    {
+      "id": "closing-split-gradient-left",
+      "name": "Closing Slide (Gradient Left)",
+      "css_class": "slide-split slide-split-gradient-left",
+      "section": "1. Abertura / Fechamento",
+      "best_for": ["closing", "next-steps", "call-to-action", "summary"],
+      "content_type": "conclusion",
+      "description": "Two-column split with organic gradient left (50%) and content/CTA right (50%). Glass-morphism box with action items.",
+      "when_to_use": "Last slide with next steps, action items, call-to-action, strong closing impression",
+      "required_elements": ["title", "action-list in glass box", "cta-button", "organic gradient"],
+      "example": "PRÓXIMOS PASSOS + [organic gradient] + Lista de ações + CTA: Agendar Reunião"
+    }
+  ]
+}
