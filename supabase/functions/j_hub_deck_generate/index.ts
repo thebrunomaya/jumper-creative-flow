@@ -1,5 +1,4 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.56.0';
 import { validateEnvironment } from '../_shared/env-validation.ts';
 import { fetchWithRetry } from '../_shared/fetch-with-retry.ts';
@@ -24,8 +23,13 @@ const corsHeaders = {
  * 4. Upload to Storage
  * 5. Update generation_status = 'completed'
  * 6. Log API call to j_hub_deck_api_logs
+ *
+ * TIMEOUT: 300 seconds (5 minutes) to handle complex HTML generation
+ * Claude Sonnet 4.5 can take 180-240s for large decks with 20+ slides
  */
-serve(async (req) => {
+Deno.serve({
+  signal: AbortSignal.timeout(300000),  // 300 seconds = 5 minutes
+}, async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -95,8 +99,32 @@ serve(async (req) => {
       type: deck.type,
       template_id: deck.template_id,
       analysis_status: deck.analysis_status,
+      generation_status: deck.generation_status,
       total_slides: deck.generation_plan.total_slides
     });
+
+    // ========================================================================
+    // DETECT STUCK STATUS (processing for >10 minutes = stuck from timeout)
+    // ========================================================================
+    if (deck.generation_status === 'processing') {
+      const updatedAt = new Date(deck.updated_at);
+      const now = new Date();
+      const minutesSinceUpdate = (now.getTime() - updatedAt.getTime()) / 1000 / 60;
+
+      if (minutesSinceUpdate > 10) {
+        console.warn('⚠️ [DECK_GENERATE] Deck stuck in processing for', minutesSinceUpdate.toFixed(1), 'minutes - allowing retry');
+        // Reset to 'pending' to allow retry
+        await supabase
+          .from('j_hub_decks')
+          .update({
+            generation_status: 'pending',
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', deck_id);
+      } else {
+        throw new Error(`Deck is already being processed (started ${minutesSinceUpdate.toFixed(1)} minutes ago). Please wait.`);
+      }
+    }
 
     // ========================================================================
     // UPDATE STATUS: generation_status = 'processing'
@@ -287,8 +315,8 @@ OUTPUT FORMAT: Complete standalone HTML file (no markdown fences, no explanation
           { role: 'user', content: userPrompt }
         ],
       }),
-      maxRetries: 2,
-      timeoutMs: 180000, // 3 minutes for HTML generation
+      maxRetries: 1,  // Reduced to 1 retry to avoid cumulative timeout (1 retry = max 480s total)
+      timeoutMs: 240000, // Increased to 240s (4 minutes) for complex deck generation
       retryOn5xx: true,
     });
 

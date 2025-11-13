@@ -123,6 +123,17 @@ export default function DeckEditorPage() {
     return 1;
   };
 
+  // Detect if deck is stuck in processing (>10 minutes)
+  const isStuckInProcessing = (status: DeckStatus, updatedAt: string): boolean => {
+    if (status !== 'processing') return false;
+
+    const updated = new Date(updatedAt);
+    const now = new Date();
+    const minutesSince = (now.getTime() - updated.getTime()) / 1000 / 60;
+
+    return minutesSince > 10;
+  };
+
   // Stage 1: Content Analysis
   const handleAnalyze = async () => {
     if (!deck) return;
@@ -185,11 +196,23 @@ export default function DeckEditorPage() {
   };
 
   // Stage 3: HTML Generation
-  const handleGenerate = async () => {
+  const handleGenerate = async (forceRetry = false) => {
     if (!deck) return;
 
     try {
       setIsGenerating(true);
+
+      // If stuck and forceRetry is true, first reset the status
+      if (forceRetry && deck.generation_status === 'processing') {
+        toast.info('Resetando status travado...');
+        await supabase
+          .from('j_hub_decks')
+          .update({ generation_status: 'pending', updated_at: new Date().toISOString() })
+          .eq('id', deck.id);
+
+        await loadDeck(); // Reload after reset
+        await new Promise(resolve => setTimeout(resolve, 500)); // Wait a bit for DB update
+      }
 
       const { data, error } = await supabase.functions.invoke('j_hub_deck_generate', {
         body: {
@@ -397,11 +420,35 @@ export default function DeckEditorPage() {
                 </div>
               </div>
             ) : deck.generation_status === 'processing' ? (
-              <div className="text-center py-8">
-                <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-jumper-primary" />
-                <p className="text-gray-600">Gerando apresentação...</p>
-                <p className="text-sm text-gray-500 mt-2">Isso pode levar 2-3 minutos</p>
-              </div>
+              isStuckInProcessing(deck.generation_status, deck.updated_at) ? (
+                <div className="text-center py-8">
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-4">
+                    <p className="text-yellow-800 font-medium mb-2">⚠️ Geração travada detectada</p>
+                    <p className="text-sm text-yellow-700 mb-4">
+                      A geração está em processamento há mais de 10 minutos.
+                      Provavelmente houve um timeout. Clique abaixo para tentar novamente.
+                    </p>
+                    <JumperButton
+                      onClick={() => handleGenerate(true)}
+                      disabled={isGenerating}
+                      className="bg-yellow-600 hover:bg-yellow-700"
+                    >
+                      {isGenerating ? (
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      ) : (
+                        <Sparkles className="h-4 w-4 mr-2" />
+                      )}
+                      Forçar Nova Tentativa
+                    </JumperButton>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-jumper-primary" />
+                  <p className="text-gray-600">Gerando apresentação...</p>
+                  <p className="text-sm text-gray-500 mt-2">Isso pode levar 2-3 minutos</p>
+                </div>
+              )
             ) : deck.generation_status === 'failed' ? (
               <div className="text-center py-8">
                 <p className="text-red-600 mb-4">Geração falhou. Tente novamente.</p>

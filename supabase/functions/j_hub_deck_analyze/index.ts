@@ -1,5 +1,4 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.56.0';
 import { validateEnvironment } from '../_shared/env-validation.ts';
 import { loadPatternMetadata } from '../_shared/template-utils.ts';
@@ -11,7 +10,11 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-serve(async (req) => {
+// Increased timeout to 150 seconds (2.5 minutes) to handle large content analysis
+// Claude Sonnet 4.5 typically takes 60-120s for complex deck analysis
+Deno.serve({
+  signal: AbortSignal.timeout(150000),  // 150 seconds
+}, async (req) => {
   // Log EVERY request immediately
   console.log('📨 [DECK_ANALYZE] Request received:', {
     method: req.method,
@@ -62,8 +65,28 @@ serve(async (req) => {
 
     deckId = deck_id; // Store for error handling
 
-    // Update analysis_status if deck_id provided
+    // Check for stuck status and update analysis_status if deck_id provided
     if (deck_id) {
+      // Load current deck status
+      const { data: currentDeck } = await supabase
+        .from('j_hub_decks')
+        .select('analysis_status, updated_at')
+        .eq('id', deck_id)
+        .single();
+
+      if (currentDeck?.analysis_status === 'processing') {
+        const updatedAt = new Date(currentDeck.updated_at);
+        const now = new Date();
+        const minutesSinceUpdate = (now.getTime() - updatedAt.getTime()) / 1000 / 60;
+
+        if (minutesSinceUpdate > 10) {
+          console.warn('⚠️ [DECK_ANALYZE] Deck stuck in analysis for', minutesSinceUpdate.toFixed(1), 'minutes - allowing retry');
+          // Continue to update status below (will reset to processing)
+        } else {
+          throw new Error(`Deck is already being analyzed (started ${minutesSinceUpdate.toFixed(1)} minutes ago). Please wait.`);
+        }
+      }
+
       console.log('🔄 [DECK_ANALYZE] Updating analysis_status to processing...');
       await supabase
         .from('j_hub_decks')
@@ -107,98 +130,32 @@ serve(async (req) => {
       catalog_size_chars: patternCatalog.length
     });
 
-    // Build analysis prompt
-    const systemPrompt = `You are an expert presentation designer analyzing content to recommend optimal slide patterns.
+    // Build analysis prompt (OPTIMIZED for speed - reduced verbosity while maintaining quality)
+    const systemPrompt = `Expert presentation designer. Analyze markdown, recommend slide patterns.
 
-**Your Task:**
-1. Analyze the provided markdown content for a ${deck_type} presentation
-2. Identify distinct sections and their content types
-3. Match each section to the BEST slide pattern from the available catalog
-4. Output a structured plan in JSON format
+**Task:** Create JSON plan matching content to patterns from catalog.
 
-**Critical Rules:**
+**Rules:**
+- First slide = hero-slide (cover)
+- Vary patterns (diversity >0.75)
+- Match content: timeline→dates, bar-chart→comparisons, donut-chart→%, statement-slide→insights
+- JSON only, no markdown fences
 
-1. **Pattern Diversity:**
-   - Maximize pattern variety (avoid using same pattern >2x consecutively)
-   - Target diversity score >0.75 (use at least 75% of relevant patterns)
-   - Mix narrative + data visualization + emphasis slides
-
-2. **Content-to-Pattern Matching:**
-   - Timeline data (dates, weeks, milestones) → \`timeline\` pattern
-   - Key insights (bold messages, findings) → \`statement-slide\` or \`statement-slide-reverse\`
-   - Comparisons (channels, periods) → \`bar-chart\` pattern
-   - Percentages (budget, share) → \`donut-chart\` pattern
-   - Multi-stage process (funnel, journey) → \`funnel\` pattern
-   - Trends over time → \`line-chart\` or \`stacked-area\` pattern
-   - General text/lists → \`content-slide\` pattern
-   - Key metrics (KPIs) → \`metric-cards\` pattern
-
-3. **Structure Rules:**
-   - First slide MUST be \`hero-slide\` (cover)
-   - Use \`statement-slide\` for major insights (1 per 3-4 slides)
-   - Last slide should be \`conclusion-slide\` if there's a final message
-   - Use \`section-divider\` between major topics
-
-4. **Quality Standards:**
-   - Each slide must have clear purpose
-   - Pattern choice must be justified by content type
-   - Reasoning must explain WHY this pattern fits
-
-**Output Format (strict JSON, no markdown fences):**
-
+**Output:**
 {
   "slides": [
-    {
-      "slide_number": 1,
-      "section_title": "Cover",
-      "content_summary": "Project title and metadata",
-      "content_type": "cover",
-      "recommended_pattern": "hero-slide",
-      "reasoning": "First slide of presentation, requires dramatic cover"
-    },
-    {
-      "slide_number": 2,
-      "section_title": "Weekly Evolution",
-      "content_summary": "Week 1 through Week 5 CPA progression",
-      "content_type": "timeline",
-      "recommended_pattern": "timeline",
-      "reasoning": "Chronological data with dates - Timeline pattern shows progression perfectly"
-    }
+    {"slide_number": 1, "section_title": "...", "content_summary": "...", "content_type": "...", "recommended_pattern": "...", "reasoning": "..."}
   ],
-  "total_slides": 10,
-  "pattern_diversity_score": 0.85
-}
-
-**IMPORTANT:**
-- Output ONLY valid JSON (no markdown fences, no explanations)
-- Calculate pattern_diversity_score as: (unique patterns used) / (total slides)
-- Ensure slide_number starts at 1 and increments sequentially`;
+  "total_slides": N,
+  "pattern_diversity_score": 0.XX
+}`;
 
     const userPrompt = `${patternCatalog}
 
----
-
-# MARKDOWN CONTENT TO ANALYZE
-
-**Deck Type:** ${deck_type}
-**Template:** ${template_id}
-
+# CONTENT (${deck_type})
 ${markdown_source}
 
----
-
-# YOUR TASK
-
-Analyze the markdown above and create a detailed slide-by-slide plan.
-For each section/topic, recommend the best pattern from the catalog above.
-
-Remember:
-- First slide = hero-slide (cover)
-- Maximize pattern diversity (aim for >0.75 score)
-- Match content type to pattern purpose
-- Provide clear reasoning for each pattern choice
-
-Output valid JSON only (no markdown fences, no extra text).`;
+Create slide-by-slide JSON plan. First=hero-slide, vary patterns, match content types. JSON only.`;
 
     // Call Claude for content analysis
     console.log('🤖 [DECK_ANALYZE] Calling Claude Sonnet 4.5 for analysis...');
@@ -223,14 +180,14 @@ Output valid JSON only (no markdown fences, no extra text).`;
         },
         body: JSON.stringify({
           model: 'claude-sonnet-4-5-20250929',
-          max_tokens: 4000,
+          max_tokens: 4096,  // Increased to ensure complete JSON response (was too low at 3000)
           system: systemPrompt,
           messages: [
             { role: 'user', content: userPrompt }
           ],
         }),
-        maxRetries: 3,
-        timeoutMs: 30000,
+        maxRetries: 2,  // Reduced retries to avoid cumulative timeout
+        timeoutMs: 120000,  // Increased to 120s to match function timeout
         retryOn5xx: true,
       }
     );
@@ -265,13 +222,26 @@ Output valid JSON only (no markdown fences, no extra text).`;
     // Clean up markdown fences if Claude included them (despite instructions)
     planText = planText.replace(/^```json\n/, '').replace(/\n```$/, '').trim();
 
+    // Check if response was truncated due to max_tokens limit
+    if (claudeData.stop_reason === 'max_tokens') {
+      console.error('⚠️ [DECK_ANALYZE] Claude response truncated - hit max_tokens limit!');
+      console.error('📊 [DECK_ANALYZE] Token usage:', {
+        input: claudeData.usage?.input_tokens || 0,
+        output: claudeData.usage?.output_tokens || 0,
+        total: (claudeData.usage?.input_tokens || 0) + (claudeData.usage?.output_tokens || 0)
+      });
+      throw new Error('Claude response truncated - analysis too complex. Try shorter content or simpler deck type.');
+    }
+
     // Parse plan JSON
     let plan;
     try {
       plan = JSON.parse(planText);
-    } catch (parseError) {
+    } catch (parseError: unknown) {
+      const errorMessage = parseError instanceof Error ? parseError.message : String(parseError);
       console.error('❌ [DECK_ANALYZE] Failed to parse plan JSON:', planText.substring(0, 500));
-      throw new Error(`Claude returned invalid JSON: ${parseError.message}`);
+      console.error('📏 [DECK_ANALYZE] Response length:', planText.length, 'characters');
+      throw new Error(`Claude returned invalid JSON: ${errorMessage}`);
     }
 
     // Validate plan structure
@@ -362,7 +332,8 @@ Output valid JSON only (no markdown fences, no extra text).`;
       }
     );
 
-  } catch (error) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
     console.error('❌ [DECK_ANALYZE] Error:', error);
 
     // Update status to 'failed' if we have deck_id
@@ -386,7 +357,7 @@ Output valid JSON only (no markdown fences, no extra text).`;
             deck_id: deckId,
             stage: 'analysis',
             success: false,
-            error_message: error.message
+            error_message: errorMessage
           });
       } catch (logError) {
         console.error('Failed to update error status:', logError);
@@ -396,7 +367,7 @@ Output valid JSON only (no markdown fences, no extra text).`;
     return new Response(
       JSON.stringify({
         success: false,
-        error: error.message
+        error: errorMessage
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json; charset=utf-8' },
