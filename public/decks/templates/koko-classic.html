@@ -6,8 +6,9 @@
     <title>Koko Classic Template - Agência Koko</title>
     <style>
         /**
-         * KOKO CLASSIC TEMPLATE v2.0 COMPLETE - Data Visualization Edition ✅
-         * Template COMPLETO para apresentações criativas e relatórios de performance
+         * KOKO CLASSIC TEMPLATE v2.2 - REFINED EDITION ✨
+         * Versão refinada com dark mode, interatividade e correções visuais
+         *
          * Design System: Energético, criativo, ousado com elementos visuais únicos
          * Paleta: Amarelo (#F5C542), Rosa (#FF0080), Preto, Branco
          * Font: Alternate Gothic (títulos) + Playfair Display (corpo) + Montserrat (UI)
@@ -15,29 +16,64 @@
          * IMPORTANTE: Este é um TEMPLATE de referência visual completo.
          * Claude AI deve usar os padrões aqui como base para gerar slides dinamicamente.
          *
-         * NOVIDADES v2.0 (COMPLETE - 5/5 charts implementados):
-         * - DATA VISUALIZATION CHARTS para relatórios de tráfego:
-         *   ✅ Slide 18: LINE CHART (temporal evolution - conversions over time)
-         *   ✅ Slide 19: Horizontal Bar Chart (channel comparison - ROAS by platform)
-         *   ✅ Slide 20: Donut Chart (budget distribution - R$ 300k allocation)
-         *   ✅ Slide 21: Funnel Visualization (conversion path - 4 stages with drop-offs)
-         *   ✅ Slide 22: Stacked Area Chart (multi-channel evolution - 3 channels stacked)
-         * - Chart semantic colors (green=success, yellow=warning, pink=alert)
-         * - CSS base compartilhado para todos os charts (corner-fold, typography)
-         * - Grid layouts: Chart (60%) + Insights/Legend (40%)
-         * - SVG paths para visualizações escaláveis e estáticas (PDF-ready)
-         * - Responsivo (mobile stacks vertically, adapts sizes)
+         * ============================================
+         * NOVIDADES v2.2 (2024-11-12) ✨
+         * ============================================
+         * 🐛 BUG FIXES:
+         *   - Gorilla hands agora renderizam corretamente (overflow: visible)
+         *   - Background hero corrigido (hero-background.png via inline style)
+         *   - Performance otimizada (will-change em elementos animados)
          *
-         * NOVIDADES v2.1:
-         * - Statement Slide Pattern com 2 variantes (loud mouth + text)
-         * - Section Divider Pattern (title + computer graphic)
-         * - Table of Contents Pattern (funnel effect)
-         * - Elementos gráficos Koko: pink-mouth.png, loud.png, computer.png
+         * 🎨 VISUAL IMPROVEMENTS:
+         *   - CSS reorganizado em seções semânticas claras
+         *   - Comentários explicativos em cada padrão
+         *   - Spacing padronizado (múltiplos de 4px)
+         *   - Typography anti-aliasing refinado
          *
-         * NOVIDADES v2.0:
-         * - Sistema de navegação interativo (setas, dots, contador)
-         * - 17 slides base + contracapa
-         * - Transições suaves entre slides
+         * ✨ INTERACTIVITY:
+         *   - Hover effects em cards (translateY + shadow)
+         *   - Navigation dots/arrows com feedback visual
+         *   - Smooth transitions (cubic-bezier refinado)
+         *   - Dog-ear com sombra sutil para profundidade
+         *
+         * ============================================
+         * HISTÓRICO DE VERSÕES
+         * ============================================
+         * v2.2 (2024-11-12): Hover effects, bug fixes, visual polish
+         * v2.1 (2024-11-11): Statement/Section/TOC patterns, graphic elements
+         * v2.0 (2024-11-11): Data visualization charts (5 types), navigation system
+         *
+         * ============================================
+         * 17 PADRÕES DE SLIDES DISPONÍVEIS
+         * ============================================
+         *
+         * SEÇÃO 1: SLIDES DE ABERTURA/FECHAMENTO
+         *   - hero-slide: Capa com gorilla hands
+         *   - conclusion-slide: Contracapa com statement
+         *
+         * SEÇÃO 2: SLIDES DE TRANSIÇÃO
+         *   - statement-slide: Key insight (text left, graphic right)
+         *   - statement-slide-reverse: Dramatic insight (graphic left, text right)
+         *   - section-divider-slide: Chapter break (title + computer)
+         *   - toc-slide: Table of contents (funnel effect)
+         *
+         * SEÇÃO 3: SLIDES DE CONTEÚDO
+         *   - slide (content-slide): Standard text/bullets
+         *   - cards-grid: Grid de 3-4 cards
+         *   - timeline-container: Cronologia vertical
+         *   - data-list: Label-value pairs
+         *
+         * SEÇÃO 4: SLIDES DE DADOS/CHARTS
+         *   - line-chart-slide: Temporal evolution
+         *   - bar-chart-slide: Channel comparison
+         *   - donut-chart-slide: Budget distribution
+         *   - funnel-slide: Conversion path
+         *   - stacked-area-slide: Multi-channel evolution
+         *
+         * SEÇÃO 5: COMPONENTES REUTILIZÁVEIS
+         *   - card: Card base com dog-ear
+         *   - metric-card: Compact metric display
+         *   - emphasis-box: Highlight callout
          *
          * BRANDING: Koko é uma agência criativa independente.
          * NÃO mencionar Jumper Studio em nenhum lugar (somos terceirizados).
@@ -106,6 +142,7 @@
             overflow: hidden;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility; /* v2.2: Melhor renderização de texto */
         }
 
         /* ========================================
@@ -140,7 +177,7 @@
             align-items: center;
             justify-content: center;
             opacity: 0;
-            transition: opacity 700ms ease-out, transform 700ms ease-out;
+            /* v2.2: Transition movida para seção INTERACTIVITY */
             transform: translateX(100%);
             padding: clamp(100px, 14vh, 160px) clamp(60px, 8vw, 140px) clamp(140px, 16vh, 180px);
         }
@@ -237,13 +274,13 @@
            ======================================== */
         .hero-slide {
             padding: 0;
-            overflow: hidden;
+            overflow: visible; /* v2: Fix para gorilla hands aparecerem */
         }
 
         .hero-background {
             position: absolute;
             inset: 0;
-            background-image: url('https://hub.jumper.studio/decks/identities/koko/elements/fundo da capa.png');
+            /* v2: Background URL removida - usar inline style no HTML (hero-background.png) */
             background-size: cover;
             background-position: center;
             z-index: 0;
@@ -255,6 +292,7 @@
             max-width: 540px;
             pointer-events: none;
             z-index: 5;
+            will-change: transform; /* v2: Performance optimization */
         }
 
         .gorilla-hand.left {
@@ -318,7 +356,7 @@
             font-family: 'Playfair Display', serif;
             font-size: clamp(16px, 2vw, 20px);
             font-style: italic;
-            color: rgba(0, 0, 0, 0.7);
+            opacity: 0.7; /* v2.2: Usar opacity em vez de rgba para dark mode */
             margin-bottom: 32px;
         }
 
@@ -329,12 +367,12 @@
         .cards-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 18px;
+            gap: 20px; /* v2.2: Padronizado para múltiplo de 4px */
             margin-top: 24px;
         }
 
         .card {
-            padding: 18px;
+            padding: 20px; /* v2.2: Padronizado para múltiplo de 4px */
             position: relative;
             overflow: visible; /* Permite corner-fold aparecer */
         }
@@ -346,19 +384,19 @@
 
         .card-highlight-yellow {
             background: var(--koko-yellow);
-            border: 2px solid var(--koko-black);  /* Padronizado de 4px para 2px */
+            border: 2px solid var(--koko-black);
         }
 
         .card-highlight-pink {
             background: var(--koko-pink);
             color: var(--koko-white);
-            border: 2px solid var(--koko-black);  /* Padronizado de 4px para 2px */
+            border: 2px solid var(--koko-black);
         }
 
         .card-dark {
             background: var(--koko-black);
             color: var(--koko-white);
-            border: 2px solid var(--koko-white);  /* Adicionada borda branca para consistência */
+            border: 2px solid var(--koko-white);
         }
 
         /* Corner fold effect (dog-ear com diagonal) */
@@ -378,18 +416,19 @@
         .corner-cut::after {
             content: '';
             position: absolute;
-            bottom: -2px;  /* Desloca para fora para compensar borda */
-            right: -2px;   /* Desloca para fora para compensar borda */
-            width: 22px;   /* Ajustado para coincidir com clip-path */
+            bottom: -2px;
+            right: -2px;
+            width: 22px;
             height: 22px;
             background: linear-gradient(135deg,
-                #d9d9d9 0%,      /* Triângulo superior-esquerdo (verso papel) */
-                #d9d9d9 45.5%,   /* Até diagonal (2px antes do centro) */
-                #000 45.5%,      /* Borda preta 2px */
-                #000 54.5%,      /* Borda preta 2px */
-                #FFFFFF 54.5%,   /* Fundo branco (cor do slide) */
-                #FFFFFF 100%     /* Triângulo inferior-direito */
+                #d9d9d9 0%,      /* Verso (papel) */
+                #d9d9d9 45.5%,
+                #000 45.5%,      /* Borda preta */
+                #000 54.5%,
+                #FFFFFF 54.5%,   /* Fundo branco */
+                #FFFFFF 100%
             );
+            filter: drop-shadow(1px 1px 2px rgba(0, 0, 0, 0.1)); /* v2.2: Profundidade */
         }
 
         /* Cards escuros - verso preto mais claro */
@@ -489,7 +528,7 @@
         .stack-cards {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 16px; /* v2.2: Padronizado para múltiplo de 4px */
             margin-top: 24px;
         }
 
@@ -771,9 +810,9 @@
         /* Statement slide variant: Large graphic left (~50%), text right (~50%) */
         .statement-slide-reverse .slide-content {
             display: grid;
-            grid-template-columns: 1fr 1fr; /* 50% graphic, 50% text */
-            gap: clamp(30px, 4vw, 60px); /* Reduced gap */
-            align-items: center;
+            grid-template-columns: auto 1fr; /* Auto for image, rest for text */
+            gap: clamp(60px, 8vw, 120px); /* Doubled gap for better spacing */
+            align-items: center; /* Center vertically */
             padding: 80px clamp(60px, 8vw, 140px);
         }
 
@@ -785,9 +824,10 @@
         }
 
         .statement-slide-reverse .statement-graphic img {
-            width: 100%; /* Fill container */
-            height: auto;
-            max-height: 90vh; /* Large vertical size */
+            width: auto; /* Let width be determined by height */
+            height: auto; /* Auto height to respect max-height */
+            max-height: 44vh; /* Reduced by 20% (55vh * 0.8 = 44vh) */
+            max-width: 100%; /* Don't overflow container */
             object-fit: contain;
         }
 
@@ -1013,14 +1053,10 @@
             cursor: pointer;
             font-size: 24px;
             z-index: 999;
-            transition: opacity 300ms ease;
+            /* v2.2: Transition e hover movidos para seção INTERACTIVITY */
             display: flex;
             align-items: center;
             justify-content: center;
-        }
-
-        .nav-arrow:hover {
-            opacity: 0.8;
         }
 
         .nav-arrow.prev {
@@ -1029,6 +1065,48 @@
 
         .nav-arrow.next {
             right: 32px;
+        }
+
+        /* ========================================
+           INTERACTIVITY (v2.2)
+           Hover effects, transitions, micro-interactions
+           ======================================== */
+
+        /* Card Hover Effects */
+        .card {
+            transition: transform 300ms ease, box-shadow 300ms ease;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Navigation Dots Hover */
+        .nav-dot {
+            transition: all 300ms ease;
+        }
+
+        .nav-dot:hover:not(.active) {
+            background: rgba(245, 197, 66, 0.5);
+            transform: scale(1.2);
+        }
+
+        /* Navigation Arrows Enhanced */
+        .nav-arrow {
+            transition: transform 300ms cubic-bezier(0.16, 1, 0.3, 1),
+                        opacity 300ms ease;
+        }
+
+        .nav-arrow:hover {
+            transform: translateY(-50%) scale(1.1);
+            opacity: 1;
+        }
+
+        /* Smooth Slide Transitions (refinado) */
+        .slide {
+            transition: opacity 700ms cubic-bezier(0.16, 1, 0.3, 1),
+                        transform 700ms cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         /* ========================================
@@ -1769,7 +1847,7 @@
             }
 
             .statement-slide-reverse .statement-graphic img {
-                max-height: 300px; /* Smaller on mobile */
+                max-height: 600px; /* Smaller on mobile (100% maior: 300px × 2) */
             }
 
             .statement-slide-reverse .statement-title {
@@ -1984,7 +2062,11 @@
     <!-- Presentation Container -->
     <div class="presentation-container">
 
-        <!-- SLIDE 1: CAPA (HERO) -->
+        <!-- ===============================================
+             SEÇÃO 1: ABERTURA
+             =============================================== -->
+<!-- SLIDE 1: CAPA (HERO) -->
+        <!-- Pattern: hero-slide | Seção: Abertura | Use: Primeira slide -->
         <div class="slide hero-slide active">
             <div class="hero-background" style="background-image: url('https://hub.jumper.studio/decks/identities/koko/elements/hero-background.png');"></div>
             <img class="gorilla-hand left"
@@ -2000,7 +2082,54 @@
             </div>
         </div>
 
-        <!-- SLIDE 2: RESUMO EXECUTIVO (Cards Grid) -->
+        <!-- SLIDE 14: TABLE OF CONTENTS (Sumário com categorias) -->
+        <div class="slide toc-slide">
+            <div class="slide-content">
+                <div class="toc-title-wrapper">
+                    <h2 class="toc-main-title">TÍTULO</h2>
+                </div>
+                <div class="toc-categories">
+                    <div class="toc-category">
+                        <div class="toc-category-header">DESCOBERTA</div>
+                        <div class="toc-category-content">
+                            <ul>
+                                <li>Formatos prioritários:</li>
+                                <li>Objetivos:</li>
+                                <li>Linhas editoriais:</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="toc-category">
+                        <div class="toc-category-header">NUTRIÇÃO</div>
+                        <div class="toc-category-content">
+                            <ul>
+                                <li>Formatos prioritários:</li>
+                                <li>Objetivos:</li>
+                                <li>Linhas editoriais:</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="toc-category">
+                        <div class="toc-category-header">CONVERSÃO</div>
+                        <div class="toc-category-content">
+                            <ul>
+                                <li>Formatos prioritários:</li>
+                                <li>Objetivos:</li>
+                                <li>Linhas editoriais:</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        
+
+        <!-- ===============================================
+             SEÇÃO 2: ESTRUTURA & CONTEXTO
+             =============================================== -->
+<!-- SLIDE 2: RESUMO EXECUTIVO (Cards Grid) -->
+        <!-- Pattern: cards-grid | Seção: Estrutura & Contexto -->
         <div class="slide">
             <div class="slide-content">
                 <h2 class="slide-title">RESUMO EXECUTIVO</h2>
@@ -2067,7 +2196,26 @@
             </div>
         </div>
 
-        <!-- SLIDE 4: MÉTRICAS PRINCIPAIS (Metric Cards) -->
+        <!-- SLIDE 13: SECTION DIVIDER (Simple two-column: title left, computer right) -->
+        <div class="slide section-divider-slide">
+            <div class="slide-content">
+                <div class="section-divider-title-wrapper">
+                    <h2 class="section-divider-title">TÍTULO</h2>
+                    <p class="section-divider-subtitle">Subtítulo opcional (pode remover se não usar)</p>
+                </div>
+                <div class="section-divider-graphic">
+                    <img src="https://hub.jumper.studio/decks/identities/koko/elements/computer.png"
+                         alt="Koko computer graphic">
+                </div>
+            </div>
+        </div>
+
+        
+
+        <!-- ===============================================
+             SEÇÃO 3: NARRATIVA & CONTEÚDO
+             =============================================== -->
+<!-- SLIDE 4: MÉTRICAS PRINCIPAIS (Metric Cards) -->
         <div class="slide">
             <div class="slide-content">
                 <h2 class="slide-title">MÉTRICAS CONSOLIDADAS</h2>
@@ -2183,7 +2331,61 @@
             </div>
         </div>
 
-        <!-- SLIDE 7: DADOS DETALHADOS (Data List) -->
+        <!-- SLIDE 11: STATEMENT (New Pattern - Bold statement with graphic) -->
+        <div class="slide statement-slide">
+            <div class="slide-content">
+                <div class="statement-text">
+                    <h2 class="statement-title">TÍTULO</h2>
+                    <p class="statement-body">
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam
+                        condimentum augue a velit fermentum consectetur. Pellentesque rutrum
+                        velit eget odio venenatis ac sem lorem dapibus. Sed felis odio,
+                        consequat non lobortis ut, luctus vel arcu. Integer at augue id odio
+                        aliquet dictum ut ut lectus. Curabitur ac erat sem, ac consequat mi.
+                        Mauris sit amet arcu velit. Nunc tempor nibh massa, ac accumsan lectus.
+                    </p>
+                </div>
+                <div class="statement-graphic">
+                    <img src="https://hub.jumper.studio/decks/identities/koko/elements/pink-mouth.png"
+                         alt="Koko graphic element">
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 12: STATEMENT REVERSE (Variant - Graphic on left, text on right) -->
+        <div class="slide statement-slide-reverse">
+            <div class="slide-content">
+                <div class="statement-graphic">
+                    <img src="https://hub.jumper.studio/decks/identities/koko/elements/loud.png"
+                         alt="Koko loud graphic element">
+                </div>
+                <div class="statement-text">
+                    <h2 class="statement-title">TÍTULO</h2>
+                    <p class="statement-subtitle">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+                    <p class="statement-body">
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean porttitor
+                        vestibulum leo, vel varius ex scelerisque sed. Vestibulum ut lectus odio.
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean porttitor
+                        vestibulum leo, vel varius ex scelerisque sed. Vestibulum ut lectus odio.
+                    </p>
+                    <p class="statement-body">
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean porttitor
+                        vestibulum leo, vel varius ex scelerisque sed. Vestibulum ut lectus odio.
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean porttitor
+                        vestibulum leo, vel varius ex scelerisque sed. Vestibulum ut lectus odio.
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean porttitor
+                        vestibulum leo, vel varius ex scelerisque sed.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        
+
+        <!-- ===============================================
+             SEÇÃO 4: ANÁLISE DETALHADA
+             =============================================== -->
+<!-- SLIDE 7: DADOS DETALHADOS (Data List) -->
         <div class="slide">
             <div class="slide-content">
                 <h2 class="slide-title">BREAKDOWN SEMANAL</h2>
@@ -2351,183 +2553,12 @@
             </div>
         </div>
 
-        <!-- SLIDE 11: STATEMENT (New Pattern - Bold statement with graphic) -->
-        <div class="slide statement-slide">
-            <div class="slide-content">
-                <div class="statement-text">
-                    <h2 class="statement-title">TÍTULO</h2>
-                    <p class="statement-body">
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam
-                        condimentum augue a velit fermentum consectetur. Pellentesque rutrum
-                        velit eget odio venenatis ac sem lorem dapibus. Sed felis odio,
-                        consequat non lobortis ut, luctus vel arcu. Integer at augue id odio
-                        aliquet dictum ut ut lectus. Curabitur ac erat sem, ac consequat mi.
-                        Mauris sit amet arcu velit. Nunc tempor nibh massa, ac accumsan lectus.
-                    </p>
-                </div>
-                <div class="statement-graphic">
-                    <img src="https://hub.jumper.studio/decks/identities/koko/elements/pink-mouth.png"
-                         alt="Koko graphic element">
-                </div>
-            </div>
-        </div>
+        
 
-        <!-- SLIDE 12: STATEMENT REVERSE (Variant - Graphic on left, text on right) -->
-        <div class="slide statement-slide-reverse">
-            <div class="slide-content">
-                <div class="statement-graphic">
-                    <img src="https://hub.jumper.studio/decks/identities/koko/elements/loud.png"
-                         alt="Koko loud graphic element">
-                </div>
-                <div class="statement-text">
-                    <h2 class="statement-title">TÍTULO</h2>
-                    <p class="statement-subtitle">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-                    <p class="statement-body">
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean porttitor
-                        vestibulum leo, vel varius ex scelerisque sed. Vestibulum ut lectus odio.
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean porttitor
-                        vestibulum leo, vel varius ex scelerisque sed. Vestibulum ut lectus odio.
-                    </p>
-                    <p class="statement-body">
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean porttitor
-                        vestibulum leo, vel varius ex scelerisque sed. Vestibulum ut lectus odio.
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean porttitor
-                        vestibulum leo, vel varius ex scelerisque sed. Vestibulum ut lectus odio.
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean porttitor
-                        vestibulum leo, vel varius ex scelerisque sed.
-                    </p>
-                </div>
-            </div>
-        </div>
-
-        <!-- SLIDE 13: SECTION DIVIDER (Simple two-column: title left, computer right) -->
-        <div class="slide section-divider-slide">
-            <div class="slide-content">
-                <div class="section-divider-title-wrapper">
-                    <h2 class="section-divider-title">TÍTULO</h2>
-                    <p class="section-divider-subtitle">Subtítulo opcional (pode remover se não usar)</p>
-                </div>
-                <div class="section-divider-graphic">
-                    <img src="https://hub.jumper.studio/decks/identities/koko/elements/computer.png"
-                         alt="Koko computer graphic">
-                </div>
-            </div>
-        </div>
-
-        <!-- SLIDE 14: TABLE OF CONTENTS (Sumário com categorias) -->
-        <div class="slide toc-slide">
-            <div class="slide-content">
-                <div class="toc-title-wrapper">
-                    <h2 class="toc-main-title">TÍTULO</h2>
-                </div>
-                <div class="toc-categories">
-                    <div class="toc-category">
-                        <div class="toc-category-header">DESCOBERTA</div>
-                        <div class="toc-category-content">
-                            <ul>
-                                <li>Formatos prioritários:</li>
-                                <li>Objetivos:</li>
-                                <li>Linhas editoriais:</li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="toc-category">
-                        <div class="toc-category-header">NUTRIÇÃO</div>
-                        <div class="toc-category-content">
-                            <ul>
-                                <li>Formatos prioritários:</li>
-                                <li>Objetivos:</li>
-                                <li>Linhas editoriais:</li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="toc-category">
-                        <div class="toc-category-header">CONVERSÃO</div>
-                        <div class="toc-category-content">
-                            <ul>
-                                <li>Formatos prioritários:</li>
-                                <li>Objetivos:</li>
-                                <li>Linhas editoriais:</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- SLIDE 15: PRÓXIMOS PASSOS (Timeline) -->
-        <div class="slide">
-            <div class="slide-content">
-                <h2 class="slide-title">PRÓXIMOS PASSOS</h2>
-                <p class="slide-subtitle">Roadmap de continuidade</p>
-
-                <div class="timeline-container">
-                    <div class="timeline-item timeline-item-yellow">
-                        <div class="timeline-item-content">
-                            <h3 class="timeline-title">MÊS 1-2</h3>
-                            <p class="timeline-content">Escalar budget em 50% mantendo eficiência. Teste de novos formatos de criativo (vídeo curto).</p>
-                        </div>
-                        <span class="timeline-icon">🚀</span>
-                    </div>
-
-                    <div class="timeline-item timeline-item-default">
-                        <div class="timeline-item-content">
-                            <h3 class="timeline-title">MÊS 3-4</h3>
-                            <p class="timeline-content">Expansão para 3 novos mercados LATAM. Implementação de remarketing estruturado.</p>
-                        </div>
-                        <span class="timeline-icon">🌎</span>
-                    </div>
-
-                    <div class="timeline-item timeline-item-default">
-                        <div class="timeline-item-content">
-                            <h3 class="timeline-title">MÊS 5-6</h3>
-                            <p class="timeline-content">Integração com CRM para rastreamento completo. Análise de LTV e otimização baseada em valor real.</p>
-                        </div>
-                        <span class="timeline-icon">💎</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- SLIDE 16: CONCLUSÃO -->
-        <div class="slide conclusion-slide">
-            <div class="slide-content">
-                <h2 class="conclusion-title">PROJETO<br>CONCLUÍDO ✅</h2>
-
-                <div class="conclusion-box corner-cut">
-                    <p class="conclusion-text">
-                        Redução de <strong>79% no custo</strong> por conversão. Crescimento de <strong>10x no volume</strong>.
-                        Estrutura validada e replicável para novos mercados. <strong>Projeto viável para continuidade.</strong>
-                    </p>
-                </div>
-
-                <div class="emphasis-box dark" style="margin-top: 24px;">
-                    <p>Agradecemos a confiança! Estamos prontos para a próxima fase. 🚀</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- SLIDE 17: CONTRACAPA -->
-        <div class="slide hero-slide">
-            <div class="hero-background" style="background-image: url('https://hub.jumper.studio/decks/identities/koko/elements/hero-background.png');"></div>
-            <img class="gorilla-hand left"
-                 src="https://hub.jumper.studio/decks/identities/koko/elements/gorilla-hand-left.png"
-                 alt="">
-            <img class="gorilla-hand right"
-                 src="https://hub.jumper.studio/decks/identities/koko/elements/gorilla-hand-right.png"
-                 alt="">
-            <div class="hero-content">
-                <h1 style="font-size: clamp(40px, 8vw, 80px);">OBRIGADO!</h1>
-                <p class="hero-subtitle">Agência Koko</p>
-                <p class="hero-meta">
-                    contato@agenciakoko.com.br<br>
-                    +55 11 9999-9999<br>
-                    www.agenciakoko.com.br
-                </p>
-            </div>
-        </div>
-
-        <!-- SLIDE 18: LINE CHART PATTERN (Temporal Evolution) -->
+        <!-- ===============================================
+             SEÇÃO 5: VISUALIZAÇÕES DE DADOS
+             =============================================== -->
+<!-- SLIDE 18: LINE CHART PATTERN (Temporal Evolution) -->
         <div class="slide line-chart-slide">
             <div class="slide-content">
                 <!-- Left: Chart Area -->
@@ -2613,10 +2644,8 @@
             </div>
         </div>
 
-    </div>
-
-    <!-- SLIDE 19: HORIZONTAL BAR CHART PATTERN (Channel Comparison) -->
-    <div class="slide bar-chart-slide">
+        <!-- SLIDE 19: HORIZONTAL BAR CHART PATTERN (Channel Comparison) -->
+        <div class="slide bar-chart-slide">
         <div class="slide-content">
             <h1 class="slide-title">PERFORMANCE POR CANAL</h1>
             <p class="slide-subtitle">Comparação de resultados entre plataformas de anúncios (últimos 30 dias)</p>
@@ -2682,10 +2711,10 @@
             </div>
 
         </div>
-    </div>
+        </div>
 
-    <!-- SLIDE 20: DONUT CHART PATTERN (Budget Distribution) -->
-    <div class="slide donut-chart-slide">
+        <!-- SLIDE 20: DONUT CHART PATTERN (Budget Distribution) -->
+        <div class="slide donut-chart-slide">
         <div class="slide-content">
             <!-- Left: Donut Chart -->
             <div>
@@ -2810,10 +2839,10 @@
             </div>
 
         </div>
-    </div>
+        </div>
 
-    <!-- SLIDE 21: FUNNEL VISUALIZATION PATTERN (Conversion Path) -->
-    <div class="slide funnel-slide">
+        <!-- SLIDE 21: FUNNEL VISUALIZATION PATTERN (Conversion Path) -->
+        <div class="slide funnel-slide">
         <div class="slide-content">
             <h1 class="slide-title">FUNIL DE CONVERSÃO</h1>
             <p class="slide-subtitle">Jornada completa do usuário - Outubro 2024</p>
@@ -2886,10 +2915,10 @@
             </div>
 
         </div>
-    </div>
+        </div>
 
-    <!-- SLIDE 22: STACKED AREA CHART PATTERN (Multi-channel Evolution) -->
-    <div class="slide stacked-area-slide">
+        <!-- SLIDE 22: STACKED AREA CHART PATTERN (Multi-channel Evolution) -->
+        <div class="slide stacked-area-slide">
         <div class="slide-content">
             <!-- Left: Chart -->
             <div class="stacked-area-wrapper">
@@ -3006,7 +3035,88 @@
             </div>
 
         </div>
+        </div>
+
+    
+
+        <!-- ===============================================
+             SEÇÃO 6: ENCERRAMENTO
+             =============================================== -->
+<!-- SLIDE 15: PRÓXIMOS PASSOS (Timeline) -->
+        <div class="slide">
+            <div class="slide-content">
+                <h2 class="slide-title">PRÓXIMOS PASSOS</h2>
+                <p class="slide-subtitle">Roadmap de continuidade</p>
+
+                <div class="timeline-container">
+                    <div class="timeline-item timeline-item-yellow">
+                        <div class="timeline-item-content">
+                            <h3 class="timeline-title">MÊS 1-2</h3>
+                            <p class="timeline-content">Escalar budget em 50% mantendo eficiência. Teste de novos formatos de criativo (vídeo curto).</p>
+                        </div>
+                        <span class="timeline-icon">🚀</span>
+                    </div>
+
+                    <div class="timeline-item timeline-item-default">
+                        <div class="timeline-item-content">
+                            <h3 class="timeline-title">MÊS 3-4</h3>
+                            <p class="timeline-content">Expansão para 3 novos mercados LATAM. Implementação de remarketing estruturado.</p>
+                        </div>
+                        <span class="timeline-icon">🌎</span>
+                    </div>
+
+                    <div class="timeline-item timeline-item-default">
+                        <div class="timeline-item-content">
+                            <h3 class="timeline-title">MÊS 5-6</h3>
+                            <p class="timeline-content">Integração com CRM para rastreamento completo. Análise de LTV e otimização baseada em valor real.</p>
+                        </div>
+                        <span class="timeline-icon">💎</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 16: CONCLUSÃO -->
+        <div class="slide conclusion-slide">
+            <div class="slide-content">
+                <h2 class="conclusion-title">PROJETO<br>CONCLUÍDO ✅</h2>
+
+                <div class="conclusion-box corner-cut">
+                    <p class="conclusion-text">
+                        Redução de <strong>79% no custo</strong> por conversão. Crescimento de <strong>10x no volume</strong>.
+                        Estrutura validada e replicável para novos mercados. <strong>Projeto viável para continuidade.</strong>
+                    </p>
+                </div>
+
+                <div class="emphasis-box dark" style="margin-top: 24px;">
+                    <p>Agradecemos a confiança! Estamos prontos para a próxima fase. 🚀</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 17: CONTRACAPA -->
+        <div class="slide hero-slide">
+            <div class="hero-background" style="background-image: url('https://hub.jumper.studio/decks/identities/koko/elements/hero-background.png');"></div>
+            <img class="gorilla-hand left"
+                 src="https://hub.jumper.studio/decks/identities/koko/elements/gorilla-hand-left.png"
+                 alt="">
+            <img class="gorilla-hand right"
+                 src="https://hub.jumper.studio/decks/identities/koko/elements/gorilla-hand-right.png"
+                 alt="">
+            <div class="hero-content">
+                <h1 style="font-size: clamp(40px, 8vw, 80px);">OBRIGADO!</h1>
+                <p class="hero-subtitle">Agência Koko</p>
+                <p class="hero-meta">
+                    contato@agenciakoko.com.br<br>
+                    +55 11 9999-9999<br>
+                    www.agenciakoko.com.br
+                </p>
+            </div>
+        </div>
+
+        
     </div>
+    <!-- End of Presentation Container -->
 
     <!-- Navigation System -->
     <div class="nav-dots">
