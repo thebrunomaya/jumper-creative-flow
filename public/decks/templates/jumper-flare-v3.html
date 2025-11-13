@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jumper Flare Template v3 - Jumper Studio</title>
+    <style>
+        /**
+         * JUMPER FLARE TEMPLATE V3
+         * Template para apresentações e relatórios de performance
+         * Design System: Minimalismo sofisticado com acentos orgânicos estratégicos
+         * Paleta: 90% cinza, 5% laranja (#FA4721), 5% semânticas
+         * Font: Haffer Variable
+         *
+         * CHANGELOG V3 (2025-11-13):
+         * - ✅ Added CSS variables for design system abstraction
+         * - ✅ Font loading validation with fallback detection
+         * - ✅ Responsive data table with horizontal scroll
+         * - ✅ Keyboard focus indicators (WCAG AA compliant)
+         * - ✅ Gradient fallback colors
+         * - ✅ Improved subtitle contrast on gradients
+         * - ✅ Functional CTA button
+         * - ✅ Dual logo system (white/black)
+         * - ✅ Enhanced timeline mobile behavior
+         * - ✅ Accessible slide indicator
+         * - ✅ Navigation error handling
+         * - ✅ Performance optimizations
+         */
+
+        /* ========================================
+           CSS VARIABLES - Design System
+           ======================================== */
+        :root {
+            /* Brand Colors */
+            --jumper-orange: #FA4721;
+            --jumper-white: #FFFFFF;
+            --jumper-black: #000000;
+            --jumper-gray-dark: #181818;
+            --jumper-gray-medium: #3E3D40;
+            --jumper-gray-light: #C6CBD4;
+
+            /* Semantic Colors */
+            --color-success: #2AA876;
+            --color-warning: #F59E0B;
+            --color-error: #EF4444;
+            --color-info: #3B82F6;
+
+            /* Spacing System */
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+            --spacing-2xl: 48px;
+            --spacing-3xl: 64px;
+
+            /* Transitions */
+            --transition-fast: 0.15s ease;
+            --transition-normal: 0.2s ease;
+            --transition-slow: 0.3s ease;
+            --ease-jumper: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* ========================================
+           FONT IMPORT - Haffer Variable
+           URLs ABSOLUTAS (CRÍTICO para compartilhamento)
+           ======================================== */
+        @font-face {
+            font-family: 'Haffer';
+            src: url('https://hub.jumper.studio/decks/identities/jumper/fonts/HafferVF.ttf') format('truetype');
+            font-weight: 100 900;
+            font-style: normal;
+            font-display: swap; /* Prevent invisible text while loading */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Haffer', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0a0a0a;
+            color: var(--jumper-white);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* ========================================
+           FONT LOADING WARNING (DEV ONLY)
+           ======================================== */
+        .font-warning {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background: rgba(239, 68, 68, 0.95);
+            color: var(--jumper-white);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            z-index: 9999;
+            display: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        /* ========================================
+           PRESENTATION CONTAINER
+           Scroll snap para navegação suave entre slides
+           ======================================== */
+        .presentation {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            overflow-y: scroll;
+            scroll-snap-type: y mandatory;
+            scroll-behavior: smooth;
+        }
+
+        /* ========================================
+           SLIDE SYSTEM
+           Base para todos os slides
+           ======================================== */
+        .slide {
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            scroll-snap-align: start;
+            padding: clamp(40px, 8vh, 80px) clamp(30px, 6vw, 120px) clamp(80px, 10vh, 120px);
+            background: var(--jumper-black);
+        }
+
+        .slide-content {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 0.8s var(--ease-jumper) 0.3s forwards;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            will-change: opacity, transform;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+                will-change: auto;
+            }
+        }
+
+        /* ========================================
+           SPLIT LAYOUT PATTERN
+           Para slides com gradientes (cover, closing)
+           Uso: Cover slides, closing slides, hero messages
+           ======================================== */
+        .slide-split {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+
+        .slide-split-gradient {
+            background: var(--jumper-gray-dark); /* Fallback color */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            height: 100%; /* CRÍTICO: não usar min-height: 100vh */
+        }
+
+        .slide-split-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: clamp(60px, 10vw, 120px);
+            background: var(--jumper-black);
+            min-height: 50vh; /* Edge case: ultra-short viewports */
+        }
+
+        /* Improved contrast for split layout text */
+        .slide-split-content .hero-text {
+            color: rgba(255, 255, 255, 0.85) !important;
+        }
+
+        .slide-split-content .body-text {
+            color: rgba(255, 255, 255, 0.75) !important;
+        }
+
+        /* Gradient Right (cover slide) */
+        .slide-split-gradient-right .slide-split-gradient {
+            order: 2;
+        }
+
+        .slide-split-gradient-right .slide-split-content {
+            order: 1;
+        }
+
+        /* Gradient Left (closing slide) */
+        .slide-split-gradient-left .slide-split-gradient {
+            order: 1;
+        }
+
+        .slide-split-gradient-left .slide-split-content {
+            order: 2;
+        }
+
+        /* ========================================
+           TYPOGRAPHY SYSTEM
+           Responsive com clamp() para todos os tamanhos
+           ======================================== */
+        h1 {
+            font-size: clamp(36px, 5vw, 60px);
+            font-weight: 900;
+            letter-spacing: -0.02em;
+            line-height: 1.1;
+            margin-bottom: clamp(15px, 3vh, 25px);
+            color: var(--jumper-white);
+        }
+
+        h2 {
+            font-size: clamp(18px, 2.5vw, 28px);
+            font-weight: 400;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: clamp(25px, 4vh, 40px);
+            line-height: 1.3;
+        }
+
+        .hero-text {
+            font-size: clamp(24px, 4vw, 42px);
+            font-weight: 600;
+            line-height: 1.2;
+            letter-spacing: -0.01em;
+            margin-bottom: clamp(20px, 3vh, 35px);
+            color: var(--jumper-white);
+        }
+
+        .body-text {
+            font-size: clamp(16px, 2vw, 20px);
+            font-weight: 400;
+            color: rgba(255, 255, 255, 0.6);
+            line-height: 1.5;
+            max-width: 900px;
+            margin: 0 auto 20px;
+        }
+
+        .big-number {
+            font-size: clamp(64px, 10vw, 120px);
+            font-weight: 900;
+            color: var(--jumper-orange);
+            line-height: 0.9;
+            margin-bottom: clamp(15px, 2vh, 25px);
+            letter-spacing: -0.04em;
+        }
+
+        .highlight {
+            color: var(--jumper-orange);
+            font-weight: 600;
+        }
+
+        /* ========================================
+           CARDS CONTAINER PATTERN
+           Grid de cards para múltiplos itens
+           Uso: Contexto, fases, métricas, etc.
+           ======================================== */
+        .cards-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: clamp(20px, 3vw, 30px);
+            margin-top: clamp(25px, 4vh, 40px);
+            max-width: 1100px;
+            width: 100%;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: clamp(24px, 3vw, 32px);
+            text-align: left;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: cardSlideUp 0.6s ease-out forwards;
+            transition: all var(--transition-slow);
+            will-change: opacity, transform;
+        }
+
+        .card:hover {
+            background: rgba(255, 255, 255, 0.05);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(250, 71, 33, 0.2);
+        }
+
+        .card:nth-child(1) { animation-delay: 0.5s; }
+        .card:nth-child(2) { animation-delay: 0.6s; }
+        .card:nth-child(3) { animation-delay: 0.7s; }
+        .card:nth-child(4) { animation-delay: 0.8s; }
+
+        @keyframes cardSlideUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+                will-change: auto;
+            }
+        }
+
+        .card h3 {
+            font-size: clamp(18px, 2.2vw, 22px);
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--jumper-white);
+        }
+
+        .card p {
+            font-size: clamp(14px, 1.6vw, 16px);
+            color: rgba(255, 255, 255, 0.6);
+            line-height: 1.5;
+        }
+
+        .card .metric {
+            font-size: clamp(28px, 4vw, 36px);
+            font-weight: 900;
+            color: var(--jumper-orange);
+            margin-bottom: 8px;
+        }
+
+        /* ========================================
+           COMPARISON GRID PATTERN
+           Duas colunas para comparações (antes/depois, problema/solução)
+           Uso: Comparações, validações, resultados
+           ======================================== */
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: clamp(25px, 4vw, 40px);
+            max-width: 1000px;
+            margin: clamp(25px, 4vh, 40px) auto;
+            width: 100%;
+        }
+
+        .comparison-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: clamp(28px, 4vw, 36px);
+            text-align: center;
+            opacity: 0;
+            transform: scale(0.95);
+            animation: scaleIn 0.6s ease-out forwards;
+            will-change: opacity, transform;
+        }
+
+        .comparison-item:nth-child(1) { animation-delay: 0.4s; }
+        .comparison-item:nth-child(2) { animation-delay: 0.6s; }
+
+        @keyframes scaleIn {
+            to {
+                opacity: 1;
+                transform: scale(1);
+                will-change: auto;
+            }
+        }
+
+        .comparison-item h3 {
+            font-size: clamp(20px, 2.8vw, 26px);
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: var(--jumper-white);
+        }
+
+        .comparison-item .stat {
+            font-size: clamp(32px, 5vw, 48px);
+            font-weight: 900;
+            line-height: 1.1;
+            margin: 16px 0;
+        }
+
+        .comparison-item .label {
+            font-size: clamp(14px, 1.6vw, 16px);
+            color: rgba(255, 255, 255, 0.5);
+            margin-top: 8px;
+        }
+
+        /* ========================================
+           PERFORMANCE COLORS
+           Cores semânticas para métricas
+           ======================================== */
+        .stat-success { color: var(--color-success); }
+        .stat-warning { color: var(--color-warning); }
+        .stat-critical { color: var(--color-error); }
+
+        /* ========================================
+           BADGE SYSTEM
+           Indicadores de status, categorias, alertas
+           ======================================== */
+        .badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: clamp(12px, 1.4vw, 14px);
+            font-weight: 600;
+            margin: 4px;
+        }
+
+        .badge-success {
+            background: rgba(42, 168, 118, 0.15);
+            color: var(--color-success);
+        }
+
+        .badge-warning {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--color-warning);
+        }
+
+        .badge-critical {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--color-error);
+        }
+
+        .badge-info {
+            background: rgba(59, 130, 246, 0.15);
+            color: var(--color-info);
+        }
+
+        /* ========================================
+           TIMELINE PATTERN
+           Linha do tempo para evolução, progresso
+           Uso: Performance ao longo do tempo, fases
+           ======================================== */
+        .timeline {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            max-width: 1000px;
+            margin: 30px auto;
+            position: relative;
+            padding: 20px 0;
+            gap: clamp(30px, 5vw, 60px);
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            top: 40px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(to right, rgba(42, 168, 118, 0.3), rgba(245, 158, 11, 0.3), rgba(239, 68, 68, 0.3));
+        }
+
+        .timeline-item {
+            text-align: center;
+            position: relative;
+            flex: 1;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.6s ease-out forwards;
+            will-change: opacity, transform;
+        }
+
+        .timeline-item:nth-child(1) { animation-delay: 0.5s; }
+        .timeline-item:nth-child(2) { animation-delay: 0.7s; }
+        .timeline-item:nth-child(3) { animation-delay: 0.9s; }
+
+        .timeline-item .date {
+            font-size: clamp(12px, 1.4vw, 14px);
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .timeline-item .value {
+            font-size: clamp(32px, 4.5vw, 42px);
+            font-weight: 900;
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+
+        .timeline-item .sub {
+            font-size: clamp(13px, 1.5vw, 15px);
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* ========================================
+           DATA TABLE PATTERN
+           Tabelas para dados estruturados
+           Uso: Comparações de canais, métricas
+           ======================================== */
+        .table-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            max-width: 100%;
+            margin: 30px auto;
+        }
+
+        .data-table {
+            width: 100%;
+            max-width: 900px;
+            min-width: 600px; /* Prevent collapsing on mobile */
+            margin: 0 auto;
+            border-collapse: separate;
+            border-spacing: 0 8px;
+        }
+
+        .data-table th {
+            font-size: clamp(13px, 1.5vw, 15px);
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.7);
+            text-align: left;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .data-table td {
+            font-size: clamp(14px, 1.6vw, 16px);
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.02);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .data-table td:first-child {
+            font-weight: 600;
+            color: var(--jumper-white);
+        }
+
+        .data-table tr {
+            opacity: 0;
+            animation: fadeInUp 0.5s ease-out forwards;
+        }
+
+        .data-table tr:nth-child(1) { animation-delay: 0.5s; }
+        .data-table tr:nth-child(2) { animation-delay: 0.6s; }
+        .data-table tr:nth-child(3) { animation-delay: 0.7s; }
+        .data-table tr:nth-child(4) { animation-delay: 0.8s; }
+        .data-table tr:nth-child(5) { animation-delay: 0.9s; }
+
+        /* ========================================
+           CHECKLIST PATTERN
+           Listas com ícones de confirmação
+           Uso: Ações completadas, requisitos, etapas
+           ======================================== */
+        .checklist {
+            max-width: 800px;
+            margin: 25px auto;
+            text-align: left;
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            padding: 16px;
+            margin: 8px 0;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 12px;
+            opacity: 0;
+            animation: fadeInUp 0.5s ease-out forwards;
+        }
+
+        .checklist-item:nth-child(1) { animation-delay: 0.5s; }
+        .checklist-item:nth-child(2) { animation-delay: 0.6s; }
+        .checklist-item:nth-child(3) { animation-delay: 0.7s; }
+        .checklist-item:nth-child(4) { animation-delay: 0.8s; }
+
+        .checklist-item .icon {
+            font-size: 20px;
+            color: var(--color-success);
+            flex-shrink: 0;
+        }
+
+        .checklist-item .text {
+            font-size: clamp(15px, 1.8vw, 17px);
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.5;
+        }
+
+        /* ========================================
+           CTA BUTTON
+           Call-to-action para closing slides
+           ======================================== */
+        .cta-button {
+            display: inline-block;
+            padding: 16px 40px;
+            background: var(--jumper-orange);
+            color: var(--jumper-white);
+            font-size: clamp(16px, 1.8vw, 18px);
+            font-weight: 700;
+            text-decoration: none;
+            border-radius: 50px;
+            margin-top: 30px;
+            transition: all var(--transition-slow);
+            box-shadow: 0 8px 24px rgba(250, 71, 33, 0.3);
+            cursor: pointer;
+        }
+
+        .cta-button:hover {
+            background: #ff5733;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(250, 71, 33, 0.4);
+        }
+
+        /* WCAG AA Focus Indicator */
+        .cta-button:focus-visible {
+            outline: 3px solid var(--jumper-orange);
+            outline-offset: 4px;
+            box-shadow: 0 0 0 6px rgba(250, 71, 33, 0.2);
+        }
+
+        .cta-button:focus:not(:focus-visible) {
+            outline: none; /* Remove for mouse clicks */
+        }
+
+        /* ========================================
+           NAVIGATION ELEMENTS
+           Slide indicator e logo
+           ======================================== */
+        .slide-indicator {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.5);
+            font-weight: 500;
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            padding: 8px 20px;
+            border-radius: 20px;
+        }
+
+        .logo {
+            position: absolute;
+            top: 40px;
+            right: 40px;
+            width: 120px;
+            height: auto;
+            opacity: 0.9;
+            z-index: 10;
+        }
+
+        /* Dual logo system for light/dark backgrounds */
+        .logo-black {
+            display: none;
+        }
+
+        .slide.slide-light .logo-white {
+            display: none;
+        }
+
+        .slide.slide-light .logo-black {
+            display: block;
+        }
+
+        /* ========================================
+           RESPONSIVE DESIGN
+           Mobile breakpoints
+           ======================================== */
+        @media (max-width: 768px) {
+            .slide-split {
+                grid-template-columns: 1fr;
+                grid-template-rows: 1fr 1fr;
+            }
+
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .cards-container {
+                grid-template-columns: 1fr;
+            }
+
+            .timeline {
+                flex-direction: column;
+                gap: 30px;
+            }
+
+            .timeline::before {
+                display: none !important;
+                content: none;
+            }
+
+            .logo {
+                width: clamp(60px, 20vw, 80px);
+                top: 20px;
+                right: 20px;
+            }
+
+            .data-table {
+                font-size: 14px;
+            }
+
+            .data-table th,
+            .data-table td {
+                padding: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Font Loading Warning (dev only) -->
+    <div class="font-warning" id="font-warning">
+        ⚠️ Haffer font failed to load - using fallback fonts
+    </div>
+
+    <div class="presentation">
+        <!-- ============================================
+             SLIDE 1: COVER (Split Layout - Gradient Right)
+             Uso: Primeiro slide de qualquer deck
+             Pattern: Conteúdo esquerda + Gradient direita
+             ============================================ -->
+        <div class="slide slide-split slide-split-gradient-right">
+            <div class="slide-split-content">
+                <div style="max-width: 600px;">
+                    <h1 style="color: #FFFFFF; text-align: left;">Título do Relatório</h1>
+                    <p class="hero-text" style="text-align: left; font-size: clamp(18px, 2.5vw, 24px); font-weight: 400;">Período: Mês/Ano</p>
+                    <p class="body-text" style="text-align: left; margin-top: 25px;">Subtítulo ou contexto adicional</p>
+                </div>
+            </div>
+            <div class="slide-split-gradient" style="background-image: url('https://hub.jumper.studio/decks/identities/jumper/gradients/organic-01.png');"></div>
+        </div>
+
+        <!-- ============================================
+             SLIDE 2: SECTION HEADER
+             Uso: Cabeçalho de seção/fase
+             Pattern: Badge + Título + Subtítulo centralizado
+             ============================================ -->
+        <div class="slide">
+            <div class="slide-content">
+                <span class="badge badge-info">Fase 1: Data</span>
+                <h1>Nome da Seção</h1>
+                <h2>Descrição ou contexto da seção</h2>
+            </div>
+        </div>
+
+        <!-- ============================================
+             SLIDE 3: CARDS CONTAINER
+             Uso: Múltiplos insights, métricas, contextos
+             Pattern: Grid de cards (3-4 colunas)
+             ============================================ -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>Título do Slide</h1>
+                <h2>Subtítulo explicativo</h2>
+                <div class="cards-container">
+                    <div class="card">
+                        <h3>Card 1</h3>
+                        <p>Descrição do primeiro item com contexto relevante</p>
+                    </div>
+                    <div class="card">
+                        <h3>Card 2</h3>
+                        <p class="metric">123</p>
+                        <p>Métrica com descrição</p>
+                    </div>
+                    <div class="card">
+                        <h3>Card 3</h3>
+                        <p>Terceiro item com informações importantes</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================
+             SLIDE 4: COMPARISON GRID
+             Uso: Antes/Depois, Problema/Solução
+             Pattern: 2 colunas lado a lado
+             ============================================ -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>Comparação</h1>
+                <h2>Descrição da comparação</h2>
+                <div class="comparison-grid">
+                    <div class="comparison-item">
+                        <h3>Antes</h3>
+                        <div class="stat" style="color: #3B82F6;">100</div>
+                        <div class="label">métrica anterior</div>
+                    </div>
+                    <div class="comparison-item" style="border: 2px solid rgba(42, 168, 118, 0.3);">
+                        <h3>Depois</h3>
+                        <div class="stat stat-success">250</div>
+                        <div class="label">métrica atual (+150%)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================
+             SLIDE 5: TIMELINE
+             Uso: Evolução temporal, fases
+             Pattern: 3-5 items sequenciais com linha
+             ============================================ -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>Evolução Temporal</h1>
+                <h2>Performance ao longo do período</h2>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="date">Semana 1</div>
+                        <div class="value" style="color: #3B82F6;">50</div>
+                        <div class="sub">baseline</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="date">Semana 2</div>
+                        <div class="value stat-warning">75</div>
+                        <div class="sub">+50%</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="date">Semana 3</div>
+                        <div class="value stat-success">125</div>
+                        <div class="sub">+150%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================
+             SLIDE 6: DATA TABLE (Responsive)
+             Uso: Dados estruturados, comparações detalhadas
+             Pattern: Tabela com headers e animação
+             ============================================ -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>Tabela de Dados</h1>
+                <h2>Comparação detalhada de métricas</h2>
+                <div class="table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Canal</th>
+                                <th>Métrica</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Canal A</td>
+                                <td class="stat-success" style="font-weight: 700;">R$ 10,00</td>
+                                <td><span class="badge badge-success">Ótimo</span></td>
+                            </tr>
+                            <tr>
+                                <td>Canal B</td>
+                                <td style="font-weight: 700;">R$ 20,00</td>
+                                <td><span class="badge badge-warning">Regular</span></td>
+                            </tr>
+                            <tr>
+                                <td>Canal C</td>
+                                <td class="stat-critical" style="font-weight: 700;">R$ 50,00</td>
+                                <td><span class="badge badge-critical">Crítico</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================
+             SLIDE 7: CHECKLIST
+             Uso: Ações completadas, requisitos
+             Pattern: Lista com ícones de confirmação
+             ============================================ -->
+        <div class="slide">
+            <div class="slide-content">
+                <h1>Ações Realizadas</h1>
+                <h2>Etapas concluídas no período</h2>
+                <div class="checklist">
+                    <div class="checklist-item">
+                        <span class="icon">✓</span>
+                        <span class="text"><strong>Item 1:</strong> Descrição da ação realizada</span>
+                    </div>
+                    <div class="checklist-item">
+                        <span class="icon">✓</span>
+                        <span class="text"><strong>Item 2:</strong> Outra ação completada</span>
+                    </div>
+                    <div class="checklist-item">
+                        <span class="icon">✓</span>
+                        <span class="text"><strong>Item 3:</strong> Terceira etapa finalizada</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================
+             SLIDE 8: BIG NUMBER (Hero Metric)
+             Uso: Destacar métrica principal
+             Pattern: Número grande + contexto
+             ============================================ -->
+        <div class="slide">
+            <div class="slide-content">
+                <div class="big-number">750</div>
+                <div class="hero-text">Conversões Alcançadas</div>
+                <p class="body-text">Descrição adicional explicando o contexto da métrica e sua importância</p>
+                <span class="badge badge-success">+150% vs período anterior</span>
+            </div>
+        </div>
+
+        <!-- ============================================
+             SLIDE 9: CLOSING (Split Layout - Gradient Left)
+             Uso: Último slide com CTA
+             Pattern: Gradient esquerda + Conteúdo direita
+             ============================================ -->
+        <div class="slide slide-split slide-split-gradient-left">
+            <div class="slide-split-gradient" style="background-image: url('https://hub.jumper.studio/decks/identities/jumper/gradients/organic-02.png');"></div>
+            <div class="slide-split-content">
+                <div style="max-width: 600px;">
+                    <h1 style="color: #FFFFFF; text-align: left;">Próximos Passos</h1>
+                    <h2 style="text-align: left; margin-bottom: 30px;">Plano de ação para o próximo período</h2>
+
+                    <div style="background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 30px; text-align: left;">
+                        <h3 style="color: var(--jumper-orange); font-size: clamp(18px, 2.2vw, 22px); margin-bottom: 20px; font-weight: 700;">Ações Imediatas:</h3>
+                        <div style="font-size: clamp(15px, 1.8vw, 17px); line-height: 1.8; color: rgba(255,255,255,0.8);">
+                            <div style="margin: 12px 0;"><span style="color: var(--color-success); font-weight: 700;">✓</span> Ação 1</div>
+                            <div style="margin: 12px 0;"><span style="color: var(--color-success); font-weight: 700;">✓</span> Ação 2</div>
+                            <div style="margin: 12px 0;"><span style="color: var(--color-success); font-weight: 700;">✓</span> Ação 3</div>
+                        </div>
+                    </div>
+
+                    <a href="mailto:contato@jumper.studio?subject=Reunião - Relatório Performance" class="cta-button" style="margin-top: 30px;">Agendar Reunião →</a>
+
+                    <p style="margin-top: 25px; font-size: 14px; color: rgba(255,255,255,0.5); text-align: left;">
+                        Baseado em dados validados do período
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dual Logo System (URL ABSOLUTA) -->
+    <img src="https://hub.jumper.studio/decks/identities/jumper/logos/jumper-white.png" alt="Jumper Studio" class="logo logo-white">
+    <img src="https://hub.jumper.studio/decks/identities/jumper/logos/jumper-black.png" alt="Jumper Studio" class="logo logo-black">
+
+    <!-- Slide Indicator (Accessible) -->
+    <div class="slide-indicator" role="status" aria-live="polite" aria-atomic="true">
+        <span id="current-slide">1</span> de <span id="total-slides">9</span>
+    </div>
+
+    <!-- ============================================
+         NAVIGATION SCRIPT
+         Keyboard + Touch navigation with error handling
+         ============================================ -->
+    <script>
+        // Font Loading Validation
+        document.fonts.ready.then(() => {
+            const hafferLoaded = document.fonts.check('16px Haffer');
+            if (!hafferLoaded) {
+                console.warn('⚠️ Haffer font failed to load - using fallback fonts');
+                // Show warning in development/localhost
+                if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                    const warning = document.getElementById('font-warning');
+                    if (warning) {
+                        warning.style.display = 'block';
+                        // Auto-hide after 5 seconds
+                        setTimeout(() => {
+                            warning.style.display = 'none';
+                        }, 5000);
+                    }
+                }
+            }
+        }).catch((err) => {
+            console.error('Font loading check failed:', err);
+        });
+
+        // Navigation System
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        let currentSlide = 0;
+
+        document.getElementById('total-slides').textContent = totalSlides;
+
+        function updateSlideIndicator() {
+            document.getElementById('current-slide').textContent = currentSlide + 1;
+        }
+
+        const presentation = document.querySelector('.presentation');
+
+        presentation.addEventListener('scroll', () => {
+            const scrollPosition = presentation.scrollTop;
+            const slideHeight = window.innerHeight;
+            const newSlide = Math.round(scrollPosition / slideHeight);
+
+            if (newSlide !== currentSlide && newSlide >= 0 && newSlide < totalSlides) {
+                currentSlide = newSlide;
+                updateSlideIndicator();
+            }
+        });
+
+        function scrollToSlide(index) {
+            // Enhanced error handling
+            if (typeof index !== 'number' || isNaN(index)) {
+                console.warn('Invalid slide index:', index);
+                return;
+            }
+            if (index >= 0 && index < totalSlides) {
+                currentSlide = index;
+                slides[index].scrollIntoView({ behavior: 'smooth', block: 'start' });
+                updateSlideIndicator();
+            } else {
+                console.warn('Slide index out of bounds:', index, '(Total:', totalSlides + ')');
+            }
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(event) {
+            switch(event.key) {
+                case 'ArrowRight':
+                case ' ':
+                    event.preventDefault();
+                    scrollToSlide(currentSlide + 1);
+                    break;
+                case 'ArrowLeft':
+                    event.preventDefault();
+                    scrollToSlide(currentSlide - 1);
+                    break;
+            }
+        });
+
+        // Touch/swipe navigation
+        let touchStartY = 0;
+        let touchEndY = 0;
+
+        document.addEventListener('touchstart', function(event) {
+            touchStartY = event.changedTouches[0].screenY;
+        });
+
+        document.addEventListener('touchend', function(event) {
+            touchEndY = event.changedTouches[0].screenY;
+            if (touchStartY - touchEndY > 50) {
+                scrollToSlide(currentSlide + 1);
+            } else if (touchEndY - touchStartY > 50) {
+                scrollToSlide(currentSlide - 1);
+            }
+        });
+    </script>
+</body>
+</html>
