@@ -176,11 +176,23 @@ Transform markdown data into beautiful, interactive HTML slides following a PRE-
    - DO NOT escape or break UTF-8 characters
    - Test: "Relatório" should render correctly, NOT "RelatÃ³rio"
 
-3. OUTPUT:
+3. GRADIENT BACKGROUNDS (MANDATORY FOR COVER/CLOSING SLIDES):
+   ⚠️ CRITICAL: For split layout slides, you MUST use gradient IMAGE URLs, NOT CSS gradients!
+
+   - For "cover-split-gradient-right" pattern (Cover slide):
+     <div class="slide-split-gradient" style="background-image: url('https://hub.jumper.studio/decks/identities/jumper/gradients/organic-01.png');"></div>
+
+   - For "closing-split-gradient-left" pattern (Closing slide):
+     <div class="slide-split-gradient" style="background-image: url('https://hub.jumper.studio/decks/identities/jumper/gradients/organic-02.png');"></div>
+
+   DO NOT use: background: linear-gradient(...)
+   ALWAYS use: background-image: url('https://hub.jumper.studio/decks/identities/jumper/gradients/...')
+
+4. OUTPUT:
    - Return ONLY the complete HTML (no markdown fences, no explanations)
    - HTML must be production-ready (can be opened directly in browser)
 
-4. OPTIMIZATION:
+5. OPTIMIZATION:
    - Remove ALL CSS comments to save tokens
    - Keep CSS minified and compact
    - Focus output tokens on <body> content, not CSS documentation
@@ -291,10 +303,9 @@ OUTPUT FORMAT: Complete standalone HTML file (no markdown fences, no explanation
       throw new Error(`Claude API error: ${claudeResponse.status} - ${errorText.substring(0, 200)}`);
     }
 
-    // Parse response
+    // Parse response (use .text() for proper UTF-8 handling)
     console.log('📦 [DECK_GENERATE] Parsing Claude response...');
-    const claudeBytes = await claudeResponse.arrayBuffer();
-    const claudeText = decoder.decode(claudeBytes);
+    const claudeText = await claudeResponse.text();  // ✅ Automatic UTF-8 decode, prevents double-decoding
     const claudeData = JSON.parse(claudeText);
 
     const latency = Date.now() - startTime;
@@ -329,6 +340,47 @@ OUTPUT FORMAT: Complete standalone HTML file (no markdown fences, no explanation
 
     console.log('✅ [DECK_GENERATE] HTML generated');
     console.log('📏 [DECK_GENERATE] HTML length:', htmlOutput.length, 'chars');
+
+    // ========================================================================
+    // VALIDATION: Check for common issues
+    // ========================================================================
+    const validationErrors: string[] = [];
+
+    // Check 1: UTF-8 corruption patterns (mojibake)
+    const corruptionPatterns = ['Ã³', 'Ã§', 'Ã£', 'Ãª', 'Ã ', 'Ã©'];
+    const hasCorruption = corruptionPatterns.some(pattern => htmlOutput.includes(pattern));
+    if (hasCorruption) {
+      validationErrors.push('UTF-8 encoding corruption detected (mojibake characters found)');
+    }
+
+    // Check 2: Gradient URLs for cover/closing slides
+    const planHasCoverSlide = approvedPlan.slides.some((s: any) =>
+      s.recommended_pattern === 'cover-split-gradient-right'
+    );
+    const planHasClosingSlide = approvedPlan.slides.some((s: any) =>
+      s.recommended_pattern === 'closing-split-gradient-left'
+    );
+
+    if (planHasCoverSlide && !htmlOutput.includes('organic-01.png')) {
+      validationErrors.push('Cover slide missing organic-01.png gradient URL');
+    }
+
+    if (planHasClosingSlide && !htmlOutput.includes('organic-02.png')) {
+      validationErrors.push('Closing slide missing organic-02.png gradient URL');
+    }
+
+    // Check 3: CSS gradient fallback (should NOT be used for cover/closing)
+    const hasCssGradient = htmlOutput.includes('linear-gradient');
+    if (hasCssGradient && (planHasCoverSlide || planHasClosingSlide)) {
+      validationErrors.push('CSS gradient detected on cover/closing slide - should use gradient image URLs instead');
+    }
+
+    if (validationErrors.length > 0) {
+      console.error('⚠️ [DECK_GENERATE] Validation warnings:', validationErrors);
+      // Log but don't fail - these are warnings that help us catch issues
+    } else {
+      console.log('✅ [DECK_GENERATE] Validation passed');
+    }
 
     // ========================================================================
     // UPLOAD TO STORAGE
