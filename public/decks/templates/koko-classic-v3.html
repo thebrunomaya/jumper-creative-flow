@@ -826,8 +826,8 @@
 
         .statement-slide-reverse .statement-graphic img {
             width: auto; /* Let width be determined by height */
-            height: 100%; /* Fill container height - mesma altura do texto! */
-            max-height: none; /* Remove max-height restriction */
+            height: auto; /* Auto height to respect max-height */
+            max-height: 55vh; /* Balanced with text column height */
             max-width: 100%; /* Don't overflow container */
             object-fit: contain;
         }
