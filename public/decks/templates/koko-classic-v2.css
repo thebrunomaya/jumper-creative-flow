@@ -1,0 +1,2011 @@
+/**
+ * KOKO CLASSIC TEMPLATE v2.2 - CSS STYLESHEET
+ *
+ * Version: v2.2 (External CSS Edition)
+ * Last Updated: 2024-11-16
+ *
+ * This CSS was extracted from inline styles for performance optimization.
+ *
+ * ============================================
+ * DESIGN SYSTEM
+ * ============================================
+ * Design: Energético, criativo, ousado com elementos visuais únicos
+ * Paleta: Amarelo (#F5C542), Rosa (#FF0080), Preto, Branco
+ * Font: Alternate Gothic (títulos) + Playfair Display (corpo) + Montserrat (UI)
+ *
+ * ============================================
+ * CHANGELOG
+ * ============================================
+ * v2.2 (2024-11-16): External CSS extraction for token optimization
+ * v2.2 (2024-11-12): Hover effects, bug fixes, visual polish
+ * v2.1 (2024-11-11): Statement/Section/TOC patterns, graphic elements
+ * v2.0 (2024-11-11): Data visualization charts (5 types), navigation system
+ *
+ * ============================================
+ * 17 PADRÕES DE SLIDES DISPONÍVEIS
+ * ============================================
+ *
+ * SEÇÃO 1: SLIDES DE ABERTURA/FECHAMENTO
+ *   - hero-slide: Capa com gorilla hands
+ *   - conclusion-slide: Contracapa com statement
+ *
+ * SEÇÃO 2: SLIDES DE TRANSIÇÃO
+ *   - statement-slide: Key insight (text left, graphic right)
+ *   - statement-slide-reverse: Dramatic insight (graphic left, text right)
+ *   - section-divider-slide: Chapter break (title + computer)
+ *   - toc-slide: Table of contents (funnel effect)
+ *
+ * SEÇÃO 3: SLIDES DE CONTEÚDO
+ *   - slide (content-slide): Standard text/bullets
+ *   - cards-grid: Grid de 3-4 cards
+ *   - timeline-container: Cronologia vertical
+ *   - data-list: Label-value pairs
+ *
+ * SEÇÃO 4: SLIDES DE DADOS/CHARTS
+ *   - line-chart-slide: Temporal evolution
+ *   - bar-chart-slide: Channel comparison
+ *   - donut-chart-slide: Budget distribution
+ *   - funnel-slide: Conversion path
+ *   - stacked-area-slide: Multi-channel evolution
+ *
+ * SEÇÃO 5: COMPONENTES REUTILIZÁVEIS
+ *   - card: Card base com dog-ear
+ *   - metric-card: Compact metric display
+ *   - emphasis-box: Highlight callout
+ *
+ * BRANDING: Koko é uma agência criativa independente.
+ * NÃO mencionar Jumper Studio em nenhum lugar (somos terceirizados).
+ */
+
+/* ========================================
+   FONT IMPORTS
+   URLs ABSOLUTAS (CRÍTICO para compartilhamento)
+   ======================================== */
+
+/* Alternate Gothic - Títulos (Book, Bold, Black) */
+@font-face {
+    font-family: 'Alternate Gothic';
+    src: url('https://hub.jumper.studio/decks/identities/koko/fonts/AlternateGothicCondATF-Book.otf') format('opentype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Alternate Gothic';
+    src: url('https://hub.jumper.studio/decks/identities/koko/fonts/AlternateGothicCondATF-Bold.otf') format('opentype');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Alternate Gothic';
+    src: url('https://hub.jumper.studio/decks/identities/koko/fonts/AlternateGothicCondATF-Black.otf') format('opentype');
+    font-weight: 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* Playfair Display - Corpo de texto (Regular, Bold) */
+@font-face {
+    font-family: 'Playfair Display';
+    src: url('https://hub.jumper.studio/decks/identities/koko/fonts/PlayfairDisplay-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Playfair Display';
+    src: url('https://hub.jumper.studio/decks/identities/koko/fonts/PlayfairDisplay-Bold.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* Montserrat - Header/Footer e UI elements */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Alternate Gothic', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #FFFFFF;
+    color: #000000;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility; /* v2.2: Melhor renderização de texto */
+}
+
+/* ========================================
+   KOKO DESIGN SYSTEM - CORES
+   ======================================== */
+:root {
+    --koko-yellow: #F5C542;
+    --koko-pink: #FF0080;
+    --koko-black: #000000;
+    --koko-white: #FFFFFF;
+    --koko-gray: #BDBDBD;
+}
+
+/* ========================================
+   PRESENTATION CONTAINER
+   Sistema de slides com navegação interativa
+   ======================================== */
+.presentation-container {
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
+}
+
+.slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    /* v2.2: Transition movida para seção INTERACTIVITY */
+    transform: translateX(100%);
+    padding: clamp(100px, 14vh, 160px) clamp(60px, 8vw, 140px) clamp(140px, 16vh, 180px);
+}
+
+.slide.active {
+    opacity: 1;
+    transform: translateX(0);
+    z-index: 10;
+}
+
+.slide.prev {
+    opacity: 0;
+    transform: translateX(-100%);
+}
+
+/* ========================================
+   HEADER & FOOTER MARQUEE
+   Faixas animadas no topo e rodapé
+   Uso: SEMPRE presente em todas as páginas
+   ======================================== */
+.marquee-container {
+    position: fixed;
+    left: 0;
+    right: 0;
+    height: 48px;
+    background: var(--koko-black);
+    overflow: hidden;
+    z-index: 1000;
+}
+
+.marquee-container.top {
+    top: 0;
+}
+
+.marquee-container.bottom {
+    bottom: 0;
+}
+
+.marquee-content {
+    display: flex;
+    animation: marqueeScroll 30s linear infinite;
+    white-space: nowrap;
+}
+
+.marquee-text {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--koko-white);
+    padding: 0 64px;
+    line-height: 48px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+@keyframes marqueeScroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+
+/* ========================================
+   LOGO KOKO
+   Logo no canto superior esquerdo
+   Uso: SEMPRE presente (exceto em hero slides de capa)
+   ======================================== */
+.logo-container {
+    position: fixed;
+    top: 64px;
+    left: 32px;
+    z-index: 999;
+}
+
+.logo-container img {
+    height: 48px;
+    mix-blend-mode: multiply;
+}
+
+/* ========================================
+   SLIDE CONTENT BASE
+   Base para conteúdo de todos os slides
+   ======================================== */
+.slide-content {
+    max-width: 1100px;
+    width: 100%;
+    margin: 0 auto;
+    position: relative;
+    z-index: 10;
+}
+
+/* ========================================
+   HERO SLIDE PATTERN
+   Slide de capa com mãos de gorila
+   Uso: Primeira página da apresentação
+   ======================================== */
+.hero-slide {
+    padding: 0;
+    overflow: visible; /* v2: Fix para gorilla hands aparecerem */
+}
+
+.hero-background {
+    position: absolute;
+    inset: 0;
+    /* v2: Background URL removida - usar inline style no HTML (hero-background.png) */
+    background-size: cover;
+    background-position: center;
+    z-index: 0;
+}
+
+.gorilla-hand {
+    position: absolute;
+    width: 43vw;
+    max-width: 540px;
+    pointer-events: none;
+    z-index: 5;
+    will-change: transform; /* v2: Performance optimization */
+}
+
+.gorilla-hand.left {
+    left: -5%;
+    top: -5%;
+}
+
+.gorilla-hand.right {
+    right: -5%;
+    bottom: -5%;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 20;
+    text-align: center;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.hero-content h1 {
+    font-size: clamp(60px, 10vw, 120px);
+    font-weight: 900;
+    line-height: 0.9;
+    letter-spacing: -0.02em;
+    margin-bottom: 50px;
+    text-transform: uppercase;
+}
+
+.hero-subtitle {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(24px, 3vw, 32px);
+    font-weight: 700;
+    font-style: italic;
+    line-height: 1.3;
+    margin-bottom: 16px;
+}
+
+.hero-meta {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(16px, 2vw, 20px);
+    font-weight: 400;
+    color: rgba(0, 0, 0, 0.7);
+    line-height: 1.5;
+}
+
+/* ========================================
+   CONTENT SLIDE PATTERN
+   Slide padrão com título + subtítulo + conteúdo
+   ======================================== */
+.slide-title {
+    font-size: clamp(36px, 5.5vw, 56px);
+    font-weight: 900;
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+    margin-bottom: 16px;
+    text-transform: uppercase;
+}
+
+.slide-subtitle {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(16px, 2vw, 20px);
+    font-style: italic;
+    opacity: 0.7; /* v2.2: Usar opacity em vez de rgba para dark mode */
+    margin-bottom: 32px;
+}
+
+/* ========================================
+   CARDS GRID PATTERN
+   Grid de cards para múltiplos itens
+   ======================================== */
+.cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px; /* v2.2: Padronizado para múltiplo de 4px */
+    margin-top: 24px;
+}
+
+.card {
+    padding: 20px; /* v2.2: Padronizado para múltiplo de 4px */
+    position: relative;
+    overflow: visible; /* Permite corner-fold aparecer */
+}
+
+.card-default {
+    background: var(--koko-white);
+    border: 2px solid var(--koko-black);
+}
+
+.card-highlight-yellow {
+    background: var(--koko-yellow);
+    border: 2px solid var(--koko-black);
+}
+
+.card-highlight-pink {
+    background: var(--koko-pink);
+    color: var(--koko-white);
+    border: 2px solid var(--koko-black);
+}
+
+.card-dark {
+    background: var(--koko-black);
+    color: var(--koko-white);
+    border: 2px solid var(--koko-white);
+}
+
+/* Corner fold effect (dog-ear com diagonal) */
+.corner-cut {
+    position: relative;
+    /* Clip-path no card para criar corte triangular no canto */
+    clip-path: polygon(
+        0 0,                          /* Canto superior-esquerdo */
+        100% 0,                       /* Canto superior-direito */
+        100% calc(100% - 22px),       /* Lado direito até início do corte (ajustado para borda) */
+        calc(100% - 22px) 100%,       /* Diagonal do corte (ajustado para borda) */
+        0 100%                        /* Lado esquerdo */
+    );
+}
+
+/* Quadrado no canto com diagonal dividindo em dois triângulos */
+.corner-cut::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    width: 22px;
+    height: 22px;
+    background: linear-gradient(135deg,
+        #d9d9d9 0%,      /* Verso (papel) */
+        #d9d9d9 45.5%,
+        #000 45.5%,      /* Borda preta */
+        #000 54.5%,
+        #FFFFFF 54.5%,   /* Fundo branco */
+        #FFFFFF 100%
+    );
+    filter: drop-shadow(1px 1px 2px rgba(0, 0, 0, 0.1)); /* v2.2: Profundidade */
+}
+
+/* Cards escuros - verso preto mais claro */
+.card-dark.corner-cut::after {
+    background: linear-gradient(135deg,
+        #444 0%,      /* Mais claro para melhor contraste */
+        #444 45.5%,
+        #fff 45.5%,   /* Borda branca */
+        #fff 54.5%,
+        #FFFFFF 54.5%,
+        #FFFFFF 100%
+    );
+}
+
+/* Cards amarelos - verso amarelo escurecido */
+.card-highlight-yellow.corner-cut::after {
+    background: linear-gradient(135deg,
+        #c89420 0%,
+        #c89420 45.5%,
+        #000 45.5%,
+        #000 54.5%,
+        #FFFFFF 54.5%,
+        #FFFFFF 100%
+    );
+}
+
+/* Cards rosa - verso rosa escurecido */
+.card-highlight-pink.corner-cut::after {
+    background: linear-gradient(135deg,
+        #cc0066 0%,
+        #cc0066 45.5%,
+        #000 45.5%,
+        #000 54.5%,
+        #FFFFFF 54.5%,
+        #FFFFFF 100%
+    );
+}
+
+/* Emphasis box amarela - verso marrom */
+.emphasis-box.corner-cut::after {
+    background: linear-gradient(135deg,
+        #c89420 0%,
+        #c89420 45.5%,
+        #000 45.5%,
+        #000 54.5%,
+        #FFFFFF 54.5%,
+        #FFFFFF 100%
+    );
+}
+
+/* Emphasis box dark - verso cinza */
+.emphasis-box.dark.corner-cut::after {
+    background: linear-gradient(135deg,
+        #444 0%,      /* Mais claro para melhor contraste */
+        #444 45.5%,
+        #fff 45.5%,   /* Borda branca */
+        #fff 54.5%,
+        #FFFFFF 54.5%,
+        #FFFFFF 100%
+    );
+}
+
+.card-title {
+    font-size: clamp(16px, 2vw, 18px);
+    font-weight: 700;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    line-height: 1.2;
+}
+
+.card-content {
+    font-family: 'Playfair Display', serif;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.card-content ul {
+    list-style: none;
+    padding: 0;
+}
+
+.card-content li {
+    margin-bottom: 6px;
+}
+
+.card-metric {
+    font-size: 28px;
+    font-weight: 900;
+    margin-bottom: 8px;
+    line-height: 1;
+}
+
+/* ========================================
+   STACK CARDS PATTERN
+   Cards empilhados verticalmente
+   ======================================== */
+.stack-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 16px; /* v2.2: Padronizado para múltiplo de 4px */
+    margin-top: 24px;
+}
+
+/* ========================================
+   METRIC CARDS PATTERN
+   Cards compactos para métricas
+   ======================================== */
+.metric-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.metric-card {
+    background: var(--koko-black);
+    color: var(--koko-white);
+    padding: 14px;
+    position: relative;
+    border: 2px solid var(--koko-white);  /* Adicionada borda padronizada */
+}
+
+.metric-label {
+    font-family: 'Playfair Display', serif;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    opacity: 0.8;
+    margin-bottom: 6px;
+}
+
+.metric-value {
+    font-size: 26px;
+    font-weight: 900;
+    line-height: 1;
+}
+
+/* Metric cards - dog-ear (16px com borda branca) */
+.metric-card.corner-cut {
+    clip-path: polygon(
+        0 0,
+        100% 0,
+        100% calc(100% - 16px),   /* 16px agora que tem borda */
+        calc(100% - 16px) 100%,
+        0 100%
+    );
+}
+
+.metric-card.corner-cut::after {
+    bottom: -2px;  /* Desloca para compensar borda */
+    right: -2px;
+    width: 16px;   /* Volta para 16px */
+    height: 16px;
+    background: linear-gradient(135deg,
+        #444 0%,         /* Mais claro para melhor contraste */
+        #444 43.75%,     /* 2px em 16px = 12.5%, então 50% - 6.25% */
+        #fff 43.75%,     /* Borda branca (combina com border) */
+        #fff 56.25%,
+        #FFFFFF 56.25%,
+        #FFFFFF 100%
+    );
+}
+
+/* ========================================
+   EMPHASIS BOX PATTERN
+   Caixas de destaque para informações importantes
+   ======================================== */
+.emphasis-box {
+    background: var(--koko-yellow);
+    padding: 18px;
+    margin-top: 20px;
+    position: relative;
+    border: 2px solid var(--koko-black);  /* Adicionada borda padronizada */
+}
+
+.emphasis-box.dark {
+    background: var(--koko-black);
+    color: var(--koko-white);
+    border: 2px solid var(--koko-white);  /* Borda branca para dark */
+}
+
+.emphasis-box p {
+    font-size: 14px;
+    font-weight: 700;
+}
+
+/* ========================================
+   DATA LIST PATTERN
+   Grid de métricas label + value
+   ======================================== */
+.data-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-top: 24px;
+}
+
+.data-column h3 {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 14px;
+    text-transform: uppercase;
+}
+
+.data-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+    padding-bottom: 6px;
+    margin-bottom: 10px;
+}
+
+.data-label {
+    font-family: 'Playfair Display', serif;
+    font-size: 13px;
+}
+
+.data-value {
+    font-size: 18px;
+    font-weight: 900;
+}
+
+/* ========================================
+   TWO COLUMN LAYOUT PATTERN
+   Layout de duas colunas
+   ======================================== */
+.two-column {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-top: 24px;
+}
+
+/* ========================================
+   TIMELINE PATTERN
+   Lista vertical com borda à esquerda
+   ======================================== */
+.timeline-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.timeline-item {
+    background: var(--koko-white);
+    border-left: 6px solid var(--koko-black);
+    padding: 14px 20px;
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.timeline-item-yellow {
+    border-left-color: var(--koko-yellow);
+}
+
+.timeline-item-pink {
+    background: var(--koko-pink);
+    color: var(--koko-white);
+    border-left-color: var(--koko-black);
+}
+
+.timeline-item-content {
+    flex: 1;
+}
+
+.timeline-title {
+    font-size: clamp(16px, 2vw, 20px);
+    font-weight: 700;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+}
+
+.timeline-content {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(13px, 1.6vw, 15px);
+    line-height: 1.4;
+}
+
+.timeline-icon {
+    font-size: clamp(28px, 3.5vw, 38px);
+    margin-left: 20px;
+}
+
+/* ========================================
+   CONCLUSION SLIDE PATTERN
+   Slide de conclusão com statement grande
+   ======================================== */
+.conclusion-slide .slide-content {
+    text-align: center;
+}
+
+.conclusion-title {
+    font-size: clamp(48px, 8vw, 76px);
+    font-weight: 900;
+    line-height: 0.95;
+    color: var(--koko-pink);
+    margin-bottom: clamp(30px, 5vh, 45px);
+    text-transform: uppercase;
+}
+
+.conclusion-box {
+    background: var(--koko-yellow);
+    border: 2px solid var(--koko-black);  /* Padronizado para 2px */
+    padding: clamp(24px, 4vw, 36px);
+    position: relative;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* Conclusion box com dog-ear amarelo */
+.conclusion-box.corner-cut::after {
+    background: linear-gradient(135deg,
+        #c89420 0%,      /* Amarelo escurecido (verso) */
+        #c89420 45.5%,
+        #000 45.5%,      /* Borda preta */
+        #000 54.5%,
+        #FFFFFF 54.5%,   /* Fundo branco */
+        #FFFFFF 100%
+    );
+}
+
+.conclusion-text {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(15px, 2vw, 19px);
+    line-height: 1.6;
+}
+
+/* ========================================
+   STATEMENT SLIDE PATTERN
+   Bold title with body text and pink mouth graphic
+   Uso: Section introductions, key statements, context setting
+   Layout: Two-column grid (text left, graphic right)
+   Style: Clean minimal (no corner-fold)
+   ======================================== */
+.statement-slide .slide-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    align-items: center;
+}
+
+.statement-text {
+    max-width: 520px;
+}
+
+.statement-title {
+    font-size: clamp(40px, 6vw, 64px);
+    font-weight: 900;
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+}
+
+.statement-body {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(14px, 1.8vw, 17px);
+    line-height: 1.6;
+    color: rgba(0, 0, 0, 0.85);
+}
+
+.statement-graphic {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.statement-graphic img {
+    max-width: 100%;
+    height: auto;
+    max-height: 400px;
+}
+
+/* Statement slide variant: Large graphic left (~50%), text right (~50%) */
+.statement-slide-reverse .slide-content {
+    display: grid;
+    grid-template-columns: auto 1fr; /* Auto for image, rest for text */
+    gap: clamp(60px, 8vw, 120px); /* Doubled gap for better spacing */
+    align-items: center; /* Center vertically */
+    padding: 80px clamp(60px, 8vw, 140px);
+}
+
+.statement-slide-reverse .statement-graphic {
+    order: -1; /* Move graphic to the left */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.statement-slide-reverse .statement-graphic img {
+    width: auto; /* Let width be determined by height */
+    height: auto; /* Auto height to respect max-height */
+    max-height: 44vh; /* Reduced by 20% (55vh * 0.8 = 44vh) */
+    max-width: 100%; /* Don't overflow container */
+    object-fit: contain;
+}
+
+.statement-slide-reverse .statement-text {
+    max-width: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0; /* Remove gap - control spacing individually */
+}
+
+.statement-slide-reverse .statement-title {
+    font-size: clamp(48px, 6vw, 72px);
+    font-weight: 900;
+    line-height: 0.95;
+    text-align: left;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    margin-bottom: 8px; /* Small gap to subtitle */
+}
+
+.statement-slide-reverse .statement-subtitle {
+    font-size: clamp(20px, 2.4vw, 28px);
+    font-weight: 700;
+    line-height: 1.3;
+    margin: 0 0 12px 0; /* Small gap to body text */
+}
+
+.statement-slide-reverse .statement-body {
+    font-size: clamp(13px, 1.4vw, 16px); /* Considerably smaller */
+    line-height: 1.5;
+    margin: 0 0 8px 0; /* Small gap between paragraphs */
+}
+
+.statement-slide-reverse .statement-body:last-child {
+    margin-bottom: 0; /* Remove margin from last paragraph */
+}
+
+/* ========================================
+   SECTION DIVIDER SLIDE PATTERN
+   Simple two-column layout: title left, computer graphic right
+   Uso: Chapter breaks, major section transitions
+   Layout: 50/50 grid, clean and minimal
+   Style: Bold title + large computer graphic
+   ======================================== */
+.section-divider-slide {
+    padding: 0;
+    background: var(--koko-white);
+}
+
+.section-divider-slide .slide-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* 50% title, 50% graphic */
+    gap: clamp(40px, 5vw, 80px);
+    align-items: center;
+    max-width: 100%;
+    height: 100%;
+    padding: clamp(100px, 14vh, 160px) clamp(120px, 14vw, 240px);
+}
+
+.section-divider-title-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.section-divider-title {
+    font-size: clamp(56px, 8vw, 112px);
+    font-weight: 900;
+    line-height: 0.9;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+    text-align: left;
+}
+
+.section-divider-subtitle {
+    font-size: clamp(20px, 2.4vw, 28px);
+    font-weight: 700;
+    line-height: 1.3;
+    text-align: left;
+}
+
+/* Computer graphic - large on right side */
+.section-divider-graphic {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.section-divider-graphic img {
+    width: 100%;
+    height: auto;
+    max-height: 64vh; /* Reduced by 20% for better breathing room */
+    object-fit: contain;
+}
+
+/* ========================================
+   TABLE OF CONTENTS SLIDE PATTERN
+   Sumário/Índice com categorias e subcategorias
+   Uso: Agenda, table of contents, estrutura de conteúdo
+   Layout: Título à esquerda, blocos de categoria à direita
+   Style: Categorias com header preto + yellow underline
+   ======================================== */
+.toc-slide .slide-content {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 60px;
+    align-items: flex-start;
+}
+
+.toc-title-wrapper {
+    position: sticky;
+    top: 0;
+}
+
+.toc-main-title {
+    font-size: clamp(48px, 8vw, 96px);
+    font-weight: 900;
+    line-height: 0.9;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+}
+
+.toc-categories {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    align-items: flex-end; /* Alinha à direita para efeito funil */
+}
+
+.toc-category {
+    display: flex;
+    flex-direction: column;
+    transition: all 300ms ease;
+}
+
+/* Efeito funil: cada categoria é progressivamente menor */
+.toc-category:nth-child(1) {
+    width: 100%; /* Descoberta - mais largo */
+}
+
+.toc-category:nth-child(2) {
+    width: 85%; /* Nutrição - médio */
+}
+
+.toc-category:nth-child(3) {
+    width: 70%; /* Conversão - mais estreito (funil) */
+}
+
+.toc-category-header {
+    background: var(--koko-black);
+    color: var(--koko-white);
+    padding: 12px 24px;
+    font-size: clamp(14px, 1.8vw, 18px);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 4px solid var(--koko-yellow);
+}
+
+.toc-category-content {
+    padding: 16px 24px;
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(13px, 1.6vw, 15px);
+    line-height: 1.8;
+}
+
+.toc-category-content ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.toc-category-content li {
+    margin-bottom: 6px;
+}
+
+/* ========================================
+   NAVIGATION SYSTEM
+   Setas, dots, contador de slides
+   ======================================== */
+.nav-dots {
+    position: fixed;
+    bottom: 72px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 12px;
+    z-index: 999;
+}
+
+.nav-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+    transition: all 300ms ease;
+}
+
+.nav-dot.active {
+    background: var(--koko-yellow);
+    transform: scale(1.3);
+}
+
+.slide-counter {
+    position: fixed;
+    bottom: 72px;
+    right: 32px;
+    font-size: 14px;
+    font-weight: 700;
+    z-index: 999;
+}
+
+.nav-arrow {
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 48px;
+    height: 48px;
+    background: var(--koko-black);
+    color: var(--koko-white);
+    border: none;
+    cursor: pointer;
+    font-size: 24px;
+    z-index: 999;
+    /* v2.2: Transition e hover movidos para seção INTERACTIVITY */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nav-arrow.prev {
+    left: 32px;
+}
+
+.nav-arrow.next {
+    right: 32px;
+}
+
+/* ========================================
+   INTERACTIVITY (v2.2)
+   Hover effects, transitions, micro-interactions
+   ======================================== */
+
+/* Card Hover Effects */
+.card {
+    transition: transform 300ms ease, box-shadow 300ms ease;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* Navigation Dots Hover */
+.nav-dot {
+    transition: all 300ms ease;
+}
+
+.nav-dot:hover:not(.active) {
+    background: rgba(245, 197, 66, 0.5);
+    transform: scale(1.2);
+}
+
+/* Navigation Arrows Enhanced */
+.nav-arrow {
+    transition: transform 300ms cubic-bezier(0.16, 1, 0.3, 1),
+                opacity 300ms ease;
+}
+
+.nav-arrow:hover {
+    transform: translateY(-50%) scale(1.1);
+    opacity: 1;
+}
+
+/* Smooth Slide Transitions (refinado) */
+.slide {
+    transition: opacity 700ms cubic-bezier(0.16, 1, 0.3, 1),
+                transform 700ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ========================================
+   UTILITY CLASSES
+   ======================================== */
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-yellow { color: var(--koko-yellow); }
+.text-pink { color: var(--koko-pink); }
+
+/* ========================================
+   DATA VISUALIZATION CHARTS
+   Base components for traffic reports
+   Semantic colors for performance data
+   ======================================== */
+
+/* Chart semantic colors (traffic data) */
+:root {
+    --chart-positive: #2AA876;  /* Green - growth, success, high ROAS */
+    --chart-neutral: #F5C542;   /* Yellow - standard, warning */
+    --chart-negative: #FF0080;  /* Pink - decline, alert, high CPA */
+    --chart-google: #2AA876;    /* Google Ads */
+    --chart-meta: #4285F4;      /* Meta Ads */
+    --chart-tiktok: #FF0080;    /* TikTok Ads */
+    --chart-other: #666666;     /* Other channels */
+}
+
+/* Base chart container with corner-fold */
+.chart-container {
+    background: var(--koko-white);
+    border: 2px solid var(--koko-black);
+    padding: clamp(24px, 3vw, 40px);
+    position: relative;
+    clip-path: polygon(
+        0 0,
+        100% 0,
+        100% calc(100% - 22px),
+        calc(100% - 22px) 100%,
+        0 100%
+    );
+}
+
+.chart-container::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    width: 22px;
+    height: 22px;
+    background: linear-gradient(135deg,
+        #d9d9d9 0%,
+        #d9d9d9 45.5%,
+        #000 45.5%,
+        #000 54.5%,
+        #FFFFFF 54.5%,
+        #FFFFFF 100%
+    );
+}
+
+.chart-title {
+    font-family: 'Alternate Gothic', sans-serif;
+    font-size: clamp(32px, 4vw, 48px);
+    font-weight: 900;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    line-height: 0.9;
+}
+
+.chart-subtitle {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(16px, 2vw, 20px);
+    font-weight: 400;
+    font-style: italic;
+    color: rgba(0, 0, 0, 0.7);
+    margin-bottom: 32px;
+}
+
+.chart-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-top: 16px;
+    font-family: 'Playfair Display', serif;
+    font-size: 14px;
+}
+
+.chart-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.chart-legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+/* ========================================
+   LINE CHART PATTERN
+   Temporal evolution - performance over time
+   ======================================== */
+.line-chart-slide .slide-content {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: clamp(32px, 4vw, 60px);
+    align-items: flex-start;
+}
+
+.line-chart-wrapper {
+    position: relative;
+    height: 400px;
+}
+
+.line-chart-svg {
+    width: 100%;
+    height: 100%;
+}
+
+.line-chart-path {
+    fill: none;
+    stroke: var(--chart-positive);
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.line-chart-dots circle {
+    fill: var(--koko-white);
+    stroke: var(--chart-positive);
+    stroke-width: 3;
+}
+
+.line-chart-grid line {
+    stroke: rgba(0, 0, 0, 0.1);
+    stroke-width: 1;
+}
+
+.line-chart-axis {
+    font-family: 'Playfair Display', serif;
+    font-size: 12px;
+    fill: rgba(0, 0, 0, 0.6);
+}
+
+.line-chart-insights {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.line-chart-metric {
+    padding: 16px;
+    background: var(--koko-black);
+    color: var(--koko-white);
+    position: relative;
+    clip-path: polygon(
+        0 0,
+        100% 0,
+        100% calc(100% - 16px),
+        calc(100% - 16px) 100%,
+        0 100%
+    );
+}
+
+.line-chart-metric::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    width: 16px;
+    height: 16px;
+    background: linear-gradient(135deg,
+        #444 0%,
+        #444 43.75%,
+        #fff 43.75%,
+        #fff 56.25%,
+        #FFFFFF 56.25%,
+        #FFFFFF 100%
+    );
+}
+
+.line-chart-metric-label {
+    font-family: 'Playfair Display', serif;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    opacity: 0.8;
+    margin-bottom: 4px;
+}
+
+.line-chart-metric-value {
+    font-family: 'Alternate Gothic', sans-serif;
+    font-size: clamp(24px, 3vw, 32px);
+    font-weight: 900;
+}
+
+/* ========================================
+   HORIZONTAL BAR CHART PATTERN (Comparison)
+   Use case: Channel comparison, performance benchmarks
+   ======================================== */
+.bar-chart-slide .slide-content {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(16px, 2vw, 24px);
+}
+
+/* Reduce title/subtitle spacing specifically for bar chart */
+.bar-chart-slide .slide-title {
+    margin-bottom: 8px;
+}
+
+.bar-chart-slide .slide-subtitle {
+    margin-bottom: 16px;
+}
+
+.bar-chart-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.bar-chart-label {
+    font-family: 'Alternate Gothic', sans-serif;
+    font-size: clamp(16px, 2vw, 20px);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.bar-chart-label-value {
+    font-size: clamp(18px, 2.2vw, 24px);
+    font-weight: 900;
+}
+
+.bar-chart-track {
+    width: 100%;
+    height: clamp(36px, 4.5vw, 54px);
+    background: var(--koko-white);
+    border: 2px solid var(--koko-black);
+    position: relative;
+    overflow: hidden;
+    /* Corner-fold effect on bars */
+    clip-path: polygon(
+        0 0, 100% 0, 100% calc(100% - 16px),
+        calc(100% - 16px) 100%, 0 100%
+    );
+}
+
+.bar-chart-track::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    width: 16px;
+    height: 16px;
+    background: linear-gradient(135deg,
+        #d9d9d9 0%, #d9d9d9 45.5%,
+        #000 45.5%, #000 54.5%,
+        #FFFFFF 54.5%, #FFFFFF 100%
+    );
+    z-index: 2;
+}
+
+.bar-chart-fill {
+    height: 100%;
+    background: var(--koko-black);
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 0 16px;
+    position: relative;
+    transition: width 0.3s ease-out;
+}
+
+/* Color modifiers */
+.bar-chart-fill.positive {
+    background: var(--chart-positive);
+}
+
+.bar-chart-fill.neutral {
+    background: var(--chart-neutral);
+    color: var(--koko-black);
+}
+
+.bar-chart-fill.negative {
+    background: var(--chart-negative);
+}
+
+.bar-chart-fill-value {
+    font-family: 'Alternate Gothic', sans-serif;
+    font-size: clamp(16px, 2vw, 20px);
+    font-weight: 900;
+    color: var(--koko-white);
+    z-index: 1;
+}
+
+.bar-chart-fill.neutral .bar-chart-fill-value {
+    color: var(--koko-black);
+}
+
+/* Insight box for bar charts */
+.bar-chart-insight {
+    margin-top: clamp(16px, 2vw, 24px);
+    padding: clamp(16px, 2vw, 24px);
+    background: var(--koko-yellow);
+    border: 2px solid var(--koko-black);
+    clip-path: polygon(
+        0 0, 100% 0, 100% calc(100% - 18px),
+        calc(100% - 18px) 100%, 0 100%
+    );
+    position: relative;
+}
+
+.bar-chart-insight::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    width: 18px;
+    height: 18px;
+    background: linear-gradient(135deg,
+        #d9d9d9 0%, #d9d9d9 45.5%,
+        #000 45.5%, #000 54.5%,
+        #F5C542 54.5%, #F5C542 100%
+    );
+}
+
+/* ========================================
+   DONUT CHART PATTERN (Budget Distribution)
+   Use case: Budget allocation, market share, composition
+   ======================================== */
+.donut-chart-slide .slide-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* 50/50 split: Chart + Legend */
+    gap: clamp(40px, 5vw, 80px);
+    align-items: center;
+}
+
+.donut-chart-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.donut-chart-svg {
+    width: 100%;
+    max-width: 400px;
+    height: auto;
+    filter: drop-shadow(2px 4px 0px rgba(0, 0, 0, 0.15));
+}
+
+/* Center label in donut hole */
+.donut-center-label {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+.donut-center-value {
+    font-family: 'Alternate Gothic', sans-serif;
+    font-size: clamp(32px, 4vw, 48px);
+    font-weight: 900;
+    line-height: 1;
+    margin-bottom: 4px;
+}
+
+.donut-center-label-text {
+    font-family: 'Alternate Gothic', sans-serif;
+    font-size: clamp(12px, 1.5vw, 16px);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    opacity: 0.7;
+}
+
+/* Legend items for donut */
+.donut-legend {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(16px, 2vw, 24px);
+}
+
+.donut-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: clamp(12px, 1.5vw, 16px);
+    background: var(--koko-white);
+    border: 2px solid var(--koko-black);
+    position: relative;
+    clip-path: polygon(
+        0 0, 100% 0, 100% calc(100% - 14px),
+        calc(100% - 14px) 100%, 0 100%
+    );
+}
+
+.donut-legend-item::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    width: 14px;
+    height: 14px;
+    background: linear-gradient(135deg,
+        #d9d9d9 0%, #d9d9d9 45.5%,
+        #000 45.5%, #000 54.5%,
+        #FFFFFF 54.5%, #FFFFFF 100%
+    );
+}
+
+.donut-legend-color {
+    width: 24px;
+    height: 24px;
+    border: 2px solid var(--koko-black);
+    flex-shrink: 0;
+}
+
+.donut-legend-text {
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.donut-legend-label {
+    font-family: 'Alternate Gothic', sans-serif;
+    font-size: clamp(14px, 1.8vw, 18px);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.donut-legend-value {
+    font-family: 'Alternate Gothic', sans-serif;
+    font-size: clamp(16px, 2vw, 20px);
+    font-weight: 900;
+}
+
+.donut-legend-percentage {
+    font-size: clamp(12px, 1.5vw, 14px);
+    opacity: 0.7;
+    margin-left: 8px;
+}
+
+/* ========================================
+   FUNNEL VISUALIZATION PATTERN (Conversion Path)
+   Use case: Conversion funnel, drop-off analysis, multi-stage process
+   ======================================== */
+.funnel-slide .slide-content {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(16px, 2vw, 24px); /* Increased to fit drop-off badges without overlapping bars */
+}
+
+.funnel-stage {
+    display: flex;
+    flex-direction: column;
+    gap: 4px; /* Minimal internal gap */
+    position: relative;
+}
+
+.funnel-stage-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 0 clamp(12px, 1.5vw, 18px); /* Reduced from 16-24px */
+}
+
+.funnel-stage-label {
+    font-family: 'Alternate Gothic', sans-serif;
+    font-size: clamp(16px, 2vw, 22px);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.funnel-stage-value {
+    font-family: 'Alternate Gothic', sans-serif;
+    font-size: clamp(18px, 2.5vw, 28px);
+    font-weight: 900;
+}
+
+.funnel-stage-percentage {
+    font-size: clamp(14px, 1.8vw, 18px);
+    opacity: 0.7;
+    margin-left: 8px;
+}
+
+/* Funnel bars with decreasing widths */
+.funnel-bar {
+    height: clamp(35px, 3.5vw, 50px); /* Reduced from 50-80px to fit vertically */
+    background: var(--koko-black);
+    border: 2px solid var(--koko-black);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    transition: all 0.3s ease;
+    /* Trapezoid shape via clip-path - inverted for funnel effect (wide top, narrow bottom) */
+    clip-path: polygon(
+        0 0,
+        100% 0,
+        92% 100%,
+        8% 100%
+    );
+}
+
+/* Width variants for funnel effect */
+.funnel-stage:nth-of-type(1) .funnel-bar { width: 100%; background: var(--chart-positive); }
+.funnel-stage:nth-of-type(2) .funnel-bar { width: 85%; background: #4285F4; margin: 0 auto; }
+.funnel-stage:nth-of-type(3) .funnel-bar { width: 60%; background: var(--chart-neutral); margin: 0 auto; color: var(--koko-black); }
+.funnel-stage:nth-of-type(4) .funnel-bar { width: 35%; background: var(--chart-negative); margin: 0 auto; }
+
+.funnel-bar-label {
+    font-family: 'Alternate Gothic', sans-serif;
+    font-size: clamp(14px, 1.8vw, 20px);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--koko-white);
+    z-index: 1;
+}
+
+.funnel-stage:nth-of-type(3) .funnel-bar-label {
+    color: var(--koko-black); /* Yellow bar needs black text */
+}
+
+/* Drop-off indicators - positioned between stages to save vertical space */
+.funnel-drop-off {
+    position: absolute;
+    bottom: calc(-1 * clamp(40px, 5vw, 47px)); /* Empirically measured: gap center - badge half height */
+    left: 50%;
+    transform: translate(-50%, 0%); /* Center horizontally only */
+    background: var(--koko-white);
+    border: 2px solid var(--koko-black);
+    padding: 4px 12px;
+    font-family: 'Alternate Gothic', sans-serif;
+    font-size: clamp(11px, 1.3vw, 14px);
+    font-weight: 700;
+    white-space: nowrap;
+    color: var(--chart-negative);
+    z-index: 10; /* Above bars */
+}
+
+/* Insight box for funnel */
+.funnel-insight {
+    margin-top: clamp(8px, 1vw, 12px); /* Reduced from 16-24px */
+    padding: clamp(12px, 1.5vw, 18px); /* Reduced from 16-24px */
+    background: var(--koko-yellow);
+    border: 2px solid var(--koko-black);
+    clip-path: polygon(
+        0 0, 100% 0, 100% calc(100% - 18px),
+        calc(100% - 18px) 100%, 0 100%
+    );
+    position: relative;
+}
+
+.funnel-insight::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    width: 18px;
+    height: 18px;
+    background: linear-gradient(135deg,
+        #d9d9d9 0%, #d9d9d9 45.5%,
+        #000 45.5%, #000 54.5%,
+        #F5C542 54.5%, #F5C542 100%
+    );
+}
+
+/* ========================================
+   STACKED AREA CHART PATTERN (Multi-channel Evolution)
+   Use case: Multi-source trends, channel contribution over time
+   ======================================== */
+.stacked-area-slide .slide-content {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr; /* 60% chart, 40% legend */
+    gap: clamp(40px, 5vw, 80px);
+    align-items: flex-start;
+}
+
+.stacked-area-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.stacked-area-svg {
+    width: 100%;
+    height: auto;
+    filter: drop-shadow(2px 4px 0px rgba(0, 0, 0, 0.1));
+}
+
+/* SVG styling for stacked areas */
+.stacked-area-path {
+    stroke-width: 0;
+    opacity: 0.85;
+}
+
+.stacked-area-grid line {
+    stroke: #e0e0e0;
+    stroke-width: 1;
+}
+
+.stacked-area-axis text {
+    font-family: 'Alternate Gothic', sans-serif;
+    font-size: 11px;
+    fill: #666;
+}
+
+/* Multi-channel legend for stacked area */
+.stacked-area-legend {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(16px, 2vw, 24px);
+}
+
+.stacked-area-legend-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: clamp(12px, 1.5vw, 16px);
+    background: var(--koko-white);
+    border: 2px solid var(--koko-black);
+    position: relative;
+    clip-path: polygon(
+        0 0, 100% 0, 100% calc(100% - 14px),
+        calc(100% - 14px) 100%, 0 100%
+    );
+}
+
+.stacked-area-legend-item::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    width: 14px;
+    height: 14px;
+    background: linear-gradient(135deg,
+        #d9d9d9 0%, #d9d9d9 45.5%,
+        #000 45.5%, #000 54.5%,
+        #FFFFFF 54.5%, #FFFFFF 100%
+    );
+}
+
+.stacked-area-legend-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.stacked-area-legend-color {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--koko-black);
+    flex-shrink: 0;
+}
+
+.stacked-area-legend-label {
+    font-family: 'Alternate Gothic', sans-serif;
+    font-size: clamp(14px, 1.8vw, 18px);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.stacked-area-legend-metrics {
+    display: flex;
+    justify-content: space-between;
+    padding-left: 32px;
+}
+
+.stacked-area-legend-metric {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.stacked-area-legend-metric-label {
+    font-family: 'Alternate Gothic', sans-serif;
+    font-size: clamp(10px, 1.2vw, 12px);
+    text-transform: uppercase;
+    opacity: 0.6;
+}
+
+.stacked-area-legend-metric-value {
+    font-family: 'Alternate Gothic', sans-serif;
+    font-size: clamp(14px, 1.8vw, 18px);
+    font-weight: 900;
+}
+
+/* ========================================
+   RESPONSIVE ADJUSTMENTS
+   ======================================== */
+@media (max-width: 1024px) {
+    .slide {
+        padding: clamp(90px, 12vh, 140px) clamp(40px, 6vw, 80px) clamp(120px, 14vh, 160px);
+    }
+
+    .slide-content {
+        max-width: 900px;
+    }
+}
+
+@media (max-width: 768px) {
+    .slide {
+        padding: 80px 32px 120px;
+    }
+
+    .two-column,
+    .data-list,
+    .metric-cards {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .statement-slide .slide-content,
+    .statement-slide-reverse .slide-content {
+        grid-template-columns: 1fr;
+        gap: 32px;
+        padding: 48px 32px;
+    }
+
+    .statement-graphic img {
+        max-height: 280px;
+    }
+
+    .statement-slide-reverse .statement-graphic {
+        order: 0; /* Reset order on mobile - graphic goes below */
+    }
+
+    .statement-slide-reverse .statement-graphic img {
+        max-height: 600px; /* Smaller on mobile (100% maior: 300px × 2) */
+    }
+
+    .statement-slide-reverse .statement-title {
+        font-size: 36px; /* Smaller title on mobile */
+        margin-bottom: 6px;
+    }
+
+    .statement-slide-reverse .statement-subtitle {
+        font-size: 18px;
+        margin-bottom: 10px;
+    }
+
+    .statement-slide-reverse .statement-body {
+        font-size: 13px; /* Smaller body text on mobile */
+        margin-bottom: 6px;
+    }
+
+    .section-divider-slide .slide-content {
+        grid-template-columns: 1fr; /* Stack vertically on mobile */
+        gap: 32px;
+        padding: 48px 32px;
+    }
+
+    .section-divider-title {
+        font-size: 40px; /* Smaller on mobile */
+        text-align: center;
+    }
+
+    .section-divider-subtitle {
+        font-size: 18px;
+        text-align: center;
+    }
+
+    .section-divider-graphic img {
+        max-height: 400px; /* Limit size on mobile */
+    }
+
+    .toc-slide .slide-content {
+        grid-template-columns: 1fr;
+        gap: 32px;
+    }
+
+    .toc-main-title {
+        font-size: 48px;
+        text-align: center;
+    }
+
+    .toc-categories {
+        gap: 24px;
+        align-items: stretch; /* Remove alinhamento para mobile */
+    }
+
+    /* Remove efeito funil no mobile - todas largura 100% */
+    .toc-category:nth-child(1),
+    .toc-category:nth-child(2),
+    .toc-category:nth-child(3) {
+        width: 100%;
+    }
+
+    .cards-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    /* Line Chart responsive */
+    .line-chart-slide .slide-content {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+
+    .line-chart-wrapper {
+        height: 280px;
+    }
+
+    .line-chart-metric {
+        padding: 12px;
+    }
+
+    /* Bar Chart responsive */
+    .bar-chart-track {
+        height: 36px; /* Smaller bars on mobile */
+    }
+
+    .bar-chart-fill-value {
+        font-size: 14px;
+    }
+
+    .bar-chart-insight {
+        padding: 16px;
+        margin-top: 16px;
+    }
+
+    /* Donut Chart responsive */
+    .donut-chart-slide .slide-content {
+        grid-template-columns: 1fr; /* Stack vertically on mobile */
+        gap: 32px;
+    }
+
+    .donut-chart-svg {
+        max-width: 300px; /* Smaller on mobile */
+    }
+
+    .donut-center-value {
+        font-size: 28px;
+    }
+
+    .donut-legend {
+        gap: 12px;
+    }
+
+    .donut-legend-item {
+        padding: 10px;
+    }
+
+    /* Funnel responsive */
+    .funnel-bar {
+        height: 50px; /* Smaller bars on mobile */
+    }
+
+    .funnel-drop-off {
+        display: none; /* Hide drop-off labels on mobile to avoid overflow */
+    }
+
+    .funnel-insight {
+        padding: 16px;
+        margin-top: 16px;
+    }
+
+    /* Stacked Area Chart responsive */
+    .stacked-area-slide .slide-content {
+        grid-template-columns: 1fr; /* Stack vertically on mobile */
+        gap: 32px;
+    }
+
+    .stacked-area-legend {
+        gap: 12px;
+    }
+
+    .stacked-area-legend-item {
+        padding: 12px;
+    }
+
+    .slide-title {
+        font-size: 32px;
+        margin-bottom: 12px;
+    }
+
+    .slide-subtitle {
+        font-size: 15px;
+        margin-bottom: 24px;
+    }
+
+    .hero-content h1 {
+        font-size: 48px;
+    }
+
+    .nav-arrow {
+        display: none;
+    }
+
+    .card {
+        padding: 16px;
+    }
+
+    .metric-card {
+        padding: 12px;
+    }
+
+    .timeline-item {
+        padding: 12px 16px;
+    }
+
+    .emphasis-box {
+        padding: 16px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+    }
+}
