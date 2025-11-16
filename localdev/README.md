@@ -138,11 +138,19 @@ kill -9 $(lsof -ti:8080)
 ## 📝 Notas
 
 - Scripts assumem projeto Supabase: `biwwowendjuzvpttyrlb`
-- Backups salvos em: `./backups/`
+- Backups salvos em: `./localdev/db-backups/`
 - Logs em: `/tmp/backup.log`, `/tmp/restore.log`, `/tmp/vite-dev.log`
 - Ambiente local usa anon key padrão do Supabase
 
+## ✅ Correções Recentes
+
+**2024-11-16: Migration Order Fixed**
+- Deck migrations renomeadas para rodar DEPOIS da baseline
+- Ordem corrigida: baseline (2025-01-01) → decks (2025-01-02+) → outras (2025-10+)
+- RLS policies simplificadas (acesso via j_hub_user_accounts Edge Function)
+- Setup agora funciona sem erros de FK constraint
+
 ---
 
-**Última atualização:** 2025-11-01
-**Versão:** 2.0 (paths corrigidos + cores)
+**Última atualização:** 2024-11-16
+**Versão:** 2.1 (migration order fixed + RLS simplified)
