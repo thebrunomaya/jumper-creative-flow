@@ -227,16 +227,78 @@ Transform markdown data into beautiful, interactive HTML slides following a PRE-
    DO NOT use: background: linear-gradient(...)
    ALWAYS use: background-image: url('https://hub.jumper.studio/decks/identities/jumper/gradients/...')
 
-4. OUTPUT:
+4. NAVIGATION & INTERACTIVITY (MANDATORY):
+   ⚠️ CRITICAL: The HTML MUST include navigation system and JavaScript!
+
+   After closing </div> of .presentation container, include:
+
+   <!-- Bottom Navigation Bar -->
+   <div class="bottom-bar">
+       <div class="slide-counter">
+           <span id="current-slide">1</span> / <span id="total-slides">0</span>
+       </div>
+       <div class="nav-dots" id="nav-dots"></div>
+   </div>
+
+   <button class="nav-arrow prev" aria-label="Slide anterior">←</button>
+   <button class="nav-arrow next" aria-label="Próximo slide">→</button>
+
+   <!-- Navigation Script (MANDATORY - DO NOT SKIP!) -->
+   <script>
+       let currentSlide = 0;
+       const slides = document.querySelectorAll('.slide');
+       const dotsContainer = document.getElementById('nav-dots');
+       const totalSlides = slides.length;
+
+       document.getElementById('total-slides').textContent = totalSlides;
+
+       // Create navigation dots
+       for (let i = 0; i < totalSlides; i++) {
+           const dot = document.createElement('button');
+           dot.className = 'nav-dot';
+           dot.dataset.slide = i;
+           dotsContainer.appendChild(dot);
+       }
+       const dots = document.querySelectorAll('.nav-dot');
+
+       function showSlide(index) {
+           if (index < 0) index = 0;
+           if (index >= totalSlides) index = totalSlides - 1;
+
+           slides.forEach((slide, i) => {
+               slide.classList.remove('active', 'prev');
+               if (i < index) slide.classList.add('prev');
+               else if (i === index) slide.classList.add('active');
+           });
+
+           dots.forEach((dot, i) => dot.classList.toggle('active', i === index));
+           currentSlide = index;
+           document.getElementById('current-slide').textContent = currentSlide + 1;
+       }
+
+       document.querySelector('.nav-arrow.prev').addEventListener('click', () => showSlide(currentSlide - 1));
+       document.querySelector('.nav-arrow.next').addEventListener('click', () => showSlide(currentSlide + 1));
+       dots.forEach(dot => dot.addEventListener('click', (e) => showSlide(parseInt(e.target.dataset.slide))));
+
+       document.addEventListener('keydown', (e) => {
+           if (e.key === 'ArrowLeft') showSlide(currentSlide - 1);
+           else if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); showSlide(currentSlide + 1); }
+       });
+
+       showSlide(0);
+   </script>
+
+   WITHOUT THIS NAVIGATION SYSTEM, THE DECK WILL NOT WORK!
+
+5. OUTPUT:
    - Return ONLY the complete HTML (no markdown fences, no explanations)
-   - HTML must be production-ready (can be opened directly in browser)
+   - HTML must be production-ready and functional (navigation working)
 
-5. OPTIMIZATION:
-   - Remove ALL CSS comments to save tokens
-   - Keep CSS minified and compact
-   - Focus output tokens on <body> content, not CSS documentation
+6. OPTIMIZATION:
+   - Keep navigation/JS code compact but functional
+   - Focus output tokens on slide content
 
-OUTPUT FORMAT: Complete standalone HTML file (no markdown fences, no explanations)`;
+OUTPUT FORMAT: Complete standalone HTML file with navigation system (no markdown fences, no explanations)`;
 
     // Build user prompt
     const userPrompt = `==============================================
