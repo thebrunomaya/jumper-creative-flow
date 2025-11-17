@@ -162,19 +162,26 @@ export default function DeckEditor() {
     if (!deck) return;
 
     try {
-      toast.info("Regenerando deck com novo markdown...");
+      toast.info("Atualizando markdown e regenerando deck...");
 
-      // Call Edge Function j_hub_deck_regenerate
-      const { data, error } = await supabase.functions.invoke("j_hub_deck_regenerate", {
+      // First update markdown in database
+      const { error: updateError } = await supabase
+        .from("j_hub_decks")
+        .update({ markdown_source: newMarkdown })
+        .eq("id", deck.id);
+
+      if (updateError) throw updateError;
+
+      // Then call Edge Function j_hub_deck_generate to regenerate
+      const { data, error } = await supabase.functions.invoke("j_hub_deck_generate", {
         body: {
           deck_id: deck.id,
-          markdown_source: newMarkdown,
         },
       });
 
       if (error) throw error;
 
-      // Reload page to show new version
+      // Reload page to show regenerated deck
       window.location.reload();
     } catch (err: any) {
       console.error("Error regenerating deck:", err);

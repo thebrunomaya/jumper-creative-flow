@@ -70,6 +70,3 @@ verify_jwt = true  # Requires auth - only authenticated users generate decks
 
 [functions.j_hub_deck_refine]
 verify_jwt = true  # Requires auth - only authenticated users refine decks
-
-[functions.j_hub_deck_regenerate]
-verify_jwt = true  # Requires auth - only authenticated users regenerate decks
