@@ -470,19 +470,17 @@ OUTPUT FORMAT: Complete standalone HTML file (no markdown fences, no explanation
     console.log('✅ [DECK_REGENERATE] Validation passed: All paths are absolute');
 
     // 10. Upload HTML to Supabase Storage
-    const fileName = `${user.id}/${deck_id}.html`;
-
-    const encoder = new TextEncoder();
-    const htmlBytes = encoder.encode(htmlOutput);
-    const htmlBlob = new Blob([htmlBytes], { type: 'text/html; charset=utf-8' });
+    // ⚠️ CRITICAL FIX: Use .upload() with string instead of .update() with Blob
+    // Blob + .update() causes Storage to serve with Content-Type: text/plain → mojibakes
+    // String + .upload() correctly sets Content-Type: text/html; charset=utf-8
+    const fileName = `${deck_id}.html`;
 
     console.log('📤 [DECK_REGENERATE] Uploading to storage:', fileName);
 
     const { error: uploadError } = await supabase.storage
       .from('decks')
-      .update(fileName, htmlBlob, {
+      .upload(fileName, htmlOutput, {
         contentType: 'text/html; charset=utf-8',
-        cacheControl: '3600',
         upsert: true,
       });
 

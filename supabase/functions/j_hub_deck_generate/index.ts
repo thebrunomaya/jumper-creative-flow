@@ -4,6 +4,7 @@ import { validateEnvironment } from '../_shared/env-validation.ts';
 import { fetchWithRetry } from '../_shared/fetch-with-retry.ts';
 import { loadPatternMetadata } from '../_shared/template-utils.ts';
 import { formatPatternCatalogForPrompt, formatPlanForGenerationPrompt } from '../_shared/pattern-catalog.ts';
+import { diagnoseEncoding, logEncodingDiagnostics } from '../_shared/encoding-diagnostics.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -102,6 +103,10 @@ Deno.serve({
       generation_status: deck.generation_status,
       total_slides: deck.generation_plan.total_slides
     });
+
+    // 🔍 DIAGNOSTIC 1: Check markdown source encoding
+    const markdownDiagnostics = diagnoseEncoding(deck.markdown_source, 'markdown_source_from_db');
+    logEncodingDiagnostics(markdownDiagnostics);
 
     // ========================================================================
     // DETECT STUCK STATUS (processing for >10 minutes = stuck from timeout)
@@ -386,6 +391,10 @@ OUTPUT FORMAT: Complete standalone HTML file (no markdown fences, no explanation
     console.log('✅ [DECK_GENERATE] HTML generated');
     console.log('📏 [DECK_GENERATE] HTML length:', htmlOutput.length, 'chars');
 
+    // 🔍 DIAGNOSTIC 2: Check Claude API response encoding
+    const claudeResponseDiagnostics = diagnoseEncoding(htmlOutput, 'claude_api_response');
+    logEncodingDiagnostics(claudeResponseDiagnostics);
+
     // ========================================================================
     // VALIDATION: Check for common issues
     // ========================================================================
@@ -431,6 +440,10 @@ OUTPUT FORMAT: Complete standalone HTML file (no markdown fences, no explanation
     // UPLOAD TO STORAGE
     // ========================================================================
     console.log('📤 [DECK_GENERATE] Uploading HTML to Storage...');
+
+    // 🔍 DIAGNOSTIC 3: Check encoding before upload
+    const beforeUploadDiagnostics = diagnoseEncoding(htmlOutput, 'before_storage_upload');
+    logEncodingDiagnostics(beforeUploadDiagnostics);
 
     const fileName = `${deck_id}.html`;
     const { error: uploadError } = await supabase.storage
