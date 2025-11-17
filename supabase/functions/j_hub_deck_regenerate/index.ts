@@ -540,9 +540,12 @@ OUTPUT FORMAT: Complete standalone HTML file (no markdown fences, no explanation
 
     console.log('📤 [DECK_REGENERATE] Uploading to storage:', fileName);
 
+    // Create Blob with explicit type (required for correct Content-Type header)
+    const htmlBlob = new Blob([htmlOutput], { type: 'text/html; charset=utf-8' });
+
     const { error: uploadError } = await supabase.storage
       .from('decks')
-      .upload(fileName, htmlOutput, {
+      .upload(fileName, htmlBlob, {
         contentType: 'text/html; charset=utf-8',
         upsert: true,
       });
