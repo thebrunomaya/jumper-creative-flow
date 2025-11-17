@@ -1,7 +1,7 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.56.0';
 import { validateEnvironment } from '../_shared/env-validation.ts';
-import { fetchWithRetry } from '../_shared/fetch-with-retry.ts';
+import { fetchWithRetry, fetchTextWithRetry } from '../_shared/fetch-with-retry.ts';
 import { loadPatternMetadata } from '../_shared/template-utils.ts';
 import { formatPatternCatalogForPrompt, formatPlanForGenerationPrompt } from '../_shared/pattern-catalog.ts';
 import { diagnoseEncoding, logEncodingDiagnostics } from '../_shared/encoding-diagnostics.ts';
@@ -191,76 +191,31 @@ Deno.serve({
 
     console.log('🎨 [DECK_GENERATE] Stage 3: Generating HTML following approved plan...');
 
+    // Load full template HTML as reference (template-agnostic approach)
+    const baseUrl = 'https://hub.jumper.studio';
+    const templateUrl = `${baseUrl}/decks/templates/${templateIdWithExternalCSS}.html`;
+
+    console.log('📄 [DECK_GENERATE] Loading template HTML:', templateUrl);
+
+    let templateHtml: string;
+    try {
+      templateHtml = await fetchTextWithRetry(templateUrl, {
+        headers: { 'Accept': 'text/html; charset=utf-8' },
+        maxRetries: 3,
+        timeoutMs: 30000,
+        retryDelayMs: 2000,
+      });
+      console.log('✅ [DECK_GENERATE] Template HTML loaded:', templateHtml.length, 'chars');
+    } catch (error) {
+      console.error('❌ [DECK_GENERATE] Failed to load template HTML:', error);
+      throw new Error(`Failed to load template HTML: ${error.message}`);
+    }
+
     // Build system prompt
     const systemPrompt = `You are an expert presentation designer creating HTML presentations.
 
 **Your Role:**
 Transform markdown data into beautiful, interactive HTML slides following a PRE-APPROVED SLIDE PLAN.
-
-⚠️⚠️⚠️ MANDATORY TEMPLATE STRUCTURE (KOKO CLASSIC) ⚠️⚠️⚠️
-
-Your HTML MUST follow this EXACT structure (copy/paste, do NOT simplify):
-
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>[Deck Title]</title>
-    <link rel="stylesheet" href="https://hub.jumper.studio/decks/templates/koko-classic-v2.css">
-</head>
-<body>
-    <!-- Header Marquee (MANDATORY) -->
-    <div class="marquee-container top">
-        <div class="marquee-content">
-            <span class="marquee-text">[PROJECT] • [CLIENT] • AGÊNCIA KOKO •</span>
-            <span class="marquee-text">[PROJECT] • [CLIENT] • AGÊNCIA KOKO •</span>
-            <span class="marquee-text">[PROJECT] • [CLIENT] • AGÊNCIA KOKO •</span>
-            <span class="marquee-text">[PROJECT] • [CLIENT] • AGÊNCIA KOKO •</span>
-        </div>
-    </div>
-
-    <!-- Footer Marquee (MANDATORY) -->
-    <div class="marquee-container bottom">
-        <div class="marquee-content">
-            <span class="marquee-text">[DATE RANGE] • [DESCRIPTION] • CREATIVE AGENCY •</span>
-            <span class="marquee-text">[DATE RANGE] • [DESCRIPTION] • CREATIVE AGENCY •</span>
-            <span class="marquee-text">[DATE RANGE] • [DESCRIPTION] • CREATIVE AGENCY •</span>
-            <span class="marquee-text">[DATE RANGE] • [DESCRIPTION] • CREATIVE AGENCY •</span>
-        </div>
-    </div>
-
-    <!-- Logo Koko (MANDATORY) -->
-    <div class="logo-container">
-        <img src="https://hub.jumper.studio/decks/identities/koko/logos/Logo_Preferencial_Koko_Preto.png" alt="Agência Koko">
-    </div>
-
-    <!-- Presentation Container (MANDATORY - use "presentation-container" NOT "presentation") -->
-    <div class="presentation-container">
-
-        <!-- YOUR SLIDES GO HERE -->
-        <div class="slide hero-slide active">
-            <div class="hero-background" style="background-image: url('https://hub.jumper.studio/decks/identities/koko/elements/hero-background.png');"></div>
-            <img class="gorilla-hand left" src="https://hub.jumper.studio/decks/identities/koko/elements/gorilla-hand-left.png" alt="">
-            <img class="gorilla-hand right" src="https://hub.jumper.studio/decks/identities/koko/elements/gorilla-hand-right.png" alt="">
-            <div class="hero-content">
-                <h1>[TITLE]</h1>
-                <p class="hero-subtitle">[SUBTITLE]</p>
-                <p class="hero-meta">[META INFO]</p>
-            </div>
-        </div>
-
-        <!-- More slides follow the approved plan... -->
-
-    </div> <!-- Close presentation-container -->
-
-    <!-- Navigation (added automatically by section 4) -->
-
-</body>
-</html>
-
-🚨 DO NOT SKIP: Marquees, Logo, presentation-container, hero-background, gorilla hands!
-🚨 HERO SLIDES MUST HAVE: hero-background div + 2 gorilla-hand images + hero-content
 
 **Critical Rules:**
 
@@ -373,6 +328,23 @@ Title: ${deck.title}
 Type: ${deck.type}
 Template: ${templateIdWithExternalCSS}
 ${accountName ? `Account: ${accountName}` : ''}
+
+==============================================
+TEMPLATE REFERENCE (COPY THIS STRUCTURE)
+==============================================
+⚠️ CRITICAL: Use this template as your base structure.
+Copy ALL wrapper elements, keep ALL CSS classes exactly as shown.
+Replace ONLY the slide content with data from the approved plan below.
+
+${templateHtml}
+
+🚨 RULES:
+1. Copy the EXACT HTML structure from template above
+2. Keep ALL wrapper elements (marquees, logo containers, backgrounds, decorative images)
+3. Maintain all CSS class names exactly as in template
+4. Replace ONLY the content inside slides (titles, text, data)
+5. Do NOT simplify, remove, or skip any structural elements
+6. The template shows you the correct slide patterns - follow them precisely
 
 ==============================================
 APPROVED SLIDE PLAN (FOLLOW EXACTLY)
