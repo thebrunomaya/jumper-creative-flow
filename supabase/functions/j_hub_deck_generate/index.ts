@@ -2,7 +2,7 @@ import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.56.0';
 import { validateEnvironment } from '../_shared/env-validation.ts';
 import { fetchWithRetry } from '../_shared/fetch-with-retry.ts';
-import { loadTemplateHTML, extractStyleBlock, loadPatternMetadata } from '../_shared/template-utils.ts';
+import { loadPatternMetadata } from '../_shared/template-utils.ts';
 import { formatPatternCatalogForPrompt, formatPlanForGenerationPrompt } from '../_shared/pattern-catalog.ts';
 
 const corsHeaders = {
@@ -139,19 +139,24 @@ Deno.serve({
     }
 
     // ========================================================================
-    // LOAD TEMPLATE & DESIGN SYSTEM
+    // LOAD TEMPLATE & PATTERN METADATA
     // ========================================================================
-    console.log('📄 [DECK_GENERATE] Loading template:', deck.template_id);
+    // Map template IDs to v2 versions with external CSS (token optimization)
+    const templateIdWithExternalCSS = deck.template_id === 'koko-classic'
+      ? 'koko-classic-v2'
+      : deck.template_id;
 
-    const templateHtml = await loadTemplateHTML(deck.template_id);
-    const templateCSS = extractStyleBlock(templateHtml);
+    console.log('📄 [DECK_GENERATE] Loading template:', {
+      original: deck.template_id,
+      using: templateIdWithExternalCSS
+    });
+
     const pattern_metadata = await loadPatternMetadata(deck.template_id);
 
-    console.log('📄 [DECK_GENERATE] Template processed:', {
-      template_id: deck.template_id,
-      full_size_kb: (templateHtml.length / 1024).toFixed(1),
-      css_only_kb: (templateCSS.length / 1024).toFixed(1),
-      token_savings: `${(((templateHtml.length - templateCSS.length) / templateHtml.length) * 100).toFixed(0)}%`
+    console.log('📄 [DECK_GENERATE] Template configuration:', {
+      template_id: templateIdWithExternalCSS,
+      uses_external_css: templateIdWithExternalCSS.includes('-v2'),
+      pattern_count: pattern_metadata.patterns?.length || 0
     });
 
     // ========================================================================
@@ -197,7 +202,8 @@ Transform markdown data into beautiful, interactive HTML slides following a PRE-
 1. STRUCTURE:
    - Generate ${approvedPlan.total_slides} slides (no more, no less)
    - Each slide must follow the plan's recommended pattern
-   - Use the provided CSS classes exactly as they appear in the template
+   - Use the provided CSS classes (styles are loaded via external CSS link)
+   - Template uses external CSS at: https://hub.jumper.studio/decks/templates/${templateIdWithExternalCSS}.css
 
 2. UTF-8 ENCODING (CRITICAL):
    - Ensure <meta charset="UTF-8"> is FIRST tag in <head>
@@ -233,7 +239,7 @@ DECK CONFIGURATION
 ==============================================
 Title: ${deck.title}
 Type: ${deck.type}
-Template: ${deck.template_id}
+Template: ${templateIdWithExternalCSS}
 ${accountName ? `Account: ${accountName}` : ''}
 
 ==============================================
@@ -242,14 +248,22 @@ APPROVED SLIDE PLAN (FOLLOW EXACTLY)
 ${formatPlanForGenerationPrompt(approvedPlan)}
 
 ==============================================
-CSS PATTERNS (USE THESE EXACT STYLES)
+EXTERNAL CSS STYLESHEET
 ==============================================
-<style>
-${templateCSS}
-</style>
+The template uses external CSS linked in <head>:
+<link rel="stylesheet" href="https://hub.jumper.studio/decks/templates/${templateIdWithExternalCSS}.css">
+
+This CSS file contains all styles for:
+- Design system (colors, fonts, spacing)
+- Slide patterns (hero, content, charts, etc)
+- Components (cards, timelines, metrics)
+- Responsive adjustments
+- Animations and transitions
+
+Use the CSS classes from the approved plan patterns. The styles are already defined.
 
 ==============================================
-BRAND COLORS (FROM DESIGN SYSTEM)
+BRAND COLORS (FROM DESIGN SYSTEM IN CSS)
 ==============================================
 Yellow: #F5C542
 Pink: #FF0080
@@ -274,16 +288,19 @@ TASK
 ==============================================
 Generate COMPLETE HTML presentation following the approved plan above.
 
+CRITICAL: Include <link> tag for external CSS in <head>:
+<link rel="stylesheet" href="https://hub.jumper.studio/decks/templates/${templateIdWithExternalCSS}.css">
+
 For each slide in the plan:
 1. Use the recommended pattern (e.g., timeline → .timeline-container CSS)
 2. Replace template content with data from markdown source
-3. Maintain all CSS structure and classes from patterns above
-4. Use brand colors/fonts from design system
+3. Use CSS class names that match the patterns (classes are defined in external CSS)
+4. Apply brand colors via CSS variables and classes
 
-CRITICAL OPTIMIZATION:
-- Remove ALL CSS comments to save tokens
-- Keep CSS minified and compact
-- Focus output tokens on <body> content, not CSS documentation
+IMPORTANT:
+- Do NOT embed <style> tags (CSS is external)
+- Do NOT inline styles (use CSS classes instead)
+- Focus all output on semantic HTML structure and content
 
 OUTPUT FORMAT: Complete standalone HTML file (no markdown fences, no explanations)`;
 

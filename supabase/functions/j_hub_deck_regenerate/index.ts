@@ -109,19 +109,25 @@ serve(async (req) => {
     // 3. Use deck's existing configuration (type, brand_identity, template_id, account_id)
     const { type, brand_identity, template_id, account_id, title } = deckData;
 
+    // Map template IDs to v2 versions with external CSS (token optimization)
+    const templateIdWithExternalCSS = template_id === 'koko-classic'
+      ? 'koko-classic-v2'
+      : template_id;
+
     console.log('🎨 [DECK_REGENERATE] Regenerating with configuration:', {
       type,
       brand_identity,
-      template_id,
+      template_id: templateIdWithExternalCSS,
       account_id: account_id || 'none'
     });
 
     // 4. Load template HTML from public/decks/templates/
-    console.log('📄 [DECK_REGENERATE] Loading template:', template_id);
+    console.log('📄 [DECK_REGENERATE] Loading template:', templateIdWithExternalCSS);
 
+    const supabaseUrl = Deno.env.get('SUPABASE_URL') || '';
     const isLocal = supabaseUrl.includes('127.0.0.1') || supabaseUrl.includes('localhost');
     const baseUrl = isLocal ? 'http://localhost:8080' : 'https://hub.jumper.studio';
-    const templateUrl = `${baseUrl}/decks/templates/${template_id}.html`;
+    const templateUrl = `${baseUrl}/decks/templates/${templateIdWithExternalCSS}.html`;
 
     console.log('🔗 [DECK_REGENERATE] Template URL:', templateUrl, `(${isLocal ? 'LOCAL' : 'PRODUCTION'})`);
 
@@ -137,31 +143,15 @@ serve(async (req) => {
       console.log('✅ [DECK_REGENERATE] Template loaded:', templateHtml.length, 'chars');
     } catch (templateError) {
       console.error('❌ [DECK_REGENERATE] Template load failed after retries:', templateError);
-      throw new Error(`Failed to load template ${template_id}: ${templateError.message}`);
+      throw new Error(`Failed to load template ${templateIdWithExternalCSS}: ${templateError.message}`);
     }
 
-    // 5. Load design system from public/decks/identities/{brand}/design-system.md
-    console.log('🎨 [DECK_REGENERATE] Loading design system:', brand_identity);
+    console.log('✅ [DECK_REGENERATE] Template loaded:', {
+      size_kb: (templateHtml.length / 1024).toFixed(1),
+      uses_external_css: templateIdWithExternalCSS.includes('-v2')
+    });
 
-    const designSystemUrl = `${baseUrl}/decks/identities/${brand_identity}/design-system.md`;
-    console.log('🔗 [DECK_REGENERATE] Design System URL:', designSystemUrl);
-
-    let designSystem: string;
-    try {
-      console.log('🔄 [DECK_REGENERATE] Fetching design system with retry logic (3 attempts, 30s timeout)...');
-      designSystem = await fetchTextWithRetry(designSystemUrl, {
-        headers: { 'Accept': 'text/markdown; charset=utf-8' },
-        maxRetries: 3,
-        timeoutMs: 30000,
-      });
-
-      console.log('✅ [DECK_REGENERATE] Design system loaded:', designSystem.length, 'chars');
-    } catch (dsError) {
-      console.error('❌ [DECK_REGENERATE] Design system load failed after retries:', dsError);
-      throw new Error(`Failed to load design system ${brand_identity}: ${dsError.message}`);
-    }
-
-    // 6. Get account context if account_id provided
+    // 5. Get account context if account_id provided
     let accountContext = '';
     let accountName = '';
 
@@ -179,42 +169,41 @@ serve(async (req) => {
       }
     }
 
-    // 7. Build Claude prompt for deck generation (same as j_hub_deck_generate)
+    // 6. Build Claude prompt for deck generation
     const systemPrompt = `You are a professional presentation designer creating beautiful HTML presentations that strictly follow brand identity guidelines.
 
-Your task is to transform markdown content into a complete, production-ready HTML presentation following EXCLUSIVELY the design system provided for the selected brand identity.
+Your task is to transform markdown content into a complete, production-ready HTML presentation using the provided template structure.
 
 CRITICAL INSTRUCTIONS:
 
-1. ⚠️ MANDATORY: READ AND APPLY THE COMPLETE DESIGN SYSTEM from identities/${brand_identity}/design-system.md
-   - This is your ONLY source of truth for colors, fonts, spacing, and visual style
-   - DO NOT use colors, fonts, or patterns from other identities
-   - DO NOT mix design systems - use ONLY the ${brand_identity} identity guidelines
+1. ⚠️ MANDATORY: EXTERNAL CSS STYLESHEET
+   - Template uses external CSS at: https://hub.jumper.studio/decks/templates/${templateIdWithExternalCSS}.css
+   - This CSS contains ALL styles: colors, fonts, spacing, patterns, animations
+   - Your HTML must include the <link> tag in <head>
+   - Do NOT embed <style> tags or inline styles
+   - Use CSS class names from the template structure
 
-2. USE the template structure from ${template_id}.html as inspiration for layout patterns
+2. USE the template structure from ${templateIdWithExternalCSS}.html as your guide:
    - Copy slide patterns and component structures
    - Adapt content to match the markdown source
-   - Maintain responsive behavior and animations from template
+   - Use the exact CSS class names shown in template
+   - Maintain responsive behavior
 
 3. GENERATE a complete, standalone HTML file with:
    - Complete <head> with <meta charset="UTF-8"> as FIRST tag (CRITICAL for UTF-8 encoding)
-   - All CSS embedded (no external dependencies)
-   - Font loading with ABSOLUTE URLs from design system
+   - External CSS link: <link rel="stylesheet" href="https://hub.jumper.studio/decks/templates/${templateIdWithExternalCSS}.css">
+   - Font loading handled by external CSS (do not include font tags)
    - Image sources with ABSOLUTE URLs: https://hub.jumper.studio/decks/identities/${brand_identity}/...
    - Logo sources with ABSOLUTE URLs: https://hub.jumper.studio/decks/identities/${brand_identity}/logos/...
    - NEVER use relative paths (no /decks/..., always use full https:// URLs with domain)
-   - All animations and interactions specified in design system
    - Responsive design (mobile-first)
    - Keyboard navigation (arrow keys, spacebar)
 
-4. FOLLOW THE DESIGN SYSTEM STRICTLY:
-   - Use ONLY colors defined in ${brand_identity} design system
-   - Use ONLY fonts specified in ${brand_identity} design system
-   - Use ONLY spacing/padding defined in ${brand_identity} design system
-   - Use ONLY animation styles from ${brand_identity} design system
+4. BRAND IDENTITY GUIDELINES:
    - If ${brand_identity} === 'jumper': Use grays + orange (#FA4721), Haffer font, organic gradients
    - If ${brand_identity} === 'koko': Use black/white + yellow (#F2C541) + pink (#FF0080), AlternateGothic/Playfair, Koko Dust textures
    - If ${brand_identity} === 'general': Follow generic guidelines, use system fonts
+   - Colors and fonts are defined in external CSS - use class names, not inline styles
 
 5. DECK TYPE specific structure:
    ${type === 'report' ? '- Reports: Cover → Results → Insights → Recommendations (7-10 slides)' : ''}
@@ -338,19 +327,28 @@ DECK CONFIGURATION
 Title: ${title}
 Type: ${type}
 Brand Identity: ${brand_identity}
-Template Inspiration: ${template_id}
+Template: ${templateIdWithExternalCSS}
 ${accountName ? `Account: ${accountName}` : ''}
 
 ==============================================
-DESIGN SYSTEM (SOURCE OF TRUTH)
+EXTERNAL CSS STYLESHEET
 ==============================================
-${designSystem}
+All styles are loaded from external CSS file:
+<link rel="stylesheet" href="https://hub.jumper.studio/decks/templates/${templateIdWithExternalCSS}.css">
+
+This CSS file contains:
+- Complete design system (colors, fonts, spacing)
+- All slide patterns (hero, content, charts, timeline, etc)
+- All components (cards, metrics, emphasis boxes)
+- Responsive breakpoints and animations
+
+Do NOT embed CSS or use inline styles. Use class names from template.
 
 ==============================================
-TEMPLATE STRUCTURE (INSPIRATION ONLY)
+TEMPLATE STRUCTURE (HTML ONLY - CSS IS EXTERNAL)
 ==============================================
-${templateHtml.substring(0, 20000)}
-[Template truncated to 20KB for token efficiency - includes all major component patterns]
+${templateHtml.substring(0, 15000)}
+[Template truncated to 15KB - shows all HTML patterns. CSS is external, not included here]
 
 ${accountContext ? `
 ==============================================
@@ -367,7 +365,18 @@ ${markdown_source}
 ==============================================
 TASK
 ==============================================
-Generate a complete, production-ready HTML presentation following ALL design system rules and template patterns.
+Generate a complete, production-ready HTML presentation using the template structure and external CSS.
+
+CRITICAL: Include <link> tag for external CSS in <head>:
+<link rel="stylesheet" href="https://hub.jumper.studio/decks/templates/${templateIdWithExternalCSS}.css">
+
+Key points:
+- Copy HTML structure from template
+- Use CSS class names exactly as shown
+- Do NOT embed <style> tags (CSS is external)
+- Do NOT use inline styles (use classes instead)
+- Replace template content with data from markdown
+- Maintain semantic HTML structure
 
 OUTPUT FORMAT: Complete standalone HTML file (no markdown fences, no explanations)`;
 
