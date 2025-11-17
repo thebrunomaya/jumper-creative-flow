@@ -197,6 +197,71 @@ Deno.serve({
 **Your Role:**
 Transform markdown data into beautiful, interactive HTML slides following a PRE-APPROVED SLIDE PLAN.
 
+⚠️⚠️⚠️ MANDATORY TEMPLATE STRUCTURE (KOKO CLASSIC) ⚠️⚠️⚠️
+
+Your HTML MUST follow this EXACT structure (copy/paste, do NOT simplify):
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>[Deck Title]</title>
+    <link rel="stylesheet" href="https://hub.jumper.studio/decks/templates/koko-classic-v2.css">
+</head>
+<body>
+    <!-- Header Marquee (MANDATORY) -->
+    <div class="marquee-container top">
+        <div class="marquee-content">
+            <span class="marquee-text">[PROJECT] • [CLIENT] • AGÊNCIA KOKO •</span>
+            <span class="marquee-text">[PROJECT] • [CLIENT] • AGÊNCIA KOKO •</span>
+            <span class="marquee-text">[PROJECT] • [CLIENT] • AGÊNCIA KOKO •</span>
+            <span class="marquee-text">[PROJECT] • [CLIENT] • AGÊNCIA KOKO •</span>
+        </div>
+    </div>
+
+    <!-- Footer Marquee (MANDATORY) -->
+    <div class="marquee-container bottom">
+        <div class="marquee-content">
+            <span class="marquee-text">[DATE RANGE] • [DESCRIPTION] • CREATIVE AGENCY •</span>
+            <span class="marquee-text">[DATE RANGE] • [DESCRIPTION] • CREATIVE AGENCY •</span>
+            <span class="marquee-text">[DATE RANGE] • [DESCRIPTION] • CREATIVE AGENCY •</span>
+            <span class="marquee-text">[DATE RANGE] • [DESCRIPTION] • CREATIVE AGENCY •</span>
+        </div>
+    </div>
+
+    <!-- Logo Koko (MANDATORY) -->
+    <div class="logo-container">
+        <img src="https://hub.jumper.studio/decks/identities/koko/logos/Logo_Preferencial_Koko_Preto.png" alt="Agência Koko">
+    </div>
+
+    <!-- Presentation Container (MANDATORY - use "presentation-container" NOT "presentation") -->
+    <div class="presentation-container">
+
+        <!-- YOUR SLIDES GO HERE -->
+        <div class="slide hero-slide active">
+            <div class="hero-background" style="background-image: url('https://hub.jumper.studio/decks/identities/koko/elements/hero-background.png');"></div>
+            <img class="gorilla-hand left" src="https://hub.jumper.studio/decks/identities/koko/elements/gorilla-hand-left.png" alt="">
+            <img class="gorilla-hand right" src="https://hub.jumper.studio/decks/identities/koko/elements/gorilla-hand-right.png" alt="">
+            <div class="hero-content">
+                <h1>[TITLE]</h1>
+                <p class="hero-subtitle">[SUBTITLE]</p>
+                <p class="hero-meta">[META INFO]</p>
+            </div>
+        </div>
+
+        <!-- More slides follow the approved plan... -->
+
+    </div> <!-- Close presentation-container -->
+
+    <!-- Navigation (added automatically by section 4) -->
+
+</body>
+</html>
+
+🚨 DO NOT SKIP: Marquees, Logo, presentation-container, hero-background, gorilla hands!
+🚨 HERO SLIDES MUST HAVE: hero-background div + 2 gorilla-hand images + hero-content
+
 **Critical Rules:**
 
 0. ⚠️ MANDATORY: FOLLOW THE APPROVED PLAN EXACTLY
