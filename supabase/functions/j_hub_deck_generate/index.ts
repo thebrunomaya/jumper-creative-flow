@@ -147,9 +147,11 @@ Deno.serve({
     // LOAD TEMPLATE & PATTERN METADATA
     // ========================================================================
     // Map template IDs to v2 versions with external CSS (token optimization)
-    const templateIdWithExternalCSS = deck.template_id === 'koko-classic'
-      ? 'koko-classic-v2'
-      : deck.template_id;
+    const templateMappings: Record<string, string> = {
+      'koko-classic': 'koko-classic-v2',
+      'jumper-flare': 'jumper-flare-v2.1',  // Linear Design system
+    };
+    const templateIdWithExternalCSS = templateMappings[deck.template_id] || deck.template_id;
 
     console.log('📄 [DECK_GENERATE] Loading template:', {
       original: deck.template_id,

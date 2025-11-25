@@ -51,7 +51,9 @@ const TEMPLATE_FILES = [
   'general-terminal-code.html',
   'general-white-with-pops-of-color.html',
   'jumper-flare.html',
+  'jumper-flare-v2.1.html',  // Linear Design system (production default)
   'koko-classic.html',
+  'koko-classic-v2.html',
   'koko-rebel.html',
 ];
 
