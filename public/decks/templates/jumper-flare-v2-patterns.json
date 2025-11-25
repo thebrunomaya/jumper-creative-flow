@@ -1,18 +1,22 @@
 {
   "template_id": "jumper-flare-v2",
   "template_version": "2.0",
-  "template_name": "Jumper Flare Template v2 (Advanced Edition)",
-  "description": "Minimalist dark theme with comprehensive data visualization patterns and structural layouts. Combines Jumper's sophisticated design system with advanced chart capabilities for professional reports and presentations.",
+  "template_name": "Jumper Flare Template v2 (Complete Modernization)",
+  "description": "Modernized premium dark theme with heavy glass-morphism, Jumper orange (#FA4721) accents, and comprehensive data visualization. Features 22+ slide patterns, 6 chart types (including Gauge), hybrid navigation (scroll-snap + click), and external CSS for token optimization. Designed to exceed Koko Classic v3 capabilities with Jumper's bold brand identity.",
   "changelog": [
     {
       "version": "2.0",
-      "date": "2024-11-12",
+      "date": "2024-11-24",
       "changes": [
-        "📊 Added 5 data visualization charts (Line, Bar, Donut, Funnel, Stacked Area)",
-        "🔀 Added 3 structural patterns (Table of Contents, Statement Slides)",
-        "🎨 Maintained Jumper's dark theme identity throughout",
-        "✨ All patterns use glass-morphism and organic gradients",
-        "📐 Complete responsive design for mobile/tablet/desktop"
+        "Complete modernization from v1 (9 patterns) to v2 (22+ patterns)",
+        "External CSS file for token optimization (~2000 lines)",
+        "Heavy glass-morphism: backdrop-filter blur(20px)",
+        "6 chart types: Line, Bar, Donut, Funnel, Stacked Area, Gauge (new)",
+        "Hybrid navigation: scroll-snap + click-based dots/arrows",
+        "Responsive typography with clamp() functions",
+        "CSS custom properties for complete theming control",
+        "Sequential animations with stagger delays",
+        "Semantic color system for data visualization"
       ]
     }
   ],
@@ -20,232 +24,426 @@
     "primary": "#FA4721",
     "black": "#000000",
     "white": "#FFFFFF",
+    "surface": "#0a0a0a",
+    "surface_card": "rgba(255, 255, 255, 0.05)",
+    "border": "rgba(255, 255, 255, 0.1)",
     "success": "#2AA876",
     "warning": "#F59E0B",
     "critical": "#EF4444",
     "info": "#3B82F6"
   },
+  "design_tokens": {
+    "glass_morphism": {
+      "blur": "blur(20px)",
+      "background": "rgba(255, 255, 255, 0.05)",
+      "border": "rgba(255, 255, 255, 0.1)",
+      "hover_border": "rgba(250, 71, 33, 0.5)",
+      "hover_shadow": "0 8px 32px rgba(250, 71, 33, 0.15)"
+    },
+    "typography": {
+      "font_family": "Haffer, -apple-system, BlinkMacSystemFont, sans-serif",
+      "font_src": "https://hub.jumper.studio/decks/identities/jumper/fonts/Haffer-Regular.woff2",
+      "scale": {
+        "hero": "clamp(3rem, 8vw, 6rem)",
+        "h1": "clamp(2rem, 5vw, 3.5rem)",
+        "h2": "clamp(1.5rem, 3vw, 2rem)",
+        "h3": "clamp(1.125rem, 2vw, 1.5rem)",
+        "body": "clamp(0.875rem, 1.5vw, 1rem)",
+        "small": "clamp(0.75rem, 1vw, 0.875rem)"
+      }
+    },
+    "spacing": {
+      "slide_padding": "clamp(24px, 5vw, 48px)",
+      "card_gap": "20px",
+      "section_gap": "32px"
+    },
+    "animation": {
+      "ease": "cubic-bezier(0.16, 1, 0.3, 1)",
+      "duration_fast": "0.2s",
+      "duration_normal": "0.6s",
+      "stagger_delay": "0.1s"
+    }
+  },
+  "v2_structure": {
+    "section_1_abertura": {
+      "slides": ["Hero Cover", "Table of Contents"],
+      "purpose": "Opening impact and presentation roadmap"
+    },
+    "section_2_contexto": {
+      "slides": ["Section Divider", "Executive Summary (Cards Grid)"],
+      "purpose": "Section transitions and context overview"
+    },
+    "section_3_conteudo": {
+      "slides": ["Metric Cards", "Comparison Grid", "Timeline", "Statement", "Statement Reverse", "Checklist", "Big Number"],
+      "purpose": "Core content, data presentation, and key insights"
+    },
+    "section_4_analise": {
+      "slides": ["What Worked", "Challenges", "Learnings", "Data Table"],
+      "purpose": "Deep analysis, successes, challenges, and structured data"
+    },
+    "section_5_visualizacoes": {
+      "slides": ["Line Chart", "Bar Chart", "Donut Chart", "Funnel", "Stacked Area", "Gauge Chart"],
+      "purpose": "Data visualizations for quantitative analysis"
+    },
+    "section_6_encerramento": {
+      "slides": ["Next Steps", "Conclusion", "Back Cover"],
+      "purpose": "Action items, summary, and professional closing"
+    }
+  },
+  "navigation": {
+    "type": "hybrid",
+    "scroll_snap": true,
+    "click_navigation": {
+      "dots": true,
+      "arrows": true
+    },
+    "keyboard": {
+      "ArrowRight": "next slide",
+      "ArrowLeft": "previous slide",
+      "ArrowDown": "next slide",
+      "ArrowUp": "previous slide"
+    }
+  },
   "patterns": [
     {
-      "id": "cover-split-gradient-right",
-      "name": "Cover Slide (Gradient Right)",
-      "css_class": "slide-split slide-split-gradient-right",
-      "section": "1. Abertura / Fechamento",
-      "best_for": ["cover", "title-page", "opening", "hero", "first-slide"],
+      "id": "hero-slide",
+      "name": "Hero Cover Slide",
+      "css_class": "slide hero-slide",
+      "section": "1. Abertura",
+      "best_for": ["cover", "title-page", "opening", "hero", "first-slide", "back-cover"],
       "content_type": "cover",
-      "description": "Dramatic two-column split with content on left (50%) and organic gradient background on right (50%). Maximum visual impact for opening slides.",
-      "when_to_use": "First slide of any presentation, major project kickoffs, cover pages requiring strong visual presence",
-      "required_elements": ["title", "subtitle", "period or context", "optional logo"],
-      "example": "RELATÓRIO DE PERFORMANCE + Período: Outubro 2024 + Cliente: Acme Corp + [organic-01.png gradient]",
-      "v2_position": "Slide 1 (Cover)"
-    },
-    {
-      "id": "section-header",
-      "name": "Section Header",
-      "css_class": "slide",
-      "section": "2. Estrutura e Navegação",
-      "best_for": ["section-break", "chapter-title", "phase-intro", "divider"],
-      "content_type": "divider",
-      "description": "Centered layout with badge, title, and subtitle for introducing new sections or phases",
-      "when_to_use": "Start of major sections, phase transitions, chapter breaks in longer presentations",
-      "required_elements": ["badge with phase/section", "title", "subtitle"],
-      "example": "Badge: Fase 1 + DESCOBERTA + Análise inicial do mercado",
-      "v2_position": "Slide 2"
+      "description": "Full-width dramatic cover with organic gradient background, centered logo, large title, and metadata. Heavy glass-morphism title container with orange accent border.",
+      "when_to_use": "First slide of presentation, dramatic opening, back cover (with different content)",
+      "required_elements": ["logo", "title", "subtitle", "metadata (period, date, client)"],
+      "example": "Jumper Logo + RELATÓRIO DE PERFORMANCE + Cliente: Acme Corp + Período: Outubro 2024",
+      "v2_features": ["Organic gradient background", "Glass-morphism title box", "Animated fade-in", "Orange accent border-left"]
     },
     {
       "id": "table-of-contents",
-      "name": "Table of Contents (Funnel Effect)",
-      "css_class": "toc-slide",
-      "section": "2. Estrutura e Navegação",
-      "best_for": ["agenda", "structure", "overview", "roadmap", "phases"],
+      "name": "Table of Contents",
+      "css_class": "slide toc-slide",
+      "section": "1. Abertura",
+      "best_for": ["agenda", "structure", "roadmap", "overview", "navigation"],
       "content_type": "structure",
-      "description": "Vertical list of categories with funnel-effect widths (100% → 85% → 70%) and orange left border. Creates visual hierarchy for presentation structure.",
-      "when_to_use": "Second slide after cover, showing presentation structure, multi-phase project overview",
-      "required_elements": ["title", "3-5 category blocks with titles and descriptions"],
-      "example": "SUMÁRIO: 1. Descoberta (100% width) → 2. Nutrição (85%) → 3. Conversão (70%)",
-      "v2_position": "Slide 3 (NEW v2.0)"
+      "description": "Funnel-style table of contents with progressively narrowing blocks. Each section clickable with smooth scroll navigation. Glass-morphism cards with hover effects.",
+      "when_to_use": "Second slide after cover, providing presentation roadmap",
+      "required_elements": ["toc-title", "toc-items (3-6 sections)"],
+      "example": "SUMÁRIO: Descoberta (100% width) → Análise (90%) → Resultados (80%) → Próximos Passos (70%)",
+      "v2_features": ["Funnel effect with width progression", "Click-to-navigate", "Hover glow effect", "Section numbering"]
+    },
+    {
+      "id": "section-divider",
+      "name": "Section Divider",
+      "css_class": "slide section-divider",
+      "section": "2. Contexto",
+      "best_for": ["chapter-break", "section-intro", "topic-change", "phase-transition"],
+      "content_type": "divider",
+      "description": "Clean centered divider with badge, large section title, and optional subtitle. Minimal design with maximum impact.",
+      "when_to_use": "Between major sections to signal topic change",
+      "required_elements": ["badge (section number or label)", "title", "optional subtitle"],
+      "example": "Badge: SEÇÃO 02 + RESULTADOS + Análise detalhada do período",
+      "v2_features": ["Animated badge scale", "Text fade-up animation", "Orange accent badge"]
     },
     {
       "id": "cards-grid",
-      "name": "Cards Grid Pattern",
-      "css_class": "cards-container",
-      "section": "3. Conteúdo e Dados",
-      "best_for": ["multiple-items", "features", "objectives", "context", "benefits"],
+      "name": "Cards Grid (Executive Summary)",
+      "css_class": "slide cards-slide",
+      "section": "2. Contexto",
+      "best_for": ["executive-summary", "multiple-items", "features", "objectives", "context", "benefits"],
       "content_type": "grid",
-      "description": "Responsive auto-fit grid (3-4 columns desktop, 1 column mobile) with glass-morphism cards. Hover effects with orange glow.",
-      "when_to_use": "Presenting 3-6 related items with titles and descriptions, project objectives, feature lists",
-      "required_elements": ["card-title", "card-content or metric"],
-      "example": "Objetivo 1 + descrição | Objetivo 2 + 150% meta | Objetivo 3 + descrição",
-      "v2_position": "Slide 4"
+      "description": "Responsive auto-fit grid (3-4 columns) with heavy glass-morphism cards. Each card has title and content/metric. Orange hover glow effect.",
+      "when_to_use": "Executive summary, presenting 3-6 related concepts, feature lists, objectives overview",
+      "required_elements": ["slide-title", "cards (3-6) with card-title and card-content"],
+      "example": "RESUMO EXECUTIVO: Investimento R$ 50K | Conversões 1.200 | ROAS 4.2x | CPA R$ 41,67",
+      "v2_features": ["Glass-morphism blur(20px)", "Staggered animation", "Hover border glow", "translateY hover lift"]
+    },
+    {
+      "id": "metric-cards",
+      "name": "Metric Cards (KPIs)",
+      "css_class": "slide metrics-slide",
+      "section": "3. Conteúdo",
+      "best_for": ["kpis", "key-metrics", "dashboard", "performance-summary", "numbers-overview"],
+      "content_type": "metrics",
+      "description": "3-column grid of compact metric cards designed for quick KPI scanning. Large value with label, optional trend indicator.",
+      "when_to_use": "Showing 3-6 key performance indicators side-by-side",
+      "required_elements": ["slide-title", "metric-cards with metric-value and metric-label"],
+      "example": "MÉTRICAS PRINCIPAIS: Investimento R$ 50.000 | Conversões 1.200 | CAC R$ 41,67",
+      "v2_features": ["Compact design", "Large number emphasis", "Trend indicators with semantic colors"]
     },
     {
       "id": "comparison-grid",
       "name": "Comparison Grid (Before/After)",
-      "css_class": "comparison-grid",
-      "section": "3. Conteúdo e Dados",
-      "best_for": ["before-after", "problem-solution", "a-b-comparison", "validation"],
+      "css_class": "slide comparison-slide",
+      "section": "3. Conteúdo",
+      "best_for": ["before-after", "problem-solution", "a-b-comparison", "improvement-validation"],
       "content_type": "comparison",
-      "description": "Two-column side-by-side comparison with large stats and semantic color coding. Scale-in animation on load.",
-      "when_to_use": "Showing improvements, validating results, comparing two scenarios or time periods",
-      "required_elements": ["comparison-title", "stat", "label"],
-      "example": "Antes: R$ 2,50 CPA | Depois: R$ 0,85 CPA (-66%) com destaque em verde",
-      "v2_position": "Slide 5"
+      "description": "Two-column side-by-side comparison with large stats. Semantic color coding (red for before/problem, green for after/solution).",
+      "when_to_use": "Showing improvements, validating results, comparing scenarios",
+      "required_elements": ["slide-title", "comparison-item (before) with stat and label", "comparison-item (after) with stat and label"],
+      "example": "ANTES: CPA R$ 2,50 (vermelho) | DEPOIS: CPA R$ 0,85 (verde) = -66% improvement",
+      "v2_features": ["Semantic color coding", "Scale-in animation", "Large stat numbers", "Change percentage badge"]
     },
     {
       "id": "timeline",
       "name": "Timeline (Temporal Evolution)",
-      "css_class": "timeline",
-      "section": "3. Conteúdo e Dados",
-      "best_for": ["evolution", "progression", "weekly-data", "phases", "milestones"],
+      "css_class": "slide timeline-slide",
+      "section": "3. Conteúdo",
+      "best_for": ["evolution", "progression", "weekly-data", "milestones", "chronology", "phases"],
       "content_type": "timeline",
-      "description": "Horizontal timeline with 3-5 data points showing evolution. Gradient line connecting points. Sequential fade-in animation.",
-      "when_to_use": "Time-series data, week-over-week changes, project phases, chronological progression",
-      "required_elements": ["date/period", "value", "sub-label"],
-      "example": "Semana 1: 50 baseline | Semana 2: 75 (+50%) | Semana 3: 125 (+150%)",
-      "v2_position": "Slide 6"
+      "description": "Vertical timeline with orange accent line and data points. Each point shows date, value, and trend. Sequential fade-in animation.",
+      "when_to_use": "Time-series narrative, week-by-week evolution, project phases, milestones",
+      "required_elements": ["slide-title", "timeline-items with timeline-date, timeline-value, timeline-label"],
+      "example": "Semana 1: CPA R$ 2,03 → Semana 2: R$ 1,85 (-9%) → Semana 3: R$ 1,45 (-22%)",
+      "v2_features": ["Vertical orange accent line", "Animated entry", "Trend indicators", "Hover highlight"]
     },
     {
       "id": "statement-slide",
-      "name": "Statement Slide (Text Left, Graphic Right)",
-      "css_class": "statement-slide",
-      "section": "2. Estrutura e Navegação",
-      "best_for": ["key-insight", "bold-message", "turning-point", "critical-finding"],
+      "name": "Statement Slide (Text Left, Visual Right)",
+      "css_class": "slide statement-slide",
+      "section": "3. Conteúdo",
+      "best_for": ["key-insight", "bold-message", "emphasis", "turning-point", "important-finding"],
       "content_type": "statement",
-      "description": "Two-column layout (50/50) with bold uppercase title and body text left, placeholder graphic/icon right",
-      "when_to_use": "Major insights, turning points, critical findings that need visual emphasis and memorability",
-      "required_elements": ["statement-title", "statement-body", "graphic placeholder"],
-      "example": "INSIGHT CRÍTICO + Google Search superou Display em 8.2x no CPA + [📊 placeholder]",
-      "v2_position": "Slide 7 (NEW v2.0)"
-    },
-    {
-      "id": "line-chart",
-      "name": "Line Chart (Temporal Evolution)",
-      "css_class": "line-chart-slide",
-      "section": "4. Visualizações Avançadas",
-      "best_for": ["trend", "time-series", "performance-evolution", "growth-curve"],
-      "content_type": "chart",
-      "description": "SVG line chart (60% width) showing metric evolution over time with orange path and dots. Insights panel (40%) with metric cards on right.",
-      "when_to_use": "Displaying trends, week-over-week changes, growth curves, temporal patterns",
-      "required_elements": ["data-points", "x-axis labels", "y-axis range", "metric summary cards"],
-      "example": "Conversões: S1: 120 → S2: 185 → S3: 320 → S4: 750 (+287% total)",
-      "v2_position": "Slide 8 (NEW v2.0)"
-    },
-    {
-      "id": "bar-chart",
-      "name": "Horizontal Bar Chart (Comparison)",
-      "css_class": "bar-chart-slide",
-      "section": "4. Visualizações Avançadas",
-      "best_for": ["channel-comparison", "benchmarks", "rankings", "performance-comparison"],
-      "content_type": "chart",
-      "description": "Horizontal bars with semantic colors (green=success, blue=solid, red=critical) showing relative performance. Width = percentage.",
-      "when_to_use": "Comparing performance across channels, campaigns, categories, or time periods",
-      "required_elements": ["bar-labels", "bar-values with colors", "status text"],
-      "example": "Google Ads: ROAS 5.2x (95% width, green) | Meta: 4.1x (75%, blue) | Display: 0.6x (25%, red)",
-      "v2_position": "Slide 9 (NEW v2.0)"
-    },
-    {
-      "id": "donut-chart",
-      "name": "Donut Chart (Budget Distribution)",
-      "css_class": "donut-chart-slide",
-      "section": "4. Visualizações Avançadas",
-      "best_for": ["budget-allocation", "market-share", "composition", "percentage-breakdown"],
-      "content_type": "chart",
-      "description": "SVG donut chart (50% width) with center total value and color-coded segments. Legend (50%) shows breakdown with values and percentages.",
-      "when_to_use": "Showing percentage breakdowns, budget distribution, market share composition, allocation strategies",
-      "required_elements": ["segments with percentages", "total-value in center", "legend with colors and values"],
-      "example": "R$ 300K Total: Google 60% (R$ 180K) orange | Meta 30% (R$ 90K) green | Display 10% (R$ 30K) blue",
-      "v2_position": "Slide 10 (NEW v2.0)"
-    },
-    {
-      "id": "funnel",
-      "name": "Funnel (Conversion Path)",
-      "css_class": "funnel-slide",
-      "section": "4. Visualizações Avançadas",
-      "best_for": ["conversion-funnel", "drop-off-analysis", "journey-stages", "process-flow"],
-      "content_type": "chart",
-      "description": "4-stage trapezoid funnel with progressive narrowing (100% → 75% → 50% → 30%). Semantic colors per stage. Drop-off badges show conversion rates.",
-      "when_to_use": "Showing multi-stage conversion process with metrics, drop-off analysis, journey optimization",
-      "required_elements": ["stage-labels", "stage-values", "stage-percentages", "drop-off-rates between stages"],
-      "example": "Impressões: 100K (100%) → Cliques: 15K (15% CTR) → Leads: 2K (13% conv) → Vendas: 500 (25% close)",
-      "v2_position": "Slide 11 (NEW v2.0)"
-    },
-    {
-      "id": "stacked-area",
-      "name": "Stacked Area Chart (Multi-Channel Evolution)",
-      "css_class": "stacked-area-slide",
-      "section": "4. Visualizações Avançadas",
-      "best_for": ["multi-source-trends", "channel-contribution", "combined-evolution"],
-      "content_type": "chart",
-      "description": "SVG stacked area chart (60% width) showing 3+ channels evolution over time with color-coded layers. Legend (40%) with channel totals.",
-      "when_to_use": "Showing how multiple channels/sources contribute to total over time period, channel mix evolution",
-      "required_elements": ["time-series per channel", "channel-legends with colors", "total evolution visible"],
-      "example": "Total conversões: Google (orange) + Meta (green) + TikTok (blue) ao longo de 4 semanas",
-      "v2_position": "Slide 12 (NEW v2.0)"
-    },
-    {
-      "id": "data-table",
-      "name": "Data Table (Structured Comparison)",
-      "css_class": "data-table",
-      "section": "3. Conteúdo e Dados",
-      "best_for": ["channel-comparison", "detailed-metrics", "specifications", "benchmarks"],
-      "content_type": "data",
-      "description": "Table with animated rows showing structured data comparison. Semantic colors for values, badges for status.",
-      "when_to_use": "Comparing metrics across channels, campaigns, or periods with detailed numerical data",
-      "required_elements": ["table-headers", "table-rows with channel names", "metric-values", "status badges"],
-      "example": "Google Search: R$ 0,85 CPA (Excelente verde) | Meta: R$ 1,20 (Sólido azul) | Display: R$ 7,00 (Crítico vermelho)",
-      "v2_position": "Slide 13"
-    },
-    {
-      "id": "checklist",
-      "name": "Checklist (Actions Completed)",
-      "css_class": "checklist",
-      "section": "3. Conteúdo e Dados",
-      "best_for": ["completed-actions", "requirements", "steps-done", "deliverables"],
-      "content_type": "narrative",
-      "description": "List with green checkmark icons and descriptions of completed items. Sequential fade-in animation.",
-      "when_to_use": "Showing accomplished tasks, delivered features, completed phases, action items done",
-      "required_elements": ["checklist-item", "icon (✓)", "text with bold label"],
-      "example": "✓ Otimização de Budget: Realocação de 40% do investimento | ✓ Novos Criativos: 12 variações testadas",
-      "v2_position": "Slide 14"
+      "description": "50/50 split layout with bold text statement on left and supporting visual/metric on right. Orange accent on key text.",
+      "when_to_use": "Major insights, turning points, critical findings requiring emphasis",
+      "required_elements": ["statement-title", "statement-body", "statement-visual (metric or image)"],
+      "example": "INSIGHT CRÍTICO: Google Search supera Display em 8.2x no CPA + Large metric visualization",
+      "v2_features": ["50/50 split layout", "Orange accent text", "Supporting visual area", "Fade-in animation"]
     },
     {
       "id": "statement-slide-reverse",
-      "name": "Statement Slide Reverse (Graphic Left, Text Right)",
-      "css_class": "statement-slide-reverse",
-      "section": "5. Destaque e Impacto",
-      "best_for": ["dramatic-moment", "visual-emphasis", "memorable-message", "hero-insight"],
+      "name": "Statement Slide Reverse (Visual Left, Text Right)",
+      "css_class": "slide statement-slide-reverse",
+      "section": "3. Conteúdo",
+      "best_for": ["dramatic-reveal", "visual-emphasis", "memorable-message", "impact-statement"],
       "content_type": "statement",
-      "description": "Dramatic two-column layout with large graphic/icon left (50%) and bold text right (50%). Reversed order for maximum impact.",
-      "when_to_use": "Most impactful insights, memorable statements, dramatic reveals, key achievements",
-      "required_elements": ["large graphic placeholder", "bold statement-title", "statement-body"],
-      "example": "[📈 large icon] + CPA CAIU 66% + Em 4 semanas de otimização contínua...",
-      "v2_position": "Slide 15 (NEW v2.0)"
+      "description": "Reverse 50/50 layout with visual/graphic on left and bold text on right. Maximum visual impact.",
+      "when_to_use": "Most impactful insights, dramatic reveals, memorable statements",
+      "required_elements": ["statement-visual", "statement-title", "statement-body"],
+      "example": "(Large metric/chart) + 'Redução de 66% no CPA em apenas 3 semanas'",
+      "v2_features": ["Visual-first layout", "Dramatic emphasis", "Glass-morphism text container"]
+    },
+    {
+      "id": "checklist",
+      "name": "Checklist (Completed Actions)",
+      "css_class": "slide checklist-slide",
+      "section": "3. Conteúdo",
+      "best_for": ["completed-actions", "deliverables", "requirements-met", "achievements", "steps-done"],
+      "content_type": "narrative",
+      "description": "List of completed items with green checkmark icons. Each item has bold label and description. Staggered animation.",
+      "when_to_use": "Showing accomplished tasks, delivered features, completed phases",
+      "required_elements": ["slide-title", "checklist-items with check icon, item-title, item-description"],
+      "example": "AÇÕES REALIZADAS: ✓ Otimização de Budget | ✓ Novos Criativos | ✓ Testes A/B",
+      "v2_features": ["Green check icons", "Staggered fade-in", "Bold item titles", "Hover highlight"]
     },
     {
       "id": "big-number",
       "name": "Big Number (Hero Metric)",
-      "css_class": "slide",
-      "section": "5. Destaque e Impacto",
-      "best_for": ["hero-metric", "main-result", "key-achievement", "headline-number"],
+      "css_class": "slide big-number-slide",
+      "section": "3. Conteúdo",
+      "best_for": ["hero-metric", "main-result", "key-achievement", "headline-number", "single-stat"],
       "content_type": "statement",
-      "description": "Large highlighted number in orange with label and context text. Success badge below. Centered layout.",
-      "when_to_use": "Emphasizing the single most important metric or achievement of the presentation",
-      "required_elements": ["big-number", "hero-text label", "body-text context", "badge with change"],
-      "example": "750 (huge orange) + Conversões Alcançadas + Crescimento de 287%... + Badge: +287% vs período",
-      "v2_position": "Slide 16"
+      "description": "Massive centered number in orange with supporting label and context. Maximum emphasis for single most important metric.",
+      "when_to_use": "Emphasizing THE most important metric or achievement",
+      "required_elements": ["big-number (the value)", "big-number-label", "big-number-context", "optional badge"],
+      "example": "750 (huge orange) + Conversões Alcançadas + +287% vs período anterior",
+      "v2_features": ["Extra-large typography", "Orange accent", "Context text", "Animated count-up effect"]
     },
     {
-      "id": "closing-split-gradient-left",
-      "name": "Closing Slide (Gradient Left)",
-      "css_class": "slide-split slide-split-gradient-left",
-      "section": "1. Abertura / Fechamento",
-      "best_for": ["closing", "next-steps", "call-to-action", "summary"],
+      "id": "content-slide",
+      "name": "Content Slide (What Worked)",
+      "css_class": "slide content-slide",
+      "section": "4. Análise",
+      "best_for": ["successes", "what-worked", "wins", "positive-outcomes", "achievements"],
+      "content_type": "narrative",
+      "description": "Standard content slide with title, subtitle, and card grid showing successful items. Green success badges.",
+      "when_to_use": "Presenting successes, what worked well, positive outcomes",
+      "required_elements": ["slide-title", "slide-subtitle", "success-cards with success badge"],
+      "example": "O QUE FUNCIONOU: Google Search (sucesso) | Criativos em Vídeo (sucesso) | Budget Flexível",
+      "v2_features": ["Success badges", "Card grid layout", "Green accent for wins"]
+    },
+    {
+      "id": "challenges-slide",
+      "name": "Challenges Slide",
+      "css_class": "slide challenges-slide",
+      "section": "4. Análise",
+      "best_for": ["challenges", "obstacles", "problems", "issues", "difficulties"],
+      "content_type": "narrative",
+      "description": "Content slide focused on challenges with warning/critical badges. Semantic colors indicate severity.",
+      "when_to_use": "Presenting challenges faced, obstacles encountered, areas needing attention",
+      "required_elements": ["slide-title", "challenge-cards with severity badges"],
+      "example": "DESAFIOS: Display Performance (crítico) | Budget Limitado (moderado) | Sazonalidade",
+      "v2_features": ["Severity badges (warning/critical)", "Yellow/red semantic colors", "Clear severity hierarchy"]
+    },
+    {
+      "id": "learnings-slide",
+      "name": "Learnings & Insights",
+      "css_class": "slide learnings-slide",
+      "section": "4. Análise",
+      "best_for": ["learnings", "insights", "takeaways", "conclusions", "recommendations"],
+      "content_type": "narrative",
+      "description": "Content slide for key learnings and actionable insights. Info badges with blue accent.",
+      "when_to_use": "Presenting lessons learned, key insights, recommendations",
+      "required_elements": ["slide-title", "insight-cards with insight badge"],
+      "example": "APRENDIZADOS: Search > Display | Vídeo performa melhor | Horários de pico identificados",
+      "v2_features": ["Info badges", "Blue accent color", "Actionable formatting"]
+    },
+    {
+      "id": "data-table",
+      "name": "Data Table (Structured Comparison)",
+      "css_class": "slide table-slide",
+      "section": "4. Análise",
+      "best_for": ["channel-comparison", "detailed-metrics", "specifications", "benchmarks", "multi-column-data"],
+      "content_type": "data",
+      "description": "Full data table with headers and rows. Semantic color coding for values, status badges, alternating row backgrounds.",
+      "when_to_use": "Comparing metrics across multiple channels/campaigns with detailed numerical data",
+      "required_elements": ["slide-title", "table with thead and tbody", "status badges"],
+      "example": "Google Search: CPA R$ 0,85 (Excelente) | Meta: CPA R$ 1,20 (Bom) | Display: CPA R$ 7,00 (Crítico)",
+      "v2_features": ["Glass-morphism table", "Semantic status badges", "Animated row entry", "Hover row highlight"]
+    },
+    {
+      "id": "line-chart",
+      "name": "Line Chart (Temporal Evolution)",
+      "css_class": "slide chart-slide line-chart-slide",
+      "section": "5. Visualizações",
+      "best_for": ["trend", "time-series", "performance-evolution", "growth-curve", "weekly-trend"],
+      "content_type": "chart",
+      "description": "SVG line chart showing evolution over time. 60% chart area, 40% insights panel. Orange line with gradient fill.",
+      "when_to_use": "Showing trends, week-over-week changes, growth curves",
+      "required_elements": ["chart-title", "svg with polyline", "x-axis-labels", "y-axis-labels", "insights-panel"],
+      "example": "Conversões ao longo de 5 semanas: 120 → 185 → 320 → 410 → 465",
+      "v2_features": ["SVG-based", "Orange gradient fill", "Animated draw-in", "Insights panel with metrics"]
+    },
+    {
+      "id": "bar-chart",
+      "name": "Bar Chart (Horizontal Comparison)",
+      "css_class": "slide chart-slide bar-chart-slide",
+      "section": "5. Visualizações",
+      "best_for": ["channel-comparison", "rankings", "benchmarks", "category-comparison"],
+      "content_type": "chart",
+      "description": "Horizontal bar chart with semantic colors. Green for success, yellow for neutral, red for critical. Value labels at end of bars.",
+      "when_to_use": "Comparing performance across categories (channels, campaigns)",
+      "required_elements": ["chart-title", "bar-items with bar-label, bar-fill, bar-value"],
+      "example": "Google Ads: ROAS 5.2x (verde) | Meta Ads: ROAS 4.1x (amarelo) | Display: ROAS 0.6x (vermelho)",
+      "v2_features": ["Semantic color coding", "Animated bar growth", "Value labels", "Percentage width calculation"]
+    },
+    {
+      "id": "donut-chart",
+      "name": "Donut Chart (Distribution)",
+      "css_class": "slide chart-slide donut-chart-slide",
+      "section": "5. Visualizações",
+      "best_for": ["budget-allocation", "market-share", "composition", "percentage-breakdown", "distribution"],
+      "content_type": "chart",
+      "description": "SVG donut chart with center total value. 50% chart area, 50% legend with details. Animated segment draw.",
+      "when_to_use": "Showing percentage breakdowns, budget distribution, composition",
+      "required_elements": ["chart-title", "svg donut with segments", "center-value", "legend-items"],
+      "example": "Investimento Total R$ 300K: Google 60% | Meta 30% | Display 10%",
+      "v2_features": ["SVG conic-gradient simulation", "Center value display", "Legend with values", "Hover segment highlight"]
+    },
+    {
+      "id": "funnel-chart",
+      "name": "Funnel Chart (Conversion Path)",
+      "css_class": "slide chart-slide funnel-chart-slide",
+      "section": "5. Visualizações",
+      "best_for": ["conversion-funnel", "drop-off-analysis", "journey-stages", "process-flow", "sales-pipeline"],
+      "content_type": "chart",
+      "description": "4-5 stage trapezoid funnel with progressive narrowing. Drop-off percentage badges between stages.",
+      "when_to_use": "Showing multi-stage conversion process with metrics and drop-off rates",
+      "required_elements": ["chart-title", "funnel-stages with stage-label, stage-value, stage-percentage", "drop-off-badges"],
+      "example": "Impressões (100K) → Cliques (15K, 15%) → Leads (2K, 13%) → Vendas (500, 25%)",
+      "v2_features": ["Progressive narrowing", "Drop-off badges", "Animated stage entry", "Semantic stage colors"]
+    },
+    {
+      "id": "stacked-area-chart",
+      "name": "Stacked Area Chart (Multi-Channel)",
+      "css_class": "slide chart-slide stacked-area-slide",
+      "section": "5. Visualizações",
+      "best_for": ["multi-source-trends", "channel-contribution", "combined-evolution", "composition-over-time"],
+      "content_type": "chart",
+      "description": "SVG stacked area showing 3+ channels evolution over time. 60% chart, 40% legend. Each channel has distinct color.",
+      "when_to_use": "Showing how multiple channels contribute to total over time",
+      "required_elements": ["chart-title", "svg with stacked paths", "channel-legends", "time-labels"],
+      "example": "Conversões Google + Meta + TikTok empilhadas ao longo de 5 semanas",
+      "v2_features": ["Multi-layer SVG paths", "Distinct channel colors", "Legend with totals", "Animated fill"]
+    },
+    {
+      "id": "gauge-chart",
+      "name": "Gauge Chart (Goal Progress)",
+      "css_class": "slide chart-slide gauge-chart-slide",
+      "section": "5. Visualizações",
+      "best_for": ["goal-progress", "target-achievement", "performance-score", "health-indicator", "quota-status"],
+      "content_type": "chart",
+      "description": "Semi-circular gauge showing progress toward goal. Color-coded zones (red/yellow/green). Center displays current value and percentage.",
+      "when_to_use": "Showing progress toward a goal, performance scores, quota achievement",
+      "required_elements": ["chart-title", "gauge-arc with progress", "gauge-value", "gauge-label", "goal-indicator"],
+      "example": "Meta de Conversões: 750/1000 (75%) - Zona verde, no caminho certo",
+      "v2_features": ["SVG arc with conic gradient", "Color-coded zones", "Goal marker", "Animated fill", "Percentage display"],
+      "unique_to_v2": true
+    },
+    {
+      "id": "next-steps",
+      "name": "Next Steps Slide",
+      "css_class": "slide next-steps-slide",
+      "section": "6. Encerramento",
+      "best_for": ["action-items", "recommendations", "next-phase", "roadmap", "todo-list"],
       "content_type": "conclusion",
-      "description": "Two-column split with organic gradient left (50%) and content/CTA right (50%). Glass-morphism box with action items.",
-      "when_to_use": "Last slide with next steps, action items, call-to-action, strong closing impression",
-      "required_elements": ["title", "action-list in glass box", "cta-button", "organic gradient"],
-      "example": "PRÓXIMOS PASSOS + [organic-02.png] + Lista de ações + CTA: Agendar Reunião",
-      "v2_position": "Slide 17 (Closing)"
+      "description": "Numbered action items in glass-morphism cards. Clear hierarchy of priorities. Orange accent on numbers.",
+      "when_to_use": "Presenting actionable next steps, recommendations, action items",
+      "required_elements": ["slide-title", "next-step-items with number, title, description"],
+      "example": "PRÓXIMOS PASSOS: 1. Escalar Search | 2. Pausar Display | 3. Testar TikTok",
+      "v2_features": ["Numbered items", "Priority hierarchy", "Orange number accent", "Glass-morphism cards"]
+    },
+    {
+      "id": "conclusion-slide",
+      "name": "Conclusion Slide",
+      "css_class": "slide conclusion-slide",
+      "section": "6. Encerramento",
+      "best_for": ["summary", "key-takeaway", "final-message", "wrap-up"],
+      "content_type": "conclusion",
+      "description": "Centered layout with large title and key message in glass-morphism box. Orange accent emphasis.",
+      "when_to_use": "Second-to-last slide, summarizing key takeaways",
+      "required_elements": ["conclusion-title", "conclusion-box with key message"],
+      "example": "CONCLUSÃO + Box: Estratégia de Search validada. Escalar para R$ 100K/mês.",
+      "v2_features": ["Glass-morphism message box", "Orange accent border", "Centered impact design"]
+    },
+    {
+      "id": "back-cover",
+      "name": "Back Cover (Closing)",
+      "css_class": "slide hero-slide back-cover",
+      "section": "6. Encerramento",
+      "best_for": ["closing", "thank-you", "contact", "final-slide"],
+      "content_type": "cover",
+      "description": "Mirrored hero slide for professional closing. Logo, thank you message, contact information.",
+      "when_to_use": "Last slide of presentation",
+      "required_elements": ["logo", "title (Obrigado/Thank You)", "contact-info", "optional CTA"],
+      "example": "Jumper Logo + OBRIGADO + contato@jumper.studio + Agendar Próxima Reunião",
+      "v2_features": ["Gradient background (inverted)", "Contact info section", "CTA button option"]
     }
-  ]
+  ],
+  "ai_generation_guidance": {
+    "pattern_selection_rules": [
+      "Always start with hero-slide for cover",
+      "Use table-of-contents after hero for presentations with 10+ slides",
+      "Use section-divider before each major topic change",
+      "Place metric-cards early for quick KPI overview",
+      "Use comparison-grid when showing before/after or A/B results",
+      "Choose chart type based on data: line for trends, bar for comparison, donut for distribution, funnel for conversion, gauge for goals",
+      "End with next-steps → conclusion → back-cover sequence",
+      "Use statement slides for single most important insights"
+    ],
+    "content_density_guidelines": {
+      "hero-slide": "Minimal: logo + title + subtitle + 1-2 metadata items",
+      "cards-grid": "3-6 cards maximum, each with title + short content",
+      "metric-cards": "3-6 metrics, single value + label each",
+      "timeline": "4-6 time points maximum",
+      "charts": "4-8 data points for clarity",
+      "table": "4-8 rows maximum for readability"
+    },
+    "semantic_color_usage": {
+      "success": "#2AA876 - Use for positive outcomes, wins, improvements",
+      "warning": "#F59E0B - Use for neutral/caution items, moderate issues",
+      "critical": "#EF4444 - Use for problems, failures, items needing attention",
+      "info": "#3B82F6 - Use for insights, learnings, recommendations",
+      "primary": "#FA4721 - Use for emphasis, CTAs, key highlights"
+    }
+  }
 }

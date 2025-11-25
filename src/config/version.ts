@@ -7,10 +7,19 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.44';
+export const APP_VERSION = 'v2.1.45';
 
 /**
  * Version history:
+ * - v2.1.45 (2024-11-24):
+ *   - NEW: Jumper Flare v2 template (complete modernization)
+ *   - 24 slide patterns (up from 9 in v1)
+ *   - 6 chart types: Line, Bar, Donut, Funnel, Stacked Area, Gauge (new)
+ *   - External CSS (~2000 lines) for token optimization
+ *   - Heavy glass-morphism (20px blur)
+ *   - Hybrid navigation (scroll-snap + click)
+ *   - NOT YET ADOPTED as default template - deployed for testing
+ *
  * - v2.1.44 (2024-11-24):
  *   - FIX: Deck content overflow - slides now fit within viewport
  *   - CSS: Added max-height + overflow control to .slide-content
