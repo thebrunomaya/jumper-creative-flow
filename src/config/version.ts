@@ -7,10 +7,22 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.47';
+export const APP_VERSION = 'v2.1.48';
 
 /**
  * Version history:
+ * - v2.1.48 (2024-11-25):
+ *   - MAJOR: Jumper Flare v2.1 template complete redesign with Linear Design principles
+ *   - All 26 slides redesigned following approved slides 1-3, 7 aesthetic
+ *   - NEW PATTERNS: Split layouts (40/60 ratio), corners layout, arrow + insight footers
+ *   - CHARTS: Redesigned slides 17-21 (Line, Bar, Donut, Funnel, Goal) with split layouts
+ *   - CLOSING: Redesigned slides 22-26 (Actions, Strategy White, Updates, CTA, Signature)
+ *   - FIX: Slides 8-10 footer overlap with navigation - moved to corners layout
+ *   - CSS: Added 600+ lines of new Linear Design patterns
+ *   - CTA: Slide 25 now links to WhatsApp for follow-up
+ *   - PRODUCTION: CSS reference updated to hub.jumper.studio/decks/templates/
+ *   - DESIGN TOKENS: Haffer font, orange accent (#FA4721), pure black (#000), no centered text
+ *
  * - v2.1.47 (2024-11-24):
  *   - FIX: Slide 1 corners layout now works correctly
  *   - CSS: Added explicit height: 100vh to .slide-split (not just min-height)

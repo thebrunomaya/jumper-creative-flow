@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jumper Flare v2.1 Template - Authentic Jumper Design</title>
 
-    <!-- External CSS -->
+    <!-- CSS Production -->
     <link rel="stylesheet" href="https://hub.jumper.studio/decks/templates/jumper-flare-v2.1.css">
 </head>
 <body>
@@ -16,11 +16,11 @@
              =============================================== -->
 
         <!-- SLIDE 1: HERO SPLIT RIGHT (Cover) -->
-        <!-- Pattern: hero-split-right with corners layout | Sharp cut, no fade -->
+        <!-- Pattern: hero-split-right with corners layout | Mirrors logo position -->
         <div class="slide slide-split slide-split-gradient-right">
             <div class="slide-split-content">
-                <div class="content-inner" style="display: flex; flex-direction: column; justify-content: space-between; height: 100%; padding: var(--space-xl) 0;">
-                    <!-- TOP: Title -->
+                <div class="content-inner corners-layout">
+                    <!-- TOP-LEFT: Title (mirrors logo at top-right) -->
                     <div>
                         <h1>Performance<br>Report</h1>
                     </div>
@@ -28,9 +28,9 @@
                     <div>
                         <p class="text-subtitle">Client Name / Account</p>
                     </div>
-                    <!-- BOTTOM: Period info -->
+                    <!-- BOTTOM-LEFT: Period info -->
                     <div>
-                        <p class="text-body" style="max-width: 400px;">
+                        <p class="text-body">
                             Period: October 1-31, 2024<br>
                             Comprehensive analysis of campaign performance and strategic recommendations.
                         </p>
@@ -40,41 +40,45 @@
             <div class="slide-split-gradient" style="background-image: url('https://hub.jumper.studio/decks/identities/jumper/gradients/organic-01.png');"></div>
         </div>
 
-        <!-- SLIDE 2: TABLE OF CONTENTS -->
-        <!-- Pattern: toc-grid | Left-aligned items -->
-        <div class="slide slide-toc">
-            <div class="slide-content">
-                <h2 class="slide-title">Agenda</h2>
-                <p class="slide-subtitle">What we'll cover in this report</p>
-
-                <div class="toc-grid">
-                    <div class="toc-item">
-                        <span class="toc-number">01</span>
-                        <div class="toc-content">
-                            <h4>Executive Summary</h4>
-                            <p>Overview of key results and highlights</p>
+        <!-- SLIDE 2: TABLE OF CONTENTS - Split + Cards com números grandes -->
+        <div class="slide slide-toc-split">
+            <div class="toc-split-left">
+                <h1>Agenda</h1>
+                <p class="text-subtitle">What we'll cover in this report</p>
+            </div>
+            <div class="toc-split-right">
+                <div class="toc-stack-wide">
+                    <div class="toc-card-wide">
+                        <span class="toc-wide-number">01</span>
+                        <div class="toc-wide-content">
+                            <span class="toc-card-title">Executive Summary</span>
+                            <span class="toc-card-description">Overview of key results and highlights</span>
                         </div>
+                        <span class="toc-wide-arrow">→</span>
                     </div>
-                    <div class="toc-item">
-                        <span class="toc-number">02</span>
-                        <div class="toc-content">
-                            <h4>Performance Metrics</h4>
-                            <p>Consolidated KPIs and trends</p>
+                    <div class="toc-card-wide">
+                        <span class="toc-wide-number">02</span>
+                        <div class="toc-wide-content">
+                            <span class="toc-card-title">Performance Metrics</span>
+                            <span class="toc-card-description">Consolidated KPIs, trends, and benchmarks</span>
                         </div>
+                        <span class="toc-wide-arrow">→</span>
                     </div>
-                    <div class="toc-item">
-                        <span class="toc-number">03</span>
-                        <div class="toc-content">
-                            <h4>Channel Analysis</h4>
-                            <p>Platform-by-platform breakdown</p>
+                    <div class="toc-card-wide">
+                        <span class="toc-wide-number">03</span>
+                        <div class="toc-wide-content">
+                            <span class="toc-card-title">Channel Analysis</span>
+                            <span class="toc-card-description">Platform-by-platform breakdown</span>
                         </div>
+                        <span class="toc-wide-arrow">→</span>
                     </div>
-                    <div class="toc-item">
-                        <span class="toc-number">04</span>
-                        <div class="toc-content">
-                            <h4>Insights & Actions</h4>
-                            <p>Learnings and next steps</p>
+                    <div class="toc-card-wide">
+                        <span class="toc-wide-number">04</span>
+                        <div class="toc-wide-content">
+                            <span class="toc-card-title">Insights & Actions</span>
+                            <span class="toc-card-description">Key learnings and next steps</span>
                         </div>
+                        <span class="toc-wide-arrow">→</span>
                     </div>
                 </div>
             </div>
@@ -97,31 +101,29 @@
         </div>
 
         <!-- SLIDE 4: BIG NUMBER WITH ARROW (From 53.png) -->
-        <!-- Pattern: big-number-arrow | NEW in v2.1 -->
+        <!-- Pattern: big-number | Linear Design - dramatic scale, intentional void -->
         <div class="slide slide-big-number">
             <div class="slide-content">
                 <div class="big-number-container">
                     <span class="big-number-value">92,4%</span>
-                    <span class="big-number-arrow">&#8595;</span>
+                    <span class="big-number-arrow">↓</span>
                 </div>
-                <p class="big-number-context text-support-italic">
-                    da sua audiencia<br>
-                    pode estar fora do<br>
-                    seu alcance
+                <p class="big-number-context">
+                    da sua audiência pode estar fora do seu alcance
                 </p>
             </div>
         </div>
 
         <!-- SLIDE 5: SECTION DIVIDER -->
-        <!-- Pattern: section-divider | Orange accent bar -->
+        <!-- Pattern: section-divider | Linear Design - corners layout, dramatic scale -->
         <div class="slide slide-section-divider">
             <div class="slide-content">
-                <div class="section-divider-content">
+                <div class="section-divider-top">
                     <span class="section-divider-number">02</span>
-                    <div class="section-divider-text">
-                        <h2 class="section-divider-title">Performance Metrics</h2>
-                        <p class="section-divider-subtitle">Deep dive into the numbers that matter</p>
-                    </div>
+                </div>
+                <div class="section-divider-bottom">
+                    <h2 class="section-divider-title">Performance<br>Metrics</h2>
+                    <p class="section-divider-subtitle">Deep dive into the numbers that matter</p>
                 </div>
             </div>
         </div>
@@ -130,32 +132,34 @@
              SECTION 3: CONTENT PATTERNS (Flat Cards)
              =============================================== -->
 
-        <!-- SLIDE 6: CARDS GRID (Flat - No glass-morphism) -->
-        <!-- Pattern: cards-grid | Solid backgrounds, square corners -->
-        <div class="slide">
-            <div class="slide-content">
-                <h2 class="slide-title">Key Insights</h2>
-                <p class="slide-subtitle">What drove performance this period</p>
-
-                <div class="cards-grid">
-                    <div class="card">
-                        <h3 class="card-title">Audience Targeting</h3>
-                        <p class="card-content">
-                            Refined audience segments led to 45% improvement in CTR. Interest-based targeting outperformed lookalike audiences.
-                        </p>
+        <!-- SLIDE 6: KEY INSIGHTS -->
+        <!-- Pattern: split-insights | Linear Design - asymmetric layout -->
+        <div class="slide slide-insights-split">
+            <div class="insights-left">
+                <span class="insights-label">Insights</span>
+                <h2 class="insights-title">What drove<br>performance</h2>
+            </div>
+            <div class="insights-right">
+                <div class="insight-card">
+                    <span class="insight-number">01</span>
+                    <div class="insight-content">
+                        <h3 class="insight-title">Audience Targeting</h3>
+                        <p class="insight-description">Refined segments led to 45% improvement in CTR</p>
                     </div>
-                    <div class="card card-highlight">
-                        <h3 class="card-title">Best Performer</h3>
-                        <p class="card-metric">+127%</p>
-                        <p class="card-content">
-                            Conversion rate increase on video creative format
-                        </p>
+                </div>
+                <div class="insight-card insight-highlight">
+                    <span class="insight-number">02</span>
+                    <div class="insight-content">
+                        <h3 class="insight-title">Best Performer</h3>
+                        <p class="insight-metric">+127%</p>
+                        <p class="insight-description">Conversion rate on video creative</p>
                     </div>
-                    <div class="card">
-                        <h3 class="card-title">Budget Efficiency</h3>
-                        <p class="card-content">
-                            Cost per acquisition reduced by 35% through bid optimization and dayparting strategies.
-                        </p>
+                </div>
+                <div class="insight-card">
+                    <span class="insight-number">03</span>
+                    <div class="insight-content">
+                        <h3 class="insight-title">Budget Efficiency</h3>
+                        <p class="insight-description">CPA reduced by 35% through bid optimization</p>
                     </div>
                 </div>
             </div>
@@ -168,9 +172,10 @@
                 <div class="corner-tl">
                     <span class="text-label">Case Study</span>
                     <p class="text-detail" style="margin-top: var(--space-xs);">E-commerce / Fashion</p>
+                    <p class="text-detail" style="margin-top: var(--space-xs);">October 2024</p>
                 </div>
                 <div class="corner-tr">
-                    <span class="text-label">October 2024</span>
+                    <!-- Empty - logo area -->
                 </div>
                 <div class="corner-center">
                     <!-- Center intentionally empty or with subtle background -->
@@ -185,68 +190,70 @@
                     </p>
                 </div>
                 <div class="corner-br">
-                    <span class="arrow-indicator arrow-right" style="font-size: 3rem;"></span>
+                    <span class="arrow-indicator arrow-right"></span>
                 </div>
             </div>
         </div>
 
-        <!-- SLIDE 8: TWO COLUMN -->
-        <!-- Pattern: two-column | Left-aligned -->
-        <div class="slide">
-            <div class="slide-content">
-                <h2 class="slide-title">Channel Comparison</h2>
-                <p class="slide-subtitle">Platform performance side-by-side</p>
-
-                <div class="two-column">
-                    <div class="card">
-                        <h3 class="card-title">Google Ads</h3>
-                        <p class="card-content">
-                            <ul>
-                                <li>Investment: R$ 25,000</li>
-                                <li>Conversions: 720</li>
-                                <li>CPA: R$ 34.72</li>
-                                <li>ROAS: 5.2x</li>
-                            </ul>
-                        </p>
-                    </div>
-                    <div class="card">
-                        <h3 class="card-title">Meta Ads</h3>
-                        <p class="card-content">
-                            <ul>
-                                <li>Investment: R$ 20,000</li>
-                                <li>Conversions: 514</li>
-                                <li>CPA: R$ 38.91</li>
-                                <li>ROAS: 4.1x</li>
-                            </ul>
-                        </p>
+        <!-- SLIDE 8: CHANNEL COMPARISON -->
+        <!-- Pattern: comparison-corners | Linear Design - corners layout -->
+        <div class="slide slide-comparison-corners">
+            <div class="comparison-corners-top">
+                <span class="comparison-corners-label">Channel Comparison</span>
+            </div>
+            <div class="comparison-corners-center">
+                <div class="comparison-side">
+                    <h3 class="comparison-platform">Google Ads</h3>
+                    <div class="comparison-metrics">
+                        <div class="comparison-metric">
+                            <span class="comparison-metric-value">720</span>
+                            <span class="comparison-metric-label">conversions</span>
+                        </div>
+                        <div class="comparison-metric">
+                            <span class="comparison-metric-value">5.2x</span>
+                            <span class="comparison-metric-label">ROAS</span>
+                        </div>
                     </div>
                 </div>
-
-                <div class="emphasis-box" style="max-width: 800px;">
-                    <strong>Insight:</strong> Google Ads delivered 40% more volume at 11% lower cost. Recommend increasing budget allocation.
+                <div class="comparison-vs-divider">
+                    <span class="comparison-vs">vs</span>
                 </div>
+                <div class="comparison-side">
+                    <h3 class="comparison-platform">Meta Ads</h3>
+                    <div class="comparison-metrics">
+                        <div class="comparison-metric">
+                            <span class="comparison-metric-value">514</span>
+                            <span class="comparison-metric-label">conversions</span>
+                        </div>
+                        <div class="comparison-metric">
+                            <span class="comparison-metric-value">4.1x</span>
+                            <span class="comparison-metric-label">ROAS</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="comparison-corners-bottom">
+                <p class="comparison-corners-insight">Google Ads delivered 40% more volume at 11% lower cost</p>
+                <span class="comparison-corners-arrow">→</span>
             </div>
         </div>
 
         <!-- SLIDE 9: STATEMENT -->
-        <!-- Pattern: statement | Left-aligned text -->
-        <div class="slide slide-statement">
-            <div class="slide-content">
-                <div class="statement-text">
-                    <h2 class="statement-title">The Key Insight</h2>
-                    <p class="statement-body">
-                        Video creative formats consistently outperformed static images across all channels. The combination of short-form video (under 15 seconds) with clear CTAs drove the highest engagement rates.
-                    </p>
-                    <p class="statement-body">
-                        This validates our hypothesis that mobile-first, thumb-stopping content is essential for scroll-heavy environments.
-                    </p>
-                    <span class="badge badge-success">Validated Hypothesis</span>
-                </div>
-                <div class="statement-graphic">
-                    <img src="https://hub.jumper.studio/decks/identities/jumper/gradients/organic-03.png"
-                         alt="Abstract gradient"
-                         style="width: 100%;">
-                </div>
+        <!-- Pattern: statement-corners | Linear Design - corners layout -->
+        <div class="slide slide-statement-corners">
+            <div class="statement-corners-top">
+                <span class="badge badge-orange">Key Insight</span>
+            </div>
+            <div class="statement-corners-center">
+                <p class="statement-corners-quote">
+                    Video creative formats consistently outperformed static images across all channels
+                </p>
+            </div>
+            <div class="statement-corners-bottom">
+                <p class="statement-corners-context">
+                    Short-form video (under 15s) with clear CTAs drove highest engagement
+                </p>
+                <span class="statement-corners-arrow">→</span>
             </div>
         </div>
 
@@ -254,183 +261,179 @@
              SECTION 4: METRICS & DATA PATTERNS
              =============================================== -->
 
-        <!-- SLIDE 10: METRIC CARDS -->
-        <!-- Pattern: metric-cards | Left-aligned -->
-        <div class="slide">
-            <div class="slide-content">
-                <h2 class="slide-title">Consolidated Metrics</h2>
-                <p class="slide-subtitle">Performance summary for the period</p>
-
-                <div class="metric-cards">
-                    <div class="metric-card">
-                        <p class="metric-label">Total Investment</p>
-                        <p class="metric-value">R$ 45K</p>
+        <!-- SLIDE 10: METRICS GRID -->
+        <!-- Pattern: metrics-corners | Linear Design - corners layout -->
+        <div class="slide slide-metrics-corners">
+            <div class="metrics-corners-top">
+                <span class="metrics-corners-label">Consolidated Metrics</span>
+            </div>
+            <div class="metrics-corners-center">
+                <div class="metrics-grid-items">
+                    <div class="metrics-grid-item">
+                        <span class="metrics-grid-value">R$ 45K</span>
+                        <span class="metrics-grid-name">Investment</span>
                     </div>
-                    <div class="metric-card">
-                        <p class="metric-label">Conversions</p>
-                        <p class="metric-value">1,234</p>
-                        <p class="metric-trend up">+23% &#8593;</p>
+                    <div class="metrics-grid-item">
+                        <span class="metrics-grid-value">1,234</span>
+                        <span class="metrics-grid-name">Conversions</span>
+                        <span class="metrics-grid-trend positive">+23%</span>
                     </div>
-                    <div class="metric-card">
-                        <p class="metric-label">Cost/Conv</p>
-                        <p class="metric-value">R$ 36</p>
-                        <p class="metric-trend up">-18% &#8595;</p>
+                    <div class="metrics-grid-item">
+                        <span class="metrics-grid-value">R$ 36</span>
+                        <span class="metrics-grid-name">Cost/Conv</span>
+                        <span class="metrics-grid-trend positive">-18%</span>
                     </div>
-                    <div class="metric-card">
-                        <p class="metric-label">ROAS</p>
-                        <p class="metric-value">4.8x</p>
+                    <div class="metrics-grid-item">
+                        <span class="metrics-grid-value">4.8x</span>
+                        <span class="metrics-grid-name">ROAS</span>
                     </div>
-                    <div class="metric-card">
-                        <p class="metric-label">CTR</p>
-                        <p class="metric-value">3.2%</p>
+                    <div class="metrics-grid-item">
+                        <span class="metrics-grid-value">3.2%</span>
+                        <span class="metrics-grid-name">CTR</span>
                     </div>
-                    <div class="metric-card">
-                        <p class="metric-label">CPC</p>
-                        <p class="metric-value">R$ 1.45</p>
+                    <div class="metrics-grid-item">
+                        <span class="metrics-grid-value">R$ 1.45</span>
+                        <span class="metrics-grid-name">CPC</span>
                     </div>
                 </div>
-
-                <div class="emphasis-box dark" style="max-width: 800px;">
-                    All metrics exceeded industry benchmarks. Portfolio on track for quarterly targets.
-                </div>
+            </div>
+            <div class="metrics-corners-bottom">
+                <p class="metrics-corners-insight">All metrics exceeded industry benchmarks</p>
+                <span class="metrics-corners-arrow">→</span>
             </div>
         </div>
 
         <!-- SLIDE 11: HERO METRIC -->
-        <!-- Pattern: hero-metric | Left-aligned -->
-        <div class="slide slide-hero-metric">
+        <!-- Pattern: hero-metric | Linear Design - dramatic single number -->
+        <div class="slide slide-big-number">
             <div class="slide-content">
-                <p class="hero-metric-value">750</p>
-                <p class="hero-metric-label">Conversions Achieved</p>
-                <p class="hero-metric-context">
-                    Breaking our previous monthly record by 23%. This represents a 79% cost efficiency improvement since campaign launch.
+                <div class="big-number-container">
+                    <span class="big-number-value">750</span>
+                    <span class="big-number-arrow">↑</span>
+                </div>
+                <p class="big-number-context">
+                    conversions achieved, breaking our monthly record by 23%
                 </p>
-                <span class="badge badge-success" style="margin-top: var(--space-lg);">+150% vs Previous Period</span>
             </div>
         </div>
 
-        <!-- SLIDE 12: COMPARISON GRID -->
-        <!-- Pattern: comparison-grid | Left-aligned -->
-        <div class="slide">
-            <div class="slide-content">
-                <h2 class="slide-title">Before & After</h2>
-                <p class="slide-subtitle">CPA evolution over the optimization period</p>
-
-                <div class="comparison-grid">
-                    <div class="comparison-item">
-                        <h3 class="comparison-item-title">Week 1</h3>
-                        <p class="comparison-item-value before">R$ 120</p>
-                        <p class="comparison-item-label">Initial CPA (learning phase)</p>
+        <!-- SLIDE 12: BEFORE/AFTER -->
+        <!-- Pattern: before-after | Linear Design - dramatic contrast -->
+        <div class="slide slide-before-after">
+            <div class="before-after-content">
+                <div class="before-after-header">
+                    <span class="before-after-label">CPA Evolution</span>
+                </div>
+                <div class="before-after-grid">
+                    <div class="before-after-item">
+                        <span class="before-after-period">Week 1</span>
+                        <span class="before-after-value before">R$ 120</span>
+                        <span class="before-after-desc">Learning phase</span>
                     </div>
-                    <div class="comparison-item comparison-highlight">
-                        <h3 class="comparison-item-title">Week 6</h3>
-                        <p class="comparison-item-value after">R$ 36</p>
-                        <p class="comparison-item-label">Optimized CPA (-70%)</p>
+                    <div class="before-after-arrow">→</div>
+                    <div class="before-after-item">
+                        <span class="before-after-period">Week 6</span>
+                        <span class="before-after-value after">R$ 36</span>
+                        <span class="before-after-desc">Optimized</span>
                     </div>
                 </div>
-
-                <div class="emphasis-box" style="max-width: 700px;">
-                    79% reduction in cost per acquisition through systematic optimization &#8594;
+                <div class="before-after-footer">
+                    <span class="before-after-result">-70%</span>
+                    <p class="before-after-insight">reduction through systematic optimization</p>
                 </div>
             </div>
         </div>
 
-        <!-- SLIDE 13: DATA TABLE -->
-        <!-- Pattern: data-table | Left-aligned -->
-        <div class="slide">
-            <div class="slide-content">
-                <h2 class="slide-title">Channel Performance</h2>
-                <p class="slide-subtitle">Detailed breakdown by platform</p>
-
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Channel</th>
-                            <th>Investment</th>
-                            <th>Conversions</th>
-                            <th>CPA</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Google Ads</td>
-                            <td>R$ 25,000</td>
-                            <td class="text-success" style="font-weight: 700;">720</td>
-                            <td>R$ 34.72</td>
-                            <td><span class="badge badge-success">Excellent</span></td>
-                        </tr>
-                        <tr>
-                            <td>Meta Ads</td>
-                            <td>R$ 15,000</td>
-                            <td>385</td>
-                            <td>R$ 38.96</td>
-                            <td><span class="badge badge-success">Good</span></td>
-                        </tr>
-                        <tr>
-                            <td>TikTok Ads</td>
-                            <td>R$ 5,000</td>
-                            <td>129</td>
-                            <td>R$ 38.76</td>
-                            <td><span class="badge badge-warning">Testing</span></td>
-                        </tr>
-                    </tbody>
-                </table>
+        <!-- SLIDE 13: CHANNEL BREAKDOWN -->
+        <!-- Pattern: data-rows | Linear Design - clean rows -->
+        <div class="slide slide-data-rows">
+            <div class="data-rows-content">
+                <div class="data-rows-header">
+                    <span class="data-rows-label">Channel Performance</span>
+                </div>
+                <div class="data-rows-list">
+                    <div class="data-row-item highlight">
+                        <span class="data-row-name">Google Ads</span>
+                        <span class="data-row-value">720</span>
+                        <span class="data-row-meta">conversions</span>
+                        <span class="badge badge-orange">Best</span>
+                    </div>
+                    <div class="data-row-item">
+                        <span class="data-row-name">Meta Ads</span>
+                        <span class="data-row-value">385</span>
+                        <span class="data-row-meta">conversions</span>
+                    </div>
+                    <div class="data-row-item">
+                        <span class="data-row-name">TikTok Ads</span>
+                        <span class="data-row-value">129</span>
+                        <span class="data-row-meta">conversions</span>
+                        <span class="badge badge-neutral">Testing</span>
+                    </div>
+                </div>
+                <div class="data-rows-footer">
+                    <span class="data-rows-arrow">→</span>
+                    <p class="data-rows-insight">Google leads with 58% of total conversions</p>
+                </div>
             </div>
         </div>
 
-        <!-- SLIDE 14: DATA LIST -->
-        <!-- Pattern: data-list | Left-aligned -->
-        <div class="slide">
-            <div class="slide-content">
-                <h2 class="slide-title">Weekly Breakdown</h2>
-                <p class="slide-subtitle">Investment and conversions by week</p>
-
-                <div class="data-list">
-                    <div class="data-column">
-                        <h3>Investment</h3>
-                        <div class="data-row">
-                            <span class="data-label">Week 1</span>
-                            <span class="data-value">R$ 6,500</span>
-                        </div>
-                        <div class="data-row">
-                            <span class="data-label">Week 2</span>
-                            <span class="data-value">R$ 7,200</span>
-                        </div>
-                        <div class="data-row">
-                            <span class="data-label">Week 3</span>
-                            <span class="data-value">R$ 8,100</span>
-                        </div>
-                        <div class="data-row">
-                            <span class="data-label">Week 4</span>
-                            <span class="data-value">R$ 9,800</span>
-                        </div>
-                        <div class="data-row highlight">
-                            <span class="data-label">Week 5</span>
-                            <span class="data-value">R$ 13,400</span>
+        <!-- SLIDE 14: WEEKLY BREAKDOWN -->
+        <!-- Pattern: data-split | Linear Design - two columns -->
+        <div class="slide slide-data-split">
+            <div class="data-split-left">
+                <span class="data-split-label">Weekly Breakdown</span>
+                <h2 class="data-split-title">Investment<br>& Results</h2>
+            </div>
+            <div class="data-split-right">
+                <div class="data-split-columns">
+                    <div class="data-split-column">
+                        <span class="data-split-column-title">Investment</span>
+                        <div class="data-split-rows">
+                            <div class="data-split-row">
+                                <span class="data-split-period">W1</span>
+                                <span class="data-split-value">R$ 6.5K</span>
+                            </div>
+                            <div class="data-split-row">
+                                <span class="data-split-period">W2</span>
+                                <span class="data-split-value">R$ 7.2K</span>
+                            </div>
+                            <div class="data-split-row">
+                                <span class="data-split-period">W3</span>
+                                <span class="data-split-value">R$ 8.1K</span>
+                            </div>
+                            <div class="data-split-row">
+                                <span class="data-split-period">W4</span>
+                                <span class="data-split-value">R$ 9.8K</span>
+                            </div>
+                            <div class="data-split-row highlight">
+                                <span class="data-split-period">W5</span>
+                                <span class="data-split-value">R$ 13.4K</span>
+                            </div>
                         </div>
                     </div>
-                    <div class="data-column">
-                        <h3>Conversions</h3>
-                        <div class="data-row">
-                            <span class="data-label">Week 1</span>
-                            <span class="data-value">54</span>
-                        </div>
-                        <div class="data-row">
-                            <span class="data-label">Week 2</span>
-                            <span class="data-value">87</span>
-                        </div>
-                        <div class="data-row">
-                            <span class="data-label">Week 3</span>
-                            <span class="data-value">124</span>
-                        </div>
-                        <div class="data-row">
-                            <span class="data-label">Week 4</span>
-                            <span class="data-value">189</span>
-                        </div>
-                        <div class="data-row highlight">
-                            <span class="data-label">Week 5</span>
-                            <span class="data-value">372</span>
+                    <div class="data-split-column">
+                        <span class="data-split-column-title">Conversions</span>
+                        <div class="data-split-rows">
+                            <div class="data-split-row">
+                                <span class="data-split-period">W1</span>
+                                <span class="data-split-value">54</span>
+                            </div>
+                            <div class="data-split-row">
+                                <span class="data-split-period">W2</span>
+                                <span class="data-split-value">87</span>
+                            </div>
+                            <div class="data-split-row">
+                                <span class="data-split-period">W3</span>
+                                <span class="data-split-value">124</span>
+                            </div>
+                            <div class="data-split-row">
+                                <span class="data-split-period">W4</span>
+                                <span class="data-split-value">189</span>
+                            </div>
+                            <div class="data-split-row highlight">
+                                <span class="data-split-period">W5</span>
+                                <span class="data-split-value">372</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -441,75 +444,80 @@
              SECTION 5: TIMELINE PATTERNS
              =============================================== -->
 
-        <!-- SLIDE 15: TIMELINE HORIZONTAL -->
-        <!-- Pattern: timeline-horizontal | Left-aligned items -->
-        <div class="slide">
-            <div class="slide-content">
-                <h2 class="slide-title">Performance Evolution</h2>
-                <p class="slide-subtitle">CPA optimization over time</p>
-
-                <div class="timeline-horizontal">
-                    <div class="timeline-item">
-                        <p class="timeline-date">Week 1</p>
-                        <div class="timeline-dot"></div>
-                        <p class="timeline-value start">R$ 120</p>
-                        <p class="timeline-label">Learning</p>
+        <!-- SLIDE 15: EVOLUTION FLOW -->
+        <!-- Pattern: evolution-flow | Linear Design - horizontal progression -->
+        <div class="slide slide-evolution">
+            <div class="evolution-content">
+                <div class="evolution-header">
+                    <span class="evolution-label">CPA Evolution</span>
+                </div>
+                <div class="evolution-flow">
+                    <div class="evolution-step">
+                        <span class="evolution-week">W1</span>
+                        <span class="evolution-value faded">R$ 120</span>
                     </div>
-                    <div class="timeline-item">
-                        <p class="timeline-date">Week 2</p>
-                        <div class="timeline-dot"></div>
-                        <p class="timeline-value start">R$ 85</p>
-                        <p class="timeline-label">-29%</p>
+                    <span class="evolution-arrow">→</span>
+                    <div class="evolution-step">
+                        <span class="evolution-week">W2</span>
+                        <span class="evolution-value faded">R$ 85</span>
                     </div>
-                    <div class="timeline-item">
-                        <p class="timeline-date">Week 3</p>
-                        <div class="timeline-dot"></div>
-                        <p class="timeline-value middle">R$ 65</p>
-                        <p class="timeline-label">-24%</p>
+                    <span class="evolution-arrow">→</span>
+                    <div class="evolution-step">
+                        <span class="evolution-week">W3</span>
+                        <span class="evolution-value faded">R$ 65</span>
                     </div>
-                    <div class="timeline-item">
-                        <p class="timeline-date">Week 4</p>
-                        <div class="timeline-dot"></div>
-                        <p class="timeline-value middle">R$ 52</p>
-                        <p class="timeline-label">-20%</p>
+                    <span class="evolution-arrow">→</span>
+                    <div class="evolution-step">
+                        <span class="evolution-week">W4</span>
+                        <span class="evolution-value faded">R$ 52</span>
                     </div>
-                    <div class="timeline-item">
-                        <p class="timeline-date">Week 5</p>
-                        <div class="timeline-dot"></div>
-                        <p class="timeline-value end">R$ 36</p>
-                        <p class="timeline-label">-31%</p>
+                    <span class="evolution-arrow">→</span>
+                    <div class="evolution-step highlight">
+                        <span class="evolution-week">W5</span>
+                        <span class="evolution-value">R$ 36</span>
                     </div>
+                </div>
+                <div class="evolution-footer">
+                    <span class="evolution-result">-70%</span>
+                    <p class="evolution-insight">cost reduction over 5 weeks</p>
                 </div>
             </div>
         </div>
 
-        <!-- SLIDE 16: TIMELINE VERTICAL -->
-        <!-- Pattern: timeline-vertical | Left-aligned -->
-        <div class="slide">
-            <div class="slide-content">
-                <h2 class="slide-title">Key Milestones</h2>
-                <p class="slide-subtitle">Critical moments in the campaign</p>
-
-                <div class="timeline-vertical">
-                    <div class="timeline-vertical-item">
-                        <p class="timeline-vertical-date">Oct 1-7</p>
-                        <h4 class="timeline-vertical-title">Campaign Launch</h4>
-                        <p class="timeline-vertical-content">Initial setup with broad targeting. Algorithm in learning phase. CPA high at R$ 120 but expected during ramp-up.</p>
+        <!-- SLIDE 16: MILESTONES -->
+        <!-- Pattern: milestones-split | Linear Design - vertical progression -->
+        <div class="slide slide-milestones">
+            <div class="milestones-left">
+                <span class="milestones-label">Milestones</span>
+                <h2 class="milestones-title">Key<br>Moments</h2>
+            </div>
+            <div class="milestones-right">
+                <div class="milestone-item">
+                    <span class="milestone-date">Oct 1-7</span>
+                    <div class="milestone-content">
+                        <h4 class="milestone-title">Campaign Launch</h4>
+                        <p class="milestone-desc">Broad targeting, learning phase. CPA: R$ 120</p>
                     </div>
-                    <div class="timeline-vertical-item">
-                        <p class="timeline-vertical-date">Oct 8-14</p>
-                        <h4 class="timeline-vertical-title">First Optimization Cycle</h4>
-                        <p class="timeline-vertical-content">Removed underperforming ad sets. Focused budget on top 3 audiences. CPA dropped to R$ 85.</p>
+                </div>
+                <div class="milestone-item">
+                    <span class="milestone-date">Oct 8-14</span>
+                    <div class="milestone-content">
+                        <h4 class="milestone-title">First Optimization</h4>
+                        <p class="milestone-desc">Removed underperformers. CPA: R$ 85</p>
                     </div>
-                    <div class="timeline-vertical-item">
-                        <p class="timeline-vertical-date">Oct 15-21</p>
-                        <h4 class="timeline-vertical-title">Creative Refresh</h4>
-                        <p class="timeline-vertical-content">Introduced video creative format. 127% improvement in conversion rate. CPA now at R$ 52.</p>
+                </div>
+                <div class="milestone-item">
+                    <span class="milestone-date">Oct 15-21</span>
+                    <div class="milestone-content">
+                        <h4 class="milestone-title">Creative Refresh</h4>
+                        <p class="milestone-desc">Video format introduced. CPA: R$ 52</p>
                     </div>
-                    <div class="timeline-vertical-item">
-                        <p class="timeline-vertical-date">Oct 22-31</p>
-                        <h4 class="timeline-vertical-title">Scale & Optimize</h4>
-                        <p class="timeline-vertical-content">Increased budget by 50% while maintaining efficiency. Final CPA at R$ 36. Target achieved!</p>
+                </div>
+                <div class="milestone-item highlight">
+                    <span class="milestone-date">Oct 22-31</span>
+                    <div class="milestone-content">
+                        <h4 class="milestone-title">Scale & Optimize</h4>
+                        <p class="milestone-desc">Budget +50%, efficiency maintained. CPA: R$ 36</p>
                     </div>
                 </div>
             </div>
@@ -520,327 +528,262 @@
              =============================================== -->
 
         <!-- SLIDE 17: LINE CHART -->
-        <!-- Pattern: line-chart | Charts keep rounded corners -->
-        <div class="slide slide-line-chart">
-            <div class="slide-content">
-                <div class="chart-container">
-                    <h3 class="chart-title">Conversion Evolution</h3>
-                    <p class="chart-subtitle">Weekly performance over 6 weeks</p>
-
-                    <div class="line-chart-wrapper">
-                        <svg class="line-chart-svg" viewBox="0 0 600 280" preserveAspectRatio="xMidYMid meet">
-                            <defs>
-                                <linearGradient id="line-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                                    <stop offset="0%" stop-color="#FA4721" stop-opacity="0.3"/>
-                                    <stop offset="100%" stop-color="#FA4721" stop-opacity="0"/>
-                                </linearGradient>
-                            </defs>
-
-                            <g class="line-chart-grid">
-                                <line x1="60" y1="40" x2="580" y2="40"/>
-                                <line x1="60" y1="90" x2="580" y2="90"/>
-                                <line x1="60" y1="140" x2="580" y2="140"/>
-                                <line x1="60" y1="190" x2="580" y2="190"/>
-                            </g>
-
-                            <g class="line-chart-axis">
-                                <text x="45" y="44" text-anchor="end">400</text>
-                                <text x="45" y="94" text-anchor="end">300</text>
-                                <text x="45" y="144" text-anchor="end">200</text>
-                                <text x="45" y="194" text-anchor="end">100</text>
-                                <text x="45" y="244" text-anchor="end">0</text>
-                            </g>
-
-                            <path class="line-chart-area"
-                                  d="M 85,220 L 180,200 L 275,175 L 370,145 L 465,90 L 560,50 L 560,240 L 85,240 Z"/>
-
-                            <path class="line-chart-path"
-                                  d="M 85,220 L 180,200 L 275,175 L 370,145 L 465,90 L 560,50"/>
-
-                            <g class="line-chart-dots">
-                                <circle cx="85" cy="220"/>
-                                <circle cx="180" cy="200"/>
-                                <circle cx="275" cy="175"/>
-                                <circle cx="370" cy="145"/>
-                                <circle cx="465" cy="90"/>
-                                <circle cx="560" cy="50"/>
-                            </g>
-
-                            <g class="line-chart-axis">
-                                <text x="85" y="260" text-anchor="middle">Week 1</text>
-                                <text x="180" y="260" text-anchor="middle">Week 2</text>
-                                <text x="275" y="260" text-anchor="middle">Week 3</text>
-                                <text x="370" y="260" text-anchor="middle">Week 4</text>
-                                <text x="465" y="260" text-anchor="middle">Week 5</text>
-                                <text x="560" y="260" text-anchor="middle">Week 6</text>
-                            </g>
-                        </svg>
+        <!-- Pattern: chart-split | Linear Design - split layout with chart -->
+        <div class="slide slide-chart-split">
+            <div class="chart-split-left">
+                <span class="chart-split-label">Trend Analysis</span>
+                <h2 class="chart-split-title">Conversion<br>Evolution</h2>
+                <div class="chart-split-metrics">
+                    <div class="chart-split-metric">
+                        <span class="chart-split-metric-value">1,476</span>
+                        <span class="chart-split-metric-name">Total</span>
+                    </div>
+                    <div class="chart-split-metric highlight">
+                        <span class="chart-split-metric-value">+588%</span>
+                        <span class="chart-split-metric-name">Growth</span>
                     </div>
                 </div>
-
-                <div class="chart-insights">
-                    <div class="chart-insight-card">
-                        <p class="chart-insight-label">Total Conversions</p>
-                        <p class="chart-insight-value">1,476</p>
+            </div>
+            <div class="chart-split-right">
+                <div class="chart-area">
+                    <svg class="line-chart-svg" viewBox="0 0 500 200" preserveAspectRatio="xMidYMid meet">
+                        <defs>
+                            <linearGradient id="line-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" stop-color="#FA4721" stop-opacity="0.3"/>
+                                <stop offset="100%" stop-color="#FA4721" stop-opacity="0"/>
+                            </linearGradient>
+                        </defs>
+                        <path class="line-chart-area"
+                              d="M 0,180 L 100,160 L 200,140 L 300,100 L 400,50 L 500,20 L 500,200 L 0,200 Z"/>
+                        <path class="line-chart-path"
+                              d="M 0,180 L 100,160 L 200,140 L 300,100 L 400,50 L 500,20"/>
+                        <g class="line-chart-dots">
+                            <circle cx="0" cy="180"/>
+                            <circle cx="100" cy="160"/>
+                            <circle cx="200" cy="140"/>
+                            <circle cx="300" cy="100"/>
+                            <circle cx="400" cy="50"/>
+                            <circle cx="500" cy="20"/>
+                        </g>
+                    </svg>
+                    <div class="chart-x-labels">
+                        <span>W1</span>
+                        <span>W2</span>
+                        <span>W3</span>
+                        <span>W4</span>
+                        <span>W5</span>
+                        <span>W6</span>
                     </div>
-                    <div class="chart-insight-card">
-                        <p class="chart-insight-label">Growth Rate</p>
-                        <p class="chart-insight-value">+588%</p>
-                    </div>
-                    <div class="chart-insight-card">
-                        <p class="chart-insight-label">Weekly Average</p>
-                        <p class="chart-insight-value">246</p>
-                    </div>
-                    <div class="chart-insight-box">
-                        <strong>Key Insight</strong>
-                        Exponential growth in final 2 weeks after bid and creative optimizations. Sustainable positive trend.
-                    </div>
+                </div>
+                <div class="chart-split-footer">
+                    <span class="chart-split-arrow">→</span>
+                    <p class="chart-split-insight">Exponential growth in final 2 weeks after bid and creative optimizations</p>
                 </div>
             </div>
         </div>
 
         <!-- SLIDE 18: BAR CHART HORIZONTAL -->
-        <!-- Pattern: bar-chart-horizontal | Charts keep rounded corners -->
-        <div class="slide slide-bar-chart">
-            <div class="slide-content">
-                <h2 class="slide-title">Performance by Channel</h2>
-                <p class="slide-subtitle">Revenue comparison across ad platforms (Last 30 days)</p>
-
-                <div class="bar-chart-container">
-                    <div class="bar-chart-item">
-                        <div class="bar-chart-label">
-                            <span>Google Ads</span>
-                            <span class="bar-chart-label-value">R$ 247,890</span>
+        <!-- Pattern: bars-split | Linear Design - split layout with bars -->
+        <div class="slide slide-bars-split">
+            <div class="bars-split-left">
+                <span class="bars-split-label">Channel Performance</span>
+                <h2 class="bars-split-title">Revenue<br>by Platform</h2>
+                <p class="bars-split-period">Last 30 days</p>
+            </div>
+            <div class="bars-split-right">
+                <div class="bars-container">
+                    <div class="bar-row highlight">
+                        <span class="bar-name">Google Ads</span>
+                        <div class="bar-visual">
+                            <div class="bar-fill" style="width: 100%;"></div>
                         </div>
-                        <div class="bar-chart-track">
-                            <div class="bar-chart-fill positive" style="width: 100%;">
-                                <span class="bar-chart-fill-value">ROAS 5.2x</span>
-                            </div>
-                        </div>
+                        <span class="bar-value">R$ 247K</span>
+                        <span class="bar-roas">5.2x</span>
                     </div>
-
-                    <div class="bar-chart-item">
-                        <div class="bar-chart-label">
-                            <span>Meta Ads</span>
-                            <span class="bar-chart-label-value">R$ 186,420</span>
+                    <div class="bar-row">
+                        <span class="bar-name">Meta Ads</span>
+                        <div class="bar-visual">
+                            <div class="bar-fill" style="width: 75%;"></div>
                         </div>
-                        <div class="bar-chart-track">
-                            <div class="bar-chart-fill neutral" style="width: 75%;">
-                                <span class="bar-chart-fill-value">ROAS 3.1x</span>
-                            </div>
-                        </div>
+                        <span class="bar-value">R$ 186K</span>
+                        <span class="bar-roas">3.1x</span>
                     </div>
-
-                    <div class="bar-chart-item">
-                        <div class="bar-chart-label">
-                            <span>TikTok Ads</span>
-                            <span class="bar-chart-label-value">R$ 94,310</span>
+                    <div class="bar-row">
+                        <span class="bar-name">TikTok Ads</span>
+                        <div class="bar-visual">
+                            <div class="bar-fill" style="width: 38%;"></div>
                         </div>
-                        <div class="bar-chart-track">
-                            <div class="bar-chart-fill negative" style="width: 38%;">
-                                <span class="bar-chart-fill-value">ROAS 1.8x</span>
-                            </div>
-                        </div>
+                        <span class="bar-value">R$ 94K</span>
+                        <span class="bar-roas">1.8x</span>
                     </div>
-
-                    <div class="bar-chart-item">
-                        <div class="bar-chart-label">
-                            <span>LinkedIn Ads</span>
-                            <span class="bar-chart-label-value">R$ 52,870</span>
+                    <div class="bar-row">
+                        <span class="bar-name">LinkedIn Ads</span>
+                        <div class="bar-visual">
+                            <div class="bar-fill" style="width: 21%;"></div>
                         </div>
-                        <div class="bar-chart-track">
-                            <div class="bar-chart-fill default" style="width: 21%;">
-                                <span class="bar-chart-fill-value">ROAS 2.4x</span>
-                            </div>
-                        </div>
+                        <span class="bar-value">R$ 52K</span>
+                        <span class="bar-roas">2.4x</span>
                     </div>
                 </div>
-
-                <div class="bar-chart-insight">
-                    <strong>Strategic Recommendation &#8594;</strong>
-                    Google Ads leads with ROAS 67% above average. Suggest: (1) Increase Google budget by 30%, (2) Test winning Google creatives on TikTok, (3) Pause LinkedIn awareness campaigns and focus on retargeting only.
+                <div class="bars-split-footer">
+                    <span class="bars-split-arrow">→</span>
+                    <p class="bars-split-insight">Google Ads leads with ROAS 67% above average</p>
                 </div>
             </div>
         </div>
 
         <!-- SLIDE 19: DONUT CHART -->
-        <!-- Pattern: donut-chart | Left-aligned legend -->
-        <div class="slide slide-donut-chart">
-            <div class="slide-content">
-                <div>
-                    <h2 class="slide-title">Budget Distribution</h2>
-                    <p class="slide-subtitle">Investment allocation by platform (October 2024)</p>
-
-                    <div class="donut-chart-wrapper">
-                        <svg class="donut-chart-svg" viewBox="0 0 200 200">
-                            <circle cx="100" cy="100" r="80" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="40"/>
-
-                            <circle cx="100" cy="100" r="80" fill="none"
-                                    stroke="#2AA876" stroke-width="40"
-                                    stroke-dasharray="226.19 276.46"
-                                    stroke-dashoffset="125.66"/>
-
-                            <circle cx="100" cy="100" r="80" fill="none"
-                                    stroke="#3B82F6" stroke-width="40"
-                                    stroke-dasharray="150.79 351.86"
-                                    stroke-dashoffset="-100.53"/>
-
-                            <circle cx="100" cy="100" r="80" fill="none"
-                                    stroke="#FF0080" stroke-width="40"
-                                    stroke-dasharray="75.40 427.25"
-                                    stroke-dashoffset="-251.32"/>
-
-                            <circle cx="100" cy="100" r="80" fill="none"
-                                    stroke="#FA4721" stroke-width="40"
-                                    stroke-dasharray="50.27 452.38"
-                                    stroke-dashoffset="-326.72"/>
-                        </svg>
-
-                        <div class="donut-center-label">
-                            <p class="donut-center-value">R$ 300k</p>
-                            <p class="donut-center-text">Total Budget</p>
-                        </div>
+        <!-- Pattern: distribution-split | Linear Design - dramatic center number -->
+        <div class="slide slide-distribution">
+            <div class="distribution-left">
+                <span class="distribution-label">Budget Allocation</span>
+                <h2 class="distribution-title">Investment<br>Distribution</h2>
+                <p class="distribution-period">October 2024</p>
+                <div class="distribution-legend">
+                    <div class="legend-row">
+                        <span class="legend-dot" style="background: #2AA876;"></span>
+                        <span class="legend-name">Google Ads</span>
+                        <span class="legend-pct">45%</span>
+                    </div>
+                    <div class="legend-row">
+                        <span class="legend-dot" style="background: #3B82F6;"></span>
+                        <span class="legend-name">Meta Ads</span>
+                        <span class="legend-pct">30%</span>
+                    </div>
+                    <div class="legend-row">
+                        <span class="legend-dot" style="background: #FF0080;"></span>
+                        <span class="legend-name">TikTok Ads</span>
+                        <span class="legend-pct">15%</span>
+                    </div>
+                    <div class="legend-row">
+                        <span class="legend-dot" style="background: #FA4721;"></span>
+                        <span class="legend-name">LinkedIn Ads</span>
+                        <span class="legend-pct">10%</span>
                     </div>
                 </div>
-
-                <div class="donut-legend">
-                    <div class="donut-legend-item">
-                        <div class="donut-legend-color" style="background: #2AA876;"></div>
-                        <div class="donut-legend-text">
-                            <span class="donut-legend-label">Google Ads</span>
-                            <span class="donut-legend-value">R$ 135k <span class="donut-legend-percentage">(45%)</span></span>
-                        </div>
+            </div>
+            <div class="distribution-right">
+                <div class="donut-visual">
+                    <svg class="donut-svg" viewBox="0 0 200 200">
+                        <circle cx="100" cy="100" r="70" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="30"/>
+                        <circle cx="100" cy="100" r="70" fill="none"
+                                stroke="#2AA876" stroke-width="30"
+                                stroke-dasharray="197.92 241.33"
+                                stroke-dashoffset="109.96"/>
+                        <circle cx="100" cy="100" r="70" fill="none"
+                                stroke="#3B82F6" stroke-width="30"
+                                stroke-dasharray="131.95 307.31"
+                                stroke-dashoffset="-87.96"/>
+                        <circle cx="100" cy="100" r="70" fill="none"
+                                stroke="#FF0080" stroke-width="30"
+                                stroke-dasharray="65.97 373.28"
+                                stroke-dashoffset="-219.91"/>
+                        <circle cx="100" cy="100" r="70" fill="none"
+                                stroke="#FA4721" stroke-width="30"
+                                stroke-dasharray="43.98 395.27"
+                                stroke-dashoffset="-285.88"/>
+                    </svg>
+                    <div class="donut-center">
+                        <span class="donut-total">R$ 300k</span>
+                        <span class="donut-label">Total</span>
                     </div>
-                    <div class="donut-legend-item">
-                        <div class="donut-legend-color" style="background: #3B82F6;"></div>
-                        <div class="donut-legend-text">
-                            <span class="donut-legend-label">Meta Ads</span>
-                            <span class="donut-legend-value">R$ 90k <span class="donut-legend-percentage">(30%)</span></span>
-                        </div>
-                    </div>
-                    <div class="donut-legend-item">
-                        <div class="donut-legend-color" style="background: #FF0080;"></div>
-                        <div class="donut-legend-text">
-                            <span class="donut-legend-label">TikTok Ads</span>
-                            <span class="donut-legend-value">R$ 45k <span class="donut-legend-percentage">(15%)</span></span>
-                        </div>
-                    </div>
-                    <div class="donut-legend-item">
-                        <div class="donut-legend-color" style="background: #FA4721;"></div>
-                        <div class="donut-legend-text">
-                            <span class="donut-legend-label">LinkedIn Ads</span>
-                            <span class="donut-legend-value">R$ 30k <span class="donut-legend-percentage">(10%)</span></span>
-                        </div>
-                    </div>
+                </div>
+                <div class="distribution-footer">
+                    <span class="distribution-arrow">→</span>
+                    <p class="distribution-insight">Google + Meta represent 75% of total investment</p>
                 </div>
             </div>
         </div>
 
         <!-- SLIDE 20: FUNNEL CHART -->
-        <!-- Pattern: funnel-chart | Left-aligned -->
-        <div class="slide slide-funnel">
-            <div class="slide-content">
-                <h2 class="slide-title">Conversion Funnel</h2>
-                <p class="slide-subtitle">Complete user journey - October 2024</p>
-
-                <div class="funnel-container">
-                    <div class="funnel-stage">
-                        <div class="funnel-stage-header">
-                            <span class="funnel-stage-label">1. Impressions</span>
-                            <span class="funnel-stage-value">1,250,000 <span class="funnel-stage-percentage">(100%)</span></span>
+        <!-- Pattern: funnel-split | Linear Design - split layout with funnel -->
+        <div class="slide slide-funnel-split">
+            <div class="funnel-split-left">
+                <span class="funnel-split-label">User Journey</span>
+                <h2 class="funnel-split-title">Conversion<br>Funnel</h2>
+                <p class="funnel-split-period">October 2024</p>
+                <div class="funnel-split-result">
+                    <span class="funnel-result-value">0.21%</span>
+                    <span class="funnel-result-desc">Overall conversion rate</span>
+                </div>
+            </div>
+            <div class="funnel-split-right">
+                <div class="funnel-stages">
+                    <div class="funnel-stage-item">
+                        <div class="funnel-stage-top">
+                            <span class="funnel-stage-num">01</span>
+                            <span class="funnel-stage-name">Impressions</span>
                         </div>
-                        <div class="funnel-bar">TOP OF FUNNEL</div>
-                        <span class="funnel-drop-off">-97%</span>
+                        <span class="funnel-stage-value">1.25M</span>
+                        <span class="funnel-stage-drop">↓ 97%</span>
                     </div>
-
-                    <div class="funnel-stage">
-                        <div class="funnel-stage-header">
-                            <span class="funnel-stage-label">2. Clicks</span>
-                            <span class="funnel-stage-value">37,500 <span class="funnel-stage-percentage">(3.0%)</span></span>
+                    <div class="funnel-stage-item">
+                        <div class="funnel-stage-top">
+                            <span class="funnel-stage-num">02</span>
+                            <span class="funnel-stage-name">Clicks</span>
                         </div>
-                        <div class="funnel-bar">CTR: 3.0%</div>
-                        <span class="funnel-drop-off">-80%</span>
+                        <span class="funnel-stage-value">37.5K</span>
+                        <span class="funnel-stage-drop">↓ 80%</span>
                     </div>
-
-                    <div class="funnel-stage">
-                        <div class="funnel-stage-header">
-                            <span class="funnel-stage-label">3. Leads</span>
-                            <span class="funnel-stage-value">7,500 <span class="funnel-stage-percentage">(0.6%)</span></span>
+                    <div class="funnel-stage-item">
+                        <div class="funnel-stage-top">
+                            <span class="funnel-stage-num">03</span>
+                            <span class="funnel-stage-name">Leads</span>
                         </div>
-                        <div class="funnel-bar">CONVERSION: 20%</div>
-                        <span class="funnel-drop-off">-65%</span>
+                        <span class="funnel-stage-value">7.5K</span>
+                        <span class="funnel-stage-drop highlight">↓ 65%</span>
                     </div>
-
-                    <div class="funnel-stage">
-                        <div class="funnel-stage-header">
-                            <span class="funnel-stage-label">4. Conversions</span>
-                            <span class="funnel-stage-value">2,625 <span class="funnel-stage-percentage">(0.21%)</span></span>
+                    <div class="funnel-stage-item final">
+                        <div class="funnel-stage-top">
+                            <span class="funnel-stage-num">04</span>
+                            <span class="funnel-stage-name">Conversions</span>
                         </div>
-                        <div class="funnel-bar">BOTTOM OF FUNNEL</div>
+                        <span class="funnel-stage-value">2,625</span>
                     </div>
                 </div>
-
-                <div class="funnel-insight">
-                    <strong>Optimization Opportunity &#8594;</strong>
-                    Critical drop-off: Leads to Conversions (65%). Recommendations: (1) Implement remarketing for cold leads, (2) Improve Landing Page copy, (3) Add email automation for lead nurturing. Goal: Reduce drop-off to 45% (+50% conversions).
+                <div class="funnel-split-footer">
+                    <span class="funnel-split-arrow">→</span>
+                    <p class="funnel-split-insight">Critical drop-off at Leads → Conversions (65%)</p>
                 </div>
             </div>
         </div>
 
         <!-- SLIDE 21: GAUGE CHART -->
-        <!-- Pattern: gauge-chart | Left-aligned -->
-        <div class="slide slide-gauge">
-            <div class="slide-content">
-                <div>
-                    <h2 class="slide-title">Goal Progress</h2>
-                    <p class="slide-subtitle">Monthly conversion target achievement</p>
-
-                    <div class="gauge-wrapper">
-                        <svg class="gauge-svg" viewBox="0 0 200 120">
-                            <path class="gauge-track"
-                                  d="M 20 100 A 80 80 0 0 1 180 100"
-                                  fill="none"/>
-
-                            <path class="gauge-fill excellent"
-                                  d="M 20 100 A 80 80 0 0 1 167 55"
-                                  fill="none"
-                                  stroke-dasharray="220"
-                                  stroke-dashoffset="0"/>
-                        </svg>
-
-                        <div class="gauge-center-label">
-                            <p class="gauge-value" style="color: var(--flare-success);">87%</p>
-                            <p class="gauge-label">of monthly goal</p>
-                        </div>
+        <!-- Pattern: goal-split | Linear Design - dramatic progress display -->
+        <div class="slide slide-goal-split">
+            <div class="goal-split-left">
+                <span class="goal-split-label">Goal Progress</span>
+                <h2 class="goal-split-title">Monthly<br>Target</h2>
+                <div class="goal-metrics">
+                    <div class="goal-metric">
+                        <span class="goal-metric-label">Target</span>
+                        <span class="goal-metric-value">1,500</span>
                     </div>
-
-                    <div class="gauge-scale">
+                    <div class="goal-metric">
+                        <span class="goal-metric-label">Achieved</span>
+                        <span class="goal-metric-value success">1,305</span>
+                    </div>
+                    <div class="goal-metric">
+                        <span class="goal-metric-label">Remaining</span>
+                        <span class="goal-metric-value">195</span>
+                    </div>
+                </div>
+            </div>
+            <div class="goal-split-right">
+                <div class="goal-progress-display">
+                    <span class="goal-percentage">87%</span>
+                    <div class="goal-progress-bar">
+                        <div class="goal-progress-fill" style="width: 87%;"></div>
+                    </div>
+                    <div class="goal-progress-labels">
                         <span>0%</span>
                         <span>50%</span>
                         <span>100%</span>
                     </div>
                 </div>
-
-                <div class="gauge-info">
-                    <div class="gauge-info-card">
-                        <p class="gauge-info-title">Target</p>
-                        <p class="gauge-info-value">1,500</p>
-                        <p class="gauge-info-description">Monthly conversion goal</p>
-                    </div>
-                    <div class="gauge-info-card">
-                        <p class="gauge-info-title">Achieved</p>
-                        <p class="gauge-info-value" style="color: var(--flare-success);">1,305</p>
-                        <p class="gauge-info-description">Conversions so far</p>
-                    </div>
-                    <div class="gauge-info-card">
-                        <p class="gauge-info-title">Remaining</p>
-                        <p class="gauge-info-value">195</p>
-                        <p class="gauge-info-description">To reach 100%</p>
-                    </div>
-                    <div class="gauge-insight">
-                        <strong>Projection &#8594;</strong>
-                        At current pace, we'll exceed the monthly goal by 8%. On track for best month ever.
-                    </div>
+                <div class="goal-split-footer">
+                    <span class="goal-split-arrow">→</span>
+                    <p class="goal-split-insight">On track to exceed goal by 8% at current pace</p>
                 </div>
             </div>
         </div>
@@ -850,140 +793,167 @@
              =============================================== -->
 
         <!-- SLIDE 22: CHECKLIST -->
-        <!-- Pattern: checklist | Left-aligned -->
-        <div class="slide">
-            <div class="slide-content">
-                <h2 class="slide-title">Actions Completed</h2>
-                <p class="slide-subtitle">Optimization steps taken this period</p>
-
-                <div class="checklist">
-                    <div class="checklist-item">
-                        <span class="checklist-icon">&#10003;</span>
-                        <span class="checklist-text"><strong>Audience Optimization:</strong> Refined targeting based on first-party data analysis. Removed 12 underperforming segments.</span>
+        <!-- Pattern: actions-split | Linear Design - split layout with checklist -->
+        <div class="slide slide-actions-split">
+            <div class="actions-split-left">
+                <span class="actions-split-label">Completed</span>
+                <h2 class="actions-split-title">Actions<br>Taken</h2>
+                <p class="actions-split-period">This optimization period</p>
+            </div>
+            <div class="actions-split-right">
+                <div class="actions-list">
+                    <div class="action-item done">
+                        <span class="action-check">✓</span>
+                        <div class="action-content">
+                            <h4 class="action-title">Audience Optimization</h4>
+                            <p class="action-desc">Refined targeting, removed 12 underperforming segments</p>
+                        </div>
                     </div>
-                    <div class="checklist-item">
-                        <span class="checklist-icon">&#10003;</span>
-                        <span class="checklist-text"><strong>Creative Refresh:</strong> Introduced 8 new video creatives. A/B tested thumbnails and CTAs across platforms.</span>
+                    <div class="action-item done">
+                        <span class="action-check">✓</span>
+                        <div class="action-content">
+                            <h4 class="action-title">Creative Refresh</h4>
+                            <p class="action-desc">8 new video creatives, A/B tested CTAs</p>
+                        </div>
                     </div>
-                    <div class="checklist-item">
-                        <span class="checklist-icon">&#10003;</span>
-                        <span class="checklist-text"><strong>Bid Strategy:</strong> Migrated from manual CPC to target CPA bidding. Algorithm optimization period completed.</span>
+                    <div class="action-item done">
+                        <span class="action-check">✓</span>
+                        <div class="action-content">
+                            <h4 class="action-title">Bid Strategy</h4>
+                            <p class="action-desc">Migrated to target CPA bidding</p>
+                        </div>
                     </div>
-                    <div class="checklist-item">
-                        <span class="checklist-icon">&#10003;</span>
-                        <span class="checklist-text"><strong>Landing Page:</strong> Implemented faster load times (-40%). Added trust signals and simplified form fields.</span>
+                    <div class="action-item done">
+                        <span class="action-check">✓</span>
+                        <div class="action-content">
+                            <h4 class="action-title">Landing Page</h4>
+                            <p class="action-desc">-40% load time, added trust signals</p>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- SLIDE 23: WHITE THEME (From 54.png) -->
-        <!-- Pattern: slide-white | NEW in v2.1 -->
-        <div class="slide slide-white">
-            <div class="slide-content">
-                <span class="badge badge-orange" style="margin-bottom: var(--space-lg);">New Approach</span>
-                <h2 class="slide-title" style="color: #000;">Next Quarter Strategy</h2>
-                <p class="slide-subtitle" style="color: rgba(0,0,0,0.7);">
-                    Key initiatives for Q4 2024
-                </p>
-
-                <div class="cards-grid cols-2" style="margin-top: var(--space-xl);">
-                    <div class="card">
-                        <h3 class="card-title" style="color: #000;">Scale Winners</h3>
-                        <p class="card-content" style="color: rgba(0,0,0,0.7);">
-                            Increase budget allocation to top-performing channels by 50%
-                        </p>
+        <!-- Pattern: strategy-split-white | Linear Design - white background split -->
+        <div class="slide slide-strategy-white">
+            <div class="strategy-white-left">
+                <span class="strategy-white-label">Q4 2024</span>
+                <h2 class="strategy-white-title">Next Quarter<br>Strategy</h2>
+            </div>
+            <div class="strategy-white-right">
+                <div class="strategy-items">
+                    <div class="strategy-item">
+                        <span class="strategy-num">01</span>
+                        <div class="strategy-content">
+                            <h4 class="strategy-item-title">Scale Winners</h4>
+                            <p class="strategy-item-desc">+50% budget to top channels</p>
+                        </div>
                     </div>
-                    <div class="card">
-                        <h3 class="card-title" style="color: #000;">Test New Formats</h3>
-                        <p class="card-content" style="color: rgba(0,0,0,0.7);">
-                            Explore YouTube Shorts and Pinterest for diversification
-                        </p>
+                    <div class="strategy-item">
+                        <span class="strategy-num">02</span>
+                        <div class="strategy-content">
+                            <h4 class="strategy-item-title">Test New Formats</h4>
+                            <p class="strategy-item-desc">YouTube Shorts + Pinterest</p>
+                        </div>
+                    </div>
+                    <div class="strategy-item">
+                        <span class="strategy-num">03</span>
+                        <div class="strategy-content">
+                            <h4 class="strategy-item-title">Automation</h4>
+                            <p class="strategy-item-desc">Remarketing + Lead nurturing</p>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- SLIDE 24: NOTIFICATION STYLE (From 59.png) -->
-        <!-- Pattern: notification-cards | NEW in v2.1 -->
-        <div class="slide">
-            <div class="slide-content">
-                <h2 class="slide-title">Recent Updates</h2>
-                <p class="slide-subtitle">What happened this week</p>
-
-                <div class="stack-cards" style="max-width: 600px;">
-                    <div class="notification-card">
-                        <div class="notification-header">
-                            <span class="notification-source">Online - Anywhere</span>
-                            <span class="notification-date">Nov 24</span>
+        <!-- Pattern: updates-split | Linear Design - split layout with timeline -->
+        <div class="slide slide-updates-split">
+            <div class="updates-split-left">
+                <span class="updates-split-label">Activity Log</span>
+                <h2 class="updates-split-title">Recent<br>Updates</h2>
+                <p class="updates-split-period">This week</p>
+            </div>
+            <div class="updates-split-right">
+                <div class="updates-timeline">
+                    <div class="update-entry">
+                        <div class="update-meta">
+                            <span class="update-date">Nov 24</span>
+                            <span class="update-source">All Platforms</span>
                         </div>
-                        <h4 class="notification-title">Campaign optimization complete</h4>
-                        <p class="notification-description">All ad groups have been optimized based on Q3 performance data</p>
+                        <h4 class="update-title">Campaign optimization complete</h4>
+                        <p class="update-desc">All ad groups optimized based on Q3 data</p>
                     </div>
-                    <div class="notification-card">
-                        <div class="notification-header">
-                            <span class="notification-source">Google Ads</span>
-                            <span class="notification-date">Nov 23</span>
+                    <div class="update-entry">
+                        <div class="update-meta">
+                            <span class="update-date">Nov 23</span>
+                            <span class="update-source">Google Ads</span>
                         </div>
-                        <h4 class="notification-title">New audience segment added</h4>
-                        <p class="notification-description">Interest-based targeting for premium shoppers enabled</p>
+                        <h4 class="update-title">New audience segment</h4>
+                        <p class="update-desc">Premium shoppers targeting enabled</p>
                     </div>
-                    <div class="notification-card">
-                        <div class="notification-header">
-                            <span class="notification-source">Meta Ads</span>
-                            <span class="notification-date">Nov 22</span>
+                    <div class="update-entry highlight">
+                        <div class="update-meta">
+                            <span class="update-date">Nov 22</span>
+                            <span class="update-source">Meta Ads</span>
                         </div>
-                        <h4 class="notification-title">Creative testing results</h4>
-                        <p class="notification-description">Video variant B outperformed by 45% - now promoted to primary</p>
+                        <h4 class="update-title">Creative test winner</h4>
+                        <p class="update-desc">Video B outperformed by 45%</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- SLIDE 25: HERO SPLIT LEFT (Closing/CTA) -->
-        <!-- Pattern: hero-split-left | Sharp cut -->
-        <div class="slide slide-split slide-split-gradient-left">
-            <div class="slide-split-gradient" style="background-image: url('https://hub.jumper.studio/decks/identities/jumper/gradients/organic-02.png');"></div>
-            <div class="slide-split-content">
-                <div class="content-inner">
-                    <h1 style="margin-bottom: var(--space-lg);">Next Steps</h1>
-                    <p class="text-subtitle" style="margin-bottom: var(--space-xl);">
-                        Roadmap for the upcoming period
-                    </p>
-
-                    <div class="card" style="margin-bottom: var(--space-lg);">
-                        <h3 class="card-title" style="color: var(--flare-orange);">Immediate Actions &#8594;</h3>
-                        <p class="card-content">
-                            <ul>
-                                <li>Scale budget by 50% on Google Ads</li>
-                                <li>Test video creatives on TikTok</li>
-                                <li>Implement remarketing automation</li>
-                            </ul>
-                        </p>
+        <!-- SLIDE 25: NEXT STEPS (CTA) -->
+        <!-- Pattern: cta-split | Linear Design - split layout with actions -->
+        <div class="slide slide-cta-split">
+            <div class="cta-split-left">
+                <span class="cta-split-label">Recommendations</span>
+                <h2 class="cta-split-title">Next<br>Steps</h2>
+            </div>
+            <div class="cta-split-right">
+                <div class="cta-actions">
+                    <div class="cta-action">
+                        <span class="cta-action-arrow">→</span>
+                        <p class="cta-action-text">Scale Google Ads budget by 50%</p>
                     </div>
-
-                    <a href="#" class="btn btn-primary">Schedule Review Meeting</a>
-
-                    <p class="text-detail" style="margin-top: var(--space-xl);">
-                        Based on validated data from October 2024
-                    </p>
+                    <div class="cta-action">
+                        <span class="cta-action-arrow">→</span>
+                        <p class="cta-action-text">Test video creatives on TikTok</p>
+                    </div>
+                    <div class="cta-action">
+                        <span class="cta-action-arrow">→</span>
+                        <p class="cta-action-text">Implement remarketing automation</p>
+                    </div>
+                </div>
+                <div class="cta-footer">
+                    <a href="https://wa.me/5521964369191?text=Ol%C3%A1%20Jumper!%20Gostaria%20de%20dar%20o%20follow-up%20ao%20relat%C3%B3rio%20que%20voc%C3%AAs%20enviaram." class="cta-button" target="_blank">Schedule Review Meeting</a>
+                    <p class="cta-note">Based on October 2024 data</p>
                 </div>
             </div>
         </div>
 
-        <!-- SLIDE 26: SIGNATURE SLIDE (From Frame 4.png) -->
-        <!-- Pattern: signature-slide | NEW in v2.1 -->
-        <div class="slide slide-signature">
-            <div class="accent-bar-top"></div>
-            <div class="logo-center">
-                <img src="https://hub.jumper.studio/decks/identities/jumper/logos/jumper-white.png"
-                     alt="Jumper Studio"
-                     style="max-width: 180px;">
+        <!-- SLIDE 26: SIGNATURE SLIDE -->
+        <!-- Pattern: closing-corners | Linear Design - corners layout -->
+        <div class="slide slide-closing">
+            <div class="closing-content">
+                <div class="closing-top">
+                    <span class="closing-label">Thank You</span>
+                </div>
+                <div class="closing-center">
+                    <img src="https://hub.jumper.studio/decks/identities/jumper/logos/jumper-white.png"
+                         alt="Jumper Studio"
+                         class="closing-logo">
+                </div>
+                <div class="closing-bottom">
+                    <p class="closing-name">Bruno Maya</p>
+                    <p class="closing-role">CEO, Jumper Studio</p>
+                    <p class="closing-contact">bruno@jumper.studio</p>
+                </div>
             </div>
-            <div class="signature-footer">
-                <p class="signature-name">Bruno Maya</p>
-                <p class="signature-title">CEO, Jumper Studio</p>
-            </div>
+            <div class="closing-bar"></div>
         </div>
 
     </div>
@@ -1023,17 +993,14 @@
         <button class="nav-dot" data-slide="25"></button>
     </div>
 
-    <!-- Navigation Arrows -->
-    <button class="nav-arrow prev" aria-label="Previous slide">&#8592;</button>
-    <button class="nav-arrow next" aria-label="Next slide">&#8594;</button>
-
-    <!-- Slide Counter -->
-    <div class="slide-counter">
-        <span id="current-slide">1</span> / <span id="total-slides">26</span>
+    <!-- Centered Navigation: ← 1 / 26 → -->
+    <div class="nav-center">
+        <button class="nav-arrow prev" aria-label="Previous slide">←</button>
+        <div class="slide-counter">
+            <span id="current-slide">1</span> / <span id="total-slides">26</span>
+        </div>
+        <button class="nav-arrow next" aria-label="Next slide">→</button>
     </div>
-
-    <!-- Progress Bar -->
-    <div class="progress-bar" id="progress-bar"></div>
 
     <!-- Navigation Script -->
     <script>
@@ -1044,7 +1011,6 @@
         const nextBtn = document.querySelector('.nav-arrow.next');
         const currentSlideEl = document.getElementById('current-slide');
         const totalSlidesEl = document.getElementById('total-slides');
-        const progressBar = document.getElementById('progress-bar');
 
         const totalSlides = slides.length;
         let currentSlide = 0;
@@ -1065,9 +1031,6 @@
 
         function updateUI() {
             currentSlideEl.textContent = currentSlide + 1;
-
-            const progress = ((currentSlide + 1) / totalSlides) * 100;
-            progressBar.style.width = `${progress}%`;
 
             dots.forEach((dot, i) => {
                 dot.classList.toggle('active', i === currentSlide);
