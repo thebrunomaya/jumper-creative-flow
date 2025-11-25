@@ -667,16 +667,27 @@ p {
 
 .slide-split-content {
     display: flex;
-    align-items: center;
+    align-items: stretch;
     justify-content: center;
     padding: clamp(40px, 8vw, 100px);
     background: var(--flare-black);
+    height: 100%;
 }
 
 .slide-split-content .content-inner {
     max-width: 550px;
     width: 100%;
     text-align: left;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+/* Corners layout variant for split content */
+.slide-split-content .content-inner.corners-layout,
+.slide-split-content .content-inner[style*="justify-content: space-between"] {
+    justify-content: space-between;
+    height: 100%;
 }
 
 /* Sharp cut gradient - NO FADE (Jumper pattern) */
