@@ -318,6 +318,25 @@ Transform markdown data into beautiful, interactive HTML slides following a PRE-
    - Keep navigation/JS code compact but functional
    - Focus output tokens on slide content
 
+7. ⚠️ VIEWPORT FIT (CRITICAL - CONTENT MUST FIT ON SCREEN):
+   Each slide MUST fit within a single viewport. Follow these STRICT LIMITS:
+
+   - CARDS GRID: Maximum 4 cards (2x2 layout) or 6 cards (3x2) - NEVER more
+   - BULLET LISTS: Maximum 4-5 items per list - summarize if source has more
+   - TIMELINE: Maximum 4 items - consolidate weeks/days if needed
+   - TEXT PARAGRAPHS: Maximum 2-3 short paragraphs per slide
+   - METRIC CARDS: Maximum 6 metrics (3x2 grid)
+   - TABLE ROWS: Maximum 4-5 rows - summarize or split into multiple slides
+
+   🚨 IF CONTENT EXCEEDS LIMITS:
+   - Summarize and consolidate information
+   - Split into multiple slides
+   - Prioritize key insights over exhaustive detail
+   - Use "highlights" approach: show most important, not everything
+
+   REMEMBER: A slide that overflows is WORSE than a slide with less content.
+   Clients cannot scroll - content MUST be visible without scrolling.
+
 OUTPUT FORMAT: Complete standalone HTML file with navigation system (no markdown fences, no explanations)`;
 
     // Build user prompt
@@ -429,7 +448,7 @@ OUTPUT FORMAT: Complete standalone HTML file (no markdown fences, no explanation
         'Accept': 'application/json; charset=utf-8',
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-5-20250929',
+        model: 'claude-opus-4-5-20251101',
         max_tokens: 16000, // Need full capacity for complete HTML
         system: systemPrompt,
         messages: [
@@ -601,7 +620,7 @@ OUTPUT FORMAT: Complete standalone HTML file (no markdown fences, no explanation
           total: (claudeData.usage?.input_tokens || 0) + (claudeData.usage?.output_tokens || 0)
         },
         latency_ms: latency,
-        model_used: 'claude-sonnet-4-5-20250929',
+        model_used: 'claude-opus-4-5-20251101',
         success: true
       });
 

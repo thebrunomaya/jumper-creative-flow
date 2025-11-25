@@ -7,10 +7,25 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.38';
+export const APP_VERSION = 'v2.1.44';
 
 /**
  * Version history:
+ * - v2.1.44 (2024-11-24):
+ *   - FIX: Deck content overflow - slides now fit within viewport
+ *   - CSS: Added max-height + overflow control to .slide-content
+ *   - CSS: Added responsive font scaling for cards grid
+ *   - PROMPT: Added strict content limits (max 4-6 cards, 4-5 bullets, etc.)
+ *   - PROMPT: Added viewport fit rules with summarization guidance
+ *   - MODEL: Upgraded deck functions to Claude Opus 4.5 (claude-opus-4-5-20251101)
+ *   - FILES MODIFIED:
+ *   -   - public/decks/templates/koko-classic-v2.css (overflow protection)
+ *   -   - supabase/functions/j_hub_deck_generate/index.ts (content limits + model)
+ *   -   - supabase/functions/j_hub_deck_analyze/index.ts (model upgrade)
+ *   -   - supabase/functions/j_hub_deck_refine/index.ts (model upgrade)
+ *   - DEPLOYED: All 3 deck Edge Functions redeployed
+ *   - IMPACT: Future decks will have properly bounded content that fits on screen
+ *
  * - v2.1.38 (2024-11-13):
  *   - CRITICAL DATABASE FIX: Database trigger causing 500 errors on ALL login methods
  *   - ROOT CAUSE: handle_new_user() trigger referenced old table name j_ads_notion_db_managers

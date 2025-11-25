@@ -243,6 +243,24 @@ body {
     margin: 0 auto;
     position: relative;
     z-index: 10;
+    /* v2.3: Overflow protection - prevents content from exceeding viewport */
+    max-height: calc(100vh - 240px); /* Deduz marquees (96px) + padding vertical (~144px) */
+    overflow: hidden;
+    overflow-y: auto; /* Permite scroll interno se necessário, mas hidden é preferível */
+}
+
+/* v2.3: Force content to fit within slide bounds */
+.slide-content > * {
+    max-width: 100%;
+}
+
+/* v2.3: Responsive font scaling for better fit */
+.slide-content .cards-grid {
+    font-size: clamp(11px, 1.4vw, 14px);
+}
+
+.slide-content .card-content {
+    font-size: clamp(11px, 1.3vw, 13px);
 }
 
 /* ========================================

@@ -207,7 +207,7 @@ OUTPUT FORMAT: Complete refined HTML file (no markdown fences, no explanations)`
         'Accept': 'application/json; charset=utf-8',
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-5-20250929',
+        model: 'claude-opus-4-5-20251101',
         max_tokens: 16000, // Large enough for complete HTML
         system: systemPrompt,
         messages: [
@@ -294,7 +294,7 @@ OUTPUT FORMAT: Complete refined HTML file (no markdown fences, no explanations)`
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-5-20250929',
+        model: 'claude-opus-4-5-20251101',
         max_tokens: 500,
         messages: [{
           role: 'user',

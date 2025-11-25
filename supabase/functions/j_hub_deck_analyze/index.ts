@@ -179,7 +179,7 @@ Create slide-by-slide JSON plan. First=hero-slide, vary patterns, match content 
           'Accept': 'application/json; charset=utf-8',
         },
         body: JSON.stringify({
-          model: 'claude-sonnet-4-5-20250929',
+          model: 'claude-opus-4-5-20251101',
           max_tokens: 4096,  // Increased to ensure complete JSON response (was too low at 3000)
           system: systemPrompt,
           messages: [
@@ -307,7 +307,7 @@ Create slide-by-slide JSON plan. First=hero-slide, vary patterns, match content 
             total: (claudeData.usage?.input_tokens || 0) + (claudeData.usage?.output_tokens || 0)
           },
           latency_ms: latency,
-          model_used: 'claude-sonnet-4-5-20250929',
+          model_used: 'claude-opus-4-5-20251101',
           success: true
         });
     }
