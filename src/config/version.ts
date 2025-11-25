@@ -7,10 +7,16 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.46';
+export const APP_VERSION = 'v2.1.47';
 
 /**
  * Version history:
+ * - v2.1.47 (2024-11-24):
+ *   - FIX: Slide 1 corners layout now works correctly
+ *   - CSS: Added explicit height: 100vh to .slide-split (not just min-height)
+ *   - Root cause: height: 100% on children requires explicit height on parent, not min-height
+ *   - Slide 1 now shows: Title at top, Client in center, Period at bottom
+ *
  * - v2.1.46 (2024-11-24):
  *   - NEW: Jumper Flare v2.1 template - "Authentic Jumper Design"
  *   - CRITICAL FIX: Design corrections based on official Jumper brand reference images
