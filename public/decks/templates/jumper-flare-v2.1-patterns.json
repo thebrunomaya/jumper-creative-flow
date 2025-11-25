@@ -1,9 +1,25 @@
 {
   "template_id": "jumper-flare-v2.1",
-  "template_version": "2.1",
-  "template_name": "Jumper Flare v2.1 - Authentic Jumper Design",
-  "description": "Corrected design system based on official Jumper Studio brand reference images. Removes glass-morphism in favor of flat solid backgrounds, enforces square corners (no border-radius), uses pure black (#000000), and mandates left-aligned text (NEVER centered). Features 26 slide patterns including new: Big Number with Arrow, Layout dos 4 Cantos, Signature Slide, Notification Cards, and White Theme variant.",
+  "template_version": "2.1.48",
+  "template_name": "Jumper Flare v2.1 - Linear Design System",
+  "description": "Complete Linear Design system inspired by Linear.app aesthetic. Features asymmetric split layouts, dramatic typography with Haffer font, corners-based compositions, single accent color (orange #FA4721), and intentional negative space. All 26 slides redesigned with consistent visual language.",
   "changelog": [
+    {
+      "version": "2.1.48",
+      "date": "2024-11-25",
+      "changes": [
+        "COMPLETE REDESIGN: All 26 slides with Linear Design principles",
+        "NEW: Split layouts (1fr:1.5fr ratio) for most content slides",
+        "NEW: Corners layouts for comparison, statement, and metrics slides",
+        "NEW: Chart slides with split layout (chart-split, bars-split, distribution, funnel-split, goal-split)",
+        "NEW: Closing slides (actions-split, strategy-white, updates-split, cta-split, closing)",
+        "NEW: WhatsApp CTA integration on slide 25",
+        "TYPOGRAPHY: Haffer font throughout, dramatic scale hierarchy",
+        "LAYOUT: Asymmetric compositions, intentional negative space",
+        "FOOTERS: Arrow + insight pattern on all applicable slides",
+        "Fixed footer overlap with increased bottom padding on corners slides"
+      ]
+    },
     {
       "version": "2.1",
       "date": "2024-11-24",
@@ -11,48 +27,28 @@
         "CRITICAL: Removed all glass-morphism (backdrop-filter: blur)",
         "CRITICAL: Changed to pure black (#000000) from #0a0a0a",
         "CRITICAL: Set border-radius: 0 on all cards/badges/buttons (charts exception)",
-        "CRITICAL: Enforced left-aligned text throughout (NEVER center)",
-        "NEW: Big Number with Arrow pattern (from 53.png reference)",
-        "NEW: Layout dos 4 Cantos pattern (from 61.png reference)",
-        "NEW: Signature Slide pattern (from Frame 4.png reference)",
-        "NEW: Notification Cards pattern (from 59.png reference)",
-        "NEW: White Theme variant (from 54.png reference)",
-        "NEW: Arrow indicators (directional: down, up, right, left)",
-        "NEW: Accent bar (top/left orange bar)",
-        "NEW: Italic support text class",
-        "Simplified hover states (no transform, no glow shadows)",
-        "Cards now use solid backgrounds with subtle borders"
-      ]
-    },
-    {
-      "version": "2.0",
-      "date": "2024-11-24",
-      "changes": [
-        "Initial v2 release (deprecated - design errors identified)"
+        "CRITICAL: Enforced left-aligned text throughout (NEVER center)"
       ]
     }
   ],
   "design_philosophy": {
+    "name": "Linear Design",
+    "inspiration": "Linear.app aesthetic - clean, minimal, dramatic",
     "core_principles": [
-      "FLAT: No glass-morphism, no blur effects, solid backgrounds only",
-      "SQUARE: No border-radius on UI elements (charts excepted for legibility)",
-      "SHARP: Hard cuts between areas, no fade transitions",
-      "LEFT: Text NEVER centered, always left or right aligned",
-      "CORNERS: Layout dos 4 cantos - text in corners, center empty",
-      "SIMPLE: Use Unicode arrows (→↓↑←) not emojis for indicators"
+      "ASYMMETRIC: Split layouts with 1fr:1.5fr ratio, never 50/50",
+      "DRAMATIC TYPOGRAPHY: Large titles in corners, not centered",
+      "SINGLE ACCENT: Orange (#FA4721) is the only accent color",
+      "NEGATIVE SPACE: Intentional voids create visual breathing room",
+      "CORNERS: Content distributed to edges, center often empty",
+      "LEFT-ALIGNED: Text NEVER centered except logo in closing slide",
+      "FLAT: No glass-morphism, solid backgrounds only",
+      "SQUARE: No border-radius on UI elements (charts excepted)"
     ],
-    "typography_rules": [
-      "Large typography positioned in corners, never centered",
-      "Headers left-aligned by default",
-      "Supporting text left-aligned",
-      "Only exception: Logo in signature slide may be centered"
-    ],
-    "color_rules": [
-      "Background: Pure black #000000 (not #0a0a0a)",
-      "Accent: Jumper Orange #FA4721",
-      "Arrows/indicators: Always orange",
-      "Cards: Solid #1a1a1a with 1px border rgba(255,255,255,0.1)"
-    ]
+    "layout_patterns": {
+      "split": "Left panel (narrow) with label + title, right panel (wider) with content",
+      "corners": "Content in corners (top-left, bottom-left), footer with arrow + insight",
+      "full": "Full slide with dramatic centered element (big numbers, closing)"
+    }
   },
   "brand_colors": {
     "primary": "#FA4721",
@@ -61,24 +57,12 @@
     "surface": "#000000",
     "surface_card": "#1a1a1a",
     "border": "rgba(255, 255, 255, 0.1)",
-    "border_hover": "rgba(255, 255, 255, 0.2)",
     "success": "#2AA876",
     "warning": "#F59E0B",
     "critical": "#EF4444",
     "info": "#3B82F6"
   },
   "design_tokens": {
-    "backgrounds": {
-      "slide": "#000000",
-      "card": "#1a1a1a",
-      "card_hover": "#252525"
-    },
-    "borders": {
-      "default": "1px solid rgba(255, 255, 255, 0.1)",
-      "hover": "1px solid rgba(255, 255, 255, 0.2)",
-      "highlight": "2px solid #FA4721",
-      "radius": "0"
-    },
     "typography": {
       "font_family": "Haffer, -apple-system, BlinkMacSystemFont, sans-serif",
       "font_src": "https://hub.jumper.studio/decks/identities/jumper/fonts/HafferVF.ttf",
@@ -91,421 +75,708 @@
         "metric": "clamp(72px, 12vw, 180px)",
         "body": "clamp(16px, 2vw, 24px)",
         "detail": "clamp(13px, 1.5vw, 18px)",
-        "small": "clamp(11px, 1.2vw, 14px)"
+        "label": "clamp(11px, 1.2vw, 14px)"
       }
     },
     "spacing": {
-      "slide_padding": "clamp(60px, 10vh, 120px) clamp(40px, 8vw, 120px)",
-      "card_gap": "var(--space-lg)",
+      "slide_padding": "clamp(40px, 8vh, 80px) clamp(40px, 6vw, 80px)",
+      "split_gap": "clamp(40px, 6vw, 80px)",
       "section_gap": "var(--space-2xl)"
-    },
-    "animation": {
-      "ease": "cubic-bezier(0.16, 1, 0.3, 1)",
-      "duration_fast": "0.15s",
-      "duration_normal": "0.3s",
-      "duration_slow": "0.5s"
     }
   },
-  "v2_1_structure": {
+  "structure": {
     "section_1_abertura": {
-      "slides": ["Hero Split Right (Cover)", "Table of Contents"],
-      "purpose": "Opening impact with sharp gradient cut"
+      "slides": [1, 2],
+      "patterns": ["hero-split-right", "toc-split"],
+      "purpose": "Opening impact with dramatic hero and clear agenda"
     },
     "section_2_contexto": {
-      "slides": ["Section Header", "Big Number with Arrow", "Section Divider"],
-      "purpose": "Context and dramatic metrics"
+      "slides": [3, 4, 5],
+      "patterns": ["section-header", "big-number", "section-divider"],
+      "purpose": "Context setting with dramatic statistics"
     },
     "section_3_conteudo": {
-      "slides": ["Cards Grid (Flat)", "Layout dos 4 Cantos", "Two Column", "Statement", "Metric Cards", "Hero Metric", "Comparison Grid"],
-      "purpose": "Core content with left-aligned layouts"
+      "slides": [6, 7, 8, 9, 10, 11, 12],
+      "patterns": ["insights-split", "layout-corners", "comparison-corners", "statement-corners", "metrics-corners", "big-number", "before-after"],
+      "purpose": "Core content with split and corners layouts"
     },
     "section_4_dados": {
-      "slides": ["Data Table", "Data List", "Timeline Horizontal", "Timeline Vertical"],
+      "slides": [13, 14, 15, 16],
+      "patterns": ["data-rows", "data-split", "evolution", "milestones"],
       "purpose": "Structured data presentation"
     },
     "section_5_visualizacoes": {
-      "slides": ["Line Chart", "Bar Chart", "Donut Chart", "Funnel Chart", "Stacked Area Chart", "Gauge Chart"],
-      "purpose": "Data visualizations (charts keep rounded corners)"
+      "slides": [17, 18, 19, 20, 21],
+      "patterns": ["chart-split", "bars-split", "distribution", "funnel-split", "goal-split"],
+      "purpose": "Data visualizations with split layouts"
     },
     "section_6_encerramento": {
-      "slides": ["Checklist", "White Theme Slide", "Notification Cards", "Hero Split Left (Closing)", "Signature Slide"],
-      "purpose": "Actions, alternatives, and professional closing"
+      "slides": [22, 23, 24, 25, 26],
+      "patterns": ["actions-split", "strategy-white", "updates-split", "cta-split", "closing"],
+      "purpose": "Actions, next steps, and professional closing"
     }
   },
-  "new_patterns_v2_1": [
-    {
-      "id": "big-number-arrow",
-      "name": "Big Number with Arrow",
-      "css_class": "slide slide-big-number",
-      "section": "2. Contexto",
-      "best_for": ["dramatic-statistic", "key-metric", "attention-grabber", "hero-number"],
-      "content_type": "statement",
-      "description": "Massive number in top-left with orange directional arrow below. Supporting italic text in bottom-left corner. Inspired by reference image 53.png.",
-      "when_to_use": "When ONE statistic needs maximum impact - typically negative/alarming stats or record achievements",
-      "required_elements": ["big-number-value", "big-number-arrow (↓ or →)", "big-number-context (italic)"],
-      "example": "92,4% ↓ da sua audiencia pode estar fora do seu alcance",
-      "design_notes": [
-        "Number and arrow left-aligned, never centered",
-        "Arrow uses orange (#FA4721)",
-        "Context text in italic style",
-        "Lots of negative space - let the number breathe"
-      ]
-    },
-    {
-      "id": "layout-corners",
-      "name": "Layout dos 4 Cantos",
-      "css_class": "layout-corners",
-      "section": "3. Conteudo",
-      "best_for": ["case-study", "project-overview", "balanced-layout", "visual-hierarchy"],
-      "content_type": "grid",
-      "description": "Grid layout with content in all four corners and empty center. Text positioned top-left, top-right, bottom-left, bottom-right. Inspired by reference image 61.png.",
-      "when_to_use": "For slides that need balanced visual weight with multiple pieces of information",
-      "required_elements": ["corner-tl", "corner-tr", "corner-bl", "corner-br"],
-      "example": "TL: Category label | TR: Date | BL: Main headline + description | BR: Arrow indicator",
-      "design_notes": [
-        "Center area intentionally empty or subtle background",
-        "Each corner aligned to its edge (tl=left, tr=right, etc.)",
-        "Use with gradient overlays for visual interest",
-        "Arrow indicator in corner-br for navigation hint"
-      ]
-    },
-    {
-      "id": "signature-slide",
-      "name": "Signature Slide (Closing)",
-      "css_class": "slide slide-signature",
-      "section": "6. Encerramento",
-      "best_for": ["closing", "author-credit", "contact", "final-slide"],
-      "content_type": "cover",
-      "description": "Professional closing slide with logo centered (only exception to no-center rule) and author name/title in bottom-left corner. Orange accent bar at top. Inspired by Frame 4.png.",
-      "when_to_use": "Final slide of presentation for professional sign-off",
-      "required_elements": ["accent-bar-top", "logo (centered)", "signature-name", "signature-title"],
-      "example": "Orange bar + Jumper Logo (center) + Bruno Maya + CEO, Jumper Studio (bottom-left)",
-      "design_notes": [
-        "ONLY pattern where logo is centered",
-        "Author info always bottom-left aligned",
-        "Accent bar top is 4px orange",
-        "Clean, minimal, professional"
-      ]
-    },
-    {
-      "id": "notification-cards",
-      "name": "Notification Cards",
-      "css_class": "notification-card",
-      "section": "3. Conteudo",
-      "best_for": ["updates", "activity-feed", "recent-changes", "news-items"],
-      "content_type": "list",
-      "description": "Mobile notification-style cards with source, date, title, and description. Flat design with subtle borders. Inspired by reference images 59.png and 72.png.",
-      "when_to_use": "Showing recent updates, activity logs, news items",
-      "required_elements": ["notification-header (source + date)", "notification-title", "notification-description"],
-      "example": "Google Ads | Nov 24 | Campaign optimization complete | All ad groups optimized",
-      "design_notes": [
-        "Stack vertically in a column",
-        "Source in caps, date right-aligned in header",
-        "Title bold, description lighter",
-        "No icons/emojis - text only"
-      ]
-    },
-    {
-      "id": "slide-white",
-      "name": "White Theme Variant",
-      "css_class": "slide slide-white",
-      "section": "3. Conteudo",
-      "best_for": ["contrast-break", "alternative-theme", "light-content", "print-friendly"],
-      "content_type": "any",
-      "description": "Inverted color scheme with white background and dark text. Provides visual break in dark presentations. Inspired by reference image 54.png.",
-      "when_to_use": "Mid-presentation break, contrast moment, or content that needs different treatment",
-      "required_elements": ["slide-white class on slide"],
-      "example": "White background + black headers + gray body text + orange badge accent",
-      "design_notes": [
-        "Background: #FFFFFF",
-        "Text: #000000 (headers), rgba(0,0,0,0.7) (body)",
-        "Cards: #f5f5f5 background",
-        "Orange accents still work on white"
-      ]
-    }
-  ],
   "patterns": [
     {
       "id": "hero-split-right",
+      "slide_number": 1,
       "name": "Hero Split Right (Cover)",
       "css_class": "slide slide-split slide-split-gradient-right",
       "section": "1. Abertura",
+      "layout_type": "split",
       "best_for": ["cover", "title-page", "opening", "hero", "first-slide"],
-      "content_type": "cover",
-      "description": "50/50 split with black content left and gradient image right. SHARP cut between areas - no fade transition. Content left-aligned within its panel.",
-      "when_to_use": "First slide of presentation",
-      "required_elements": ["content-inner with h1, subtitle, body text", "gradient background image"],
-      "v2_1_changes": ["Removed fade between panels", "Sharp vertical cut", "Left-aligned content"]
+      "description": "50/50 split with black content left (using corners-layout) and gradient image right. Title mirrors logo position.",
+      "required_elements": [
+        "content-inner corners-layout",
+        "h1 title",
+        "text-subtitle (client name)",
+        "text-body (period + description)",
+        "slide-split-gradient with background-image"
+      ],
+      "example_content": {
+        "title": "Performance<br>Report",
+        "subtitle": "Client Name / Account",
+        "body": "Period: October 1-31, 2024<br>Comprehensive analysis..."
+      }
     },
     {
-      "id": "hero-split-left",
-      "name": "Hero Split Left (Closing)",
-      "css_class": "slide slide-split slide-split-gradient-left",
-      "section": "6. Encerramento",
-      "best_for": ["closing-cta", "next-steps", "contact-slide"],
-      "content_type": "cover",
-      "description": "Reverse of hero-split-right: gradient left, content right. Sharp cut. Used for closing slides with CTAs.",
-      "when_to_use": "Second-to-last slide with action items",
-      "required_elements": ["gradient background image", "content-inner with h1, cards, button"]
-    },
-    {
-      "id": "table-of-contents",
-      "name": "Table of Contents",
-      "css_class": "slide slide-toc",
+      "id": "toc-split",
+      "slide_number": 2,
+      "name": "Table of Contents Split",
+      "css_class": "slide slide-toc-split",
       "section": "1. Abertura",
-      "best_for": ["agenda", "structure", "roadmap"],
-      "content_type": "structure",
-      "description": "Grid of numbered TOC items with left-aligned titles and descriptions. Flat cards with subtle borders.",
-      "when_to_use": "Second slide after cover",
-      "required_elements": ["toc-grid with toc-items", "toc-number", "toc-content"],
-      "v2_1_changes": ["Flat cards (no glass-morphism)", "Square corners", "Left-aligned text"]
+      "layout_type": "split",
+      "best_for": ["agenda", "structure", "roadmap", "table-of-contents"],
+      "description": "Split layout with title left and numbered TOC cards right. Each card has number, title, description, and arrow.",
+      "required_elements": [
+        "toc-split-left (h1 + subtitle)",
+        "toc-split-right with toc-stack-wide",
+        "toc-card-wide items (number, title, description, arrow)"
+      ],
+      "example_content": {
+        "title": "Agenda",
+        "subtitle": "What we'll cover in this report",
+        "items": ["Executive Summary", "Performance Metrics", "Channel Analysis", "Insights & Actions"]
+      }
     },
     {
       "id": "section-header",
+      "slide_number": 3,
       "name": "Section Header",
       "css_class": "slide slide-section-header",
       "section": "2. Contexto",
+      "layout_type": "full",
       "best_for": ["chapter-intro", "phase-start", "topic-introduction"],
-      "content_type": "divider",
       "description": "Badge + large section title + description. All content left-aligned.",
-      "when_to_use": "Beginning of major section",
-      "required_elements": ["section-badge", "section-title", "section-description"]
+      "required_elements": [
+        "badge badge-orange section-badge",
+        "section-title (h1)",
+        "section-description (p)"
+      ],
+      "example_content": {
+        "badge": "Phase 1",
+        "title": "Executive Summary",
+        "description": "A high-level overview of campaign performance..."
+      }
+    },
+    {
+      "id": "big-number",
+      "slide_number": 4,
+      "name": "Big Number with Arrow",
+      "css_class": "slide slide-big-number",
+      "section": "2. Contexto",
+      "layout_type": "full",
+      "best_for": ["dramatic-statistic", "key-metric", "attention-grabber", "hero-number"],
+      "description": "Massive number with directional arrow (↓↑→) and italic context text. Maximum impact for ONE statistic.",
+      "required_elements": [
+        "big-number-container",
+        "big-number-value",
+        "big-number-arrow (↓ or ↑ or →)",
+        "big-number-context"
+      ],
+      "example_content": {
+        "value": "92,4%",
+        "arrow": "↓",
+        "context": "da sua audiência pode estar fora do seu alcance"
+      },
+      "design_notes": ["Use for alarming/record statistics", "Arrow indicates direction (down for negative, up for positive)", "Context in italic style"]
     },
     {
       "id": "section-divider",
+      "slide_number": 5,
       "name": "Section Divider",
       "css_class": "slide slide-section-divider",
       "section": "2. Contexto",
+      "layout_type": "corners",
       "best_for": ["chapter-break", "visual-break", "phase-transition"],
-      "content_type": "divider",
-      "description": "Large section number with title. Number in subtle color, orange vertical bar accent.",
-      "when_to_use": "Between major sections",
-      "required_elements": ["section-divider-number", "section-divider-title", "section-divider-subtitle"]
+      "description": "Large section number at top, title and subtitle at bottom. Corners layout with dramatic scale.",
+      "required_elements": [
+        "section-divider-top with section-divider-number",
+        "section-divider-bottom with section-divider-title and section-divider-subtitle"
+      ],
+      "example_content": {
+        "number": "02",
+        "title": "Performance<br>Metrics",
+        "subtitle": "Deep dive into the numbers that matter"
+      }
     },
     {
-      "id": "cards-grid",
-      "name": "Cards Grid (Flat)",
-      "css_class": "cards-grid",
+      "id": "insights-split",
+      "slide_number": 6,
+      "name": "Insights Split",
+      "css_class": "slide slide-insights-split",
       "section": "3. Conteudo",
-      "best_for": ["executive-summary", "multiple-items", "features", "benefits"],
-      "content_type": "grid",
-      "description": "Responsive grid of flat cards with solid backgrounds. No glass-morphism. Square corners.",
-      "when_to_use": "Presenting 3-6 related concepts",
-      "required_elements": ["cards with card-title and card-content"],
-      "v2_1_changes": ["Removed backdrop-filter", "Solid #1a1a1a background", "border-radius: 0", "Subtle 1px border"]
+      "layout_type": "split",
+      "best_for": ["key-insights", "highlights", "findings", "executive-summary"],
+      "description": "Split layout with label + title left, numbered insight cards right. One card can be highlighted.",
+      "required_elements": [
+        "insights-left (label + title)",
+        "insights-right with insight-cards",
+        "insight-card items (number, title, description)",
+        "Optional: insight-highlight class, insight-metric"
+      ],
+      "example_content": {
+        "label": "Insights",
+        "title": "What drove<br>performance",
+        "insights": [
+          {"number": "01", "title": "Audience Targeting", "description": "45% improvement in CTR"},
+          {"number": "02", "title": "Best Performer", "metric": "+127%", "description": "Conversion rate on video", "highlight": true},
+          {"number": "03", "title": "Budget Efficiency", "description": "CPA reduced by 35%"}
+        ]
+      }
     },
     {
-      "id": "metric-cards",
-      "name": "Metric Cards",
-      "css_class": "metric-cards",
+      "id": "layout-corners",
+      "slide_number": 7,
+      "name": "Layout dos 4 Cantos",
+      "css_class": "slide + layout-corners",
       "section": "3. Conteudo",
-      "best_for": ["kpis", "key-metrics", "dashboard"],
-      "content_type": "metrics",
-      "description": "Grid of compact metric cards with large values. Left-aligned within each card.",
-      "when_to_use": "Showing 3-6 KPIs",
-      "required_elements": ["metric-card with metric-label, metric-value, optional metric-trend"]
+      "layout_type": "corners",
+      "best_for": ["case-study", "project-overview", "balanced-layout"],
+      "description": "Grid layout with content in corners. Top-left: labels, Bottom-left: headline, Bottom-right: arrow.",
+      "required_elements": [
+        "layout-corners container",
+        "corner-tl (labels, category)",
+        "corner-tr (usually empty for logo)",
+        "corner-bl (headline + description)",
+        "corner-br (arrow-indicator)"
+      ],
+      "example_content": {
+        "corner_tl": {"label": "Case Study", "details": ["E-commerce / Fashion", "October 2024"]},
+        "corner_bl": {"headline": "Brand X achieved<br>record growth", "description": "Through strategic channel diversification"},
+        "corner_br": "→"
+      }
     },
     {
-      "id": "hero-metric",
-      "name": "Hero Metric",
-      "css_class": "slide slide-hero-metric",
+      "id": "comparison-corners",
+      "slide_number": 8,
+      "name": "Comparison Corners",
+      "css_class": "slide slide-comparison-corners",
       "section": "3. Conteudo",
-      "best_for": ["main-result", "key-achievement", "headline-number"],
-      "content_type": "statement",
-      "description": "Large metric value in orange with label and context. Left-aligned.",
-      "when_to_use": "Emphasizing THE most important metric",
-      "required_elements": ["hero-metric-value", "hero-metric-label", "hero-metric-context"]
+      "layout_type": "corners",
+      "best_for": ["channel-comparison", "a-b-comparison", "platform-comparison"],
+      "description": "Label at top, comparison grid in center, insight + arrow at bottom.",
+      "required_elements": [
+        "comparison-corners-top (label)",
+        "comparison-corners-center with comparison-side items",
+        "comparison-vs-divider",
+        "comparison-corners-bottom (insight + arrow)"
+      ],
+      "example_content": {
+        "label": "Channel Comparison",
+        "side_a": {"platform": "Google Ads", "metrics": [{"value": "720", "label": "conversions"}, {"value": "5.2x", "label": "ROAS"}]},
+        "side_b": {"platform": "Meta Ads", "metrics": [{"value": "514", "label": "conversions"}, {"value": "4.1x", "label": "ROAS"}]},
+        "insight": "Google Ads delivered 40% more volume at 11% lower cost"
+      }
     },
     {
-      "id": "comparison-grid",
-      "name": "Comparison Grid",
-      "css_class": "comparison-grid",
+      "id": "statement-corners",
+      "slide_number": 9,
+      "name": "Statement Corners",
+      "css_class": "slide slide-statement-corners",
       "section": "3. Conteudo",
-      "best_for": ["before-after", "a-b-comparison", "improvement"],
-      "content_type": "comparison",
-      "description": "Two-column comparison with large stats. Semantic colors for before (muted) and after (success).",
-      "when_to_use": "Showing improvements or comparisons",
-      "required_elements": ["comparison-item before", "comparison-item after with values and labels"]
+      "layout_type": "corners",
+      "best_for": ["key-insight", "bold-message", "important-finding", "quote"],
+      "description": "Badge at top, large quote/statement in center, context + arrow at bottom.",
+      "required_elements": [
+        "statement-corners-top (badge)",
+        "statement-corners-center (quote)",
+        "statement-corners-bottom (context + arrow)"
+      ],
+      "example_content": {
+        "badge": "Key Insight",
+        "quote": "Video creative formats consistently outperformed static images across all channels",
+        "context": "Short-form video (under 15s) with clear CTAs drove highest engagement"
+      }
     },
     {
-      "id": "statement",
-      "name": "Statement Slide",
-      "css_class": "slide slide-statement",
+      "id": "metrics-corners",
+      "slide_number": 10,
+      "name": "Metrics Corners",
+      "css_class": "slide slide-metrics-corners",
       "section": "3. Conteudo",
-      "best_for": ["key-insight", "bold-message", "important-finding"],
-      "content_type": "statement",
-      "description": "60/40 split with bold text left and supporting visual right. Left-aligned text.",
-      "when_to_use": "Major insights requiring emphasis",
-      "required_elements": ["statement-title", "statement-body", "statement-graphic"]
+      "layout_type": "corners",
+      "best_for": ["kpis", "dashboard", "consolidated-metrics", "key-metrics"],
+      "description": "Label at top, 6-item metrics grid in center, insight + arrow at bottom.",
+      "required_elements": [
+        "metrics-corners-top (label)",
+        "metrics-corners-center with metrics-grid-items",
+        "metrics-grid-item (value, name, optional trend)",
+        "metrics-corners-bottom (insight + arrow)"
+      ],
+      "example_content": {
+        "label": "Consolidated Metrics",
+        "metrics": [
+          {"value": "R$ 45K", "name": "Investment"},
+          {"value": "1,234", "name": "Conversions", "trend": "+23%"},
+          {"value": "R$ 36", "name": "Cost/Conv", "trend": "-18%"},
+          {"value": "4.8x", "name": "ROAS"},
+          {"value": "3.2%", "name": "CTR"},
+          {"value": "R$ 1.45", "name": "CPC"}
+        ],
+        "insight": "All metrics exceeded industry benchmarks"
+      }
     },
     {
-      "id": "data-table",
-      "name": "Data Table",
-      "css_class": "data-table",
+      "id": "before-after",
+      "slide_number": 12,
+      "name": "Before/After Comparison",
+      "css_class": "slide slide-before-after",
+      "section": "3. Conteudo",
+      "layout_type": "full",
+      "best_for": ["improvement", "evolution", "transformation", "results"],
+      "description": "Dramatic before/after comparison with large values and arrow between.",
+      "required_elements": [
+        "before-after-header (label)",
+        "before-after-grid with before-after-items",
+        "before-after-arrow (→)",
+        "before-after-footer (result + insight)"
+      ],
+      "example_content": {
+        "label": "CPA Evolution",
+        "before": {"period": "Week 1", "value": "R$ 120", "desc": "Learning phase"},
+        "after": {"period": "Week 6", "value": "R$ 36", "desc": "Optimized"},
+        "result": "-70%",
+        "insight": "reduction through systematic optimization"
+      }
+    },
+    {
+      "id": "data-rows",
+      "slide_number": 13,
+      "name": "Data Rows",
+      "css_class": "slide slide-data-rows",
       "section": "4. Dados",
-      "best_for": ["channel-comparison", "detailed-metrics", "specifications"],
-      "content_type": "data",
-      "description": "Full data table with flat row styling. Left-aligned columns.",
-      "when_to_use": "Comparing metrics across multiple items",
-      "required_elements": ["table with thead and tbody", "status badges"]
+      "layout_type": "full",
+      "best_for": ["channel-breakdown", "rankings", "list-data"],
+      "description": "Clean rows with name, value, meta, and optional badge. One row can be highlighted.",
+      "required_elements": [
+        "data-rows-header (label)",
+        "data-rows-list with data-row-items",
+        "data-row-item (name, value, meta, optional badge)",
+        "data-rows-footer (arrow + insight)"
+      ],
+      "example_content": {
+        "label": "Channel Performance",
+        "rows": [
+          {"name": "Google Ads", "value": "720", "meta": "conversions", "badge": "Best", "highlight": true},
+          {"name": "Meta Ads", "value": "385", "meta": "conversions"},
+          {"name": "TikTok Ads", "value": "129", "meta": "conversions", "badge": "Testing"}
+        ],
+        "insight": "Google leads with 58% of total conversions"
+      }
     },
     {
-      "id": "data-list",
-      "name": "Data List",
-      "css_class": "data-list",
+      "id": "data-split",
+      "slide_number": 14,
+      "name": "Data Split (Two Columns)",
+      "css_class": "slide slide-data-split",
       "section": "4. Dados",
-      "best_for": ["weekly-breakdown", "label-value-pairs", "structured-data"],
-      "content_type": "data",
-      "description": "Two-column data list with label-value rows. Orange highlight for key rows.",
-      "when_to_use": "Weekly/monthly breakdowns",
-      "required_elements": ["data-column with h3", "data-rows with data-label and data-value"]
+      "layout_type": "split",
+      "best_for": ["weekly-breakdown", "dual-metrics", "period-comparison"],
+      "description": "Split layout with title left, two data columns right (e.g., Investment vs Conversions by week).",
+      "required_elements": [
+        "data-split-left (label + title)",
+        "data-split-right with data-split-columns",
+        "data-split-column (column-title + rows)",
+        "data-split-row (period + value)"
+      ],
+      "example_content": {
+        "label": "Weekly Breakdown",
+        "title": "Investment<br>& Results",
+        "columns": [
+          {"title": "Investment", "rows": [{"period": "W1", "value": "R$ 6.5K"}, {"period": "W2", "value": "R$ 7.2K"}]},
+          {"title": "Conversions", "rows": [{"period": "W1", "value": "54"}, {"period": "W2", "value": "87"}]}
+        ]
+      }
     },
     {
-      "id": "timeline-horizontal",
-      "name": "Timeline Horizontal",
-      "css_class": "timeline-horizontal",
+      "id": "evolution",
+      "slide_number": 15,
+      "name": "Evolution Flow",
+      "css_class": "slide slide-evolution",
       "section": "4. Dados",
-      "best_for": ["evolution", "weekly-data", "progression"],
-      "content_type": "timeline",
-      "description": "Horizontal timeline with square dot markers. Values color-coded by stage.",
-      "when_to_use": "Time-series with 4-6 points",
-      "required_elements": ["timeline-items with date, dot, value, label"],
-      "v2_1_changes": ["Square dots (no border-radius)", "Left-aligned item content"]
+      "layout_type": "full",
+      "best_for": ["progression", "trend", "time-series", "improvement-journey"],
+      "description": "Horizontal flow showing progression with arrows between steps. Final step highlighted.",
+      "required_elements": [
+        "evolution-header (label)",
+        "evolution-flow with evolution-steps",
+        "evolution-step (week + value)",
+        "evolution-arrow (→)",
+        "evolution-footer (result + insight)"
+      ],
+      "example_content": {
+        "label": "CPA Evolution",
+        "steps": [
+          {"week": "W1", "value": "R$ 120", "faded": true},
+          {"week": "W2", "value": "R$ 85", "faded": true},
+          {"week": "W3", "value": "R$ 65", "faded": true},
+          {"week": "W4", "value": "R$ 52", "faded": true},
+          {"week": "W5", "value": "R$ 36", "highlight": true}
+        ],
+        "result": "-70%",
+        "insight": "cost reduction over 5 weeks"
+      }
     },
     {
-      "id": "timeline-vertical",
-      "name": "Timeline Vertical",
-      "css_class": "timeline-vertical",
+      "id": "milestones",
+      "slide_number": 16,
+      "name": "Milestones Split",
+      "css_class": "slide slide-milestones",
       "section": "4. Dados",
-      "best_for": ["milestones", "narrative-timeline", "project-phases"],
-      "content_type": "timeline",
-      "description": "Vertical timeline with orange accent line. Square dot markers.",
-      "when_to_use": "Detailed narrative timelines",
-      "required_elements": ["timeline-vertical-items with date, title, content"]
+      "layout_type": "split",
+      "best_for": ["timeline", "project-phases", "narrative-progression", "key-moments"],
+      "description": "Split layout with title left, vertical milestone timeline right.",
+      "required_elements": [
+        "milestones-left (label + title)",
+        "milestones-right with milestone-items",
+        "milestone-item (date, title, description)"
+      ],
+      "example_content": {
+        "label": "Milestones",
+        "title": "Key<br>Moments",
+        "milestones": [
+          {"date": "Oct 1-7", "title": "Campaign Launch", "desc": "Broad targeting, learning phase. CPA: R$ 120"},
+          {"date": "Oct 8-14", "title": "First Optimization", "desc": "Removed underperformers. CPA: R$ 85"},
+          {"date": "Oct 22-31", "title": "Scale & Optimize", "desc": "Budget +50%. CPA: R$ 36", "highlight": true}
+        ]
+      }
     },
     {
-      "id": "checklist",
-      "name": "Checklist",
-      "css_class": "checklist",
+      "id": "chart-split",
+      "slide_number": 17,
+      "name": "Line Chart Split",
+      "css_class": "slide slide-chart-split",
+      "section": "5. Visualizacoes",
+      "layout_type": "split",
+      "best_for": ["trend", "time-series", "growth-curve", "conversion-evolution"],
+      "description": "Split layout with title + summary metrics left, SVG line chart right with footer insight.",
+      "required_elements": [
+        "chart-split-left (label, title, metrics)",
+        "chart-split-right with chart-area",
+        "line-chart-svg with path and dots",
+        "chart-x-labels",
+        "chart-split-footer (arrow + insight)"
+      ],
+      "example_content": {
+        "label": "Trend Analysis",
+        "title": "Conversion<br>Evolution",
+        "metrics": [{"value": "1,476", "name": "Total"}, {"value": "+588%", "name": "Growth", "highlight": true}],
+        "x_labels": ["W1", "W2", "W3", "W4", "W5", "W6"],
+        "insight": "Exponential growth in final 2 weeks after bid and creative optimizations"
+      }
+    },
+    {
+      "id": "bars-split",
+      "slide_number": 18,
+      "name": "Bar Chart Split",
+      "css_class": "slide slide-bars-split",
+      "section": "5. Visualizacoes",
+      "layout_type": "split",
+      "best_for": ["channel-comparison", "rankings", "revenue-breakdown", "performance-comparison"],
+      "description": "Split layout with title left, horizontal bar chart right. Each bar shows name, fill, value, and ROAS.",
+      "required_elements": [
+        "bars-split-left (label, title, period)",
+        "bars-split-right with bars-container",
+        "bar-row items (name, visual fill, value, roas)",
+        "bars-split-footer (arrow + insight)"
+      ],
+      "example_content": {
+        "label": "Channel Performance",
+        "title": "Revenue<br>by Platform",
+        "period": "Last 30 days",
+        "bars": [
+          {"name": "Google Ads", "width": "100%", "value": "R$ 247K", "roas": "5.2x", "highlight": true},
+          {"name": "Meta Ads", "width": "75%", "value": "R$ 186K", "roas": "3.1x"},
+          {"name": "TikTok Ads", "width": "38%", "value": "R$ 94K", "roas": "1.8x"}
+        ],
+        "insight": "Google Ads leads with ROAS 67% above average"
+      }
+    },
+    {
+      "id": "distribution",
+      "slide_number": 19,
+      "name": "Distribution (Donut Chart)",
+      "css_class": "slide slide-distribution",
+      "section": "5. Visualizacoes",
+      "layout_type": "split",
+      "best_for": ["budget-allocation", "market-share", "percentage-breakdown", "distribution"],
+      "description": "Split layout with title + legend left, SVG donut chart with center total right.",
+      "required_elements": [
+        "distribution-left (label, title, period, legend)",
+        "distribution-legend with legend-rows",
+        "distribution-right with donut-visual",
+        "donut-svg with circle segments",
+        "donut-center (total + label)",
+        "distribution-footer (arrow + insight)"
+      ],
+      "example_content": {
+        "label": "Budget Allocation",
+        "title": "Investment<br>Distribution",
+        "period": "October 2024",
+        "legend": [
+          {"color": "#2AA876", "name": "Google Ads", "pct": "45%"},
+          {"color": "#3B82F6", "name": "Meta Ads", "pct": "30%"},
+          {"color": "#FF0080", "name": "TikTok Ads", "pct": "15%"},
+          {"color": "#FA4721", "name": "LinkedIn Ads", "pct": "10%"}
+        ],
+        "total": "R$ 300k",
+        "insight": "Google + Meta represent 75% of total investment"
+      }
+    },
+    {
+      "id": "funnel-split",
+      "slide_number": 20,
+      "name": "Funnel Split",
+      "css_class": "slide slide-funnel-split",
+      "section": "5. Visualizacoes",
+      "layout_type": "split",
+      "best_for": ["conversion-funnel", "user-journey", "drop-off-analysis"],
+      "description": "Split layout with title + overall rate left, vertical funnel stages right with drop-off percentages.",
+      "required_elements": [
+        "funnel-split-left (label, title, period, result)",
+        "funnel-split-right with funnel-stages",
+        "funnel-stage-item (num, name, value, drop)",
+        "funnel-split-footer (arrow + insight)"
+      ],
+      "example_content": {
+        "label": "User Journey",
+        "title": "Conversion<br>Funnel",
+        "period": "October 2024",
+        "result": {"value": "0.21%", "desc": "Overall conversion rate"},
+        "stages": [
+          {"num": "01", "name": "Impressions", "value": "1.25M", "drop": "↓ 97%"},
+          {"num": "02", "name": "Clicks", "value": "37.5K", "drop": "↓ 80%"},
+          {"num": "03", "name": "Leads", "value": "7.5K", "drop": "↓ 65%", "highlight": true},
+          {"num": "04", "name": "Conversions", "value": "2,625", "final": true}
+        ],
+        "insight": "Critical drop-off at Leads → Conversions (65%)"
+      }
+    },
+    {
+      "id": "goal-split",
+      "slide_number": 21,
+      "name": "Goal Progress Split",
+      "css_class": "slide slide-goal-split",
+      "section": "5. Visualizacoes",
+      "layout_type": "split",
+      "best_for": ["goal-progress", "target-achievement", "performance-score", "quota-tracking"],
+      "description": "Split layout with title + goal metrics left, dramatic percentage display with progress bar right.",
+      "required_elements": [
+        "goal-split-left (label, title, goal-metrics)",
+        "goal-metric items (label + value)",
+        "goal-split-right with goal-progress-display",
+        "goal-percentage (large number)",
+        "goal-progress-bar with fill",
+        "goal-split-footer (arrow + insight)"
+      ],
+      "example_content": {
+        "label": "Goal Progress",
+        "title": "Monthly<br>Target",
+        "metrics": [
+          {"label": "Target", "value": "1,500"},
+          {"label": "Achieved", "value": "1,305", "success": true},
+          {"label": "Remaining", "value": "195"}
+        ],
+        "percentage": "87%",
+        "insight": "On track to exceed goal by 8% at current pace"
+      }
+    },
+    {
+      "id": "actions-split",
+      "slide_number": 22,
+      "name": "Actions/Checklist Split",
+      "css_class": "slide slide-actions-split",
       "section": "6. Encerramento",
-      "best_for": ["completed-actions", "deliverables", "achievements"],
-      "content_type": "narrative",
-      "description": "List of completed items with check icons. Flat cards, left-aligned.",
-      "when_to_use": "Showing accomplished tasks",
-      "required_elements": ["checklist-items with checklist-icon and checklist-text"]
+      "layout_type": "split",
+      "best_for": ["completed-actions", "deliverables", "achievements", "checklist"],
+      "description": "Split layout with title left, completed action items with checkmarks right.",
+      "required_elements": [
+        "actions-split-left (label, title, period)",
+        "actions-split-right with actions-list",
+        "action-item done (check, title, description)"
+      ],
+      "example_content": {
+        "label": "Completed",
+        "title": "Actions<br>Taken",
+        "period": "This optimization period",
+        "actions": [
+          {"title": "Audience Optimization", "desc": "Refined targeting, removed 12 underperforming segments"},
+          {"title": "Creative Refresh", "desc": "8 new video creatives, A/B tested CTAs"},
+          {"title": "Bid Strategy", "desc": "Migrated to target CPA bidding"},
+          {"title": "Landing Page", "desc": "-40% load time, added trust signals"}
+        ]
+      }
     },
     {
-      "id": "line-chart",
-      "name": "Line Chart",
-      "css_class": "slide slide-line-chart",
-      "section": "5. Visualizacoes",
-      "best_for": ["trend", "time-series", "growth-curve"],
-      "content_type": "chart",
-      "description": "SVG line chart with insights panel. Charts KEEP rounded corners for legibility.",
-      "when_to_use": "Showing trends over time",
-      "required_elements": ["chart-container", "line-chart-svg", "chart-insights"],
-      "design_exception": "Charts may use border-radius for legibility"
+      "id": "strategy-white",
+      "slide_number": 23,
+      "name": "Strategy White Theme",
+      "css_class": "slide slide-strategy-white",
+      "section": "6. Encerramento",
+      "layout_type": "split",
+      "best_for": ["next-quarter-strategy", "future-plans", "recommendations", "white-theme"],
+      "description": "White background split layout. Provides visual contrast break. Numbered strategy items.",
+      "required_elements": [
+        "strategy-white-left (label, title)",
+        "strategy-white-right with strategy-items",
+        "strategy-item (num, title, description)"
+      ],
+      "example_content": {
+        "label": "Q4 2024",
+        "title": "Next Quarter<br>Strategy",
+        "items": [
+          {"num": "01", "title": "Scale Winners", "desc": "+50% budget to top channels"},
+          {"num": "02", "title": "Test New Formats", "desc": "YouTube Shorts + Pinterest"},
+          {"num": "03", "title": "Automation", "desc": "Remarketing + Lead nurturing"}
+        ]
+      },
+      "design_notes": ["White background (#FFFFFF)", "Black text", "Orange accents still work", "Use for visual break mid-presentation"]
     },
     {
-      "id": "bar-chart",
-      "name": "Bar Chart Horizontal",
-      "css_class": "slide slide-bar-chart",
-      "section": "5. Visualizacoes",
-      "best_for": ["channel-comparison", "rankings", "benchmarks"],
-      "content_type": "chart",
-      "description": "Horizontal bar chart with semantic colors. Charts keep rounded corners.",
-      "when_to_use": "Comparing performance across categories",
-      "required_elements": ["bar-chart-container", "bar-chart-items"]
+      "id": "updates-split",
+      "slide_number": 24,
+      "name": "Updates/Activity Split",
+      "css_class": "slide slide-updates-split",
+      "section": "6. Encerramento",
+      "layout_type": "split",
+      "best_for": ["activity-log", "recent-updates", "news-items", "changelog"],
+      "description": "Split layout with title left, timeline of recent updates right. One entry can be highlighted.",
+      "required_elements": [
+        "updates-split-left (label, title, period)",
+        "updates-split-right with updates-timeline",
+        "update-entry (meta, title, description)"
+      ],
+      "example_content": {
+        "label": "Activity Log",
+        "title": "Recent<br>Updates",
+        "period": "This week",
+        "updates": [
+          {"date": "Nov 24", "source": "All Platforms", "title": "Campaign optimization complete", "desc": "All ad groups optimized based on Q3 data"},
+          {"date": "Nov 23", "source": "Google Ads", "title": "New audience segment", "desc": "Premium shoppers targeting enabled"},
+          {"date": "Nov 22", "source": "Meta Ads", "title": "Creative test winner", "desc": "Video B outperformed by 45%", "highlight": true}
+        ]
+      }
     },
     {
-      "id": "donut-chart",
-      "name": "Donut Chart",
-      "css_class": "slide slide-donut-chart",
-      "section": "5. Visualizacoes",
-      "best_for": ["budget-allocation", "market-share", "distribution"],
-      "content_type": "chart",
-      "description": "SVG donut chart with legend panel. Left-aligned legend items.",
-      "when_to_use": "Showing percentage breakdowns",
-      "required_elements": ["donut-chart-svg", "donut-center-label", "donut-legend"]
+      "id": "cta-split",
+      "slide_number": 25,
+      "name": "CTA/Next Steps Split",
+      "css_class": "slide slide-cta-split",
+      "section": "6. Encerramento",
+      "layout_type": "split",
+      "best_for": ["next-steps", "recommendations", "call-to-action", "action-items"],
+      "description": "Split layout with title left, action items with arrows + CTA button right.",
+      "required_elements": [
+        "cta-split-left (label, title)",
+        "cta-split-right with cta-actions",
+        "cta-action items (arrow + text)",
+        "cta-footer with cta-button (link) and cta-note"
+      ],
+      "example_content": {
+        "label": "Recommendations",
+        "title": "Next<br>Steps",
+        "actions": [
+          "Scale Google Ads budget by 50%",
+          "Test video creatives on TikTok",
+          "Implement remarketing automation"
+        ],
+        "button": {
+          "text": "Schedule Review Meeting",
+          "href": "https://wa.me/5521964369191?text=...",
+          "target": "_blank"
+        },
+        "note": "Based on October 2024 data"
+      }
     },
     {
-      "id": "funnel-chart",
-      "name": "Funnel Chart",
-      "css_class": "slide slide-funnel",
-      "section": "5. Visualizacoes",
-      "best_for": ["conversion-funnel", "drop-off-analysis", "journey-stages"],
-      "content_type": "chart",
-      "description": "Multi-stage funnel with drop-off badges. Progressive narrowing.",
-      "when_to_use": "Showing conversion process with drop-off rates",
-      "required_elements": ["funnel-stages with funnel-bar", "funnel-drop-off badges"]
-    },
-    {
-      "id": "gauge-chart",
-      "name": "Gauge Chart",
-      "css_class": "slide slide-gauge",
-      "section": "5. Visualizacoes",
-      "best_for": ["goal-progress", "target-achievement", "performance-score"],
-      "content_type": "chart",
-      "description": "Semi-circular gauge showing progress. Color-coded by performance level.",
-      "when_to_use": "Showing progress toward a goal",
-      "required_elements": ["gauge-svg", "gauge-center-label", "gauge-info cards"]
+      "id": "closing",
+      "slide_number": 26,
+      "name": "Closing/Signature",
+      "css_class": "slide slide-closing",
+      "section": "6. Encerramento",
+      "layout_type": "full",
+      "best_for": ["closing", "signature", "thank-you", "final-slide", "author-credit"],
+      "description": "Professional closing with centered logo (only exception to no-center rule), author info at bottom, orange accent bar.",
+      "required_elements": [
+        "closing-content",
+        "closing-top (label)",
+        "closing-center (logo)",
+        "closing-bottom (name, role, contact)",
+        "closing-bar (orange accent)"
+      ],
+      "example_content": {
+        "label": "Thank You",
+        "logo": "https://hub.jumper.studio/decks/identities/jumper/logos/jumper-white.png",
+        "name": "Bruno Maya",
+        "role": "CEO, Jumper Studio",
+        "contact": "bruno@jumper.studio"
+      },
+      "design_notes": ["ONLY pattern where logo is centered", "Author info always bottom-left aligned", "Orange accent bar at bottom"]
     }
   ],
-  "arrow_indicators": {
-    "description": "Simple Unicode arrows for directional indicators. NEVER use emojis.",
-    "down": "&#8595; or ↓ - Use for decreases, drops, scroll down",
-    "up": "&#8593; or ↑ - Use for increases, growth, scroll up",
-    "right": "&#8594; or → - Use for next, continue, action",
-    "left": "&#8592; or ← - Use for back, previous",
-    "css_class": "arrow-indicator with arrow-down/up/right/left modifier",
-    "color": "Always #FA4721 (Jumper Orange)"
-  },
-  "accent_elements": {
-    "accent_bar_top": {
-      "description": "4px orange bar at top of slide",
-      "css_class": "accent-bar-top",
-      "use_for": ["signature-slide", "emphasis-slides", "section-starts"]
-    },
-    "accent_bar_left": {
-      "description": "4px orange bar at left of element",
-      "css_class": "accent-bar-left",
-      "use_for": ["section-divider-text", "quotes", "emphasis-content"]
-    }
-  },
   "ai_generation_guidance": {
     "critical_rules": [
-      "NEVER center text - always left or right aligned",
+      "NEVER center text - always left or right aligned (except logo in closing)",
       "NEVER use glass-morphism or backdrop-filter",
       "NEVER use border-radius on cards/badges/buttons (charts excepted)",
       "ALWAYS use pure black #000000 for backgrounds",
       "ALWAYS use solid card backgrounds #1a1a1a",
-      "Use Unicode arrows (→↓) NOT emojis for indicators"
+      "Use Unicode arrows (→↓↑) NOT emojis for indicators",
+      "Use split layouts (1fr:1.5fr) for most content slides",
+      "Include arrow + insight footer on applicable slides"
     ],
-    "pattern_selection_rules": [
-      "Start with hero-split-right for cover",
-      "Use big-number-arrow for dramatic single statistics",
-      "Use layout-corners for case studies with multiple info pieces",
-      "Use section-header to introduce major topics",
-      "Place metric-cards early for quick KPI overview",
-      "Use comparison-grid for before/after results",
-      "Choose chart type based on data type",
-      "End with checklist → (optional white slide) → hero-split-left → signature-slide"
+    "pattern_selection_flow": [
+      "1. Start with hero-split-right for cover",
+      "2. Use toc-split for agenda",
+      "3. Use section-header or section-divider to introduce sections",
+      "4. Use big-number for dramatic single statistics",
+      "5. Use insights-split for key findings",
+      "6. Use comparison-corners for A/B comparisons",
+      "7. Use metrics-corners for KPI dashboards",
+      "8. Choose chart type based on data: chart-split (trend), bars-split (comparison), distribution (allocation), funnel-split (journey), goal-split (progress)",
+      "9. Use actions-split for completed items",
+      "10. Use cta-split for recommendations",
+      "11. End with closing for professional sign-off"
     ],
-    "semantic_color_usage": {
-      "success": "#2AA876 - Positive outcomes, wins, improvements, 'after' values",
-      "warning": "#F59E0B - Neutral items, moderate issues, testing status",
-      "critical": "#EF4444 - Problems, failures, items needing attention",
-      "info": "#3B82F6 - Insights, learnings, recommendations",
-      "primary": "#FA4721 - Emphasis, CTAs, arrows, key highlights"
+    "semantic_colors": {
+      "success": "#2AA876 - Positive outcomes, improvements, 'after' values",
+      "warning": "#F59E0B - Neutral items, testing status",
+      "critical": "#EF4444 - Problems, items needing attention",
+      "info": "#3B82F6 - Insights, learnings",
+      "primary": "#FA4721 - Emphasis, CTAs, arrows, highlights"
     },
     "content_density": {
-      "hero-slides": "Minimal: title + subtitle + 1-2 metadata items",
-      "cards-grid": "3-6 cards maximum",
-      "metric-cards": "3-6 metrics",
-      "big-number-arrow": "ONE number only + context",
-      "layout-corners": "4 corner pieces only, center empty",
-      "timeline": "4-6 time points",
-      "charts": "4-8 data points"
+      "hero-slides": "title + subtitle + 1-2 metadata items",
+      "toc-split": "4-6 agenda items",
+      "insights-split": "3-4 insight cards",
+      "metrics-corners": "6 metrics maximum",
+      "big-number": "ONE number only + context",
+      "chart-slides": "4-8 data points",
+      "bars-split": "3-5 bars",
+      "funnel-split": "3-5 stages",
+      "actions-split": "4-6 action items",
+      "cta-split": "3-4 recommendations"
     }
   }
 }
