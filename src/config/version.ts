@@ -7,16 +7,33 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.45';
+export const APP_VERSION = 'v2.1.46';
 
 /**
  * Version history:
+ * - v2.1.46 (2024-11-24):
+ *   - NEW: Jumper Flare v2.1 template - "Authentic Jumper Design"
+ *   - CRITICAL FIX: Design corrections based on official Jumper brand reference images
+ *   - Removed all glass-morphism (flat solid backgrounds)
+ *   - Removed all border-radius (square corners, charts excepted)
+ *   - Changed to pure black #000000 (from #0a0a0a)
+ *   - Enforced left-aligned text (NEVER centered)
+ *   - NEW PATTERNS:
+ *     - Big Number with Arrow (from 53.png reference)
+ *     - Layout dos 4 Cantos (from 61.png reference)
+ *     - Signature Slide (from Frame 4.png reference)
+ *     - Notification Cards (from 59.png reference)
+ *     - White Theme variant (from 54.png reference)
+ *   - NEW ELEMENTS: Arrow indicators (Unicode), accent bars (orange)
+ *   - 26 slide patterns total (up from 24 in v2.0)
+ *   - v2.0 preserved for comparison, v2.1 is corrected version
+ *
  * - v2.1.45 (2024-11-24):
  *   - NEW: Jumper Flare v2 template (complete modernization)
  *   - 24 slide patterns (up from 9 in v1)
  *   - 6 chart types: Line, Bar, Donut, Funnel, Stacked Area, Gauge (new)
  *   - External CSS (~2000 lines) for token optimization
- *   - Heavy glass-morphism (20px blur)
+ *   - Heavy glass-morphism (20px blur) - NOTE: Design error, corrected in v2.1
  *   - Hybrid navigation (scroll-snap + click)
  *   - NOT YET ADOPTED as default template - deployed for testing
  *
