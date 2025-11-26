@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Link } from 'react-router-dom';
-import { BarChart3, Plus, CheckCircle2, Pause, AlertCircle } from 'lucide-react';
+import { BarChart3, Plus, CheckCircle2, Pause, AlertCircle, CreditCard, Receipt, FileText, Shuffle } from 'lucide-react';
 
 export type AccessReason = 'ADMIN' | 'GESTOR' | 'SUPERVISOR' | 'GERENTE';
 
@@ -18,6 +18,9 @@ interface AccountCardProps {
     gestor?: string;
     atendimento?: string; // Renamed from supervisor
     gerente?: string;
+    payment_method?: string | null;
+    days_remaining?: number | null;
+    current_balance?: number | null;
   };
   accessReasons: AccessReason[]; // Multiple badges (cumulative)
   className?: string;
@@ -65,6 +68,29 @@ const statusStyles = {
   ativa: 'text-[hsl(var(--metric-excellent))]',
   pausada: 'text-[hsl(var(--metric-warning))]',
   inativa: 'text-muted-foreground',
+};
+
+// Payment method icons and styles
+const paymentMethodConfig: Record<string, { icon: typeof CreditCard; label: string; color: string }> = {
+  'Boleto': { icon: Receipt, label: 'Boleto', color: 'text-orange-500' },
+  'Cartão': { icon: CreditCard, label: 'Cartão', color: 'text-blue-500' },
+  'Faturamento': { icon: FileText, label: 'Faturamento', color: 'text-purple-500' },
+  'Misto': { icon: Shuffle, label: 'Misto', color: 'text-gray-500' },
+};
+
+// Days remaining color thresholds
+const getDaysRemainingColor = (days: number | null | undefined): string => {
+  if (days === null || days === undefined || days >= 999) return 'text-muted-foreground';
+  if (days > 20) return 'text-[hsl(var(--metric-excellent))]'; // Green
+  if (days >= 11) return 'text-[hsl(var(--metric-warning))]'; // Yellow/Amber
+  return 'text-[hsl(var(--metric-critical))]'; // Red
+};
+
+const getDaysRemainingBgColor = (days: number | null | undefined): string => {
+  if (days === null || days === undefined || days >= 999) return 'bg-muted/30';
+  if (days > 20) return 'bg-[hsl(var(--metric-excellent))]/10'; // Green bg
+  if (days >= 11) return 'bg-[hsl(var(--metric-warning))]/10'; // Yellow bg
+  return 'bg-[hsl(var(--metric-critical))]/10'; // Red bg
 };
 
 export function AccountCard({ account, accessReasons, className }: AccountCardProps) {
@@ -118,12 +144,52 @@ export function AccountCard({ account, accessReasons, className }: AccountCardPr
       </CardHeader>
 
       <CardContent className="space-y-4">
-        <div className="flex items-center gap-2 text-sm">
-          <StatusIcon className={cn('h-4 w-4', statusStyles[statusKey as keyof typeof statusStyles])} />
-          <span className="text-muted-foreground">
-            <span className="font-semibold text-foreground">Status:</span> <span className="font-medium">{account.status || 'Ativa'}</span>
-          </span>
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 text-sm">
+            <StatusIcon className={cn('h-4 w-4', statusStyles[statusKey as keyof typeof statusStyles])} />
+            <span className="text-muted-foreground">
+              <span className="font-semibold text-foreground">Status:</span> <span className="font-medium">{account.status || 'Ativa'}</span>
+            </span>
+          </div>
+
+          {/* Payment method badge */}
+          {account.payment_method && paymentMethodConfig[account.payment_method] && (
+            <div className="flex items-center gap-1.5">
+              {(() => {
+                const config = paymentMethodConfig[account.payment_method!];
+                const PaymentIcon = config.icon;
+                return (
+                  <Badge
+                    variant="outline"
+                    className={cn(
+                      'text-xs font-medium flex items-center gap-1',
+                      config.color,
+                      'border-current/20 bg-current/5'
+                    )}
+                  >
+                    <PaymentIcon className="h-3 w-3" />
+                    {config.label}
+                  </Badge>
+                );
+              })()}
+            </div>
+          )}
         </div>
+
+        {/* Days remaining indicator for Boleto accounts */}
+        {account.payment_method === 'Boleto' && account.days_remaining !== null && account.days_remaining !== undefined && account.days_remaining < 999 && (
+          <div
+            className={cn(
+              'flex items-center justify-between gap-2 p-2 rounded-md text-sm',
+              getDaysRemainingBgColor(account.days_remaining)
+            )}
+          >
+            <span className="text-muted-foreground font-medium">Saldo restante:</span>
+            <span className={cn('font-bold', getDaysRemainingColor(account.days_remaining))}>
+              {Math.round(account.days_remaining)} dias
+            </span>
+          </div>
+        )}
 
         {account.objectives && account.objectives.length > 0 && (
           <div className="space-y-2">

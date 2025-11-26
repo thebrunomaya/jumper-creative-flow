@@ -33,6 +33,12 @@ export interface NotionAccount {
   contexto_otimizacao?: string;
   /** Summarized context for transcription (Whisper API) */
   contexto_transcricao?: string;
+  /** Payment method (Boleto, Cartão, Faturamento, Misto) */
+  payment_method?: string | null;
+  /** Days remaining until balance runs out (from Meta Ads spend data) */
+  days_remaining?: number | null;
+  /** Current balance in BRL (from Meta Ads spend data) */
+  current_balance?: number | null;
 }
 
 /**

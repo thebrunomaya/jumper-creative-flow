@@ -7,10 +7,25 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.49';
+export const APP_VERSION = 'v2.1.50';
 
 /**
  * Version history:
+ * - v2.1.50 (2024-11-26):
+ *   - FEATURE: Dashboard now shows payment method badge and balance days indicator
+ *   - AccountCard displays payment method (Boleto, Cartão, Faturamento, Misto) with icon
+ *   - Boleto accounts show colored "Saldo restante: X dias" indicator:
+ *     - Green (>20 days): healthy balance
+ *     - Yellow (11-20 days): attention needed
+ *     - Red (≤10 days): urgent recharge required
+ *   - Edge Function j_hub_user_accounts enriched with balance data from j_rep_metaads_account_balance
+ *   - New fields in NotionAccount interface: payment_method, days_remaining, current_balance
+ *   - FILES MODIFIED:
+ *     - supabase/functions/j_hub_user_accounts/index.ts (balance enrichment)
+ *     - src/hooks/useMyNotionAccounts.ts (interface update)
+ *     - src/components/AccountCard.tsx (visual indicators)
+ *   - DEPLOYED: Edge Function redeployed to production
+ *
  * - v2.1.49 (2024-11-25):
  *   - FIX: Contas deletadas no Notion agora são removidas do app automaticamente
  *   - ROOT CAUSE: j_hub_notion_sync_accounts fazia apenas upsert, nunca delete

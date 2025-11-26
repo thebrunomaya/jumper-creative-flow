@@ -355,12 +355,58 @@ serve(async (req) => {
       };
     });
 
-    console.log('📊 Formatted accounts with names:', formattedAccounts);
+    console.log('📊 Formatted accounts with names:', formattedAccounts.length);
+
+    // Step 6: Fetch balance data for accounts with Meta Ads ID
+    const metaAdsIds = formattedAccounts
+      .map((acc: any) => acc.id_meta_ads)
+      .filter(Boolean);
+
+    let balanceMap = new Map<string, { days_remaining: number; current_balance: number }>();
+
+    if (metaAdsIds.length > 0) {
+      // Get the latest balance data for each account
+      const { data: balanceData } = await service
+        .from('j_rep_metaads_account_balance')
+        .select('account_id, days_remaining, current_balance, date')
+        .in('account_id', metaAdsIds)
+        .order('date', { ascending: false });
+
+      // Keep only the most recent entry per account
+      (balanceData || []).forEach((b: any) => {
+        if (!balanceMap.has(b.account_id)) {
+          balanceMap.set(b.account_id, {
+            days_remaining: Number(b.days_remaining),
+            current_balance: Number(b.current_balance),
+          });
+        }
+      });
+
+      console.log('💰 Balance data loaded for', balanceMap.size, 'accounts');
+    }
+
+    // Step 7: Enrich accounts with payment method and balance
+    const enrichedAccounts = formattedAccounts.map((account: any) => {
+      const balance = account.id_meta_ads ? balanceMap.get(account.id_meta_ads) : null;
+
+      // Get payment method from the original account data
+      const originalAccount = (accountsData || []).find((a: any) => a.id === account.id);
+      const paymentMethod = originalAccount?.["Método de Pagamento"] || null;
+
+      return {
+        ...account,
+        payment_method: paymentMethod,
+        days_remaining: balance?.days_remaining ?? null,
+        current_balance: balance?.current_balance ?? null,
+      };
+    });
+
+    console.log('📊 Enriched accounts with balance data');
 
     return new Response(
       JSON.stringify({
         success: true,
-        accounts: formattedAccounts,
+        accounts: enrichedAccounts,
         account_ids: accountIds, // UUIDs for modern tables (j_hub_decks)
         account_notion_ids: accountNotionIds, // TEXT notion_ids for legacy tables (j_hub_optimization_recordings)
         email: targetEmail,
