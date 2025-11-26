@@ -7,10 +7,19 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.53';
+export const APP_VERSION = 'v2.1.54';
 
 /**
  * Version history:
+ * - v2.1.54 (2024-11-26):
+ *   - UX: Show "∞" for accounts with spend_cap but no recent spend data (days_remaining=999)
+ *   - "-" is reserved for accounts where balance doesn't apply (no spend_cap, days_remaining=null)
+ *   - AccountCard and AccountsMetricsTable now both show ∞ instead of hiding indicator
+ *   - Example: Almeida Prado (offline 11 days) now shows "∞" instead of "-"
+ *   - FILES MODIFIED:
+ *     - src/components/AccountCard.tsx (show ∞ for days_remaining >= 999)
+ *     - src/components/dashboards/AccountsMetricsTable.tsx (show ∞ for days_remaining >= 999)
+ *
  * - v2.1.53 (2024-11-26):
  *   - FIX: days_remaining hybrid calculation - uses Windsor spend_last_7d with bronze fallback
  *   - Shows balance indicator for ALL accounts (not just Boleto) - user requested

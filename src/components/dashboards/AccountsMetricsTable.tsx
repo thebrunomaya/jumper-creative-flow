@@ -108,8 +108,11 @@ const paymentMethodConfig: Record<string, { icon: typeof CreditCard; label: stri
 };
 
 // Days remaining color thresholds
+// Note: 999 means "has spend_cap but no recent spend data" - show as ∞ (infinite)
+// null means "no spend_cap at all" - show as "-" (not applicable)
 const getDaysRemainingStyle = (days: number | null | undefined): { text: string; bg: string } => {
-  if (days === null || days === undefined || days >= 999) return { text: 'text-muted-foreground', bg: 'bg-muted/30' };
+  if (days === null || days === undefined) return { text: 'text-muted-foreground', bg: 'bg-muted/30' };
+  if (days >= 999) return { text: 'text-muted-foreground', bg: 'bg-muted/30' }; // Infinite - no recent spend
   if (days > 20) return { text: 'text-[hsl(var(--metric-excellent))]', bg: 'bg-[hsl(var(--metric-excellent))]/10' }; // Green
   if (days >= 11) return { text: 'text-[hsl(var(--metric-warning))]', bg: 'bg-[hsl(var(--metric-warning))]/10' }; // Yellow
   return { text: 'text-[hsl(var(--metric-critical))]', bg: 'bg-[hsl(var(--metric-critical))]/10' }; // Red
@@ -320,7 +323,11 @@ export function AccountsMetricsTable({ accounts, objective, loading }: AccountsM
                   const balanceInfo = balanceMap.get(account.meta_ads_id);
                   const paymentMethod = balanceInfo?.payment_method;
                   const daysRemaining = balanceInfo?.days_remaining;
+                  // hasDaysData: true if we have actual days data (not null and not infinite)
                   const hasDaysData = daysRemaining !== null && daysRemaining !== undefined && daysRemaining < 999;
+                  // hasSpendCap: true if account has spend_cap (days_remaining is a number, even if 999)
+                  const hasSpendCap = daysRemaining !== null && daysRemaining !== undefined;
+                  const isInfinite = hasSpendCap && daysRemaining >= 999;
                   const daysStyle = getDaysRemainingStyle(daysRemaining);
                   const paymentConfig = paymentMethod ? paymentMethodConfig[paymentMethod] : null;
 
@@ -364,6 +371,18 @@ export function AccountsMetricsTable({ accounts, objective, loading }: AccountsM
                             )}
                           >
                             {Math.round(daysRemaining!)} dias
+                          </Badge>
+                        ) : isInfinite ? (
+                          <Badge
+                            variant="outline"
+                            className={cn(
+                              'text-xs font-medium',
+                              daysStyle.text,
+                              daysStyle.bg,
+                              'border-current/20'
+                            )}
+                          >
+                            ∞
                           </Badge>
                         ) : (
                           <span className="text-muted-foreground">-</span>

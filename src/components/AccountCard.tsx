@@ -177,7 +177,8 @@ export function AccountCard({ account, accessReasons, className }: AccountCardPr
         </div>
 
         {/* Days remaining indicator for accounts with spend_cap */}
-        {account.days_remaining !== null && account.days_remaining !== undefined && account.days_remaining < 999 && (
+        {/* Note: 999 = has spend_cap but no recent spend data (show ∞), null = no spend_cap (don't show) */}
+        {account.days_remaining !== null && account.days_remaining !== undefined && (
           <div
             className={cn(
               'flex items-center justify-between gap-2 p-2 rounded-md text-sm',
@@ -186,7 +187,7 @@ export function AccountCard({ account, accessReasons, className }: AccountCardPr
           >
             <span className="text-muted-foreground font-medium">Saldo restante:</span>
             <span className={cn('font-bold', getDaysRemainingColor(account.days_remaining))}>
-              {Math.round(account.days_remaining)} dias
+              {account.days_remaining >= 999 ? '∞' : `${Math.round(account.days_remaining)} dias`}
             </span>
           </div>
         )}
