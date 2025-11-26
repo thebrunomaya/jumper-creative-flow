@@ -7,10 +7,19 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.54';
+export const APP_VERSION = 'v2.1.55';
 
 /**
  * Version history:
+ * - v2.1.55 (2024-11-26):
+ *   - FIX: Balance indicator ONLY for Boleto accounts (not Cartão, Faturamento, etc.)
+ *   - Boleto with spend data → "X dias" (colored by threshold)
+ *   - Boleto without recent spend (offline) → "∞"
+ *   - Non-Boleto accounts → "-" (balance indicator not applicable)
+ *   - FILES MODIFIED:
+ *     - src/components/AccountCard.tsx (filter by payment_method === 'Boleto')
+ *     - src/components/dashboards/AccountsMetricsTable.tsx (same Boleto filter)
+ *
  * - v2.1.54 (2024-11-26):
  *   - UX: Show "∞" for accounts with spend_cap but no recent spend data (days_remaining=999)
  *   - "-" is reserved for accounts where balance doesn't apply (no spend_cap, days_remaining=null)

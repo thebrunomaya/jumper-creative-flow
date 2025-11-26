@@ -107,9 +107,10 @@ const paymentMethodConfig: Record<string, { icon: typeof CreditCard; label: stri
   'Misto': { icon: Shuffle, label: 'Misto', color: 'text-gray-500' },
 };
 
-// Days remaining color thresholds
-// Note: 999 means "has spend_cap but no recent spend data" - show as ∞ (infinite)
-// null means "no spend_cap at all" - show as "-" (not applicable)
+// Days remaining color thresholds (ONLY for Boleto accounts)
+// Boleto with days < 999: show "X dias" with color
+// Boleto with days >= 999: show "∞" (has spend_cap but no recent spend)
+// Non-Boleto: show "-" (balance indicator not applicable)
 const getDaysRemainingStyle = (days: number | null | undefined): { text: string; bg: string } => {
   if (days === null || days === undefined) return { text: 'text-muted-foreground', bg: 'bg-muted/30' };
   if (days >= 999) return { text: 'text-muted-foreground', bg: 'bg-muted/30' }; // Infinite - no recent spend
@@ -323,11 +324,12 @@ export function AccountsMetricsTable({ accounts, objective, loading }: AccountsM
                   const balanceInfo = balanceMap.get(account.meta_ads_id);
                   const paymentMethod = balanceInfo?.payment_method;
                   const daysRemaining = balanceInfo?.days_remaining;
-                  // hasDaysData: true if we have actual days data (not null and not infinite)
-                  const hasDaysData = daysRemaining !== null && daysRemaining !== undefined && daysRemaining < 999;
-                  // hasSpendCap: true if account has spend_cap (days_remaining is a number, even if 999)
-                  const hasSpendCap = daysRemaining !== null && daysRemaining !== undefined;
-                  const isInfinite = hasSpendCap && daysRemaining >= 999;
+                  const isBoleto = paymentMethod === 'Boleto';
+                  // Only show balance indicator for Boleto accounts
+                  // hasDaysData: Boleto with actual days (not infinite)
+                  const hasDaysData = isBoleto && daysRemaining !== null && daysRemaining !== undefined && daysRemaining < 999;
+                  // isInfinite: Boleto with spend_cap but no recent spend data
+                  const isInfinite = isBoleto && daysRemaining !== null && daysRemaining !== undefined && daysRemaining >= 999;
                   const daysStyle = getDaysRemainingStyle(daysRemaining);
                   const paymentConfig = paymentMethod ? paymentMethodConfig[paymentMethod] : null;
 
