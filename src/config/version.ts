@@ -7,10 +7,18 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.57';
+export const APP_VERSION = 'v2.1.58';
 
 /**
  * Version history:
+ * - v2.1.58 (2024-11-26):
+ *   - FIX: Filter accounts by Status - only show Ativa, Onboarding, Offboarding
+ *   - Inativa accounts are now hidden from all account lists
+ *   - Applied to both j_hub_user_accounts and j_hub_dashboards_multi_account
+ *   - FILES MODIFIED:
+ *     - supabase/functions/j_hub_user_accounts/index.ts
+ *     - supabase/functions/j_hub_dashboards_multi_account/index.ts
+ *
  * - v2.1.57 (2024-11-26):
  *   - FIX: Dashboards GERAL now shows ALL accounts, even those without spend in period
  *   - Accounts with no data show metrics as 0 instead of being hidden

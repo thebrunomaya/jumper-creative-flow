@@ -125,41 +125,48 @@ serve(async (req) => {
 
     let accountIds: string[] = [];
 
-    // ADMIN: Get ALL accounts
+    // Status filter: only show active accounts (Ativa, Onboarding, Offboarding)
+    const ACTIVE_STATUSES = ['Ativa', 'Onboarding', 'Offboarding'];
+
+    // ADMIN: Get ALL accounts (filtered by status)
     if (isAdmin) {
       console.log('👑 Admin - fetching ALL accounts');
       const { data: allAccounts } = await service
         .from('j_hub_notion_db_accounts')
-        .select('id');
+        .select('id')
+        .in('"Status"', ACTIVE_STATUSES);
       accountIds = (allAccounts || []).map((acc: any) => acc.id);
     }
-    // STAFF: Get accounts where user is Gestor or Atendimento
+    // STAFF: Get accounts where user is Gestor or Atendimento (filtered by status)
     else if (isStaff) {
       console.log('⚡ Staff - searching by Gestor/Atendimento');
 
       const { data: gestorAccounts } = await service
         .from('j_hub_notion_db_accounts')
         .select('id')
-        .ilike('"Gestor"', `%${targetEmail}%`);
+        .ilike('"Gestor"', `%${targetEmail}%`)
+        .in('"Status"', ACTIVE_STATUSES);
 
       const { data: atendimentoAccounts } = await service
         .from('j_hub_notion_db_accounts')
         .select('id')
-        .ilike('"Atendimento"', `%${targetEmail}%`);
+        .ilike('"Atendimento"', `%${targetEmail}%`)
+        .in('"Status"', ACTIVE_STATUSES);
 
       const allAccountIds = new Set<string>();
       (gestorAccounts || []).forEach((acc: any) => allAccountIds.add(acc.id));
       (atendimentoAccounts || []).forEach((acc: any) => allAccountIds.add(acc.id));
       accountIds = Array.from(allAccountIds);
     }
-    // CLIENT: Get accounts by notion_manager_id
+    // CLIENT: Get accounts by notion_manager_id (filtered by status)
     else if (notionManagerId) {
       console.log('📝 Client - searching by notion_manager_id');
 
       const { data: gerenteAccounts } = await service
         .from('j_hub_notion_db_accounts')
         .select('id')
-        .ilike('"Gerente"', `%${notionManagerId}%`);
+        .ilike('"Gerente"', `%${notionManagerId}%`)
+        .in('"Status"', ACTIVE_STATUSES);
 
       accountIds = (gerenteAccounts || []).map((acc: any) => acc.id);
     }
