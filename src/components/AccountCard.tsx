@@ -176,8 +176,8 @@ export function AccountCard({ account, accessReasons, className }: AccountCardPr
           )}
         </div>
 
-        {/* Days remaining indicator for Boleto accounts */}
-        {account.payment_method === 'Boleto' && account.days_remaining !== null && account.days_remaining !== undefined && account.days_remaining < 999 && (
+        {/* Days remaining indicator for accounts with spend_cap */}
+        {account.days_remaining !== null && account.days_remaining !== undefined && account.days_remaining < 999 && (
           <div
             className={cn(
               'flex items-center justify-between gap-2 p-2 rounded-md text-sm',

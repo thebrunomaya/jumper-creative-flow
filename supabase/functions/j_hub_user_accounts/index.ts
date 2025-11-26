@@ -366,14 +366,14 @@ serve(async (req) => {
     let balanceMap = new Map<string, { days_remaining: number; current_balance: number }>();
 
     if (metaAdsIds.length > 0) {
-      // Get current_balance from account_balance table (has spend_cap)
+      // Get balance data from account_balance table (has spend_cap and current_balance)
       const { data: balanceData } = await service
         .from('j_rep_metaads_account_balance')
-        .select('account_id, current_balance, spend_cap, amount_spent, date')
+        .select('account_id, current_balance, spend_cap, amount_spent, spend_last_7d, date')
         .in('account_id', metaAdsIds)
         .order('date', { ascending: false });
 
-      // Get last 7 days spend from bronze table (real daily spend data)
+      // Get last 7 days spend from bronze table as fallback/verification
       const sevenDaysAgo = new Date();
       sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
       const sevenDaysAgoStr = sevenDaysAgo.toISOString().split('T')[0];
@@ -384,22 +384,27 @@ serve(async (req) => {
         .in('account_id', metaAdsIds)
         .gte('date', sevenDaysAgoStr);
 
-      // Calculate total spend per account in last 7 days
-      const spendByAccount = new Map<string, number>();
+      // Calculate total spend per account in last 7 days from bronze table
+      const spendByAccountFromBronze = new Map<string, number>();
       (spendData || []).forEach((row: any) => {
         const accountId = row.account_id;
         const spend = parseFloat(row.spend) || 0;
-        spendByAccount.set(accountId, (spendByAccount.get(accountId) || 0) + spend);
+        spendByAccountFromBronze.set(accountId, (spendByAccountFromBronze.get(accountId) || 0) + spend);
       });
 
-      // Build balance map with calculated days_remaining
+      // Build balance map using best available data
       const processedAccounts = new Set<string>();
       (balanceData || []).forEach((b: any) => {
         if (processedAccounts.has(b.account_id)) return; // Skip duplicates (keep most recent)
         processedAccounts.add(b.account_id);
 
         const currentBalance = Number(b.current_balance) || 0;
-        const spendLast7d = spendByAccount.get(b.account_id) || 0;
+
+        // Use spend_last_7d from Windsor if available, otherwise calculate from bronze
+        const windsorSpend7d = Number(b.spend_last_7d) || 0;
+        const bronzeSpend7d = spendByAccountFromBronze.get(b.account_id) || 0;
+        const spendLast7d = windsorSpend7d > 0 ? windsorSpend7d : bronzeSpend7d;
+
         const avgDailySpend = spendLast7d / 7;
 
         // Calculate days remaining: current_balance / avg_daily_spend

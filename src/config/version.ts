@@ -7,10 +7,21 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.52';
+export const APP_VERSION = 'v2.1.53';
 
 /**
  * Version history:
+ * - v2.1.53 (2024-11-26):
+ *   - FIX: days_remaining hybrid calculation - uses Windsor spend_last_7d with bronze fallback
+ *   - Shows balance indicator for ALL accounts (not just Boleto) - user requested
+ *   - Almeida Prado correctly shows "-" (no spend data in last 7 days due to 11 days offline)
+ *   - Boiler (pre-paid Cartão) correctly shows "3 dias" indicator
+ *   - APPROACH: Uses spend_last_7d from j_rep_metaads_account_balance if available,
+ *     otherwise calculates from j_rep_metaads_bronze table
+ *   - FILES MODIFIED:
+ *     - supabase/functions/j_hub_user_accounts/index.ts (hybrid spend calculation)
+ *     - src/components/AccountCard.tsx (removed Boleto-only filter)
+ *
  * - v2.1.52 (2024-11-26):
  *   - FIX: days_remaining now calculated from j_rep_metaads_bronze (real spend data)
  *   - Edge Function calculates avg daily spend from last 7 days of bronze data
