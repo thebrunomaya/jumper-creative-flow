@@ -2,9 +2,11 @@ import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Search, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Search, ArrowUpDown, ArrowUp, ArrowDown, Receipt, CreditCard, FileText, Shuffle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { AccountMetrics, DashboardObjective } from '@/hooks/useMultiAccountMetrics';
+import { useMyNotionAccounts } from '@/hooks/useMyNotionAccounts';
 
 export interface AccountsMetricsTableProps {
   accounts: AccountMetrics[];
@@ -97,6 +99,22 @@ const COLUMN_DEFINITIONS: Record<DashboardObjective, ColumnDef[]> = {
   ],
 };
 
+// Payment method icons and styles
+const paymentMethodConfig: Record<string, { icon: typeof CreditCard; label: string; color: string }> = {
+  'Boleto': { icon: Receipt, label: 'Boleto', color: 'text-orange-500' },
+  'Cartão': { icon: CreditCard, label: 'Cartão', color: 'text-blue-500' },
+  'Faturamento': { icon: FileText, label: 'Faturamento', color: 'text-purple-500' },
+  'Misto': { icon: Shuffle, label: 'Misto', color: 'text-gray-500' },
+};
+
+// Days remaining color thresholds
+const getDaysRemainingStyle = (days: number | null | undefined): { text: string; bg: string } => {
+  if (days === null || days === undefined || days >= 999) return { text: 'text-muted-foreground', bg: 'bg-muted/30' };
+  if (days > 20) return { text: 'text-[hsl(var(--metric-excellent))]', bg: 'bg-[hsl(var(--metric-excellent))]/10' }; // Green
+  if (days >= 11) return { text: 'text-[hsl(var(--metric-warning))]', bg: 'bg-[hsl(var(--metric-warning))]/10' }; // Yellow
+  return { text: 'text-[hsl(var(--metric-critical))]', bg: 'bg-[hsl(var(--metric-critical))]/10' }; // Red
+};
+
 function formatValue(value: number | undefined, format: ColumnDef['format']): string {
   if (value === undefined || value === null || isNaN(value)) {
     return '-';
@@ -130,6 +148,23 @@ export function AccountsMetricsTable({ accounts, objective, loading }: AccountsM
   const [searchTerm, setSearchTerm] = useState('');
   const [sortColumn, setSortColumn] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>(null);
+
+  // Fetch account balance data from Notion accounts
+  const { accounts: notionAccounts } = useMyNotionAccounts();
+
+  // Create a map of meta_ads_id -> balance info for quick lookup
+  const balanceMap = useMemo(() => {
+    const map = new Map<string, { payment_method?: string | null; days_remaining?: number | null }>();
+    notionAccounts.forEach((account) => {
+      if (account.meta_ads_id) {
+        map.set(account.meta_ads_id, {
+          payment_method: account.payment_method,
+          days_remaining: account.days_remaining,
+        });
+      }
+    });
+    return map;
+  }, [notionAccounts]);
 
   const columns = COLUMN_DEFINITIONS[objective];
 
@@ -275,22 +310,59 @@ export function AccountsMetricsTable({ accounts, objective, loading }: AccountsM
                   </td>
                 </tr>
               ) : (
-                sortedAccounts.map((account) => (
-                  <tr
-                    key={account.account_id}
-                    onClick={() => handleRowClick(account.account_name)}
-                    className="border-b hover:bg-muted/50 cursor-pointer transition-colors"
-                  >
-                    <td className="p-3 font-medium sticky left-0 bg-background z-10">
-                      {account.account_name}
-                    </td>
-                    {columns.map((column) => (
-                      <td key={column.key} className="p-3 text-right">
-                        {formatValue(column.accessor(account.metrics), column.format)}
+                sortedAccounts.map((account) => {
+                  const balanceInfo = balanceMap.get(account.meta_ads_id);
+                  const paymentMethod = balanceInfo?.payment_method;
+                  const daysRemaining = balanceInfo?.days_remaining;
+                  const showDaysIndicator = paymentMethod === 'Boleto' && daysRemaining !== null && daysRemaining !== undefined && daysRemaining < 999;
+                  const daysStyle = getDaysRemainingStyle(daysRemaining);
+                  const paymentConfig = paymentMethod ? paymentMethodConfig[paymentMethod] : null;
+
+                  return (
+                    <tr
+                      key={account.account_id}
+                      onClick={() => handleRowClick(account.account_name)}
+                      className="border-b hover:bg-muted/50 cursor-pointer transition-colors"
+                    >
+                      <td className="p-3 font-medium sticky left-0 bg-background z-10">
+                        <div className="flex items-center gap-2">
+                          <span>{account.account_name}</span>
+                          {paymentConfig && (
+                            <Badge
+                              variant="outline"
+                              className={cn(
+                                'text-xs font-medium flex items-center gap-1 shrink-0',
+                                paymentConfig.color,
+                                'border-current/20 bg-current/5'
+                              )}
+                            >
+                              <paymentConfig.icon className="h-3 w-3" />
+                              {paymentConfig.label}
+                            </Badge>
+                          )}
+                          {showDaysIndicator && (
+                            <Badge
+                              variant="outline"
+                              className={cn(
+                                'text-xs font-bold shrink-0',
+                                daysStyle.text,
+                                daysStyle.bg,
+                                'border-current/20'
+                              )}
+                            >
+                              {Math.round(daysRemaining!)}d
+                            </Badge>
+                          )}
+                        </div>
                       </td>
-                    ))}
-                  </tr>
-                ))
+                      {columns.map((column) => (
+                        <td key={column.key} className="p-3 text-right">
+                          {formatValue(column.accessor(account.metrics), column.format)}
+                        </td>
+                      ))}
+                    </tr>
+                  );
+                })
               )}
             </tbody>
             {sortedAccounts.length > 0 && (

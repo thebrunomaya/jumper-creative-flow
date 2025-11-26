@@ -7,10 +7,18 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.50';
+export const APP_VERSION = 'v2.1.51';
 
 /**
  * Version history:
+ * - v2.1.51 (2024-11-26):
+ *   - FEATURE: AccountsMetricsTable now shows payment method and days remaining indicators
+ *   - Table at /dashboards shows payment method badge next to account name
+ *   - Boleto accounts show colored days indicator (green >20, yellow 11-20, red ≤10)
+ *   - Uses same styling as AccountCard for visual consistency
+ *   - FILES MODIFIED:
+ *     - src/components/dashboards/AccountsMetricsTable.tsx (balance indicators in table)
+ *
  * - v2.1.50 (2024-11-26):
  *   - FEATURE: Dashboard now shows payment method badge and balance days indicator
  *   - AccountCard displays payment method (Boleto, Cartão, Faturamento, Misto) with icon
