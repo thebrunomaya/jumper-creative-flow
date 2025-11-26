@@ -81,18 +81,13 @@ serve(async (req) => {
 
     let accountIds: string[] = [];
 
-    // Status filter: only show active accounts (Ativa, Onboarding, Offboarding)
-    // Inativa accounts are never shown
-    const ACTIVE_STATUSES = ['Ativa', 'Onboarding', 'Offboarding'];
-
-    // ADMIN PATH: If user is admin, get ALL accounts (filtered by status)
+    // ADMIN PATH: If user is admin, get ALL accounts
     if (isAdmin) {
       console.log('👑 Admin detected - fetching ALL accounts');
 
       const { data: allAccountsData, error: allAccountsError } = await service
         .from('j_hub_notion_db_accounts')
-        .select('notion_id')
-        .in('"Status"', ACTIVE_STATUSES);
+        .select('notion_id');
 
       if (allAccountsError) {
         console.error('Error finding all accounts:', allAccountsError);
@@ -106,15 +101,14 @@ serve(async (req) => {
       console.log(`✅ Found ${accountIds.length} accounts (ADMIN ACCESS)`);
 
     } else if (isStaff) {
-      // STAFF PATH: Find accounts where user is Gestor or Atendimento (filtered by status)
+      // STAFF PATH: Find accounts where user is Gestor or Atendimento
       console.log('⚡ Staff detected - searching by Gestor/Atendimento fields');
 
       // Search in Gestor field
       const { data: gestorAccounts, error: gestorError } = await service
         .from('j_hub_notion_db_accounts')
         .select('notion_id, "Gestor"')
-        .ilike('"Gestor"', `%${targetEmail}%`)
-        .in('"Status"', ACTIVE_STATUSES);
+        .ilike('"Gestor"', `%${targetEmail}%`);
 
       if (gestorError) {
         console.error('Error finding accounts by Gestor:', gestorError);
@@ -124,8 +118,7 @@ serve(async (req) => {
       const { data: atendimentoAccounts, error: atendimentoError } = await service
         .from('j_hub_notion_db_accounts')
         .select('notion_id, "Atendimento"')
-        .ilike('"Atendimento"', `%${targetEmail}%`)
-        .in('"Status"', ACTIVE_STATUSES);
+        .ilike('"Atendimento"', `%${targetEmail}%`);
 
       if (atendimentoError) {
         console.error('Error finding accounts by Atendimento:', atendimentoError);
@@ -143,14 +136,13 @@ serve(async (req) => {
       console.log(`✅ Found ${accountIds.length} unique accounts via Gestor/Atendimento`);
 
     } else if (isClient && notionManagerId) {
-      // CLIENT PATH: Find accounts by notion_manager_id in Gerente field (filtered by status)
+      // CLIENT PATH: Find accounts by notion_manager_id in Gerente field
       console.log('📝 Client detected - searching by notion_manager_id:', notionManagerId);
 
       const { data: gerenteAccounts, error: gerenteError } = await service
         .from('j_hub_notion_db_accounts')
         .select('notion_id, "Gerente"')
-        .ilike('"Gerente"', `%${notionManagerId}%`)
-        .in('"Status"', ACTIVE_STATUSES);
+        .ilike('"Gerente"', `%${notionManagerId}%`);
 
       if (gerenteError) {
         console.error('Error finding accounts by Gerente:', gerenteError);

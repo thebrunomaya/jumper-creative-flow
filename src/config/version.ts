@@ -7,10 +7,15 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.58';
+export const APP_VERSION = 'v2.1.59';
 
 /**
  * Version history:
+ * - v2.1.59 (2024-11-26):
+ *   - REVERT: Remove status filter that was breaking queries
+ *   - Status filter with .in() was causing issues - needs investigation
+ *   - All accounts now show again (temporary fix)
+ *
  * - v2.1.58 (2024-11-26):
  *   - FIX: Filter accounts by Status - only show Ativa, Onboarding, Offboarding
  *   - Inativa accounts are now hidden from all account lists
