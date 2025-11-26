@@ -326,9 +326,11 @@ export function AccountsMetricsTable({ accounts, objective, loading }: AccountsM
                   const daysRemaining = balanceInfo?.days_remaining;
                   const isBoleto = paymentMethod === 'Boleto';
                   // Only show balance indicator for Boleto accounts
-                  // hasDaysData: Boleto with actual days (not infinite)
-                  const hasDaysData = isBoleto && daysRemaining !== null && daysRemaining !== undefined && daysRemaining < 999;
-                  // isInfinite: Boleto with spend_cap but no recent spend data
+                  // isDepleted: Boleto with balance = 0 (show ❌)
+                  const isDepleted = isBoleto && daysRemaining === 0;
+                  // hasDaysData: Boleto with actual days (1-998)
+                  const hasDaysData = isBoleto && daysRemaining !== null && daysRemaining !== undefined && daysRemaining > 0 && daysRemaining < 999;
+                  // isInfinite: Boleto with spend_cap but no recent spend data (show ∞)
                   const isInfinite = isBoleto && daysRemaining !== null && daysRemaining !== undefined && daysRemaining >= 999;
                   const daysStyle = getDaysRemainingStyle(daysRemaining);
                   const paymentConfig = paymentMethod ? paymentMethodConfig[paymentMethod] : null;
@@ -362,7 +364,14 @@ export function AccountsMetricsTable({ accounts, objective, loading }: AccountsM
                       </td>
                       {/* Coluna Saldo (dias restantes) */}
                       <td className="p-3 text-center">
-                        {hasDaysData ? (
+                        {isDepleted ? (
+                          <Badge
+                            variant="outline"
+                            className="text-xs font-bold text-[hsl(var(--metric-critical))] bg-[hsl(var(--metric-critical))]/10 border-current/20"
+                          >
+                            ❌
+                          </Badge>
+                        ) : hasDaysData ? (
                           <Badge
                             variant="outline"
                             className={cn(

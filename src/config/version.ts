@@ -7,10 +7,22 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.55';
+export const APP_VERSION = 'v2.1.56';
 
 /**
  * Version history:
+ * - v2.1.56 (2024-11-26):
+ *   - FEATURE: Show ❌ for Boleto accounts with depleted balance (currentBalance = 0)
+ *   - Balance indicator states for Boleto:
+ *     - ❌ = balance depleted (critical!)
+ *     - X dias = days remaining (colored by threshold)
+ *     - ∞ = no recent spend data (can't calculate)
+ *   - Non-Boleto accounts still show "-"
+ *   - FILES MODIFIED:
+ *     - supabase/functions/j_hub_user_accounts/index.ts (set days_remaining=0 when balance=0)
+ *     - src/components/AccountCard.tsx (show ❌ for days_remaining=0)
+ *     - src/components/dashboards/AccountsMetricsTable.tsx (show ❌ for days_remaining=0)
+ *
  * - v2.1.55 (2024-11-26):
  *   - FIX: Balance indicator ONLY for Boleto accounts (not Cartão, Faturamento, etc.)
  *   - Boleto with spend data → "X dias" (colored by threshold)

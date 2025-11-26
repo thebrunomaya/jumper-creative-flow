@@ -408,8 +408,13 @@ serve(async (req) => {
         const avgDailySpend = spendLast7d / 7;
 
         // Calculate days remaining: current_balance / avg_daily_spend
+        // Special values:
+        //   0 = balance depleted (show ❌)
+        //   999 = no recent spend data, can't calculate (show ∞)
         let daysRemaining = 999;
-        if (avgDailySpend > 0 && currentBalance > 0) {
+        if (currentBalance <= 0) {
+          daysRemaining = 0; // Balance depleted!
+        } else if (avgDailySpend > 0) {
           daysRemaining = Math.round(currentBalance / avgDailySpend);
         }
 
