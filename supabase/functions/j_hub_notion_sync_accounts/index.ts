@@ -411,6 +411,28 @@ serve(async (req) => {
       upsertResult = data;
     }
 
+    // DELETE accounts that no longer exist in Notion (orphan cleanup)
+    // Get all notion_ids that came from Notion in this sync
+    const notionIds = accountsData.map(a => a.notion_id);
+    let deletedCount = 0;
+
+    if (notionIds.length > 0) {
+      // Delete accounts from Supabase that are NOT in the Notion response
+      const { data: deletedAccounts, error: deleteErr } = await service
+        .from('j_hub_notion_db_accounts')
+        .delete()
+        .not('notion_id', 'in', `(${notionIds.join(',')})`)
+        .select('notion_id, "Conta"');
+
+      if (deleteErr) {
+        console.error('Delete orphan accounts error:', deleteErr);
+        // Non-fatal: log but continue
+      } else if (deletedAccounts && deletedAccounts.length > 0) {
+        deletedCount = deletedAccounts.length;
+        console.log(`Deleted ${deletedCount} orphan accounts:`, deletedAccounts.map((a: { Conta: string }) => a.Conta).join(', '));
+      }
+    }
+
     // Log do sucesso
     const syncEndTime = new Date().toISOString();
     const executionTime = new Date(syncEndTime).getTime() - new Date(syncStartTime).getTime();
@@ -420,13 +442,15 @@ serve(async (req) => {
       started_at: syncStartTime,
       completed_at: syncEndTime,
       records_processed: accountsData.length,
-      execution_time_ms: executionTime
+      execution_time_ms: executionTime,
+      metadata: { deleted_orphan_accounts: deletedCount }
     });
 
     const result = {
       ok: true,
       synced: {
         accounts: accountsData.length,
+        deleted: deletedCount,
         total_properties: 75,
         start_time: syncStartTime,
         end_time: syncEndTime

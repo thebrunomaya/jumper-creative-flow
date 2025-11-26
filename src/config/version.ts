@@ -7,10 +7,23 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.48';
+export const APP_VERSION = 'v2.1.49';
 
 /**
  * Version history:
+ * - v2.1.49 (2024-11-25):
+ *   - FIX: Contas deletadas no Notion agora são removidas do app automaticamente
+ *   - ROOT CAUSE: j_hub_notion_sync_accounts fazia apenas upsert, nunca delete
+ *   - SOLUÇÃO: Edge Function agora deleta contas órfãs (não existem mais no Notion)
+ *   - Workflow: Busca contas do Notion → Upsert → Delete contas que não vieram do Notion
+ *   - Log: metadata.deleted_orphan_accounts registra quantas contas foram removidas
+ *   - UI: Toast mostra contagem de contas órfãs removidas após sync
+ *   - FILES MODIFIED:
+ *   -   - supabase/functions/j_hub_notion_sync_accounts/index.ts (orphan cleanup logic)
+ *   -   - src/components/NotionSyncControl.tsx (show deleted count in toast)
+ *   - DEPLOYED: Edge Function redeployed to production
+ *   - IMPACT: Mainô, Mainô Sistemas, moldura minuto duplicada serão removidas na próxima sync
+ *
  * - v2.1.48 (2024-11-25):
  *   - MAJOR: Jumper Flare v2.1 template complete redesign with Linear Design principles
  *   - All 26 slides redesigned following approved slides 1-3, 7 aesthetic

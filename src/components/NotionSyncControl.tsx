@@ -37,7 +37,10 @@ export const NotionSyncControl: React.FC = () => {
       }
 
       if (data.ok) {
-        toast.success(`Sincronização concluída! ${data.synced.accounts} contas sincronizadas.`);
+        const deletedMsg = data.synced.deleted > 0
+          ? ` (${data.synced.deleted} contas órfãs removidas)`
+          : '';
+        toast.success(`Sincronização concluída! ${data.synced.accounts} contas sincronizadas${deletedMsg}`);
         setSyncStatus({
           isRunning: false,
           lastSync: {
