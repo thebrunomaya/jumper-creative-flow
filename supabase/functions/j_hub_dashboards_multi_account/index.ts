@@ -227,9 +227,20 @@ serve(async (req) => {
         continue;
       }
 
+      // For 'geral' objective, include ALL accounts even without data (metrics = 0)
+      // For specific objectives, skip accounts without relevant data
       if (!rawData || rawData.length === 0) {
         console.log(`⚠️ No data for account ${account["Conta"]} (objective: ${objective})`);
-        continue; // Skip accounts with no data
+        if (objective === 'geral') {
+          // Include account with zero metrics
+          accountsWithMetrics.push({
+            account_id: account.id,
+            account_name: account["Conta"],
+            meta_ads_id: metaAdsId,
+            metrics: { spend: 0, impressions: 0, link_clicks: 0, ctr_link: 0 }
+          });
+        }
+        continue;
       }
 
       // Aggregate metrics based on objective

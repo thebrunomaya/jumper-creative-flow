@@ -7,10 +7,16 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.56';
+export const APP_VERSION = 'v2.1.57';
 
 /**
  * Version history:
+ * - v2.1.57 (2024-11-26):
+ *   - FIX: Dashboards GERAL now shows ALL accounts, even those without spend in period
+ *   - Accounts with no data show metrics as 0 instead of being hidden
+ *   - FILES MODIFIED:
+ *     - supabase/functions/j_hub_dashboards_multi_account/index.ts
+ *
  * - v2.1.56 (2024-11-26):
  *   - FEATURE: Show ❌ for Boleto accounts with depleted balance (currentBalance = 0)
  *   - Balance indicator states for Boleto:
