@@ -278,6 +278,12 @@ export function AccountsMetricsTable({ accounts, objective, loading }: AccountsM
                 <th className="text-left p-3 font-medium sticky left-0 bg-background z-10">
                   Conta
                 </th>
+                <th className="text-center p-3 font-medium">
+                  Pagamento
+                </th>
+                <th className="text-center p-3 font-medium">
+                  Saldo
+                </th>
                 {columns.map((column) => (
                   <th
                     key={column.key}
@@ -303,7 +309,7 @@ export function AccountsMetricsTable({ accounts, objective, loading }: AccountsM
             <tbody>
               {sortedAccounts.length === 0 ? (
                 <tr>
-                  <td colSpan={columns.length + 1} className="text-center p-8 text-muted-foreground">
+                  <td colSpan={columns.length + 3} className="text-center p-8 text-muted-foreground">
                     {searchTerm
                       ? 'Nenhuma conta encontrada com esse termo'
                       : 'Nenhuma conta com dados para este objetivo'}
@@ -314,7 +320,7 @@ export function AccountsMetricsTable({ accounts, objective, loading }: AccountsM
                   const balanceInfo = balanceMap.get(account.meta_ads_id);
                   const paymentMethod = balanceInfo?.payment_method;
                   const daysRemaining = balanceInfo?.days_remaining;
-                  const showDaysIndicator = paymentMethod === 'Boleto' && daysRemaining !== null && daysRemaining !== undefined && daysRemaining < 999;
+                  const hasDaysData = daysRemaining !== null && daysRemaining !== undefined && daysRemaining < 999;
                   const daysStyle = getDaysRemainingStyle(daysRemaining);
                   const paymentConfig = paymentMethod ? paymentMethodConfig[paymentMethod] : null;
 
@@ -325,35 +331,43 @@ export function AccountsMetricsTable({ accounts, objective, loading }: AccountsM
                       className="border-b hover:bg-muted/50 cursor-pointer transition-colors"
                     >
                       <td className="p-3 font-medium sticky left-0 bg-background z-10">
-                        <div className="flex items-center gap-2">
-                          <span>{account.account_name}</span>
-                          {paymentConfig && (
-                            <Badge
-                              variant="outline"
-                              className={cn(
-                                'text-xs font-medium flex items-center gap-1 shrink-0',
-                                paymentConfig.color,
-                                'border-current/20 bg-current/5'
-                              )}
-                            >
-                              <paymentConfig.icon className="h-3 w-3" />
-                              {paymentConfig.label}
-                            </Badge>
-                          )}
-                          {showDaysIndicator && (
-                            <Badge
-                              variant="outline"
-                              className={cn(
-                                'text-xs font-bold shrink-0',
-                                daysStyle.text,
-                                daysStyle.bg,
-                                'border-current/20'
-                              )}
-                            >
-                              {Math.round(daysRemaining!)}d
-                            </Badge>
-                          )}
-                        </div>
+                        {account.account_name}
+                      </td>
+                      {/* Coluna Pagamento */}
+                      <td className="p-3 text-center">
+                        {paymentConfig ? (
+                          <Badge
+                            variant="outline"
+                            className={cn(
+                              'text-xs font-medium inline-flex items-center gap-1',
+                              paymentConfig.color,
+                              'border-current/20 bg-current/5'
+                            )}
+                          >
+                            <paymentConfig.icon className="h-3 w-3" />
+                            {paymentConfig.label}
+                          </Badge>
+                        ) : (
+                          <span className="text-muted-foreground">-</span>
+                        )}
+                      </td>
+                      {/* Coluna Saldo (dias restantes) */}
+                      <td className="p-3 text-center">
+                        {hasDaysData ? (
+                          <Badge
+                            variant="outline"
+                            className={cn(
+                              'text-xs font-bold',
+                              daysStyle.text,
+                              daysStyle.bg,
+                              'border-current/20'
+                            )}
+                          >
+                            {Math.round(daysRemaining!)} dias
+                          </Badge>
+                        ) : (
+                          <span className="text-muted-foreground">-</span>
+                        )}
                       </td>
                       {columns.map((column) => (
                         <td key={column.key} className="p-3 text-right">
@@ -369,6 +383,8 @@ export function AccountsMetricsTable({ accounts, objective, loading }: AccountsM
               <tfoot>
                 <tr className="border-t-2 font-bold bg-muted/30">
                   <td className="p-3 sticky left-0 bg-muted/30 z-10">TOTAIS</td>
+                  <td className="p-3"></td>
+                  <td className="p-3"></td>
                   {columns.map((column) => (
                     <td key={column.key} className="p-3 text-right">
                       {formatValue(totals[column.key], column.format)}

@@ -357,7 +357,8 @@ serve(async (req) => {
 
     console.log('📊 Formatted accounts with names:', formattedAccounts.length);
 
-    // Step 6: Fetch balance data for accounts with Meta Ads ID
+    // Step 6: Calculate balance data from j_rep_metaads_bronze (real spend data)
+    // and j_rep_metaads_account_balance (spend_cap data)
     const metaAdsIds = formattedAccounts
       .map((acc: any) => acc.id_meta_ads)
       .filter(Boolean);
@@ -365,24 +366,55 @@ serve(async (req) => {
     let balanceMap = new Map<string, { days_remaining: number; current_balance: number }>();
 
     if (metaAdsIds.length > 0) {
-      // Get the latest balance data for each account
+      // Get current_balance from account_balance table (has spend_cap)
       const { data: balanceData } = await service
         .from('j_rep_metaads_account_balance')
-        .select('account_id, days_remaining, current_balance, date')
+        .select('account_id, current_balance, spend_cap, amount_spent, date')
         .in('account_id', metaAdsIds)
         .order('date', { ascending: false });
 
-      // Keep only the most recent entry per account
-      (balanceData || []).forEach((b: any) => {
-        if (!balanceMap.has(b.account_id)) {
-          balanceMap.set(b.account_id, {
-            days_remaining: Number(b.days_remaining),
-            current_balance: Number(b.current_balance),
-          });
-        }
+      // Get last 7 days spend from bronze table (real daily spend data)
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+      const sevenDaysAgoStr = sevenDaysAgo.toISOString().split('T')[0];
+
+      const { data: spendData } = await service
+        .from('j_rep_metaads_bronze')
+        .select('account_id, spend, date')
+        .in('account_id', metaAdsIds)
+        .gte('date', sevenDaysAgoStr);
+
+      // Calculate total spend per account in last 7 days
+      const spendByAccount = new Map<string, number>();
+      (spendData || []).forEach((row: any) => {
+        const accountId = row.account_id;
+        const spend = parseFloat(row.spend) || 0;
+        spendByAccount.set(accountId, (spendByAccount.get(accountId) || 0) + spend);
       });
 
-      console.log('💰 Balance data loaded for', balanceMap.size, 'accounts');
+      // Build balance map with calculated days_remaining
+      const processedAccounts = new Set<string>();
+      (balanceData || []).forEach((b: any) => {
+        if (processedAccounts.has(b.account_id)) return; // Skip duplicates (keep most recent)
+        processedAccounts.add(b.account_id);
+
+        const currentBalance = Number(b.current_balance) || 0;
+        const spendLast7d = spendByAccount.get(b.account_id) || 0;
+        const avgDailySpend = spendLast7d / 7;
+
+        // Calculate days remaining: current_balance / avg_daily_spend
+        let daysRemaining = 999;
+        if (avgDailySpend > 0 && currentBalance > 0) {
+          daysRemaining = Math.round(currentBalance / avgDailySpend);
+        }
+
+        balanceMap.set(b.account_id, {
+          days_remaining: daysRemaining,
+          current_balance: currentBalance,
+        });
+      });
+
+      console.log('💰 Balance data calculated for', balanceMap.size, 'accounts');
     }
 
     // Step 7: Enrich accounts with payment method and balance

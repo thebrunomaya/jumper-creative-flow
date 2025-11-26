@@ -7,10 +7,19 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.51';
+export const APP_VERSION = 'v2.1.52';
 
 /**
  * Version history:
+ * - v2.1.52 (2024-11-26):
+ *   - FIX: days_remaining now calculated from j_rep_metaads_bronze (real spend data)
+ *   - Edge Function calculates avg daily spend from last 7 days of bronze data
+ *   - days_remaining = current_balance / avg_daily_spend
+ *   - Added separate "Pagamento" and "Saldo" columns to AccountsMetricsTable
+ *   - FILES MODIFIED:
+ *     - supabase/functions/j_hub_user_accounts/index.ts (calculate from bronze)
+ *     - src/components/dashboards/AccountsMetricsTable.tsx (separate columns)
+ *
  * - v2.1.51 (2024-11-26):
  *   - FEATURE: AccountsMetricsTable now shows payment method and days remaining indicators
  *   - Table at /dashboards shows payment method badge next to account name
