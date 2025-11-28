@@ -152,3 +152,110 @@ export function testEncoding(): EncodingDiagnostics {
   const testText = 'Relatório de análise: São Paulo - Ação promocional';
   return diagnoseEncoding(testText, 'encoding_test');
 }
+
+/**
+ * Common mojibake correction map (UTF-8 incorrectly decoded as Latin-1)
+ * Using hex codes to avoid parsing issues with special characters
+ */
+const MOJIBAKE_CORRECTIONS: [string, string][] = [
+  // Portuguese accented vowels (lowercase)
+  ['\u00C3\u00A1', '\u00E1'], // Ã¡ → á
+  ['\u00C3\u00A9', '\u00E9'], // Ã© → é
+  ['\u00C3\u00AD', '\u00ED'], // Ã­ → í
+  ['\u00C3\u00B3', '\u00F3'], // Ã³ → ó
+  ['\u00C3\u00BA', '\u00FA'], // Ãº → ú
+  ['\u00C3\u00A3', '\u00E3'], // Ã£ → ã
+  ['\u00C3\u00B5', '\u00F5'], // Ãµ → õ
+  ['\u00C3\u00A7', '\u00E7'], // Ã§ → ç
+  ['\u00C3\u00A0', '\u00E0'], // Ã  → à
+  ['\u00C3\u00AA', '\u00EA'], // Ãª → ê
+  ['\u00C3\u00A2', '\u00E2'], // Ã¢ → â
+  ['\u00C3\u00B4', '\u00F4'], // Ã´ → ô
+  ['\u00C3\u00BB', '\u00FB'], // Ã» → û
+  // German umlauts (also used in some loanwords)
+  ['\u00C3\u00A4', '\u00E4'], // Ã¤ → ä
+  ['\u00C3\u00B6', '\u00F6'], // Ã¶ → ö
+  ['\u00C3\u00BC', '\u00FC'], // Ã¼ → ü
+  // Uppercase accented vowels
+  ['\u00C3\u0081', '\u00C1'], // Ã + Á → Á
+  ['\u00C3\u0089', '\u00C9'], // Ã‰ → É
+  ['\u00C3\u008D', '\u00CD'], // Ã + Í → Í
+  ['\u00C3\u0093', '\u00D3'], // Ã" → Ó
+  ['\u00C3\u009A', '\u00DA'], // Ãš → Ú
+  ['\u00C3\u0083', '\u00C3'], // Ãƒ → Ã
+  ['\u00C3\u0095', '\u00D5'], // Ã• → Õ
+  ['\u00C3\u0087', '\u00C7'], // Ã‡ → Ç
+  // Special characters - dashes and quotes
+  ['\u00E2\u0080\u0094', '\u2014'], // â€" → — (em dash)
+  ['\u00E2\u0080\u0093', '\u2013'], // â€" → – (en dash)
+  ['\u00E2\u0080\u0099', '\u2019'], // â€™ → ' (right single quote)
+  ['\u00E2\u0080\u009C', '\u201C'], // â€œ → " (left double quote)
+  ['\u00E2\u0080\u009D', '\u201D'], // â€ → " (right double quote)
+  // Arrows
+  ['\u00E2\u0086\u0092', '\u2192'], // â†' → →
+  ['\u00E2\u0086\u0090', '\u2190'], // â† → ←
+  ['\u00E2\u0086\u0091', '\u2191'], // â†' → ↑
+  ['\u00E2\u0086\u0093', '\u2193'], // â†" → ↓
+  // Other common characters
+  ['\u00E2\u0080\u00A2', '\u2022'], // â€¢ → • (bullet)
+  ['\u00E2\u0080\u00A6', '\u2026'], // â€¦ → … (ellipsis)
+  // Double-encoding artifacts
+  ['\u00C3\u0082\u00C2', ''], // Common double-encoding artifact
+];
+
+/**
+ * Fix common mojibake patterns in text
+ * Attempts to correct UTF-8 text that was incorrectly decoded as Latin-1
+ *
+ * @param text - Text with potential mojibakes
+ * @returns Corrected text
+ */
+export function fixMojibakes(text: string): string {
+  let fixed = text;
+
+  for (const [mojibake, correct] of MOJIBAKE_CORRECTIONS) {
+    fixed = fixed.split(mojibake).join(correct);
+  }
+
+  return fixed;
+}
+
+/**
+ * Validate and optionally fix encoding issues
+ *
+ * @param text - Text to validate
+ * @param stage - Pipeline stage name
+ * @param autoFix - If true, attempt to fix mojibakes automatically
+ * @returns Object with original, fixed text, and diagnostics
+ */
+export function validateAndFixEncoding(
+  text: string,
+  stage: string,
+  autoFix = true
+): { original: string; fixed: string; wasFixed: boolean; diagnostics: EncodingDiagnostics } {
+  const originalDiagnostics = diagnoseEncoding(text, stage);
+
+  if (originalDiagnostics.encoding_ok || !autoFix) {
+    return {
+      original: text,
+      fixed: text,
+      wasFixed: false,
+      diagnostics: originalDiagnostics
+    };
+  }
+
+  // Attempt to fix
+  const fixed = fixMojibakes(text);
+  const fixedDiagnostics = diagnoseEncoding(fixed, `${stage}_after_fix`);
+
+  console.log(`🔧 [ENCODING FIX] Stage: ${stage}`);
+  console.log(`   Before: ${originalDiagnostics.mojibake_examples.length} mojibakes`);
+  console.log(`   After: ${fixedDiagnostics.mojibake_examples.length} mojibakes`);
+
+  return {
+    original: text,
+    fixed,
+    wasFixed: true,
+    diagnostics: fixedDiagnostics
+  };
+}

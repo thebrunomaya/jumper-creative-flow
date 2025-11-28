@@ -4,7 +4,7 @@ import { validateEnvironment } from '../_shared/env-validation.ts';
 import { fetchWithRetry, fetchTextWithRetry } from '../_shared/fetch-with-retry.ts';
 import { loadPatternMetadata } from '../_shared/template-utils.ts';
 import { formatPatternCatalogForPrompt, formatPlanForGenerationPrompt } from '../_shared/pattern-catalog.ts';
-import { diagnoseEncoding, logEncodingDiagnostics } from '../_shared/encoding-diagnostics.ts';
+import { diagnoseEncoding, logEncodingDiagnostics, validateAndFixEncoding } from '../_shared/encoding-diagnostics.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -262,8 +262,8 @@ Transform markdown data into beautiful, interactive HTML slides following a PRE-
        <div class="nav-dots" id="nav-dots"></div>
    </div>
 
-   <button class="nav-arrow prev" aria-label="Slide anterior">←</button>
-   <button class="nav-arrow next" aria-label="Próximo slide">→</button>
+   <button class="nav-arrow prev" aria-label="Slide anterior">&larr;</button>
+   <button class="nav-arrow next" aria-label="Proximo slide">&rarr;</button>
 
    <!-- Navigation Script (MANDATORY - DO NOT SKIP!) -->
    <script>
@@ -321,23 +321,32 @@ Transform markdown data into beautiful, interactive HTML slides following a PRE-
    - Focus output tokens on slide content
 
 7. ⚠️ VIEWPORT FIT (CRITICAL - CONTENT MUST FIT ON SCREEN):
-   Each slide MUST fit within a single viewport. Follow these STRICT LIMITS:
+   Each slide MUST fit within a single viewport (1920x1080 or 16:9 aspect).
 
-   - CARDS GRID: Maximum 4 cards (2x2 layout) or 6 cards (3x2) - NEVER more
-   - BULLET LISTS: Maximum 4-5 items per list - summarize if source has more
-   - TIMELINE: Maximum 4 items - consolidate weeks/days if needed
-   - TEXT PARAGRAPHS: Maximum 2-3 short paragraphs per slide
-   - METRIC CARDS: Maximum 6 metrics (3x2 grid)
-   - TABLE ROWS: Maximum 4-5 rows - summarize or split into multiple slides
+   STRICT CHARACTER LIMITS:
+   - SLIDE TITLE: Maximum 60 characters
+   - SLIDE SUBTITLE: Maximum 100 characters
+   - BULLET POINTS: Maximum 4 items, each max 80 characters
+   - PARAGRAPH TEXT: Maximum 150 characters per paragraph, max 2 paragraphs
+   - CARDS: Maximum 4 cards (2x2), title max 30 chars, description max 60 chars
+   - TIMELINE: Maximum 4 items, title max 40 chars, description max 80 chars
+   - TABLE: Maximum 4 rows, 4 columns
 
-   🚨 IF CONTENT EXCEEDS LIMITS:
-   - Summarize and consolidate information
-   - Split into multiple slides
-   - Prioritize key insights over exhaustive detail
-   - Use "highlights" approach: show most important, not everything
+   🚨 CONTENT REDUCTION RULES:
+   - ALWAYS summarize long text - use key phrases, not full sentences
+   - NEVER copy-paste full paragraphs from source
+   - Use "..." to indicate truncation if needed
+   - Prioritize: numbers > key phrases > full sentences
+   - One main idea per slide - split if needed
+
+   Font sizing for readability:
+   - Titles: 48-64px (h1/h2 class)
+   - Subtitles: 24-32px
+   - Body: 18-24px
+   - Small text: 14-16px
 
    REMEMBER: A slide that overflows is WORSE than a slide with less content.
-   Clients cannot scroll - content MUST be visible without scrolling.
+   If content is too long, SUMMARIZE IT - do not try to fit everything.
 
 OUTPUT FORMAT: Complete standalone HTML file with navigation system (no markdown fences, no explanations)`;
 
@@ -511,9 +520,14 @@ OUTPUT FORMAT: Complete standalone HTML file (no markdown fences, no explanation
     console.log('✅ [DECK_GENERATE] HTML generated');
     console.log('📏 [DECK_GENERATE] HTML length:', htmlOutput.length, 'chars');
 
-    // 🔍 DIAGNOSTIC 2: Check Claude API response encoding
-    const claudeResponseDiagnostics = diagnoseEncoding(htmlOutput, 'claude_api_response');
-    logEncodingDiagnostics(claudeResponseDiagnostics);
+    // 🔍 DIAGNOSTIC 2: Check Claude API response encoding and AUTO-FIX mojibakes
+    const encodingResult = validateAndFixEncoding(htmlOutput, 'claude_api_response', true);
+    logEncodingDiagnostics(encodingResult.diagnostics);
+
+    if (encodingResult.wasFixed) {
+      console.log('🔧 [DECK_GENERATE] Applied mojibake corrections to HTML output');
+      htmlOutput = encodingResult.fixed;
+    }
 
     // ========================================================================
     // VALIDATION: Check for common issues

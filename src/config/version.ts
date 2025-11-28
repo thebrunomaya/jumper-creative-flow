@@ -7,10 +7,21 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.60';
+export const APP_VERSION = 'v2.1.61';
 
 /**
  * Version history:
+ * - v2.1.61 (2024-11-28):
+ *   - FIX: UTF-8 encoding corruption (mojibake) in deck generation
+ *   - FIX: Navigation arrows corrupted - now using HTML entities
+ *   - FIX: Text overflow on slides - added CSS line-clamp protection
+ *   - Enhanced viewport fit rules with strict character limits
+ *   - Added fixMojibakes() utility for automatic encoding repair
+ *   - FILES MODIFIED:
+ *     - supabase/functions/j_hub_deck_generate/index.ts
+ *     - supabase/functions/_shared/encoding-diagnostics.ts
+ *     - public/decks/templates/jumper-flare-v2.1.css
+ *
  * - v2.1.60 (2024-11-28):
  *   - FEATURE: Add pitch deck specialization for Jumper proposals
  *   - New pattern catalog: jumper-flare-v2.1-pitch-patterns.json

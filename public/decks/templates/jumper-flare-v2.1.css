@@ -5367,3 +5367,110 @@ p {
 .max-w-md { max-width: 600px; }
 .max-w-lg { max-width: 800px; }
 .max-w-xl { max-width: 1000px; }
+
+/* ==========================================================================
+   38. TEXT OVERFLOW PROTECTION (Prevents content from breaking layout)
+   ========================================================================== */
+
+/* Force text to stay within bounds */
+.slide-content h1,
+.slide-content h2,
+.slide-content h3,
+.slide-content h4,
+.slide-content p {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+}
+
+/* Title lines limit */
+.slide-content h1 { -webkit-line-clamp: 2; }
+.slide-content h2 { -webkit-line-clamp: 2; }
+.slide-content h3 { -webkit-line-clamp: 2; }
+.slide-content h4 { -webkit-line-clamp: 3; }
+
+/* Body text lines limit */
+.slide-content p {
+    -webkit-line-clamp: 4;
+    max-width: 80ch;
+}
+
+/* Card content limits */
+.card-title,
+.card h4,
+.card h5 {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+}
+
+.card-description,
+.card p {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+}
+
+/* Timeline item limits */
+.timeline-item h4,
+.timeline-vertical-title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+}
+
+.timeline-item p,
+.timeline-vertical-description {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+}
+
+/* Bullet list limits */
+.bullet-list li,
+.checklist-item {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+}
+
+/* Prevent horizontal overflow on slide */
+.slide * {
+    max-width: 100%;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+/* Truncate utility class */
+.truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.truncate-2 {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+}
+
+.truncate-3 {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+}
