@@ -10,6 +10,61 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+/**
+ * Returns deck-type-specific guidance for Claude's content analysis.
+ * Each deck type has different narrative structures and pattern priorities.
+ */
+function getDeckTypeGuidance(deckType: string): string {
+  const guides: Record<string, string> = {
+    'report': `
+**REPORT DECK (Relatório de Performance)**
+Structure: Context → Metrics → Analysis → Insights → Actions
+- Slide 1: Hero cover with period and client
+- Slides 2-4: Context and executive summary
+- Slides 5-10: Detailed metrics and visualizations
+- Slides 11-14: Insights and analysis
+- Slides 15-18: Recommendations and next steps
+Emphasis: Data visualization, comparisons, trends, evidence-based insights`,
+
+    'pitch': `
+**PITCH DECK (Proposta Comercial)**
+Structure: Problem → Solution → Proof → Proposal → CTA
+- Slide 1: Hero hook (promise of value, NOT just title)
+- Slide 2: Agenda (what they'll discover)
+- Slides 3-4: PROBLEM (alarming stat + pain statement) - USE RED ACCENTS
+- Slides 5-6: SOLUTION (methodology + before/after) - USE GREEN ACCENTS
+- Slides 7-9: PROOF (case studies, metrics, testimonials)
+- Slides 10-11: PROCESS (timeline, how it works)
+- Slides 12-13: PROPOSAL (what's included, investment options)
+- Slides 14-15: CTA (next steps + WhatsApp contact) - USE ORANGE ACCENTS
+
+Color Psychology:
+- RED (#EF4444): Problems, pain points, "before" states
+- GREEN (#2AA876): Solutions, benefits, "after" states
+- ORANGE (#FA4721): CTAs, highlights, emphasis
+
+Copywriting Rules:
+- Start with PROBLEM, not solution
+- Use client's voice for pain points
+- Specific numbers are more credible
+- End with clear CTA (WhatsApp link)`,
+
+    'plan': `
+**PLAN DECK (Planejamento Estratégico)**
+Structure: Current State → Goals → Strategy → Timeline → Resources
+- Slide 1: Hero cover with planning period
+- Slide 2: Objectives overview
+- Slides 3-5: Current state analysis
+- Slides 6-10: Strategy and tactics
+- Slides 11-13: Timeline and milestones
+- Slide 14: Resources and budget
+- Slide 15: Success metrics and KPIs
+Emphasis: Timelines, milestones, clear deliverables, measurable goals`
+  };
+
+  return guides[deckType] || guides['report'];
+}
+
 // Increased timeout to 150 seconds (2.5 minutes) to handle large content analysis
 // Claude Sonnet 4.5 typically takes 60-120s for complex deck analysis
 Deno.serve({
@@ -120,10 +175,13 @@ Deno.serve({
       markdown_preview: markdown_source.substring(0, 100) + '...'
     });
 
-    // Load pattern metadata for this template
+    // Load pattern metadata for this template (with deck-type-specific patterns if available)
     console.log('📚 [DECK_ANALYZE] Loading pattern metadata...');
-    const patternMetadata = await loadPatternMetadata(template_id);
+    const patternMetadata = await loadPatternMetadata(template_id, deck_type);
     const patternCatalog = formatPatternCatalogForPrompt(patternMetadata);
+
+    // Get deck-type-specific guidance
+    const deckTypeGuidance = getDeckTypeGuidance(deck_type);
 
     console.log('✅ [DECK_ANALYZE] Pattern catalog loaded:', {
       patterns_available: patternMetadata.patterns.length,
@@ -133,12 +191,15 @@ Deno.serve({
     // Build analysis prompt (OPTIMIZED for speed - reduced verbosity while maintaining quality)
     const systemPrompt = `Expert presentation designer. Analyze markdown, recommend slide patterns.
 
-**Task:** Create JSON plan matching content to patterns from catalog.
+${deckTypeGuidance}
+
+**Task:** Create JSON plan matching content to patterns from catalog. Follow the deck type structure above.
 
 **Rules:**
-- First slide = hero-slide (cover)
+- First slide = hero cover (with hook for pitch, title for report)
 - Vary patterns (diversity >0.75)
 - Match content: timeline→dates, bar-chart→comparisons, donut-chart→%, statement-slide→insights
+- For PITCH: Follow Problem→Solution→Proof→Proposal→CTA flow
 - JSON only, no markdown fences
 
 **Output:**

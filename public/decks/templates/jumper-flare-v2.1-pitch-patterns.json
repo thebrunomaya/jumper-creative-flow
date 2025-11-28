@@ -1,0 +1,605 @@
+{
+  "template_id": "jumper-flare-v2.1-pitch",
+  "template_version": "1.0.0",
+  "template_name": "Jumper Flare v2.1 - Pitch Deck (Propostas Comerciais)",
+  "description": "Variante do Jumper Flare v2.1 otimizada para propostas comerciais e pitchs de vendas. Estrutura narrativa focada em: Problema → Solução → Prova Social → Proposta → CTA. Usa psicologia de cores (vermelho=problema, verde=solução, laranja=CTA) e storytelling persuasivo.",
+  "deck_type": "pitch",
+  "base_template": "jumper-flare-v2.1",
+  "uses_same_css": true,
+  "css_url": "https://hub.jumper.studio/decks/templates/jumper-flare-v2.1.css",
+
+  "pitch_context": {
+    "company": "Jumper Studio",
+    "services": ["Gestão de Tráfego Pago", "Consultoria de Performance", "Implementação de Campanhas"],
+    "contract_types": {
+      "one_time": "Consultorias e Implementações (projeto único)",
+      "recurring": "Gestão Recorrente (mensalidade)"
+    },
+    "cta_primary": {
+      "text": "Fale Conosco",
+      "whatsapp": "5521964369191",
+      "message_template": "Olá, quero falar sobre a proposta {PROPOSAL_TITLE}"
+    },
+    "signature": {
+      "signed_by": "Gestor responsável pelo pitch",
+      "company_logo": "https://hub.jumper.studio/decks/identities/jumper/logos/jumper-white.png"
+    }
+  },
+
+  "color_psychology": {
+    "problem": {
+      "color": "#EF4444",
+      "css_class": "text-critical",
+      "use_for": ["Estatísticas negativas", "Dores do cliente", "'Antes' em comparações", "Alertas"]
+    },
+    "solution": {
+      "color": "#2AA876",
+      "css_class": "text-success",
+      "use_for": ["Benefícios", "Resultados positivos", "'Depois' em comparações", "Cases de sucesso"]
+    },
+    "cta": {
+      "color": "#FA4721",
+      "css_class": "text-primary",
+      "use_for": ["CTAs", "Destaques importantes", "Badges de ênfase", "Setas e indicadores"]
+    },
+    "neutral": {
+      "colors": ["#000000", "#FFFFFF", "#1a1a1a"],
+      "use_for": ["Backgrounds", "Texto principal", "Cards"]
+    }
+  },
+
+  "narrative_structure": {
+    "total_slides": "12-15 slides recomendados",
+    "sections": [
+      {
+        "name": "1. Abertura",
+        "slides": [1, 2],
+        "purpose": "Hook + Agenda - Capturar atenção e definir expectativas",
+        "patterns": ["hero-split-right", "toc-split"]
+      },
+      {
+        "name": "2. Problema",
+        "slides": [3, 4],
+        "purpose": "Validar a dor - Mostrar que entendemos o desafio do cliente",
+        "patterns": ["big-number", "statement-corners"],
+        "color_emphasis": "problem (vermelho)"
+      },
+      {
+        "name": "3. Solução",
+        "slides": [5, 6],
+        "purpose": "Nossa abordagem - Como resolvemos o problema",
+        "patterns": ["insights-split", "comparison-corners"],
+        "color_emphasis": "solution (verde)"
+      },
+      {
+        "name": "4. Prova Social",
+        "slides": [7, 8, 9],
+        "purpose": "Credibilidade - Mostrar resultados reais",
+        "patterns": ["before-after", "data-rows", "metrics-corners"],
+        "notes": "Selecionar 3-4 cases mais relevantes para o perfil do cliente"
+      },
+      {
+        "name": "5. Processo",
+        "slides": [10, 11],
+        "purpose": "Como funciona - Metodologia e timeline",
+        "patterns": ["milestones", "funnel-split"]
+      },
+      {
+        "name": "6. Proposta",
+        "slides": [12, 13],
+        "purpose": "Oferta - O que está incluso e investimento",
+        "patterns": ["actions-split", "strategy-white"],
+        "notes": "strategy-white usa fundo branco para destaque visual"
+      },
+      {
+        "name": "7. Fechamento",
+        "slides": [14, 15],
+        "purpose": "CTA forte - Próximos passos e contato",
+        "patterns": ["cta-split", "closing"],
+        "color_emphasis": "cta (laranja)"
+      }
+    ]
+  },
+
+  "brand_colors": {
+    "primary": "#FA4721",
+    "black": "#000000",
+    "white": "#FFFFFF",
+    "surface": "#000000",
+    "surface_card": "#1a1a1a",
+    "border": "rgba(255, 255, 255, 0.1)",
+    "success": "#2AA876",
+    "warning": "#F59E0B",
+    "critical": "#EF4444",
+    "info": "#3B82F6"
+  },
+
+  "patterns": [
+    {
+      "id": "hero-split-right",
+      "slide_number": 1,
+      "name": "Hero Split Right (Capa)",
+      "css_class": "slide slide-split slide-split-gradient-right",
+      "section": "1. Abertura",
+      "pitch_purpose": "Hook impactante - Primeira impressão que captura atenção",
+      "best_for": ["cover", "opening", "hook", "first-impression"],
+      "description": "Capa com gancho persuasivo à esquerda e gradiente visual à direita. O título deve ser uma promessa de valor, não apenas o nome do projeto.",
+      "required_elements": [
+        "h1 title (gancho/promessa de valor)",
+        "text-subtitle (nome do cliente)",
+        "text-body (contexto breve)",
+        "slide-split-gradient com background-image"
+      ],
+      "pitch_examples": {
+        "title": "Transforme seu<br>investimento em<br>resultados reais",
+        "subtitle": "Proposta para [Nome do Cliente]",
+        "body": "Gestão estratégica de tráfego pago<br>focada em performance e ROI"
+      },
+      "copywriting_tips": [
+        "Título deve ser uma PROMESSA, não descrição",
+        "Use verbos de ação: Transforme, Escale, Multiplique",
+        "Foque no RESULTADO, não no processo",
+        "Evite jargões técnicos na capa"
+      ]
+    },
+    {
+      "id": "toc-split",
+      "slide_number": 2,
+      "name": "Agenda Split",
+      "css_class": "slide slide-toc-split",
+      "section": "1. Abertura",
+      "pitch_purpose": "Definir expectativas - O que o cliente vai descobrir",
+      "best_for": ["agenda", "roadmap", "structure"],
+      "description": "Agenda com 4 tópicos principais que guiam a narrativa do pitch.",
+      "required_elements": [
+        "toc-split-left (h1 + subtitle)",
+        "toc-split-right com toc-stack-wide",
+        "4 toc-card-wide items"
+      ],
+      "pitch_examples": {
+        "title": "O que vamos<br>abordar",
+        "subtitle": "Estrutura desta proposta",
+        "items": [
+          {"num": "01", "title": "O Cenário", "desc": "Desafios atuais do mercado"},
+          {"num": "02", "title": "Nossa Solução", "desc": "Como podemos ajudar"},
+          {"num": "03", "title": "Resultados", "desc": "Cases e números reais"},
+          {"num": "04", "title": "Próximos Passos", "desc": "Como começar"}
+        ]
+      }
+    },
+    {
+      "id": "big-number",
+      "slide_number": 3,
+      "name": "Big Number (Problema)",
+      "css_class": "slide slide-big-number",
+      "section": "2. Problema",
+      "pitch_purpose": "Estatística alarmante - Validar que o problema é real e urgente",
+      "best_for": ["problem-stat", "alarming-number", "market-data", "pain-point"],
+      "description": "Número dramático que evidencia o problema do mercado. Use cor VERMELHA ou tom negativo.",
+      "required_elements": [
+        "big-number-container",
+        "big-number-value (número impactante)",
+        "big-number-arrow (↓ para negativo, ↑ para crescente)",
+        "big-number-context (explicação)"
+      ],
+      "pitch_examples": {
+        "value": "73%",
+        "arrow": "↓",
+        "context": "das empresas desperdiçam verba em anúncios mal otimizados"
+      },
+      "color_note": "Use vermelho (#EF4444) para números negativos/problemas",
+      "copywriting_tips": [
+        "Escolha UMA estatística impactante",
+        "Fonte deve ser citável (pesquisa, estudo)",
+        "Contexto deve conectar com a dor do cliente",
+        "Evite números genéricos - seja específico"
+      ]
+    },
+    {
+      "id": "statement-corners",
+      "slide_number": 4,
+      "name": "Statement Corners (Dor)",
+      "css_class": "slide slide-statement-corners",
+      "section": "2. Problema",
+      "pitch_purpose": "Articular a dor - Frase que o cliente pensa mas não diz",
+      "best_for": ["pain-statement", "client-thought", "problem-articulation"],
+      "description": "Frase de impacto que articula a dor do cliente. Deve soar como algo que o cliente pensa internamente.",
+      "required_elements": [
+        "statement-corners-top (badge)",
+        "statement-corners-center (quote/statement)",
+        "statement-corners-bottom (context + arrow)"
+      ],
+      "pitch_examples": {
+        "badge": "O Desafio",
+        "quote": "Sem dados claros, cada decisão de investimento vira uma aposta",
+        "context": "E apostas erradas custam caro em um mercado competitivo"
+      },
+      "copywriting_tips": [
+        "Use a voz do cliente, não a sua",
+        "Articule a DOR, não a solução (ainda)",
+        "Seja específico sobre as consequências",
+        "Crie identificação: 'isso sou eu'"
+      ]
+    },
+    {
+      "id": "insights-split",
+      "slide_number": 5,
+      "name": "Insights Split (Solução)",
+      "css_class": "slide slide-insights-split",
+      "section": "3. Solução",
+      "pitch_purpose": "Apresentar a metodologia - 3 pilares da nossa abordagem",
+      "best_for": ["methodology", "approach", "three-pillars", "solution-overview"],
+      "description": "Nossa solução em 3 pontos claros. Use cor VERDE para benefícios.",
+      "required_elements": [
+        "insights-left (label + title)",
+        "insights-right com 3 insight-cards",
+        "Cada card: number, title, description"
+      ],
+      "pitch_examples": {
+        "label": "Nossa Abordagem",
+        "title": "Como<br>resolvemos",
+        "insights": [
+          {"num": "01", "title": "Análise Profunda", "desc": "Diagnóstico completo das campanhas atuais e oportunidades"},
+          {"num": "02", "title": "Otimização Contínua", "desc": "Ajustes semanais baseados em dados reais de performance"},
+          {"num": "03", "title": "Escala Inteligente", "desc": "Crescimento sustentável mantendo eficiência de custo"}
+        ]
+      },
+      "color_note": "Destaque o insight principal com classe insight-highlight (verde)"
+    },
+    {
+      "id": "comparison-corners",
+      "slide_number": 6,
+      "name": "Comparison Corners (Antes vs Depois)",
+      "css_class": "slide slide-comparison-corners",
+      "section": "3. Solução",
+      "pitch_purpose": "Contraste visual - Com Jumper vs Sem Jumper",
+      "best_for": ["before-after-concept", "with-without", "transformation"],
+      "description": "Comparação lado a lado: situação atual (vermelho) vs com nossa solução (verde).",
+      "required_elements": [
+        "comparison-corners-top (label)",
+        "comparison-corners-center com 2 comparison-side",
+        "comparison-vs-divider",
+        "comparison-corners-bottom (insight)"
+      ],
+      "pitch_examples": {
+        "label": "A Transformação",
+        "side_a": {
+          "platform": "Sem Gestão Especializada",
+          "color": "critical",
+          "metrics": [
+            {"value": "↑", "label": "CPA crescente"},
+            {"value": "?", "label": "Dados fragmentados"},
+            {"value": "0", "label": "Otimizações"}
+          ]
+        },
+        "side_b": {
+          "platform": "Com a Jumper",
+          "color": "success",
+          "metrics": [
+            {"value": "↓", "label": "CPA otimizado"},
+            {"value": "📊", "label": "Dashboard unificado"},
+            {"value": "∞", "label": "Otimizações contínuas"}
+          ]
+        },
+        "insight": "A diferença está na gestão ativa e orientada a dados"
+      },
+      "color_note": "Esquerda = vermelho (problema), Direita = verde (solução)"
+    },
+    {
+      "id": "before-after",
+      "slide_number": 7,
+      "name": "Before/After (Case de Sucesso)",
+      "css_class": "slide slide-before-after",
+      "section": "4. Prova Social",
+      "pitch_purpose": "Case principal - Transformação real de um cliente",
+      "best_for": ["case-study", "transformation", "results", "success-story"],
+      "description": "Case de sucesso mostrando a evolução de métricas reais.",
+      "required_elements": [
+        "before-after-header (label)",
+        "before-after-grid com before-after-items",
+        "before-after-arrow (→)",
+        "before-after-footer (resultado + insight)"
+      ],
+      "pitch_examples": {
+        "label": "Case: [Nome do Cliente]",
+        "before": {"period": "Antes", "value": "R$ 120", "desc": "CPA inicial"},
+        "after": {"period": "Depois", "value": "R$ 36", "desc": "CPA otimizado"},
+        "result": "-70%",
+        "insight": "Redução em 6 semanas de gestão ativa"
+      },
+      "copywriting_tips": [
+        "Use nome real do cliente (com permissão) ou setor",
+        "Números específicos são mais críveis",
+        "Inclua timeframe: 'em X semanas/meses'",
+        "Escolha case similar ao perfil do prospect"
+      ]
+    },
+    {
+      "id": "data-rows",
+      "slide_number": 8,
+      "name": "Data Rows (Clientes/Cases)",
+      "css_class": "slide slide-data-rows",
+      "section": "4. Prova Social",
+      "pitch_purpose": "Lista de credibilidade - Clientes e resultados",
+      "best_for": ["client-list", "portfolio", "case-summary", "social-proof"],
+      "description": "Lista de 3-5 clientes/cases com resultados principais. Selecione os mais relevantes para o perfil do prospect.",
+      "required_elements": [
+        "data-rows-header (label)",
+        "data-rows-list com data-row-items",
+        "data-row-item (name, value, meta, opcional badge)",
+        "data-rows-footer (arrow + insight)"
+      ],
+      "pitch_examples": {
+        "label": "Alguns dos nossos resultados",
+        "rows": [
+          {"name": "E-commerce Fashion", "value": "4.8x", "meta": "ROAS", "badge": "Destaque"},
+          {"name": "SaaS B2B", "value": "-45%", "meta": "CAC", "highlight": true},
+          {"name": "Educação Online", "value": "+320%", "meta": "Leads"},
+          {"name": "Varejo Local", "value": "2.1x", "meta": "Faturamento"}
+        ],
+        "insight": "Resultados consistentes em diferentes segmentos"
+      },
+      "notes": "Selecionar 3-4 cases mais relevantes para o perfil do cliente"
+    },
+    {
+      "id": "metrics-corners",
+      "slide_number": 9,
+      "name": "Metrics Corners (Números Consolidados)",
+      "css_class": "slide slide-metrics-corners",
+      "section": "4. Prova Social",
+      "pitch_purpose": "Credibilidade em números - Métricas consolidadas da Jumper",
+      "best_for": ["company-metrics", "track-record", "consolidated-numbers"],
+      "description": "6 métricas que demonstram a experiência e resultados da Jumper.",
+      "required_elements": [
+        "metrics-corners-top (label)",
+        "metrics-corners-center com metrics-grid-items (6 itens)",
+        "metrics-grid-item (value, name, trend opcional)",
+        "metrics-corners-bottom (insight + arrow)"
+      ],
+      "pitch_examples": {
+        "label": "Nossa Experiência",
+        "metrics": [
+          {"value": "500+", "name": "Contas gerenciadas"},
+          {"value": "R$ 50M+", "name": "Investimento otimizado"},
+          {"value": "4.2x", "name": "ROAS médio"},
+          {"value": "8+", "name": "Anos de mercado"},
+          {"value": "150+", "name": "Clientes ativos"},
+          {"value": "95%", "name": "Taxa de retenção"}
+        ],
+        "insight": "Experiência comprovada em escala"
+      }
+    },
+    {
+      "id": "milestones",
+      "slide_number": 10,
+      "name": "Milestones Split (Timeline)",
+      "css_class": "slide slide-milestones",
+      "section": "5. Processo",
+      "pitch_purpose": "Roadmap de implementação - O que acontece após fechar",
+      "best_for": ["implementation-timeline", "onboarding", "project-phases"],
+      "description": "Timeline vertical mostrando as fases de implementação.",
+      "required_elements": [
+        "milestones-left (label + title)",
+        "milestones-right com milestone-items",
+        "milestone-item (date, title, description)"
+      ],
+      "pitch_examples": {
+        "label": "Implementação",
+        "title": "Como<br>funciona",
+        "milestones": [
+          {"date": "Semana 1", "title": "Onboarding & Setup", "desc": "Acesso às contas, diagnóstico inicial, definição de KPIs"},
+          {"date": "Semanas 2-4", "title": "Otimização Inicial", "desc": "Primeiros ajustes, testes A/B, estruturação de campanhas"},
+          {"date": "Mês 2+", "title": "Escala & Performance", "desc": "Crescimento sustentável, relatórios mensais, reuniões de alinhamento", "highlight": true}
+        ]
+      }
+    },
+    {
+      "id": "funnel-split",
+      "slide_number": 11,
+      "name": "Funnel Split (Metodologia)",
+      "css_class": "slide slide-funnel-split",
+      "section": "5. Processo",
+      "pitch_purpose": "Metodologia visual - Como trabalhamos",
+      "best_for": ["methodology", "process-flow", "how-we-work"],
+      "description": "Funil ou etapas do processo de trabalho.",
+      "required_elements": [
+        "funnel-split-left (label, title, period, result)",
+        "funnel-split-right com funnel-stages",
+        "funnel-stage-item (num, name, value, drop)",
+        "funnel-split-footer (arrow + insight)"
+      ],
+      "pitch_examples": {
+        "label": "Metodologia Jumper",
+        "title": "Ciclo de<br>Otimização",
+        "stages": [
+          {"num": "01", "name": "Análise", "value": "Dados & Diagnóstico"},
+          {"num": "02", "name": "Estratégia", "value": "Plano de Ação"},
+          {"num": "03", "name": "Execução", "value": "Implementação"},
+          {"num": "04", "name": "Otimização", "value": "Ajustes Contínuos", "highlight": true}
+        ],
+        "insight": "Ciclo semanal de melhoria contínua"
+      }
+    },
+    {
+      "id": "actions-split",
+      "slide_number": 12,
+      "name": "Actions Split (O que está incluso)",
+      "css_class": "slide slide-actions-split",
+      "section": "6. Proposta",
+      "pitch_purpose": "Escopo claro - O que o cliente recebe",
+      "best_for": ["scope", "deliverables", "whats-included", "package"],
+      "description": "Lista de entregas/serviços inclusos na proposta.",
+      "required_elements": [
+        "actions-split-left (label, title, period)",
+        "actions-split-right com actions-list",
+        "action-item done (check, title, description)"
+      ],
+      "pitch_examples": {
+        "label": "Incluso",
+        "title": "O que você<br>recebe",
+        "period": "Na gestão recorrente",
+        "actions": [
+          {"title": "Gestão Completa de Campanhas", "desc": "Google Ads, Meta Ads, e outras plataformas conforme necessidade"},
+          {"title": "Relatórios Semanais", "desc": "Dashboard em tempo real + report semanal com insights"},
+          {"title": "Reuniões Mensais", "desc": "Alinhamento estratégico e planejamento do próximo ciclo"},
+          {"title": "Suporte Dedicado", "desc": "Canal direto com gestor responsável via WhatsApp"},
+          {"title": "Otimização Contínua", "desc": "Ajustes diários baseados em performance real"}
+        ]
+      }
+    },
+    {
+      "id": "strategy-white",
+      "slide_number": 13,
+      "name": "Strategy White (Investimento)",
+      "css_class": "slide slide-strategy-white",
+      "section": "6. Proposta",
+      "pitch_purpose": "Investimento - Fundo branco para destaque visual",
+      "best_for": ["pricing", "investment", "offer", "packages"],
+      "description": "Slide com fundo BRANCO para contraste. Apresenta opções de investimento.",
+      "required_elements": [
+        "strategy-white-left (label, title)",
+        "strategy-white-right com strategy-items",
+        "strategy-item (num, title, description)"
+      ],
+      "pitch_examples": {
+        "label": "Investimento",
+        "title": "Opções de<br>Parceria",
+        "items": [
+          {"num": "01", "title": "Consultoria (One-time)", "desc": "Diagnóstico completo + plano de ação detalhado para sua equipe executar"},
+          {"num": "02", "title": "Implementação (Projeto)", "desc": "Setup completo de campanhas + treinamento da equipe interna"},
+          {"num": "03", "title": "Gestão Recorrente", "desc": "Parceria contínua com gestão ativa e otimização permanente"}
+        ]
+      },
+      "design_note": "Fundo branco (#FFFFFF) cria destaque visual após slides escuros",
+      "copywriting_tips": [
+        "Não coloque preço fixo - valores variam por escopo",
+        "Foque no VALOR entregue, não no custo",
+        "Apresente opções para dar sensação de escolha",
+        "O preço específico vem na conversa"
+      ]
+    },
+    {
+      "id": "cta-split",
+      "slide_number": 14,
+      "name": "CTA Split (Próximos Passos)",
+      "css_class": "slide slide-cta-split",
+      "section": "7. Fechamento",
+      "pitch_purpose": "Call-to-Action forte - Próximos passos claros",
+      "best_for": ["next-steps", "cta", "action-items", "contact"],
+      "description": "Próximos passos com botão de WhatsApp para contato direto.",
+      "required_elements": [
+        "cta-split-left (label, title)",
+        "cta-split-right com cta-actions",
+        "cta-action items (arrow + text)",
+        "cta-footer com cta-button (link WhatsApp) e cta-note"
+      ],
+      "pitch_examples": {
+        "label": "Vamos Conversar?",
+        "title": "Próximos<br>Passos",
+        "actions": [
+          "Tirar dúvidas sobre a proposta",
+          "Alinhar expectativas e objetivos",
+          "Definir próximas etapas juntos"
+        ],
+        "button": {
+          "text": "Fale Conosco →",
+          "href": "https://wa.me/5521964369191?text=Olá, quero falar sobre a proposta {PROPOSAL_TITLE}",
+          "target": "_blank"
+        },
+        "note": "Resposta em até 24 horas úteis"
+      },
+      "color_note": "Botão usa cor primária (#FA4721) para destaque máximo",
+      "cta_config": {
+        "whatsapp_number": "5521964369191",
+        "message_template": "Olá, quero falar sobre a proposta {PROPOSAL_TITLE}",
+        "button_text": "Fale Conosco →"
+      }
+    },
+    {
+      "id": "closing",
+      "slide_number": 15,
+      "name": "Closing/Signature",
+      "css_class": "slide slide-closing",
+      "section": "7. Fechamento",
+      "pitch_purpose": "Assinatura profissional - Quem fez a proposta",
+      "best_for": ["closing", "signature", "contact", "final-slide"],
+      "description": "Fechamento com logo centralizado e dados do gestor responsável.",
+      "required_elements": [
+        "closing-content",
+        "closing-top (label)",
+        "closing-center (logo)",
+        "closing-bottom (name, role, contact)",
+        "closing-bar (accent laranja)"
+      ],
+      "pitch_examples": {
+        "label": "Obrigado",
+        "logo": "https://hub.jumper.studio/decks/identities/jumper/logos/jumper-white.png",
+        "name": "[Nome do Gestor]",
+        "role": "Gestor de Performance, Jumper Studio",
+        "contact": "[email]@jumper.studio"
+      },
+      "notes": "Nome e contato devem ser do gestor que está apresentando a proposta"
+    }
+  ],
+
+  "ai_generation_guidance": {
+    "pitch_rules": [
+      "SEMPRE comece pelo PROBLEMA, nunca pela solução",
+      "Use psicologia de cores: vermelho=problema, verde=solução, laranja=CTA",
+      "Selecione 3-4 cases mais relevantes para o perfil do cliente",
+      "Não coloque preços fixos - apresente opções de formato",
+      "CTA final DEVE incluir link de WhatsApp com mensagem pré-formatada",
+      "Gestor que assina é quem está apresentando, não o CEO"
+    ],
+    "storytelling_flow": [
+      "1. Hook: Capturar atenção com promessa de valor",
+      "2. Agenda: Definir expectativas (4 tópicos)",
+      "3. Problema: Validar a dor com dados (2 slides)",
+      "4. Solução: Apresentar metodologia (2 slides)",
+      "5. Prova: Mostrar resultados reais (3 slides)",
+      "6. Processo: Explicar como funciona (2 slides)",
+      "7. Proposta: Escopo + opções (2 slides)",
+      "8. CTA: Próximos passos + WhatsApp (2 slides)"
+    ],
+    "copywriting_principles": [
+      "Benefícios > Features (estilo Steve Jobs)",
+      "Use a voz do cliente ao descrever problemas",
+      "Números específicos são mais críveis que genéricos",
+      "Evite jargões técnicos - fale como empresário",
+      "Cada slide = UMA ideia principal"
+    ],
+    "pattern_selection_for_pitch": {
+      "abertura": ["hero-split-right", "toc-split"],
+      "problema": ["big-number", "statement-corners"],
+      "solucao": ["insights-split", "comparison-corners"],
+      "prova_social": ["before-after", "data-rows", "metrics-corners"],
+      "processo": ["milestones", "funnel-split"],
+      "proposta": ["actions-split", "strategy-white"],
+      "fechamento": ["cta-split", "closing"]
+    },
+    "content_density": {
+      "hero-split-right": "título impactante + subtítulo + 1 linha de contexto",
+      "toc-split": "4 itens de agenda",
+      "big-number": "UM número + contexto",
+      "statement-corners": "UMA frase de impacto",
+      "insights-split": "3 pilares/benefícios",
+      "comparison-corners": "2-3 métricas por lado",
+      "before-after": "1 métrica principal com antes/depois",
+      "data-rows": "3-5 cases/clientes",
+      "metrics-corners": "6 métricas consolidadas",
+      "milestones": "3-4 fases",
+      "funnel-split": "3-4 etapas",
+      "actions-split": "4-6 entregas",
+      "strategy-white": "2-3 opções de formato",
+      "cta-split": "3 próximos passos + botão WhatsApp",
+      "closing": "logo + nome + cargo + email"
+    }
+  },
+
+  "whatsapp_cta": {
+    "number": "5521964369191",
+    "message_template": "Olá, quero falar sobre a proposta {PROPOSAL_TITLE}",
+    "button_text": "Fale Conosco →",
+    "generate_url": "https://wa.me/5521964369191?text=Olá%2C%20quero%20falar%20sobre%20a%20proposta%20{PROPOSAL_TITLE_ENCODED}"
+  }
+}

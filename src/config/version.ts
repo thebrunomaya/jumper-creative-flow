@@ -7,10 +7,24 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.59';
+export const APP_VERSION = 'v2.1.60';
 
 /**
  * Version history:
+ * - v2.1.60 (2024-11-28):
+ *   - FEATURE: Add pitch deck specialization for Jumper proposals
+ *   - New pattern catalog: jumper-flare-v2.1-pitch-patterns.json
+ *   - Deck analyze now loads type-specific patterns (pitch, plan, report)
+ *   - Added getDeckTypeGuidance() with storytelling flow for each type
+ *   - Pitch follows: Problem → Solution → Proof → Proposal → CTA
+ *   - Color psychology: Red=problems, Green=solutions, Orange=CTA
+ *   - WhatsApp CTA integration: 5521964369191
+ *   - FILES MODIFIED:
+ *     - supabase/functions/j_hub_deck_analyze/index.ts
+ *     - supabase/functions/_shared/template-utils.ts
+ *   - FILES CREATED:
+ *     - public/decks/templates/jumper-flare-v2.1-pitch-patterns.json
+ *
  * - v2.1.59 (2024-11-26):
  *   - REVERT: Remove status filter that was breaking queries
  *   - Status filter with .in() was causing issues - needs investigation

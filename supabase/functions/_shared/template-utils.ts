@@ -48,11 +48,12 @@ export function extractStyleBlock(templateHtml: string): string {
  *
  * Edge Functions don't have access to local files, so we fetch from the deployed URL.
  *
- * @param templateId - Template identifier (e.g., 'koko-classic')
+ * @param templateId - Template identifier (e.g., 'koko-classic', 'jumper-flare-v2.1')
+ * @param deckType - Optional deck type for specialized patterns ('report', 'pitch', 'plan')
  * @returns Parsed JSON object with pattern metadata
  * @throws Error if file not found or invalid JSON
  */
-export async function loadPatternMetadata(templateId: string): Promise<any> {
+export async function loadPatternMetadata(templateId: string, deckType?: string): Promise<any> {
   // Detect environment
   const supabaseUrl = Deno.env.get('SUPABASE_URL') || '';
   const isLocal = supabaseUrl.includes('127.0.0.1') || supabaseUrl.includes('localhost');
@@ -61,6 +62,41 @@ export async function loadPatternMetadata(templateId: string): Promise<any> {
     ? 'http://localhost:8080'  // Vite dev server
     : 'https://hub.jumper.studio';  // Vercel production
 
+  // Try deck-type-specific patterns first (e.g., jumper-flare-v2.1-pitch-patterns.json)
+  if (deckType && deckType !== 'report') {
+    const typeSpecificUrl = `${baseUrl}/decks/templates/${templateId}-${deckType}-patterns.json`;
+
+    try {
+      console.log(`[TEMPLATE_UTILS] Trying type-specific patterns: ${typeSpecificUrl}`);
+
+      const response = await fetch(typeSpecificUrl, {
+        headers: {
+          'Accept': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const content = await response.text();
+        const metadata = JSON.parse(content);
+
+        // Validate structure
+        if (metadata.patterns && Array.isArray(metadata.patterns)) {
+          console.log(`[TEMPLATE_UTILS] Loaded type-specific patterns for ${templateId}-${deckType}:`, {
+            patterns_count: metadata.patterns.length,
+            template_version: metadata.template_version,
+            deck_type: metadata.deck_type
+          });
+
+          return metadata;
+        }
+      }
+    } catch (error) {
+      // Fall through to default patterns
+      console.log(`[TEMPLATE_UTILS] Type-specific patterns not found for ${deckType}, using defaults`);
+    }
+  }
+
+  // Fall back to default patterns
   const patternUrl = `${baseUrl}/decks/templates/${templateId}-patterns.json`;
 
   try {
