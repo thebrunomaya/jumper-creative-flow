@@ -7,10 +7,16 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.71';
+export const APP_VERSION = 'v2.1.72';
 
 /**
  * Version history:
+ * - v2.1.72 (2024-11-29):
+ *   - FIX: Add Header to template management pages
+ *   - Templates.tsx: Added Header + JumperBackground wrapper
+ *   - TemplateEditor.tsx: Added Header to fullscreen editor
+ *   - TemplateCompare.tsx: Added Header for consistency
+ *
  * - v2.1.70 (2024-11-29):
  *   - REFACTOR: Slide refinements per user feedback
  *   - Slide 4: Centered layout, hero arrow (larger/bolder) before number

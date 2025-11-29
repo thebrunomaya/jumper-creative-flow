@@ -14,6 +14,8 @@ import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUserRole } from "@/hooks/useUserRole";
 import { toast } from "sonner";
+import Header from "@/components/Header";
+import { JumperBackground } from "@/components/ui/jumper-background";
 
 export default function Templates() {
   const navigate = useNavigate();
@@ -66,14 +68,17 @@ export default function Templates() {
   // Show loading while checking role
   if (roleLoading) {
     return (
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="flex flex-col items-center gap-4">
-            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-            <p className="text-sm text-muted-foreground">Verificando permissões...</p>
+      <JumperBackground overlay={false}>
+        <Header />
+        <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="flex items-center justify-center min-h-[400px]">
+            <div className="flex flex-col items-center gap-4">
+              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+              <p className="text-sm text-muted-foreground">Verificando permissões...</p>
+            </div>
           </div>
-        </div>
-      </div>
+        </main>
+      </JumperBackground>
     );
   }
 
@@ -85,64 +90,72 @@ export default function Templates() {
   // Loading state
   if (isLoading) {
     return (
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="flex flex-col items-center gap-4">
-            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-            <p className="text-sm text-muted-foreground">
-              Carregando templates...
-            </p>
+      <JumperBackground overlay={false}>
+        <Header />
+        <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="flex items-center justify-center min-h-[400px]">
+            <div className="flex flex-col items-center gap-4">
+              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+              <p className="text-sm text-muted-foreground">
+                Carregando templates...
+              </p>
+            </div>
           </div>
-        </div>
-      </div>
+        </main>
+      </JumperBackground>
     );
   }
 
   // Error state
   if (error) {
     return (
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="flex flex-col items-center gap-4 text-center">
-            <FileCode className="h-12 w-12 text-muted-foreground" />
-            <div>
-              <h3 className="font-semibold text-lg mb-2">
-                Erro ao carregar templates
-              </h3>
-              <p className="text-sm text-muted-foreground max-w-md">
-                {error instanceof Error ? error.message : "Erro desconhecido"}
-              </p>
+      <JumperBackground overlay={false}>
+        <Header />
+        <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="flex items-center justify-center min-h-[400px]">
+            <div className="flex flex-col items-center gap-4 text-center">
+              <FileCode className="h-12 w-12 text-muted-foreground" />
+              <div>
+                <h3 className="font-semibold text-lg mb-2">
+                  Erro ao carregar templates
+                </h3>
+                <p className="text-sm text-muted-foreground max-w-md">
+                  {error instanceof Error ? error.message : "Erro desconhecido"}
+                </p>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
+        </main>
+      </JumperBackground>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="flex items-center gap-3 mb-2">
-              <FileCode className="h-8 w-8 text-orange-500" />
-              <h1 className="text-3xl font-bold">Gerenciar Templates</h1>
+    <JumperBackground overlay={false}>
+      <Header />
+      <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Page Header */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="flex items-center gap-3 mb-2">
+                <FileCode className="h-8 w-8 text-orange-500" />
+                <h1 className="text-3xl font-bold">Gerenciar Templates</h1>
+              </div>
+              <p className="text-muted-foreground">
+                Visualize e edite templates de apresentações
+              </p>
             </div>
-            <p className="text-muted-foreground">
-              Visualize e edite templates de apresentações
-            </p>
-          </div>
 
-          <Button
-            variant="outline"
-            onClick={() => navigate("/decks/templates/compare")}
-          >
-            <GitCompare className="h-4 w-4 mr-2" />
-            Comparar Templates
-          </Button>
+            <Button
+              variant="outline"
+              onClick={() => navigate("/decks/templates/compare")}
+            >
+              <GitCompare className="h-4 w-4 mr-2" />
+              Comparar Templates
+            </Button>
+          </div>
         </div>
-      </div>
 
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-4 mb-6">
@@ -235,6 +248,7 @@ export default function Templates() {
           )}
         </div>
       )}
-    </div>
+      </main>
+    </JumperBackground>
   );
 }

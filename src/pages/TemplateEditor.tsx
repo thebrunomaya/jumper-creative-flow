@@ -10,6 +10,7 @@ import { ArrowLeft, Save, Loader2, FileCode, Eye, History } from "lucide-react";
 import { toast } from "sonner";
 import { useUserRole } from "@/hooks/useUserRole";
 import { supabase } from "@/integrations/supabase/client";
+import Header from "@/components/Header";
 
 export default function TemplateEditor() {
   const { templateId } = useParams<{ templateId: string }>();
@@ -54,10 +55,13 @@ export default function TemplateEditor() {
   // Show loading while checking role
   if (roleLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-          <p className="text-sm text-muted-foreground">Verificando permissões...</p>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+        <Header />
+        <div className="flex items-center justify-center min-h-[calc(100vh-64px)]">
+          <div className="flex flex-col items-center gap-4">
+            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            <p className="text-sm text-muted-foreground">Verificando permissões...</p>
+          </div>
         </div>
       </div>
     );
@@ -138,12 +142,15 @@ export default function TemplateEditor() {
   // Loading state
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-          <p className="text-sm text-muted-foreground">
-            Carregando template...
-          </p>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+        <Header />
+        <div className="flex items-center justify-center min-h-[calc(100vh-64px)]">
+          <div className="flex flex-col items-center gap-4">
+            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            <p className="text-sm text-muted-foreground">
+              Carregando template...
+            </p>
+          </div>
         </div>
       </div>
     );
@@ -152,20 +159,23 @@ export default function TemplateEditor() {
   // Error state
   if (error || !template) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="flex flex-col items-center gap-4 text-center">
-          <FileCode className="h-12 w-12 text-muted-foreground" />
-          <div>
-            <h3 className="font-semibold text-lg mb-2">
-              Erro ao carregar template
-            </h3>
-            <p className="text-sm text-muted-foreground max-w-md mb-4">
-              {error instanceof Error ? error.message : "Erro desconhecido"}
-            </p>
-            <Button onClick={() => navigate("/decks/templates")} variant="outline">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Voltar para Templates
-            </Button>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+        <Header />
+        <div className="flex items-center justify-center min-h-[calc(100vh-64px)]">
+          <div className="flex flex-col items-center gap-4 text-center">
+            <FileCode className="h-12 w-12 text-muted-foreground" />
+            <div>
+              <h3 className="font-semibold text-lg mb-2">
+                Erro ao carregar template
+              </h3>
+              <p className="text-sm text-muted-foreground max-w-md mb-4">
+                {error instanceof Error ? error.message : "Erro desconhecido"}
+              </p>
+              <Button onClick={() => navigate("/decks/templates")} variant="outline">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Voltar para Templates
+              </Button>
+            </div>
           </div>
         </div>
       </div>
@@ -174,7 +184,10 @@ export default function TemplateEditor() {
 
   return (
     <div className="flex flex-col h-screen">
-      {/* Header */}
+      {/* App Header */}
+      <Header />
+
+      {/* Editor Header */}
       <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="flex items-center justify-between px-6 py-4">
           <div className="flex items-center gap-4">

@@ -14,6 +14,7 @@ import {
 import { ArrowLeft, Loader2, FileCode } from "lucide-react";
 import { toast } from "sonner";
 import { useUserRole } from "@/hooks/useUserRole";
+import Header from "@/components/Header";
 
 export default function TemplateCompare() {
   const navigate = useNavigate();
@@ -40,6 +41,7 @@ export default function TemplateCompare() {
   if (roleLoading) {
     return (
       <div className="flex flex-col h-screen">
+        <Header />
         <div className="flex-1 flex items-center justify-center">
           <div className="flex flex-col items-center gap-4">
             <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
@@ -72,7 +74,10 @@ export default function TemplateCompare() {
 
   return (
     <div className="flex flex-col h-screen">
-      {/* Header */}
+      {/* App Header */}
+      <Header />
+
+      {/* Page Header */}
       <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="flex items-center justify-between px-6 py-4">
           <div className="flex items-center gap-4">
