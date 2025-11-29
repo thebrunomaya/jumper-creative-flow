@@ -898,14 +898,15 @@ p {
 
 .big-number-context {
     font-family: 'Haffer', sans-serif;
-    font-size: clamp(1.1rem, 2vw, 1.75rem);
+    font-size: clamp(1rem, 1.8vw, 1.4rem);
     font-style: italic;
-    font-weight: 500;
-    color: var(--flare-text-primary);
+    font-weight: 400;
+    color: var(--flare-text-secondary);
     max-width: 70%;
     text-align: left;
-    line-height: 1.3;
+    line-height: 1.4;
     letter-spacing: -0.01em;
+    margin-top: var(--space-lg);
 }
 
 /* ==========================================================================

@@ -7,7 +7,7 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.70';
+export const APP_VERSION = 'v2.1.71';
 
 /**
  * Version history:
