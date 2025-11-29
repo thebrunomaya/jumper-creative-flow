@@ -18,6 +18,15 @@
       ]
     },
     {
+      "version": "2.2.1",
+      "date": "2024-11-29",
+      "changes": [
+        "REMOVED: Slide 11 (duplicate big-number pattern)",
+        "TOTAL: Now 25 slides (was 26)",
+        "RENUMBERED: All patterns after slide 10 shifted -1"
+      ]
+    },
+    {
       "version": "2.1.48",
       "date": "2024-11-25",
       "changes": [
@@ -109,22 +118,22 @@
       "purpose": "Context setting with dramatic statistics"
     },
     "section_3_conteudo": {
-      "slides": [6, 7, 8, 9, 10, 11, 12],
-      "patterns": ["insights-split", "layout-corners", "comparison-corners", "statement-corners", "metrics-corners", "big-number", "before-after"],
+      "slides": [6, 7, 8, 9, 10, 11],
+      "patterns": ["insights-split", "layout-corners", "comparison-corners", "statement-corners", "metrics-corners", "before-after"],
       "purpose": "Core content with split and corners layouts"
     },
     "section_4_dados": {
-      "slides": [13, 14, 15, 16],
+      "slides": [12, 13, 14, 15],
       "patterns": ["data-rows", "data-split", "evolution", "milestones"],
       "purpose": "Structured data presentation"
     },
     "section_5_visualizacoes": {
-      "slides": [17, 18, 19, 20, 21],
+      "slides": [16, 17, 18, 19, 20],
       "patterns": ["chart-split", "bars-split", "distribution", "funnel-split", "goal-split"],
       "purpose": "Data visualizations with split layouts"
     },
     "section_6_encerramento": {
-      "slides": [22, 23, 24, 25, 26],
+      "slides": [21, 22, 23, 24, 25],
       "patterns": ["actions-split", "strategy-white", "updates-split", "cta-split", "closing"],
       "purpose": "Actions, next steps, and professional closing"
     }
@@ -352,7 +361,7 @@
     },
     {
       "id": "before-after",
-      "slide_number": 12,
+      "slide_number": 11,
       "name": "Before/After Comparison",
       "css_class": "slide slide-before-after",
       "section": "3. Conteudo",
@@ -375,7 +384,7 @@
     },
     {
       "id": "data-rows",
-      "slide_number": 13,
+      "slide_number": 12,
       "name": "Data Rows",
       "css_class": "slide slide-data-rows",
       "section": "4. Dados",
@@ -400,7 +409,7 @@
     },
     {
       "id": "data-split",
-      "slide_number": 14,
+      "slide_number": 13,
       "name": "Data Split (Two Columns)",
       "css_class": "slide slide-data-split",
       "section": "4. Dados",
@@ -424,7 +433,7 @@
     },
     {
       "id": "evolution",
-      "slide_number": 15,
+      "slide_number": 14,
       "name": "Evolution Flow",
       "css_class": "slide slide-evolution",
       "section": "4. Dados",
@@ -453,7 +462,7 @@
     },
     {
       "id": "milestones",
-      "slide_number": 16,
+      "slide_number": 15,
       "name": "Milestones Split",
       "css_class": "slide slide-milestones",
       "section": "4. Dados",
@@ -477,7 +486,7 @@
     },
     {
       "id": "chart-split",
-      "slide_number": 17,
+      "slide_number": 16,
       "name": "Line Chart Split",
       "css_class": "slide slide-chart-split",
       "section": "5. Visualizacoes",
@@ -501,7 +510,7 @@
     },
     {
       "id": "bars-split",
-      "slide_number": 18,
+      "slide_number": 17,
       "name": "Bar Chart Split",
       "css_class": "slide slide-bars-split",
       "section": "5. Visualizacoes",
@@ -528,7 +537,7 @@
     },
     {
       "id": "distribution",
-      "slide_number": 19,
+      "slide_number": 18,
       "name": "Distribution (Donut Chart)",
       "css_class": "slide slide-distribution",
       "section": "5. Visualizacoes",
@@ -559,7 +568,7 @@
     },
     {
       "id": "funnel-split",
-      "slide_number": 20,
+      "slide_number": 19,
       "name": "Funnel Split",
       "css_class": "slide slide-funnel-split",
       "section": "5. Visualizacoes",
@@ -588,7 +597,7 @@
     },
     {
       "id": "goal-split",
-      "slide_number": 21,
+      "slide_number": 20,
       "name": "Goal Progress Split",
       "css_class": "slide slide-goal-split",
       "section": "5. Visualizacoes",
@@ -617,7 +626,7 @@
     },
     {
       "id": "actions-split",
-      "slide_number": 22,
+      "slide_number": 21,
       "name": "Actions/Checklist Split",
       "css_class": "slide slide-actions-split",
       "section": "6. Encerramento",
@@ -643,7 +652,7 @@
     },
     {
       "id": "strategy-white",
-      "slide_number": 23,
+      "slide_number": 22,
       "name": "Strategy White Theme",
       "css_class": "slide slide-strategy-white",
       "section": "6. Encerramento",
@@ -668,7 +677,7 @@
     },
     {
       "id": "updates-split",
-      "slide_number": 24,
+      "slide_number": 23,
       "name": "Updates/Activity Split",
       "css_class": "slide slide-updates-split",
       "section": "6. Encerramento",
@@ -693,7 +702,7 @@
     },
     {
       "id": "cta-split",
-      "slide_number": 25,
+      "slide_number": 24,
       "name": "CTA/Next Steps Split",
       "css_class": "slide slide-cta-split",
       "section": "6. Encerramento",
@@ -724,7 +733,7 @@
     },
     {
       "id": "closing",
-      "slide_number": 26,
+      "slide_number": 25,
       "name": "Closing/Signature",
       "css_class": "slide slide-closing",
       "section": "6. Encerramento",

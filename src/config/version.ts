@@ -7,10 +7,16 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.73';
+export const APP_VERSION = 'v2.1.74';
 
 /**
  * Version history:
+ * - v2.1.74 (2024-11-29):
+ *   - SYNC: Updated jumper-flare-v2.2-patterns.json
+ *   - Total slides: 26 → 25 (removed duplicate big-number)
+ *   - All slide_numbers renumbered after slide 10
+ *   - Section structure updated accordingly
+ *
  * - v2.1.73 (2024-11-29):
  *   - FIX: JavaScript error "navTimeout is not defined"
  *   - Added proper variable declaration for legacy nav-dots function
