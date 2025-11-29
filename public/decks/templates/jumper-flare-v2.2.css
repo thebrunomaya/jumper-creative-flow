@@ -1719,7 +1719,7 @@ p {
 
 .data-row-value {
     font-family: 'Haffer', sans-serif;
-    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-size: clamp(1.5rem, 3vw, 2.5rem); /* v2.2: Reduced from 5vw/3.5rem */
     font-weight: 600;
     color: var(--flare-text-primary);
     letter-spacing: -0.02em;
@@ -5156,6 +5156,11 @@ p {
     .goal-percentage {
         font-size: clamp(3rem, 8vw, 5.5rem);
     }
+
+    /* Data rows slide */
+    .data-row-value {
+        font-size: clamp(1.25rem, 2.5vw, 2rem);
+    }
 }
 
 /* v2.2: NEW - Small laptops (12-13") */
@@ -5172,6 +5177,11 @@ p {
 
     .big-number-value {
         font-size: clamp(2.5rem, 8vw, 5rem);
+    }
+
+    /* Data rows slide */
+    .data-row-value {
+        font-size: clamp(1.1rem, 2vw, 1.75rem);
     }
 }
 
