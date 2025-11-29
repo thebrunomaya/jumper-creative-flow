@@ -7,10 +7,16 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.65';
+export const APP_VERSION = 'v2.1.66';
 
 /**
  * Version history:
+ * - v2.1.66 (2024-11-28):
+ *   - STYLE: Glassmorphism style for lateral navigation
+ *   - border-radius: 100px (pill shape)
+ *   - backdrop-filter: blur(20px) glass effect
+ *   - Rounded arrow buttons with hover state
+ *
  * - v2.1.65 (2024-11-28):
  *   - FEATURE: New lateral navigation (replaces center + dots)
  *   - Vertical layout: ↑ / 10 / 26 / ↓ on right side
