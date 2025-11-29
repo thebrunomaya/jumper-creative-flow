@@ -571,17 +571,15 @@ p {
 
 .nav-lateral-current {
     font-family: 'Haffer', sans-serif;
-    font-size: clamp(14px, 1.5vw, 18px);
+    font-size: clamp(12px, 1.2vw, 15px);
     font-weight: 600;
     color: var(--flare-text-primary);
     line-height: 1;
-    min-width: 1.2em;
-    text-align: right;
 }
 
 .nav-lateral-separator {
     font-family: 'Haffer', sans-serif;
-    font-size: clamp(11px, 1.2vw, 13px);
+    font-size: clamp(12px, 1.2vw, 15px);
     font-weight: 400;
     color: var(--flare-text-muted);
     line-height: 1;
@@ -589,7 +587,7 @@ p {
 
 .nav-lateral-total {
     font-family: 'Haffer', sans-serif;
-    font-size: clamp(11px, 1.2vw, 13px);
+    font-size: clamp(12px, 1.2vw, 15px);
     font-weight: 400;
     color: var(--flare-text-muted);
     line-height: 1;
@@ -619,14 +617,15 @@ p {
 
 .nav-lateral.nav-dark .nav-lateral-current {
     color: #111111;
+    font-weight: 600;
 }
 
 .nav-lateral.nav-dark .nav-lateral-separator {
-    color: #999999;
+    color: #888888;
 }
 
 .nav-lateral.nav-dark .nav-lateral-total {
-    color: #666666;
+    color: #888888;
 }
 
 /* Legacy support - hide if still in HTML */

@@ -7,10 +7,15 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.68';
+export const APP_VERSION = 'v2.1.69';
 
 /**
  * Version history:
+ * - v2.1.69 (2024-11-29):
+ *   - STYLE: Balanced navigation counter - same size for current/total
+ *   - Current slide: bold + white, Total: regular + muted
+ *   - All elements now use clamp(12px, 1.2vw, 15px)
+ *
  * - v2.1.68 (2024-11-28):
  *   - HOTFIX: Fixed JS variable declaration order (lightSlideClasses before updateUI)
  *   - Was causing "Cannot access before initialization" error
