@@ -10,10 +10,13 @@
 export const VIEWPORT_REQUIREMENTS = {
   /**
    * Minimum smallest dimension (width or height)
-   * Supports 4:3 (1024x768) and 16:9 (1280x720) formats
-   * @default 768 - Ensures text readability
+   * Reduced from 768 to 600 to support:
+   * - MacBook Air 13" with non-maximized windows
+   * - Tablets in landscape mode
+   * - Browser with DevTools open
+   * @default 600 - Balance between readability and accessibility
    */
-  minSmallestDimension: 768,
+  minSmallestDimension: 600,
 
   /**
    * Minimum aspect ratio (4:3 format = 1.333...)
