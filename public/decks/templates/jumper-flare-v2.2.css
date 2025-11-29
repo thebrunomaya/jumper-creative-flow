@@ -4942,8 +4942,10 @@ p {
     align-items: center;
 }
 
-.closing-logo {
-    max-width: clamp(120px, 15vw, 200px);
+/* v2.2: More specific selector to override .slide * { max-width: 100% } */
+.slide-closing .closing-logo {
+    max-width: clamp(180px, 35vw, 400px); /* v2.2: Impactful but not overwhelming */
+    width: auto;
     height: auto;
     opacity: 0.9;
 }
@@ -5161,6 +5163,11 @@ p {
     .data-row-value {
         font-size: clamp(1.25rem, 2.5vw, 2rem);
     }
+
+    /* Closing slide logo */
+    .slide-closing .closing-logo {
+        max-width: clamp(160px, 30vw, 350px);
+    }
 }
 
 /* v2.2: NEW - Small laptops (12-13") */
@@ -5182,6 +5189,11 @@ p {
     /* Data rows slide */
     .data-row-value {
         font-size: clamp(1.1rem, 2vw, 1.75rem);
+    }
+
+    /* Closing slide logo */
+    .slide-closing .closing-logo {
+        max-width: clamp(140px, 25vw, 300px);
     }
 }
 

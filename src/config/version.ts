@@ -7,10 +7,16 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.63';
+export const APP_VERSION = 'v2.1.64';
 
 /**
  * Version history:
+ * - v2.1.64 (2024-11-28):
+ *   - FIX: Closing slide logo was full-width due to .slide * override
+ *   - Used more specific selector .slide-closing .closing-logo
+ *   - Reduced logo size: clamp(180px, 35vw, 400px) base
+ *   - Added responsive breakpoints: 350px@1600px, 300px@1400px
+ *
  * - v2.1.63 (2024-11-28):
  *   - FIX: Reduced data-row-value font sizes for slide 13 pattern
  *   - Added responsive breakpoints for .data-row-value at 1600px/1400px
