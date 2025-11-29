@@ -1016,6 +1016,10 @@
         const totalSlides = slides.length;
         let currentSlide = 0;
 
+        // Light slide classes that need dark navigation (must be before updateUI)
+        const lightSlideClasses = ['slide-white', 'slide-strategy-white'];
+        const navLateral = document.querySelector('.nav-lateral');
+
         totalSlidesEl.textContent = totalSlides;
         updateUI();
 
@@ -1027,10 +1031,6 @@
             slides[index].scrollIntoView({ behavior: 'smooth' });
             updateUI();
         }
-
-        // Light slide classes that need dark navigation
-        const lightSlideClasses = ['slide-white', 'slide-strategy-white'];
-        const navLateral = document.querySelector('.nav-lateral');
 
         function updateUI() {
             currentSlideEl.textContent = currentSlide + 1;

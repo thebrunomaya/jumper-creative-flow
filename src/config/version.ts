@@ -7,10 +7,14 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.67';
+export const APP_VERSION = 'v2.1.68';
 
 /**
  * Version history:
+ * - v2.1.68 (2024-11-28):
+ *   - HOTFIX: Fixed JS variable declaration order (lightSlideClasses before updateUI)
+ *   - Was causing "Cannot access before initialization" error
+ *
  * - v2.1.67 (2024-11-28):
  *   - FIX: Navigation dark mode for white/light background slides
  *   - Added .nav-dark class with dark glassmorphism styling
