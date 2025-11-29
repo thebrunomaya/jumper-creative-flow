@@ -909,6 +909,35 @@ p {
 }
 
 /* ==========================================================================
+   11b. BIG NUMBER - CENTERED VARIANT (v2.2)
+   ========================================================================== */
+
+.slide-big-number-centered .slide-content {
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.slide-big-number-centered .big-number-container {
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.slide-big-number-centered .big-number-context {
+    text-align: center;
+    max-width: 80%;
+}
+
+/* Hero arrow - larger, bolder, appears before number */
+.big-number-arrow-hero {
+    font-family: 'Haffer', sans-serif;
+    color: var(--flare-orange);
+    font-size: clamp(3rem, 8vw, 6rem);
+    line-height: 1;
+    font-weight: 700;
+}
+
+/* ==========================================================================
    12. SIGNATURE SLIDE (From Frame 4.png)
    ========================================================================== */
 
@@ -1336,12 +1365,12 @@ p {
 
 .statement-corners-quote {
     font-family: 'Haffer', sans-serif;
-    font-size: clamp(2rem, 5vw, 4rem);
+    font-size: clamp(1.5rem, 3.5vw, 2.5rem);
     font-weight: 500;
-    line-height: 1.15;
+    line-height: 1.2;
     letter-spacing: -0.02em;
     color: var(--flare-text-primary);
-    max-width: 900px;
+    max-width: 800px;
 }
 
 .statement-corners-bottom {

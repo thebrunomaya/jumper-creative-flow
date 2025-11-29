@@ -7,10 +7,18 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.69';
+export const APP_VERSION = 'v2.1.70';
 
 /**
  * Version history:
+ * - v2.1.70 (2024-11-29):
+ *   - REFACTOR: Slide refinements per user feedback
+ *   - Slide 4: Centered layout, hero arrow (larger/bolder) before number
+ *   - Slides 8, 9, 10: Removed footer arrows (mal utilizadas)
+ *   - Slide 9: Reduced font sizes for statement quote
+ *   - Removed slide 11 (duplicate big-number pattern)
+ *   - Total slides: 26 → 25
+ *
  * - v2.1.69 (2024-11-29):
  *   - STYLE: Balanced navigation counter - same size for current/total
  *   - Current slide: bold + white, Total: regular + muted
