@@ -998,7 +998,7 @@
         <button class="nav-lateral-arrow prev" aria-label="Previous slide">↑</button>
         <div class="nav-lateral-counter">
             <span class="nav-lateral-current" id="current-slide">1</span>
-            <div class="nav-lateral-divider"></div>
+            <span class="nav-lateral-separator">/</span>
             <span class="nav-lateral-total" id="total-slides">26</span>
         </div>
         <button class="nav-lateral-arrow next" aria-label="Next slide">↓</button>
@@ -1028,12 +1028,21 @@
             updateUI();
         }
 
+        // Light slide classes that need dark navigation
+        const lightSlideClasses = ['slide-white', 'slide-strategy-white'];
+        const navLateral = document.querySelector('.nav-lateral');
+
         function updateUI() {
             currentSlideEl.textContent = currentSlide + 1;
 
             // Update arrow states
             prevBtn.disabled = currentSlide === 0;
             nextBtn.disabled = currentSlide === totalSlides - 1;
+
+            // Check if current slide has light background
+            const currentSlideEl2 = slides[currentSlide];
+            const isLightSlide = lightSlideClasses.some(cls => currentSlideEl2.classList.contains(cls));
+            navLateral.classList.toggle('nav-dark', isLightSlide);
         }
 
         function updateCurrentSlideFromScroll() {

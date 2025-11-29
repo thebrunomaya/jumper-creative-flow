@@ -7,10 +7,17 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.66';
+export const APP_VERSION = 'v2.1.67';
 
 /**
  * Version history:
+ * - v2.1.67 (2024-11-28):
+ *   - FIX: Navigation dark mode for white/light background slides
+ *   - Added .nav-dark class with dark glassmorphism styling
+ *   - JavaScript detects slide-white/slide-strategy-white classes
+ *   - FIX: Slide counter now horizontal "1/26" format (clearer)
+ *   - Replaced vertical divider line with "/" separator
+ *
  * - v2.1.66 (2024-11-28):
  *   - STYLE: Glassmorphism style for lateral navigation
  *   - border-radius: 100px (pill shape)

@@ -563,8 +563,8 @@ p {
 
 .nav-lateral-counter {
     display: flex;
-    flex-direction: column;
-    align-items: center;
+    flex-direction: row;
+    align-items: baseline;
     gap: 2px;
     padding: var(--space-xs) 0;
 }
@@ -575,12 +575,16 @@ p {
     font-weight: 600;
     color: var(--flare-text-primary);
     line-height: 1;
+    min-width: 1.2em;
+    text-align: right;
 }
 
-.nav-lateral-divider {
-    width: 12px;
-    height: 1px;
-    background: rgba(255, 255, 255, 0.2);
+.nav-lateral-separator {
+    font-family: 'Haffer', sans-serif;
+    font-size: clamp(11px, 1.2vw, 13px);
+    font-weight: 400;
+    color: var(--flare-text-muted);
+    line-height: 1;
 }
 
 .nav-lateral-total {
@@ -589,6 +593,40 @@ p {
     font-weight: 400;
     color: var(--flare-text-muted);
     line-height: 1;
+}
+
+/* ==========================================================================
+   NAVIGATION DARK MODE (v2.2) - For light background slides
+   ========================================================================== */
+
+.nav-lateral.nav-dark {
+    background: rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.nav-lateral.nav-dark .nav-lateral-arrow {
+    color: #333333;
+}
+
+.nav-lateral.nav-dark .nav-lateral-arrow:hover {
+    background: rgba(0, 0, 0, 0.1);
+    color: var(--flare-orange);
+}
+
+.nav-lateral.nav-dark .nav-lateral-arrow:disabled {
+    color: #999999;
+}
+
+.nav-lateral.nav-dark .nav-lateral-current {
+    color: #111111;
+}
+
+.nav-lateral.nav-dark .nav-lateral-separator {
+    color: #999999;
+}
+
+.nav-lateral.nav-dark .nav-lateral-total {
+    color: #666666;
 }
 
 /* Legacy support - hide if still in HTML */
