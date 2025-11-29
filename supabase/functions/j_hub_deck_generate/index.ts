@@ -149,7 +149,7 @@ Deno.serve({
     // Map template IDs to v2 versions with external CSS (token optimization)
     const templateMappings: Record<string, string> = {
       'koko-classic': 'koko-classic-v2',
-      'jumper-flare': 'jumper-flare-v2.1',  // Linear Design system
+      'jumper-flare': 'jumper-flare-v2.2',  // Responsive edition (13-27" screens)
     };
     const templateIdWithExternalCSS = templateMappings[deck.template_id] || deck.template_id;
 

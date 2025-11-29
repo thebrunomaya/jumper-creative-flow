@@ -7,10 +7,24 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.61';
+export const APP_VERSION = 'v2.1.62';
 
 /**
  * Version history:
+ * - v2.1.62 (2024-11-28):
+ *   - FEATURE: Jumper Flare v2.2 - Responsive template for 13-27" screens
+ *   - New responsive typography scale with breakpoints at 1600px/1400px
+ *   - Reduced clamp() maximums for proper scaling on smaller screens
+ *   - Reduced slide padding for more content breathing room
+ *   - Template v2.2 now production default (Edge Function updated)
+ *   - FILES CREATED:
+ *     - public/decks/templates/jumper-flare-v2.2.css
+ *     - public/decks/templates/jumper-flare-v2.2.html
+ *     - public/decks/templates/jumper-flare-v2.2-patterns.json
+ *   - FILES MODIFIED:
+ *     - supabase/functions/j_hub_deck_generate/index.ts
+ *     - supabase/functions/j_hub_deck_template_list/index.ts
+ *
  * - v2.1.61 (2024-11-28):
  *   - FIX: UTF-8 encoding corruption (mojibake) in deck generation
  *   - FIX: Navigation arrows corrupted - now using HTML entities
