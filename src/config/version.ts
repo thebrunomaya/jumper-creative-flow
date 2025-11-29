@@ -7,10 +7,14 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.62';
+export const APP_VERSION = 'v2.1.63';
 
 /**
  * Version history:
+ * - v2.1.63 (2024-11-28):
+ *   - FIX: Reduced data-row-value font sizes for slide 13 pattern
+ *   - Added responsive breakpoints for .data-row-value at 1600px/1400px
+ *
  * - v2.1.62 (2024-11-28):
  *   - FEATURE: Jumper Flare v2.2 - Responsive template for 13-27" screens
  *   - New responsive typography scale with breakpoints at 1600px/1400px
