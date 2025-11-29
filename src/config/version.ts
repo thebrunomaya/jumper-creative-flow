@@ -7,10 +7,15 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.72';
+export const APP_VERSION = 'v2.1.73';
 
 /**
  * Version history:
+ * - v2.1.73 (2024-11-29):
+ *   - FIX: JavaScript error "navTimeout is not defined"
+ *   - Added proper variable declaration for legacy nav-dots function
+ *   - Navigation dark mode working correctly on slide 22 (white)
+ *
  * - v2.1.72 (2024-11-29):
  *   - FIX: Add Header to template management pages
  *   - Templates.tsx: Added Header + JumperBackground wrapper

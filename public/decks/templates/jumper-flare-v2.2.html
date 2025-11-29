@@ -1091,12 +1091,17 @@
             }
         }, { passive: true });
 
+        // Legacy nav-dots auto-hide (kept for backward compatibility)
+        let navTimeout;
         function showNav() {
-            document.querySelector('.nav-dots').classList.remove('hidden');
-            clearTimeout(navTimeout);
-            navTimeout = setTimeout(() => {
-                document.querySelector('.nav-dots').classList.add('hidden');
-            }, 3000);
+            const navDots = document.querySelector('.nav-dots');
+            if (navDots) {
+                navDots.classList.remove('hidden');
+                clearTimeout(navTimeout);
+                navTimeout = setTimeout(() => {
+                    navDots.classList.add('hidden');
+                }, 3000);
+            }
         }
 
         document.addEventListener('mousemove', showNav);
