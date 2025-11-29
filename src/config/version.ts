@@ -7,10 +7,18 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.64';
+export const APP_VERSION = 'v2.1.65';
 
 /**
  * Version history:
+ * - v2.1.65 (2024-11-28):
+ *   - FEATURE: New lateral navigation (replaces center + dots)
+ *   - Vertical layout: ↑ / 10 / 26 / ↓ on right side
+ *   - Zero overlap with slide content/footers
+ *   - Hidden nav-dots and nav-center via CSS
+ *   - Arrow keys: ↑↓ and ←→ both work for navigation
+ *   - Disabled state for arrows at first/last slide
+ *
  * - v2.1.64 (2024-11-28):
  *   - FIX: Closing slide logo was full-width due to .slide * override
  *   - Used more specific selector .slide-closing .closing-logo

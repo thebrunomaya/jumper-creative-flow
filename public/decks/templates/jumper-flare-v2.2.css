@@ -472,17 +472,9 @@ p {
 }
 
 /* Navigation Dots (v2 style - rounded, glass) */
+/* v2.2: Hide nav-dots - replaced by nav-lateral */
 .nav-dots {
-    position: fixed;
-    right: clamp(16px, 3vw, 32px);
-    top: 50%;
-    transform: translateY(-50%);
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-sm);
-    z-index: 100;
-    opacity: 1;
-    transition: opacity var(--duration-normal) var(--ease-smooth);
+    display: none;
 }
 
 .nav-dots.hidden {
@@ -512,56 +504,90 @@ p {
 }
 
 /* Centered Navigation Container: ← 1 / 26 → */
+/* v2.2: Hide center navigation - replaced by lateral */
 .nav-center {
-    position: fixed;
-    bottom: clamp(20px, 4vh, 40px);
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    align-items: center;
-    gap: var(--space-md);
-    z-index: 100;
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 100px;
-    padding: var(--space-xs) var(--space-sm);
+    display: none;
 }
 
-/* Navigation Arrows (inside centered container) */
-.nav-arrow {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
+/* ==========================================================================
+   LATERAL NAVIGATION (v2.2) - Replaces dots and center nav
+   ========================================================================== */
+
+.nav-lateral {
+    position: fixed;
+    right: clamp(16px, 3vw, 32px);
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-sm);
+    z-index: 100;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 0; /* Linear Design - no border-radius */
+    padding: var(--space-sm) var(--space-xs);
+}
+
+.nav-lateral-arrow {
+    width: 32px;
+    height: 32px;
     background: transparent;
     border: none;
-    color: var(--flare-text-secondary);
+    color: var(--flare-text-muted);
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 18px;
+    font-size: 16px;
     transition: all var(--duration-normal) var(--ease-smooth);
 }
 
-.nav-arrow:hover {
-    background: rgba(255, 255, 255, 0.1);
+.nav-lateral-arrow:hover {
     color: var(--flare-orange);
 }
 
-/* Slide Counter (inside centered container) */
-.slide-counter {
-    font-size: var(--font-small);
-    font-weight: 500;
-    color: var(--flare-text-muted);
-    padding: 0 var(--space-sm);
-    white-space: nowrap;
+.nav-lateral-arrow:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
 }
 
-.slide-counter span {
-    color: var(--flare-text-secondary);
+.nav-lateral-counter {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: var(--space-xs) 0;
+}
+
+.nav-lateral-current {
+    font-family: 'Haffer', sans-serif;
+    font-size: clamp(14px, 1.5vw, 18px);
     font-weight: 600;
+    color: var(--flare-text-primary);
+    line-height: 1;
+}
+
+.nav-lateral-divider {
+    width: 12px;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.nav-lateral-total {
+    font-family: 'Haffer', sans-serif;
+    font-size: clamp(11px, 1.2vw, 13px);
+    font-weight: 400;
+    color: var(--flare-text-muted);
+    line-height: 1;
+}
+
+/* Legacy support - hide if still in HTML */
+.nav-arrow,
+.slide-counter {
+    display: none;
 }
 
 /* Progress Bar */
