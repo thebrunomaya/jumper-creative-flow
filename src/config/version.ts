@@ -7,10 +7,15 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.74';
+export const APP_VERSION = 'v2.1.75';
 
 /**
  * Version history:
+ * - v2.1.75 (2024-11-29):
+ *   - NEW: Created jumper-flare-v2.2-pitch-patterns.json
+ *   - Pitch deck variant for commercial proposals
+ *   - Based on v2.1-pitch with v2.2 responsive CSS
+ *
  * - v2.1.74 (2024-11-29):
  *   - SYNC: Updated jumper-flare-v2.2-patterns.json
  *   - Total slides: 26 → 25 (removed duplicate big-number)
