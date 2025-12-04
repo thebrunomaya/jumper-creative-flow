@@ -7,10 +7,16 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.75';
+export const APP_VERSION = 'v2.1.77';
 
 /**
  * Version history:
+ * - v2.1.77 (2024-12-03):
+ *   - FIX: Optimization account filter not working (UUID vs notion_id mismatch)
+ *   - FIX: OptimizationNew dropdown not showing selected account
+ *   - FIX: Draft recovery not restoring account selection
+ *   - Now uses dual state (UUID for dropdown, notion_id for database)
+ *
  * - v2.1.75 (2024-11-29):
  *   - NEW: Created jumper-flare-v2.2-pitch-patterns.json
  *   - Pitch deck variant for commercial proposals
