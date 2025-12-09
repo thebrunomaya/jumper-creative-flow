@@ -7,10 +7,14 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.79';
+export const APP_VERSION = 'v2.1.80';
 
 /**
  * Version history:
+ * - v2.1.80 (2024-12-09):
+ *   - FIX: Date range picker in /dashboards now correctly applies selected dates
+ *   - Simplified onApply handler - onChange already updates state, onApply just closes dialog
+ *
  * - v2.1.79 (2024-12-09):
  *   - ENH: /dashboards Advanced Filters now includes search, status, tier, and sort options
  *   - ENH: Edge Function returns status and tier for frontend filtering

@@ -120,11 +120,6 @@ export default function DashboardsMultiAccountPage() {
     setIncludeInactive(false);
   };
 
-  const handleDateRangeApply = (newRange: { start: Date; end: Date }) => {
-    setDateRange(newRange);
-    setShowDatePicker(false);
-  };
-
   const formatDateRangeDisplay = () => {
     const isSameDay = dateRange.start.toDateString() === dateRange.end.toDateString();
 
@@ -334,7 +329,7 @@ export default function DashboardsMultiAccountPage() {
             onChange={setDateRange}
             showCompare={false}
             onClose={() => setShowDatePicker(false)}
-            onApply={() => handleDateRangeApply(dateRange)}
+            onApply={() => setShowDatePicker(false)}
           />
         </DialogContent>
       </Dialog>
