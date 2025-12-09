@@ -6,12 +6,20 @@ import { ObjectiveSelector } from '@/components/dashboards/ObjectiveSelector';
 import { AccountsMetricsTable } from '@/components/dashboards/AccountsMetricsTable';
 import { DateRangePicker } from '@/components/optimization/DateRangePicker';
 import { useMultiAccountMetrics, type DashboardObjective } from '@/hooks/useMultiAccountMetrics';
+import { useUserRole } from '@/hooks/useUserRole';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { Calendar, RefreshCw } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { Calendar, RefreshCw, SlidersHorizontal } from 'lucide-react';
 
 export default function DashboardsMultiAccountPage() {
+  // Get user role
+  const { userRole } = useUserRole();
+  const isAdmin = userRole === 'admin';
+
   // State for filters
   const [objective, setObjective] = useState<DashboardObjective>('geral');
   const [dateRange, setDateRange] = useState<{ start: Date; end: Date }>({
@@ -19,6 +27,7 @@ export default function DashboardsMultiAccountPage() {
     end: startOfDay(subDays(new Date(), 1)),
   });
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [includeInactive, setIncludeInactive] = useState(false);
 
   // Format dates for API
   const dateStart = format(dateRange.start, 'yyyy-MM-dd');
@@ -30,6 +39,7 @@ export default function DashboardsMultiAccountPage() {
     dateStart,
     dateEnd,
     enabled: true,
+    includeInactive,
   });
 
   const handleDateRangeApply = (newRange: { start: Date; end: Date }) => {
@@ -75,6 +85,36 @@ export default function DashboardsMultiAccountPage() {
                   <Calendar className="h-4 w-4" />
                   <span>{formatDateRangeDisplay()}</span>
                 </Button>
+
+                {/* Advanced Filters (Admin only) */}
+                {isAdmin && (
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className={includeInactive ? 'border-orange-500 text-orange-500' : ''}
+                      >
+                        <SlidersHorizontal className="h-4 w-4" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent align="end" className="w-64">
+                      <div className="space-y-4">
+                        <h4 className="font-medium text-sm">Filtros Avançados</h4>
+                        <div className="flex items-center justify-between">
+                          <Label htmlFor="include-inactive" className="text-sm text-muted-foreground">
+                            Mostrar contas inativas
+                          </Label>
+                          <Switch
+                            id="include-inactive"
+                            checked={includeInactive}
+                            onCheckedChange={setIncludeInactive}
+                          />
+                        </div>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                )}
 
                 {/* Refresh Button */}
                 <Button

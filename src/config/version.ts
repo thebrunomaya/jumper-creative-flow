@@ -7,10 +7,15 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.77';
+export const APP_VERSION = 'v2.1.78';
 
 /**
  * Version history:
+ * - v2.1.78 (2024-12-09):
+ *   - FIX: /dashboards now filters inactive accounts by default (matching /my-accounts behavior)
+ *   - NEW: Admin-only "Advanced Filters" popover with toggle to show inactive accounts
+ *   - UPD: Edge Function j_hub_dashboards_multi_account now accepts include_inactive parameter
+ *
  * - v2.1.77 (2024-12-03):
  *   - FIX: Optimization account filter not working (UUID vs notion_id mismatch)
  *   - FIX: OptimizationNew dropdown not showing selected account

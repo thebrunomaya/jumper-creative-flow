@@ -86,7 +86,7 @@ serve(async (req) => {
     }
 
     // Parse request body
-    const { objective, date_start, date_end } = await req.json();
+    const { objective, date_start, date_end, include_inactive = false } = await req.json();
 
     if (!objective || !date_start || !date_end) {
       return new Response(JSON.stringify({
@@ -98,7 +98,7 @@ serve(async (req) => {
       });
     }
 
-    console.log('📊 Multi-account dashboard request:', { objective, date_start, date_end, user: user.email });
+    console.log('📊 Multi-account dashboard request:', { objective, date_start, date_end, include_inactive, user: user.email });
 
     const service = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
@@ -127,25 +127,39 @@ serve(async (req) => {
 
     // ADMIN: Get ALL accounts
     if (isAdmin) {
-      console.log('👑 Admin - fetching ALL accounts');
-      const { data: allAccounts } = await service
+      console.log(`👑 Admin - fetching ALL accounts ${include_inactive ? '(including inactive)' : '(excluding inactive)'}`);
+      let query = service
         .from('j_hub_notion_db_accounts')
         .select('id');
+
+      if (!include_inactive) {
+        query = query.neq('"Status"', 'Inativo');
+      }
+
+      const { data: allAccounts } = await query;
       accountIds = (allAccounts || []).map((acc: any) => acc.id);
     }
     // STAFF: Get accounts where user is Gestor or Atendimento
     else if (isStaff) {
-      console.log('⚡ Staff - searching by Gestor/Atendimento');
+      console.log(`⚡ Staff - searching by Gestor/Atendimento ${include_inactive ? '(including inactive)' : '(excluding inactive)'}`);
 
-      const { data: gestorAccounts } = await service
+      let gestorQuery = service
         .from('j_hub_notion_db_accounts')
         .select('id')
         .ilike('"Gestor"', `%${targetEmail}%`);
 
-      const { data: atendimentoAccounts } = await service
+      let atendimentoQuery = service
         .from('j_hub_notion_db_accounts')
         .select('id')
         .ilike('"Atendimento"', `%${targetEmail}%`);
+
+      if (!include_inactive) {
+        gestorQuery = gestorQuery.neq('"Status"', 'Inativo');
+        atendimentoQuery = atendimentoQuery.neq('"Status"', 'Inativo');
+      }
+
+      const { data: gestorAccounts } = await gestorQuery;
+      const { data: atendimentoAccounts } = await atendimentoQuery;
 
       const allAccountIds = new Set<string>();
       (gestorAccounts || []).forEach((acc: any) => allAccountIds.add(acc.id));
@@ -154,13 +168,18 @@ serve(async (req) => {
     }
     // CLIENT: Get accounts by notion_manager_id
     else if (notionManagerId) {
-      console.log('📝 Client - searching by notion_manager_id');
+      console.log(`📝 Client - searching by notion_manager_id ${include_inactive ? '(including inactive)' : '(excluding inactive)'}`);
 
-      const { data: gerenteAccounts } = await service
+      let gerenteQuery = service
         .from('j_hub_notion_db_accounts')
         .select('id')
         .ilike('"Gerente"', `%${notionManagerId}%`);
 
+      if (!include_inactive) {
+        gerenteQuery = gerenteQuery.neq('"Status"', 'Inativo');
+      }
+
+      const { data: gerenteAccounts } = await gerenteQuery;
       accountIds = (gerenteAccounts || []).map((acc: any) => acc.id);
     }
 

@@ -38,6 +38,7 @@ export interface UseMultiAccountMetricsOptions {
   dateStart: string; // YYYY-MM-DD
   dateEnd: string; // YYYY-MM-DD
   enabled?: boolean; // If false, won't fetch
+  includeInactive?: boolean; // If true, includes inactive accounts
 }
 
 export function useMultiAccountMetrics({
@@ -45,6 +46,7 @@ export function useMultiAccountMetrics({
   dateStart,
   dateEnd,
   enabled = true,
+  includeInactive = false,
 }: UseMultiAccountMetricsOptions) {
   const [data, setData] = useState<AccountMetrics[]>([]);
   const [loading, setLoading] = useState(true);
@@ -63,7 +65,7 @@ export function useMultiAccountMetrics({
         setLoading(true);
         setError(null);
 
-        console.log('🔍 Fetching multi-account metrics:', { objective, dateStart, dateEnd });
+        console.log('🔍 Fetching multi-account metrics:', { objective, dateStart, dateEnd, includeInactive });
 
         const { data: functionData, error: functionError } = await supabase.functions.invoke(
           'j_hub_dashboards_multi_account',
@@ -72,6 +74,7 @@ export function useMultiAccountMetrics({
               objective,
               date_start: dateStart,
               date_end: dateEnd,
+              include_inactive: includeInactive,
             },
           }
         );
@@ -105,7 +108,7 @@ export function useMultiAccountMetrics({
     return () => {
       isMounted = false;
     };
-  }, [objective, dateStart, dateEnd, enabled]);
+  }, [objective, dateStart, dateEnd, enabled, includeInactive]);
 
   return {
     accounts: data,
