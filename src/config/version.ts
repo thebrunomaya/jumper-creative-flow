@@ -7,10 +7,16 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.78';
+export const APP_VERSION = 'v2.1.79';
 
 /**
  * Version history:
+ * - v2.1.79 (2024-12-09):
+ *   - ENH: /dashboards Advanced Filters now includes search, status, tier, and sort options
+ *   - ENH: Edge Function returns status and tier for frontend filtering
+ *   - ENH: Filter indicator shows count of filtered accounts
+ *   - ENH: "Mostrar inativas" toggle is admin-only, all other filters available to everyone
+ *
  * - v2.1.78 (2024-12-09):
  *   - FIX: /dashboards now filters inactive accounts by default (matching /my-accounts behavior)
  *   - NEW: Admin-only "Advanced Filters" popover with toggle to show inactive accounts

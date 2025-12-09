@@ -19,6 +19,8 @@ export interface AccountMetrics {
   account_id: string;
   account_name: string;
   meta_ads_id: string;
+  status: string | null;
+  tier: string | null;
   metrics: any; // Dynamic based on objective
 }
 

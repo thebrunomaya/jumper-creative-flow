@@ -196,10 +196,10 @@ serve(async (req) => {
 
     console.log(`✅ Found ${accountIds.length} accessible accounts`);
 
-    // Step 2: Get complete account data
+    // Step 2: Get complete account data (including status and tier for filtering)
     const { data: accountsData, error: accountsError } = await service
       .from('j_hub_notion_db_accounts')
-      .select('id, "Conta", "ID Meta Ads"')
+      .select('id, "Conta", "ID Meta Ads", "Status", "Tier"')
       .in('id', accountIds);
 
     if (accountsError) {
@@ -256,6 +256,8 @@ serve(async (req) => {
             account_id: account.id,
             account_name: account["Conta"],
             meta_ads_id: metaAdsId,
+            status: account["Status"] || null,
+            tier: account["Tier"] || null,
             metrics: { spend: 0, impressions: 0, link_clicks: 0, ctr_link: 0 }
           });
         }
@@ -269,6 +271,8 @@ serve(async (req) => {
         account_id: account.id,
         account_name: account["Conta"],
         meta_ads_id: metaAdsId,
+        status: account["Status"] || null,
+        tier: account["Tier"] || null,
         metrics
       });
     }
