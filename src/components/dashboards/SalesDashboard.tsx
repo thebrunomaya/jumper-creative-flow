@@ -6,18 +6,19 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { RefreshCw, TrendingUp, TrendingDown, DollarSign, Eye, MousePointer, ShoppingCart, Target } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { 
-  getROASPerformance, 
-  getCPAPerformance, 
-  getConversionRatePerformance, 
+import {
+  getROASPerformance,
+  getCPAPerformance,
+  getConversionRatePerformance,
   getCTRPerformance,
-  formatCurrency, 
-  formatPercentage, 
+  formatCurrency,
+  formatPercentage,
   formatNumber,
-  isHeroMetric 
+  isHeroMetric
 } from '@/utils/metricPerformance';
 import { applyObjectiveFilter } from '@/utils/dashboardObjectives';
 import { startOfDay, subDays, format } from 'date-fns';
+import { TopCreativesSection } from './TopCreativesSection';
 
 interface DashboardMetrics {
   total_spend: string;
@@ -338,6 +339,14 @@ export function SalesDashboard({ accountName = 'Sales Account', accountInfo, sel
           performance={getConversionRatePerformance(parseFloat(metrics.conversion_rate))}
         />
       </div>
+
+      {/* Top Creatives Section */}
+      <TopCreativesSection
+        accountId={accountInfo?.metaAdsId || null}
+        objective="vendas"
+        dateStart={startDate}
+        dateEnd={endDate}
+      />
 
       {/* Funnel Metrics */}
       <Card>

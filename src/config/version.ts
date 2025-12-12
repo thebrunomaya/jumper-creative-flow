@@ -7,10 +7,18 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.80';
+export const APP_VERSION = 'v2.1.82';
 
 /**
  * Version history:
+ * - v2.1.82 (2024-12-11):
+ *   - FEAT: Top 3 Criativos section in SalesDashboard showing best performing ads
+ *   - NEW: useTopCreatives hook for fetching and ranking creatives by objective
+ *   - NEW: TopCreativeCard and TopCreativesSection components
+ *   - NEW: creativeRankingMetrics.ts utility for objective-specific metrics
+ *   - DB: Added body, title, link, thumbnail_url, media_type, campaign_daily_budget,
+ *         campaign_status, action_values_add_to_cart to j_rep_metaads_bronze
+ *
  * - v2.1.80 (2024-12-09):
  *   - FIX: Date range picker in /dashboards now correctly applies selected dates
  *   - Simplified onApply handler - onChange already updates state, onApply just closes dialog
