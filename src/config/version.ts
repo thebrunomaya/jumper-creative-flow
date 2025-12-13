@@ -7,10 +7,14 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.95';
+export const APP_VERSION = 'v2.1.96';
 
 /**
  * Version history:
+ * - v2.1.96 (2024-12-13):
+ *   - ENH: Adjusted CPC alert threshold from R$2.50 to R$1.50
+ *   - Based on ROAS 5x, Ticket R$180, Conv. Rate 1% analysis
+ *
  * - v2.1.95 (2024-12-13):
  *   - ENH: Consolidated Metrics now also show CTR/CPC alerts
  *   - ENH: All currency values use formatCurrency (2 decimals, R$ X,XX)

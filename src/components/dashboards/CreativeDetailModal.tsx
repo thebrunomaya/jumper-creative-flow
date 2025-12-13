@@ -120,9 +120,11 @@ function MetricCard({
 }
 
 // Target thresholds for metrics
+// Based on: ROAS 5x, Ticket R$180, Conv. Rate 1% → CPC max ~R$0.36 (ideal)
+// Realistic targets considering typical Meta Ads performance
 const METRIC_TARGETS = {
   ctr: { min: 1.0 }, // CTR below 1% is concerning
-  cpc: { max: 2.50 }, // CPC above R$2.50 is concerning
+  cpc: { max: 1.50 }, // CPC above R$1.50 is concerning (adjusted from R$2.50)
 };
 
 /**
