@@ -7,10 +7,16 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.98';
+export const APP_VERSION = 'v2.1.99';
 
 /**
  * Version history:
+ * - v2.1.99 (2024-12-13):
+ *   - FIX: Tooltip overflow v2 - use sticky="always" and smaller max-width
+ *   - Reduced tooltip max-width to 200px for better fit
+ *   - Text reduced to text-xs for compactness
+ *   - z-index increased to 9999 to ensure visibility
+ *
  * - v2.1.98 (2024-12-13):
  *   - FIX: Tooltip overflow - now appears below with collision padding
  *   - Tooltips stay within modal bounds using collisionPadding={16}
