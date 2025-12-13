@@ -7,10 +7,15 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.92';
+export const APP_VERSION = 'v2.1.93';
 
 /**
  * Version history:
+ * - v2.1.93 (2024-12-13):
+ *   - FIX: CreativeDetailModal scroll now works correctly
+ *   - Replaced ScrollArea with native overflow-y-auto
+ *   - Modal content scrollable with fixed header
+ *
  * - v2.1.92 (2024-12-13):
  *   - FEAT: CreativeDetailModal - click card to see full creative details
  *   - FEAT: useCreativeInstances hook - fetch all ad instances of a creative
