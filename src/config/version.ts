@@ -7,10 +7,17 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.91';
+export const APP_VERSION = 'v2.1.92';
 
 /**
  * Version history:
+ * - v2.1.92 (2024-12-13):
+ *   - FEAT: CreativeDetailModal - click card to see full creative details
+ *   - FEAT: useCreativeInstances hook - fetch all ad instances of a creative
+ *   - ENH: Modal shows consolidated metrics + breakdown by ad instance
+ *   - ENH: FB/IG links moved from card header to modal
+ *   - ENH: Card now clickable with cursor pointer
+ *
  * - v2.1.91 (2024-12-13):
  *   - ENH: useTopCreatives now aggregates by creative_id instead of ad_id
  *   - FIX: Same creative in multiple ads now shows consolidated performance

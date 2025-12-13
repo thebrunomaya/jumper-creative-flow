@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { LazyImage } from '@/components/ui/lazy-image';
-import { ImageOff, Video, Image as ImageIcon, Images, ShoppingBag, Facebook, Instagram } from 'lucide-react';
+import { ImageOff, Video, Image as ImageIcon, Images, ShoppingBag } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { TopCreative } from '@/hooks/useTopCreatives';
+import { useCreativeInstances } from '@/hooks/useCreativeInstances';
+import { CreativeDetailModal } from './CreativeDetailModal';
 import {
   DashboardObjective,
   getRankingConfig,
@@ -20,6 +22,12 @@ interface TopCreativeCardProps {
   rank: 1 | 2 | 3;
   /** Dashboard objective for metric display */
   objective: DashboardObjective;
+  /** Account ID for fetching instances */
+  accountId: string;
+  /** Date range start */
+  dateStart: Date;
+  /** Date range end */
+  dateEnd: Date;
 }
 
 const RANK_STYLES = {
@@ -136,9 +144,19 @@ function getMediaTypeIconComponent(mediaType: string | null, adObjectType: strin
 /**
  * Card component for displaying a top-performing creative
  */
-export function TopCreativeCard({ creative, rank, objective }: TopCreativeCardProps) {
+export function TopCreativeCard({ creative, rank, objective, accountId, dateStart, dateEnd }: TopCreativeCardProps) {
+  const [modalOpen, setModalOpen] = useState(false);
   const rankStyle = RANK_STYLES[rank];
   const config = getRankingConfig(objective);
+
+  // Fetch instances only when modal is open
+  const { instances, isLoading: instancesLoading } = useCreativeInstances({
+    creativeId: creative.creative_id,
+    accountId,
+    dateStart,
+    dateEnd,
+    enabled: modalOpen,
+  });
 
   // Get primary metric value
   const primaryValue = (creative as Record<string, unknown>)[config.primaryMetric.key] as number ?? 0;
@@ -163,53 +181,28 @@ export function TopCreativeCard({ creative, rank, objective }: TopCreativeCardPr
   const displayTitle = isCatalog ? null : creative.title;
 
   return (
-    <Card
-      className={cn(
-        'overflow-hidden transition-all hover:shadow-md',
-        'border-2',
-        rankStyle.border,
-        rankStyle.bg
-      )}
-    >
-      {/* Header: Medal + Links + Type Badge */}
-      <div className="flex items-center justify-between px-3 py-2 border-b border-border/50">
-        <div className="flex items-center gap-2">
+    <>
+      <Card
+        className={cn(
+          'overflow-hidden transition-all hover:shadow-md cursor-pointer',
+          'border-2',
+          rankStyle.border,
+          rankStyle.bg
+        )}
+        onClick={() => setModalOpen(true)}
+      >
+        {/* Header: Medal + Type Badge */}
+        <div className="flex items-center justify-between px-3 py-2 border-b border-border/50">
           <span className="text-lg" role="img" aria-label={`Rank ${rank}`}>
             {rankStyle.medal}
           </span>
-          {/* Social Links */}
-          <div className="flex items-center gap-0.5">
-            {creative.facebook_permalink_url && (
-              <a
-                href={creative.facebook_permalink_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-1 hover:bg-muted rounded transition-colors"
-                title="Ver no Facebook"
-              >
-                <Facebook className="h-3.5 w-3.5 text-blue-600" />
-              </a>
-            )}
-            {creative.instagram_permalink_url && (
-              <a
-                href={creative.instagram_permalink_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-1 hover:bg-muted rounded transition-colors"
-                title="Ver no Instagram"
-              >
-                <Instagram className="h-3.5 w-3.5 text-pink-600" />
-              </a>
-            )}
-          </div>
+          {(mediaType || isCatalog) && (
+            <Badge variant="outline" className={cn('text-xs gap-1', isCatalog && 'border-purple-400 text-purple-600 dark:border-purple-500 dark:text-purple-400')}>
+              {getMediaTypeIconComponent(creative.media_type, creative.ad_object_type, isCatalog, 'sm')}
+              {mediaTypeLabel}
+            </Badge>
+          )}
         </div>
-        {(mediaType || isCatalog) && (
-          <Badge variant="outline" className={cn('text-xs gap-1', isCatalog && 'border-purple-400 text-purple-600 dark:border-purple-500 dark:text-purple-400')}>
-            {getMediaTypeIconComponent(creative.media_type, creative.ad_object_type, isCatalog, 'sm')}
-            {mediaTypeLabel}
-          </Badge>
-        )}
-      </div>
 
       {/* Image Container - Square (1:1) to match Meta thumbnails */}
       <div className="relative aspect-square bg-muted overflow-hidden">
@@ -289,7 +282,18 @@ export function TopCreativeCard({ creative, rank, objective }: TopCreativeCardPr
           ))}
         </div>
       </div>
-    </Card>
+      </Card>
+
+      {/* Detail Modal */}
+      <CreativeDetailModal
+        open={modalOpen}
+        onOpenChange={setModalOpen}
+        creative={creative}
+        instances={instances}
+        instancesLoading={instancesLoading}
+        objective={objective}
+      />
+    </>
   );
 }
 

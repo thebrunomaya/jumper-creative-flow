@@ -79,10 +79,13 @@ export function TopCreativesSection({
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {creatives.map((creative, index) => (
             <TopCreativeCard
-              key={creative.ad_id}
+              key={creative.creative_id || creative.ad_id}
               creative={creative}
               rank={(index + 1) as 1 | 2 | 3}
               objective={objective}
+              accountId={accountId!}
+              dateStart={dateStart}
+              dateEnd={dateEnd}
             />
           ))}
         </div>
