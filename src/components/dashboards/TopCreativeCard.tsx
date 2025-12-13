@@ -2,7 +2,7 @@ import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { LazyImage } from '@/components/ui/lazy-image';
-import { ImageOff, Video, Image as ImageIcon, Images } from 'lucide-react';
+import { ImageOff, Video, Image as ImageIcon, Images, ShoppingBag } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { TopCreative } from '@/hooks/useTopCreatives';
 import {
@@ -80,7 +80,9 @@ function getMediaTypeIcon(mediaType: string | null, adObjectType: string | null 
 /**
  * Get media type label for display
  */
-function getMediaTypeLabel(mediaType: string | null, adObjectType: string | null = null): string {
+function getMediaTypeLabel(mediaType: string | null, adObjectType: string | null = null, isCatalog: boolean = false): string {
+  if (isCatalog) return 'Catálogo';
+
   const type = getMediaType(adObjectType, mediaType);
   switch (type) {
     case 'VIDEO':
@@ -99,6 +101,39 @@ function getMediaTypeLabel(mediaType: string | null, adObjectType: string | null
 }
 
 /**
+ * Detect if creative is a catalog/dynamic ad
+ * Catalog ads have template placeholders like {{product.name}}
+ */
+function isCatalogAd(creative: TopCreative): boolean {
+  const title = creative.title || '';
+  const body = creative.body || '';
+  // Check for Meta template placeholders
+  return title.includes('{{') || body.includes('{{');
+}
+
+/**
+ * Get icon for media type (including catalog)
+ */
+function getMediaTypeIconComponent(mediaType: string | null, adObjectType: string | null, isCatalog: boolean, size: 'sm' | 'lg' = 'sm') {
+  const className = size === 'sm' ? 'h-3 w-3' : 'h-16 w-16 opacity-40';
+
+  if (isCatalog) {
+    return <ShoppingBag className={className} />;
+  }
+
+  const type = getMediaType(adObjectType, mediaType);
+  switch (type) {
+    case 'VIDEO':
+      return <Video className={className} />;
+    case 'CAROUSEL_ALBUM':
+    case 'CAROUSEL':
+      return <Images className={className} />;
+    default:
+      return size === 'sm' ? <ImageIcon className={className} /> : <ImageOff className={className} />;
+  }
+}
+
+/**
  * Card component for displaying a top-performing creative
  */
 export function TopCreativeCard({ creative, rank, objective }: TopCreativeCardProps) {
@@ -109,6 +144,9 @@ export function TopCreativeCard({ creative, rank, objective }: TopCreativeCardPr
   const primaryValue = (creative as Record<string, unknown>)[config.primaryMetric.key] as number ?? 0;
   const badgeColor = getPerformanceBadgeColor(primaryValue, objective);
 
+  // Detect catalog/dynamic ads
+  const isCatalog = isCatalogAd(creative);
+
   // Get image URL with fallback priority:
   // 1. thumbnail_storage_url (permanent, never expires)
   // 2. thumbnail_url (from Meta, may expire)
@@ -117,7 +155,10 @@ export function TopCreativeCard({ creative, rank, objective }: TopCreativeCardPr
 
   // Get media type for display (prefer ad_object_type from new Windsor data)
   const mediaType = getMediaType(creative.ad_object_type, creative.media_type);
-  const mediaTypeLabel = getMediaTypeLabel(creative.media_type, creative.ad_object_type);
+  const mediaTypeLabel = getMediaTypeLabel(creative.media_type, creative.ad_object_type, isCatalog);
+
+  // For catalog ads, don't show template titles like {{product.name}}
+  const displayTitle = isCatalog ? null : creative.title;
 
   return (
     <Card
@@ -133,9 +174,9 @@ export function TopCreativeCard({ creative, rank, objective }: TopCreativeCardPr
         <span className="text-lg" role="img" aria-label={`Rank ${rank}`}>
           {rankStyle.medal}
         </span>
-        {mediaType && (
-          <Badge variant="outline" className="text-xs gap-1">
-            {getMediaTypeIcon(creative.media_type, creative.ad_object_type)}
+        {(mediaType || isCatalog) && (
+          <Badge variant="outline" className={cn('text-xs gap-1', isCatalog && 'border-purple-400 text-purple-600 dark:border-purple-500 dark:text-purple-400')}>
+            {getMediaTypeIconComponent(creative.media_type, creative.ad_object_type, isCatalog, 'sm')}
             {mediaTypeLabel}
           </Badge>
         )}
@@ -151,15 +192,17 @@ export function TopCreativeCard({ creative, rank, objective }: TopCreativeCardPr
             fallback="/placeholder.svg"
           />
         ) : (
-          <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground gap-2 bg-gradient-to-br from-muted to-muted/50">
-            {mediaType === 'VIDEO' ? (
-              <Video className="h-16 w-16 opacity-40" />
-            ) : mediaType === 'CAROUSEL_ALBUM' || mediaType === 'CAROUSEL' ? (
-              <Images className="h-16 w-16 opacity-40" />
-            ) : (
-              <ImageOff className="h-16 w-16 opacity-40" />
-            )}
+          <div className={cn(
+            'w-full h-full flex flex-col items-center justify-center text-muted-foreground gap-2',
+            isCatalog
+              ? 'bg-gradient-to-br from-purple-100 to-purple-50 dark:from-purple-950/30 dark:to-purple-900/20'
+              : 'bg-gradient-to-br from-muted to-muted/50'
+          )}>
+            {getMediaTypeIconComponent(creative.media_type, creative.ad_object_type, isCatalog, 'lg')}
             <span className="text-xs opacity-60">{mediaTypeLabel || 'Sem preview'}</span>
+            {isCatalog && (
+              <span className="text-xs text-purple-600 dark:text-purple-400 font-medium">Anúncio Dinâmico</span>
+            )}
           </div>
         )}
 
@@ -180,22 +223,22 @@ export function TopCreativeCard({ creative, rank, objective }: TopCreativeCardPr
 
       {/* Content */}
       <div className="p-3 space-y-2">
-        {/* Title */}
-        {creative.title && (
-          <h4 className="font-semibold text-sm line-clamp-1" title={creative.title}>
-            {creative.title}
+        {/* Title - don't show template placeholders for catalog ads */}
+        {displayTitle && (
+          <h4 className="font-semibold text-sm line-clamp-1" title={displayTitle}>
+            {displayTitle}
           </h4>
         )}
 
-        {/* Ad Name (if no title, use ad_name) */}
-        {!creative.title && (
+        {/* Ad Name (if no displayable title, use ad_name) */}
+        {!displayTitle && (
           <h4 className="font-semibold text-sm line-clamp-1 text-muted-foreground" title={creative.ad_name}>
             {creative.ad_name}
           </h4>
         )}
 
-        {/* Body text */}
-        {creative.body && (
+        {/* Body text - don't show template placeholders for catalog ads */}
+        {creative.body && !isCatalog && (
           <p className="text-xs text-muted-foreground line-clamp-2" title={creative.body}>
             {creative.body}
           </p>

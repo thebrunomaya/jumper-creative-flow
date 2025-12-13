@@ -7,10 +7,16 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.85';
+export const APP_VERSION = 'v2.1.86';
 
 /**
  * Version history:
+ * - v2.1.86 (2024-12-13):
+ *   - ENH: Catalog/dynamic ads detection ({{product.name}} templates)
+ *   - ENH: Purple badge "Catálogo" with ShoppingBag icon for catalog ads
+ *   - ENH: Special placeholder for catalog ads with "Anúncio Dinâmico" label
+ *   - ENH: Hide template placeholders from title/body display for catalog ads
+ *
  * - v2.1.85 (2024-12-13):
  *   - ENH: TopCreativeCard now supports ad_object_type from Windsor (VIDEO, SHARE, PHOTO)
  *   - ENH: Intelligent thumbnail fallback: thumbnail_storage_url → thumbnail_url → image_url
