@@ -7,10 +7,17 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.96';
+export const APP_VERSION = 'v2.1.97';
 
 /**
  * Version history:
+ * - v2.1.97 (2024-12-13):
+ *   - ENH: All metrics now have icons consistently
+ *   - ENH: Hover tooltips explain each metric in plain language
+ *   - ENH: METRIC_CONFIG centralizes label, icon, and tooltip
+ *   - ENH: MetricCard and MiniMetric components use tooltips
+ *   - FIX: Facebook/Instagram icons now use react-icons (not deprecated lucide)
+ *
  * - v2.1.96 (2024-12-13):
  *   - ENH: Adjusted CPC alert threshold from R$2.50 to R$1.50
  *   - Based on ROAS 5x, Ticket R$180, Conv. Rate 1% analysis

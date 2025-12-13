@@ -12,8 +12,6 @@ import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import { LazyImage } from '@/components/ui/lazy-image';
 import {
-  Facebook,
-  Instagram,
   Video,
   Image as ImageIcon,
   Images,
@@ -27,7 +25,19 @@ import {
   Target,
   Layers,
   AlertTriangle,
+  BarChart3,
+  ShoppingCart,
+  Wallet,
+  Percent,
+  CircleDollarSign,
 } from 'lucide-react';
+import { FaFacebook, FaInstagram } from 'react-icons/fa';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import { TopCreative } from '@/hooks/useTopCreatives';
 import { CreativeInstance } from '@/hooks/useCreativeInstances';
@@ -83,39 +93,94 @@ function MediaTypeIcon({ creative, isCatalog }: { creative: TopCreative; isCatal
 }
 
 /**
- * Metric card component
+ * Metric definitions with icons and tooltips
+ */
+const METRIC_CONFIG = {
+  spend: {
+    label: 'Gasto',
+    icon: DollarSign,
+    tooltip: 'Valor total investido neste criativo no período selecionado.',
+  },
+  roas: {
+    label: 'ROAS',
+    icon: BarChart3,
+    tooltip: 'Retorno sobre o investimento em anúncios. ROAS 2x significa que para cada R$1 gasto, você faturou R$2. Acima de 1x indica lucro.',
+  },
+  purchases: {
+    label: 'Compras',
+    icon: ShoppingCart,
+    tooltip: 'Número total de vendas atribuídas a este criativo.',
+  },
+  revenue: {
+    label: 'Receita',
+    icon: Wallet,
+    tooltip: 'Valor total faturado com as vendas geradas por este criativo.',
+  },
+  impressions: {
+    label: 'Impressões',
+    icon: Eye,
+    tooltip: 'Quantas vezes o anúncio foi exibido. Uma mesma pessoa pode ver várias vezes.',
+  },
+  clicks: {
+    label: 'Cliques',
+    icon: MousePointer,
+    tooltip: 'Cliques no link do anúncio que direcionam para o site ou landing page.',
+  },
+  ctr: {
+    label: 'CTR',
+    icon: Percent,
+    tooltip: 'Taxa de cliques. Percentual de pessoas que clicaram após ver o anúncio. Acima de 1% é considerado bom.',
+  },
+  cpc: {
+    label: 'CPC',
+    icon: CircleDollarSign,
+    tooltip: 'Custo por clique. Quanto você paga, em média, por cada clique no link. Quanto menor, melhor.',
+  },
+} as const;
+
+type MetricKey = keyof typeof METRIC_CONFIG;
+
+/**
+ * Metric card component with tooltip
  */
 function MetricCard({
-  label,
+  metricKey,
   value,
-  icon: Icon,
   trend,
   alert,
   alertColor = 'yellow',
 }: {
-  label: string;
+  metricKey: MetricKey;
   value: string;
-  icon?: React.ElementType;
   trend?: 'up' | 'down' | 'neutral';
   alert?: boolean;
   alertColor?: 'yellow' | 'orange';
 }) {
+  const config = METRIC_CONFIG[metricKey];
+  const Icon = config.icon;
   const alertColorClass = alertColor === 'orange' ? 'text-orange-500' : 'text-yellow-500';
   const valueAlertClass = alertColor === 'orange' ? 'text-orange-600' : 'text-yellow-600';
 
   return (
-    <div className="bg-muted/50 rounded-lg p-3 space-y-1">
-      <div className="flex items-center gap-1.5 text-muted-foreground">
-        {Icon && <Icon className="h-3.5 w-3.5" />}
-        <span className="text-xs">{label}</span>
-        {alert && <AlertTriangle className={cn('h-3 w-3', alertColorClass)} />}
-      </div>
-      <div className="flex items-center gap-1">
-        <span className={cn('text-lg font-semibold', alert && valueAlertClass)}>{value}</span>
-        {trend === 'up' && <TrendingUp className="h-4 w-4 text-green-500" />}
-        {trend === 'down' && <TrendingDown className="h-4 w-4 text-red-500" />}
-      </div>
-    </div>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <div className="bg-muted/50 rounded-lg p-3 space-y-1 cursor-help">
+          <div className="flex items-center gap-1.5 text-muted-foreground">
+            <Icon className="h-3.5 w-3.5" />
+            <span className="text-xs">{config.label}</span>
+            {alert && <AlertTriangle className={cn('h-3 w-3', alertColorClass)} />}
+          </div>
+          <div className="flex items-center gap-1">
+            <span className={cn('text-lg font-semibold', alert && valueAlertClass)}>{value}</span>
+            {trend === 'up' && <TrendingUp className="h-4 w-4 text-green-500" />}
+            {trend === 'down' && <TrendingDown className="h-4 w-4 text-red-500" />}
+          </div>
+        </div>
+      </TooltipTrigger>
+      <TooltipContent side="top" className="max-w-xs text-sm">
+        <p>{config.tooltip}</p>
+      </TooltipContent>
+    </Tooltip>
   );
 }
 
@@ -143,61 +208,102 @@ function ConsolidatedMetrics({ creative }: { creative: TopCreative }) {
   const cpcAboveTarget = creative.cpc > METRIC_TARGETS.cpc.max;
 
   return (
-    <div>
-      <h4 className="font-semibold mb-3 flex items-center gap-2">
-        <Target className="h-4 w-4" />
-        Métricas Consolidadas
-      </h4>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <MetricCard
-          label="Gasto Total"
-          value={formatCurrency(creative.spend)}
-          icon={DollarSign}
-        />
-        <MetricCard
-          label="ROAS"
-          value={`${creative.roas.toFixed(2)}x`}
-          trend={creative.roas >= 1 ? 'up' : creative.roas > 0 ? 'neutral' : 'down'}
-        />
-        <MetricCard
-          label="Compras"
-          value={String(creative.purchases)}
-        />
-        <MetricCard
-          label="Receita"
-          value={formatCurrency(creative.revenue)}
-        />
-        <MetricCard
-          label="Impressões"
-          value={creative.impressions.toLocaleString('pt-BR')}
-          icon={Eye}
-        />
-        <MetricCard
-          label="Cliques"
-          value={creative.link_clicks.toLocaleString('pt-BR')}
-          icon={MousePointer}
-        />
-        <MetricCard
-          label="CTR"
-          value={`${creative.ctr.toFixed(2)}%`}
-          alert={ctrBelowTarget}
-          alertColor="yellow"
-        />
-        <MetricCard
-          label="CPC"
-          value={formatCurrency(creative.cpc)}
-          alert={cpcAboveTarget}
-          alertColor="orange"
-        />
+    <TooltipProvider delayDuration={300}>
+      <div>
+        <h4 className="font-semibold mb-3 flex items-center gap-2">
+          <Target className="h-4 w-4" />
+          Métricas Consolidadas
+        </h4>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <MetricCard
+            metricKey="spend"
+            value={formatCurrency(creative.spend)}
+          />
+          <MetricCard
+            metricKey="roas"
+            value={`${creative.roas.toFixed(2)}x`}
+            trend={creative.roas >= 1 ? 'up' : creative.roas > 0 ? 'neutral' : 'down'}
+          />
+          <MetricCard
+            metricKey="purchases"
+            value={String(creative.purchases)}
+          />
+          <MetricCard
+            metricKey="revenue"
+            value={formatCurrency(creative.revenue)}
+          />
+          <MetricCard
+            metricKey="impressions"
+            value={creative.impressions.toLocaleString('pt-BR')}
+          />
+          <MetricCard
+            metricKey="clicks"
+            value={creative.link_clicks.toLocaleString('pt-BR')}
+          />
+          <MetricCard
+            metricKey="ctr"
+            value={`${creative.ctr.toFixed(2)}%`}
+            alert={ctrBelowTarget}
+            alertColor="yellow"
+          />
+          <MetricCard
+            metricKey="cpc"
+            value={formatCurrency(creative.cpc)}
+            alert={cpcAboveTarget}
+            alertColor="orange"
+          />
+        </div>
       </div>
-    </div>
+    </TooltipProvider>
+  );
+}
+
+/**
+ * Mini metric for instance cards with tooltip
+ */
+function MiniMetric({
+  metricKey,
+  value,
+  valueColor,
+  alert,
+  alertColor = 'yellow',
+}: {
+  metricKey: MetricKey;
+  value: string;
+  valueColor?: string;
+  alert?: boolean;
+  alertColor?: 'yellow' | 'orange';
+}) {
+  const config = METRIC_CONFIG[metricKey];
+  const Icon = config.icon;
+  const alertColorClass = alertColor === 'orange' ? 'text-orange-500' : 'text-yellow-500';
+  const valueAlertClass = alertColor === 'orange' ? 'text-orange-600' : 'text-yellow-600';
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <div className="text-center cursor-help">
+          <p className="text-xs text-muted-foreground flex items-center justify-center gap-1">
+            <Icon className="h-3 w-3" />
+            {config.label}
+            {alert && <AlertTriangle className={cn('h-3 w-3', alertColorClass)} />}
+          </p>
+          <p className={cn('text-sm font-medium', valueColor, alert && valueAlertClass)}>
+            {value}
+          </p>
+        </div>
+      </TooltipTrigger>
+      <TooltipContent side="top" className="max-w-xs text-sm">
+        <p>{config.tooltip}</p>
+      </TooltipContent>
+    </Tooltip>
   );
 }
 
 /**
  * Instance card component
  */
-function InstanceCard({ instance, objective }: { instance: CreativeInstance; objective: DashboardObjective }) {
+function InstanceCard({ instance }: { instance: CreativeInstance }) {
   const roasColor = instance.roas >= 1 ? 'text-green-600' : instance.roas > 0 ? 'text-yellow-600' : 'text-red-600';
 
   // Check if CTR/CPC are outside targets
@@ -205,70 +311,61 @@ function InstanceCard({ instance, objective }: { instance: CreativeInstance; obj
   const cpcAboveTarget = instance.cpc > METRIC_TARGETS.cpc.max;
 
   return (
-    <Card className="bg-muted/30">
-      <CardContent className="p-4 space-y-3">
-        {/* Ad Name & Location */}
-        <div className="space-y-1">
-          <h4 className="font-medium text-sm line-clamp-1" title={instance.ad_name}>
-            {instance.ad_name}
-          </h4>
-          <div className="flex flex-col gap-0.5">
-            <p className="text-xs text-muted-foreground line-clamp-1" title={instance.campaign}>
-              <span className="font-medium">Campanha:</span> {instance.campaign}
-            </p>
-            {instance.adset_name && (
-              <p className="text-xs text-muted-foreground line-clamp-1" title={instance.adset_name}>
-                <span className="font-medium">Conjunto:</span> {instance.adset_name}
+    <TooltipProvider delayDuration={300}>
+      <Card className="bg-muted/30">
+        <CardContent className="p-4 space-y-3">
+          {/* Ad Name & Location */}
+          <div className="space-y-1">
+            <h4 className="font-medium text-sm line-clamp-1" title={instance.ad_name}>
+              {instance.ad_name}
+            </h4>
+            <div className="flex flex-col gap-0.5">
+              <p className="text-xs text-muted-foreground line-clamp-1" title={instance.campaign}>
+                <span className="font-medium">Campanha:</span> {instance.campaign}
               </p>
-            )}
+              {instance.adset_name && (
+                <p className="text-xs text-muted-foreground line-clamp-1" title={instance.adset_name}>
+                  <span className="font-medium">Conjunto:</span> {instance.adset_name}
+                </p>
+              )}
+            </div>
           </div>
-        </div>
 
-        {/* Metrics Grid - 6 columns */}
-        <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 text-center">
-          <div>
-            <p className="text-xs text-muted-foreground">Gasto</p>
-            <p className="text-sm font-medium">
-              {formatCurrency(instance.spend)}
-            </p>
+          {/* Metrics Grid - 6 columns */}
+          <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+            <MiniMetric
+              metricKey="spend"
+              value={formatCurrency(instance.spend)}
+            />
+            <MiniMetric
+              metricKey="roas"
+              value={`${instance.roas.toFixed(2)}x`}
+              valueColor={roasColor}
+            />
+            <MiniMetric
+              metricKey="purchases"
+              value={String(instance.purchases)}
+            />
+            <MiniMetric
+              metricKey="revenue"
+              value={formatCurrency(instance.revenue)}
+            />
+            <MiniMetric
+              metricKey="ctr"
+              value={`${instance.ctr.toFixed(2)}%`}
+              alert={ctrBelowTarget}
+              alertColor="yellow"
+            />
+            <MiniMetric
+              metricKey="cpc"
+              value={formatCurrency(instance.cpc)}
+              alert={cpcAboveTarget}
+              alertColor="orange"
+            />
           </div>
-          <div>
-            <p className="text-xs text-muted-foreground">ROAS</p>
-            <p className={cn('text-sm font-medium', roasColor)}>
-              {instance.roas.toFixed(2)}x
-            </p>
-          </div>
-          <div>
-            <p className="text-xs text-muted-foreground">Compras</p>
-            <p className="text-sm font-medium">{instance.purchases}</p>
-          </div>
-          <div>
-            <p className="text-xs text-muted-foreground">Receita</p>
-            <p className="text-sm font-medium">
-              {formatCurrency(instance.revenue)}
-            </p>
-          </div>
-          <div>
-            <p className="text-xs text-muted-foreground flex items-center justify-center gap-1">
-              CTR
-              {ctrBelowTarget && <AlertTriangle className="h-3 w-3 text-yellow-500" />}
-            </p>
-            <p className={cn('text-sm font-medium', ctrBelowTarget && 'text-yellow-600')}>
-              {instance.ctr.toFixed(2)}%
-            </p>
-          </div>
-          <div>
-            <p className="text-xs text-muted-foreground flex items-center justify-center gap-1">
-              CPC
-              {cpcAboveTarget && <AlertTriangle className="h-3 w-3 text-orange-500" />}
-            </p>
-            <p className={cn('text-sm font-medium', cpcAboveTarget && 'text-orange-600')}>
-              {formatCurrency(instance.cpc)}
-            </p>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </TooltipProvider>
   );
 }
 
@@ -364,7 +461,7 @@ export function CreativeDetailModal({
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        <Facebook className="h-4 w-4 mr-2 text-blue-600" />
+                        <FaFacebook className="h-4 w-4 mr-2 text-blue-600" />
                         Ver no Facebook
                         <ExternalLink className="h-3 w-3 ml-1.5" />
                       </a>
@@ -381,7 +478,7 @@ export function CreativeDetailModal({
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        <Instagram className="h-4 w-4 mr-2 text-pink-600" />
+                        <FaInstagram className="h-4 w-4 mr-2 text-pink-600" />
                         Ver no Instagram
                         <ExternalLink className="h-3 w-3 ml-1.5" />
                       </a>
@@ -426,7 +523,6 @@ export function CreativeDetailModal({
                     <InstanceCard
                       key={instance.ad_id}
                       instance={instance}
-                      objective={objective}
                     />
                   ))}
                 </div>
