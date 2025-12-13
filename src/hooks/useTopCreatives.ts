@@ -195,8 +195,8 @@ export function useTopCreatives({
           return;
         }
 
-        // Aggregate by ad_id
-        const aggregated = aggregateByAdId(rawData as BronzeRow[]);
+        // Aggregate by creative_id (groups all ad instances of the same creative)
+        const aggregated = aggregateByCreativeId(rawData as BronzeRow[]);
 
         // Calculate derived metrics
         const withDerivedMetrics = aggregated.map(calculateDerivedMetrics);
@@ -221,19 +221,21 @@ export function useTopCreatives({
 }
 
 /**
- * Aggregate raw rows by ad_id, summing metrics and keeping first creative content
+ * Aggregate raw rows by creative_id, summing metrics across all ad instances
+ * This groups all ads that use the same creative, giving true creative performance
  */
-function aggregateByAdId(rows: BronzeRow[]): Omit<TopCreative, keyof DerivedMetrics>[] {
-  const adMap = new Map<string, Omit<TopCreative, keyof DerivedMetrics>>();
+function aggregateByCreativeId(rows: BronzeRow[]): Omit<TopCreative, keyof DerivedMetrics>[] {
+  const creativeMap = new Map<string, Omit<TopCreative, keyof DerivedMetrics>>();
 
   for (const row of rows) {
-    const adId = row.ad_id;
+    // Use creative_id as key, fallback to ad_id if no creative_id
+    const key = row.creative_id || row.ad_id;
 
-    if (!adMap.has(adId)) {
+    if (!creativeMap.has(key)) {
       // Initialize with creative content from first row
-      adMap.set(adId, {
-        ad_id: adId,
-        ad_name: row.ad_name || `Ad ${adId.slice(-6)}`,
+      creativeMap.set(key, {
+        ad_id: row.ad_id, // Keep first ad_id for reference
+        ad_name: row.ad_name || `Ad ${row.ad_id.slice(-6)}`,
         campaign: row.campaign || 'Campanha',
         adset_name: row.adset_name || '',
         creative_id: row.creative_id,
@@ -284,47 +286,47 @@ function aggregateByAdId(rows: BronzeRow[]): Omit<TopCreative, keyof DerivedMetr
       });
     }
 
-    const ad = adMap.get(adId)!;
+    const creative = creativeMap.get(key)!;
 
     // Update creative content if current row has better data
-    if (!ad.creative_id && row.creative_id) ad.creative_id = row.creative_id;
-    if (!ad.image_url && row.image_url) ad.image_url = row.image_url;
-    if (!ad.thumbnail_url && row.thumbnail_url) ad.thumbnail_url = row.thumbnail_url;
-    if (!ad.thumbnail_storage_url && row.thumbnail_storage_url) ad.thumbnail_storage_url = row.thumbnail_storage_url;
-    if (!ad.body && row.body) ad.body = row.body;
-    if (!ad.title && row.title) ad.title = row.title;
-    if (!ad.link && row.link) ad.link = row.link;
-    if (!ad.media_type && row.media_type) ad.media_type = row.media_type;
-    if (!ad.ad_object_type && row.ad_object_type) ad.ad_object_type = row.ad_object_type;
-    if (!ad.facebook_permalink_url && row.facebook_permalink_url) ad.facebook_permalink_url = row.facebook_permalink_url;
-    if (!ad.instagram_permalink_url && row.instagram_permalink_url) ad.instagram_permalink_url = row.instagram_permalink_url;
+    if (!creative.creative_id && row.creative_id) creative.creative_id = row.creative_id;
+    if (!creative.image_url && row.image_url) creative.image_url = row.image_url;
+    if (!creative.thumbnail_url && row.thumbnail_url) creative.thumbnail_url = row.thumbnail_url;
+    if (!creative.thumbnail_storage_url && row.thumbnail_storage_url) creative.thumbnail_storage_url = row.thumbnail_storage_url;
+    if (!creative.body && row.body) creative.body = row.body;
+    if (!creative.title && row.title) creative.title = row.title;
+    if (!creative.link && row.link) creative.link = row.link;
+    if (!creative.media_type && row.media_type) creative.media_type = row.media_type;
+    if (!creative.ad_object_type && row.ad_object_type) creative.ad_object_type = row.ad_object_type;
+    if (!creative.facebook_permalink_url && row.facebook_permalink_url) creative.facebook_permalink_url = row.facebook_permalink_url;
+    if (!creative.instagram_permalink_url && row.instagram_permalink_url) creative.instagram_permalink_url = row.instagram_permalink_url;
 
-    // Sum metrics
-    ad.spend += parseFloat(String(row.spend || 0));
-    ad.impressions += row.impressions || 0;
-    ad.clicks += row.clicks || 0;
-    ad.link_clicks += row.link_clicks || 0;
-    ad.reach += row.reach || 0;
-    ad.purchases += row.actions_purchase || 0;
-    ad.revenue += parseFloat(String(row.action_values_omni_purchase || 0));
-    ad.leads += row.actions_lead || 0;
-    ad.registrations += row.actions_complete_registration || 0;
-    ad.conversations += row.actions_onsite_conversion_messaging_conversation_started_7d || 0;
-    ad.post_engagement += row.actions_post_engagement || 0;
-    ad.post_reaction += row.actions_post_reaction || 0;
-    ad.likes += row.actions_like || 0;
-    ad.thruplays += row.video_thruplay_watched_actions_video_view || 0;
-    ad.video_p75 += row.video_p75_watched_actions_video_view || 0;
-    ad.video_p50 += row.video_p50_watched_actions_video_view || 0;
-    ad.video_p25 += row.video_p25_watched_actions_video_view || 0;
-    ad.video_plays += row.video_play_actions_video_view || 0;
+    // Sum metrics across all instances
+    creative.spend += parseFloat(String(row.spend || 0));
+    creative.impressions += row.impressions || 0;
+    creative.clicks += row.clicks || 0;
+    creative.link_clicks += row.link_clicks || 0;
+    creative.reach += row.reach || 0;
+    creative.purchases += row.actions_purchase || 0;
+    creative.revenue += parseFloat(String(row.action_values_omni_purchase || 0));
+    creative.leads += row.actions_lead || 0;
+    creative.registrations += row.actions_complete_registration || 0;
+    creative.conversations += row.actions_onsite_conversion_messaging_conversation_started_7d || 0;
+    creative.post_engagement += row.actions_post_engagement || 0;
+    creative.post_reaction += row.actions_post_reaction || 0;
+    creative.likes += row.actions_like || 0;
+    creative.thruplays += row.video_thruplay_watched_actions_video_view || 0;
+    creative.video_p75 += row.video_p75_watched_actions_video_view || 0;
+    creative.video_p50 += row.video_p50_watched_actions_video_view || 0;
+    creative.video_p25 += row.video_p25_watched_actions_video_view || 0;
+    creative.video_plays += row.video_play_actions_video_view || 0;
 
     // Frequency is an average, take max for now (will recalculate if needed)
     const rowFreq = parseFloat(String(row.frequency || 0));
-    if (rowFreq > ad.frequency) ad.frequency = rowFreq;
+    if (rowFreq > creative.frequency) creative.frequency = rowFreq;
   }
 
-  return Array.from(adMap.values());
+  return Array.from(creativeMap.values());
 }
 
 type DerivedMetrics = {

@@ -7,10 +7,15 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.90';
+export const APP_VERSION = 'v2.1.91';
 
 /**
  * Version history:
+ * - v2.1.91 (2024-12-13):
+ *   - ENH: useTopCreatives now aggregates by creative_id instead of ad_id
+ *   - FIX: Same creative in multiple ads now shows consolidated performance
+ *   - Example: "Jumping Era" with 2 instances now shows true ROAS (1.17x vs false 15.1x)
+ *
  * - v2.1.90 (2024-12-13):
  *   - ENH: TopCreativeCard now uses aspect-square (1:1) to match Meta thumbnails
  *   - ENH: Added Facebook/Instagram permalink buttons in card header
