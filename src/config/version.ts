@@ -7,10 +7,14 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.88';
+export const APP_VERSION = 'v2.1.89';
 
 /**
  * Version history:
+ * - v2.1.89 (2024-12-13):
+ *   - FIX: Force astronaut placeholder for catalogs (Meta returns useless generic icon)
+ *   - Catalogs now ALWAYS show branded astronaut image, ignoring any thumbnail
+ *
  * - v2.1.88 (2024-12-13):
  *   - ENH: Astronaut placeholder image for catalog/dynamic ads
  *   - Catalogs never have working thumbnails, now show branded image

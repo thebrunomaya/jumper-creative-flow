@@ -148,15 +148,12 @@ export function TopCreativeCard({ creative, rank, objective }: TopCreativeCardPr
   const isCatalog = isCatalogAd(creative);
 
   // Get image URL with fallback priority:
-  // 1. thumbnail_storage_url (permanent, never expires)
-  // 2. thumbnail_url (from Meta, may expire)
-  // 3. image_url (from Meta, may expire)
-  // 4. For catalogs: use astronaut placeholder (catalogs never have working thumbnails)
+  // For catalogs: ALWAYS use astronaut placeholder (Meta returns useless generic placeholder)
+  // For regular ads: thumbnail_storage_url → thumbnail_url → image_url
   const CATALOG_PLACEHOLDER = '/images/catalog-placeholder.png';
-  const imageUrl = creative.thumbnail_storage_url
-    || creative.thumbnail_url
-    || creative.image_url
-    || (isCatalog ? CATALOG_PLACEHOLDER : null);
+  const imageUrl = isCatalog
+    ? CATALOG_PLACEHOLDER
+    : (creative.thumbnail_storage_url || creative.thumbnail_url || creative.image_url);
 
   // Get media type for display (prefer ad_object_type from new Windsor data)
   const mediaType = getMediaType(creative.ad_object_type, creative.media_type);
