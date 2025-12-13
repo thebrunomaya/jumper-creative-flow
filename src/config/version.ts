@@ -7,10 +7,17 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.82';
+export const APP_VERSION = 'v2.1.85';
 
 /**
  * Version history:
+ * - v2.1.85 (2024-12-13):
+ *   - ENH: TopCreativeCard now supports ad_object_type from Windsor (VIDEO, SHARE, PHOTO)
+ *   - ENH: Intelligent thumbnail fallback: thumbnail_storage_url → thumbnail_url → image_url
+ *   - ENH: Improved placeholder display showing media type icon when no image available
+ *   - ENH: Added creative_id, facebook_permalink_url, instagram_permalink_url to useTopCreatives
+ *   - DOC: Consolidated roadmaps into ROADMAP-CRIATIVOS-E-INSIGHTS.md
+ *
  * - v2.1.82 (2024-12-11):
  *   - FEAT: Top 3 Criativos section in SalesDashboard showing best performing ads
  *   - NEW: useTopCreatives hook for fetching and ranking creatives by objective

@@ -49,17 +49,52 @@ const BADGE_COLORS = {
 } as const;
 
 /**
+ * Get media type from ad_object_type or media_type
+ * ad_object_type values: VIDEO, SHARE, PHOTO
+ * media_type values: VIDEO, CAROUSEL_ALBUM, IMAGE
+ */
+function getMediaType(adObjectType: string | null, mediaType: string | null): string {
+  const type = adObjectType || mediaType || '';
+  return type.toUpperCase();
+}
+
+/**
  * Get media type icon
  */
-function getMediaTypeIcon(mediaType: string | null) {
-  switch (mediaType?.toUpperCase()) {
+function getMediaTypeIcon(mediaType: string | null, adObjectType: string | null = null) {
+  const type = getMediaType(adObjectType, mediaType);
+  switch (type) {
     case 'VIDEO':
       return <Video className="h-3 w-3" />;
     case 'CAROUSEL_ALBUM':
     case 'CAROUSEL':
       return <Images className="h-3 w-3" />;
+    case 'SHARE':
+    case 'PHOTO':
+    case 'IMAGE':
     default:
       return <ImageIcon className="h-3 w-3" />;
+  }
+}
+
+/**
+ * Get media type label for display
+ */
+function getMediaTypeLabel(mediaType: string | null, adObjectType: string | null = null): string {
+  const type = getMediaType(adObjectType, mediaType);
+  switch (type) {
+    case 'VIDEO':
+      return 'Video';
+    case 'CAROUSEL_ALBUM':
+    case 'CAROUSEL':
+      return 'Carrossel';
+    case 'SHARE':
+      return 'Post';
+    case 'PHOTO':
+    case 'IMAGE':
+      return 'Imagem';
+    default:
+      return type || 'Anuncio';
   }
 }
 
@@ -74,8 +109,15 @@ export function TopCreativeCard({ creative, rank, objective }: TopCreativeCardPr
   const primaryValue = (creative as Record<string, unknown>)[config.primaryMetric.key] as number ?? 0;
   const badgeColor = getPerformanceBadgeColor(primaryValue, objective);
 
-  // Get image URL (prefer thumbnail for videos)
-  const imageUrl = creative.thumbnail_url || creative.image_url;
+  // Get image URL with fallback priority:
+  // 1. thumbnail_storage_url (permanent, never expires)
+  // 2. thumbnail_url (from Meta, may expire)
+  // 3. image_url (from Meta, may expire)
+  const imageUrl = creative.thumbnail_storage_url || creative.thumbnail_url || creative.image_url;
+
+  // Get media type for display (prefer ad_object_type from new Windsor data)
+  const mediaType = getMediaType(creative.ad_object_type, creative.media_type);
+  const mediaTypeLabel = getMediaTypeLabel(creative.media_type, creative.ad_object_type);
 
   return (
     <Card
@@ -91,10 +133,10 @@ export function TopCreativeCard({ creative, rank, objective }: TopCreativeCardPr
         <span className="text-lg" role="img" aria-label={`Rank ${rank}`}>
           {rankStyle.medal}
         </span>
-        {creative.media_type && (
+        {mediaType && (
           <Badge variant="outline" className="text-xs gap-1">
-            {getMediaTypeIcon(creative.media_type)}
-            {creative.media_type === 'CAROUSEL_ALBUM' ? 'Carrossel' : creative.media_type}
+            {getMediaTypeIcon(creative.media_type, creative.ad_object_type)}
+            {mediaTypeLabel}
           </Badge>
         )}
       </div>
@@ -109,8 +151,15 @@ export function TopCreativeCard({ creative, rank, objective }: TopCreativeCardPr
             fallback="/placeholder.svg"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-            <ImageOff className="h-12 w-12 opacity-50" />
+          <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground gap-2 bg-gradient-to-br from-muted to-muted/50">
+            {mediaType === 'VIDEO' ? (
+              <Video className="h-16 w-16 opacity-40" />
+            ) : mediaType === 'CAROUSEL_ALBUM' || mediaType === 'CAROUSEL' ? (
+              <Images className="h-16 w-16 opacity-40" />
+            ) : (
+              <ImageOff className="h-16 w-16 opacity-40" />
+            )}
+            <span className="text-xs opacity-60">{mediaTypeLabel || 'Sem preview'}</span>
           </div>
         )}
 

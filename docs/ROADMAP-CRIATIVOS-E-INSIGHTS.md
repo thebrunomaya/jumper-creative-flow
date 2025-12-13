@@ -1,7 +1,7 @@
 # Roadmap Consolidado: Criativos & Insights
 
 > **Atualizado:** 2024-12-13
-> **Versão:** v2.1.83
+> **Versão:** v2.1.84
 > **Status:** Em desenvolvimento
 
 ---
@@ -103,82 +103,16 @@ ON j_rep_metaads_bronze(creative_id, account_id, date);
 
 ## Status Geral
 
-| Módulo | Status | Progresso |
-|--------|--------|-----------|
-| Query Windsor | ✅ Atualizada | 100% |
-| Schema do Banco | ✅ Atualizado | 100% |
-| Top Criativos (SalesDashboard) | ⚠️ Parcial | 80% |
-| Sistema de Thumbnails Permanentes | ⏳ Pendente | 0% |
-| Views SQL | ⏳ Pendente | 0% |
-| Dashboard de Criativos (Frontend) | ⏳ Pendente | 0% |
-| Sistema de Insights | 🔒 Bloqueado | 0% |
-| Segurança (RLS) | 🔒 CRÍTICO | 0% |
-
----
-
-## FASE 0: Segurança (BLOQUEADOR)
-
-> **CRÍTICO:** Implementar ANTES de qualquer feature de Insights
-
-### Problema
-Dados de métricas (`j_rep_metaads_bronze`) acessíveis por qualquer usuário autenticado. Gerente da Conta A pode ver dados da Conta B.
-
-### Solução
-
-**1. Criar tabela de mapeamento:**
-```sql
-CREATE TABLE j_ads_user_account_access (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  user_id UUID REFERENCES auth.users(id) NOT NULL,
-  account_id TEXT NOT NULL,
-  access_level TEXT NOT NULL, -- 'read', 'write', 'admin'
-  granted_by UUID REFERENCES auth.users(id),
-  granted_at TIMESTAMP DEFAULT NOW(),
-  UNIQUE(user_id, account_id)
-);
-
--- Popular com dados existentes
-INSERT INTO j_ads_user_account_access (user_id, account_id, access_level)
-SELECT
-  u.id as user_id,
-  unnest(string_to_array(m.contas, ',')) as account_id,
-  'read' as access_level
-FROM auth.users u
-JOIN j_hub_notion_db_managers m ON m.email = u.email
-WHERE m.ativo = true;
-```
-
-**2. Aplicar RLS:**
-```sql
-ALTER TABLE j_rep_metaads_bronze ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "Users see only their accounts data"
-ON j_rep_metaads_bronze FOR SELECT
-USING (
-  account_id IN (
-    SELECT account_id FROM j_ads_user_account_access
-    WHERE user_id = auth.uid()
-  )
-);
-
-CREATE POLICY "Admins see all data"
-ON j_rep_metaads_bronze FOR SELECT
-USING (
-  EXISTS (
-    SELECT 1 FROM j_hub_notion_db_managers
-    WHERE email = (SELECT email FROM auth.users WHERE id = auth.uid())
-    AND tipo = 'admin' AND ativo = true
-  )
-);
-```
-
-### Checklist Fase 0
-- [ ] Criar `j_ads_user_account_access`
-- [ ] Popular com dados existentes
-- [ ] Aplicar RLS em `j_rep_metaads_bronze`
-- [ ] Aplicar RLS em `j_ads_optimization_context`
-- [ ] Testar isolamento (usuário normal vs admin)
-- [ ] Validar queries existentes continuam funcionando
+| Fase | Módulo | Status | Progresso |
+|------|--------|--------|-----------|
+| - | Query Windsor | ✅ Atualizada | 100% |
+| - | Schema do Banco | ✅ Atualizado | 100% |
+| 1 | Top Criativos (SalesDashboard) | ⚠️ Parcial | 80% |
+| 2 | Sistema de Thumbnails Permanentes | ⏳ Pendente | 0% |
+| 3 | Views SQL | ⏳ Pendente | 0% |
+| 4 | Dashboard de Criativos (Frontend) | ⏳ Pendente | 0% |
+| 5 | Sistema de Insights | ⏳ Pendente | 0% |
+| 6 | Segurança (RLS) | ⏳ Futuro | 0% |
 
 ---
 
@@ -530,8 +464,6 @@ src/
 
 ## FASE 5: Sistema de Insights
 
-> **Pré-requisito:** FASE 0 (Segurança/RLS) deve estar completa
-
 ### 5.1 Insights Comparativos
 
 **Objetivo:** Comparar período atual vs anterior automaticamente
@@ -648,6 +580,51 @@ Gestor iniciou teste de cold audience há 3 dias.
 
 ---
 
+## FASE 6: Segurança (RLS) - Futuro
+
+> **Nota:** Adiada para implementação futura. Dados não são sensíveis entre membros da equipe.
+
+### Problema (Para referência futura)
+Dados de métricas (`j_rep_metaads_bronze`) acessíveis por qualquer usuário autenticado.
+
+### Solução (Quando necessário)
+
+**1. Criar tabela de mapeamento:**
+```sql
+CREATE TABLE j_ads_user_account_access (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES auth.users(id) NOT NULL,
+  account_id TEXT NOT NULL,
+  access_level TEXT NOT NULL, -- 'read', 'write', 'admin'
+  granted_by UUID REFERENCES auth.users(id),
+  granted_at TIMESTAMP DEFAULT NOW(),
+  UNIQUE(user_id, account_id)
+);
+```
+
+**2. Aplicar RLS:**
+```sql
+ALTER TABLE j_rep_metaads_bronze ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users see only their accounts data"
+ON j_rep_metaads_bronze FOR SELECT
+USING (
+  account_id IN (
+    SELECT account_id FROM j_ads_user_account_access
+    WHERE user_id = auth.uid()
+  )
+);
+```
+
+### Checklist Fase 6 (Futuro)
+- [ ] Criar `j_ads_user_account_access`
+- [ ] Popular com dados existentes
+- [ ] Aplicar RLS em `j_rep_metaads_bronze`
+- [ ] Aplicar RLS em `j_ads_optimization_context`
+- [ ] Testar isolamento
+
+---
+
 ## Query Windsor Atual
 
 **61 campos - Versão final:**
@@ -662,7 +639,6 @@ https://connectors.windsor.ai/facebook?api_key=KEY&date_preset=last_1d&fields=ac
 
 | Risco | Probabilidade | Impacto | Mitigação |
 |-------|---------------|---------|-----------|
-| RLS não implementado corretamente | Média | **CRÍTICO** | Testes automatizados de isolamento |
 | Thumbnails expiram antes do sync | Alta | Médio | Sync diário + fallback visual |
 | Performance degradada com views | Baixa | Médio | Índices + materialização |
 | Windsor não popula creative_id | Baixa | Alto | Validar após próxima execução |
@@ -673,7 +649,6 @@ https://connectors.windsor.ai/facebook?api_key=KEY&date_preset=last_1d&fields=ac
 ## Critérios de Sucesso
 
 ### Técnicos
-- [ ] 100% das queries respeitam RLS
 - [ ] Latência <500ms para views
 - [ ] 90%+ dos criativos com thumbnail permanente
 - [ ] 0 erros críticos em 1 semana
@@ -714,7 +689,6 @@ LIMIT 10;
 
 3. Verificar configuração Windsor
 4. Implementar fallback como mitigação
-5. Planejar RLS em paralelo
 
 ---
 
@@ -729,4 +703,4 @@ LIMIT 10;
 
 ---
 
-**Próximo Passo Recomendado:** Verificar se Windsor populou `creative_id` e decidir entre Fase 1.1 (fallback) ou Fase 2 (thumbnails permanentes).
+**Próximo Passo:** Verificar se Windsor populou `creative_id` e começar Fase 1.1 (fallback inteligente).

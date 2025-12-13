@@ -13,14 +13,19 @@ export interface TopCreative {
   ad_name: string;
   campaign: string;
   adset_name: string;
+  creative_id: string | null;
 
   // Creative content (from Windsor)
   image_url: string | null;
   thumbnail_url: string | null;
+  thumbnail_storage_url: string | null;
   body: string | null;
   title: string | null;
   link: string | null;
   media_type: string | null;
+  ad_object_type: string | null;
+  facebook_permalink_url: string | null;
+  instagram_permalink_url: string | null;
 
   // Base metrics (aggregated across date range)
   spend: number;
@@ -95,12 +100,17 @@ interface BronzeRow {
   ad_name: string | null;
   campaign: string | null;
   adset_name: string | null;
+  creative_id: string | null;
   image_url: string | null;
   thumbnail_url: string | null;
+  thumbnail_storage_url: string | null;
   body: string | null;
   title: string | null;
   link: string | null;
   media_type: string | null;
+  ad_object_type: string | null;
+  facebook_permalink_url: string | null;
+  instagram_permalink_url: string | null;
   spend: number | string | null;
   impressions: number | null;
   clicks: number | null;
@@ -226,12 +236,17 @@ function aggregateByAdId(rows: BronzeRow[]): Omit<TopCreative, keyof DerivedMetr
         ad_name: row.ad_name || `Ad ${adId.slice(-6)}`,
         campaign: row.campaign || 'Campanha',
         adset_name: row.adset_name || '',
+        creative_id: row.creative_id,
         image_url: row.image_url,
         thumbnail_url: row.thumbnail_url,
+        thumbnail_storage_url: row.thumbnail_storage_url,
         body: row.body,
         title: row.title,
         link: row.link,
         media_type: row.media_type,
+        ad_object_type: row.ad_object_type,
+        facebook_permalink_url: row.facebook_permalink_url,
+        instagram_permalink_url: row.instagram_permalink_url,
         // Initialize metrics at 0
         spend: 0,
         impressions: 0,
@@ -272,12 +287,17 @@ function aggregateByAdId(rows: BronzeRow[]): Omit<TopCreative, keyof DerivedMetr
     const ad = adMap.get(adId)!;
 
     // Update creative content if current row has better data
+    if (!ad.creative_id && row.creative_id) ad.creative_id = row.creative_id;
     if (!ad.image_url && row.image_url) ad.image_url = row.image_url;
     if (!ad.thumbnail_url && row.thumbnail_url) ad.thumbnail_url = row.thumbnail_url;
+    if (!ad.thumbnail_storage_url && row.thumbnail_storage_url) ad.thumbnail_storage_url = row.thumbnail_storage_url;
     if (!ad.body && row.body) ad.body = row.body;
     if (!ad.title && row.title) ad.title = row.title;
     if (!ad.link && row.link) ad.link = row.link;
     if (!ad.media_type && row.media_type) ad.media_type = row.media_type;
+    if (!ad.ad_object_type && row.ad_object_type) ad.ad_object_type = row.ad_object_type;
+    if (!ad.facebook_permalink_url && row.facebook_permalink_url) ad.facebook_permalink_url = row.facebook_permalink_url;
+    if (!ad.instagram_permalink_url && row.instagram_permalink_url) ad.instagram_permalink_url = row.instagram_permalink_url;
 
     // Sum metrics
     ad.spend += parseFloat(String(row.spend || 0));
