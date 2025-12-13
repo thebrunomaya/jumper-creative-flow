@@ -3,212 +3,164 @@
 # Tracks recent decisions and work-in-progress (last 7 days)
 # Older decisions migrate to docs/ARCHITECTURE.md
 
-last_updated: "2024-12-11T23:30:00Z"
+last_updated: "2024-12-13T23:00:00Z"
 session_computer: "MacBook Pro"
 session_user: "Bruno Maya"
 
 # Recent decisions (last 7 days)
 # When older than 7 days, migrate to docs/ARCHITECTURE.md
 recent_decisions:
-  - date: "2024-12-11"
-    decision: "Top 3 Criativos - Dashboard Feature + Windsor Query Update"
-    status: "partially_complete ⏳"
+  - date: "2024-12-13"
+    decision: "CreativeDetailModal - Modal completo ao clicar no card"
+    status: "complete ✅"
     details: |
-      🏆 TOP 3 CRIATIVOS - NOVA SEÇÃO NOS DASHBOARDS
+      🎯 CREATIVE DETAIL MODAL - SESSÃO 2024-12-13
 
-      ## Session Summary (2024-12-11):
+      ## Features Implementadas (v2.1.91 - v2.1.99):
 
-      ### 1. Windsor Query Analysis
+      ### 1. Modal de Detalhes do Criativo
+      - Click no TopCreativeCard abre modal com todas as informações
+      - Thumbnail em destaque (1:1 aspect ratio)
+      - Título, body, campanha, badges de tipo
+      - Links externos (Ver no Facebook, Ver no Instagram)
 
-      **Comparação de queries:**
-      - Query atual: 38 campos
-      - Query do gestor: 23 campos
-      - Campos úteis do gestor: campaign_daily_budget, campaign_status, action_values_add_to_cart
+      ### 2. Métricas Consolidadas (8 métricas)
+      - Gasto, ROAS, Compras, Receita
+      - Impressões, Cliques, CTR, CPC
+      - Todos com ícones consistentes
+      - Tooltips explicativos para clientes (hover)
 
-      **Campos de criativo descobertos no Windsor:**
-      - body (texto principal do anúncio)
-      - title (título/headline)
-      - link (URL de destino)
-      - thumbnail_url (thumbnail de vídeos)
-      - media_type (IMAGE/VIDEO/CAROUSEL)
+      ### 3. Instâncias do Criativo (breakdown)
+      - Lista todas as ads que usam o mesmo creative_id
+      - Campanha + Conjunto de Anúncios visíveis
+      - Métricas individuais por instância
+      - Tooltips em cada métrica
 
-      ### 2. Implementação Completa
+      ### 4. Alertas Visuais
+      - CTR < 1% → alerta amarelo ⚠️
+      - CPC > R$ 1,50 → alerta laranja ⚠️
+      - ROAS < 1x → vermelho / ≥ 1x → verde
 
-      **Arquivos criados:**
-      - `src/utils/creativeRankingMetrics.ts` - Métricas por objetivo
-      - `src/hooks/useTopCreatives.ts` - Hook de dados
-      - `src/components/dashboards/TopCreativeCard.tsx` - Card individual
-      - `src/components/dashboards/TopCreativesSection.tsx` - Container
+      ### 5. Agregação por creative_id
+      - Corrigido: agora agrupa por creative_id (não ad_id)
+      - Métricas consolidadas refletem performance real do criativo
+      - Exemplo: "Jumping Era" com 2 instâncias mostra ROAS 1.17x (correto)
 
-      **Integração:**
-      - SalesDashboard.tsx agora inclui TopCreativesSection
-      - Mostra top 3 ads por ROAS
-
-      ### 3. Database Migration
-
-      **Campos adicionados via SQL direto:**
-      ```sql
-      ALTER TABLE j_rep_metaads_bronze
-      ADD COLUMN IF NOT EXISTS body TEXT,
-      ADD COLUMN IF NOT EXISTS title TEXT,
-      ADD COLUMN IF NOT EXISTS link TEXT,
-      ADD COLUMN IF NOT EXISTS thumbnail_url TEXT,
-      ADD COLUMN IF NOT EXISTS media_type TEXT,
-      ADD COLUMN IF NOT EXISTS campaign_daily_budget NUMERIC(12,2),
-      ADD COLUMN IF NOT EXISTS campaign_status TEXT,
-      ADD COLUMN IF NOT EXISTS action_values_add_to_cart NUMERIC(10,2) DEFAULT 0;
-      ```
-
-      ### 4. Problema Identificado: Imagens
-
-      **Diagnóstico:**
-      - Query SQL mostrou 4 de 5 ads com image_url: null
-      - Windsor não retorna image_url para todos os formatos
-      - URLs da Meta expiram em 24-72h
-
-      **Solução proposta (próxima sessão):**
-      - Fase 1: Aguardar Windsor com query atualizada
-      - Fase 2: Fallback inteligente no UI
-      - Fase 3: Download para Supabase Storage
-      - Fase 4: Rollout para outros dashboards
-
-      ### 5. Documentação
-
-      **Roadmap criado:**
-      - `docs/ROADMAP-TOP-CRIATIVOS.md`
-      - Plano completo em 4 fases
-      - Checklist para próxima sessão
-      - Decisões pendentes documentadas
-
-    impact: "MAJOR - Nova feature Top Criativos + expansão da query Windsor"
+    impact: "MAJOR - Nova experiência de análise de criativos"
     files_changed:
-      - "src/utils/creativeRankingMetrics.ts (NEW)"
-      - "src/hooks/useTopCreatives.ts (NEW)"
-      - "src/components/dashboards/TopCreativeCard.tsx (NEW)"
-      - "src/components/dashboards/TopCreativesSection.tsx (NEW)"
-      - "src/components/dashboards/SalesDashboard.tsx (modified)"
-      - "supabase/migrations/20251211224407_add_creative_fields_to_bronze.sql (NEW)"
-      - "_tmp-bruno/windsor-query-atualizada.txt (query atualizada)"
-      - "docs/ROADMAP-TOP-CRIATIVOS.md (NEW - roadmap)"
+      - "src/components/dashboards/CreativeDetailModal.tsx (NEW)"
+      - "src/hooks/useCreativeInstances.ts (NEW)"
+      - "src/components/dashboards/TopCreativeCard.tsx (modified)"
+      - "src/components/dashboards/TopCreativesSection.tsx (modified)"
+      - "src/hooks/useTopCreatives.ts (modified - creative_id aggregation)"
+      - "docs/ROADMAP-DASHBOARDS.md (updated)"
     deployed: true
-    deployment_status: "Deployed via git push ✅ (v2.1.82)"
+    deployment_status: "Deployed v2.1.99 ✅"
     commits:
-      - "dd0b0b0: feat(dashboards): Add Top 3 Criativos section to SalesDashboard (v2.1.82)"
-      - "55f6a58: docs: Add Top Criativos roadmap for image/video handling (v2.1.83)"
+      - "cce5db3: fix(modal): Tooltip overflow v2 - sticky positioning (v2.1.99)"
+      - "8924691: fix(modal): Tooltip overflow - bottom side (v2.1.98)"
+      - "c0f3cff: enh(modal): Add metric tooltips and icons (v2.1.97)"
+      - "6bd4c4d: enh(modal): Adjust CPC threshold to R$1.50 (v2.1.96)"
+      - "9466591: enh(modal): CTR/CPC alerts in consolidated metrics (v2.1.95)"
+      - "adb865c: enh(modal): Campaign/Adset in instances (v2.1.94)"
     migrate_to_architecture: false
 
 # Current issues being worked on
 current_issues:
-  - issue: "Imagens não aparecem para maioria dos ads"
-    status: "diagnosed"
-    details: "Windsor não retorna image_url para todos formatos. Solução: Storage + fallback"
-    priority: "medium"
-    next_action: "Aguardar Windsor rodar com query atualizada, depois implementar fallback"
+  - issue: "Tooltip overflow em algumas posições do modal"
+    status: "mitigated"
+    details: "Implementado sticky='always' e max-w-[200px]. Pode precisar ajuste fino."
+    priority: "low"
+    next_action: "Monitorar feedback do usuário"
 
 # Work in progress
 work_in_progress:
-  - feature: "Top 3 Criativos"
-    status: "partial"
+  - feature: "Top 3 Criativos + Modal de Detalhes"
+    status: "complete"
     completed:
-      - "✅ Componentes criados"
-      - "✅ Hook implementado"
-      - "✅ Integrado no SalesDashboard"
-      - "✅ Migration aplicada"
-      - "✅ Query Windsor atualizada (arquivo txt)"
+      - "✅ Componentes base (cards com medalhas)"
+      - "✅ Hook useTopCreatives com agregação por creative_id"
+      - "✅ Sistema de Thumbnails Permanentes"
+      - "✅ CreativeDetailModal com métricas consolidadas"
+      - "✅ useCreativeInstances hook"
+      - "✅ Tooltips explicativos para clientes"
+      - "✅ Alertas de CTR/CPC fora do alvo"
     pending:
-      - "⏳ Windsor rodar com novos campos"
-      - "⏳ Implementar fallback de imagens"
-      - "⏳ Implementar Storage para persistência"
       - "⏳ Rollout para outros 11 dashboards"
 
 # Context for next session
 next_session_context: |
-  🎯 SESSION 2024-12-11 COMPLETED: TOP 3 CRIATIVOS
+  🎯 SESSION 2024-12-13 COMPLETED: CREATIVE DETAIL MODAL
 
-  ## ✅ O QUE FOI FEITO HOJE:
+  ## ✅ O QUE FOI FEITO HOJE (v2.1.91 → v2.1.99):
 
-  **Feature Top Criativos:**
-  - ✅ Componentes criados (TopCreativeCard, TopCreativesSection)
-  - ✅ Hook useTopCreatives com lógica de ranking por objetivo
-  - ✅ Integrado no SalesDashboard (mostrando ROAS 33x, 32x, 26x)
-  - ✅ Deploy em produção (v2.1.82)
+  **Modal de Detalhes:**
+  - ✅ Click no card abre modal completo
+  - ✅ Métricas Consolidadas (8 métricas com ícones)
+  - ✅ Instâncias do Criativo (breakdown por ad_id)
+  - ✅ Tooltips explicativos em TODAS as métricas
+  - ✅ Alertas visuais (CTR < 1%, CPC > R$ 1,50)
+  - ✅ Links FB/IG movidos para o modal
+  - ✅ Scroll funcionando corretamente
 
-  **Database:**
-  - ✅ 8 novos campos adicionados via SQL direto
-  - ✅ body, title, link, thumbnail_url, media_type
-  - ✅ campaign_daily_budget, campaign_status, action_values_add_to_cart
+  **Agregação Corrigida:**
+  - ✅ useTopCreatives agora agrupa por creative_id (não ad_id)
+  - ✅ Métricas refletem performance real do criativo
 
-  **Query Windsor:**
-  - ✅ Query atualizada salva em: `_tmp-bruno/windsor-query-atualizada.txt`
-  - ⚠️ AÇÃO MANUAL NECESSÁRIA: Atualizar query no Windsor.ai dashboard
+  **Thresholds Baseados em:**
+  - ROAS alvo: 5x
+  - Ticket médio: R$ 180
+  - Taxa de conversão: 1%
+  - CPC máximo ideal: R$ 0,36 (alerta em R$ 1,50)
 
-  ## ⚠️ PROBLEMA IDENTIFICADO:
+  ## 📋 PRÓXIMA SESSÃO:
 
-  **Imagens não aparecem:**
-  - 4 de 5 ads têm image_url: null
-  - Windsor não retorna image_url para vídeos/carrosséis
-  - URLs da Meta expiram em 24-72h
+  1. Rollout TopCreativesSection para outros dashboards:
+     - TrafficDashboard, LeadsDashboard, EngagementDashboard
+     - BrandAwarenessDashboard, ReachDashboard, etc.
 
-  **Roadmap de solução:** `docs/ROADMAP-TOP-CRIATIVOS.md`
-
-  ## 📋 PRÓXIMA SESSÃO - CHECKLIST:
-
-  1. Verificar se Windsor rodou com query atualizada:
-     ```sql
-     SELECT COUNT(*) FROM j_rep_metaads_bronze WHERE thumbnail_url IS NOT NULL;
-     ```
-
-  2. Se dados novos disponíveis:
-     - Implementar Fase 2 (fallback inteligente)
-     - Testar cobertura de imagens
-
-  3. Se dados ainda não disponíveis:
-     - Verificar configuração Windsor
-     - Implementar fallback como mitigação
-
-  4. Depois: Rollout para outros 11 dashboards
+  2. Considerar melhorias opcionais:
+     - Tooltip positioning edge cases
+     - Mais métricas no modal (CPM, Alcance, etc.)
 
   ## 📁 ARQUIVOS IMPORTANTES:
 
-  - Query Windsor: `_tmp-bruno/windsor-query-atualizada.txt`
-  - Roadmap completo: `docs/ROADMAP-TOP-CRIATIVOS.md`
-  - Componentes: `src/components/dashboards/TopCreative*.tsx`
-  - Hook: `src/hooks/useTopCreatives.ts`
+  - Modal: `src/components/dashboards/CreativeDetailModal.tsx`
+  - Hook instâncias: `src/hooks/useCreativeInstances.ts`
+  - Roadmap: `docs/ROADMAP-DASHBOARDS.md`
 
 # TODOs pending
 pending_todos:
-  - "Atualizar query no Windsor.ai dashboard (AÇÃO MANUAL)"
-  - "Verificar se Windsor populou novos campos"
-  - "Implementar fallback de imagens"
-  - "Implementar Supabase Storage para imagens persistentes"
-  - "Rollout TopCreativesSection para outros dashboards"
+  - "Rollout TopCreativesSection para outros 11 dashboards"
+  - "Monitorar tooltip overflow edge cases"
 
 # Recently completed (for reference)
 completed_recently:
-  - "✅ [2024-12-11 23:14] Top Criativos funcionando em produção (ROAS aparecendo)"
-  - "✅ [2024-12-11 22:50] Deploy v2.1.82 para produção"
-  - "✅ [2024-12-11 22:45] Migration aplicada via SQL direto"
-  - "✅ [2024-12-11 22:30] Query Windsor atualizada com novos campos"
-  - "✅ [2024-12-11 22:00] Implementação completa dos componentes"
-  - "✅ [2024-12-11 21:30] Plano aprovado para Top 3 Criativos"
+  - "✅ [2024-12-13 23:00] CreativeDetailModal com tooltips (v2.1.99)"
+  - "✅ [2024-12-13 22:45] Alertas CTR/CPC nas métricas consolidadas"
+  - "✅ [2024-12-13 22:30] Threshold CPC ajustado para R$ 1,50"
+  - "✅ [2024-12-13 22:00] Tooltips explicativos para clientes"
+  - "✅ [2024-12-13 21:30] useCreativeInstances hook criado"
+  - "✅ [2024-12-13 21:00] CreativeDetailModal implementado"
+  - "✅ [2024-12-13 20:30] Agregação por creative_id corrigida"
 
 # Deployment status
 deployment:
   production_url: "https://hub.jumper.studio"
-  current_version: "v2.1.82"
-  last_deploy: "2024-12-11T23:00:00Z"
-  last_deploy_status: "Top 3 Criativos deployed ✅"
-  last_commit: "55f6a58 - docs: Add Top Criativos roadmap"
-  database_status: "STABLE - 8 novos campos adicionados ✅"
-  known_issues: "Imagens não aparecem para todos os ads (aguardando Windsor)"
+  current_version: "v2.1.99"
+  last_deploy: "2024-12-13T23:00:00Z"
+  last_deploy_status: "CreativeDetailModal deployed ✅"
+  last_commit: "cce5db3 - fix(modal): Tooltip overflow v2"
+  database_status: "STABLE"
+  known_issues: "Tooltip pode ter overflow em edge cases (mitigado)"
   recent_commits:
-    - "55f6a58: docs: Add Top Criativos roadmap for image/video handling (v2.1.83)"
-    - "dd0b0b0: feat(dashboards): Add Top 3 Criativos section to SalesDashboard (v2.1.82)"
-    - "d200e2b: fix(dashboards): Date range picker now correctly applies selected dates (v2.1.80)"
+    - "cce5db3: fix(modal): Tooltip overflow v2 (v2.1.99)"
+    - "c0f3cff: enh(modal): Add metric tooltips (v2.1.97)"
+    - "6bd4c4d: enh(modal): Adjust CPC threshold (v2.1.96)"
 
 # Notes for context rotation
 context_rotation:
-  last_rotation: "2024-12-11"
-  next_rotation: "2024-12-18"
+  last_rotation: "2024-12-13"
+  next_rotation: "2024-12-20"
   items_ready_to_migrate:
-    - "Decks System CSS extraction (2024-11-16) - migrate to ARCHITECTURE.md"
+    - "Top Criativos base implementation (2024-12-11) - pode migrar"

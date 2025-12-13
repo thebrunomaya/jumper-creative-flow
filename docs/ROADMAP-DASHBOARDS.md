@@ -1,8 +1,8 @@
 # Roadmap: Dashboards & Criativos
 
 > **Atualizado:** 2024-12-13
-> **Versão:** v2.1.89
-> **Status:** Fase 2 completa
+> **Versão:** v2.1.99
+> **Status:** Fase 3 completa (Modal de Detalhes)
 
 ---
 
@@ -12,8 +12,9 @@ Este roadmap consolida as iniciativas de visualização de criativos e insights:
 
 1. **Top Criativos** - Seção nos dashboards existentes ✅
 2. **Sistema de Thumbnails Permanentes** - URLs que nunca expiram ✅
-3. **Dashboard de Performance de Criativos** - Página dedicada (futuro)
-4. **Sistema de Insights** - Análises automatizadas (futuro)
+3. **Modal de Detalhes do Criativo** - Click no card abre modal completo ✅
+4. **Dashboard de Performance de Criativos** - Página dedicada (futuro)
+5. **Sistema de Insights** - Análises automatizadas (futuro)
 
 ---
 
@@ -25,10 +26,11 @@ Este roadmap consolida as iniciativas de visualização de criativos e insights:
 | - | Schema do Banco | ✅ Completo | 100% |
 | 1 | Top Criativos (SalesDashboard) | ✅ Completo | 100% |
 | 2 | Sistema de Thumbnails Permanentes | ✅ Completo | 100% |
-| 3 | Views SQL | ⏳ Pendente | 0% |
-| 4 | Dashboard de Criativos (Frontend) | ⏳ Pendente | 0% |
-| 5 | Sistema de Insights | ⏳ Pendente | 0% |
-| 6 | Segurança (RLS) | ⏳ Futuro | 0% |
+| 3 | Modal de Detalhes do Criativo | ✅ Completo | 100% |
+| 4 | Views SQL | ⏳ Pendente | 0% |
+| 5 | Dashboard de Criativos (Frontend) | ⏳ Pendente | 0% |
+| 6 | Sistema de Insights | ⏳ Pendente | 0% |
+| 7 | Segurança (RLS) | ⏳ Futuro | 0% |
 
 ---
 
@@ -47,13 +49,14 @@ Este roadmap consolida as iniciativas de visualização de criativos e insights:
 ### Features Implementadas
 
 - [x] Componentes base (cards com medalhas 🥇🥈🥉)
-- [x] Hook de dados com agregação por ad_id
+- [x] Hook de dados com agregação por creative_id (não ad_id)
 - [x] Métricas derivadas (ROAS, CTR, CPC, CPL, CPA, etc)
 - [x] Ranking por objetivo do dashboard
 - [x] Detecção de catálogos (templates `{{product.name}}`)
 - [x] Badge "Catálogo" com ícone ShoppingBag
 - [x] Placeholder astronauta para catálogos
 - [x] Fallback inteligente de thumbnails
+- [x] Cards clicáveis que abrem modal de detalhes
 
 ### Rollout para outros Dashboards (Pendente)
 
@@ -129,9 +132,61 @@ curl -X POST "https://biwwowendjuzvpttyrlb.supabase.co/functions/v1/sync-creativ
 
 ---
 
-## ⏳ FASE 3: Views SQL para Dashboard
+## ✅ FASE 3: Modal de Detalhes do Criativo (COMPLETO)
 
-### 3.1 View: Performance por Criativo (Consolidada)
+### Implementado (v2.1.91 - v2.1.99)
+
+| Componente | Arquivo |
+|------------|---------|
+| CreativeDetailModal | `src/components/dashboards/CreativeDetailModal.tsx` |
+| useCreativeInstances | `src/hooks/useCreativeInstances.ts` |
+
+### Features Implementadas
+
+- [x] Modal abre ao clicar no TopCreativeCard
+- [x] Thumbnail em destaque (1:1 aspect ratio)
+- [x] Informações do criativo (título, body, campanha)
+- [x] Badges de tipo (Video, Imagem, Carrossel, Catálogo)
+- [x] Links externos (Ver no Facebook, Ver no Instagram)
+- [x] **Métricas Consolidadas** - 8 métricas com ícones e tooltips:
+  - Gasto, ROAS, Compras, Receita
+  - Impressões, Cliques, CTR, CPC
+- [x] **Instâncias do Criativo** - breakdown por ad_id:
+  - Nome do anúncio, Campanha, Conjunto
+  - Métricas individuais com tooltips
+- [x] Alertas visuais para CTR < 1% e CPC > R$ 1,50
+- [x] Tooltips explicativos para clientes (hover em cada métrica)
+- [x] Valores monetários com 2 decimais (R$ X,XX)
+- [x] Scroll funcional no modal
+- [x] Agregação por creative_id (não ad_id) para métricas corretas
+
+### Thresholds de Alerta
+
+| Métrica | Condição | Cor |
+|---------|----------|-----|
+| CTR | < 1% | Amarelo |
+| CPC | > R$ 1,50 | Laranja |
+| ROAS | < 1x | Vermelho |
+| ROAS | ≥ 1x | Verde |
+
+### Tooltips das Métricas
+
+| Métrica | Tooltip |
+|---------|---------|
+| Gasto | Valor total investido neste criativo no período selecionado. |
+| ROAS | Retorno sobre o investimento. ROAS 2x = para cada R$1 gasto, faturou R$2. Acima de 1x indica lucro. |
+| Compras | Número total de vendas atribuídas a este criativo. |
+| Receita | Valor total faturado com as vendas geradas por este criativo. |
+| Impressões | Quantas vezes o anúncio foi exibido. Uma mesma pessoa pode ver várias vezes. |
+| Cliques | Cliques no link do anúncio que direcionam para o site ou landing page. |
+| CTR | Taxa de cliques. Percentual de pessoas que clicaram após ver o anúncio. Acima de 1% é considerado bom. |
+| CPC | Custo por clique. Quanto você paga, em média, por cada clique no link. Quanto menor, melhor. |
+
+---
+
+## ⏳ FASE 4: Views SQL para Dashboard
+
+### 4.1 View: Performance por Criativo (Consolidada)
 
 ```sql
 CREATE OR REPLACE VIEW v_creative_performance AS
@@ -162,7 +217,7 @@ WHERE creative_id IS NOT NULL
 GROUP BY creative_id, account_id, account_name, ad_object_type;
 ```
 
-### 3.2 View: Instâncias de um Criativo
+### 4.2 View: Instâncias de um Criativo
 
 ```sql
 CREATE OR REPLACE VIEW v_creative_instances AS
@@ -182,7 +237,7 @@ WHERE creative_id IS NOT NULL;
 
 ---
 
-## ⏳ FASE 4: Dashboard de Performance de Criativos
+## ⏳ FASE 5: Dashboard de Performance de Criativos
 
 ### Estrutura de Arquivos
 
@@ -213,20 +268,20 @@ src/
 
 ---
 
-## ⏳ FASE 5: Sistema de Insights
+## ⏳ FASE 6: Sistema de Insights
 
-### 5.1 Insights Comparativos
+### 6.1 Insights Comparativos
 Comparar período atual vs anterior automaticamente.
 
-### 5.2 Detecção de Anomalias
+### 6.2 Detecção de Anomalias
 Z-score para outliers, moving average para tendências.
 
-### 5.3 Integração com OPTIMIZER
+### 6.3 Integração com OPTIMIZER
 Contexto das otimizações nas análises.
 
 ---
 
-## ⏳ FASE 6: Segurança (RLS) - Futuro
+## ⏳ FASE 7: Segurança (RLS) - Futuro
 
 Adiada. Dados não são sensíveis entre membros da equipe.
 
@@ -276,4 +331,4 @@ Ver arquivo: `_tmp-bruno/windsor-query-atualizada.txt`
 
 ---
 
-**Última atualização:** 2024-12-13 (v2.1.89)
+**Última atualização:** 2024-12-13 (v2.1.99)
