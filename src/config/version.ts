@@ -7,10 +7,16 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.93';
+export const APP_VERSION = 'v2.1.94';
 
 /**
  * Version history:
+ * - v2.1.94 (2024-12-13):
+ *   - ENH: InstanceCard shows Campaign and Adset name
+ *   - ENH: CTR/CPC indicators when outside target (CTR < 1%, CPC > R$2.50)
+ *   - ENH: All currency values now show 2 decimal places
+ *   - ENH: 6-column metrics grid (Gasto, ROAS, Compras, Receita, CTR, CPC)
+ *
  * - v2.1.93 (2024-12-13):
  *   - FIX: CreativeDetailModal scroll now works correctly
  *   - Replaced ScrollArea with native overflow-y-auto

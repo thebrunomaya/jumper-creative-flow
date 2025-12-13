@@ -26,6 +26,7 @@ import {
   MousePointer,
   Target,
   Layers,
+  AlertTriangle,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { TopCreative } from '@/hooks/useTopCreatives';
@@ -113,37 +114,61 @@ function MetricCard({
   );
 }
 
+// Target thresholds for metrics
+const METRIC_TARGETS = {
+  ctr: { min: 1.0 }, // CTR below 1% is concerning
+  cpc: { max: 2.50 }, // CPC above R$2.50 is concerning
+};
+
+/**
+ * Format currency with 2 decimal places
+ */
+function formatCurrency(value: number): string {
+  return `R$ ${value.toFixed(2).replace('.', ',')}`;
+}
+
 /**
  * Instance card component
  */
 function InstanceCard({ instance, objective }: { instance: CreativeInstance; objective: DashboardObjective }) {
   const roasColor = instance.roas >= 1 ? 'text-green-600' : instance.roas > 0 ? 'text-yellow-600' : 'text-red-600';
 
+  // Check if CTR/CPC are outside targets
+  const ctrBelowTarget = instance.ctr < METRIC_TARGETS.ctr.min;
+  const cpcAboveTarget = instance.cpc > METRIC_TARGETS.cpc.max;
+
   return (
     <Card className="bg-muted/30">
       <CardContent className="p-4 space-y-3">
-        {/* Ad Name */}
-        <div>
+        {/* Ad Name & Location */}
+        <div className="space-y-1">
           <h4 className="font-medium text-sm line-clamp-1" title={instance.ad_name}>
             {instance.ad_name}
           </h4>
-          <p className="text-xs text-muted-foreground line-clamp-1" title={instance.campaign}>
-            {instance.campaign}
-          </p>
+          <div className="flex flex-col gap-0.5">
+            <p className="text-xs text-muted-foreground line-clamp-1" title={instance.campaign}>
+              <span className="font-medium">Campanha:</span> {instance.campaign}
+            </p>
+            {instance.adset_name && (
+              <p className="text-xs text-muted-foreground line-clamp-1" title={instance.adset_name}>
+                <span className="font-medium">Conjunto:</span> {instance.adset_name}
+              </p>
+            )}
+          </div>
         </div>
 
-        {/* Metrics Grid */}
-        <div className="grid grid-cols-4 gap-2 text-center">
+        {/* Metrics Grid - 6 columns */}
+        <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 text-center">
           <div>
             <p className="text-xs text-muted-foreground">Gasto</p>
             <p className="text-sm font-medium">
-              {formatMetricValue(instance.spend, { key: 'spend', label: 'Gasto', format: 'currency' })}
+              {formatCurrency(instance.spend)}
             </p>
           </div>
           <div>
             <p className="text-xs text-muted-foreground">ROAS</p>
             <p className={cn('text-sm font-medium', roasColor)}>
-              {instance.roas > 0 ? `${instance.roas.toFixed(2)}x` : '0x'}
+              {instance.roas.toFixed(2)}x
             </p>
           </div>
           <div>
@@ -153,7 +178,25 @@ function InstanceCard({ instance, objective }: { instance: CreativeInstance; obj
           <div>
             <p className="text-xs text-muted-foreground">Receita</p>
             <p className="text-sm font-medium">
-              {formatMetricValue(instance.revenue, { key: 'revenue', label: 'Receita', format: 'currency' })}
+              {formatCurrency(instance.revenue)}
+            </p>
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground flex items-center justify-center gap-1">
+              CTR
+              {ctrBelowTarget && <AlertTriangle className="h-3 w-3 text-yellow-500" />}
+            </p>
+            <p className={cn('text-sm font-medium', ctrBelowTarget && 'text-yellow-600')}>
+              {instance.ctr.toFixed(2)}%
+            </p>
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground flex items-center justify-center gap-1">
+              CPC
+              {cpcAboveTarget && <AlertTriangle className="h-3 w-3 text-orange-500" />}
+            </p>
+            <p className={cn('text-sm font-medium', cpcAboveTarget && 'text-orange-600')}>
+              {formatCurrency(instance.cpc)}
             </p>
           </div>
         </div>
