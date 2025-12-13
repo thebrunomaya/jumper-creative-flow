@@ -7,10 +7,16 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.86';
+export const APP_VERSION = 'v2.1.87';
 
 /**
  * Version history:
+ * - v2.1.87 (2024-12-13):
+ *   - FEAT: Permanent thumbnail storage system (Supabase Storage bucket 'criativos')
+ *   - FEAT: Edge Function sync-creative-thumbnails for downloading Meta thumbnails
+ *   - SYNC: 377/377 creatives now have permanent thumbnails (never expire)
+ *   - INFRA: Storage path: thumbnails/{account_id}/{creative_id}.{ext}
+ *
  * - v2.1.86 (2024-12-13):
  *   - ENH: Catalog/dynamic ads detection ({{product.name}} templates)
  *   - ENH: Purple badge "Catálogo" with ShoppingBag icon for catalog ads
