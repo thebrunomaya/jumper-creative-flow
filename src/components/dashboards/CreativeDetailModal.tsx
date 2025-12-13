@@ -30,8 +30,9 @@ import {
   Wallet,
   Percent,
   CircleDollarSign,
+  Facebook,
+  Instagram,
 } from 'lucide-react';
-import { FaFacebook, FaInstagram } from 'react-icons/fa';
 import {
   Tooltip,
   TooltipContent,
@@ -461,7 +462,7 @@ export function CreativeDetailModal({
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        <FaFacebook className="h-4 w-4 mr-2 text-blue-600" />
+                        <Facebook className="h-4 w-4 mr-2 text-blue-600" />
                         Ver no Facebook
                         <ExternalLink className="h-3 w-3 ml-1.5" />
                       </a>
@@ -478,7 +479,7 @@ export function CreativeDetailModal({
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        <FaInstagram className="h-4 w-4 mr-2 text-pink-600" />
+                        <Instagram className="h-4 w-4 mr-2 text-pink-600" />
                         Ver no Instagram
                         <ExternalLink className="h-3 w-3 ml-1.5" />
                       </a>
