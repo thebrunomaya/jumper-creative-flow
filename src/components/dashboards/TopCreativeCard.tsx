@@ -151,7 +151,12 @@ export function TopCreativeCard({ creative, rank, objective }: TopCreativeCardPr
   // 1. thumbnail_storage_url (permanent, never expires)
   // 2. thumbnail_url (from Meta, may expire)
   // 3. image_url (from Meta, may expire)
-  const imageUrl = creative.thumbnail_storage_url || creative.thumbnail_url || creative.image_url;
+  // 4. For catalogs: use astronaut placeholder (catalogs never have working thumbnails)
+  const CATALOG_PLACEHOLDER = '/images/catalog-placeholder.png';
+  const imageUrl = creative.thumbnail_storage_url
+    || creative.thumbnail_url
+    || creative.image_url
+    || (isCatalog ? CATALOG_PLACEHOLDER : null);
 
   // Get media type for display (prefer ad_object_type from new Windsor data)
   const mediaType = getMediaType(creative.ad_object_type, creative.media_type);

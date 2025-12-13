@@ -7,10 +7,14 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.87';
+export const APP_VERSION = 'v2.1.88';
 
 /**
  * Version history:
+ * - v2.1.88 (2024-12-13):
+ *   - ENH: Astronaut placeholder image for catalog/dynamic ads
+ *   - Catalogs never have working thumbnails, now show branded image
+ *
  * - v2.1.87 (2024-12-13):
  *   - FEAT: Permanent thumbnail storage system (Supabase Storage bucket 'criativos')
  *   - FEAT: Edge Function sync-creative-thumbnails for downloading Meta thumbnails
