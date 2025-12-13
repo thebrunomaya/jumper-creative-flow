@@ -7,10 +7,15 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.89';
+export const APP_VERSION = 'v2.1.90';
 
 /**
  * Version history:
+ * - v2.1.90 (2024-12-13):
+ *   - ENH: TopCreativeCard now uses aspect-square (1:1) to match Meta thumbnails
+ *   - ENH: Added Facebook/Instagram permalink buttons in card header
+ *   - FIX: Removed blur background (no longer needed with matching aspect ratios)
+ *
  * - v2.1.89 (2024-12-13):
  *   - FIX: Force astronaut placeholder for catalogs (Meta returns useless generic icon)
  *   - Catalogs now ALWAYS show branded astronaut image, ignoring any thumbnail

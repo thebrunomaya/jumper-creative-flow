@@ -2,7 +2,7 @@ import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { LazyImage } from '@/components/ui/lazy-image';
-import { ImageOff, Video, Image as ImageIcon, Images, ShoppingBag } from 'lucide-react';
+import { ImageOff, Video, Image as ImageIcon, Images, ShoppingBag, Facebook, Instagram } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { TopCreative } from '@/hooks/useTopCreatives';
 import {
@@ -171,11 +171,38 @@ export function TopCreativeCard({ creative, rank, objective }: TopCreativeCardPr
         rankStyle.bg
       )}
     >
-      {/* Rank Badge */}
+      {/* Header: Medal + Links + Type Badge */}
       <div className="flex items-center justify-between px-3 py-2 border-b border-border/50">
-        <span className="text-lg" role="img" aria-label={`Rank ${rank}`}>
-          {rankStyle.medal}
-        </span>
+        <div className="flex items-center gap-2">
+          <span className="text-lg" role="img" aria-label={`Rank ${rank}`}>
+            {rankStyle.medal}
+          </span>
+          {/* Social Links */}
+          <div className="flex items-center gap-0.5">
+            {creative.facebook_permalink_url && (
+              <a
+                href={creative.facebook_permalink_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-1 hover:bg-muted rounded transition-colors"
+                title="Ver no Facebook"
+              >
+                <Facebook className="h-3.5 w-3.5 text-blue-600" />
+              </a>
+            )}
+            {creative.instagram_permalink_url && (
+              <a
+                href={creative.instagram_permalink_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-1 hover:bg-muted rounded transition-colors"
+                title="Ver no Instagram"
+              >
+                <Instagram className="h-3.5 w-3.5 text-pink-600" />
+              </a>
+            )}
+          </div>
+        </div>
         {(mediaType || isCatalog) && (
           <Badge variant="outline" className={cn('text-xs gap-1', isCatalog && 'border-purple-400 text-purple-600 dark:border-purple-500 dark:text-purple-400')}>
             {getMediaTypeIconComponent(creative.media_type, creative.ad_object_type, isCatalog, 'sm')}
@@ -184,8 +211,8 @@ export function TopCreativeCard({ creative, rank, objective }: TopCreativeCardPr
         )}
       </div>
 
-      {/* Image */}
-      <div className="relative aspect-[4/5] bg-muted">
+      {/* Image Container - Square (1:1) to match Meta thumbnails */}
+      <div className="relative aspect-square bg-muted overflow-hidden">
         {imageUrl ? (
           <LazyImage
             src={imageUrl}
@@ -291,7 +318,7 @@ export function TopCreativeCardSkeleton() {
       </div>
 
       {/* Image skeleton */}
-      <div className="aspect-[4/5] bg-muted" />
+      <div className="aspect-square bg-muted" />
 
       {/* Content skeleton */}
       <div className="p-3 space-y-2">

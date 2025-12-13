@@ -3,461 +3,212 @@
 # Tracks recent decisions and work-in-progress (last 7 days)
 # Older decisions migrate to docs/ARCHITECTURE.md
 
-last_updated: "2024-11-16T21:45:00Z"
-session_computer: "MacBook Pro (trabalho)"
+last_updated: "2024-12-11T23:30:00Z"
+session_computer: "MacBook Pro"
 session_user: "Bruno Maya"
 
 # Recent decisions (last 7 days)
 # When older than 7 days, migrate to docs/ARCHITECTURE.md
 recent_decisions:
-  - date: "2024-11-16"
-    decision: "Decks System - External CSS Extraction for Token Optimization"
-    status: "completed ✅"
+  - date: "2024-12-11"
+    decision: "Top 3 Criativos - Dashboard Feature + Windsor Query Update"
+    status: "partially_complete ⏳"
     details: |
-      🚀 TEMPLATE OPTIMIZATION - EXTERNAL CSS EXTRACTION
+      🏆 TOP 3 CRIATIVOS - NOVA SEÇÃO NOS DASHBOARDS
 
-      ## Session Summary (2024-11-16):
+      ## Session Summary (2024-12-11):
 
-      ### Problem Identified
+      ### 1. Windsor Query Analysis
 
-      **Issue:** Deck generation Edge Functions experiencing timeouts
-      **Root cause:** High token consumption in AI prompts
-      **Specific cause:** Template `koko-classic.html` contains ~2000 lines of inline CSS
-      **Impact:** Functions consuming ~12,000 tokens per request, hitting platform limits
+      **Comparação de queries:**
+      - Query atual: 38 campos
+      - Query do gestor: 23 campos
+      - Campos úteis do gestor: campaign_daily_budget, campaign_status, action_values_add_to_cart
 
-      ### Solution Implemented
+      **Campos de criativo descobertos no Windsor:**
+      - body (texto principal do anúncio)
+      - title (título/headline)
+      - link (URL de destino)
+      - thumbnail_url (thumbnail de vídeos)
+      - media_type (IMAGE/VIDEO/CAROUSEL)
 
-      **Strategy:** Extract CSS to external file, reference via <link> tag
-      **Why:** CSS doesn't need to be sent to AI - generated decks just reference it
+      ### 2. Implementação Completa
 
-      **Files Created:**
-      - `public/decks/templates/koko-classic-v2.css` (2011 lines)
-        - Complete CSS extraction from inline styles
-        - All fonts, design system, 17 slide patterns, charts
-        - Served via: https://hub.jumper.studio/decks/templates/koko-classic-v2.css
+      **Arquivos criados:**
+      - `src/utils/creativeRankingMetrics.ts` - Métricas por objetivo
+      - `src/hooks/useTopCreatives.ts` - Hook de dados
+      - `src/components/dashboards/TopCreativeCard.tsx` - Card individual
+      - `src/components/dashboards/TopCreativesSection.tsx` - Container
 
-      - `public/decks/templates/koko-classic-v2.html` (190 lines)
-        - Lightweight HTML template
-        - Links to external CSS: <link rel="stylesheet" href="...">
-        - All HTML structure preserved (22 example slides, navigation)
+      **Integração:**
+      - SalesDashboard.tsx agora inclui TopCreativesSection
+      - Mostra top 3 ads por ROAS
 
-      ### Results
+      ### 3. Database Migration
 
-      **Template Size Reduction:**
-      - Before: 3,216 lines (inline CSS + HTML)
-      - After: 190 lines (HTML only)
-      - Reduction: 93.8%
+      **Campos adicionados via SQL direto:**
+      ```sql
+      ALTER TABLE j_rep_metaads_bronze
+      ADD COLUMN IF NOT EXISTS body TEXT,
+      ADD COLUMN IF NOT EXISTS title TEXT,
+      ADD COLUMN IF NOT EXISTS link TEXT,
+      ADD COLUMN IF NOT EXISTS thumbnail_url TEXT,
+      ADD COLUMN IF NOT EXISTS media_type TEXT,
+      ADD COLUMN IF NOT EXISTS campaign_daily_budget NUMERIC(12,2),
+      ADD COLUMN IF NOT EXISTS campaign_status TEXT,
+      ADD COLUMN IF NOT EXISTS action_values_add_to_cart NUMERIC(10,2) DEFAULT 0;
+      ```
 
-      **Token Consumption Impact:**
-      - Before: ~12,000 tokens per prompt
-      - After: ~800 tokens per prompt
-      - Savings: 93.3% token reduction
+      ### 4. Problema Identificado: Imagens
 
-      **Validation:**
-      - ✅ CSS file served correctly at local dev server
-      - ✅ Template loads with full styling applied
-      - ✅ All fonts, colors, layouts rendering correctly
-      - ✅ Committed and pushed to production (8d21875)
+      **Diagnóstico:**
+      - Query SQL mostrou 4 de 5 ads com image_url: null
+      - Windsor não retorna image_url para todos os formatos
+      - URLs da Meta expiram em 24-72h
 
-      ### Architecture Decision
+      **Solução proposta (próxima sessão):**
+      - Fase 1: Aguardar Windsor com query atualizada
+      - Fase 2: Fallback inteligente no UI
+      - Fase 3: Download para Supabase Storage
+      - Fase 4: Rollout para outros dashboards
 
-      **CSS Organization:** Template-level, not brand-level
-      **Rationale:** Koko can have multiple templates with different visual identities
-      **Structure:** `public/decks/templates/[template-name]-v2.css`
-      **Example:** Each template gets its own CSS file
+      ### 5. Documentação
 
-      ### Next Steps (Not Yet Implemented)
+      **Roadmap criado:**
+      - `docs/ROADMAP-TOP-CRIATIVOS.md`
+      - Plano completo em 4 fases
+      - Checklist para próxima sessão
+      - Decisões pendentes documentadas
 
-      **Phase 1: Update Edge Functions**
-      - Modify deck generation functions to use `koko-classic-v2.html`
-      - Remove CSS file from prompt context
-      - Remove `design-system.md` from prompt (used to create CSS, not for AI)
-      - Test end-to-end generation with new template
-
-      **Phase 2: Optional Component Reference**
-      - Create lightweight component reference markdown
-      - Document available patterns without full CSS
-      - Use for guiding AI in slide creation
-
-      **Phase 3: Apply to Other Templates**
-      - Extract CSS from other templates as needed
-      - Standardize external CSS pattern across all templates
-
-      ## Files Changed:
-
-      **Created:**
-      - `public/decks/templates/koko-classic-v2.css` (NEW - 2011 lines)
-      - `public/decks/templates/koko-classic-v2.html` (NEW - 190 lines)
-
-      **Not Modified (Original preserved):**
-      - `public/decks/templates/koko-classic.html` (kept for backward compatibility)
-
-      ## Technical Details:
-
-      **CSS Serving:**
-      - Static file hosting via Vercel
-      - Absolute URL in <link> tag for reliability
-      - Works in both local dev and production
-
-      **CSS Content:**
-      - Font imports (Alternate Gothic, Playfair Display, Montserrat)
-      - Design system variables (Koko colors)
-      - 17 slide patterns (hero, content, charts, etc)
-      - 5 data visualization chart types
-      - Navigation system
-      - Responsive adjustments
-      - Hover effects and transitions
-
-      **Template Content:**
-      - 22 example slides showing all patterns
-      - JavaScript for slide navigation
-      - Marquee headers/footers
-      - Logo container
-      - All slide types demonstrated
-
-      ## Impact: MAJOR - Token Optimization Enables Reliable Deck Generation
-
-      **Before:**
-      - ❌ Functions timing out due to token consumption
-      - ❌ ~12,000 tokens per generation request
-      - ❌ Platform limits being hit
-      - ❌ Unreliable deck generation
-
-      **After:**
-      - ✅ ~800 tokens per generation request (93% reduction)
-      - ✅ Functions should complete within limits
-      - ✅ External CSS pattern established
-      - ✅ Scalable approach for other templates
-      - ✅ Backward compatible (v1 still exists)
-
-    impact: "MAJOR - 93% token reduction solves Edge Function timeouts"
+    impact: "MAJOR - Nova feature Top Criativos + expansão da query Windsor"
     files_changed:
-      - "public/decks/templates/koko-classic-v2.css (NEW - 2011 lines)"
-      - "public/decks/templates/koko-classic-v2.html (NEW - 190 lines)"
+      - "src/utils/creativeRankingMetrics.ts (NEW)"
+      - "src/hooks/useTopCreatives.ts (NEW)"
+      - "src/components/dashboards/TopCreativeCard.tsx (NEW)"
+      - "src/components/dashboards/TopCreativesSection.tsx (NEW)"
+      - "src/components/dashboards/SalesDashboard.tsx (modified)"
+      - "supabase/migrations/20251211224407_add_creative_fields_to_bronze.sql (NEW)"
+      - "_tmp-bruno/windsor-query-atualizada.txt (query atualizada)"
+      - "docs/ROADMAP-TOP-CRIATIVOS.md (NEW - roadmap)"
     deployed: true
-    deployment_status: "Deployed to production ✅ (commit 8d21875)"
+    deployment_status: "Deployed via git push ✅ (v2.1.82)"
     commits:
-      - "8d21875: feat(decks): Extract CSS to external file for token optimization"
-    migrate_to_architecture: false
-
-  - date: "2024-11-12"
-    decision: "Decks System v2.1 - Template Editor Redesign + Version History"
-    status: "completed ✅"
-    details: |
-      🎨 TEMPLATE EDITOR UX OVERHAUL + VERSIONING SYSTEM
-
-      ## Session Summary (2024-11-12):
-
-      ### 1. Template Editor Blank Screen Fix
-
-      **Problem:** Massive white space before header in template editor
-      **Root cause:** JumperBackground component with min-h-screen creating 100vh empty space
-      **Fix:** Removed all JumperBackground imports/usages from TemplateEditor.tsx
-
-      ### 2. Deck Preview Rendering Fix
-
-      **Problem:** Preview showing HTML source code instead of rendered presentation
-      **Root cause:** Using `src={file_url}` which displays Storage content as-is
-      **Fix:** Changed to `srcDoc={html_output}` with fallback pattern
-      **Result:** ✅ Preview renders correctly ("funcionou muito bem!")
-
-      ### 3. KB Counter Removal
-
-      **Problem:** Template list loading 60+ seconds, timing out
-      **Root cause:** Edge Function making 34 simultaneous HEAD requests (60s+ each)
-      **User decision:** "tire esse medidor de kb, e remova essa funcao do cache, isso é besteira"
-      **Fix:**
-      - Removed formatSize function from TemplateCard
-      - Removed size field from Template interface
-      - Simplified j_hub_deck_template_list Edge Function (no HTTP calls)
-      **Result:** ✅ Function returns instantly
-
-      ### 4. Template Editor Redesign: Split → Tabs
-
-      **Problem:** 50/50 bipartite split layout was confusing
-      **User feedback:** "a tela bipartida está muyito confusa. Proponha outra"
-      **Solution chosen:** Tabs layout (Editor / Preview separate)
-      **Implementation:**
-      - Replaced split view with shadcn/ui Tabs component
-      - Full-width Monaco editor (better readability)
-      - Full-width preview (better testing)
-      - Cleaner navigation with FileCode/Eye icons
-      **Result:** ✅ "sucesso"
-
-      ### 5. Template Version History System
-
-      **NEW FEATURE IMPLEMENTED:**
-
-      **Database Schema:**
-      - Created migration: `20251112235504_create_template_versions.sql`
-      - Table: `j_hub_template_versions`
-      - Fields: id, template_id, version_number, html_content, description, created_at, created_by
-      - Unique constraint: (template_id, version_number)
-      - RLS policies: Admin-only access
-
-      **Edge Function:**
-      - Created: `supabase/functions/j_hub_template_versions/index.ts`
-      - Lists all versions for a template
-      - Admin authentication + role check
-      - Returns versions ordered by version_number DESC
-
-      **Frontend Component:**
-      - Created: `src/components/templates/TemplateVersionHistory.tsx`
-      - Sheet component with version list
-      - Version restoration to editor
-      - Formatted timestamps (date-fns, pt-BR)
-      - Loading/error states
-
-      **Auto-versioning:**
-      - TemplateEditor.tsx now creates version entry on every save
-      - Auto-increments version number (1, 2, 3...)
-      - Stores complete HTML snapshot
-      - Description: "Versão N"
-
-      **UI Integration:**
-      - "Histórico" button in template editor header
-      - Restore version → loads HTML into editor
-      - Toast feedback on restore
-      - Refresh list button
-
-      ### 6. Roadmap Completion Review
-
-      **User request:** "Veja se implementamos tudo que planejamos"
-      **Files reviewed:**
-      - `.tmp-roadmap-deck-3stage.md`
-      - `decks-roadmap.md`
-      **Result:** 100% completion confirmed
-      **Action:** Both roadmap files deleted (user approval)
-
-      ### 7. Pattern Catalog Documentation
-
-      **User question:** "está documentado em algum lugar como esse arquivo deve ser criado?"
-      **Context:** User wants to create `jumper-flare-patterns.json` similar to `koko-classic-patterns.json`
-
-      **Created comprehensive guide:**
-      - File: `public/decks/templates/PATTERN-CATALOG-GUIDE.md`
-      - 460 lines of documentation
-      - Complete JSON schema with field definitions
-      - 13 content type categories documented
-      - Step-by-step creation process (7 steps)
-      - Pattern identification guide from HTML/CSS
-      - Quality checklist (15+ validation points)
-      - Complete jumper-flare example (9 patterns)
-      - Testing and deployment instructions
-
-      **Purpose:** Enable creation of pattern catalogs for AI deck generation
-      **Next step:** User will create `jumper-flare-patterns.json` using this guide
-
-      ## Files Changed:
-
-      **Modified:**
-      - `src/pages/TemplateEditor.tsx` (Tabs layout + version history integration)
-      - `src/pages/DeckEditorPage.tsx` (srcDoc preview fix)
-      - `src/components/templates/TemplateCard.tsx` (KB badge removed)
-      - `src/hooks/useTemplateList.ts` (size field removed)
-      - `supabase/functions/j_hub_deck_template_list/index.ts` (simplified, no HTTP calls)
-
-      **Created:**
-      - `src/components/templates/TemplateVersionHistory.tsx` (NEW - version history UI)
-      - `supabase/migrations/20251112235504_create_template_versions.sql` (NEW - database schema)
-      - `supabase/functions/j_hub_template_versions/index.ts` (NEW - Edge Function)
-      - `public/decks/templates/PATTERN-CATALOG-GUIDE.md` (NEW - comprehensive guide)
-
-      **Deleted:**
-      - `.tmp-roadmap-deck-3stage.md` (tasks completed)
-      - `decks-roadmap.md` (tasks completed)
-
-      ## Impact: MAJOR - Decks System v2.1 Feature Complete
-
-      **Before:**
-      - ❌ Confusing template editor UI
-      - ❌ Broken deck preview
-      - ❌ Slow template loading (60s+)
-      - ❌ No version history for templates
-      - ❌ No pattern catalog documentation
-
-      **After:**
-      - ✅ Clean Tabs-based editor UI
-      - ✅ Working deck preview (srcDoc)
-      - ✅ Instant template loading (<1s)
-      - ✅ Complete version history system
-      - ✅ Comprehensive pattern catalog guide
-      - ✅ All roadmap items completed
-
-    impact: "MAJOR - Template editor redesign + version history + pattern guide"
-    files_changed:
-      - "src/pages/TemplateEditor.tsx (Tabs layout + version history)"
-      - "src/pages/DeckEditorPage.tsx (srcDoc preview fix)"
-      - "src/components/templates/TemplateCard.tsx (KB removed)"
-      - "src/hooks/useTemplateList.ts (size field removed)"
-      - "supabase/functions/j_hub_deck_template_list/index.ts (simplified)"
-      - "src/components/templates/TemplateVersionHistory.tsx (NEW)"
-      - "supabase/migrations/20251112235504_create_template_versions.sql (NEW)"
-      - "supabase/functions/j_hub_template_versions/index.ts (NEW)"
-      - "public/decks/templates/PATTERN-CATALOG-GUIDE.md (NEW - 460 lines)"
-    deployed: false
-    deployment_status: "Ready for deployment (all features tested) 🚀"
-    commits:
-      - "58026c2: docs(decks): Add comprehensive Pattern Catalog creation guide"
+      - "dd0b0b0: feat(dashboards): Add Top 3 Criativos section to SalesDashboard (v2.1.82)"
+      - "55f6a58: docs: Add Top Criativos roadmap for image/video handling (v2.1.83)"
     migrate_to_architecture: false
 
 # Current issues being worked on
-current_issues: []
+current_issues:
+  - issue: "Imagens não aparecem para maioria dos ads"
+    status: "diagnosed"
+    details: "Windsor não retorna image_url para todos formatos. Solução: Storage + fallback"
+    priority: "medium"
+    next_action: "Aguardar Windsor rodar com query atualizada, depois implementar fallback"
 
 # Work in progress
-work_in_progress: []
+work_in_progress:
+  - feature: "Top 3 Criativos"
+    status: "partial"
+    completed:
+      - "✅ Componentes criados"
+      - "✅ Hook implementado"
+      - "✅ Integrado no SalesDashboard"
+      - "✅ Migration aplicada"
+      - "✅ Query Windsor atualizada (arquivo txt)"
+    pending:
+      - "⏳ Windsor rodar com novos campos"
+      - "⏳ Implementar fallback de imagens"
+      - "⏳ Implementar Storage para persistência"
+      - "⏳ Rollout para outros 11 dashboards"
 
 # Context for next session
 next_session_context: |
-  🎯 SESSION 2024-11-16 COMPLETED: DECKS SYSTEM - EXTERNAL CSS EXTRACTION
+  🎯 SESSION 2024-12-11 COMPLETED: TOP 3 CRIATIVOS
 
-  ## ✅ WHAT WAS ACCOMPLISHED TODAY (2024-11-16):
+  ## ✅ O QUE FOI FEITO HOJE:
 
-  **Template Optimization:**
-  - ✅ Identified token consumption issue in deck generation functions
-  - ✅ Extracted CSS from koko-classic.html to external file
-  - ✅ Created koko-classic-v2.html (200 lines, 93.8% reduction)
-  - ✅ Created koko-classic-v2.css (2011 lines, static file)
-  - ✅ Validated rendering in browser (styles load correctly)
-  - ✅ Committed and deployed to production (8d21875)
+  **Feature Top Criativos:**
+  - ✅ Componentes criados (TopCreativeCard, TopCreativesSection)
+  - ✅ Hook useTopCreatives com lógica de ranking por objetivo
+  - ✅ Integrado no SalesDashboard (mostrando ROAS 33x, 32x, 26x)
+  - ✅ Deploy em produção (v2.1.82)
 
-  **Impact:**
-  - 93.3% token reduction (~12,000 → ~800 tokens per request)
-  - Should eliminate Edge Function timeouts
-  - Scalable pattern for other templates
+  **Database:**
+  - ✅ 8 novos campos adicionados via SQL direto
+  - ✅ body, title, link, thumbnail_url, media_type
+  - ✅ campaign_daily_budget, campaign_status, action_values_add_to_cart
 
-  ## 🎯 PREVIOUS SESSION (2024-11-12) RECAP:
+  **Query Windsor:**
+  - ✅ Query atualizada salva em: `_tmp-bruno/windsor-query-atualizada.txt`
+  - ⚠️ AÇÃO MANUAL NECESSÁRIA: Atualizar query no Windsor.ai dashboard
 
-  ## ✅ WHAT WAS ACCOMPLISHED PREVIOUSLY:
+  ## ⚠️ PROBLEMA IDENTIFICADO:
 
-  **Template Editor Improvements:**
-  - ✅ Fixed blank screen bug (removed JumperBackground)
-  - ✅ Fixed deck preview rendering (src → srcDoc)
-  - ✅ Removed KB counter (performance issue)
-  - ✅ Redesigned UI: Split view → Tabs layout
-  - ✅ Much cleaner, more intuitive interface
+  **Imagens não aparecem:**
+  - 4 de 5 ads têm image_url: null
+  - Windsor não retorna image_url para vídeos/carrosséis
+  - URLs da Meta expiram em 24-72h
 
-  **Version History System (NEW):**
-  - ✅ Database table created (j_hub_template_versions)
-  - ✅ Edge Function implemented (admin-only)
-  - ✅ Frontend component (Sheet with version list)
-  - ✅ Auto-versioning on template save
-  - ✅ Version restoration to editor
-  - ✅ Complete audit trail for template changes
+  **Roadmap de solução:** `docs/ROADMAP-TOP-CRIATIVOS.md`
 
-  **Documentation:**
-  - ✅ Pattern Catalog Guide created (460 lines)
-  - ✅ Complete JSON schema documentation
-  - ✅ Step-by-step creation process
-  - ✅ Example for jumper-flare template
-  - ✅ Roadmaps reviewed and deleted (100% complete)
+  ## 📋 PRÓXIMA SESSÃO - CHECKLIST:
 
-  ## 🎯 CURRENT SYSTEM STATUS:
+  1. Verificar se Windsor rodou com query atualizada:
+     ```sql
+     SELECT COUNT(*) FROM j_rep_metaads_bronze WHERE thumbnail_url IS NOT NULL;
+     ```
 
-  **Production:**
-  - Version: v2.1.0 (from previous session)
-  - Next deploy: v2.1.1 or v2.2.0 (with today's changes)
-  - Status: All features working, ready for deployment
+  2. Se dados novos disponíveis:
+     - Implementar Fase 2 (fallback inteligente)
+     - Testar cobertura de imagens
 
-  **What's Working:**
-  - ✅ Template editor with Tabs layout
-  - ✅ Template version history system
-  - ✅ Deck preview rendering correctly
-  - ✅ Fast template loading (<1s)
-  - ✅ Complete pattern catalog guide
+  3. Se dados ainda não disponíveis:
+     - Verificar configuração Windsor
+     - Implementar fallback como mitigação
 
-  **Ready to Deploy:**
-  - All code committed (58026c2)
-  - Migrations created (j_hub_template_versions)
-  - Edge Functions ready (j_hub_template_versions)
-  - Frontend tested and working
+  4. Depois: Rollout para outros 11 dashboards
 
-  ## 📋 IMPORTANT FOR NEXT SESSION:
+  ## 📁 ARQUIVOS IMPORTANTES:
 
-  **Creating Pattern Catalogs:**
-  User can now create pattern catalogs for templates using simple commands like:
-  ```
-  Crie o arquivo jumper-flare-patterns.json seguindo o guia PATTERN-CATALOG-GUIDE.md
-  ```
-
-  **Pattern Guide Location:**
-  `public/decks/templates/PATTERN-CATALOG-GUIDE.md`
-
-  **Version History Usage:**
-  - Admins can view template version history via "Histórico" button
-  - Versions auto-increment on every save (1, 2, 3...)
-  - Click "Restaurar" to load any previous version
-  - Complete HTML snapshot stored for each version
-
-  **Template Editor:**
-  - Tabs layout (Editor / Preview separate)
-  - Full-width Monaco editor
-  - Full-width preview testing
-  - Clean navigation with icons
-
-  **Next Focus (UPDATED 2024-11-16):**
-
-  **PRIORITY 1: Migrate Edge Functions to v2 Template**
-  - Update deck generation Edge Functions to use `koko-classic-v2.html`
-  - Remove CSS file from prompt context (no longer needed)
-  - Remove `design-system.md` from prompt (used to create CSS, not for AI)
-  - Test end-to-end deck generation with new template
-  - Verify token consumption reduction in production
-
-  **Files to Update:**
-  - `supabase/functions/j_hub_deck_generate/index.ts`
-  - `supabase/functions/j_hub_deck_refine/index.ts`
-  - `supabase/functions/j_hub_deck_regenerate/index.ts`
-
-  **PRIORITY 2: Optional Enhancements**
-  - Create lightweight component reference markdown (optional)
-  - Apply external CSS pattern to other templates as needed
-  - User will create jumper-flare-patterns.json (from previous session)
-
-  **PRIORITY 3: Version Considerations**
-  - Consider version bump to v2.2.0 (Decks optimization complete)
+  - Query Windsor: `_tmp-bruno/windsor-query-atualizada.txt`
+  - Roadmap completo: `docs/ROADMAP-TOP-CRIATIVOS.md`
+  - Componentes: `src/components/dashboards/TopCreative*.tsx`
+  - Hook: `src/hooks/useTopCreatives.ts`
 
 # TODOs pending
-pending_todos: []
+pending_todos:
+  - "Atualizar query no Windsor.ai dashboard (AÇÃO MANUAL)"
+  - "Verificar se Windsor populou novos campos"
+  - "Implementar fallback de imagens"
+  - "Implementar Supabase Storage para imagens persistentes"
+  - "Rollout TopCreativesSection para outros dashboards"
 
 # Recently completed (for reference)
 completed_recently:
-  - "✅ [2024-11-16 21:45] External CSS extraction completed (koko-classic-v2) 🚀"
-  - "✅ [2024-11-16 21:30] CSS template validated in browser (rendering correct) ✅"
-  - "✅ [2024-11-16 21:15] Token optimization: 93.3% reduction achieved 📉"
-  - "✅ [2024-11-12 15:30] Pattern Catalog Guide created (460 lines) 📚"
-  - "✅ [2024-11-12 15:00] Template version history system implemented 🎨"
-  - "✅ [2024-11-12 14:30] Template editor redesigned (Tabs layout) 🖥️"
-  - "✅ [2024-11-12 14:00] Deck preview fix (srcDoc) 🔧"
-  - "✅ [2024-11-12 13:30] KB counter removed (performance) ⚡"
-  - "✅ [2024-11-12 13:00] Template editor blank screen fixed 🐛"
-  - "✅ [2024-11-05 23:45] Version v2.1.0 release (Documentation consolidation) 📦"
-  - "✅ [2024-11-05 23:40] CLAUDE.md cleanup: -291 lines (-18%) 📚"
+  - "✅ [2024-12-11 23:14] Top Criativos funcionando em produção (ROAS aparecendo)"
+  - "✅ [2024-12-11 22:50] Deploy v2.1.82 para produção"
+  - "✅ [2024-12-11 22:45] Migration aplicada via SQL direto"
+  - "✅ [2024-12-11 22:30] Query Windsor atualizada com novos campos"
+  - "✅ [2024-12-11 22:00] Implementação completa dos componentes"
+  - "✅ [2024-12-11 21:30] Plano aprovado para Top 3 Criativos"
 
 # Deployment status
 deployment:
   production_url: "https://hub.jumper.studio"
-  old_url_redirect: "https://ads.jumper.studio → hub.jumper.studio (301)"
-  last_deploy: "2024-11-16T21:45:00Z"
-  last_deploy_status: "Template v2 with external CSS deployed ✅"
-  next_deploy: "v2.2.0 (Edge Function migration to v2 template)"
-  pending_deployment:
-    - "Edge Functions: Update to use koko-classic-v2.html"
-    - "Edge Functions: Remove CSS from prompt context"
-    - "Edge Functions: Remove design-system.md from prompt"
-    - "Migration: 20251112235504_create_template_versions.sql (from 2024-11-12)"
-    - "Edge Function: j_hub_template_versions (from 2024-11-12)"
-    - "Frontend: Template editor redesign (from 2024-11-12)"
-  last_commit: "8d21875 - feat(decks): Extract CSS to external file for token optimization"
-  database_status: "STABLE - Migration ready to apply ✅"
-  known_issues: "None"
+  current_version: "v2.1.82"
+  last_deploy: "2024-12-11T23:00:00Z"
+  last_deploy_status: "Top 3 Criativos deployed ✅"
+  last_commit: "55f6a58 - docs: Add Top Criativos roadmap"
+  database_status: "STABLE - 8 novos campos adicionados ✅"
+  known_issues: "Imagens não aparecem para todos os ads (aguardando Windsor)"
   recent_commits:
-    - "8d21875: feat(decks): Extract CSS to external file for token optimization"
-    - "58026c2: docs(decks): Add comprehensive Pattern Catalog creation guide"
+    - "55f6a58: docs: Add Top Criativos roadmap for image/video handling (v2.1.83)"
+    - "dd0b0b0: feat(dashboards): Add Top 3 Criativos section to SalesDashboard (v2.1.82)"
+    - "d200e2b: fix(dashboards): Date range picker now correctly applies selected dates (v2.1.80)"
 
 # Notes for context rotation
 context_rotation:
-  last_rotation: "2024-11-05"
-  next_rotation: "2024-11-19"
+  last_rotation: "2024-12-11"
+  next_rotation: "2024-12-18"
   items_ready_to_migrate:
-    - "Documentation cleanup (2024-11-05) - can migrate after next session"
+    - "Decks System CSS extraction (2024-11-16) - migrate to ARCHITECTURE.md"
