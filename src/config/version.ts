@@ -7,10 +7,16 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.94';
+export const APP_VERSION = 'v2.1.95';
 
 /**
  * Version history:
+ * - v2.1.95 (2024-12-13):
+ *   - ENH: Consolidated Metrics now also show CTR/CPC alerts
+ *   - ENH: All currency values use formatCurrency (2 decimals, R$ X,XX)
+ *   - REFACTOR: Extracted ConsolidatedMetrics component
+ *   - ENH: MetricCard now supports alert prop with color options
+ *
  * - v2.1.94 (2024-12-13):
  *   - ENH: InstanceCard shows Campaign and Adset name
  *   - ENH: CTR/CPC indicators when outside target (CTR < 1%, CPC > R$2.50)

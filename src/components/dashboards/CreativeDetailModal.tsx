@@ -31,10 +31,7 @@ import {
 import { cn } from '@/lib/utils';
 import { TopCreative } from '@/hooks/useTopCreatives';
 import { CreativeInstance } from '@/hooks/useCreativeInstances';
-import {
-  DashboardObjective,
-  formatMetricValue,
-} from '@/utils/creativeRankingMetrics';
+import { DashboardObjective } from '@/utils/creativeRankingMetrics';
 
 interface CreativeDetailModalProps {
   open: boolean;
@@ -93,20 +90,28 @@ function MetricCard({
   value,
   icon: Icon,
   trend,
+  alert,
+  alertColor = 'yellow',
 }: {
   label: string;
   value: string;
   icon?: React.ElementType;
   trend?: 'up' | 'down' | 'neutral';
+  alert?: boolean;
+  alertColor?: 'yellow' | 'orange';
 }) {
+  const alertColorClass = alertColor === 'orange' ? 'text-orange-500' : 'text-yellow-500';
+  const valueAlertClass = alertColor === 'orange' ? 'text-orange-600' : 'text-yellow-600';
+
   return (
     <div className="bg-muted/50 rounded-lg p-3 space-y-1">
       <div className="flex items-center gap-1.5 text-muted-foreground">
         {Icon && <Icon className="h-3.5 w-3.5" />}
         <span className="text-xs">{label}</span>
+        {alert && <AlertTriangle className={cn('h-3 w-3', alertColorClass)} />}
       </div>
       <div className="flex items-center gap-1">
-        <span className="text-lg font-semibold">{value}</span>
+        <span className={cn('text-lg font-semibold', alert && valueAlertClass)}>{value}</span>
         {trend === 'up' && <TrendingUp className="h-4 w-4 text-green-500" />}
         {trend === 'down' && <TrendingDown className="h-4 w-4 text-red-500" />}
       </div>
@@ -125,6 +130,66 @@ const METRIC_TARGETS = {
  */
 function formatCurrency(value: number): string {
   return `R$ ${value.toFixed(2).replace('.', ',')}`;
+}
+
+/**
+ * Consolidated metrics section
+ */
+function ConsolidatedMetrics({ creative }: { creative: TopCreative }) {
+  // Check if CTR/CPC are outside targets
+  const ctrBelowTarget = creative.ctr < METRIC_TARGETS.ctr.min;
+  const cpcAboveTarget = creative.cpc > METRIC_TARGETS.cpc.max;
+
+  return (
+    <div>
+      <h4 className="font-semibold mb-3 flex items-center gap-2">
+        <Target className="h-4 w-4" />
+        Métricas Consolidadas
+      </h4>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <MetricCard
+          label="Gasto Total"
+          value={formatCurrency(creative.spend)}
+          icon={DollarSign}
+        />
+        <MetricCard
+          label="ROAS"
+          value={`${creative.roas.toFixed(2)}x`}
+          trend={creative.roas >= 1 ? 'up' : creative.roas > 0 ? 'neutral' : 'down'}
+        />
+        <MetricCard
+          label="Compras"
+          value={String(creative.purchases)}
+        />
+        <MetricCard
+          label="Receita"
+          value={formatCurrency(creative.revenue)}
+        />
+        <MetricCard
+          label="Impressões"
+          value={creative.impressions.toLocaleString('pt-BR')}
+          icon={Eye}
+        />
+        <MetricCard
+          label="Cliques"
+          value={creative.link_clicks.toLocaleString('pt-BR')}
+          icon={MousePointer}
+        />
+        <MetricCard
+          label="CTR"
+          value={`${creative.ctr.toFixed(2)}%`}
+          alert={ctrBelowTarget}
+          alertColor="yellow"
+        />
+        <MetricCard
+          label="CPC"
+          value={formatCurrency(creative.cpc)}
+          alert={cpcAboveTarget}
+          alertColor="orange"
+        />
+      </div>
+    </div>
+  );
 }
 
 /**
@@ -332,50 +397,7 @@ export function CreativeDetailModal({
             <Separator />
 
             {/* Consolidated Metrics */}
-            <div>
-              <h4 className="font-semibold mb-3 flex items-center gap-2">
-                <Target className="h-4 w-4" />
-                Métricas Consolidadas
-              </h4>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                <MetricCard
-                  label="Gasto Total"
-                  value={formatMetricValue(creative.spend, { key: 'spend', label: 'Gasto', format: 'currency' })}
-                  icon={DollarSign}
-                />
-                <MetricCard
-                  label="ROAS"
-                  value={creative.roas > 0 ? `${creative.roas.toFixed(2)}x` : '0x'}
-                  trend={creative.roas >= 1 ? 'up' : creative.roas > 0 ? 'neutral' : 'down'}
-                />
-                <MetricCard
-                  label="Compras"
-                  value={String(creative.purchases)}
-                />
-                <MetricCard
-                  label="Receita"
-                  value={formatMetricValue(creative.revenue, { key: 'revenue', label: 'Receita', format: 'currency' })}
-                />
-                <MetricCard
-                  label="Impressões"
-                  value={creative.impressions.toLocaleString('pt-BR')}
-                  icon={Eye}
-                />
-                <MetricCard
-                  label="Cliques"
-                  value={creative.link_clicks.toLocaleString('pt-BR')}
-                  icon={MousePointer}
-                />
-                <MetricCard
-                  label="CTR"
-                  value={`${creative.ctr.toFixed(2)}%`}
-                />
-                <MetricCard
-                  label="CPC"
-                  value={formatMetricValue(creative.cpc, { key: 'cpc', label: 'CPC', format: 'currency' })}
-                />
-              </div>
-            </div>
+            <ConsolidatedMetrics creative={creative} />
 
             <Separator />
 
