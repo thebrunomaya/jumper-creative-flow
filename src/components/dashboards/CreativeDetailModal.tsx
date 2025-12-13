@@ -178,7 +178,12 @@ function MetricCard({
           </div>
         </div>
       </TooltipTrigger>
-      <TooltipContent side="top" className="max-w-xs text-sm">
+      <TooltipContent
+        side="bottom"
+        align="center"
+        collisionPadding={16}
+        className="max-w-xs text-sm z-[100]"
+      >
         <p>{config.tooltip}</p>
       </TooltipContent>
     </Tooltip>
@@ -294,7 +299,12 @@ function MiniMetric({
           </p>
         </div>
       </TooltipTrigger>
-      <TooltipContent side="top" className="max-w-xs text-sm">
+      <TooltipContent
+        side="bottom"
+        align="center"
+        collisionPadding={16}
+        className="max-w-xs text-sm z-[100]"
+      >
         <p>{config.tooltip}</p>
       </TooltipContent>
     </Tooltip>

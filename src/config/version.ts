@@ -7,10 +7,15 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.97';
+export const APP_VERSION = 'v2.1.98';
 
 /**
  * Version history:
+ * - v2.1.98 (2024-12-13):
+ *   - FIX: Tooltip overflow - now appears below with collision padding
+ *   - Tooltips stay within modal bounds using collisionPadding={16}
+ *   - Changed side from "top" to "bottom" for better visibility
+ *
  * - v2.1.97 (2024-12-13):
  *   - ENH: All metrics now have icons consistently
  *   - ENH: Hover tooltips explain each metric in plain language
