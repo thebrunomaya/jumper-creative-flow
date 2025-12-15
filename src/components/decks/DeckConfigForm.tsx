@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -31,9 +31,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2, Upload, FileText, Save, Eye, EyeOff } from "lucide-react";
+import { Loader2, Upload, FileText, Eye, EyeOff, Sparkles, Code } from "lucide-react";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
+// Schema for AI generation mode (markdown required)
 const deckFormSchema = z.object({
   account_id: z.string().min(1, "Selecione uma conta"),
   title: z.string().min(3, "Título deve ter no mínimo 3 caracteres"),
@@ -47,11 +49,25 @@ const deckFormSchema = z.object({
   markdown_source: z.string().min(100, "Conteúdo markdown deve ter no mínimo 100 caracteres"),
 });
 
-type DeckFormValues = z.infer<typeof deckFormSchema>;
+// Schema for HTML upload mode (no markdown required)
+const htmlUploadSchema = z.object({
+  account_id: z.string().min(1, "Selecione uma conta"),
+  title: z.string().min(3, "Título deve ter no mínimo 3 caracteres"),
+  type: z.enum(["report", "plan", "pitch"], {
+    required_error: "Selecione um tipo de deck",
+  }),
+  brand_identity: z.enum(["jumper", "koko", "general"], {
+    required_error: "Selecione uma identidade de marca",
+  }),
+});
 
-interface DeckConfigFormProps {
+type DeckFormValues = z.infer<typeof deckFormSchema>;
+type HtmlUploadValues = z.infer<typeof htmlUploadSchema>;
+
+export interface DeckConfigFormProps {
   initialValues?: Partial<DeckFormValues>;
   onSubmit: (values: DeckFormValues) => Promise<void>;
+  onHtmlUpload?: (values: HtmlUploadValues & { html_content: string }) => Promise<void>;
   onCancel?: () => void;
   isSubmitting?: boolean;
 }
@@ -100,6 +116,7 @@ const AVAILABLE_TEMPLATES = [
 export function DeckConfigForm({
   initialValues,
   onSubmit,
+  onHtmlUpload,
   onCancel,
   isSubmitting = false,
 }: DeckConfigFormProps) {
@@ -107,6 +124,14 @@ export function DeckConfigForm({
   const { userRole } = useUserRole();
   const { currentUser } = useAuth();
   const [showPreview, setShowPreview] = useState(false);
+
+  // Mode toggle: 'ai' for markdown generation, 'html' for direct upload
+  const [mode, setMode] = useState<'ai' | 'html'>('ai');
+
+  // HTML upload state
+  const [htmlFile, setHtmlFile] = useState<File | null>(null);
+  const [htmlContent, setHtmlContent] = useState<string>('');
+  const [isDragging, setIsDragging] = useState(false);
 
   const form = useForm<DeckFormValues>({
     resolver: zodResolver(deckFormSchema),
@@ -142,7 +167,7 @@ export function DeckConfigForm({
     return identity.charAt(0).toUpperCase() + identity.slice(1);
   };
 
-  // Handle file upload
+  // Handle markdown file upload
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -164,12 +189,122 @@ export function DeckConfigForm({
     }
   };
 
+  // Handle HTML file upload
+  const handleHtmlFileUpload = useCallback(async (file: File) => {
+    if (!file.name.endsWith(".html") && !file.name.endsWith(".htm")) {
+      toast.error("Arquivo inválido", {
+        description: "Por favor, selecione um arquivo .html",
+      });
+      return;
+    }
+
+    try {
+      const text = await file.text();
+
+      // Basic validation
+      if (!text.includes('<html') && !text.includes('<!DOCTYPE')) {
+        toast.error("HTML inválido", {
+          description: "O arquivo deve conter tags HTML válidas",
+        });
+        return;
+      }
+
+      setHtmlFile(file);
+      setHtmlContent(text);
+      toast.success(`Arquivo "${file.name}" carregado!`);
+    } catch (err) {
+      console.error("Error reading HTML file:", err);
+      toast.error("Erro ao ler arquivo HTML");
+    }
+  }, []);
+
+  // Handle HTML file input change
+  const handleHtmlInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) handleHtmlFileUpload(file);
+  };
+
+  // Drag & Drop handlers
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  }, []);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    const file = e.dataTransfer.files?.[0];
+    if (file) handleHtmlFileUpload(file);
+  }, [handleHtmlFileUpload]);
+
+  // Clear HTML file
+  const clearHtmlFile = () => {
+    setHtmlFile(null);
+    setHtmlContent('');
+  };
+
   const handleSubmit = async (values: DeckFormValues) => {
     try {
       await onSubmit(values);
     } catch (err: any) {
       console.error("Form submission error:", err);
       toast.error("Erro ao salvar deck", {
+        description: err.message,
+      });
+    }
+  };
+
+  // Handle HTML upload submit
+  const handleHtmlSubmit = async () => {
+    if (!onHtmlUpload) {
+      toast.error("Upload HTML não disponível");
+      return;
+    }
+
+    if (!htmlContent) {
+      toast.error("Selecione um arquivo HTML");
+      return;
+    }
+
+    const title = form.getValues("title");
+    const account_id = form.getValues("account_id");
+    const type = form.getValues("type");
+    const brand_identity = form.getValues("brand_identity");
+
+    if (!title || title.length < 3) {
+      toast.error("Título obrigatório", {
+        description: "Digite um título com no mínimo 3 caracteres",
+      });
+      return;
+    }
+
+    if (!account_id) {
+      toast.error("Conta obrigatória", {
+        description: "Selecione uma conta",
+      });
+      return;
+    }
+
+    try {
+      await onHtmlUpload({
+        title,
+        account_id,
+        type: type || "pitch",
+        brand_identity: brand_identity || "jumper",
+        html_content: htmlContent,
+      });
+    } catch (err: any) {
+      console.error("HTML upload error:", err);
+      toast.error("Erro ao fazer upload", {
         description: err.message,
       });
     }
@@ -182,10 +317,42 @@ export function DeckConfigForm({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+        {/* Mode Toggle */}
+        {onHtmlUpload && (
+          <div className="flex gap-2 p-1 bg-gray-100 rounded-lg w-fit">
+            <button
+              type="button"
+              onClick={() => setMode('ai')}
+              className={cn(
+                "flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all",
+                mode === 'ai'
+                  ? "bg-white shadow-sm text-gray-900"
+                  : "text-gray-600 hover:text-gray-900"
+              )}
+            >
+              <Sparkles className="h-4 w-4" />
+              Gerar via IA
+            </button>
+            <button
+              type="button"
+              onClick={() => setMode('html')}
+              className={cn(
+                "flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all",
+                mode === 'html'
+                  ? "bg-white shadow-sm text-gray-900"
+                  : "text-gray-600 hover:text-gray-900"
+              )}
+            >
+              <Code className="h-4 w-4" />
+              Upload HTML
+            </button>
+          </div>
+        )}
+
         <Tabs defaultValue="config" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className={cn("grid w-full", mode === 'ai' ? "grid-cols-2" : "grid-cols-1")}>
             <TabsTrigger value="config">Configuração</TabsTrigger>
-            <TabsTrigger value="content">Conteúdo</TabsTrigger>
+            {mode === 'ai' && <TabsTrigger value="content">Conteúdo</TabsTrigger>}
           </TabsList>
 
           {/* Configuration Tab */}
@@ -308,77 +475,143 @@ export function DeckConfigForm({
                   />
                 </div>
 
-                {/* Template */}
-                <FormField
-                  control={form.control}
-                  name="template_id"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Estilo Visual</FormLabel>
-                      <Select
-                        disabled={isSubmitting}
-                        onValueChange={field.onChange}
-                        value={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecione o estilo visual" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent className="max-h-[400px]">
-                          {/* Recommended templates */}
-                          {recommended.length > 0 && (
-                            <SelectGroup>
-                              <SelectLabel>
-                                Recomendados para {formatIdentity(selectedIdentity)}
-                              </SelectLabel>
-                              {recommended.map((template) => (
-                                <SelectItem key={template.id} value={template.id}>
-                                  <div className="flex flex-col">
-                                    <span className="font-medium">
-                                      {template.name} ({formatIdentity(template.identity)})
-                                    </span>
-                                    <span className="text-xs text-muted-foreground">
-                                      {template.description}
-                                    </span>
-                                  </div>
-                                </SelectItem>
-                              ))}
-                            </SelectGroup>
-                          )}
+                {/* Template - Only in AI mode */}
+                {mode === 'ai' && (
+                  <FormField
+                    control={form.control}
+                    name="template_id"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Estilo Visual</FormLabel>
+                        <Select
+                          disabled={isSubmitting}
+                          onValueChange={field.onChange}
+                          value={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Selecione o estilo visual" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent className="max-h-[400px]">
+                            {/* Recommended templates */}
+                            {recommended.length > 0 && (
+                              <SelectGroup>
+                                <SelectLabel>
+                                  Recomendados para {formatIdentity(selectedIdentity)}
+                                </SelectLabel>
+                                {recommended.map((template) => (
+                                  <SelectItem key={template.id} value={template.id}>
+                                    <div className="flex flex-col">
+                                      <span className="font-medium">
+                                        {template.name} ({formatIdentity(template.identity)})
+                                      </span>
+                                      <span className="text-xs text-muted-foreground">
+                                        {template.description}
+                                      </span>
+                                    </div>
+                                  </SelectItem>
+                                ))}
+                              </SelectGroup>
+                            )}
 
-                          {/* Separator if we have both sections */}
-                          {recommended.length > 0 && others.length > 0 && (
-                            <SelectSeparator />
-                          )}
+                            {/* Separator if we have both sections */}
+                            {recommended.length > 0 && others.length > 0 && (
+                              <SelectSeparator />
+                            )}
 
-                          {/* Other templates */}
-                          {others.length > 0 && (
-                            <SelectGroup>
-                              <SelectLabel>Outros estilos</SelectLabel>
-                              {others.map((template) => (
-                                <SelectItem key={template.id} value={template.id}>
-                                  <div className="flex flex-col">
-                                    <span className="font-medium">
-                                      {template.name} ({formatIdentity(template.identity)})
-                                    </span>
-                                    <span className="text-xs text-muted-foreground">
-                                      {template.description}
-                                    </span>
-                                  </div>
-                                </SelectItem>
-                              ))}
-                            </SelectGroup>
-                          )}
-                        </SelectContent>
-                      </Select>
-                      <FormDescription>
-                        Template HTML que define o visual do deck (compatível com qualquer identidade)
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                            {/* Other templates */}
+                            {others.length > 0 && (
+                              <SelectGroup>
+                                <SelectLabel>Outros estilos</SelectLabel>
+                                {others.map((template) => (
+                                  <SelectItem key={template.id} value={template.id}>
+                                    <div className="flex flex-col">
+                                      <span className="font-medium">
+                                        {template.name} ({formatIdentity(template.identity)})
+                                      </span>
+                                      <span className="text-xs text-muted-foreground">
+                                        {template.description}
+                                      </span>
+                                    </div>
+                                  </SelectItem>
+                                ))}
+                              </SelectGroup>
+                            )}
+                          </SelectContent>
+                        </Select>
+                        <FormDescription>
+                          Template HTML que define o visual do deck (compatível com qualquer identidade)
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
+
+                {/* HTML Upload Area - Only in HTML mode */}
+                {mode === 'html' && (
+                  <div className="space-y-4">
+                    <FormLabel>Arquivo HTML</FormLabel>
+                    <div
+                      onDragOver={handleDragOver}
+                      onDragLeave={handleDragLeave}
+                      onDrop={handleDrop}
+                      onClick={() => document.getElementById("html-file-input")?.click()}
+                      className={cn(
+                        "border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-all",
+                        isDragging
+                          ? "border-jumper-primary bg-orange-50"
+                          : htmlFile
+                          ? "border-green-400 bg-green-50"
+                          : "border-gray-300 hover:border-gray-400 hover:bg-gray-50"
+                      )}
+                    >
+                      {htmlFile ? (
+                        <div className="space-y-2">
+                          <Code className="h-10 w-10 mx-auto text-green-600" />
+                          <p className="font-medium text-green-700">{htmlFile.name}</p>
+                          <p className="text-sm text-green-600">
+                            {(htmlFile.size / 1024).toFixed(1)} KB • {htmlContent.length.toLocaleString()} caracteres
+                          </p>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              clearHtmlFile();
+                            }}
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          >
+                            Remover arquivo
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          <Upload className="h-10 w-10 mx-auto text-gray-400" />
+                          <p className="font-medium text-gray-600">
+                            Arraste um arquivo .html aqui
+                          </p>
+                          <p className="text-sm text-gray-500">
+                            ou clique para selecionar
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                    <input
+                      id="html-file-input"
+                      type="file"
+                      accept=".html,.htm"
+                      className="hidden"
+                      onChange={handleHtmlInputChange}
+                      disabled={isSubmitting}
+                    />
+                    <FormDescription>
+                      Faça upload de um deck HTML pronto (pula as etapas de geração)
+                    </FormDescription>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -484,19 +717,39 @@ export function DeckConfigForm({
             </Button>
           )}
 
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Gerando Deck...
-              </>
-            ) : (
-              <>
-                <Save className="mr-2 h-4 w-4" />
-                Gerar Deck
-              </>
-            )}
-          </Button>
+          {mode === 'ai' ? (
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Gerando Deck...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="mr-2 h-4 w-4" />
+                  Gerar Deck
+                </>
+              )}
+            </Button>
+          ) : (
+            <Button
+              type="button"
+              onClick={handleHtmlSubmit}
+              disabled={isSubmitting || !htmlContent}
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Enviando...
+                </>
+              ) : (
+                <>
+                  <Upload className="mr-2 h-4 w-4" />
+                  Upload Deck
+                </>
+              )}
+            </Button>
+          )}
         </div>
       </form>
     </Form>

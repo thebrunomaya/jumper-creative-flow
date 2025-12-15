@@ -108,6 +108,50 @@ export default function DeckNew() {
     navigate("/decks");
   };
 
+  // Handle HTML upload (skip generation pipeline)
+  const handleHtmlUpload = async (values: {
+    title: string;
+    account_id: string;
+    type: "report" | "plan" | "pitch";
+    brand_identity: "jumper" | "koko" | "general";
+    html_content: string;
+  }) => {
+    try {
+      // Call Edge Function to upload HTML deck directly
+      const { data, error: invokeError } = await supabase.functions.invoke('j_hub_deck_upload_html', {
+        body: {
+          title: values.title,
+          html_content: values.html_content,
+          type: values.type,
+          brand_identity: values.brand_identity,
+          account_id: values.account_id || null,
+        },
+      });
+
+      if (invokeError) {
+        throw new Error(invokeError.message || 'Falha ao fazer upload do deck');
+      }
+
+      if (!data || !data.success || !data.deck_id) {
+        throw new Error(data?.error || 'Resposta inválida do servidor');
+      }
+
+      toast.success('Deck enviado com sucesso!', {
+        description: 'Redirecionando para o preview...',
+        duration: 2000,
+      });
+
+      // Navigate to deck editor (will show preview since all stages are completed)
+      navigate(`/decks/editor/${data.deck_id}`);
+    } catch (err: any) {
+      console.error("Error uploading HTML deck:", err);
+      toast.error('Erro ao fazer upload', {
+        description: err.message || 'Falha ao enviar deck HTML',
+        duration: 5000,
+      });
+    }
+  };
+
   // Loading state
   if (loading) {
     return (
@@ -213,6 +257,7 @@ export default function DeckNew() {
           {/* Form */}
           <DeckConfigForm
             onSubmit={handleSubmit}
+            onHtmlUpload={handleHtmlUpload}
             onCancel={handleCancel}
             isSubmitting={isGenerating}
           />

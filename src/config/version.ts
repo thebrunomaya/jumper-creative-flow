@@ -7,10 +7,16 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.99';
+export const APP_VERSION = 'v2.1.100';
 
 /**
  * Version history:
+ * - v2.1.100 (2024-12-15):
+ *   - NEW: Direct HTML upload for decks - skip AI generation pipeline
+ *   - NEW: Toggle "Gerar via IA" / "Upload HTML" in deck creation form
+ *   - NEW: Drag & drop HTML file upload with validation
+ *   - NEW: Edge function j_hub_deck_upload_html for direct HTML hosting
+ *
  * - v2.1.99 (2024-12-13):
  *   - FIX: Tooltip overflow v2 - use sticky="always" and smaller max-width
  *   - Reduced tooltip max-width to 200px for better fit
@@ -101,6 +107,12 @@ export const APP_VERSION = 'v2.1.99';
  *   - NEW: creativeRankingMetrics.ts utility for objective-specific metrics
  *   - DB: Added body, title, link, thumbnail_url, media_type, campaign_daily_budget,
  *         campaign_status, action_values_add_to_cart to j_rep_metaads_bronze
+ *
+ * - v2.1.81 (2024-12-11):
+ *   - ENH: Deck Editor Stage 1 now has Edit, Copy, Debug buttons (matching Optimizations UI)
+ *   - NEW: MarkdownViewer component for formatted markdown display
+ *   - NEW: MarkdownEditorModal for editing markdown_source
+ *   - NEW: DeckDebugModal for viewing API logs (Admin only)
  *
  * - v2.1.80 (2024-12-09):
  *   - FIX: Date range picker in /dashboards now correctly applies selected dates
