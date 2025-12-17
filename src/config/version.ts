@@ -7,10 +7,17 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.100';
+export const APP_VERSION = 'v2.1.101';
 
 /**
  * Version history:
+ * - v2.1.101 (2024-12-16):
+ *   - NEW: Dynamic 10% spend threshold for Top Creatives ranking
+ *   - Creatives must have at least 10% of period's total spend to qualify
+ *   - Added info tooltip explaining the threshold criteria
+ *   - Added subtle disclaimer text showing minimum spend value
+ *   - Improved EmptyState with specific message when no creatives pass threshold
+ *
  * - v2.1.100 (2024-12-15):
  *   - NEW: Direct HTML upload for decks - skip AI generation pipeline
  *   - NEW: Toggle "Gerar via IA" / "Upload HTML" in deck creation form

@@ -81,6 +81,20 @@ interface UseTopCreativesParams {
   limit?: number;
 }
 
+/**
+ * Filter info metadata - explains the minimum spend threshold applied
+ */
+export interface FilterInfo {
+  /** Total spend across all creatives in the period */
+  totalSpend: number;
+  /** Minimum spend threshold (10% of total) */
+  minSpendThreshold: number;
+  /** Number of creatives before filtering */
+  totalCreatives: number;
+  /** Number of creatives after filtering */
+  filteredCreatives: number;
+}
+
 interface UseTopCreativesReturn {
   /** Top creatives sorted by objective metric */
   creatives: TopCreative[];
@@ -90,6 +104,8 @@ interface UseTopCreativesReturn {
   error: string | null;
   /** Refetch function */
   refetch: () => void;
+  /** Filter metadata (threshold info) */
+  filterInfo: FilterInfo | null;
 }
 
 /**
@@ -146,6 +162,9 @@ interface BronzeRow {
  * });
  * ```
  */
+/** Minimum spend percentage threshold (10% of total spend) */
+const MIN_SPEND_PERCENTAGE = 0.10;
+
 export function useTopCreatives({
   accountId,
   objective,
@@ -156,6 +175,7 @@ export function useTopCreatives({
   const [creatives, setCreatives] = useState<TopCreative[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [filterInfo, setFilterInfo] = useState<FilterInfo | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
 
   const refetch = () => setRefreshKey((k) => k + 1);
@@ -163,6 +183,7 @@ export function useTopCreatives({
   useEffect(() => {
     if (!accountId) {
       setCreatives([]);
+      setFilterInfo(null);
       setIsLoading(false);
       return;
     }
@@ -191,6 +212,7 @@ export function useTopCreatives({
 
         if (!rawData || rawData.length === 0) {
           setCreatives([]);
+          setFilterInfo(null);
           setIsLoading(false);
           return;
         }
@@ -201,8 +223,23 @@ export function useTopCreatives({
         // Calculate derived metrics
         const withDerivedMetrics = aggregated.map(calculateDerivedMetrics);
 
+        // Calculate total spend and minimum threshold (10%)
+        const totalSpend = withDerivedMetrics.reduce((sum, c) => sum + c.spend, 0);
+        const minSpendThreshold = totalSpend * MIN_SPEND_PERCENTAGE;
+
+        // Filter creatives with minimum spend threshold
+        const filteredByThreshold = withDerivedMetrics.filter((c) => c.spend >= minSpendThreshold);
+
+        // Save filter info for UI display
+        setFilterInfo({
+          totalSpend,
+          minSpendThreshold,
+          totalCreatives: withDerivedMetrics.length,
+          filteredCreatives: filteredByThreshold.length,
+        });
+
         // Sort by objective metric and take top N
-        const sorted = sortByObjective(withDerivedMetrics, objective);
+        const sorted = sortByObjective(filteredByThreshold, objective);
         const topN = sorted.slice(0, limit);
 
         setCreatives(topN);
@@ -217,7 +254,7 @@ export function useTopCreatives({
     fetchData();
   }, [accountId, objective, dateStart, dateEnd, limit, refreshKey]);
 
-  return { creatives, isLoading, error, refetch };
+  return { creatives, isLoading, error, refetch, filterInfo };
 }
 
 /**
@@ -384,15 +421,15 @@ function calculateDerivedMetrics(ad: Omit<TopCreative, keyof DerivedMetrics> & P
 
 /**
  * Sort creatives by the objective's primary metric
+ * Note: Filtering by minimum spend threshold is done before this function
  */
 function sortByObjective(creatives: TopCreative[], objective: DashboardObjective): TopCreative[] {
   const config = getRankingConfig(objective);
   const { sortBy, lowerIsBetter } = config;
 
-  // Filter out creatives with no spend (inactive)
-  const activeCreatives = creatives.filter((c) => c.spend > 0);
-
-  return activeCreatives.sort((a, b) => {
+  // Creatives are already filtered by minimum spend threshold
+  // Just sort by the objective metric
+  return [...creatives].sort((a, b) => {
     const aValue = (a as Record<string, unknown>)[sortBy] as number ?? (lowerIsBetter ? Infinity : 0);
     const bValue = (b as Record<string, unknown>)[sortBy] as number ?? (lowerIsBetter ? Infinity : 0);
 
