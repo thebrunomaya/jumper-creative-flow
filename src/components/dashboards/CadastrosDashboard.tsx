@@ -5,6 +5,7 @@ import { SkeletonDashboard } from '@/components/ui/skeleton-screen';
 import { formatMetric, getMetricPerformance } from '@/utils/metricPerformance';
 import { startOfDay, subDays, format } from 'date-fns';
 import { applyObjectiveFilter } from '@/utils/dashboardObjectives';
+import { TopCreativesSection } from './TopCreativesSection';
 
 interface CadastrosDashboardProps {
   accountId: string;
@@ -27,6 +28,10 @@ export const CadastrosDashboard: React.FC<CadastrosDashboardProps> = ({
   const [metrics, setMetrics] = useState<CadastrosMetrics | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Calculate date range for TopCreativesSection
+  const endDate = startOfDay(subDays(new Date(), 1)); // Ontem (não hoje)
+  const startDate = startOfDay(subDays(endDate, selectedPeriod - 1)); // N dias para trás
 
   useEffect(() => {
     const fetchMetrics = async () => {
@@ -204,6 +209,14 @@ export const CadastrosDashboard: React.FC<CadastrosDashboardProps> = ({
         </div>
       </div>
 
+      {/* Top Creatives Section */}
+      <TopCreativesSection
+        accountId={accountId}
+        objective="cadastros"
+        dateStart={startDate}
+        dateEnd={endDate}
+      />
+
       {/* Insights */}
       <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
@@ -211,16 +224,16 @@ export const CadastrosDashboard: React.FC<CadastrosDashboardProps> = ({
         </h3>
         <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
           <p>
-            • <strong>CPL:</strong> {metrics.cpl < 25 ? 'Excelente' : metrics.cpl < 50 ? 'Bom' : metrics.cpl < 100 ? 'Atenção' : 'Crítico'} 
+            • <strong>CPL:</strong> {metrics.cpl < 25 ? 'Excelente' : metrics.cpl < 50 ? 'Bom' : metrics.cpl < 100 ? 'Atenção' : 'Crítico'}
             - R$ {metrics.cpl.toFixed(2)} por lead {metrics.cpl > 100 && '(otimize público e criativos)'}
           </p>
           <p>
-            • <strong>Taxa de Conversão:</strong> {metrics.taxaConversaoLead > 15 ? 'Excelente' : metrics.taxaConversaoLead > 10 ? 'Boa' : 'Baixa'} 
+            • <strong>Taxa de Conversão:</strong> {metrics.taxaConversaoLead > 15 ? 'Excelente' : metrics.taxaConversaoLead > 10 ? 'Boa' : 'Baixa'}
             - {metrics.taxaConversaoLead.toFixed(1)}% dos cliques geram lead
           </p>
           <p>
-            • <strong>Qualidade:</strong> {metrics.totalRegistrosCompletos > 0 ? 
-              `${((metrics.totalRegistrosCompletos / metrics.totalLeads) * 100).toFixed(0)}% finalizam cadastro` : 
+            • <strong>Qualidade:</strong> {metrics.totalRegistrosCompletos > 0 ?
+              `${((metrics.totalRegistrosCompletos / metrics.totalLeads) * 100).toFixed(0)}% finalizam cadastro` :
               'Configure eventos de registro completo'
             }
           </p>

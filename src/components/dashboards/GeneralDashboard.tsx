@@ -5,16 +5,17 @@ import { SkeletonDashboard } from '@/components/ui/skeleton-screen';
 import { Button } from '@/components/ui/button';
 import { RefreshCw, DollarSign, Eye, MousePointer, Users, BarChart3, Clock } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { 
-  getCTRPerformance, 
-  getCPMPerformance, 
-  getCPCPerformance, 
+import {
+  getCTRPerformance,
+  getCPMPerformance,
+  getCPCPerformance,
   getFrequencyPerformance,
-  formatCurrency, 
-  formatPercentage, 
-  formatNumber 
+  formatCurrency,
+  formatPercentage,
+  formatNumber
 } from '@/utils/metricPerformance';
 import { startOfDay, subDays, format } from 'date-fns';
+import { TopCreativesSection } from './TopCreativesSection';
 
 interface GeneralMetrics {
   total_spend: string;
@@ -266,6 +267,14 @@ export function GeneralDashboard({ accountName = 'Account', accountInfo, selecte
           </CardContent>
         </Card>
       </div>
+
+      {/* Top Creatives Section */}
+      <TopCreativesSection
+        accountId={accountInfo?.metaAdsId || null}
+        objective="geral"
+        dateStart={startDate}
+        dateEnd={endDate}
+      />
     </div>
   );
 }

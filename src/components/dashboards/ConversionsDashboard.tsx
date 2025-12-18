@@ -6,6 +6,7 @@ import { MetricCard } from '@/components/ui/metric-card';
 import { SkeletonDashboard } from '@/components/ui/skeleton-screen';
 import { formatMetric, getMetricPerformance } from '@/utils/metricPerformance';
 import { startOfDay, subDays, format } from 'date-fns';
+import { TopCreativesSection } from './TopCreativesSection';
 
 interface ConversionsDashboardProps {
   accountId: string;
@@ -190,12 +191,20 @@ export const ConversionsDashboard: React.FC<ConversionsDashboardProps> = ({ acco
         />
       </div>
 
+      {/* Top Creatives Section */}
+      <TopCreativesSection
+        accountId={accountId}
+        objective="conversoes"
+        dateStart={startDate}
+        dateEnd={endDate}
+      />
+
       <Card className="mt-6 border-orange-200 dark:border-orange-800 bg-orange-50/50 dark:bg-orange-950/20">
         <CardContent className="p-4">
           <div className="flex items-start space-x-2">
             <div className="w-2 h-2 rounded-full bg-orange-500 mt-1.5 flex-shrink-0"></div>
             <div className="text-sm text-gray-700 dark:text-gray-300">
-              <strong>Insight:</strong> Campanhas de conversão focam em resultados mensuráveis. 
+              <strong>Insight:</strong> Campanhas de conversão focam em resultados mensuráveis.
               ROAS acima de 3x e taxa de conversão acima de 3% indicam campanhas lucrativas.
             </div>
           </div>

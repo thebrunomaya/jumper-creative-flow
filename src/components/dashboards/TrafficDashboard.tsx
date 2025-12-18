@@ -7,6 +7,7 @@ import { SkeletonDashboard } from '@/components/ui/skeleton-screen';
 import { formatMetric, getMetricPerformance } from '@/utils/metricPerformance';
 import { startOfDay, subDays, format } from 'date-fns';
 import { applyObjectiveFilter } from '@/utils/dashboardObjectives';
+import { TopCreativesSection } from './TopCreativesSection';
 
 interface TrafficDashboardProps {
   accountId: string;
@@ -189,12 +190,20 @@ export const TrafficDashboard: React.FC<TrafficDashboardProps> = ({ accountId, s
         />
       </div>
 
+      {/* Top Creatives Section */}
+      <TopCreativesSection
+        accountId={accountId}
+        objective="trafego"
+        dateStart={startDate}
+        dateEnd={endDate}
+      />
+
       <Card className="mt-6 border-orange-200 dark:border-orange-800 bg-orange-50/50 dark:bg-orange-950/20">
         <CardContent className="p-4">
           <div className="flex items-start space-x-2">
             <div className="w-2 h-2 rounded-full bg-orange-500 mt-1.5 flex-shrink-0"></div>
             <div className="text-sm text-gray-700 dark:text-gray-300">
-              <strong>Insight:</strong> O objetivo de Tráfego foca em direcionar visitantes qualificados ao seu site. 
+              <strong>Insight:</strong> O objetivo de Tráfego foca em direcionar visitantes qualificados ao seu site.
               CTR acima de 2% e CPC baixo indicam campanhas eficientes.
             </div>
           </div>

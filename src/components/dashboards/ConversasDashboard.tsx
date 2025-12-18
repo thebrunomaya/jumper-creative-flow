@@ -5,6 +5,7 @@ import { SkeletonDashboard } from '@/components/ui/skeleton-screen';
 import { formatMetric, getMetricPerformance } from '@/utils/metricPerformance';
 import { startOfDay, subDays, format } from 'date-fns';
 import { applyObjectiveFilter } from '@/utils/dashboardObjectives';
+import { TopCreativesSection } from './TopCreativesSection';
 
 interface ConversasDashboardProps {
   accountId: string;
@@ -26,6 +27,10 @@ export const ConversasDashboard: React.FC<ConversasDashboardProps> = ({
   const [metrics, setMetrics] = useState<ConversasMetrics | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Calculate date range for TopCreativesSection
+  const endDate = startOfDay(subDays(new Date(), 1)); // Ontem (não hoje)
+  const startDate = startOfDay(subDays(endDate, selectedPeriod - 1)); // N dias para trás
 
   useEffect(() => {
     const fetchMetrics = async () => {
@@ -168,6 +173,14 @@ export const ConversasDashboard: React.FC<ConversasDashboardProps> = ({
         />
       </div>
 
+      {/* Top Creatives Section */}
+      <TopCreativesSection
+        accountId={accountId}
+        objective="conversas"
+        dateStart={startDate}
+        dateEnd={endDate}
+      />
+
       {/* Insights */}
       <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
@@ -175,11 +188,11 @@ export const ConversasDashboard: React.FC<ConversasDashboardProps> = ({
         </h3>
         <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
           <p>
-            • <strong>Performance:</strong> {metrics.totalConversas} conversa{metrics.totalConversas !== 1 ? 's' : ''} iniciada{metrics.totalConversas !== 1 ? 's' : ''} 
+            • <strong>Performance:</strong> {metrics.totalConversas} conversa{metrics.totalConversas !== 1 ? 's' : ''} iniciada{metrics.totalConversas !== 1 ? 's' : ''}
             {metrics.custoConversa < 10 ? ' com custo excelente' : metrics.custoConversa < 25 ? ' com bom custo' : ' - otimize para reduzir custo'}
           </p>
           <p>
-            • <strong>Taxa de Engajamento:</strong> {metrics.taxaConversa > 2 ? 'Alta' : metrics.taxaConversa > 1 ? 'Média' : 'Baixa'} 
+            • <strong>Taxa de Engajamento:</strong> {metrics.taxaConversa > 2 ? 'Alta' : metrics.taxaConversa > 1 ? 'Média' : 'Baixa'}
             - {metrics.taxaConversa.toFixed(2)}% das pessoas alcançadas iniciaram conversa
           </p>
           <p>

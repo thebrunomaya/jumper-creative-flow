@@ -7,10 +7,16 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.101';
+export const APP_VERSION = 'v2.1.102';
 
 /**
  * Version history:
+ * - v2.1.102 (2024-12-18):
+ *   - NEW: TopCreativesSection rollout to all 11 dashboards
+ *   - Added to: Traffic, Leads, Engagement, BrandAwareness, Reach
+ *   - Added to: VideoViews, Conversions, Seguidores, Conversas, Cadastros, General
+ *   - Each dashboard shows Top 3 creatives with correct objective filter
+ *
  * - v2.1.101 (2024-12-16):
  *   - NEW: Dynamic 10% spend threshold for Top Creatives ranking
  *   - Creatives must have at least 10% of period's total spend to qualify

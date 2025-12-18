@@ -5,6 +5,7 @@ import { SkeletonDashboard } from '@/components/ui/skeleton-screen';
 import { formatMetric, getMetricPerformance } from '@/utils/metricPerformance';
 import { startOfDay, subDays, format } from 'date-fns';
 import { applyObjectiveFilter } from '@/utils/dashboardObjectives';
+import { TopCreativesSection } from './TopCreativesSection';
 
 interface SeguidoresDashboardProps {
   accountId: string;
@@ -26,6 +27,10 @@ export const SeguidoresDashboard: React.FC<SeguidoresDashboardProps> = ({
   const [metrics, setMetrics] = useState<SeguidoresMetrics | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Calculate date range for TopCreativesSection
+  const endDate = startOfDay(subDays(new Date(), 1)); // Ontem (não hoje)
+  const startDate = startOfDay(subDays(endDate, selectedPeriod - 1)); // N dias para trás
 
   useEffect(() => {
     const fetchMetrics = async () => {
@@ -168,6 +173,14 @@ export const SeguidoresDashboard: React.FC<SeguidoresDashboardProps> = ({
         />
       </div>
 
+      {/* Top Creatives Section */}
+      <TopCreativesSection
+        accountId={accountId}
+        objective="seguidores"
+        dateStart={startDate}
+        dateEnd={endDate}
+      />
+
       {/* Insights */}
       <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
@@ -175,11 +188,11 @@ export const SeguidoresDashboard: React.FC<SeguidoresDashboardProps> = ({
         </h3>
         <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
           <p>
-            • <strong>Custo por Seguidor:</strong> {metrics.custoSeguidor < 2 ? 'Excelente' : metrics.custoSeguidor < 5 ? 'Bom' : 'Pode melhorar'} 
+            • <strong>Custo por Seguidor:</strong> {metrics.custoSeguidor < 2 ? 'Excelente' : metrics.custoSeguidor < 5 ? 'Bom' : 'Pode melhorar'}
             {metrics.custoSeguidor > 10 && ' - considere otimizar público-alvo'}
           </p>
           <p>
-            • <strong>Taxa de Conversão:</strong> {metrics.taxaConversaoSeguidor > 3 ? 'Alta' : metrics.taxaConversaoSeguidor > 2 ? 'Média' : 'Baixa'} 
+            • <strong>Taxa de Conversão:</strong> {metrics.taxaConversaoSeguidor > 3 ? 'Alta' : metrics.taxaConversaoSeguidor > 2 ? 'Média' : 'Baixa'}
             - {metrics.totalPageLikes} seguidor{metrics.totalPageLikes !== 1 ? 'es' : ''} de {Math.round(metrics.totalReach)} pessoas alcançadas
           </p>
           <p>

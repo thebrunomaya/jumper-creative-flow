@@ -58,19 +58,19 @@ Este roadmap consolida as iniciativas de visualização de criativos e insights:
 - [x] Fallback inteligente de thumbnails
 - [x] Cards clicáveis que abrem modal de detalhes
 
-### Rollout para outros Dashboards (Pendente)
+### Rollout para outros Dashboards (Completo)
 
-- [ ] TrafficDashboard.tsx
-- [ ] LeadsDashboard.tsx
-- [ ] EngagementDashboard.tsx
-- [ ] BrandAwarenessDashboard.tsx
-- [ ] ReachDashboard.tsx
-- [ ] VideoViewsDashboard.tsx
-- [ ] ConversionsDashboard.tsx
-- [ ] SeguidoresDashboard.tsx
-- [ ] ConversasDashboard.tsx
-- [ ] CadastrosDashboard.tsx
-- [ ] GeneralDashboard.tsx
+- [x] TrafficDashboard.tsx
+- [x] LeadsDashboard.tsx
+- [x] EngagementDashboard.tsx
+- [x] BrandAwarenessDashboard.tsx
+- [x] ReachDashboard.tsx
+- [x] VideoViewsDashboard.tsx
+- [x] ConversionsDashboard.tsx
+- [x] SeguidoresDashboard.tsx
+- [x] ConversasDashboard.tsx
+- [x] CadastrosDashboard.tsx
+- [x] GeneralDashboard.tsx
 
 ---
 
