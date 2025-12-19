@@ -19,6 +19,9 @@
 11. [Supabase Integration](#-supabase-integration)
 12. [UI/UX Patterns](#-uiux-patterns)
 13. [Performance](#-performance)
+14. [Optimization Creation Flow](#-optimization-creation-flow-v21)
+15. [Decks System](#-decks-system---html-presentation-generation)
+16. [Top Creatives System](#-top-creatives-system-v2182---v21102) ⭐ **NOVO (2024-12-18)**
 
 ---
 
@@ -2459,5 +2462,212 @@ const decoder = new TextDecoder('utf-8');  // Declare once at top
 
 ---
 
-**Last Updated**: 2024-11-05
+## 🏆 Top Creatives System (v2.1.82 - v2.1.102)
+
+### **Overview**
+
+Sistema de visualização dos Top 3 criativos em todos os dashboards, com agregação por `creative_id` e modal de detalhes.
+
+**Status:** Fases 1-3 completas (v2.1.102)
+
+---
+
+### **Componentes Principais**
+
+#### **TopCreativesSection** (`src/components/dashboards/TopCreativesSection.tsx`)
+
+Componente reutilizável que exibe os 3 melhores criativos com medalhas.
+
+**Props:**
+```typescript
+interface TopCreativesSectionProps {
+  accountId: string | null;  // Meta Ads account ID
+  objective: string;         // Dashboard objective for ranking
+  dateStart: Date;           // Period start
+  dateEnd: Date;             // Period end
+}
+```
+
+**Objectives Mapping:**
+| Dashboard | Objective | Ranking Metric |
+|-----------|-----------|----------------|
+| SalesDashboard | `vendas` | ROAS |
+| TrafficDashboard | `trafego` | Link Clicks |
+| LeadsDashboard | `leads` | CPL (inverted) |
+| EngagementDashboard | `engajamento` | Engagement |
+| BrandAwarenessDashboard | `reconhecimento` | Reach |
+| ReachDashboard | `alcance` | Reach |
+| VideoViewsDashboard | `video` | Video Views |
+| ConversionsDashboard | `conversoes` | Purchases |
+| SeguidoresDashboard | `seguidores` | Page Likes |
+| ConversasDashboard | `conversas` | Messaging Conversations |
+| CadastrosDashboard | `cadastros` | Leads |
+| GeneralDashboard | `geral` | Spend |
+
+---
+
+#### **TopCreativeCard** (`src/components/dashboards/TopCreativeCard.tsx`)
+
+Card individual com thumbnail, métricas e medalha de posição.
+
+**Features:**
+- Medalhas: 🥇 🥈 🥉
+- Badge "Catálogo" para templates `{{product.name}}`
+- Placeholder astronauta para catálogos dinâmicos
+- Click abre CreativeDetailModal
+
+---
+
+#### **CreativeDetailModal** (`src/components/dashboards/CreativeDetailModal.tsx`)
+
+Modal completo com todas as informações do criativo.
+
+**Sections:**
+1. **Header:** Thumbnail, título, badges de tipo (Video/Image/Carousel/Catalog)
+2. **Métricas Consolidadas:** 8 métricas com tooltips explicativos
+   - Gasto, ROAS, Compras, Receita
+   - Impressões, Cliques, CTR, CPC
+3. **Instâncias:** Breakdown por ad_id (cada veiculação)
+4. **Links:** Facebook/Instagram permalinks
+
+**Thresholds de Alerta:**
+| Métrica | Alerta | Cor |
+|---------|--------|-----|
+| CTR | < 1% | Amarelo |
+| CPC | > R$ 1,50 | Laranja |
+| ROAS | < 1x | Vermelho |
+| ROAS | ≥ 1x | Verde |
+
+---
+
+### **Hooks**
+
+#### **useTopCreatives** (`src/hooks/useTopCreatives.ts`)
+
+Busca e agrega dados de criativos por `creative_id`.
+
+**Key Features:**
+- Agregação por `creative_id` (não `ad_id`)
+- Fallback de thumbnails: `thumbnail_storage_url` > `thumbnail_url` > `image_url`
+- Detecção de catálogos via template strings
+- Ranking por métrica do objetivo
+
+**Returns:**
+```typescript
+{
+  creatives: TopCreative[];
+  loading: boolean;
+  error: Error | null;
+}
+```
+
+---
+
+#### **useCreativeInstances** (`src/hooks/useCreativeInstances.ts`)
+
+Busca instâncias (ads) de um criativo específico.
+
+**Purpose:** Mostrar breakdown de performance por cada ad_id que usa o mesmo creative_id.
+
+---
+
+### **Data Architecture**
+
+**Conceito: Criativo vs Instância**
+
+| Conceito | Identificador | Descrição |
+|----------|---------------|-----------|
+| **Criativo** | `creative_id` | A peça criativa (mídia + copy). Existe independente de onde é veiculado. |
+| **Instância** | `ad_id` | Cada veiculação em um adset/campanha. Onde a performance é medida. |
+
+**Tabela Principal:** `j_rep_metaads_bronze`
+
+**Campos Relevantes:**
+```sql
+creative_id TEXT              -- ID do criativo (agrupa instâncias)
+ad_object_type TEXT           -- Tipo: VIDEO, SHARE, CAROUSEL
+thumbnail_url TEXT            -- Thumbnail de vídeos (expira)
+thumbnail_storage_url TEXT    -- URL permanente no Storage ✅
+image_url TEXT                -- URL da imagem (expira)
+```
+
+---
+
+### **Sistema de Thumbnails Permanentes**
+
+**Problema:** URLs do Meta Ads expiram após ~7 dias.
+
+**Solução:** Edge Function sincroniza thumbnails para Supabase Storage.
+
+**Arquitetura:**
+```
+Windsor Sync → Edge Function → Supabase Storage
+    │               │              │
+    │               │              └── criativos/thumbnails/{account_id}/{creative_id}.{ext}
+    │               │
+    │               └── j_rep_metaads_bronze.thumbnail_storage_url
+    │
+    └── thumbnail_url (original, expira)
+```
+
+**Cron:** Diário às 6h BRT (9h UTC)
+
+---
+
+### **Implementation Pattern**
+
+**Adicionando TopCreativesSection a um dashboard:**
+
+```typescript
+// 1. Import
+import { TopCreativesSection } from './TopCreativesSection';
+
+// 2. Date variables (inside component)
+const endDate = startOfDay(subDays(new Date(), 1)); // Yesterday
+const startDate = startOfDay(subDays(endDate, selectedPeriod - 1));
+
+// 3. Component (in JSX)
+<TopCreativesSection
+  accountId={accountId}         // or accountInfo?.metaAdsId for GeneralDashboard
+  objective="vendas"            // match dashboard type
+  dateStart={startDate}
+  dateEnd={endDate}
+/>
+```
+
+---
+
+### **Rollout Status (v2.1.102)**
+
+| Dashboard | Status | Objective |
+|-----------|--------|-----------|
+| SalesDashboard | ✅ | vendas |
+| TrafficDashboard | ✅ | trafego |
+| LeadsDashboard | ✅ | leads |
+| EngagementDashboard | ✅ | engajamento |
+| BrandAwarenessDashboard | ✅ | reconhecimento |
+| ReachDashboard | ✅ | alcance |
+| VideoViewsDashboard | ✅ | video |
+| ConversionsDashboard | ✅ | conversoes |
+| SeguidoresDashboard | ✅ | seguidores |
+| ConversasDashboard | ✅ | conversas |
+| CadastrosDashboard | ✅ | cadastros |
+| GeneralDashboard | ✅ | geral |
+
+---
+
+### **Version History**
+
+| Version | Changes |
+|---------|---------|
+| **v2.1.102** | Rollout TopCreativesSection para todos os 11 dashboards |
+| **v2.1.101** | Dynamic 10% spend threshold para Top Creatives |
+| **v2.1.99** | Tooltip overflow fixes no CreativeDetailModal |
+| **v2.1.91-98** | CreativeDetailModal com métricas, instâncias, alertas |
+| **v2.1.87** | Sistema de Thumbnails Permanentes |
+| **v2.1.82-86** | TopCreativesSection base implementation |
+
+---
+
+**Last Updated**: 2024-12-18
 **Maintained by**: Claude Code Assistant

@@ -3,164 +3,165 @@
 # Tracks recent decisions and work-in-progress (last 7 days)
 # Older decisions migrate to docs/ARCHITECTURE.md
 
-last_updated: "2024-12-13T23:00:00Z"
+last_updated: "2024-12-18T23:00:00Z"
 session_computer: "MacBook Pro"
 session_user: "Bruno Maya"
 
 # Recent decisions (last 7 days)
 # When older than 7 days, migrate to docs/ARCHITECTURE.md
 recent_decisions:
+  - date: "2024-12-18"
+    decision: "TopCreativesSection Rollout - All 11 Dashboards"
+    status: "complete ✅"
+    details: |
+      🎯 TOP CREATIVES ROLLOUT - SESSÃO 2024-12-18
+
+      ## Feature Implementada (v2.1.102):
+
+      ### Rollout TopCreativesSection para 11 Dashboards
+      Componente reutilizável mostrando Top 3 criativos com medalhas em todos os dashboards.
+
+      **Dashboards atualizados:**
+      - TrafficDashboard (objetivo: "trafego")
+      - LeadsDashboard (objetivo: "leads")
+      - EngagementDashboard (objetivo: "engajamento")
+      - BrandAwarenessDashboard (objetivo: "reconhecimento")
+      - ReachDashboard (objetivo: "alcance")
+      - VideoViewsDashboard (objetivo: "video")
+      - ConversionsDashboard (objetivo: "conversoes")
+      - SeguidoresDashboard (objetivo: "seguidores")
+      - ConversasDashboard (objetivo: "conversas")
+      - CadastrosDashboard (objetivo: "cadastros")
+      - GeneralDashboard (objetivo: "geral")
+
+      ### Padrão de Implementação
+      - Import: `import { TopCreativesSection } from './TopCreativesSection';`
+      - Date vars: `endDate = yesterday`, `startDate = N days back`
+      - Component: `<TopCreativesSection accountId={...} objective="..." dateStart={...} dateEnd={...} />`
+
+      ### Variações de Props
+      - Maioria: `accountId={accountId}` (string direto)
+      - GeneralDashboard: `accountId={accountInfo?.metaAdsId || null}` (via objeto)
+
+    impact: "COMPLETE - Top Criativos visíveis em todos os dashboards"
+    files_changed:
+      - "src/components/dashboards/TrafficDashboard.tsx"
+      - "src/components/dashboards/LeadsDashboard.tsx"
+      - "src/components/dashboards/EngagementDashboard.tsx"
+      - "src/components/dashboards/BrandAwarenessDashboard.tsx"
+      - "src/components/dashboards/ReachDashboard.tsx"
+      - "src/components/dashboards/VideoViewsDashboard.tsx"
+      - "src/components/dashboards/ConversionsDashboard.tsx"
+      - "src/components/dashboards/SeguidoresDashboard.tsx"
+      - "src/components/dashboards/ConversasDashboard.tsx"
+      - "src/components/dashboards/CadastrosDashboard.tsx"
+      - "src/components/dashboards/GeneralDashboard.tsx"
+      - "docs/ROADMAP-DASHBOARDS.md"
+      - "src/config/version.ts"
+    deployed: true
+    deployment_status: "Deployed v2.1.102 ✅"
+    commits:
+      - "42dd435: feat(dashboards): Rollout TopCreativesSection to all 11 dashboards (v2.1.102)"
+    migrate_to_architecture: false
+
   - date: "2024-12-13"
     decision: "CreativeDetailModal - Modal completo ao clicar no card"
     status: "complete ✅"
     details: |
-      🎯 CREATIVE DETAIL MODAL - SESSÃO 2024-12-13
-
-      ## Features Implementadas (v2.1.91 - v2.1.99):
-
-      ### 1. Modal de Detalhes do Criativo
-      - Click no TopCreativeCard abre modal com todas as informações
-      - Thumbnail em destaque (1:1 aspect ratio)
-      - Título, body, campanha, badges de tipo
-      - Links externos (Ver no Facebook, Ver no Instagram)
-
-      ### 2. Métricas Consolidadas (8 métricas)
-      - Gasto, ROAS, Compras, Receita
-      - Impressões, Cliques, CTR, CPC
-      - Todos com ícones consistentes
-      - Tooltips explicativos para clientes (hover)
-
-      ### 3. Instâncias do Criativo (breakdown)
-      - Lista todas as ads que usam o mesmo creative_id
-      - Campanha + Conjunto de Anúncios visíveis
-      - Métricas individuais por instância
-      - Tooltips em cada métrica
-
-      ### 4. Alertas Visuais
-      - CTR < 1% → alerta amarelo ⚠️
-      - CPC > R$ 1,50 → alerta laranja ⚠️
-      - ROAS < 1x → vermelho / ≥ 1x → verde
-
-      ### 5. Agregação por creative_id
-      - Corrigido: agora agrupa por creative_id (não ad_id)
-      - Métricas consolidadas refletem performance real do criativo
-      - Exemplo: "Jumping Era" com 2 instâncias mostra ROAS 1.17x (correto)
-
+      Modal de detalhes implementado com métricas consolidadas,
+      instâncias do criativo, e tooltips explicativos.
     impact: "MAJOR - Nova experiência de análise de criativos"
     files_changed:
-      - "src/components/dashboards/CreativeDetailModal.tsx (NEW)"
-      - "src/hooks/useCreativeInstances.ts (NEW)"
-      - "src/components/dashboards/TopCreativeCard.tsx (modified)"
-      - "src/components/dashboards/TopCreativesSection.tsx (modified)"
-      - "src/hooks/useTopCreatives.ts (modified - creative_id aggregation)"
-      - "docs/ROADMAP-DASHBOARDS.md (updated)"
+      - "src/components/dashboards/CreativeDetailModal.tsx"
+      - "src/hooks/useCreativeInstances.ts"
     deployed: true
     deployment_status: "Deployed v2.1.99 ✅"
-    commits:
-      - "cce5db3: fix(modal): Tooltip overflow v2 - sticky positioning (v2.1.99)"
-      - "8924691: fix(modal): Tooltip overflow - bottom side (v2.1.98)"
-      - "c0f3cff: enh(modal): Add metric tooltips and icons (v2.1.97)"
-      - "6bd4c4d: enh(modal): Adjust CPC threshold to R$1.50 (v2.1.96)"
-      - "9466591: enh(modal): CTR/CPC alerts in consolidated metrics (v2.1.95)"
-      - "adb865c: enh(modal): Campaign/Adset in instances (v2.1.94)"
-    migrate_to_architecture: false
+    migrate_to_architecture: true  # >7 days, ready to migrate
 
 # Current issues being worked on
-current_issues:
-  - issue: "Tooltip overflow em algumas posições do modal"
-    status: "mitigated"
-    details: "Implementado sticky='always' e max-w-[200px]. Pode precisar ajuste fino."
-    priority: "low"
-    next_action: "Monitorar feedback do usuário"
+current_issues: []
 
 # Work in progress
 work_in_progress:
-  - feature: "Top 3 Criativos + Modal de Detalhes"
+  - feature: "Sistema de Criativos - Fases 1-3"
     status: "complete"
     completed:
-      - "✅ Componentes base (cards com medalhas)"
+      - "✅ Componentes base (cards com medalhas 🥇🥈🥉)"
       - "✅ Hook useTopCreatives com agregação por creative_id"
       - "✅ Sistema de Thumbnails Permanentes"
       - "✅ CreativeDetailModal com métricas consolidadas"
       - "✅ useCreativeInstances hook"
       - "✅ Tooltips explicativos para clientes"
       - "✅ Alertas de CTR/CPC fora do alvo"
-    pending:
-      - "⏳ Rollout para outros 11 dashboards"
+      - "✅ Rollout para TODOS os 11 dashboards"
+    pending: []
 
 # Context for next session
 next_session_context: |
-  🎯 SESSION 2024-12-13 COMPLETED: CREATIVE DETAIL MODAL
+  🎯 SESSION 2024-12-18 COMPLETED: TOP CREATIVES ROLLOUT
 
-  ## ✅ O QUE FOI FEITO HOJE (v2.1.91 → v2.1.99):
+  ## ✅ O QUE FOI FEITO HOJE (v2.1.102):
 
-  **Modal de Detalhes:**
-  - ✅ Click no card abre modal completo
-  - ✅ Métricas Consolidadas (8 métricas com ícones)
-  - ✅ Instâncias do Criativo (breakdown por ad_id)
-  - ✅ Tooltips explicativos em TODAS as métricas
-  - ✅ Alertas visuais (CTR < 1%, CPC > R$ 1,50)
-  - ✅ Links FB/IG movidos para o modal
-  - ✅ Scroll funcionando corretamente
+  **Rollout TopCreativesSection:**
+  - ✅ 11 dashboards atualizados com Top Criativos
+  - ✅ Cada dashboard com objective específico
+  - ✅ TypeScript validado (npx tsc --noEmit)
+  - ✅ Commit e push para main
 
-  **Agregação Corrigida:**
-  - ✅ useTopCreatives agora agrupa por creative_id (não ad_id)
-  - ✅ Métricas refletem performance real do criativo
+  **Dashboards com Top Criativos:**
+  - Traffic, Leads, Engagement, BrandAwareness
+  - Reach, VideoViews, Conversions
+  - Seguidores, Conversas, Cadastros, General
 
-  **Thresholds Baseados em:**
-  - ROAS alvo: 5x
-  - Ticket médio: R$ 180
-  - Taxa de conversão: 1%
-  - CPC máximo ideal: R$ 0,36 (alerta em R$ 1,50)
+  ## 📋 PRÓXIMAS FASES (ROADMAP):
 
-  ## 📋 PRÓXIMA SESSÃO:
+  1. FASE 4: Views SQL para Dashboard
+     - v_creative_performance
+     - v_creative_instances
 
-  1. Rollout TopCreativesSection para outros dashboards:
-     - TrafficDashboard, LeadsDashboard, EngagementDashboard
-     - BrandAwarenessDashboard, ReachDashboard, etc.
+  2. FASE 5: Dashboard de Performance de Criativos
+     - Página dedicada /criativos
+     - Grid, filtros, ordenação
 
-  2. Considerar melhorias opcionais:
-     - Tooltip positioning edge cases
-     - Mais métricas no modal (CPM, Alcance, etc.)
+  3. FASE 6: Sistema de Insights
+     - Comparativos automáticos
+     - Detecção de anomalias
 
   ## 📁 ARQUIVOS IMPORTANTES:
 
+  - TopCreativesSection: `src/components/dashboards/TopCreativesSection.tsx`
+  - TopCreativeCard: `src/components/dashboards/TopCreativeCard.tsx`
   - Modal: `src/components/dashboards/CreativeDetailModal.tsx`
-  - Hook instâncias: `src/hooks/useCreativeInstances.ts`
+  - Hook: `src/hooks/useTopCreatives.ts`
   - Roadmap: `docs/ROADMAP-DASHBOARDS.md`
 
 # TODOs pending
 pending_todos:
-  - "Rollout TopCreativesSection para outros 11 dashboards"
-  - "Monitorar tooltip overflow edge cases"
+  - "Fase 4: Criar views SQL para performance de criativos"
+  - "Fase 5: Dashboard dedicado de criativos"
 
 # Recently completed (for reference)
 completed_recently:
+  - "✅ [2024-12-18 23:00] Rollout TopCreativesSection para todos os 11 dashboards (v2.1.102)"
   - "✅ [2024-12-13 23:00] CreativeDetailModal com tooltips (v2.1.99)"
-  - "✅ [2024-12-13 22:45] Alertas CTR/CPC nas métricas consolidadas"
-  - "✅ [2024-12-13 22:30] Threshold CPC ajustado para R$ 1,50"
-  - "✅ [2024-12-13 22:00] Tooltips explicativos para clientes"
-  - "✅ [2024-12-13 21:30] useCreativeInstances hook criado"
-  - "✅ [2024-12-13 21:00] CreativeDetailModal implementado"
-  - "✅ [2024-12-13 20:30] Agregação por creative_id corrigida"
 
 # Deployment status
 deployment:
   production_url: "https://hub.jumper.studio"
-  current_version: "v2.1.99"
-  last_deploy: "2024-12-13T23:00:00Z"
-  last_deploy_status: "CreativeDetailModal deployed ✅"
-  last_commit: "cce5db3 - fix(modal): Tooltip overflow v2"
+  current_version: "v2.1.102"
+  last_deploy: "2024-12-18T23:00:00Z"
+  last_deploy_status: "TopCreativesSection rollout deployed ✅"
+  last_commit: "42dd435 - feat(dashboards): Rollout TopCreativesSection to all 11 dashboards"
   database_status: "STABLE"
-  known_issues: "Tooltip pode ter overflow em edge cases (mitigado)"
+  known_issues: "None"
   recent_commits:
+    - "42dd435: feat(dashboards): Rollout TopCreativesSection (v2.1.102)"
+    - "522553d: feat(creatives): Add dynamic 10% spend threshold (v2.1.101)"
     - "cce5db3: fix(modal): Tooltip overflow v2 (v2.1.99)"
-    - "c0f3cff: enh(modal): Add metric tooltips (v2.1.97)"
-    - "6bd4c4d: enh(modal): Adjust CPC threshold (v2.1.96)"
 
 # Notes for context rotation
 context_rotation:
-  last_rotation: "2024-12-13"
-  next_rotation: "2024-12-20"
+  last_rotation: "2024-12-18"
+  next_rotation: "2024-12-25"
   items_ready_to_migrate:
-    - "Top Criativos base implementation (2024-12-11) - pode migrar"
+    - "CreativeDetailModal implementation (2024-12-13) - ready to migrate"
