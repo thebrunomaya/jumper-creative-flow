@@ -1,8 +1,8 @@
 # Roadmap: Dashboards & Criativos
 
-> **Atualizado:** 2024-12-13
-> **Versão:** v2.1.99
-> **Status:** Fase 3 completa (Modal de Detalhes)
+> **Atualizado:** 2024-12-18
+> **Versão:** v2.1.102
+> **Status:** Fase 1-3 completas (Rollout para todos os dashboards)
 
 ---
 
