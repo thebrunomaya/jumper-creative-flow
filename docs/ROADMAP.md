@@ -1,6 +1,6 @@
 # Roadmap - Jumper Hub Platform
 
-> **Atualizado:** 2026-01-11 | **Versão:** v2.1.102
+> **Atualizado:** 2026-01-11 | **Versão:** v2.1.109
 
 ---
 

@@ -1,7 +1,7 @@
 # Architecture - Detalhes Técnicos
 
 > Documentação técnica do Jumper Hub Platform
-> **Atualizado:** 2026-01-11 | **Versão:** v2.1.102
+> **Atualizado:** 2026-01-11 | **Versão:** v2.1.109
 
 ---
 
@@ -904,5 +904,5 @@ Aggregates metrics across multiple accounts for admin/staff users.
 ---
 
 **Last Updated:** 2026-01-11
-**Version:** v2.1.102
+**Version:** v2.1.109
 **Maintained by:** Claude Code Assistant

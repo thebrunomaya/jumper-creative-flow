@@ -1,6 +1,6 @@
 # Jumper Flow - Claude Configuration
 
-> **Versão:** v2.1.106 | **Atualizado:** 2026-01-11
+> **Versão:** v2.1.109 | **Atualizado:** 2026-01-11
 
 ---
 

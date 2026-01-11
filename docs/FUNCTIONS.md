@@ -1,6 +1,6 @@
 # Funções do Sistema - Jumper Hub
 
-> **Atualizado:** 2026-01-11 | **Versão:** v2.1.105
+> **Atualizado:** 2026-01-11 | **Versão:** v2.1.109
 
 Documentação de referência para funções operacionais do sistema.
 
