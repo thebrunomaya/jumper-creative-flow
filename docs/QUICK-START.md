@@ -24,17 +24,16 @@ Antes de começar, certifique-se que tem instalado:
 git clone <repo-url>
 cd jumper-creative-flow
 
-# 2. Instale dependências
-npm install
+# 2. Execute o menu interativo de setup
+./localdev.sh
 
-# 3. Execute o script de setup automático
-./scripts/start-dev.sh
-
-# O script fará automaticamente:
-# ✅ Verificar Docker
+# Escolha a opção 3 (Complete Setup) que fará automaticamente:
+# ✅ Criar backup de produção
 # ✅ Iniciar Supabase Local
 # ✅ Aplicar migrations
-# ✅ Configurar variáveis de ambiente
+# ✅ Restaurar dados de produção
+# ✅ Configurar senha de desenvolvimento
+# ✅ Instalar dependências npm
 # ✅ Iniciar dev server
 ```
 
@@ -51,10 +50,10 @@ npm install
 **A cada vez que for trabalhar no projeto:**
 
 ```bash
-# Opção 1: Script automático (recomendado)
-./scripts/start-dev.sh
+# Menu interativo (recomendado)
+./localdev.sh
 
-# Opção 2: Manual (se preferir controle individual)
+# Ou direto:
 npx supabase start        # Inicia Supabase + Edge Functions
 npm run dev              # Inicia frontend (porta 8080)
 ```
@@ -68,6 +67,14 @@ npx supabase stop
 # Parar frontend
 Ctrl+C no terminal do npm run dev
 ```
+
+---
+
+## 🔐 Credenciais de Desenvolvimento
+
+**Login local:**
+- Email: `bruno@jumper.studio`
+- Senha: `senha123`
 
 ---
 
@@ -103,26 +110,20 @@ SUPABASE_SERVICE_ROLE_KEY=<obter de `npx supabase status`>
 
 ## 🗄️ Database Local
 
-### **Opção 1: Desenvolvimento com dados vazios (recomendado)**
+### **Reset Rápido (dados corrompidos)**
 
 ```bash
-# Database local já vem com schema aplicado
-# Crie dados de teste conforme necessário via Supabase Studio
+# Usar script seguro que preserva backup
+./localdev.sh
+# Escolher opção 4 (Quick Reset)
 ```
 
-### **Opção 2: Importar dados de produção**
-
-**Quando usar:** Testes com dados reais, debugging específico.
+### **Importar dados de produção**
 
 ```bash
-# 1. Fazer backup da produção
-npx supabase db dump --linked --data-only --use-copy \
-  --file="./backups/production_$(date +%Y%m%d).sql"
-
-# 2. Restaurar no local
-./scripts/restore-to-local.sh ./backups/production_YYYYMMDD.sql
-
-# ⚠️ Isso SUBSTITUI todos dados locais!
+./localdev.sh
+# Escolher opção 2 (Backup Production)
+# Depois opção 3 (Complete Setup)
 ```
 
 ---
@@ -138,13 +139,9 @@ npx supabase status
 # Containers Docker ativos
 docker ps --filter "name=supabase"
 
-# Verificar Edge Runtime especificamente
-docker ps | grep edge_runtime
-# Deve mostrar: "Up X minutes" (NÃO "Exited")
-
-# Verificar API keys no Edge Runtime
-docker exec supabase_edge_runtime_biwwowendjuzvpttyrlb env | grep OPENAI_API_KEY
-# Deve retornar: OPENAI_API_KEY=sk-proj-...
+# Validar ambiente
+./localdev.sh
+# Escolher opção 1 (Validate Environment)
 ```
 
 ---
@@ -181,26 +178,7 @@ cp supabase/.env supabase/functions/.env
 # Reiniciar Supabase
 npx supabase stop
 npx supabase start
-
-# Validar que carregou
-docker exec supabase_edge_runtime_biwwowendjuzvpttyrlb env | grep OPENAI_API_KEY
 ```
-
-### **Container Edge Runtime com status "Exited (137)"**
-
-**Sintoma:** `docker ps -a` mostra container parado
-
-**Solução:**
-```bash
-# Matar processos conflitantes
-pkill -f "supabase functions serve"
-
-# Reiniciar Supabase
-npx supabase stop
-npx supabase start
-```
-
-**📖 Guia completo:** [DEV-TROUBLESHOOTING.md](./DEV-TROUBLESHOOTING.md)
 
 ---
 
@@ -215,15 +193,11 @@ npm run typecheck       # Validate TypeScript
 
 # Supabase
 npx supabase status            # Ver URLs e status
-./scripts/db-reset-safe.sh     # ✅ Reaplicar migrations COM BACKUP
 npx supabase db diff           # Ver mudanças no schema
 
-# ⚠️ IMPORTANTE: Sempre use db-reset-safe.sh ao invés de npx supabase db reset
-# O script seguro preserva dados via backup/restore automático
-
-# Logs
-docker logs -f supabase_edge_runtime_biwwowendjuzvpttyrlb  # Edge Functions
-docker logs -f supabase_db_biwwowendjuzvpttyrlb            # Database
+# Scripts Locais
+./localdev.sh                  # Menu interativo
+./localdev/4-quick-reset.sh    # Reset rápido
 ```
 
 ---
@@ -242,23 +216,9 @@ docker logs -f supabase_db_biwwowendjuzvpttyrlb            # Database
 ## 📖 Documentação Adicional
 
 - **[CLAUDE.md](../CLAUDE.md)** - Visão geral completa do projeto
-- **[DEV-TROUBLESHOOTING.md](./DEV-TROUBLESHOOTING.md)** - Troubleshooting detalhado
 - **[ARCHITECTURE.md](./ARCHITECTURE.md)** - Arquitetura e decisões técnicas
-- **[DEV-SETUP.md](./DEV-SETUP.md)** - Setup detalhado passo a passo
+- **[localdev/README.md](../localdev/README.md)** - Guia completo do ambiente local
 
 ---
 
-## 🎯 Próximos Passos
-
-Após setup inicial completo:
-
-1. ✅ Ambiente local funcionando
-2. ✅ Frontend acessível em http://localhost:8080
-3. ✅ Edge Functions respondendo
-4. 📝 Começar desenvolvimento!
-
-**Dica:** Mantenha Supabase Studio aberto (http://127.0.0.1:54323) para visualizar database em tempo real enquanto desenvolve.
-
----
-
-**Última atualização:** 2025-10-20
+**Última atualização:** 2026-01-11

@@ -7,10 +7,17 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.102';
+export const APP_VERSION = 'v2.1.103';
 
 /**
  * Version history:
+ * - v2.1.103 (2026-01-11):
+ *   - DOCS: Major documentation cleanup and consolidation
+ *   - Rewrite: ARCHITECTURE.md (2673→913 lines), CLAUDE.md, QUICK-START.md
+ *   - New: ROADMAP.md consolidates all system roadmaps
+ *   - New: tmp-tests/ and tmp-user/ folders for organized temp files
+ *   - Removed 15+ obsolete documentation and test files
+ *
  * - v2.1.102 (2024-12-18):
  *   - NEW: TopCreativesSection rollout to all 11 dashboards
  *   - Added to: Traffic, Leads, Engagement, BrandAwareness, Reach

@@ -89,6 +89,9 @@ supabase/volumes/
 # ============================================
 # Project-Specific (Jumper)
 # ============================================
+# User temporary files (not tracked)
+/tmp-user/
+
 # Optimization system recordings (dev only)
 /temp-recordings/
 *.m4a
