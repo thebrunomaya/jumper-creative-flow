@@ -38,8 +38,7 @@ Arquivos temporários do usuário vão em `tmp-user/` (gitignored).
 |-----------|----------|
 | **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** | Schema, Edge Functions, Patterns, Sistemas |
 | **[docs/ROADMAP.md](docs/ROADMAP.md)** | Próximos passos e planejamento |
-| **[docs/BALANCE-ALERTS.md](docs/BALANCE-ALERTS.md)** | Sistema de alertas de saldo Meta Ads |
-| **[localdev/README.md](localdev/README.md)** | Setup e desenvolvimento local |
+| **[docs/FUNCTIONS.md](docs/FUNCTIONS.md)** | Funções operacionais (localdev, alertas, etc) |
 | **[.claude-context](.claude-context)** | Contexto temporário (últimos 7 dias) |
 
 ---
