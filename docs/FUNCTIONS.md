@@ -201,13 +201,13 @@ Sistema de transcrição e análise de otimizações de campanhas.
 ### Pipeline
 
 ```
-Audio Upload → Transcribe → Improve → Extract → Analyze → Oracle Report
-     │            │           │          │         │           │
-     │      Whisper API   Claude AI  Claude AI  Claude AI   Claude AI
-     │            │           │          │         │           │
-     ▼            ▼           ▼          ▼         ▼           ▼
-  Storage    full_text    processed   extract   context     report
-                             text       text     summary     (HTML)
+Audio Upload → Transcribe → Improve → Extract → Analyze
+     │            │           │          │         │
+     │      Whisper API   Claude AI  Claude AI  Claude AI
+     │            │           │          │         │
+     ▼            ▼           ▼          ▼         ▼
+  Storage    full_text    processed   extract   context
+                             text       text     summary
 ```
 
 ### Edge Functions
@@ -218,7 +218,6 @@ Audio Upload → Transcribe → Improve → Extract → Analyze → Oracle Repor
 | `j_hub_optimization_improve_transcript` | Melhoria do transcript com IA |
 | `j_hub_optimization_extract` | Extração de dados estruturados |
 | `j_hub_optimization_analyze` | Geração de análise |
-| `j_hub_optimization_generate_oracle_report` | Relatório Oracle (gestor/cliente) |
 | `j_hub_optimization_create_share` | Criar link público com senha |
 | `j_hub_optimization_view_shared` | Visualizar optimization compartilhada |
 
@@ -258,7 +257,6 @@ Audio Upload → Transcribe → Improve → Extract → Analyze → Oracle Repor
 | `OptimizationEditor.tsx` | Editar/visualizar |
 | `TranscriptViewer` | Visualizar/editar transcrição |
 | `ExtractViewer` | Visualizar extração |
-| `OracleReportGenerator` | Gerar relatório |
 
 ### Status Flow
 

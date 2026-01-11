@@ -111,7 +111,6 @@ export interface OptimizationContext {
   confidence_level?: 'high' | 'medium' | 'low' | 'revised'; // Confiança na extração pela IA ou revisado manualmente
   client_report_generated?: boolean;            // Relatório para cliente foi gerado?
   client_report_sent_at?: Date;
-  generated_reports?: Record<string, any>;      // Oracle reports cache (delfos, orfeu, nostradamus)
 }
 
 // ============================================================================

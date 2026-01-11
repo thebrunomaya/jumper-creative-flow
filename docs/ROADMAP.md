@@ -76,7 +76,6 @@ GROUP BY creative_id, account_id;
 - [x] Melhoria de transcrição (Claude AI)
 - [x] Extração estruturada
 - [x] Análise de contexto
-- [x] Geração de relatório Oracle
 - [x] Compartilhamento público com senha
 - [x] Edição de transcrições
 - [x] Histórico de versões
@@ -85,7 +84,6 @@ GROUP BY creative_id, account_id;
 
 | Feature | Descrição | Prioridade |
 |---------|-----------|------------|
-| **Oracle Cliente** | Versão simplificada do relatório | Alta |
 | **Integração Calendário** | Agendar próximas otimizações | Média |
 | **Templates de Prompt** | Customização por conta/objetivo | Média |
 | **Batch Processing** | Processar múltiplos áudios | Baixa |
@@ -179,7 +177,6 @@ Expandir além do Meta Ads para outras plataformas.
 
 ### Alta Prioridade
 
-- [ ] Oracle Cliente (Optimization)
 - [ ] Novos templates de Deck
 - [ ] Dashboard de Criativos
 
@@ -204,8 +201,7 @@ Expandir além do Meta Ads para outras plataformas.
 | Documento | Conteúdo |
 |-----------|----------|
 | [ARCHITECTURE.md](./ARCHITECTURE.md) | Schema, Edge Functions, Patterns |
-| [BALANCE-ALERTS.md](./BALANCE-ALERTS.md) | Sistema de alertas de saldo |
-| [QUICK-START.md](./QUICK-START.md) | Setup local |
+| [FUNCTIONS.md](./FUNCTIONS.md) | Funções operacionais do sistema |
 
 ---
 

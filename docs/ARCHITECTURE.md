@@ -274,8 +274,7 @@ jumper-creative-flow/
 │   │   │   ├── DateRangePicker.tsx
 │   │   │   ├── ContextEditor.tsx
 │   │   │   ├── TranscriptViewer.tsx
-│   │   │   ├── ExtractViewer.tsx
-│   │   │   └── OracleReportGenerator.tsx
+│   │   │   └── ExtractViewer.tsx
 │   │   ├── decks/                 # Deck components
 │   │   │   ├── DeckCard.tsx
 │   │   │   ├── DeckConfigForm.tsx
@@ -397,8 +396,7 @@ CREATE TABLE j_hub_optimization_recordings (
   -- Sharing fields
   share_enabled BOOLEAN DEFAULT false,
   public_slug TEXT UNIQUE,
-  password_hash TEXT,
-  shared_oracle_type TEXT           -- 'gestor' | 'cliente'
+  password_hash TEXT
 );
 ```
 
@@ -527,7 +525,6 @@ Windsor.ai synchronized data with 40+ metrics:
 | `j_hub_optimization_process` | Full pipeline orchestrator |
 | `j_hub_optimization_improve_processed` | Improve processed output |
 | `j_hub_optimization_update_context` | Update account context |
-| `j_hub_optimization_generate_oracle_report` | Generate Oracle report |
 | `j_hub_optimization_create_share` | Create public share link |
 | `j_hub_optimization_view_shared` | View shared optimization |
 
@@ -736,13 +733,13 @@ done
 ### Pipeline Overview
 
 ```
-Audio Upload → Transcribe → Improve → Extract → Analyze → Report
-     │            │           │          │         │         │
-     │     Whisper API   Claude AI  Claude AI  Claude AI  Oracle
-     │            │           │          │         │         │
-     ▼            ▼           ▼          ▼         ▼         ▼
- Storage    transcript    processed   extract   context    report
-            full_text       text       text     summary    (PDF)
+Audio Upload → Transcribe → Improve → Extract → Analyze
+     │            │           │          │         │
+     │     Whisper API   Claude AI  Claude AI  Claude AI
+     │            │           │          │         │
+     ▼            ▼           ▼          ▼         ▼
+ Storage    transcript    processed   extract   context
+            full_text       text       text     summary
 ```
 
 ### Components
@@ -757,7 +754,6 @@ Audio Upload → Transcribe → Improve → Extract → Analyze → Report
 - `ContextEditor` - Account context editing
 - `TranscriptViewer` - View/edit transcription
 - `ExtractViewer` - View extracted data
-- `OracleReportGenerator` - Generate PDF reports
 
 ### Status Fields
 

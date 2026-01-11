@@ -52,7 +52,6 @@ import {
 import { toast } from "sonner";
 import { exportOptimizationToPDF } from "@/utils/pdfExport";
 import { ShareOptimizationModal } from "@/components/optimization/ShareOptimizationModal";
-import { OracleReportGenerator } from "@/components/optimization/OracleReportGenerator";
 import { ExtractEditorModal } from "@/components/optimization/ExtractEditorModal";
 import { AIAnalysisImprovementsModal } from "@/components/optimization/AIAnalysisImprovementsModal";
 import { LogViewer } from "@/components/optimization/LogViewer";
@@ -1126,25 +1125,6 @@ export default function OptimizationEditor() {
               <ChevronDown className="h-8 w-8 text-amber-500/50 animate-bounce" />
               <div className="h-4 w-px bg-gradient-to-b from-transparent to-amber-500/20" />
             </div>
-          )}
-
-          {/* SEÇÃO 4: ORACLE FRAMEWORK (ADMIN ONLY) */}
-          {isAdmin && recording.analysis_status === 'completed' && context && (
-            <OptimizationStepCard
-              stepNumber={4}
-              title="Oracle Framework"
-              description="Relatórios adaptados por perfil de cliente"
-              status="completed"
-              badge="Beta"
-              isCollapsible={false}
-            >
-              <OracleReportGenerator
-                contextId={context.id}
-                accountName={accountName}
-                recordingId={recordingId!}
-                existingReports={context.generated_reports || {}}
-              />
-            </OptimizationStepCard>
           )}
 
         </div>
