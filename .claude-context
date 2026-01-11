@@ -3,165 +3,110 @@
 # Tracks recent decisions and work-in-progress (last 7 days)
 # Older decisions migrate to docs/ARCHITECTURE.md
 
-last_updated: "2024-12-18T23:00:00Z"
+last_updated: "2026-01-11T15:45:00Z"
 session_computer: "MacBook Pro"
 session_user: "Bruno Maya"
 
 # Recent decisions (last 7 days)
-# When older than 7 days, migrate to docs/ARCHITECTURE.md
 recent_decisions:
-  - date: "2024-12-18"
-    decision: "TopCreativesSection Rollout - All 11 Dashboards"
-    status: "complete ✅"
+  - date: "2026-01-11"
+    decision: "Major Documentation Cleanup & Oracle Removal"
+    status: "complete"
     details: |
-      🎯 TOP CREATIVES ROLLOUT - SESSÃO 2024-12-18
+      ## SESSAO 2026-01-11: LIMPEZA E ORGANIZACAO
 
-      ## Feature Implementada (v2.1.102):
+      ### 1. Documentacao Reorganizada
+      - ARCHITECTURE.md: Reescrito (2673 -> 913 linhas)
+      - FUNCTIONS.md: Criado com 6 sistemas operacionais
+      - ROADMAP.md: Consolidado de ROADMAP-DASHBOARDS.md
+      - CLAUDE.md: Simplificado com regras obrigatorias
 
-      ### Rollout TopCreativesSection para 11 Dashboards
-      Componente reutilizável mostrando Top 3 criativos com medalhas em todos os dashboards.
+      ### 2. Arquivos Removidos
+      - docs/QUICK-START.md (duplicado de localdev/README.md)
+      - docs/BALANCE-ALERTS.md (movido para FUNCTIONS.md)
+      - docs/CHANGELOG.md, DEV-SETUP.md, DEV-TROUBLESHOOTING.md
+      - test-analyze-*.ts (3 arquivos de teste na raiz)
+      - .env.template, dashboard-config.json, dashboard-review.md
 
-      **Dashboards atualizados:**
-      - TrafficDashboard (objetivo: "trafego")
-      - LeadsDashboard (objetivo: "leads")
-      - EngagementDashboard (objetivo: "engajamento")
-      - BrandAwarenessDashboard (objetivo: "reconhecimento")
-      - ReachDashboard (objetivo: "alcance")
-      - VideoViewsDashboard (objetivo: "video")
-      - ConversionsDashboard (objetivo: "conversoes")
-      - SeguidoresDashboard (objetivo: "seguidores")
-      - ConversasDashboard (objetivo: "conversas")
-      - CadastrosDashboard (objetivo: "cadastros")
-      - GeneralDashboard (objetivo: "geral")
+      ### 3. Oracle Framework Removido (OBSOLETO)
+      - Edge Function: j_hub_optimization_generate_oracle_report/ (9 arquivos)
+      - Componentes: OracleCard, OracleReportGenerator, ReportViewer
+      - Referencias em OptimizationEditor, SharedOptimization
+      - Total: ~2.327 linhas removidas
 
-      ### Padrão de Implementação
-      - Import: `import { TopCreativesSection } from './TopCreativesSection';`
-      - Date vars: `endDate = yesterday`, `startDate = N days back`
-      - Component: `<TopCreativesSection accountId={...} objective="..." dateStart={...} dateEnd={...} />`
+      ### 4. Estrutura Final docs/
+      - ARCHITECTURE.md (913 linhas) - Tecnico
+      - FUNCTIONS.md (498 linhas) - Operacional
+      - ROADMAP.md (208 linhas) - Planejamento
 
-      ### Variações de Props
-      - Maioria: `accountId={accountId}` (string direto)
-      - GeneralDashboard: `accountId={accountInfo?.metaAdsId || null}` (via objeto)
-
-    impact: "COMPLETE - Top Criativos visíveis em todos os dashboards"
+    impact: "MAJOR - Documentacao limpa para Claude Desktop"
     files_changed:
-      - "src/components/dashboards/TrafficDashboard.tsx"
-      - "src/components/dashboards/LeadsDashboard.tsx"
-      - "src/components/dashboards/EngagementDashboard.tsx"
-      - "src/components/dashboards/BrandAwarenessDashboard.tsx"
-      - "src/components/dashboards/ReachDashboard.tsx"
-      - "src/components/dashboards/VideoViewsDashboard.tsx"
-      - "src/components/dashboards/ConversionsDashboard.tsx"
-      - "src/components/dashboards/SeguidoresDashboard.tsx"
-      - "src/components/dashboards/ConversasDashboard.tsx"
-      - "src/components/dashboards/CadastrosDashboard.tsx"
-      - "src/components/dashboards/GeneralDashboard.tsx"
-      - "docs/ROADMAP-DASHBOARDS.md"
-      - "src/config/version.ts"
+      - "docs/ARCHITECTURE.md (reescrito)"
+      - "docs/FUNCTIONS.md (novo)"
+      - "docs/ROADMAP.md (renomeado)"
+      - "CLAUDE.md (simplificado)"
+      - "supabase/functions/j_hub_optimization_generate_oracle_report/ (deletado)"
+      - "src/components/optimization/Oracle*.tsx (deletados)"
     deployed: true
-    deployment_status: "Deployed v2.1.102 ✅"
+    deployment_status: "Deployed v2.1.109"
     commits:
-      - "42dd435: feat(dashboards): Rollout TopCreativesSection to all 11 dashboards (v2.1.102)"
-    migrate_to_architecture: false
-
-  - date: "2024-12-13"
-    decision: "CreativeDetailModal - Modal completo ao clicar no card"
-    status: "complete ✅"
-    details: |
-      Modal de detalhes implementado com métricas consolidadas,
-      instâncias do criativo, e tooltips explicativos.
-    impact: "MAJOR - Nova experiência de análise de criativos"
-    files_changed:
-      - "src/components/dashboards/CreativeDetailModal.tsx"
-      - "src/hooks/useCreativeInstances.ts"
-    deployed: true
-    deployment_status: "Deployed v2.1.99 ✅"
-    migrate_to_architecture: true  # >7 days, ready to migrate
+      - "387fa62: docs: Major documentation cleanup (v2.1.103)"
+      - "9682037: docs: Remove redundant QUICK-START.md (v2.1.104)"
+      - "d75f5f1: docs: Create FUNCTIONS.md (v2.1.105)"
+      - "bdf4037: docs: Expand FUNCTIONS.md (v2.1.106)"
+      - "672be01: docs: Add ROADMAP.md to session protocol (v2.1.107)"
+      - "1f28ccf: feat: Remove obsolete Oracle Framework (v2.1.108)"
+      - "6772739: fix: Remove Oracle from view_shared (v2.1.109)"
 
 # Current issues being worked on
 current_issues: []
 
 # Work in progress
-work_in_progress:
-  - feature: "Sistema de Criativos - Fases 1-3"
-    status: "complete"
-    completed:
-      - "✅ Componentes base (cards com medalhas 🥇🥈🥉)"
-      - "✅ Hook useTopCreatives com agregação por creative_id"
-      - "✅ Sistema de Thumbnails Permanentes"
-      - "✅ CreativeDetailModal com métricas consolidadas"
-      - "✅ useCreativeInstances hook"
-      - "✅ Tooltips explicativos para clientes"
-      - "✅ Alertas de CTR/CPC fora do alvo"
-      - "✅ Rollout para TODOS os 11 dashboards"
-    pending: []
+work_in_progress: []
 
 # Context for next session
 next_session_context: |
-  🎯 SESSION 2024-12-18 COMPLETED: TOP CREATIVES ROLLOUT
+  ## SESSAO 2026-01-11 COMPLETA: LIMPEZA DE DOCUMENTACAO
 
-  ## ✅ O QUE FOI FEITO HOJE (v2.1.102):
+  ### O QUE FOI FEITO:
 
-  **Rollout TopCreativesSection:**
-  - ✅ 11 dashboards atualizados com Top Criativos
-  - ✅ Cada dashboard com objective específico
-  - ✅ TypeScript validado (npx tsc --noEmit)
-  - ✅ Commit e push para main
+  1. **Documentacao Reorganizada para Claude Desktop**
+     - 4 arquivos principais: CLAUDE.md, ARCHITECTURE.md, FUNCTIONS.md, ROADMAP.md
+     - ~1.840 linhas de documentacao organizada
 
-  **Dashboards com Top Criativos:**
-  - Traffic, Leads, Engagement, BrandAwareness
-  - Reach, VideoViews, Conversions
-  - Seguidores, Conversas, Cadastros, General
+  2. **Oracle Framework Removido**
+     - Funcionalidade obsoleta com 3 personas IA (Delfos, Orfeu, Nostradamus)
+     - ~2.327 linhas de codigo removidas
+     - Tabelas no banco mantidas (historico)
 
-  ## 📋 PRÓXIMAS FASES (ROADMAP):
+  3. **Pastas Criadas**
+     - tmp-tests/ - Arquivos de teste (tracked)
+     - tmp-user/ - Arquivos temporarios (gitignored)
 
-  1. FASE 4: Views SQL para Dashboard
-     - v_creative_performance
-     - v_creative_instances
+  ### PROXIMOS PASSOS (ROADMAP):
 
-  2. FASE 5: Dashboard de Performance de Criativos
-     - Página dedicada /criativos
-     - Grid, filtros, ordenação
+  - Novos templates de Deck (Alta)
+  - Dashboard de Criativos (Alta)
+  - Views SQL para performance (Media)
+  - Export PDF de Decks (Media)
 
-  3. FASE 6: Sistema de Insights
-     - Comparativos automáticos
-     - Detecção de anomalias
+  ### ARQUIVOS IMPORTANTES:
 
-  ## 📁 ARQUIVOS IMPORTANTES:
-
-  - TopCreativesSection: `src/components/dashboards/TopCreativesSection.tsx`
-  - TopCreativeCard: `src/components/dashboards/TopCreativeCard.tsx`
-  - Modal: `src/components/dashboards/CreativeDetailModal.tsx`
-  - Hook: `src/hooks/useTopCreatives.ts`
-  - Roadmap: `docs/ROADMAP-DASHBOARDS.md`
+  - Documentacao: docs/ARCHITECTURE.md, docs/FUNCTIONS.md, docs/ROADMAP.md
+  - Testes: tmp-tests/
+  - Local dev: localdev/README.md
 
 # TODOs pending
 pending_todos:
-  - "Fase 4: Criar views SQL para performance de criativos"
-  - "Fase 5: Dashboard dedicado de criativos"
-
-# Recently completed (for reference)
-completed_recently:
-  - "✅ [2024-12-18 23:00] Rollout TopCreativesSection para todos os 11 dashboards (v2.1.102)"
-  - "✅ [2024-12-13 23:00] CreativeDetailModal com tooltips (v2.1.99)"
+  - "Novos templates de Deck"
+  - "Dashboard dedicado de criativos"
+  - "Views SQL para performance"
 
 # Deployment status
 deployment:
   production_url: "https://hub.jumper.studio"
-  current_version: "v2.1.102"
-  last_deploy: "2024-12-18T23:00:00Z"
-  last_deploy_status: "TopCreativesSection rollout deployed ✅"
-  last_commit: "42dd435 - feat(dashboards): Rollout TopCreativesSection to all 11 dashboards"
-  database_status: "STABLE"
+  current_version: "v2.1.109"
+  last_deploy: "2026-01-11T15:45:00Z"
+  last_deploy_status: "Documentation cleanup + Oracle removal"
+  database_status: "STABLE (Oracle tables kept for history)"
   known_issues: "None"
-  recent_commits:
-    - "42dd435: feat(dashboards): Rollout TopCreativesSection (v2.1.102)"
-    - "522553d: feat(creatives): Add dynamic 10% spend threshold (v2.1.101)"
-    - "cce5db3: fix(modal): Tooltip overflow v2 (v2.1.99)"
-
-# Notes for context rotation
-context_rotation:
-  last_rotation: "2024-12-18"
-  next_rotation: "2024-12-25"
-  items_ready_to_migrate:
-    - "CreativeDetailModal implementation (2024-12-13) - ready to migrate"
