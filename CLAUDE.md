@@ -38,7 +38,8 @@ Arquivos temporários do usuário vão em `tmp-user/` (gitignored).
 |-----------|----------|
 | **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** | Schema, Edge Functions, Patterns, Sistemas |
 | **[docs/ROADMAP.md](docs/ROADMAP.md)** | Próximos passos e planejamento |
-| **[docs/QUICK-START.md](docs/QUICK-START.md)** | Setup local rápido |
+| **[docs/BALANCE-ALERTS.md](docs/BALANCE-ALERTS.md)** | Sistema de alertas de saldo Meta Ads |
+| **[localdev/README.md](localdev/README.md)** | Setup e desenvolvimento local |
 | **[.claude-context](.claude-context)** | Contexto temporário (últimos 7 dias) |
 
 ---
@@ -78,24 +79,13 @@ Arquivos temporários do usuário vão em `tmp-user/` (gitignored).
 
 ## 🛠️ Local Development
 
-### Quick Start
+**Guia completo:** [localdev/README.md](localdev/README.md)
 
 ```bash
-./localdev.sh   # Menu interativo
+./localdev.sh   # Menu interativo com todas as opções
 ```
 
-### Credenciais Locais
-
-- **Email:** `bruno@jumper.studio`
-- **Senha:** `senha123`
-
-### Endpoints Locais
-
-| Serviço | URL |
-|---------|-----|
-| Frontend | http://localhost:8080 |
-| Supabase Studio | http://127.0.0.1:54323 |
-| Database | postgresql://postgres:postgres@127.0.0.1:54322/postgres |
+**Credenciais:** `bruno@jumper.studio` / `senha123`
 
 ---
 
