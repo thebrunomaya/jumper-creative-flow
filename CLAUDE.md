@@ -1,18 +1,21 @@
 # Jumper Flow - Claude Configuration
 
-> **Versão:** v2.1.102 | **Atualizado:** 2026-01-11
+> **Versão:** v2.1.106 | **Atualizado:** 2026-01-11
 
 ---
 
 ## 🔴 REGRAS OBRIGATÓRIAS
 
-### 1. Consultar Arquitetura
+### 1. Consultar Documentação
 
-**SEMPRE consultar `docs/ARCHITECTURE.md`:**
-- **No INÍCIO de cada sessão** - Entender o estado atual do sistema
-- **No FINAL de cada sessão** - Verificar se o documento ainda está válido
+**SEMPRE consultar no INÍCIO e FINAL de cada sessão:**
 
-**Se fizer alterações no sistema, ATUALIZAR o ARCHITECTURE.md para refletir as mudanças.**
+| Documento | Verificar |
+|-----------|-----------|
+| `docs/ARCHITECTURE.md` | Estado atual do sistema, patterns, schema |
+| `docs/ROADMAP.md` | Próximos passos, prioridades, o que já foi feito |
+
+**Se fizer alterações, ATUALIZAR os documentos para refletir as mudanças.**
 
 ### 2. Arquivos de Teste
 
@@ -177,7 +180,8 @@ Requerem **DUPLA confirmação**:
 
 1. Ler `.claude-context` para contexto recente
 2. Ler `docs/ARCHITECTURE.md` para arquitetura atual
-3. Confirmar com usuário o que precisa ser feito
+3. Ler `docs/ROADMAP.md` para próximos passos e prioridades
+4. Confirmar com usuário o que precisa ser feito
 
 ### Fim de Sessão
 
@@ -190,10 +194,11 @@ Quando usuário disser "encerrar", "acabou", "tchau":
 
 2. **Verificar `docs/ARCHITECTURE.md`**:
    - Documento ainda está válido?
-   - Precisa atualizar algo?
    - Se alterou sistema, atualizar doc
 
-3. **Atualizar `docs/ROADMAP.md`** se necessário
+3. **Verificar `docs/ROADMAP.md`**:
+   - Atualizar status de itens concluídos
+   - Adicionar novos itens identificados
 
 ---
 
