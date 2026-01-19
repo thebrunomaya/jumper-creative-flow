@@ -7,10 +7,15 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.106';
+export const APP_VERSION = 'v2.1.107';
 
 /**
  * Version history:
+ * - v2.1.107 (2026-01-19):
+ *   - NEW: Ad Checker public tool at /adchecker
+ *   - Validates Meta Ads safe zones for Stories, Carousel 1:1, and 4:5
+ *   - Drag-and-drop upload with dimension validation
+ *
  * - v2.1.106 (2026-01-19):
  *   - Added deprecation banner on hub.jumper.studio login page
  *   - Redirects users to flow.jumper.studio
