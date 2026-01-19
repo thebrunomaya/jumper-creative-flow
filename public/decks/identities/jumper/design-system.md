@@ -184,13 +184,13 @@ Use `clamp(min, preferred, max)` for fluid scaling across devices. This ensures 
 **Correct Format (ALWAYS):**
 ```css
 /* Fonts */
-src: url('https://hub.jumper.studio/decks/identities/jumper/fonts/HafferVF.ttf')
+src: url('https://flow.jumper.studio/decks/identities/jumper/fonts/HafferVF.ttf')
 
 /* Backgrounds */
-background-image: url('https://hub.jumper.studio/decks/identities/jumper/gradients/organic-01.png')
+background-image: url('https://flow.jumper.studio/decks/identities/jumper/gradients/organic-01.png')
 
 /* Images */
-<img src="https://hub.jumper.studio/decks/identities/jumper/logos/jumper-white.png">
+<img src="https://flow.jumper.studio/decks/identities/jumper/logos/jumper-white.png">
 ```
 
 **Wrong Formats (NEVER USE):**
@@ -201,7 +201,7 @@ background-image: url('../gradients/organic-01.png')
 <img src="./logos/jumper-white.png">
 ```
 
-**Why:** HTML files are served from Supabase Storage domain, not hub.jumper.studio. Relative paths resolve to wrong domain and return 404 errors.
+**Why:** HTML files are served from Supabase Storage domain, not flow.jumper.studio. Relative paths resolve to wrong domain and return 404 errors.
 
 ---
 

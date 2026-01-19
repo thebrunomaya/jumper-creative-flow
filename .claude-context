@@ -104,7 +104,7 @@ pending_todos:
 
 # Deployment status
 deployment:
-  production_url: "https://hub.jumper.studio"
+  production_url: "https://flow.jumper.studio"
   current_version: "v2.1.109"
   last_deploy: "2026-01-11T15:45:00Z"
   last_deploy_status: "Documentation cleanup + Oracle removal"

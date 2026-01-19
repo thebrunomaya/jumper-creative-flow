@@ -6,7 +6,7 @@
   "deck_type": "pitch",
   "base_template": "jumper-flare-v2.2",
   "uses_same_css": true,
-  "css_url": "https://hub.jumper.studio/decks/templates/jumper-flare-v2.2.css",
+  "css_url": "https://flow.jumper.studio/decks/templates/jumper-flare-v2.2.css",
   "changelog": [
     {
       "version": "1.0.0",
@@ -33,7 +33,7 @@
     },
     "signature": {
       "signed_by": "Gestor responsável pelo pitch",
-      "company_logo": "https://hub.jumper.studio/decks/identities/jumper/logos/jumper-white.png"
+      "company_logo": "https://flow.jumper.studio/decks/identities/jumper/logos/jumper-white.png"
     }
   },
 
@@ -544,7 +544,7 @@
       ],
       "pitch_examples": {
         "label": "Obrigado",
-        "logo": "https://hub.jumper.studio/decks/identities/jumper/logos/jumper-white.png",
+        "logo": "https://flow.jumper.studio/decks/identities/jumper/logos/jumper-white.png",
         "name": "[Nome do Gestor]",
         "role": "Gestor de Performance, Jumper Studio",
         "contact": "[email]@jumper.studio"

@@ -98,7 +98,7 @@ const LoginPageNew: React.FC = () => {
         if (!error) {
           setAuthStep('magic-link-sent');
           toast({
-            title: "Bem-vindo(a) ao Jumper Hub!",
+            title: "Bem-vindo(a) ao Jumper Flow!",
             description: "Enviamos um link de acesso para seu email. É seu primeiro acesso!",
           });
         } else {
@@ -298,8 +298,8 @@ const LoginPageNew: React.FC = () => {
             {/* Título */}
             <div className="text-center space-y-3">
               <h1 className="text-2xl lg:text-3xl font-bold text-white">
-                <span className="lg:hidden">Hub</span>
-                <span className="hidden lg:inline">Jumper Hub</span>
+                <span className="lg:hidden">Flow</span>
+                <span className="hidden lg:inline">Jumper Flow</span>
               </h1>
               <p className="text-xs text-white/40">{APP_VERSION}</p>
             </div>

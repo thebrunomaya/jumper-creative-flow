@@ -73,7 +73,7 @@ Arquivos temporários do usuário vão em `tmp-user/` (gitignored).
 - **Framework**: React 18 + Vite + TypeScript
 - **Styling**: Tailwind CSS + shadcn/ui
 - **Backend**: Supabase (Auth + Database + Edge Functions)
-- **Hosting**: Vercel (hub.jumper.studio)
+- **Hosting**: Vercel (flow.jumper.studio)
 - **Integration**: Notion API, Windsor.ai
 - **State**: React Query (@tanstack/react-query)
 

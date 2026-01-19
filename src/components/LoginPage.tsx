@@ -135,8 +135,8 @@ const LoginPage: React.FC = () => {
             {/* Título */}
             <div className="text-center space-y-3">
               <h1 className="text-2xl lg:text-3xl font-bold text-white">
-                <span className="lg:hidden">Hub</span>
-                <span className="hidden lg:inline">Jumper Hub</span>
+                <span className="lg:hidden">Flow</span>
+                <span className="hidden lg:inline">Jumper Flow</span>
               </h1>
               <p className="text-xs text-white/40">v2.0</p>
             </div>
@@ -220,7 +220,7 @@ const LoginPage: React.FC = () => {
               </div>
 
               <p className="text-xs text-white/50">
-                Aviso: senhas do Notion não funcionam aqui. Use sua senha do Jumper Hub.
+                Aviso: senhas do Notion não funcionam aqui. Use sua senha do Jumper Flow.
               </p>
             </form>
           </div>

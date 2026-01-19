@@ -78,7 +78,7 @@ Deno.serve(async (req) => {
 
     // Construct public URL
     const filename = `${template_id}.html`;
-    const publicUrl = `https://hub.jumper.studio/decks/templates/${filename}`;
+    const publicUrl = `https://flow.jumper.studio/decks/templates/${filename}`;
     const filePath = `/decks/templates/${filename}`;
 
     console.log(`📖 Reading template: ${filePath} for admin user ${user.email}`);

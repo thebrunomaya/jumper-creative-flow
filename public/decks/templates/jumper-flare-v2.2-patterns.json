@@ -87,7 +87,7 @@
   "design_tokens": {
     "typography": {
       "font_family": "Haffer, -apple-system, BlinkMacSystemFont, sans-serif",
-      "font_src": "https://hub.jumper.studio/decks/identities/jumper/fonts/HafferVF.ttf",
+      "font_src": "https://flow.jumper.studio/decks/identities/jumper/fonts/HafferVF.ttf",
       "text_align": "left",
       "scale": {
         "hero": "clamp(48px, 8vw, 120px)",
@@ -749,7 +749,7 @@
       ],
       "example_content": {
         "label": "Thank You",
-        "logo": "https://hub.jumper.studio/decks/identities/jumper/logos/jumper-white.png",
+        "logo": "https://flow.jumper.studio/decks/identities/jumper/logos/jumper-white.png",
         "name": "Bruno Maya",
         "role": "CEO, Jumper Studio",
         "contact": "bruno@jumper.studio"

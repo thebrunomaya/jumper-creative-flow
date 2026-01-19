@@ -60,7 +60,7 @@ export async function loadPatternMetadata(templateId: string, deckType?: string)
 
   const baseUrl = isLocal
     ? 'http://localhost:8080'  // Vite dev server
-    : 'https://hub.jumper.studio';  // Vercel production
+    : 'https://flow.jumper.studio';  // Vercel production
 
   // Try deck-type-specific patterns first (e.g., jumper-flare-v2.1-pitch-patterns.json)
   if (deckType && deckType !== 'report') {
@@ -150,7 +150,7 @@ export async function loadTemplateHTML(templateId: string): Promise<string> {
     const isLocal = supabaseUrl.includes('127.0.0.1') || supabaseUrl.includes('localhost');
 
     // Build URL based on environment
-    const baseUrl = isLocal ? 'http://localhost:8080' : 'https://hub.jumper.studio';
+    const baseUrl = isLocal ? 'http://localhost:8080' : 'https://flow.jumper.studio';
     const templateUrl = `${baseUrl}/decks/templates/${templateId}.html`;
 
     console.log(`[TEMPLATE_UTILS] Fetching template HTML from: ${templateUrl}`);

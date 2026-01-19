@@ -140,7 +140,7 @@ Deno.serve(async (req) => {
     }
 
     // Return success with URL
-    const baseUrl = Deno.env.get('SITE_URL') || 'https://hub.jumper.studio';
+    const baseUrl = Deno.env.get('SITE_URL') || 'https://flow.jumper.studio';
     const publicUrl = `${baseUrl}/decks/share/${slug}`;
 
     console.log('✅ [DECK_CREATE_SHARE] Share link created:', publicUrl);

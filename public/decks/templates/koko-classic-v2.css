@@ -65,7 +65,7 @@
 /* Alternate Gothic - Títulos (Book, Bold, Black) */
 @font-face {
     font-family: 'Alternate Gothic';
-    src: url('https://hub.jumper.studio/decks/identities/koko/fonts/AlternateGothicCondATF-Book.otf') format('opentype');
+    src: url('https://flow.jumper.studio/decks/identities/koko/fonts/AlternateGothicCondATF-Book.otf') format('opentype');
     font-weight: 400;
     font-style: normal;
     font-display: swap;
@@ -73,7 +73,7 @@
 
 @font-face {
     font-family: 'Alternate Gothic';
-    src: url('https://hub.jumper.studio/decks/identities/koko/fonts/AlternateGothicCondATF-Bold.otf') format('opentype');
+    src: url('https://flow.jumper.studio/decks/identities/koko/fonts/AlternateGothicCondATF-Bold.otf') format('opentype');
     font-weight: 700;
     font-style: normal;
     font-display: swap;
@@ -81,7 +81,7 @@
 
 @font-face {
     font-family: 'Alternate Gothic';
-    src: url('https://hub.jumper.studio/decks/identities/koko/fonts/AlternateGothicCondATF-Black.otf') format('opentype');
+    src: url('https://flow.jumper.studio/decks/identities/koko/fonts/AlternateGothicCondATF-Black.otf') format('opentype');
     font-weight: 900;
     font-style: normal;
     font-display: swap;
@@ -90,7 +90,7 @@
 /* Playfair Display - Corpo de texto (Regular, Bold) */
 @font-face {
     font-family: 'Playfair Display';
-    src: url('https://hub.jumper.studio/decks/identities/koko/fonts/PlayfairDisplay-Regular.ttf') format('truetype');
+    src: url('https://flow.jumper.studio/decks/identities/koko/fonts/PlayfairDisplay-Regular.ttf') format('truetype');
     font-weight: 400;
     font-style: normal;
     font-display: swap;
@@ -98,7 +98,7 @@
 
 @font-face {
     font-family: 'Playfair Display';
-    src: url('https://hub.jumper.studio/decks/identities/koko/fonts/PlayfairDisplay-Bold.ttf') format('truetype');
+    src: url('https://flow.jumper.studio/decks/identities/koko/fonts/PlayfairDisplay-Bold.ttf') format('truetype');
     font-weight: 700;
     font-style: normal;
     font-display: swap;

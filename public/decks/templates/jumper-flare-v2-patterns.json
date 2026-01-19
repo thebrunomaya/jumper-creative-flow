@@ -42,7 +42,7 @@
     },
     "typography": {
       "font_family": "Haffer, -apple-system, BlinkMacSystemFont, sans-serif",
-      "font_src": "https://hub.jumper.studio/decks/identities/jumper/fonts/Haffer-Regular.woff2",
+      "font_src": "https://flow.jumper.studio/decks/identities/jumper/fonts/Haffer-Regular.woff2",
       "scale": {
         "hero": "clamp(3rem, 8vw, 6rem)",
         "h1": "clamp(2rem, 5vw, 3.5rem)",

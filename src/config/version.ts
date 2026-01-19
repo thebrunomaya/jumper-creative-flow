@@ -1,5 +1,5 @@
 /**
- * Jumper Hub Version
+ * Jumper Flow Version
  *
  * Following semantic versioning: MAJOR.MINOR.PATCH
  *
@@ -7,10 +7,16 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.104';
+export const APP_VERSION = 'v2.1.105';
 
 /**
  * Version history:
+ * - v2.1.105 (2026-01-19):
+ *   - REBRAND: Jumper Hub → Jumper Flow migration
+ *   - Updated all URLs from hub.jumper.studio to flow.jumper.studio
+ *   - Updated all UI branding from "Jumper Hub" to "Jumper Flow"
+ *   - New repository: github.com/thebrunomaya/jumperflow
+ *
  * - v2.1.104 (2026-01-19):
  *   - FIX: Creative submissions system broken due to table name mismatch
  *   - Changed j_hub_creative_* to j_ads_creative_* (production table names)

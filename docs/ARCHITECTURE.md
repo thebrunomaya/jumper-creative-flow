@@ -1,6 +1,6 @@
 # Architecture - Detalhes Técnicos
 
-> Documentação técnica do Jumper Hub Platform
+> Documentação técnica do Jumper Flow Platform
 > **Atualizado:** 2026-01-11 | **Versão:** v2.1.109
 
 ---

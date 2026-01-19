@@ -194,7 +194,7 @@ Deno.serve({
     console.log('🎨 [DECK_GENERATE] Stage 3: Generating HTML following approved plan...');
 
     // Load full template HTML as reference (template-agnostic approach)
-    const baseUrl = 'https://hub.jumper.studio';
+    const baseUrl = 'https://flow.jumper.studio';
     const templateUrl = `${baseUrl}/decks/templates/${templateIdWithExternalCSS}.html`;
 
     console.log('📄 [DECK_GENERATE] Loading template HTML:', templateUrl);
@@ -230,7 +230,7 @@ Transform markdown data into beautiful, interactive HTML slides following a PRE-
    - Generate ${approvedPlan.total_slides} slides (no more, no less)
    - Each slide must follow the plan's recommended pattern
    - Use the provided CSS classes (styles are loaded via external CSS link)
-   - Template uses external CSS at: https://hub.jumper.studio/decks/templates/${templateIdWithExternalCSS}.css
+   - Template uses external CSS at: https://flow.jumper.studio/decks/templates/${templateIdWithExternalCSS}.css
 
 2. UTF-8 ENCODING (CRITICAL):
    - Ensure <meta charset="UTF-8"> is FIRST tag in <head>
@@ -241,13 +241,13 @@ Transform markdown data into beautiful, interactive HTML slides following a PRE-
    ⚠️ CRITICAL: For split layout slides, you MUST use gradient IMAGE URLs, NOT CSS gradients!
 
    - For "cover-split-gradient-right" pattern (Cover slide):
-     <div class="slide-split-gradient" style="background-image: url('https://hub.jumper.studio/decks/identities/jumper/gradients/organic-01.png');"></div>
+     <div class="slide-split-gradient" style="background-image: url('https://flow.jumper.studio/decks/identities/jumper/gradients/organic-01.png');"></div>
 
    - For "closing-split-gradient-left" pattern (Closing slide):
-     <div class="slide-split-gradient" style="background-image: url('https://hub.jumper.studio/decks/identities/jumper/gradients/organic-02.png');"></div>
+     <div class="slide-split-gradient" style="background-image: url('https://flow.jumper.studio/decks/identities/jumper/gradients/organic-02.png');"></div>
 
    DO NOT use: background: linear-gradient(...)
-   ALWAYS use: background-image: url('https://hub.jumper.studio/decks/identities/jumper/gradients/...')
+   ALWAYS use: background-image: url('https://flow.jumper.studio/decks/identities/jumper/gradients/...')
 
 4. NAVIGATION & INTERACTIVITY (MANDATORY):
    ⚠️ CRITICAL: The HTML MUST include navigation system and JavaScript!
@@ -385,7 +385,7 @@ ${formatPlanForGenerationPrompt(approvedPlan)}
 EXTERNAL CSS STYLESHEET
 ==============================================
 The template uses external CSS linked in <head>:
-<link rel="stylesheet" href="https://hub.jumper.studio/decks/templates/${templateIdWithExternalCSS}.css">
+<link rel="stylesheet" href="https://flow.jumper.studio/decks/templates/${templateIdWithExternalCSS}.css">
 
 This CSS file contains all styles for:
 - Design system (colors, fonts, spacing)
@@ -423,7 +423,7 @@ TASK
 Generate COMPLETE HTML presentation following the approved plan above.
 
 CRITICAL: Include <link> tag for external CSS in <head>:
-<link rel="stylesheet" href="https://hub.jumper.studio/decks/templates/${templateIdWithExternalCSS}.css">
+<link rel="stylesheet" href="https://flow.jumper.studio/decks/templates/${templateIdWithExternalCSS}.css">
 
 For each slide in the plan:
 1. Use the recommended pattern (e.g., timeline → .timeline-container CSS)

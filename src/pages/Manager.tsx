@@ -37,7 +37,7 @@ const Manager: React.FC = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    document.title = "Meus Criativos • Jumper Hub";
+    document.title = "Meus Criativos • Jumper Flow";
   }, []);
 
   const fetchMy = async (): Promise<Row[]> => {

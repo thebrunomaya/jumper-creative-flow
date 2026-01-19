@@ -90,7 +90,7 @@ colors: {
 /* Black (900) - Hero Titles */
 @font-face {
     font-family: 'AlternateGothicCondATF';
-    src: url('https://hub.jumper.studio/decks/identities/koko/fonts/AlternateGothicCondATF-Black.otf') format('opentype');
+    src: url('https://flow.jumper.studio/decks/identities/koko/fonts/AlternateGothicCondATF-Black.otf') format('opentype');
     font-weight: 900;
     font-display: swap;
 }
@@ -98,7 +98,7 @@ colors: {
 /* Bold (700) - Section Titles */
 @font-face {
     font-family: 'AlternateGothicCondATF';
-    src: url('https://hub.jumper.studio/decks/identities/koko/fonts/AlternateGothicCondATF-Bold.otf') format('opentype');
+    src: url('https://flow.jumper.studio/decks/identities/koko/fonts/AlternateGothicCondATF-Bold.otf') format('opentype');
     font-weight: 700;
     font-display: swap;
 }
@@ -106,7 +106,7 @@ colors: {
 /* Book (400) - Body Display */
 @font-face {
     font-family: 'AlternateGothicCondATF';
-    src: url('https://hub.jumper.studio/decks/identities/koko/fonts/AlternateGothicCondATF-Book.otf') format('opentype');
+    src: url('https://flow.jumper.studio/decks/identities/koko/fonts/AlternateGothicCondATF-Book.otf') format('opentype');
     font-weight: 400;
     font-display: swap;
 }
@@ -118,7 +118,7 @@ colors: {
 /* Bold (700) - Emphasis */
 @font-face {
     font-family: 'PlayfairDisplay';
-    src: url('https://hub.jumper.studio/decks/identities/koko/fonts/PlayfairDisplay-Bold.ttf') format('truetype');
+    src: url('https://flow.jumper.studio/decks/identities/koko/fonts/PlayfairDisplay-Bold.ttf') format('truetype');
     font-weight: 700;
     font-display: swap;
 }
@@ -126,7 +126,7 @@ colors: {
 /* Regular (400) - Body Text */
 @font-face {
     font-family: 'PlayfairDisplay';
-    src: url('https://hub.jumper.studio/decks/identities/koko/fonts/PlayfairDisplay-Regular.ttf') format('truetype');
+    src: url('https://flow.jumper.studio/decks/identities/koko/fonts/PlayfairDisplay-Regular.ttf') format('truetype');
     font-weight: 400;
     font-display: swap;
 }
@@ -137,7 +137,7 @@ colors: {
 ```css
 @font-face {
     font-family: 'Glarious';
-    src: url('https://hub.jumper.studio/decks/identities/koko/fonts/Glarious.otf') format('opentype');
+    src: url('https://flow.jumper.studio/decks/identities/koko/fonts/Glarious.otf') format('opentype');
     font-weight: 400;
     font-display: swap;
 }
@@ -631,19 +631,19 @@ The dog-ear uses two complementary CSS techniques:
 <div class="slide hero relative w-full h-full">
     <!-- Background Pattern (full bleed) -->
     <div class="absolute inset-0 z-0" style="
-        background-image: url('https://hub.jumper.studio/decks/identities/koko/elements/hero-background.png');
+        background-image: url('https://flow.jumper.studio/decks/identities/koko/elements/hero-background.png');
         background-size: cover;
         background-position: center;
     "></div>
 
     <!-- Gorilla Hands - Diagonal Composition -->
     <img
-        src="https://hub.jumper.studio/decks/identities/koko/elements/gorilla-hand-left.png"
+        src="https://flow.jumper.studio/decks/identities/koko/elements/gorilla-hand-left.png"
         class="absolute w-[43vw] max-w-[540px] z-10"
         style="left: -5%; top: -5%;">
 
     <img
-        src="https://hub.jumper.studio/decks/identities/koko/elements/gorilla-hand-right.png"
+        src="https://flow.jumper.studio/decks/identities/koko/elements/gorilla-hand-right.png"
         class="absolute w-[43vw] max-w-[540px] z-10"
         style="right: -5%; bottom: -5%;">
 
@@ -800,7 +800,7 @@ The dog-ear uses two complementary CSS techniques:
             </p>
         </div>
         <div class="statement-graphic">
-            <img src="https://hub.jumper.studio/decks/identities/koko/elements/pink-mouth.png"
+            <img src="https://flow.jumper.studio/decks/identities/koko/elements/pink-mouth.png"
                  alt="Koko graphic element">
         </div>
     </div>
@@ -839,7 +839,7 @@ The dog-ear uses two complementary CSS techniques:
 <div class="slide statement-slide-reverse">
     <div class="slide-content">
         <div class="statement-graphic">
-            <img src="https://hub.jumper.studio/decks/identities/koko/elements/loud.png"
+            <img src="https://flow.jumper.studio/decks/identities/koko/elements/loud.png"
                  alt="Koko loud graphic element">
         </div>
         <div class="statement-text">
@@ -912,7 +912,7 @@ The dog-ear uses two complementary CSS techniques:
             <p class="section-divider-subtitle">Subtítulo opcional</p>
         </div>
         <div class="section-divider-graphic">
-            <img src="https://hub.jumper.studio/decks/identities/koko/elements/computer.png"
+            <img src="https://flow.jumper.studio/decks/identities/koko/elements/computer.png"
                  alt="Koko computer graphic">
         </div>
     </div>
@@ -1632,7 +1632,7 @@ const gap = circumference - segmentLength;
 <!-- Top-left placement (standard) -->
 <div class="absolute top-16 left-8 z-20">
     <img
-        src="https://hub.jumper.studio/decks/identities/koko/logos/Logo_Preferencial_Koko_Preto.png"
+        src="https://flow.jumper.studio/decks/identities/koko/logos/Logo_Preferencial_Koko_Preto.png"
         alt="Koko Logo"
         class="h-12 mix-blend-multiply">
 </div>
@@ -1660,13 +1660,13 @@ Available:
 ```html
 <!-- Left hand from top-left diagonal -->
 <img
-    src="https://hub.jumper.studio/decks/identities/koko/elements/gorilla-hand-left.png"
+    src="https://flow.jumper.studio/decks/identities/koko/elements/gorilla-hand-left.png"
     class="absolute w-[43vw] max-w-[540px]"
     style="left: -5%; top: -5%;">
 
 <!-- Right hand from bottom-right diagonal -->
 <img
-    src="https://hub.jumper.studio/decks/identities/koko/elements/gorilla-hand-right.png"
+    src="https://flow.jumper.studio/decks/identities/koko/elements/gorilla-hand-right.png"
     class="absolute w-[43vw] max-w-[540px]"
     style="right: -5%; bottom: -5%;">
 ```
@@ -1680,7 +1680,7 @@ Available:
 **Application:**
 ```css
 .pattern-background {
-    background-image: url('https://hub.jumper.studio/decks/identities/koko/elements/hero-background.png');
+    background-image: url('https://flow.jumper.studio/decks/identities/koko/elements/hero-background.png');
     background-size: cover;
     background-position: center;
 }
@@ -1709,7 +1709,7 @@ Available:
     content: '';
     position: absolute;
     inset: 0;
-    background-image: url('https://hub.jumper.studio/decks/identities/koko/gradients/Koko Dust 1.jpg');
+    background-image: url('https://flow.jumper.studio/decks/identities/koko/gradients/Koko Dust 1.jpg');
     background-size: cover;
     background-position: center;
     opacity: 0.15; /* Subtle texture */
@@ -1915,7 +1915,7 @@ Available:
 - `PlayfairDisplay-Regular.ttf` (400)
 - `Glarious.otf` (400)
 
-Base URL: `https://hub.jumper.studio/decks/identities/koko/fonts/`
+Base URL: `https://flow.jumper.studio/decks/identities/koko/fonts/`
 
 ### Logos
 - `Logo_Preferencial_Koko_Branco.png` (white, dark backgrounds)
@@ -1923,7 +1923,7 @@ Base URL: `https://hub.jumper.studio/decks/identities/koko/fonts/`
 - `Símbolo_Branco.png` (white symbol)
 - `Símbolo_Preto.png` (black symbol)
 
-Base URL: `https://hub.jumper.studio/decks/identities/koko/logos/`
+Base URL: `https://flow.jumper.studio/decks/identities/koko/logos/`
 
 ### Graphics
 - `hero-background.png` (hero background pattern)
@@ -1935,14 +1935,14 @@ Base URL: `https://hub.jumper.studio/decks/identities/koko/logos/`
 - `mouth.png` (mouth halftone)
 - `computer.png` (computer halftone)
 
-Base URL: `https://hub.jumper.studio/decks/identities/koko/elements/`
+Base URL: `https://flow.jumper.studio/decks/identities/koko/elements/`
 
 ### Textures
 - `Koko Dust 1.jpg` (texture background)
 - `Koko Dust 2.jpg` (texture background)
 - `Koko Dust 3.jpg` (texture background)
 
-Base URL: `https://hub.jumper.studio/decks/identities/koko/gradients/`
+Base URL: `https://flow.jumper.studio/decks/identities/koko/gradients/`
 
 ---
 
