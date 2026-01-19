@@ -326,7 +326,7 @@ Deno.serve(async (req) => {
       console.log("🔄 Starting backfill of manager emails for submissions");
       
       const { data: submissions, error: fetchErr } = await supabase
-        .from("j_hub_creative_submissions")
+        .from("j_ads_creative_submissions")
         .select("id, payload, manager_id, user_id")
         .is("payload->managerEmail", null)
         .limit(100);
@@ -344,7 +344,7 @@ Deno.serve(async (req) => {
         if (email) {
           const updatedPayload = { ...(submission.payload || {}), managerEmail: email };
           await supabase
-            .from("j_hub_creative_submissions")
+            .from("j_ads_creative_submissions")
             .update({ payload: updatedPayload })
             .eq("id", submission.id);
           updated++;
@@ -372,7 +372,7 @@ Deno.serve(async (req) => {
 
       // Validate submission is not a draft
       const { data: submission, error: fetchErr } = await supabase
-        .from("j_hub_creative_submissions")
+        .from("j_ads_creative_submissions")
         .select("id, status, payload")
         .eq("id", submissionId)
         .maybeSingle();
@@ -392,7 +392,7 @@ Deno.serve(async (req) => {
       }
 
       const { data, error } = await supabase
-        .from("j_hub_creative_submissions")
+        .from("j_ads_creative_submissions")
         .update({ status: "queued" })
         .eq("id", submissionId)
         .select("id, status")
@@ -421,7 +421,7 @@ Deno.serve(async (req) => {
 
       // Record initial state
       const { data: currentSubmission } = await supabase
-        .from("j_hub_creative_submissions")
+        .from("j_ads_creative_submissions")
         .select("*")
         .eq("id", submissionId)
         .single();
@@ -441,7 +441,7 @@ Deno.serve(async (req) => {
       };
 
       const { error: updateErr } = await supabase
-        .from("j_hub_creative_submissions")
+        .from("j_ads_creative_submissions")
         .update({ 
           status: "processing",
           result: initResult,
@@ -474,7 +474,7 @@ Deno.serve(async (req) => {
         
         // Update with error
         await supabase
-          .from("j_hub_creative_submissions")
+          .from("j_ads_creative_submissions")
           .update({ 
             status: "error",
             error: error.message || "Unknown error during publishing",
@@ -515,7 +515,7 @@ Deno.serve(async (req) => {
 
       const updateProgress = async (status: string, newLogs: string[], result?: any) => {
         await supabase
-          .from("j_hub_creative_submissions")
+          .from("j_ads_creative_submissions")
           .update({
             status,
             result: {
@@ -535,7 +535,7 @@ Deno.serve(async (req) => {
         // Get submission details
         addLog("📋 Carregando detalhes da submissão...");
         const { data: submission } = await supabase
-          .from("j_hub_creative_submissions")
+          .from("j_ads_creative_submissions")
           .select("*")
           .eq("id", submissionId)
           .single();
@@ -548,7 +548,7 @@ Deno.serve(async (req) => {
         // Get files for this submission
         addLog("📁 Carregando arquivos...");
         const { data: files } = await supabase
-          .from("j_hub_creative_files")
+          .from("j_ads_creative_files")
           .select("*")
           .eq("submission_id", submissionId)
           .order("variation_index");
@@ -594,7 +594,7 @@ Deno.serve(async (req) => {
                   
                   // Update the database record
                   await supabase
-                    .from("j_hub_creative_files")
+                    .from("j_ads_creative_files")
                     .update({ 
                       name: correctedName, 
                       public_url: finalUrl,
@@ -693,7 +693,7 @@ Deno.serve(async (req) => {
 
         // Also update the error column for backward compatibility
         await supabase
-          .from("j_hub_creative_submissions")
+          .from("j_ads_creative_submissions")
           .update({
             error: error.message
           })
@@ -712,7 +712,7 @@ Deno.serve(async (req) => {
       }
 
       const { data: sub, error: subErr } = await supabase
-        .from("j_hub_creative_submissions")
+        .from("j_ads_creative_submissions")
         .select("id, result, payload")
         .eq("id", submissionId)
         .maybeSingle();
@@ -745,7 +745,7 @@ Deno.serve(async (req) => {
       }));
 
       const { error: upsertErr } = await supabase
-        .from("j_hub_creative_variations")
+        .from("j_ads_creative_variations")
         .upsert(rows, { onConflict: "submission_id,variation_index" });
 
       if (upsertErr) {
@@ -764,7 +764,7 @@ Deno.serve(async (req) => {
     if (action === "backfill_all") {
       // Load many submissions and upsert all variations found in their result
       const { data: subs, error: listErr } = await supabase
-        .from("j_hub_creative_submissions")
+        .from("j_ads_creative_submissions")
         .select("id, result, payload")
         .order("created_at", { ascending: false })
         .limit(1000);
@@ -796,7 +796,7 @@ Deno.serve(async (req) => {
 
       if (batch.length > 0) {
         const { error: upsertErr } = await supabase
-          .from("j_hub_creative_variations")
+          .from("j_ads_creative_variations")
           .upsert(batch, { onConflict: "submission_id,variation_index" });
         if (upsertErr) {
           return new Response(JSON.stringify({ success: false, error: upsertErr.message }), {
@@ -816,7 +816,7 @@ Deno.serve(async (req) => {
     if (action === "backfill_manager_emails") {
       // Backfill manager emails for legacy submissions
       const { data: subs, error: listErr } = await supabase
-        .from("j_hub_creative_submissions")
+        .from("j_ads_creative_submissions")
         .select("id, payload, manager_id, user_id")
         .order("created_at", { ascending: false })
         .limit(1000);
@@ -843,7 +843,7 @@ Deno.serve(async (req) => {
           };
 
           const { error: updateErr } = await supabase
-            .from("j_hub_creative_submissions")
+            .from("j_ads_creative_submissions")
             .update({ payload: updatedPayload })
             .eq("id", sub.id);
 
@@ -872,7 +872,7 @@ Deno.serve(async (req) => {
 
       // Get submission with all details
       const { data: submission, error: subErr } = await supabase
-        .from("j_hub_creative_submissions")
+        .from("j_ads_creative_submissions")
         .select("*")
         .eq("id", submissionId)
         .maybeSingle();
@@ -886,7 +886,7 @@ Deno.serve(async (req) => {
 
       // Get files
       const { data: files, error: filesErr } = await supabase
-        .from("j_hub_creative_files")
+        .from("j_ads_creative_files")
         .select("*")
         .eq("submission_id", submissionId)
         .order("variation_index", { ascending: true });
@@ -958,7 +958,7 @@ Deno.serve(async (req) => {
       }
 
       const { data: submission, error: subErr } = await supabase
-        .from("j_hub_creative_submissions")
+        .from("j_ads_creative_submissions")
         .select("*")
         .eq("id", submissionId)
         .maybeSingle();
@@ -993,7 +993,7 @@ Deno.serve(async (req) => {
         };
         
         const { data, error } = await supabase
-          .from("j_hub_creative_submissions")
+          .from("j_ads_creative_submissions")
           .update({ 
             payload: updatedPayload,
             status: "draft",
@@ -1027,7 +1027,7 @@ Deno.serve(async (req) => {
         };
         
         const { data, error } = await supabase
-          .from("j_hub_creative_submissions")
+          .from("j_ads_creative_submissions")
           .insert({
             user_id: user.id,
             payload: newPayload,
@@ -1071,7 +1071,7 @@ Deno.serve(async (req) => {
 
       // Get submission files to delete from storage
       const { data: files } = await supabase
-        .from("j_hub_creative_files")
+        .from("j_ads_creative_files")
         .select("storage_path")
         .eq("submission_id", submissionId);
 
@@ -1085,19 +1085,19 @@ Deno.serve(async (req) => {
 
       // Delete creative files records
       await supabase
-        .from("j_hub_creative_files")
+        .from("j_ads_creative_files")
         .delete()
         .eq("submission_id", submissionId);
 
       // Delete creative variations
       await supabase
-        .from("j_hub_creative_variations")
+        .from("j_ads_creative_variations")
         .delete()
         .eq("submission_id", submissionId);
 
       // Delete submission
       const { error } = await supabase
-        .from("j_hub_creative_submissions")
+        .from("j_ads_creative_submissions")
         .delete()
         .eq("id", submissionId);
 
@@ -1117,7 +1117,7 @@ Deno.serve(async (req) => {
     // Default: listAll submissions (latest first)
     // ✅ CORREÇÃO: Simplificar consulta - não selecionar payload na consulta principal
     const { data: items, error: listErr2 } = await supabase
-      .from("j_hub_creative_submissions")
+      .from("j_ads_creative_submissions")
       .select("id, client, manager_id, status, error, created_at, updated_at")
       .order("created_at", { ascending: false })
       .limit(100);
@@ -1241,7 +1241,7 @@ Deno.serve(async (req) => {
     if (itemIds.length > 0) {
       try {
         const { data: payloadData, error: payloadErr } = await supabase
-          .from("j_hub_creative_submissions")
+          .from("j_ads_creative_submissions")
           .select("id, payload")
           .in("id", itemIds);
         

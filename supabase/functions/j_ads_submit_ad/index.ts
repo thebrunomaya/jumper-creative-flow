@@ -193,7 +193,7 @@ serve(async (req) => {
       // Update existing draft to submitted
       logger.log('📝 Updating existing submission:', existingSubmissionId);
       const { data, error } = await supabase
-        .from('j_hub_creative_submissions')
+        .from('j_ads_creative_submissions')
         .update({
           ...submissionData,
           status: 'pending', // Change from draft to pending
@@ -209,7 +209,7 @@ serve(async (req) => {
       // Create new submission
       logger.log('🆕 Creating new submission');
       const { data, error } = await supabase
-        .from('j_hub_creative_submissions')
+        .from('j_ads_creative_submissions')
         .insert(submissionData)
         .select()
         .single();
@@ -229,7 +229,7 @@ serve(async (req) => {
       logger.log('📁 Creating file records...');
       
       const { error: filesError } = await supabase
-        .from('j_hub_creative_files')
+        .from('j_ads_creative_files')
         .insert(processedFiles);
 
       if (filesError) {

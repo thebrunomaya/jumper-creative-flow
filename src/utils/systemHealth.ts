@@ -45,7 +45,7 @@ async function checkSupabaseHealth(): Promise<HealthCheckResult> {
     
     // Simple query to test connection
     const { data, error } = await supabase
-      .from('j_hub_creative_submissions')
+      .from('j_ads_creative_submissions')
       .select('id')
       .limit(1);
     

@@ -139,7 +139,7 @@ Deno.serve(async (req) => {
 
       // Now fetch submissions from those accounts
       let query = supabase
-        .from("j_hub_creative_submissions")
+        .from("j_ads_creative_submissions")
         .select("id, client, manager_id, status, created_at, updated_at, result, payload, user_id")
         .order("created_at", { ascending: false })
         .limit(200);
@@ -205,7 +205,7 @@ Deno.serve(async (req) => {
         });
       }
       const { data, error } = await supabase
-        .from("j_hub_creative_submissions")
+        .from("j_ads_creative_submissions")
         .select("id, user_id, payload, status")
         .eq("id", submissionId)
         .maybeSingle();
@@ -348,7 +348,7 @@ Deno.serve(async (req) => {
         let targetId: string | null = null;
         if (creativeName) {
           const { data: existing } = await supabase
-            .from('j_hub_creative_submissions')
+            .from('j_ads_creative_submissions')
             .select('id')
             .eq('user_id', managerId) // ✅ CORREÇÃO: Buscar por user_id
             .eq('status', 'draft')
@@ -359,7 +359,7 @@ Deno.serve(async (req) => {
 
         if (targetId) {
           const { error } = await supabase
-            .from('j_hub_creative_submissions')
+            .from('j_ads_creative_submissions')
             .update(baseRow as any)
             .eq('id', targetId)
             .eq('user_id', managerId) // ✅ CORREÇÃO: Buscar por user_id;
@@ -375,7 +375,7 @@ Deno.serve(async (req) => {
           });
         } else {
           const { data, error } = await supabase
-            .from('j_hub_creative_submissions')
+            .from('j_ads_creative_submissions')
             .insert(baseRow as any)
             .select('id')
             .single();
@@ -393,7 +393,7 @@ Deno.serve(async (req) => {
       } else {
         // Try update by submissionId; if none affected, fallback to upsert by creativeName
         const { data: updatedRow, error: updErr } = await supabase
-          .from('j_hub_creative_submissions')
+          .from('j_ads_creative_submissions')
           .update(baseRow as any)
           .eq('id', submissionId)
           .eq('user_id', managerId)
@@ -418,7 +418,7 @@ Deno.serve(async (req) => {
         let targetId: string | null = null;
         if (creativeName) {
           const { data: existing } = await supabase
-            .from('j_hub_creative_submissions')
+            .from('j_ads_creative_submissions')
             .select('id')
             .eq('user_id', managerId) // ✅ CORREÇÃO: Buscar por user_id
             .eq('status', 'draft')
@@ -429,7 +429,7 @@ Deno.serve(async (req) => {
 
         if (targetId) {
           const { error: upErr } = await supabase
-            .from('j_hub_creative_submissions')
+            .from('j_ads_creative_submissions')
             .update(baseRow as any)
             .eq('id', targetId)
             .eq('user_id', managerId) // ✅ CORREÇÃO: Buscar por user_id;
@@ -446,7 +446,7 @@ Deno.serve(async (req) => {
         }
 
         const { data: inserted, error: insErr } = await supabase
-          .from('j_hub_creative_submissions')
+          .from('j_ads_creative_submissions')
           .insert(baseRow as any)
           .select('id')
           .single();
@@ -496,7 +496,7 @@ Deno.serve(async (req) => {
 
       // Verify draft ownership and status
       const { data: submission, error: getErr } = await supabase
-        .from('j_hub_creative_submissions')
+        .from('j_ads_creative_submissions')
         .select('id, user_id, status')
         .eq('id', submissionId)
         .maybeSingle();
@@ -522,9 +522,9 @@ Deno.serve(async (req) => {
       }
 
       // Delete dependent records first (files, variations), then submission
-      await supabase.from('j_hub_creative_files').delete().eq('submission_id', submissionId);
-      await supabase.from('j_hub_creative_variations').delete().eq('submission_id', submissionId);
-      const { error: delErr } = await supabase.from('j_hub_creative_submissions').delete().eq('id', submissionId);
+      await supabase.from('j_ads_creative_files').delete().eq('submission_id', submissionId);
+      await supabase.from('j_ads_creative_variations').delete().eq('submission_id', submissionId);
+      const { error: delErr } = await supabase.from('j_ads_creative_submissions').delete().eq('id', submissionId);
       if (delErr) {
         return new Response(JSON.stringify({ error: delErr.message }), {
           status: 400,

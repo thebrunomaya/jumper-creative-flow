@@ -7,10 +7,15 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.103';
+export const APP_VERSION = 'v2.1.104';
 
 /**
  * Version history:
+ * - v2.1.104 (2026-01-19):
+ *   - FIX: Creative submissions system broken due to table name mismatch
+ *   - Changed j_hub_creative_* to j_ads_creative_* (production table names)
+ *   - Affected: systemHealth.ts, 4 Edge Functions
+ *
  * - v2.1.103 (2026-01-11):
  *   - DOCS: Major documentation cleanup and consolidation
  *   - Rewrite: ARCHITECTURE.md (2673→913 lines), CLAUDE.md, QUICK-START.md

@@ -321,7 +321,7 @@ export async function fallbackSubmissionToSupabase(
     };
     
     const { data: submissionResult, error: submissionError } = await supabase
-      .from('j_hub_creative_submissions')
+      .from('j_ads_creative_submissions')
       .insert(fallbackRecord)
       .select('id')
       .single();
