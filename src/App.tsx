@@ -36,6 +36,7 @@ const SharedDeck = lazy(() => import("./pages/SharedDeck"));
 const Templates = lazy(() => import("./pages/Templates"));
 const TemplateEditor = lazy(() => import("./pages/TemplateEditor"));
 const TemplateCompare = lazy(() => import("./pages/TemplateCompare"));
+const AdChecker = lazy(() => import("./pages/AdChecker"));
 
 // Loading component reutilizável com acessibilidade
 const PageLoading = () => (
@@ -80,6 +81,11 @@ const App = () => {
                 <Route path="/design-system" element={
                   <Suspense fallback={<PageLoading />}>
                     <DesignSystem />
+                  </Suspense>
+                } />
+                <Route path="/adchecker" element={
+                  <Suspense fallback={<PageLoading />}>
+                    <AdChecker />
                   </Suspense>
                 } />
                 <Route path="/admin" element={
