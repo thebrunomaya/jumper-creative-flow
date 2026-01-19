@@ -19,6 +19,10 @@ const LoginPageNew: React.FC = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [authStep, setAuthStep] = useState<AuthStep>('email');
+
+  // Detect if we're on the deprecated hub.jumper.studio domain
+  const isDeprecatedDomain = typeof window !== 'undefined' &&
+    window.location.hostname === 'hub.jumper.studio';
   const [isLoading, setIsLoading] = useState(false);
   const [isNotionLoading, setIsNotionLoading] = useState(false);
   const [managerName, setManagerName] = useState('');
@@ -295,6 +299,24 @@ const LoginPageNew: React.FC = () => {
         {/* Centro - Formulário */}
         <div className="flex-1 flex items-center justify-center px-6 lg:px-12">
           <div className="w-full max-w-sm space-y-8">
+            {/* Deprecation Banner - Only on hub.jumper.studio */}
+            {isDeprecatedDomain && (
+              <div className="bg-yellow-500/20 border border-yellow-500/50 rounded-lg p-4 text-center">
+                <p className="text-yellow-300 font-medium text-sm mb-2">
+                  ⚠️ Essa versão foi descontinuada
+                </p>
+                <p className="text-white/70 text-xs mb-3">
+                  Acesse a nova versão:
+                </p>
+                <a
+                  href="https://flow.jumper.studio"
+                  className="inline-block bg-[#FA4721] hover:bg-[#FA4721]/90 text-white font-semibold px-4 py-2 rounded-md transition-all text-sm"
+                >
+                  Ir para flow.jumper.studio →
+                </a>
+              </div>
+            )}
+
             {/* Título */}
             <div className="text-center space-y-3">
               <h1 className="text-2xl lg:text-3xl font-bold text-white">

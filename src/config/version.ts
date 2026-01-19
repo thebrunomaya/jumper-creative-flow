@@ -7,10 +7,14 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.105';
+export const APP_VERSION = 'v2.1.106';
 
 /**
  * Version history:
+ * - v2.1.106 (2026-01-19):
+ *   - Added deprecation banner on hub.jumper.studio login page
+ *   - Redirects users to flow.jumper.studio
+ *
  * - v2.1.105 (2026-01-19):
  *   - REBRAND: Jumper Hub → Jumper Flow migration
  *   - Updated all URLs from hub.jumper.studio to flow.jumper.studio
