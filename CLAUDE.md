@@ -155,9 +155,19 @@ npm run build            # Build
 
 ## 🚀 Deployment
 
+### Git Remote
+```bash
+# ⚠️ IMPORTANTE: Usar remote "flow", NÃO "origin"
+git push flow main    # ✅ Correto - repo jumperflow (produção)
+git push origin main  # ❌ Errado - repo antigo jumper-creative-flow
+
+# Verificar remotes antes de push:
+git remote -v
+```
+
 ### Frontend (Automático)
 ```bash
-git push origin main  # Vercel auto-deploys
+git push flow main  # Vercel auto-deploys
 ```
 
 ### Edge Functions (Manual)
@@ -213,5 +223,5 @@ Este é um **PRODUTO ESTRATÉGICO** que vai:
 
 ---
 
-**Last Updated:** 2026-01-11
+**Last Updated:** 2026-01-19
 **Maintained by:** Claude Code Assistant
