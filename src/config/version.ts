@@ -7,10 +7,16 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.108';
+export const APP_VERSION = 'v2.1.109';
 
 /**
  * Version history:
+ * - v2.1.109 (2026-01-20):
+ *   - NEW: MetaChecker batch tool at /metachecker
+ *   - Upload up to 50 files at once
+ *   - Parallel processing with 5 concurrent files
+ *   - Grid view with status badges and modal preview
+ *
  * - v2.1.108 (2026-01-19):
  *   - IMPROVE: Ad Checker auto-detects format from image dimensions
  *   - Removed format selection step - simpler UX
