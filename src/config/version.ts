@@ -7,10 +7,14 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.110';
+export const APP_VERSION = 'v2.1.111';
 
 /**
  * Version history:
+ * - v2.1.111 (2026-01-20):
+ *   - FIX: Added horizontal step connector to complete L-shaped safe zone border
+ *   - The "dent" line now visible connecting 6% to 21% right margins
+ *
  * - v2.1.110 (2026-01-20):
  *   - FIX: Safe zone (green) now correctly shows L-shaped area in Reels format
  *   - Upper portion extends to 6% from right edge

@@ -469,6 +469,16 @@ const MetaZoneOverlay: React.FC<MetaZoneOverlayProps> = ({
                       bottom: `${zones.lowerRightZone.zoneHeight}%`
                     }}
                   />
+                  {/* Horizontal step connector - the "dent" line */}
+                  <div
+                    className={`absolute ${size === 'lightbox' ? 'border-4 border-green-500' : 'border border-green-400'} border-dashed border-l-0 border-r-0 border-t-0`}
+                    style={{
+                      top: `${100 - zones.lowerRightZone.zoneHeight}%`,
+                      right: `${zones.rightSafeMargin}%`,
+                      width: `${zones.lowerRightZone.safeMargin - zones.rightSafeMargin}%`,
+                      height: 0
+                    }}
+                  />
                   {/* Lower safe zone (within CTA zone height) - uses CTA margin */}
                   <div
                     className={`absolute ${size === 'lightbox' ? 'bg-green-500 bg-opacity-25 border-4 border-green-500' : 'bg-green-500 bg-opacity-10 border border-green-400'} border-dashed border-t-0`}
@@ -618,6 +628,16 @@ const MetaZoneOverlay: React.FC<MetaZoneOverlayProps> = ({
                     left: `${zones.leftSafeMargin}%`,
                     right: `${zones.rightSafeMargin}%`,
                     bottom: `${zones.lowerRightZone.zoneHeight}%`
+                  }}
+                />
+                {/* Horizontal step connector - the "dent" line */}
+                <div
+                  className={`absolute ${size === 'lightbox' ? 'border-4 border-green-500' : 'border border-green-400'} border-dashed border-l-0 border-r-0 border-t-0`}
+                  style={{
+                    top: `${100 - zones.lowerRightZone.zoneHeight}%`,
+                    right: `${zones.rightSafeMargin}%`,
+                    width: `${zones.lowerRightZone.safeMargin - zones.rightSafeMargin}%`,
+                    height: 0
                   }}
                 />
                 {/* Lower safe zone (within CTA zone height) - uses CTA margin */}
