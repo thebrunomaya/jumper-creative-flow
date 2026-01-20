@@ -7,10 +7,15 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.111';
+export const APP_VERSION = 'v2.1.112';
 
 /**
  * Version history:
+ * - v2.1.112 (2026-01-20):
+ *   - NEW: MetaChecker V1 (/metachecker-v1) - stacked previews with scroll
+ *   - NEW: MetaChecker V2 (/metachecker-v2) - carousel with navigation arrows
+ *   - Both versions: clean upload area + "Ver Previas" button
+ *
  * - v2.1.111 (2026-01-20):
  *   - FIX: Added horizontal step connector to complete L-shaped safe zone border
  *   - The "dent" line now visible connecting 6% to 21% right margins
