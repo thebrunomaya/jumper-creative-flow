@@ -7,10 +7,15 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.107';
+export const APP_VERSION = 'v2.1.108';
 
 /**
  * Version history:
+ * - v2.1.108 (2026-01-19):
+ *   - IMPROVE: Ad Checker auto-detects format from image dimensions
+ *   - Removed format selection step - simpler UX
+ *   - Supports 9:16, 1:1, 4:5, and 1.91:1 aspect ratios
+ *
  * - v2.1.107 (2026-01-19):
  *   - NEW: Ad Checker public tool at /adchecker
  *   - Validates Meta Ads safe zones for Stories, Carousel 1:1, and 4:5
