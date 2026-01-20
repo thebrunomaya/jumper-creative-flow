@@ -454,27 +454,61 @@ const MetaZoneOverlay: React.FC<MetaZoneOverlayProps> = ({
             )}
           </div>
 
-          {/* Safe Zone */}
+          {/* Safe Zone - Two parts when lowerRightZone exists */}
           {!isThumbnail && (
-            <div 
-              className={`absolute ${size === 'lightbox' ? 'bg-green-500 bg-opacity-25 border-4 border-green-500' : 'bg-green-500 bg-opacity-10 border border-green-400'} border-dashed`}
-              style={{ 
-                top: `${zones.topSafeMargin}%`, 
-                left: `${zones.leftSafeMargin}%`, 
-                right: zones.lowerRightZone ? 
-                  `max(${zones.rightSafeMargin}%, ${zones.lowerRightZone.safeMargin}%)` : 
-                  `${zones.rightSafeMargin}%`,
-                bottom: `${zones.bottomSafeMargin}%`
-              }}
-            >
-              {expanded && size === 'lightbox' && (
-                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                  <span className="text-green-700 text-xs font-semibold bg-green-100 bg-opacity-90 px-2 py-1 rounded">
-                    Zona Segura
-                  </span>
+            <>
+              {zones.lowerRightZone ? (
+                <>
+                  {/* Upper safe zone (above CTA zone) - uses regular right margin */}
+                  <div
+                    className={`absolute ${size === 'lightbox' ? 'bg-green-500 bg-opacity-25 border-4 border-green-500' : 'bg-green-500 bg-opacity-10 border border-green-400'} border-dashed border-b-0`}
+                    style={{
+                      top: `${zones.topSafeMargin}%`,
+                      left: `${zones.leftSafeMargin}%`,
+                      right: `${zones.rightSafeMargin}%`,
+                      bottom: `${zones.lowerRightZone.zoneHeight}%`
+                    }}
+                  />
+                  {/* Lower safe zone (within CTA zone height) - uses CTA margin */}
+                  <div
+                    className={`absolute ${size === 'lightbox' ? 'bg-green-500 bg-opacity-25 border-4 border-green-500' : 'bg-green-500 bg-opacity-10 border border-green-400'} border-dashed border-t-0`}
+                    style={{
+                      top: `${100 - zones.lowerRightZone.zoneHeight}%`,
+                      left: `${zones.leftSafeMargin}%`,
+                      right: `${zones.lowerRightZone.safeMargin}%`,
+                      bottom: `${zones.bottomSafeMargin}%`
+                    }}
+                  >
+                    {expanded && size === 'lightbox' && (
+                      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                        <span className="text-green-700 text-xs font-semibold bg-green-100 bg-opacity-90 px-2 py-1 rounded">
+                          Zona Segura
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </>
+              ) : (
+                /* Simple rectangle for non-Reels */
+                <div
+                  className={`absolute ${size === 'lightbox' ? 'bg-green-500 bg-opacity-25 border-4 border-green-500' : 'bg-green-500 bg-opacity-10 border border-green-400'} border-dashed`}
+                  style={{
+                    top: `${zones.topSafeMargin}%`,
+                    left: `${zones.leftSafeMargin}%`,
+                    right: `${zones.rightSafeMargin}%`,
+                    bottom: `${zones.bottomSafeMargin}%`
+                  }}
+                >
+                  {expanded && size === 'lightbox' && (
+                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                      <span className="text-green-700 text-xs font-semibold bg-green-100 bg-opacity-90 px-2 py-1 rounded">
+                        Zona Segura
+                      </span>
+                    </div>
+                  )}
                 </div>
               )}
-            </div>
+            </>
           )}
         </div>
       </div>
@@ -571,27 +605,61 @@ const MetaZoneOverlay: React.FC<MetaZoneOverlayProps> = ({
           )}
         </div>
 
-        {/* Safe Zone - Show for both thumbnail and lightbox */}
+        {/* Safe Zone - Two parts when lowerRightZone exists */}
         {!isThumbnail && (
-          <div 
-            className={`absolute ${size === 'lightbox' ? 'bg-green-500 bg-opacity-25 border-4 border-green-500' : 'bg-green-500 bg-opacity-10 border border-green-400'} border-dashed`}
-            style={{ 
-              top: `${zones.topSafeMargin}%`, 
-              left: `${zones.leftSafeMargin}%`, 
-              right: isReels && zones.lowerRightZone ? 
-                `max(${zones.rightSafeMargin}%, ${zones.lowerRightZone.safeMargin}%)` : 
-                `${zones.rightSafeMargin}%`,
-              bottom: `${zones.bottomSafeMargin}%`
-            }}
-          >
-            {expanded && size === 'lightbox' && (
-              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                <span className="text-green-700 text-xs font-semibold bg-green-100 bg-opacity-90 px-2 py-1 rounded">
-                  Zona Segura
-                </span>
+          <>
+            {isReels && zones.lowerRightZone ? (
+              <>
+                {/* Upper safe zone (above CTA zone) - uses regular right margin */}
+                <div
+                  className={`absolute ${size === 'lightbox' ? 'bg-green-500 bg-opacity-25 border-4 border-green-500' : 'bg-green-500 bg-opacity-10 border border-green-400'} border-dashed border-b-0`}
+                  style={{
+                    top: `${zones.topSafeMargin}%`,
+                    left: `${zones.leftSafeMargin}%`,
+                    right: `${zones.rightSafeMargin}%`,
+                    bottom: `${zones.lowerRightZone.zoneHeight}%`
+                  }}
+                />
+                {/* Lower safe zone (within CTA zone height) - uses CTA margin */}
+                <div
+                  className={`absolute ${size === 'lightbox' ? 'bg-green-500 bg-opacity-25 border-4 border-green-500' : 'bg-green-500 bg-opacity-10 border border-green-400'} border-dashed border-t-0`}
+                  style={{
+                    top: `${100 - zones.lowerRightZone.zoneHeight}%`,
+                    left: `${zones.leftSafeMargin}%`,
+                    right: `${zones.lowerRightZone.safeMargin}%`,
+                    bottom: `${zones.bottomSafeMargin}%`
+                  }}
+                >
+                  {expanded && size === 'lightbox' && (
+                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                      <span className="text-green-700 text-xs font-semibold bg-green-100 bg-opacity-90 px-2 py-1 rounded">
+                        Zona Segura
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </>
+            ) : (
+              /* Simple rectangle for non-Reels */
+              <div
+                className={`absolute ${size === 'lightbox' ? 'bg-green-500 bg-opacity-25 border-4 border-green-500' : 'bg-green-500 bg-opacity-10 border border-green-400'} border-dashed`}
+                style={{
+                  top: `${zones.topSafeMargin}%`,
+                  left: `${zones.leftSafeMargin}%`,
+                  right: `${zones.rightSafeMargin}%`,
+                  bottom: `${zones.bottomSafeMargin}%`
+                }}
+              >
+                {expanded && size === 'lightbox' && (
+                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                    <span className="text-green-700 text-xs font-semibold bg-green-100 bg-opacity-90 px-2 py-1 rounded">
+                      Zona Segura
+                    </span>
+                  </div>
+                )}
               </div>
             )}
-          </div>
+          </>
         )}
       </div>
     </div>

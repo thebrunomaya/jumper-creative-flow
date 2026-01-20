@@ -7,10 +7,15 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.109';
+export const APP_VERSION = 'v2.1.110';
 
 /**
  * Version history:
+ * - v2.1.110 (2026-01-20):
+ *   - FIX: Safe zone (green) now correctly shows L-shaped area in Reels format
+ *   - Upper portion extends to 6% from right edge
+ *   - Lower 40% (CTA zone) narrows to 21% from right edge
+ *
  * - v2.1.109 (2026-01-20):
  *   - NEW: MetaChecker batch tool at /metachecker
  *   - Upload up to 50 files at once
