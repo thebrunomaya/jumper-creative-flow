@@ -608,7 +608,7 @@ const MetaCheckerV2: React.FC = () => {
                       {/* Content - Preview + Details side by side */}
                       <div className="p-4 grid grid-cols-1 lg:grid-cols-2 gap-6">
                         {/* Preview image */}
-                        <div className="flex justify-center">
+                        <div className="flex justify-center lg:justify-end">
                           <div className={`relative w-full max-w-[320px] ${formatInfo?.aspectRatio || 'aspect-square'} bg-black rounded-lg overflow-hidden`}>
                             {currentFile.validated?.preview && overlayProps ? (
                               <MetaZoneOverlay
