@@ -577,60 +577,154 @@ const MetaCheckerV2: React.FC = () => {
               )}
 
               {/* Preview */}
-              <div className="max-w-lg w-full">
+              <div className="max-w-4xl w-full">
                 {(() => {
                   const formatInfo = currentFile.detectedFormat ? FORMAT_INFO[currentFile.detectedFormat] : null;
                   const overlayProps = currentFile.detectedFormat ? getOverlayProps(currentFile.detectedFormat) : null;
 
                   return (
                     <div className="bg-background rounded-xl overflow-hidden">
-                      {/* File name */}
-                      <div className="p-3 border-b border-border">
-                        <p className="text-sm text-foreground truncate text-center">
-                          {currentFile.file.name}
-                        </p>
-                      </div>
-
-                      {/* Preview image */}
-                      <div className="flex justify-center bg-black p-4">
-                        <div className={`relative w-full max-w-[320px] ${formatInfo?.aspectRatio || 'aspect-square'} rounded-lg overflow-hidden`}>
-                          {currentFile.validated?.preview && overlayProps ? (
-                            <MetaZoneOverlay
-                              imageUrl={currentFile.validated.preview}
-                              format={overlayProps.format}
-                              file={currentFile.file}
-                              carouselMode={overlayProps.carouselMode}
-                              carouselAspectRatio={overlayProps.carouselAspectRatio}
-                              size="lightbox"
-                              expanded={true}
-                            />
-                          ) : currentFile.validated?.preview ? (
-                            currentFile.file.type.startsWith('video/') ? (
-                              <video
-                                src={currentFile.validated.preview}
-                                className="w-full h-full object-contain"
-                                controls
-                                muted
-                              />
-                            ) : (
-                              <img
-                                src={currentFile.validated.preview}
-                                alt="Preview"
-                                className="w-full h-full object-contain"
-                              />
-                            )
-                          ) : null}
+                      {/* Header */}
+                      <div className="p-4 border-b border-border flex items-center gap-3">
+                        {formatInfo && (
+                          <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                            currentFile.detectedFormat === 'unknown'
+                              ? 'bg-yellow-500/20 text-yellow-600'
+                              : 'bg-jumper-orange/20 text-jumper-orange'
+                          }`}>
+                            {formatInfo.icon}
+                          </div>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-foreground truncate">
+                            {currentFile.file.name}
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            {formatInfo?.label} - {formatInfo?.description}
+                          </p>
                         </div>
                       </div>
 
-                      {/* Info */}
-                      <div className="p-3 text-sm text-muted-foreground text-center">
-                        {currentFile.validated?.dimensions && (
-                          <span>{currentFile.validated.dimensions.width}x{currentFile.validated.dimensions.height}px</span>
-                        )}
-                        {currentFile.validated?.duration && (
-                          <span className="ml-3">{currentFile.validated.duration}s</span>
-                        )}
+                      {/* Content - Preview + Details side by side */}
+                      <div className="p-4 grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        {/* Preview image */}
+                        <div className="flex justify-center">
+                          <div className={`relative w-full max-w-[320px] ${formatInfo?.aspectRatio || 'aspect-square'} bg-black rounded-lg overflow-hidden`}>
+                            {currentFile.validated?.preview && overlayProps ? (
+                              <MetaZoneOverlay
+                                imageUrl={currentFile.validated.preview}
+                                format={overlayProps.format}
+                                file={currentFile.file}
+                                carouselMode={overlayProps.carouselMode}
+                                carouselAspectRatio={overlayProps.carouselAspectRatio}
+                                size="lightbox"
+                                expanded={true}
+                              />
+                            ) : currentFile.validated?.preview ? (
+                              currentFile.file.type.startsWith('video/') ? (
+                                <video
+                                  src={currentFile.validated.preview}
+                                  className="w-full h-full object-contain"
+                                  controls
+                                  muted
+                                />
+                              ) : (
+                                <img
+                                  src={currentFile.validated.preview}
+                                  alt="Preview"
+                                  className="w-full h-full object-contain"
+                                />
+                              )
+                            ) : null}
+                          </div>
+                        </div>
+
+                        {/* File Details */}
+                        <div>
+                          <h3 className="font-medium text-foreground mb-4">
+                            Detalhes do Arquivo
+                          </h3>
+
+                          <div className="space-y-3 mb-6">
+                            <div className="flex justify-between items-center py-2 border-b border-border">
+                              <span className="text-sm text-muted-foreground">Dimensoes</span>
+                              <span className="text-sm font-medium text-foreground">
+                                {currentFile.validated?.dimensions
+                                  ? `${currentFile.validated.dimensions.width}x${currentFile.validated.dimensions.height}px`
+                                  : '-'}
+                              </span>
+                            </div>
+                            <div className="flex justify-between items-center py-2 border-b border-border">
+                              <span className="text-sm text-muted-foreground">Tipo</span>
+                              <span className="text-sm font-medium text-foreground">
+                                {currentFile.file.type.startsWith('video/') ? (
+                                  <span className="flex items-center gap-1">
+                                    <Video className="w-4 h-4" /> Video
+                                  </span>
+                                ) : (
+                                  <span className="flex items-center gap-1">
+                                    <ImageIcon className="w-4 h-4" /> Imagem
+                                  </span>
+                                )}
+                              </span>
+                            </div>
+                            <div className="flex justify-between items-center py-2 border-b border-border">
+                              <span className="text-sm text-muted-foreground">Tamanho</span>
+                              <span className="text-sm font-medium text-foreground">
+                                {(currentFile.file.size / (1024 * 1024)).toFixed(2)} MB
+                              </span>
+                            </div>
+                            {currentFile.validated?.duration && (
+                              <div className="flex justify-between items-center py-2 border-b border-border">
+                                <span className="text-sm text-muted-foreground">Duracao</span>
+                                <span className="text-sm font-medium text-foreground">
+                                  {currentFile.validated.duration}s
+                                </span>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Status */}
+                          {currentFile.detectedFormat === 'unknown' ? (
+                            <div className="p-4 rounded-lg bg-yellow-500/10 border border-yellow-500/30">
+                              <div className="flex items-center gap-2 mb-2">
+                                <AlertCircle className="w-5 h-5 text-yellow-600" />
+                                <span className="font-medium text-yellow-600">
+                                  Formato nao reconhecido
+                                </span>
+                              </div>
+                              <p className="text-sm text-yellow-600">
+                                Use proporcoes padrao: 9:16 (Stories), 1:1 (Feed), 4:5 (Feed) ou 1.91:1 (Horizontal)
+                              </p>
+                            </div>
+                          ) : (
+                            <div className="p-4 rounded-lg bg-green-500/10 border border-green-500/30">
+                              <div className="flex items-center gap-2 mb-2">
+                                <Check className="w-5 h-5 text-green-500" />
+                                <span className="font-medium text-green-500">
+                                  Formato reconhecido
+                                </span>
+                              </div>
+                              <p className="text-sm text-green-600">
+                                Mantenha o conteudo importante dentro da zona verde para garantir visibilidade.
+                              </p>
+                            </div>
+                          )}
+
+                          {/* Legend */}
+                          {currentFile.detectedFormat !== 'unknown' && (
+                            <div className="mt-4">
+                              <p className="text-sm text-muted-foreground">
+                                <span className="inline-block w-3 h-3 bg-red-500/40 rounded mr-1" />
+                                Vermelho = Zona de perigo
+                              </p>
+                              <p className="text-sm text-muted-foreground mt-1">
+                                <span className="inline-block w-3 h-3 bg-green-500/40 rounded mr-1 border border-green-500 border-dashed" />
+                                Verde = Zona segura
+                              </p>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
                   );

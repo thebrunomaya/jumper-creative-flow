@@ -7,10 +7,15 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.112';
+export const APP_VERSION = 'v2.1.113';
 
 /**
  * Version history:
+ * - v2.1.113 (2026-01-20):
+ *   - IMPROVE: MetaChecker V2 carousel now shows full file details
+ *   - Includes: dimensions, type, size, duration, format status, zone legend
+ *   - Side-by-side layout: preview + details panel
+ *
  * - v2.1.112 (2026-01-20):
  *   - NEW: MetaChecker V1 (/metachecker-v1) - stacked previews with scroll
  *   - NEW: MetaChecker V2 (/metachecker-v2) - carousel with navigation arrows
