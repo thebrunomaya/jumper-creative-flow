@@ -37,7 +37,7 @@ const MetaZoneOverlay: React.FC<MetaZoneOverlayProps> = ({
 
     // For carousel mode, show overlay ONLY if there's a real file uploaded
   if (carouselMode) {
-    const objectFit = size === 'lightbox' ? 'object-contain' : 'object-cover';
+    const objectFit = 'object-cover';
     const isThumbnail = size === 'thumbnail';
     
     // If no file uploaded, show clean preview without overlay
@@ -191,9 +191,9 @@ const MetaZoneOverlay: React.FC<MetaZoneOverlayProps> = ({
   // Only show overlay for vertical format (Stories/Reels) - ALWAYS show overlay when file exists
   if (format !== 'vertical') {
     console.log('MetaZoneOverlay - Not vertical format, showing simple preview');
-    
-    // Determine object-fit based on context
-    const objectFit = size === 'lightbox' ? 'object-contain' : 'object-cover';
+
+    // Use object-cover to fill container and align overlay correctly
+    const objectFit = 'object-cover';
     
     if (file?.type.startsWith('video/')) {
       return (
@@ -229,7 +229,7 @@ const MetaZoneOverlay: React.FC<MetaZoneOverlayProps> = ({
   // FOR VERTICAL FORMAT: ALWAYS show overlay when there's a file, even if no zone config
   if (!zoneConfig) {
     console.log('MetaZoneOverlay - No zone config found for vertical, but showing overlay anyway');
-    
+
     // Use default Stories zones when no config is found but file exists
     const defaultZones = {
       topSafeMargin: 14,
@@ -237,8 +237,9 @@ const MetaZoneOverlay: React.FC<MetaZoneOverlayProps> = ({
       leftSafeMargin: 8,
       rightSafeMargin: 8
     };
-    
-    const objectFit = size === 'lightbox' ? 'object-contain' : 'object-cover';
+
+    // Use object-cover to fill container and align overlay correctly
+    const objectFit = 'object-cover';
     const isThumbnail = size === 'thumbnail';
     
     return (
@@ -347,9 +348,9 @@ const MetaZoneOverlay: React.FC<MetaZoneOverlayProps> = ({
   const { zones } = zoneConfig;
   const isReels = zoneConfig.contentTypes.includes('video');
   const isThumbnail = size === 'thumbnail';
-  
-  // Determine object-fit based on context - use contain for lightbox to show full image
-  const objectFit = size === 'lightbox' ? 'object-contain' : 'object-cover';
+
+  // Use object-cover to fill container and align overlay correctly
+  const objectFit = 'object-cover';
   
   console.log('MetaZoneOverlay - Will render overlay:', { 
     isReels, 
@@ -686,8 +687,8 @@ const MetaZoneOverlay: React.FC<MetaZoneOverlayProps> = ({
   );
   } catch (error) {
     console.error('MetaZoneOverlay error:', error);
-    // Fallback to simple preview without overlay
-    const objectFit = size === 'lightbox' ? 'object-contain' : 'object-cover';
+    // Fallback to simple preview without overlay - use object-cover to fill container
+    const objectFit = 'object-cover';
     
     if (file?.type.startsWith('video/')) {
       return (
