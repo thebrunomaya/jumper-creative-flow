@@ -92,6 +92,12 @@ supabase/volumes/
 # User temporary files (not tracked)
 /tmp-user/
 
+# Test files (not tracked)
+/tmp-tests/
+
+# Playwright MCP screenshots (not tracked)
+/.playwright-mcp/
+
 # Optimization system recordings (dev only)
 /temp-recordings/
 *.m4a
