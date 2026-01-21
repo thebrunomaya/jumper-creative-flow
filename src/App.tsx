@@ -37,9 +37,6 @@ const Templates = lazy(() => import("./pages/Templates"));
 const TemplateEditor = lazy(() => import("./pages/TemplateEditor"));
 const TemplateCompare = lazy(() => import("./pages/TemplateCompare"));
 const AdChecker = lazy(() => import("./pages/AdChecker"));
-const MetaChecker = lazy(() => import("./pages/MetaChecker"));
-const MetaCheckerV1 = lazy(() => import("./pages/MetaCheckerV1"));
-const MetaCheckerV2 = lazy(() => import("./pages/MetaCheckerV2"));
 
 // Loading component reutilizável com acessibilidade
 const PageLoading = () => (
@@ -89,21 +86,6 @@ const App = () => {
                 <Route path="/adchecker" element={
                   <Suspense fallback={<PageLoading />}>
                     <AdChecker />
-                  </Suspense>
-                } />
-                <Route path="/metachecker" element={
-                  <Suspense fallback={<PageLoading />}>
-                    <MetaChecker />
-                  </Suspense>
-                } />
-                <Route path="/metachecker-v1" element={
-                  <Suspense fallback={<PageLoading />}>
-                    <MetaCheckerV1 />
-                  </Suspense>
-                } />
-                <Route path="/metachecker-v2" element={
-                  <Suspense fallback={<PageLoading />}>
-                    <MetaCheckerV2 />
                   </Suspense>
                 } />
                 <Route path="/admin" element={
