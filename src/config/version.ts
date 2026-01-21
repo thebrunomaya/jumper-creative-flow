@@ -7,10 +7,15 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.113';
+export const APP_VERSION = 'v2.1.114';
 
 /**
  * Version history:
+ * - v2.1.114 (2026-01-21):
+ *   - FEAT: Promote MetaCheckerV2 to AdChecker with batch upload (up to 50 files)
+ *   - REMOVE: /metachecker, /metachecker-v1, /metachecker-v2 test routes
+ *   - CHORE: Add .playwright-mcp/ and tmp-tests/ to .gitignore
+ *
  * - v2.1.113 (2026-01-20):
  *   - IMPROVE: MetaChecker V2 carousel now shows full file details
  *   - Includes: dimensions, type, size, duration, format status, zone legend

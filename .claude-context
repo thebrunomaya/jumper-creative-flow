@@ -3,60 +3,49 @@
 # Tracks recent decisions and work-in-progress (last 7 days)
 # Older decisions migrate to docs/ARCHITECTURE.md
 
-last_updated: "2026-01-11T15:45:00Z"
+last_updated: "2026-01-21T13:00:00Z"
 session_computer: "MacBook Pro"
 session_user: "Bruno Maya"
 
 # Recent decisions (last 7 days)
 recent_decisions:
-  - date: "2026-01-11"
-    decision: "Major Documentation Cleanup & Oracle Removal"
+  - date: "2026-01-21"
+    decision: "AdChecker V2 Promotion & Cleanup"
     status: "complete"
     details: |
-      ## SESSAO 2026-01-11: LIMPEZA E ORGANIZACAO
+      ## SESSAO 2026-01-21: ADCHECKER PUBLICADO
 
-      ### 1. Documentacao Reorganizada
-      - ARCHITECTURE.md: Reescrito (2673 -> 913 linhas)
-      - FUNCTIONS.md: Criado com 6 sistemas operacionais
-      - ROADMAP.md: Consolidado de ROADMAP-DASHBOARDS.md
-      - CLAUDE.md: Simplificado com regras obrigatorias
+      ### 1. AdChecker Atualizado
+      - MetaCheckerV2 promovido para /adchecker oficial
+      - Suporta upload de ate 50 arquivos simultaneos
+      - Carrossel com setas e thumbnails para navegacao
+      - Overlay de zonas seguras do Meta (Stories, Feed 4:5, Feed 1:1, Horizontal)
+      - Deteccao automatica de formato
 
-      ### 2. Arquivos Removidos
-      - docs/QUICK-START.md (duplicado de localdev/README.md)
-      - docs/BALANCE-ALERTS.md (movido para FUNCTIONS.md)
-      - docs/CHANGELOG.md, DEV-SETUP.md, DEV-TROUBLESHOOTING.md
-      - test-analyze-*.ts (3 arquivos de teste na raiz)
-      - .env.template, dashboard-config.json, dashboard-review.md
+      ### 2. Rotas Removidas
+      - /metachecker (versao antiga)
+      - /metachecker-v1 (teste com scroll)
+      - /metachecker-v2 (teste vencedor - agora em /adchecker)
 
-      ### 3. Oracle Framework Removido (OBSOLETO)
-      - Edge Function: j_hub_optimization_generate_oracle_report/ (9 arquivos)
-      - Componentes: OracleCard, OracleReportGenerator, ReportViewer
-      - Referencias em OptimizationEditor, SharedOptimization
-      - Total: ~2.327 linhas removidas
+      ### 3. Arquivos Deletados
+      - src/pages/MetaChecker.tsx
+      - src/pages/MetaCheckerV1.tsx
+      - src/pages/MetaCheckerV2.tsx
 
-      ### 4. Estrutura Final docs/
-      - ARCHITECTURE.md (913 linhas) - Tecnico
-      - FUNCTIONS.md (498 linhas) - Operacional
-      - ROADMAP.md (208 linhas) - Planejamento
+      ### 4. Gitignore Atualizado
+      - /.playwright-mcp/ (screenshots do MCP)
+      - /tmp-tests/ (arquivos de teste)
 
-    impact: "MAJOR - Documentacao limpa para Claude Desktop"
+    impact: "MINOR - AdChecker com batch upload"
     files_changed:
-      - "docs/ARCHITECTURE.md (reescrito)"
-      - "docs/FUNCTIONS.md (novo)"
-      - "docs/ROADMAP.md (renomeado)"
-      - "CLAUDE.md (simplificado)"
-      - "supabase/functions/j_hub_optimization_generate_oracle_report/ (deletado)"
-      - "src/components/optimization/Oracle*.tsx (deletados)"
+      - "src/pages/AdChecker.tsx (reescrito)"
+      - "src/App.tsx (rotas removidas)"
+      - ".gitignore (atualizado)"
     deployed: true
-    deployment_status: "Deployed v2.1.109"
+    deployment_status: "Deployed v2.1.114"
     commits:
-      - "387fa62: docs: Major documentation cleanup (v2.1.103)"
-      - "9682037: docs: Remove redundant QUICK-START.md (v2.1.104)"
-      - "d75f5f1: docs: Create FUNCTIONS.md (v2.1.105)"
-      - "bdf4037: docs: Expand FUNCTIONS.md (v2.1.106)"
-      - "672be01: docs: Add ROADMAP.md to session protocol (v2.1.107)"
-      - "1f28ccf: feat: Remove obsolete Oracle Framework (v2.1.108)"
-      - "6772739: fix: Remove Oracle from view_shared (v2.1.109)"
+      - "5cfc3f7: chore: Remove temp test files from git tracking"
+      - "ef8e897: feat: Promote MetaCheckerV2 to AdChecker, remove test pages"
 
 # Current issues being worked on
 current_issues: []
@@ -66,35 +55,33 @@ work_in_progress: []
 
 # Context for next session
 next_session_context: |
-  ## SESSAO 2026-01-11 COMPLETA: LIMPEZA DE DOCUMENTACAO
+  ## SESSAO 2026-01-21 COMPLETA: ADCHECKER PUBLICADO
 
   ### O QUE FOI FEITO:
 
-  1. **Documentacao Reorganizada para Claude Desktop**
-     - 4 arquivos principais: CLAUDE.md, ARCHITECTURE.md, FUNCTIONS.md, ROADMAP.md
-     - ~1.840 linhas de documentacao organizada
+  1. **AdChecker Atualizado**
+     - URL: https://flow.jumper.studio/adchecker
+     - Upload de ate 50 arquivos
+     - Carrossel com navegacao por setas
+     - Overlay de zonas seguras do Meta
 
-  2. **Oracle Framework Removido**
-     - Funcionalidade obsoleta com 3 personas IA (Delfos, Orfeu, Nostradamus)
-     - ~2.327 linhas de codigo removidas
-     - Tabelas no banco mantidas (historico)
+  2. **Limpeza de Rotas de Teste**
+     - Removidas: /metachecker, /metachecker-v1, /metachecker-v2
+     - Arquivos deletados do codebase
 
-  3. **Pastas Criadas**
-     - tmp-tests/ - Arquivos de teste (tracked)
-     - tmp-user/ - Arquivos temporarios (gitignored)
+  3. **Gitignore Atualizado**
+     - .playwright-mcp/ e tmp-tests/ agora ignorados
+
+  ### NOTA SOBRE MCP PLAYWRIGHT:
+  - Configuracao em .mcp.json (commitado)
+  - Pacote baixado automaticamente via npx
+  - Se browser nao instalado: `npx playwright install`
 
   ### PROXIMOS PASSOS (ROADMAP):
-
   - Novos templates de Deck (Alta)
   - Dashboard de Criativos (Alta)
   - Views SQL para performance (Media)
   - Export PDF de Decks (Media)
-
-  ### ARQUIVOS IMPORTANTES:
-
-  - Documentacao: docs/ARCHITECTURE.md, docs/FUNCTIONS.md, docs/ROADMAP.md
-  - Testes: tmp-tests/
-  - Local dev: localdev/README.md
 
 # TODOs pending
 pending_todos:
@@ -105,8 +92,8 @@ pending_todos:
 # Deployment status
 deployment:
   production_url: "https://flow.jumper.studio"
-  current_version: "v2.1.109"
-  last_deploy: "2026-01-11T15:45:00Z"
-  last_deploy_status: "Documentation cleanup + Oracle removal"
-  database_status: "STABLE (Oracle tables kept for history)"
+  current_version: "v2.1.114"
+  last_deploy: "2026-01-21T13:00:00Z"
+  last_deploy_status: "AdChecker V2 promotion + cleanup"
+  database_status: "STABLE"
   known_issues: "None"
