@@ -607,7 +607,7 @@ const MetaCheckerV2: React.FC = () => {
 
                       {/* Content - Preview + Details as centered block */}
                       <div className="p-4 flex justify-center">
-                        <div className="flex flex-col lg:flex-row gap-6 items-center lg:items-start">
+                        <div className="flex flex-col lg:flex-row gap-10 items-center lg:items-start">
                           {/* Preview image */}
                           <div className={`relative w-full max-w-[320px] ${formatInfo?.aspectRatio || 'aspect-square'} bg-black rounded-lg overflow-hidden flex-shrink-0`}>
                             {currentFile.validated?.preview && overlayProps ? (
