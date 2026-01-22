@@ -159,9 +159,9 @@ Criar interface de gestão de contas no Flow com sync bidirecional para o Notion
 | Fase | Descrição | Status |
 |------|-----------|--------|
 | **Fase 0** | Corrigir sistema de IDs (UUID migration) | ✅ Completo |
-| **Fase 1** | Edge Function `j_hub_account_update` (write-back Notion) | 🚧 Hoje |
-| **Fase 2** | Interface `/admin/accounts` para gestão | 🚧 Hoje |
-| **Fase 3** | Interface `/admin/managers` para gerentes | 🚧 Hoje |
+| **Fase 1** | Edge Function `j_hub_account_update` (write-back Notion) | ✅ Completo |
+| **Fase 2** | Interface `/admin/accounts` para gestão | ✅ Completo |
+| **Fase 3** | Interface `/admin/managers` para gerentes | ✅ Completo |
 | **Fase 4** | Validação com equipe | 🔜 Próximo |
 | **Fase 5** | Remover sync Notion (Supabase = source of truth) | 🔜 Futuro |
 
@@ -188,34 +188,36 @@ Migração das tabelas de optimization de TEXT notion_id para UUID:
 - `src/pages/OptimizationEditor.tsx`
 - `src/pages/Optimization.tsx`
 
-### Fase 1: Edge Function Write-back
+### Fase 1: Edge Function Write-back ✅ (Completo 2026-01-22)
 
-**A criar:** `j_hub_account_update`
+**Criado:** `j_hub_account_update`
 - Recebe dados do frontend
 - Faz PATCH na API do Notion
 - Atualiza Supabase local
 - Retorna sucesso/erro
 
-### Fase 2: Interface de Contas
+### Fase 2: Interface de Contas ✅ (Completo 2026-01-22)
 
-**A criar:**
-- `src/pages/admin/AccountManagement.tsx` - Lista + formulário
-- `src/components/admin/AccountForm.tsx` - Formulário em abas
+**Criado:**
+- `src/pages/admin/AccountManagement.tsx` - Lista + filtros + formulário
+- `src/components/admin/AccountForm.tsx` - Formulário com 5 abas
 - `src/hooks/useAccountUpdate.ts` - Hook para PATCH
 
-**Campos editáveis (27):**
+**Campos editáveis:**
 - Básico: Conta, Status, Tier, Objetivos, Nicho
-- Equipe: Gestor, Atendimento, Gerente
+- Equipe: Gestor, Atendimento
 - Plataformas: ID Meta Ads, ID Google Ads, ID TikTok Ads, ID GA4
 - AI Context: Contexto para Otimização, Contexto para Transcrição
 - Financeiro: Método de Pagamento, Verba Mensal Meta/Google
 
-### Fase 3: Interface de Gerentes
+### Fase 3: Interface de Gerentes ✅ (Completo 2026-01-22)
 
-**A criar:**
+**Criado:**
 - `j_hub_manager_update` - Edge Function
 - `src/pages/admin/ManagerManagement.tsx`
 - `src/components/admin/ManagerForm.tsx`
+- `src/hooks/useMyManagers.ts`
+- `src/hooks/useManagerUpdate.ts`
 
 ### Não Mexer
 
@@ -270,7 +272,7 @@ Expandir além do Meta Ads para outras plataformas.
 ### Alta Prioridade (Em Andamento)
 
 - [x] Migração UUID para optimization tables ✅
-- [ ] Interface de Gestão de Contas (Fases 1-3)
+- [x] Interface de Gestão de Contas (Fases 1-3) ✅
 - [ ] Novos templates de Deck
 - [ ] Dashboard de Criativos
 
@@ -280,7 +282,7 @@ Expandir além do Meta Ads para outras plataformas.
 - [ ] Export PDF de Decks
 - [ ] Integração Google Ads
 - [ ] Dashboard de Saldos
-- [ ] Validação Gestão de Contas (Fase 4)
+- [ ] Validação Gestão de Contas com equipe (Fase 4)
 
 ### Baixa Prioridade
 

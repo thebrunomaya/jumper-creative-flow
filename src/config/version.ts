@@ -7,10 +7,16 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.117';
+export const APP_VERSION = 'v2.1.118';
 
 /**
  * Version history:
+ * - v2.1.118 (2026-01-22):
+ *   - FIX: Add refetch to useMyNotionAccounts for data reload after edits
+ *   - FIX: Return all editable fields from j_hub_user_accounts
+ *   - EDGE: Updated j_hub_user_accounts with nicho, id_google_analytics, id_tiktok_ads, payment_method, verba_mensal fields
+ *   - AccountForm now properly loads all account fields
+ *
  * - v2.1.117 (2026-01-22):
  *   - FEAT: Account Management interface (/admin/accounts) with Notion sync
  *   - FEAT: Manager Management interface (/admin/managers) with Notion sync
