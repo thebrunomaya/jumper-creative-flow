@@ -339,6 +339,7 @@ serve(async (req) => {
         notion_id: account.notion_id, // Keep notion_id for backward compatibility
         name: account["Conta"] || 'Sem nome',
         objectives: account["Objetivos"] ? account["Objetivos"].split(', ').filter(Boolean) : [],
+        nicho: account["Nicho"] ? account["Nicho"].split(', ').filter(Boolean) : [],
         status: account["Status"],
         tier: account["Tier"],
         gestor: gestorNames, // Names resolved from emails
@@ -350,8 +351,13 @@ serve(async (req) => {
         id_meta_ads: account["ID Meta Ads"],
         meta_ads_id: account["ID Meta Ads"],
         id_google_ads: account["ID Google Ads"],
+        id_tiktok_ads: account["ID Tiktok Ads"] || null,
+        id_google_analytics: account["ID Google Analytics"] || null,
         contexto_otimizacao: account["Contexto para Otimização"] || null,
         contexto_transcricao: account["Contexto para Transcrição"] || null,
+        payment_method: account["Método de Pagamento"] || null,
+        meta_verba_mensal: account["META: Verba Mensal"] || null,
+        gads_verba_mensal: account["G-ADS: Verba Mensal"] || null,
       };
     });
 

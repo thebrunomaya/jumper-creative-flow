@@ -11,6 +11,8 @@ export interface NotionAccount {
   name: string;
   /** List of objectives (e.g., ["Vendas", "Tráfego"]) */
   objectives?: string[];
+  /** List of niches (e.g., ["E-commerce", "Saúde"]) */
+  nicho?: string[];
   /** Account status */
   status?: string;
   /** Account tier */
@@ -25,6 +27,10 @@ export interface NotionAccount {
   meta_ads_id?: string;
   /** Google Ads account ID */
   id_google_ads?: string;
+  /** TikTok Ads account ID */
+  id_tiktok_ads?: string | null;
+  /** Google Analytics property ID */
+  id_google_analytics?: string | null;
   /** Gestor emails (for matching/filtering) */
   gestor_email?: string;
   /** Atendimento emails (for matching/filtering) - renamed from supervisor_email */
@@ -35,6 +41,10 @@ export interface NotionAccount {
   contexto_transcricao?: string;
   /** Payment method (Boleto, Cartão, Faturamento, Misto) */
   payment_method?: string | null;
+  /** META monthly budget */
+  meta_verba_mensal?: string | null;
+  /** G-ADS monthly budget */
+  gads_verba_mensal?: string | null;
   /** Days remaining until balance runs out (from Meta Ads spend data) */
   days_remaining?: number | null;
   /** Current balance in BRL (from Meta Ads spend data) */

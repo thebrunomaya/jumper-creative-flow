@@ -53,18 +53,18 @@ export function AccountForm({ account, onSuccess, onCancel }: AccountFormProps) 
     Status: account.status || "Ativo",
     Tier: account.tier ? parseInt(account.tier) : 3,
     Objetivos: account.objectives || [],
-    Nicho: [] as string[],
+    Nicho: account.nicho || [],
     Gestor: account.gestor_email || "",
     Atendimento: account.atendimento_email || "",
     "ID Meta Ads": account.meta_ads_id || "",
     "ID Google Ads": account.id_google_ads || "",
-    "ID Tiktok Ads": "",
-    "ID Google Analytics": "",
+    "ID Tiktok Ads": account.id_tiktok_ads || "",
+    "ID Google Analytics": account.id_google_analytics || "",
     "Contexto para Otimizacao": account.contexto_otimizacao || "",
     "Contexto para Transcricao": account.contexto_transcricao || "",
     "Metodo de Pagamento": account.payment_method || "",
-    "META: Verba Mensal": "",
-    "G-ADS: Verba Mensal": "",
+    "META: Verba Mensal": account.meta_verba_mensal || "",
+    "G-ADS: Verba Mensal": account.gads_verba_mensal || "",
   });
 
   // Track which fields have changed
