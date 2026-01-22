@@ -81,7 +81,7 @@ export const useMyOptimizations = () => {
           id: rec.id,
           recording_id: rec.id,
           account_id: rec.account_id,
-          account_name: accountsMap.get(rec.account_uuid) || rec.account_uuid,
+          account_name: accountsMap.get(rec.account_id) || rec.account_id,
           recorded_at: rec.recorded_at,
           recorded_by: rec.recorded_by,
           extract_text: rec.j_hub_optimization_extracts?.extract_text || null,
