@@ -123,7 +123,7 @@ export function DiscrepancyDashboard({
           title="Discrepância Média"
           value={formatPercentage(summary.avg_discrepancy_pct)}
           subtitle={`${formatNumber(summary.total_discrepancy)} conversões de diferença`}
-          icon={<Scale className="h-4 w-4" />}
+          icon={Scale}
           performance={getDiscrepancyPerformance(summary.avg_discrepancy_pct)}
           isHero
         />
@@ -131,21 +131,21 @@ export function DiscrepancyDashboard({
           title="Conversões Meta"
           value={formatNumber(summary.total_meta_conversions)}
           subtitle={formatCurrency(summary.total_meta_revenue)}
-          icon={<TrendingUp className="h-4 w-4" />}
+          icon={TrendingUp}
           isHero
         />
         <MetricCard
           title="Conversões GA4"
           value={formatNumber(summary.total_ga4_conversions)}
           subtitle={formatCurrency(summary.total_ga4_revenue)}
-          icon={<TrendingDown className="h-4 w-4" />}
+          icon={TrendingDown}
           isHero
         />
         <MetricCard
           title="Campanhas Críticas"
           value={summary.campaigns_with_high_discrepancy.toString()}
           subtitle="Discrepância >30%"
-          icon={<AlertTriangle className="h-4 w-4" />}
+          icon={AlertTriangle}
           performance={summary.campaigns_with_high_discrepancy === 0 ? 'excellent' : 'critical'}
           isHero
         />

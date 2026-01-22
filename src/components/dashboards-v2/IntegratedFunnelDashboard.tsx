@@ -168,7 +168,7 @@ export function IntegratedFunnelDashboard({
           title="Taxa de Chegada"
           value={formatPercentage(summary.avg_taxa_chegada)}
           subtitle="Cliques que viraram sessões"
-          icon={<MousePointer className="h-4 w-4" />}
+          icon={MousePointer}
           performance={getTaxaChegadaPerformance(summary.avg_taxa_chegada)}
           isHero
         />
@@ -176,7 +176,7 @@ export function IntegratedFunnelDashboard({
           title="Taxa de Engajamento"
           value={formatPercentage(summary.avg_taxa_engajamento)}
           subtitle="Sessões engajadas"
-          icon={<Users className="h-4 w-4" />}
+          icon={Users}
           performance={getTaxaEngajamentoPerformance(summary.avg_taxa_engajamento)}
           isHero
         />
@@ -184,7 +184,7 @@ export function IntegratedFunnelDashboard({
           title="ROAS Meta"
           value={summary.avg_roas_meta.toFixed(2)}
           subtitle={formatCurrency(summary.total_meta_revenue)}
-          icon={<TrendingUp className="h-4 w-4" />}
+          icon={TrendingUp}
           performance={summary.avg_roas_meta >= 3 ? 'excellent' : summary.avg_roas_meta >= 2 ? 'good' : 'warning'}
           isHero
         />
@@ -192,7 +192,7 @@ export function IntegratedFunnelDashboard({
           title="ROAS GA4"
           value={summary.avg_roas_ga4.toFixed(2)}
           subtitle={formatCurrency(summary.total_ga4_revenue)}
-          icon={<ShoppingCart className="h-4 w-4" />}
+          icon={ShoppingCart}
           performance={summary.avg_roas_ga4 >= 3 ? 'excellent' : summary.avg_roas_ga4 >= 2 ? 'good' : 'warning'}
           isHero
         />
