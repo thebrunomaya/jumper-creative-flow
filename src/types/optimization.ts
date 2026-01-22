@@ -140,7 +140,8 @@ export interface QuickNote {
  */
 export interface OptimizationRecordingRow {
   id: string;
-  account_id: string;
+  account_id: string;              // Legacy: TEXT notion_id (deprecated)
+  account_uuid: string | null;     // New: UUID reference to j_hub_notion_db_accounts(id)
   recorded_by: string;
   recorded_at: string;             // ISO timestamp
   audio_file_path: string | null;
@@ -174,7 +175,8 @@ export interface OptimizationTranscriptRow {
 export interface OptimizationContextRow {
   id: string;
   recording_id: string;
-  account_id: string;
+  account_id: string;              // Legacy: TEXT notion_id (deprecated)
+  account_uuid: string | null;     // New: UUID reference to j_hub_notion_db_accounts(id)
   summary: string;
 
   // JSONB fields

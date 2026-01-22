@@ -81,7 +81,7 @@ Deno.serve(async (req) => {
     // Check if user has permission to this recording (must be owner or admin)
     const { data: recording, error: recordingError } = await supabase
       .from('j_hub_optimization_recordings')
-      .select('*, j_hub_notion_db_accounts!inner(notion_id, "Conta")')
+      .select('*')
       .eq('id', recording_id)
       .single();
 
@@ -91,6 +91,13 @@ Deno.serve(async (req) => {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
+
+    // Fetch account name using account_uuid (UUID) instead of legacy account_id (TEXT notion_id)
+    const { data: accountData } = await supabase
+      .from('j_hub_notion_db_accounts')
+      .select('"Conta"')
+      .eq('id', recording.account_uuid)
+      .single();
 
     // Check user role (only Gestors/Admins can create shares)
     const { data: userData } = await supabase
@@ -110,7 +117,7 @@ Deno.serve(async (req) => {
     }
 
     // Generate unique slug
-    const accountName = recording.j_hub_notion_db_accounts?.["Conta"] || 'optimization';
+    const accountName = accountData?.["Conta"] || 'optimization';
     const slug = generateSlug(accountName, recording.recorded_at);
 
     // Calculate expiration date

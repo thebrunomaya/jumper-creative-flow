@@ -46,13 +46,7 @@ Deno.serve(async (req) => {
     // Find recording by slug
     const { data: recording, error: recordingError } = await supabase
       .from('j_hub_optimization_recordings')
-      .select(`
-        *,
-        j_hub_notion_db_accounts!inner(
-          notion_id,
-          "Conta"
-        )
-      `)
+      .select('*')
       .eq('public_slug', slug)
       .eq('share_enabled', true)
       .single();
@@ -67,6 +61,18 @@ Deno.serve(async (req) => {
         status: 404,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
+    }
+
+    // Fetch account name using account_uuid (UUID) instead of legacy account_id JOIN
+    let accountName = 'N/A';
+    if (recording.account_uuid) {
+      const { data: accountData } = await supabase
+        .from('j_hub_notion_db_accounts')
+        .select('"Conta"')
+        .eq('id', recording.account_uuid)
+        .maybeSingle();
+
+      accountName = accountData?.["Conta"] || 'N/A';
     }
 
     // Check if share has expired
@@ -94,7 +100,7 @@ Deno.serve(async (req) => {
         success: true,
         recording: {
           id: recording.id,
-          account_name: recording.j_hub_notion_db_accounts?.["Conta"] || 'N/A',
+          account_name: accountName,
           recorded_at: recording.recorded_at,
           recorded_by: recording.recorded_by,
           objectives: recording.objectives,

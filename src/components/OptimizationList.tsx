@@ -48,10 +48,11 @@ export function OptimizationList({ accountId, onRefresh }: OptimizationListProps
   async function fetchRecordings() {
     setIsLoading(true);
 
+    // Query using account_uuid (UUID) instead of legacy account_id (TEXT notion_id)
     const { data, error } = await supabase
       .from("j_hub_optimization_recordings")
       .select("*")
-      .eq("account_id", accountId)
+      .eq("account_uuid", accountId)
       .order("recorded_at", { ascending: false });
 
     if (error) {

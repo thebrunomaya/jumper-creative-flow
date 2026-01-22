@@ -67,10 +67,11 @@ serve(async (req) => {
     console.log('✅ [PROCESS] Transcript found, length:', transcript.full_text.length);
 
     // Fetch account context with Transcription Context
+    // Using account_uuid (UUID) instead of legacy account_id (TEXT notion_id)
     const { data: accountData } = await supabase
       .from('j_hub_notion_db_accounts')
       .select('Conta, Objetivos, "Contexto para Transcrição", "Contexto para Otimização"')
-      .eq('notion_id', recording.account_id)
+      .eq('id', recording.account_uuid)
       .maybeSingle();
 
     const accountName = accountData?.Conta || 'Conta';

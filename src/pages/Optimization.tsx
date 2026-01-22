@@ -31,24 +31,13 @@ export default function Optimization() {
   // This ensures dropdown shows all accounts, even those with 0 optimizations
   const availableAccounts = allAccounts;
 
-  // Create a map from UUID to notion_id for filtering
-  // j_hub_optimization_recordings uses notion_id (TEXT), not UUID
-  const accountIdToNotionId = useMemo(() => {
-    const map = new Map<string, string>();
-    allAccounts.forEach(acc => {
-      map.set(acc.id, acc.notion_id);
-    });
-    return map;
-  }, [allAccounts]);
-
   // Filter optimizations by selected account
-  // Convert UUID (from dropdown) to notion_id (used in optimizations)
+  // Now both use UUID: dropdown uses account.id, optimizations use account_uuid (mapped to account_id)
   const filteredOptimizations = useMemo(() => {
     if (!selectedAccountId) return optimizations;
-    const notionId = accountIdToNotionId.get(selectedAccountId);
-    if (!notionId) return optimizations;
-    return optimizations.filter(opt => opt.account_id === notionId);
-  }, [optimizations, selectedAccountId, accountIdToNotionId]);
+    // Direct UUID comparison - useMyOptimizations now returns account_uuid as account_id
+    return optimizations.filter(opt => opt.account_id === selectedAccountId);
+  }, [optimizations, selectedAccountId]);
 
   const handleOptimizationClick = (optimization: any) => {
     // Navigate to fullscreen editor

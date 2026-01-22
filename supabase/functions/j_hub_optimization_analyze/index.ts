@@ -89,16 +89,18 @@ serve(async (req) => {
     console.log('📏 [ANALYZE] Input length:', textLength, 'chars');
 
     // Fetch account contexts for transcription and optimization
+    // Using account_uuid (UUID) instead of legacy account_id (TEXT notion_id)
     const { data: accountData } = await supabase
       .from('j_hub_notion_db_accounts')
       .select('contexto_transcricao, contexto_otimizacao')
-      .eq('id', recording.account_id)
+      .eq('id', recording.account_uuid)
       .single();
 
     const transcriptionContext = accountData?.contexto_transcricao || 'No specific context provided.';
     const optimizationContext = accountData?.contexto_otimizacao || null;
 
     // Fetch last 3 optimizations from this account for historical context
+    // Using account_uuid (UUID) instead of legacy account_id (TEXT notion_id)
     const { data: previousOptimizations } = await supabase
       .from('j_hub_optimization_context')
       .select(`
@@ -108,7 +110,7 @@ serve(async (req) => {
         created_at,
         j_hub_optimization_recordings!inner(recorded_at, recorded_by)
       `)
-      .eq('account_id', recording.account_id)
+      .eq('account_uuid', recording.account_uuid)
       .neq('recording_id', recording_id)
       .order('created_at', { ascending: false })
       .limit(3);
@@ -240,7 +242,7 @@ PROCESSED TRANSCRIPTION (ORGANIZED BULLETS)
 ${transcriptText}
 
 CONTEXT OF CURRENT RECORDING:
-- Account ID: ${recording.account_id}
+- Account UUID: ${recording.account_uuid}
 - Manager: ${recording.recorded_by}
 - Date: ${recording.recorded_at}
 - Platform: ${platform}
@@ -390,12 +392,14 @@ Valid JSON following the specified structure. OUTPUT IN BRAZILIAN PORTUGUESE.`;
     }
 
     // Insert new context into j_hub_optimization_context
+    // Using account_uuid (UUID) instead of legacy account_id (TEXT notion_id)
     console.log('💾 [ANALYZE] Inserting new context...');
     const { error: insertError } = await supabase
       .from('j_hub_optimization_context')
       .insert({
         recording_id: recording_id,
-        account_id: recording.account_id,
+        account_id: recording.account_id,        // Keep legacy field for backward compatibility
+        account_uuid: recording.account_uuid,    // New UUID reference
         summary: extractedData.summary,
         actions_taken: extractedData.actions_taken,
         metrics_mentioned: extractedData.metrics_mentioned,

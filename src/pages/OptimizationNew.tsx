@@ -52,8 +52,8 @@ export default function OptimizationNew() {
   const { loadDraft, saveDraft, clearDraft, hasDraft, markDirty, startAutoSave } = useDraftManager();
 
   // Form state
-  // selectedAccountUuid: UUID for PrioritizedAccountSelect (dropdown value)
-  // selectedAccountNotionId: notion_id (TEXT) for database operations
+  // selectedAccountUuid: UUID for dropdown and modern database operations (account_uuid)
+  // selectedAccountNotionId: legacy TEXT notion_id (kept for backward compatibility during migration)
   const [selectedAccountUuid, setSelectedAccountUuid] = useState<string>("");
   const [selectedAccountNotionId, setSelectedAccountNotionId] = useState<string>("");
   const [selectedAccountName, setSelectedAccountName] = useState<string>("");
@@ -332,7 +332,8 @@ export default function OptimizationNew() {
             </CardHeader>
             <CardContent>
               <OptimizationRecorder
-                accountId={selectedAccountNotionId}
+                accountId={selectedAccountNotionId}  // Legacy: TEXT notion_id
+                accountUuid={selectedAccountUuid}    // New: UUID for modern tables
                 accountName={selectedAccountName}
                 accountContext={accountContext}
                 notionObjectives={['Geral', ...accountObjectives]}

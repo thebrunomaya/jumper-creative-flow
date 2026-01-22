@@ -40,16 +40,15 @@ export const useMyOptimizations = () => {
           throw new Error(accountsData?.error || 'Resposta inválida ao buscar contas');
         }
 
-        // Use account_notion_ids (TEXT) for legacy j_hub_optimization_recordings table
-        // Fallback to account_ids for backward compatibility
-        const accountIds = Array.isArray(accountsData.account_notion_ids)
-          ? accountsData.account_notion_ids
-          : Array.isArray(accountsData.account_ids)
-            ? accountsData.account_ids
-            : [];
+        // Use account_ids (UUIDs) for modern j_hub_optimization_recordings table
+        // After migration, account_uuid column references j_hub_notion_db_accounts(id)
+        const accountIds = Array.isArray(accountsData.account_ids)
+          ? accountsData.account_ids
+          : [];
 
+        // Map by UUID for name resolution
         const accountsMap = new Map(
-          (accountsData.accounts || []).map((acc: any) => [acc.notion_id, acc.name])
+          (accountsData.accounts || []).map((acc: any) => [acc.id, acc.name])
         );
 
         if (accountIds.length === 0) {
@@ -58,11 +57,12 @@ export const useMyOptimizations = () => {
         }
 
         // 2. Fetch optimizations with extracts and recordings for these accounts
+        // Using account_uuid (UUID) instead of legacy account_id (TEXT notion_id)
         const { data: optimizationsData, error: optimizationsError } = await supabase
           .from('j_hub_optimization_recordings')
           .select(`
             id,
-            account_id,
+            account_uuid,
             recorded_at,
             recorded_by,
             transcription_status,
@@ -72,7 +72,7 @@ export const useMyOptimizations = () => {
               extract_text
             )
           `)
-          .in('account_id', accountIds)
+          .in('account_uuid', accountIds)
           .order('recorded_at', { ascending: false });
 
         if (optimizationsError) throw optimizationsError;
@@ -81,8 +81,8 @@ export const useMyOptimizations = () => {
         const transformed: OptimizationWithDetails[] = (optimizationsData || []).map((rec: any) => ({
           id: rec.id,
           recording_id: rec.id,
-          account_id: rec.account_id,
-          account_name: accountsMap.get(rec.account_id) || rec.account_id,
+          account_id: rec.account_uuid,  // Using UUID now
+          account_name: accountsMap.get(rec.account_uuid) || rec.account_uuid,
           recorded_at: rec.recorded_at,
           recorded_by: rec.recorded_by,
           extract_text: rec.j_hub_optimization_extracts?.extract_text || null,
