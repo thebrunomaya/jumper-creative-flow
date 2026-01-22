@@ -1,6 +1,6 @@
 # Jumper Flow - Claude Configuration
 
-> **Versão:** v2.1.110 | **Atualizado:** 2026-01-20
+> **Versão:** v2.1.116 | **Atualizado:** 2026-01-22
 
 ---
 
@@ -52,7 +52,7 @@ Arquivos temporários do usuário vão em `tmp-user/` (gitignored).
 
 **🎯 OBJETIVO PRINCIPAL:** TORNAR-SE O HUB COMPLETO de gestores de tráfego, gerentes parceiros e clientes finais da Jumper Studio para **democratizar serviços de tráfego pago**.
 
-**📍 Missão Atual:** Sistema de criativos ✅ + Sistema resiliente ✅ + 12 Dashboards ✅ + **Decks System** ✅ + **Optimization System** ✅
+**📍 Missão Atual:** Sistema de criativos ✅ + Sistema resiliente ✅ + 12 Dashboards ✅ + **Decks System** ✅ + **Optimization System** ✅ + **Gestão de Contas** 🚧
 
 **🚀 Visão Futura:** Plataforma self-service que reduz trabalho operacional e permite preços mais baixos
 
@@ -106,14 +106,16 @@ const { accounts } = useMyNotionAccounts();
 supabase.from('j_hub_notion_db_accounts').select('*')
 ```
 
-### Dual ID System
+### Account ID System
 
-| Tipo | Usado Por |
-|------|-----------|
-| **UUID** | Tabelas modernas (j_hub_decks) |
-| **TEXT notion_id** | Tabelas legacy (j_hub_optimization_recordings) |
+> **Atualizado 2026-01-22:** Todas as tabelas agora usam UUID consistentemente.
 
-**Ver:** [ARCHITECTURE.md - Dual ID System](docs/ARCHITECTURE.md#️-critical-dual-id-system-uuid-vs-text-notion_id)
+| Tabela | FK |
+|--------|---|
+| `j_hub_decks` | UUID → `j_hub_notion_db_accounts(id)` |
+| `j_hub_optimization_recordings` | UUID → `j_hub_notion_db_accounts(id)` |
+
+**Ver:** [ARCHITECTURE.md - Account ID System](docs/ARCHITECTURE.md#️-account-id-system)
 
 ---
 
@@ -223,5 +225,5 @@ Este é um **PRODUTO ESTRATÉGICO** que vai:
 
 ---
 
-**Last Updated:** 2026-01-20
+**Last Updated:** 2026-01-22
 **Maintained by:** Claude Code Assistant

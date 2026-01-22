@@ -38,6 +38,8 @@ const TemplateEditor = lazy(() => import("./pages/TemplateEditor"));
 const TemplateCompare = lazy(() => import("./pages/TemplateCompare"));
 const AdChecker = lazy(() => import("./pages/AdChecker"));
 const DashboardsV2Page = lazy(() => import("./pages/DashboardsV2Page"));
+const AccountManagement = lazy(() => import("./pages/admin/AccountManagement"));
+const ManagerManagement = lazy(() => import("./pages/admin/ManagerManagement"));
 
 // Loading component reutilizável com acessibilidade
 const PageLoading = () => (
@@ -100,6 +102,20 @@ const App = () => {
                   <AdminRoute>
                     <Suspense fallback={<PageLoading />}>
                       <AdminUsers />
+                    </Suspense>
+                  </AdminRoute>
+                } />
+                <Route path="/admin/accounts" element={
+                  <ProtectedRoute>
+                    <Suspense fallback={<PageLoading />}>
+                      <AccountManagement />
+                    </Suspense>
+                  </ProtectedRoute>
+                } />
+                <Route path="/admin/managers" element={
+                  <AdminRoute>
+                    <Suspense fallback={<PageLoading />}>
+                      <ManagerManagement />
                     </Suspense>
                   </AdminRoute>
                 } />

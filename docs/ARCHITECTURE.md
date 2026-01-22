@@ -1,7 +1,7 @@
 # Architecture - Detalhes Técnicos
 
 > Documentação técnica do Jumper Flow Platform
-> **Atualizado:** 2026-01-11 | **Versão:** v2.1.109
+> **Atualizado:** 2026-01-22 | **Versão:** v2.1.116
 
 ---
 
@@ -53,75 +53,46 @@
 
 ---
 
-## ⚠️ CRITICAL: Dual ID System (UUID vs TEXT notion_id)
+## ⚠️ Account ID System
 
-> The database uses a **dual ID system** for accounts. Understanding this prevents FK constraint violations.
+> **Atualizado em 2026-01-22:** Todas as tabelas agora usam UUID consistentemente.
 
 ### Overview
 
-| ID Type | Format | Used By |
-|---------|--------|---------|
-| **UUID** | Supabase auto-generated | Modern tables (j_hub_decks) |
-| **TEXT notion_id** | Notion page ID | Legacy tables (j_hub_optimization_recordings) |
+| Tabela | account_id FK |
+|--------|---------------|
+| `j_hub_decks` | UUID → `j_hub_notion_db_accounts(id)` |
+| `j_hub_optimization_recordings` | UUID → `j_hub_notion_db_accounts(id)` |
+| `j_hub_optimization_context` | UUID → `j_hub_notion_db_accounts(id)` |
 
-### Table Classification
+### Lookup Table
 
-**Modern Tables (UUID FK):**
-```sql
--- j_hub_decks uses UUID
-account_id UUID REFERENCES j_hub_notion_db_accounts(id)
-```
-
-**Legacy Tables (TEXT FK):**
-```sql
--- j_hub_optimization_recordings uses TEXT
-account_id TEXT REFERENCES j_hub_notion_db_accounts(notion_id)
-```
-
-### Edge Function Response Format
-
-`j_hub_user_accounts` returns **BOTH** formats:
+`j_hub_notion_db_accounts` mantém ambos os IDs para compatibilidade com Notion:
 
 ```typescript
 {
-  account_ids: ["uuid1", "uuid2"],           // UUIDs for modern tables
-  account_notion_ids: ["notion1", "notion2"], // TEXT for legacy tables
-  accounts: [{
-    id: "uuid",           // Supabase UUID
-    notion_id: "text",    // Notion page ID
-    name: "Account Name",
-    // ... other fields
-  }]
+  id: "uuid",           // Supabase UUID (usado em FKs)
+  notion_id: "text",    // Notion page ID (usado para sync com Notion)
+  name: "Account Name",
+  // ... other fields
 }
 ```
 
 ### Frontend Pattern
 
 ```typescript
-// Modern table (j_hub_decks)
+// Todas as tabelas usam UUID
 const accountIds = data.account_ids;
 await supabase.from('j_hub_decks').select('*').in('account_id', accountIds);
-
-// Legacy table (j_hub_optimization_recordings)
-const accountNotionIds = data.account_notion_ids;
-await supabase.from('j_hub_optimization_recordings').select('*').in('account_id', accountNotionIds);
+await supabase.from('j_hub_optimization_recordings').select('*').in('account_id', accountIds);
 ```
 
-### Common Mistake
+### Migração Histórica (2026-01-22)
 
-```typescript
-// ❌ WRONG - Using UUID for legacy tables
-<PrioritizedAccountSelect
-  onChange={(accountId) => setSelectedAccountId(accountId)} // UUID!
-/>
-// Later: INSERT fails with FK violation
-
-// ✅ CORRECT - Extract notion_id for legacy tables
-const handleAccountChange = (accountId: string) => {
-  const account = accounts.find(a => a.id === accountId);
-  setSelectedAccountId(account.notion_id);  // TEXT
-};
-```
+As tabelas `j_hub_optimization_recordings` e `j_hub_optimization_context` foram migradas de TEXT notion_id para UUID:
+- Migration 1: Adicionou coluna `account_uuid`, populou dados, criou FK
+- Migration 2: Removeu coluna antiga `account_id` (TEXT), renomeou `account_uuid` → `account_id`
+- Edge Functions e frontend atualizados para usar apenas UUID
 
 ---
 
@@ -382,7 +353,7 @@ CREATE TABLE j_hub_notion_db_managers (
 ```sql
 CREATE TABLE j_hub_optimization_recordings (
   id UUID PRIMARY KEY,
-  account_id TEXT REFERENCES j_hub_notion_db_accounts(notion_id),
+  account_id UUID REFERENCES j_hub_notion_db_accounts(id),  -- UUID (migrated 2026-01-22)
   recorded_by UUID REFERENCES j_hub_users(id),
   audio_file_path TEXT,
   duration_seconds INTEGER,
@@ -431,7 +402,7 @@ CREATE TABLE j_hub_optimization_extracts (
 CREATE TABLE j_hub_optimization_context (
   id UUID PRIMARY KEY,
   recording_id UUID UNIQUE REFERENCES j_hub_optimization_recordings(id),
-  account_id TEXT,
+  account_id UUID REFERENCES j_hub_notion_db_accounts(id),  -- UUID (migrated 2026-01-22)
   summary TEXT,
   strategy JSONB,
   actions_taken JSONB,
@@ -903,6 +874,6 @@ Aggregates metrics across multiple accounts for admin/staff users.
 
 ---
 
-**Last Updated:** 2026-01-11
-**Version:** v2.1.109
+**Last Updated:** 2026-01-22
+**Version:** v2.1.116
 **Maintained by:** Claude Code Assistant

@@ -1,6 +1,6 @@
 # Roadmap - Jumper Flow Platform
 
-> **Atualizado:** 2026-01-11 | **Versão:** v2.1.109
+> **Atualizado:** 2026-01-22 | **Versão:** v2.1.116
 
 ---
 
@@ -16,6 +16,7 @@ Este roadmap consolida todos os próximos passos do Jumper Hub, organizados por 
 | 🎙️ **Optimization System** | ✅ Produção | 90% |
 | 📊 **Decks System** | ✅ Produção | 85% |
 | 💰 **Alertas de Saldo** | ✅ Produção | 100% |
+| 🏢 **Gestão de Contas** | 🚧 Em Desenvolvimento | 20% |
 | 🔐 **Self-Service** | 🔜 Planejamento | 0% |
 | 🌐 **Multi-Plataforma** | 🔜 Futuro | 0% |
 
@@ -132,6 +133,97 @@ GROUP BY creative_id, account_id;
 
 ---
 
+## 🏢 Gestão de Contas (Remover Notion)
+
+### Visão
+
+Criar interface de gestão de contas no Flow com sync bidirecional para o Notion. Objetivo final: remover Notion da operação, usando Supabase como source of truth.
+
+### Arquitetura
+
+```
+┌─────────────┐     ┌─────────────┐     ┌─────────────┐
+│   Flow UI   │ ──► │ Edge Func   │ ──► │   Notion    │
+│  (edição)   │     │ (PATCH API) │     │ (atualiza)  │
+└─────────────┘     └──────┬──────┘     └─────────────┘
+                          │
+                          ▼
+                   ┌─────────────┐
+                   │  Supabase   │
+                   │ (cópia local)│
+                   └─────────────┘
+```
+
+### Fases
+
+| Fase | Descrição | Status |
+|------|-----------|--------|
+| **Fase 0** | Corrigir sistema de IDs (UUID migration) | ✅ Completo |
+| **Fase 1** | Edge Function `j_hub_account_update` (write-back Notion) | 🚧 Hoje |
+| **Fase 2** | Interface `/admin/accounts` para gestão | 🚧 Hoje |
+| **Fase 3** | Interface `/admin/managers` para gerentes | 🚧 Hoje |
+| **Fase 4** | Validação com equipe | 🔜 Próximo |
+| **Fase 5** | Remover sync Notion (Supabase = source of truth) | 🔜 Futuro |
+
+### Fase 0: Migração UUID ✅ (Completo 2026-01-22)
+
+Migração das tabelas de optimization de TEXT notion_id para UUID:
+
+**Migrations:**
+- `20260122000000_add_account_uuid_to_optimization.sql` - Adiciona coluna, popula, cria FK
+- `20260122100000_cleanup_optimization_account_id.sql` - Remove coluna antiga, renomeia
+
+**Edge Functions Atualizadas (5):**
+- `j_hub_optimization_analyze`
+- `j_hub_optimization_transcribe`
+- `j_hub_optimization_process`
+- `j_hub_optimization_create_share`
+- `j_hub_optimization_view_shared`
+
+**Frontend Atualizado (6):**
+- `src/types/optimization.ts`
+- `src/hooks/useMyOptimizations.ts`
+- `src/components/OptimizationRecorder.tsx`
+- `src/pages/OptimizationNew.tsx`
+- `src/pages/OptimizationEditor.tsx`
+- `src/pages/Optimization.tsx`
+
+### Fase 1: Edge Function Write-back
+
+**A criar:** `j_hub_account_update`
+- Recebe dados do frontend
+- Faz PATCH na API do Notion
+- Atualiza Supabase local
+- Retorna sucesso/erro
+
+### Fase 2: Interface de Contas
+
+**A criar:**
+- `src/pages/admin/AccountManagement.tsx` - Lista + formulário
+- `src/components/admin/AccountForm.tsx` - Formulário em abas
+- `src/hooks/useAccountUpdate.ts` - Hook para PATCH
+
+**Campos editáveis (27):**
+- Básico: Conta, Status, Tier, Objetivos, Nicho
+- Equipe: Gestor, Atendimento, Gerente
+- Plataformas: ID Meta Ads, ID Google Ads, ID TikTok Ads, ID GA4
+- AI Context: Contexto para Otimização, Contexto para Transcrição
+- Financeiro: Método de Pagamento, Verba Mensal Meta/Google
+
+### Fase 3: Interface de Gerentes
+
+**A criar:**
+- `j_hub_manager_update` - Edge Function
+- `src/pages/admin/ManagerManagement.tsx`
+- `src/components/admin/ManagerForm.tsx`
+
+### Não Mexer
+
+- `j_ads_submit_ad` - Sistema de criativos (independente)
+- `j_hub_notion_sync_*` - Sync existente (continua funcionando)
+
+---
+
 ## 🔐 Self-Service (Futuro)
 
 ### Visão
@@ -175,8 +267,10 @@ Expandir além do Meta Ads para outras plataformas.
 
 ## 📋 Backlog Geral
 
-### Alta Prioridade
+### Alta Prioridade (Em Andamento)
 
+- [x] Migração UUID para optimization tables ✅
+- [ ] Interface de Gestão de Contas (Fases 1-3)
 - [ ] Novos templates de Deck
 - [ ] Dashboard de Criativos
 
@@ -186,6 +280,7 @@ Expandir além do Meta Ads para outras plataformas.
 - [ ] Export PDF de Decks
 - [ ] Integração Google Ads
 - [ ] Dashboard de Saldos
+- [ ] Validação Gestão de Contas (Fase 4)
 
 ### Baixa Prioridade
 
@@ -193,6 +288,7 @@ Expandir além do Meta Ads para outras plataformas.
 - [ ] Editor visual de Decks
 - [ ] RLS (Row Level Security)
 - [ ] Batch processing de áudios
+- [ ] Remover sync Notion (Fase 5)
 
 ---
 
@@ -205,4 +301,4 @@ Expandir além do Meta Ads para outras plataformas.
 
 ---
 
-**Última atualização:** 2026-01-11
+**Última atualização:** 2026-01-22

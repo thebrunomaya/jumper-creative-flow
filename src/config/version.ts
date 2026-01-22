@@ -7,10 +7,20 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.116';
+export const APP_VERSION = 'v2.1.117';
 
 /**
  * Version history:
+ * - v2.1.117 (2026-01-22):
+ *   - FEAT: Account Management interface (/admin/accounts) with Notion sync
+ *   - FEAT: Manager Management interface (/admin/managers) with Notion sync
+ *   - EDGE: j_hub_account_update - bidirectional sync Flow→Notion+Supabase
+ *   - EDGE: j_hub_manager_update - bidirectional sync Flow→Notion+Supabase
+ *   - HOOKS: useAccountUpdate, useMyManagers, useManagerUpdate
+ *   - UI: AccountForm with 5 tabs (Básico, Equipe, Plataformas, AI, Financeiro)
+ *   - UI: ManagerForm for editing manager data
+ *   - UserMenu now shows admin/staff options based on role
+ *
  * - v2.1.116 (2026-01-22):
  *   - REFACTOR: Complete UUID migration for optimization tables
  *   - Removed legacy account_id (TEXT notion_id) from j_hub_optimization_recordings
