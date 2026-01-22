@@ -57,12 +57,11 @@ export const useMyOptimizations = () => {
         }
 
         // 2. Fetch optimizations with extracts and recordings for these accounts
-        // Using account_uuid (UUID) instead of legacy account_id (TEXT notion_id)
         const { data: optimizationsData, error: optimizationsError } = await supabase
           .from('j_hub_optimization_recordings')
           .select(`
             id,
-            account_uuid,
+            account_id,
             recorded_at,
             recorded_by,
             transcription_status,
@@ -72,7 +71,7 @@ export const useMyOptimizations = () => {
               extract_text
             )
           `)
-          .in('account_uuid', accountIds)
+          .in('account_id', accountIds)
           .order('recorded_at', { ascending: false });
 
         if (optimizationsError) throw optimizationsError;
@@ -81,7 +80,7 @@ export const useMyOptimizations = () => {
         const transformed: OptimizationWithDetails[] = (optimizationsData || []).map((rec: any) => ({
           id: rec.id,
           recording_id: rec.id,
-          account_id: rec.account_uuid,  // Using UUID now
+          account_id: rec.account_id,
           account_name: accountsMap.get(rec.account_uuid) || rec.account_uuid,
           recorded_at: rec.recorded_at,
           recorded_by: rec.recorded_by,

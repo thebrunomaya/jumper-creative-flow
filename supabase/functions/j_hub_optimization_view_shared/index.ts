@@ -63,13 +63,13 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Fetch account name using account_uuid (UUID) instead of legacy account_id JOIN
+    // Fetch account name
     let accountName = 'N/A';
-    if (recording.account_uuid) {
+    if (recording.account_id) {
       const { data: accountData } = await supabase
         .from('j_hub_notion_db_accounts')
         .select('"Conta"')
-        .eq('id', recording.account_uuid)
+        .eq('id', recording.account_id)
         .maybeSingle();
 
       accountName = accountData?.["Conta"] || 'N/A';

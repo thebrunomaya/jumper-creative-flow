@@ -178,14 +178,14 @@ export default function OptimizationEditor() {
       if (recordingError) throw recordingError;
       setRecording(recordingData as OptimizationRecordingRow);
 
-      // Fetch account name using account_uuid (UUID) instead of legacy account_id (TEXT notion_id)
+      // Fetch account name
       const { data: accountData } = await supabase
         .from('j_hub_notion_db_accounts')
         .select('Conta')
-        .eq('id', recordingData.account_uuid)
+        .eq('id', recordingData.account_id)
         .maybeSingle();
 
-      setAccountName(accountData?.Conta || recordingData.account_uuid || 'Unknown');
+      setAccountName(accountData?.Conta || 'Unknown');
 
       // Fetch audio URL
       if (recordingData.audio_file_path) {

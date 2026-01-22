@@ -52,11 +52,10 @@ serve(async (req) => {
     }
 
     // Fetch Notion account data for name and context
-    // Using account_uuid (UUID) instead of legacy account_id (TEXT notion_id)
     const { data: accountData } = await supabase
       .from('j_hub_notion_db_accounts')
       .select('*')
-      .eq('id', recording.account_uuid)
+      .eq('id', recording.account_id)
       .maybeSingle();
 
     if (accountData) {

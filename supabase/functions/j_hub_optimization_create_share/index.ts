@@ -92,11 +92,11 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Fetch account name using account_uuid (UUID) instead of legacy account_id (TEXT notion_id)
+    // Fetch account name
     const { data: accountData } = await supabase
       .from('j_hub_notion_db_accounts')
       .select('"Conta"')
-      .eq('id', recording.account_uuid)
+      .eq('id', recording.account_id)
       .single();
 
     // Check user role (only Gestors/Admins can create shares)

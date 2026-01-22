@@ -24,8 +24,7 @@ import { ProcessingOverlay, ProcessingStep } from "./optimization/ProcessingOver
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface OptimizationRecorderProps {
-  accountId: string;    // Legacy: TEXT notion_id (for backward compatibility during migration)
-  accountUuid: string;  // New: UUID reference to j_hub_notion_db_accounts(id)
+  accountId: string;  // UUID reference to j_hub_notion_db_accounts(id)
   accountName: string;
   accountContext?: string;
   notionObjectives?: string[];
@@ -36,7 +35,6 @@ interface OptimizationRecorderProps {
 
 export function OptimizationRecorder({
   accountId,
-  accountUuid,
   accountName,
   accountContext = '',
   notionObjectives = [],
@@ -233,12 +231,11 @@ export function OptimizationRecorder({
 
       if (uploadError) throw uploadError;
 
-      // 2. Insert recording (include both account_id and account_uuid during migration)
+      // 2. Insert recording
       const { data: recording, error: dbError } = await supabase
         .from("j_hub_optimization_recordings")
         .insert({
-          account_id: accountId,      // Legacy: TEXT notion_id (keep for backward compatibility)
-          account_uuid: accountUuid,  // New: UUID reference (used by modern code)
+          account_id: accountId,  // UUID reference to j_hub_notion_db_accounts(id)
           recorded_by: user.email,
           audio_file_path: filePath,
           duration_seconds: recordingDuration,
@@ -247,8 +244,8 @@ export function OptimizationRecorder({
           override_context: editedContext !== accountContext ? editedContext : null,
           platform,
           selected_objectives: selectedObjectives,
-          date_range_start: dateRange?.start?.toISOString() || null, // NEW: Period start
-          date_range_end: dateRange?.end?.toISOString() || null,     // NEW: Period end
+          date_range_start: dateRange?.start?.toISOString() || null,
+          date_range_end: dateRange?.end?.toISOString() || null,
         })
         .select()
         .single();

@@ -51,11 +51,8 @@ export default function OptimizationNew() {
   const { currentUser } = useAuth();
   const { loadDraft, saveDraft, clearDraft, hasDraft, markDirty, startAutoSave } = useDraftManager();
 
-  // Form state
-  // selectedAccountUuid: UUID for dropdown and modern database operations (account_uuid)
-  // selectedAccountNotionId: legacy TEXT notion_id (kept for backward compatibility during migration)
-  const [selectedAccountUuid, setSelectedAccountUuid] = useState<string>("");
-  const [selectedAccountNotionId, setSelectedAccountNotionId] = useState<string>("");
+  // Form state - using UUID only (after migration cleanup)
+  const [selectedAccountId, setSelectedAccountId] = useState<string>("");
   const [selectedAccountName, setSelectedAccountName] = useState<string>("");
   const [accountContext, setAccountContext] = useState<string>("");
   const [customContext, setCustomContext] = useState<string>("");
@@ -79,11 +76,10 @@ export default function OptimizationNew() {
 
   // Auto-save draft when form changes
   useEffect(() => {
-    if (selectedAccountNotionId) {
+    if (selectedAccountId) {
       markDirty();
       const draft = {
-        accountId: selectedAccountNotionId, // Save notion_id for database compatibility
-        accountUuid: selectedAccountUuid,   // Save UUID for dropdown restoration
+        accountId: selectedAccountId,  // UUID
         dateRange: {
           start: dateRange.start.toISOString(),
           end: dateRange.end.toISOString(),
@@ -94,24 +90,20 @@ export default function OptimizationNew() {
       };
       startAutoSave(draft);
     }
-  }, [selectedAccountNotionId, selectedAccountUuid, dateRange, customContext, accountObjectives, markDirty, startAutoSave]);
+  }, [selectedAccountId, dateRange, customContext, accountObjectives, markDirty, startAutoSave]);
 
   const handleAccountChange = (accountId: string) => {
     // accountId parameter is UUID from PrioritizedAccountSelect
     const account = accounts.find(a => a.id === accountId);
     if (account) {
       console.log('🔍 Account loaded:', {
-        uuid: account.id,
-        notion_id: account.notion_id,
+        id: account.id,
         name: account.name,
         objectives: account.objectives,
         contexto: account.contexto_otimizacao
       });
 
-      // Store both UUID (for dropdown) and notion_id (for database)
-      // j_hub_optimization_recordings.account_id uses notion_id (TEXT), not UUID
-      setSelectedAccountUuid(account.id);
-      setSelectedAccountNotionId(account.notion_id);
+      setSelectedAccountId(account.id);
       setSelectedAccountName(account.name);
 
       // Use FULL context for optimization (not transcription summary)
@@ -131,14 +123,10 @@ export default function OptimizationNew() {
       });
       setCustomContext(draft.customContext);
 
-      // Restore account - try UUID first, fallback to notion_id lookup
-      let account = draft.accountUuid
-        ? accounts.find(a => a.id === draft.accountUuid)
-        : accounts.find(a => a.notion_id === draft.accountId);
-
+      // Restore account by UUID
+      const account = accounts.find(a => a.id === draft.accountId);
       if (account) {
-        setSelectedAccountUuid(account.id);
-        setSelectedAccountNotionId(account.notion_id);
+        setSelectedAccountId(account.id);
         setSelectedAccountName(account.name);
         setAccountContext(account.contexto_otimizacao || "");
         setAccountObjectives(account.objectives || []);
@@ -162,7 +150,7 @@ export default function OptimizationNew() {
     return `${dateRange.start.toLocaleDateString('pt-BR')} - ${dateRange.end.toLocaleDateString('pt-BR')}`;
   };
 
-  const canRecord = selectedAccountNotionId && dateRange.start && dateRange.end;
+  const canRecord = selectedAccountId && dateRange.start && dateRange.end;
 
   if (accountsLoading) {
     return (
@@ -252,7 +240,7 @@ export default function OptimizationNew() {
               <PrioritizedAccountSelect
                 accounts={accounts}
                 loading={accountsLoading}
-                value={selectedAccountUuid}
+                value={selectedAccountId}
                 onChange={handleAccountChange}
                 userEmail={currentUser?.email}
                 userRole={userRole}
@@ -291,7 +279,7 @@ export default function OptimizationNew() {
             <Separator />
 
             {/* Context Editor */}
-            {selectedAccountNotionId && (
+            {selectedAccountId && (
               <div className="space-y-2">
                 <label className="text-sm font-medium flex items-center gap-2">
                   Contexto da Conta
@@ -332,8 +320,7 @@ export default function OptimizationNew() {
             </CardHeader>
             <CardContent>
               <OptimizationRecorder
-                accountId={selectedAccountNotionId}  // Legacy: TEXT notion_id
-                accountUuid={selectedAccountUuid}    // New: UUID for modern tables
+                accountId={selectedAccountId}
                 accountName={selectedAccountName}
                 accountContext={accountContext}
                 notionObjectives={['Geral', ...accountObjectives]}
@@ -370,7 +357,7 @@ export default function OptimizationNew() {
           originalContext={accountContext}
           currentContext={customContext}
           onSave={setCustomContext}
-          accountId={selectedAccountNotionId}
+          accountId={selectedAccountId}
           showPreview
           dateRange={dateRange}
         />
