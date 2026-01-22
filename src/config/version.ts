@@ -7,10 +7,18 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.115';
+export const APP_VERSION = 'v2.1.116';
 
 /**
  * Version history:
+ * - v2.1.116 (2026-01-22):
+ *   - REFACTOR: Complete UUID migration for optimization tables
+ *   - Removed legacy account_id (TEXT notion_id) from j_hub_optimization_recordings
+ *   - Removed legacy account_id (TEXT notion_id) from j_hub_optimization_context
+ *   - All optimization tables now use UUID-only for account references
+ *   - j_hub_notion_db_accounts remains the single source for notion_id mapping
+ *   - FIX: Account name not showing in optimization list
+ *
  * - v2.1.115 (2026-01-22):
  *   - FEAT: Dashboards V2 with cross-platform analytics (/dashboards-v2)
  *   - FEAT: Integrated Funnel Dashboard (Meta Ads + GA4)
