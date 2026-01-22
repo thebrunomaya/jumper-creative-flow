@@ -37,6 +37,7 @@ const Templates = lazy(() => import("./pages/Templates"));
 const TemplateEditor = lazy(() => import("./pages/TemplateEditor"));
 const TemplateCompare = lazy(() => import("./pages/TemplateCompare"));
 const AdChecker = lazy(() => import("./pages/AdChecker"));
+const DashboardsV2Page = lazy(() => import("./pages/DashboardsV2Page"));
 
 // Loading component reutilizável com acessibilidade
 const PageLoading = () => (
@@ -128,6 +129,13 @@ const App = () => {
                   <ProtectedRoute>
                     <Suspense fallback={<PageLoading />}>
                       <DashboardsPage />
+                    </Suspense>
+                  </ProtectedRoute>
+                } />
+                <Route path="/dashboards-v2" element={
+                  <ProtectedRoute>
+                    <Suspense fallback={<PageLoading />}>
+                      <DashboardsV2Page />
                     </Suspense>
                   </ProtectedRoute>
                 } />
