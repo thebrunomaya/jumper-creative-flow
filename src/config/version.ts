@@ -7,10 +7,18 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.114';
+export const APP_VERSION = 'v2.1.115';
 
 /**
  * Version history:
+ * - v2.1.115 (2026-01-22):
+ *   - FEAT: Dashboards V2 with cross-platform analytics (/dashboards-v2)
+ *   - FEAT: Integrated Funnel Dashboard (Meta Ads + GA4)
+ *   - FEAT: Conversion Discrepancy Dashboard (Meta vs GA4)
+ *   - FEAT: GeneralDashboard source selector (Unified | Meta Ads | Google Ads)
+ *   - SQL: Created 4 bronze views for cross-platform joins
+ *   - DOCS: Added dashboards-v2-report.md with investigation notes
+ *
  * - v2.1.114 (2026-01-21):
  *   - FEAT: Promote MetaCheckerV2 to AdChecker with batch upload (up to 50 files)
  *   - REMOVE: /metachecker, /metachecker-v1, /metachecker-v2 test routes
