@@ -3,97 +3,114 @@
 # Tracks recent decisions and work-in-progress (last 7 days)
 # Older decisions migrate to docs/ARCHITECTURE.md
 
-last_updated: "2026-01-21T13:00:00Z"
+last_updated: "2026-01-22T02:30:00Z"
 session_computer: "MacBook Pro"
 session_user: "Bruno Maya"
 
 # Recent decisions (last 7 days)
 recent_decisions:
   - date: "2026-01-21"
+    decision: "Dashboards Integrados V2 - Cross-Platform Analytics"
+    status: "in_progress"
+    details: |
+      ## SESSAO 2026-01-21: DASHBOARDS INTEGRADOS
+
+      ### 1. Views SQL Criadas (Supabase)
+      - v_meta_ga4_campaign_funnel - Funil Meta + GA4 por campanha
+      - v_meta_ga4_adset_funnel - Funil por adset
+      - v_meta_ga4_daily_performance - Performance diaria
+      - v_conversion_discrepancy - Discrepancia de conversoes
+
+      ### 2. Dashboards V2 (/dashboards-v2)
+      Criados arquivos:
+      - src/hooks/useIntegratedFunnel.ts
+      - src/hooks/useConversionDiscrepancy.ts
+      - src/components/dashboards-v2/IntegratedFunnelDashboard.tsx
+      - src/components/dashboards-v2/DiscrepancyDashboard.tsx
+      - src/pages/DashboardsV2Page.tsx
+
+      ### 3. GeneralDashboard Atualizado (/dashboards)
+      Seletor de fonte: Unificado | Meta Ads | Google Ads
+
+      ### 4. PROBLEMA PENDENTE: Mapeamento GA4
+      GA4 nao tem account_id que corresponda ao Meta/Google.
+      Sessoes e conversoes aparecem zeradas na visao unificada.
+      VER: docs/dashboards-v2-report.md para detalhes
+
+    impact: "MAJOR - Nova arquitetura de dashboards cross-platform"
+    files_changed:
+      - "src/components/dashboards/GeneralDashboard.tsx"
+      - "src/components/dashboards-v2/*"
+      - "src/hooks/useIntegratedFunnel.ts"
+      - "src/hooks/useConversionDiscrepancy.ts"
+      - "src/pages/DashboardsV2Page.tsx"
+      - "supabase/migrations/20260121000000_create_bronze_views.sql"
+    deployed: true
+    deployment_status: "Deployed - GA4 mapping pending"
+    commits:
+      - "cade9a2: feat: Add integrated dashboards v2 with Meta + GA4 cross-platform analytics"
+      - "322580c: feat: Add data source selector to GeneralDashboard"
+
+  - date: "2026-01-21"
     decision: "AdChecker V2 Promotion & Cleanup"
     status: "complete"
     details: |
-      ## SESSAO 2026-01-21: ADCHECKER PUBLICADO
-
-      ### 1. AdChecker Atualizado
-      - MetaCheckerV2 promovido para /adchecker oficial
-      - Suporta upload de ate 50 arquivos simultaneos
-      - Carrossel com setas e thumbnails para navegacao
-      - Overlay de zonas seguras do Meta (Stories, Feed 4:5, Feed 1:1, Horizontal)
-      - Deteccao automatica de formato
-
-      ### 2. Rotas Removidas
-      - /metachecker (versao antiga)
-      - /metachecker-v1 (teste com scroll)
-      - /metachecker-v2 (teste vencedor - agora em /adchecker)
-
-      ### 3. Arquivos Deletados
-      - src/pages/MetaChecker.tsx
-      - src/pages/MetaCheckerV1.tsx
-      - src/pages/MetaCheckerV2.tsx
-
-      ### 4. Gitignore Atualizado
-      - /.playwright-mcp/ (screenshots do MCP)
-      - /tmp-tests/ (arquivos de teste)
-
+      MetaCheckerV2 promovido para /adchecker oficial
+      Rotas de teste removidas
     impact: "MINOR - AdChecker com batch upload"
-    files_changed:
-      - "src/pages/AdChecker.tsx (reescrito)"
-      - "src/App.tsx (rotas removidas)"
-      - ".gitignore (atualizado)"
     deployed: true
-    deployment_status: "Deployed v2.1.114"
-    commits:
-      - "5cfc3f7: chore: Remove temp test files from git tracking"
-      - "ef8e897: feat: Promote MetaCheckerV2 to AdChecker, remove test pages"
 
 # Current issues being worked on
-current_issues: []
+current_issues:
+  - issue: "GA4 data not mapping to accounts"
+    severity: "HIGH"
+    description: |
+      GA4 table (j_rep_ga4_bronze) doesn't have an account_id that matches
+      Meta Ads or Google Ads accounts. Need to investigate how Windsor.ai
+      maps GA4 data and find the correct join strategy.
+    see_doc: "docs/dashboards-v2-report.md"
 
 # Work in progress
-work_in_progress: []
+work_in_progress:
+  - task: "Dashboards Integrados V2"
+    status: "blocked"
+    blocker: "GA4 account mapping"
+    next_step: "Investigar estrutura do GA4 e como mapear para contas"
 
 # Context for next session
 next_session_context: |
-  ## SESSAO 2026-01-21 COMPLETA: ADCHECKER PUBLICADO
+  ## SESSAO ANTERIOR: DASHBOARDS INTEGRADOS (PARCIAL)
 
-  ### O QUE FOI FEITO:
+  ### PROBLEMA PRINCIPAL:
+  A visao unificada mostra Sessoes = 0 porque o GA4 nao tem
+  account_id que corresponda ao Meta Ads.
 
-  1. **AdChecker Atualizado**
-     - URL: https://flow.jumper.studio/adchecker
-     - Upload de ate 50 arquivos
-     - Carrossel com navegacao por setas
-     - Overlay de zonas seguras do Meta
+  ### PARA RESOLVER:
+  1. Executar query de investigacao:
+     SELECT DISTINCT account_id, source, medium FROM j_rep_ga4_bronze LIMIT 50;
 
-  2. **Limpeza de Rotas de Teste**
-     - Removidas: /metachecker, /metachecker-v1, /metachecker-v2
-     - Arquivos deletados do codebase
+  2. Verificar se existe campo ga4_property_id nas contas do Notion
 
-  3. **Gitignore Atualizado**
-     - .playwright-mcp/ e tmp-tests/ agora ignorados
+  3. Entender como Windsor.ai mapeia os dados
 
-  ### NOTA SOBRE MCP PLAYWRIGHT:
-  - Configuracao em .mcp.json (commitado)
-  - Pacote baixado automaticamente via npx
-  - Se browser nao instalado: `npx playwright install`
+  ### DOCUMENTO DE REFERENCIA:
+  docs/dashboards-v2-report.md - Relatorio completo com problemas e proximos passos
 
-  ### PROXIMOS PASSOS (ROADMAP):
-  - Novos templates de Deck (Alta)
-  - Dashboard de Criativos (Alta)
-  - Views SQL para performance (Media)
-  - Export PDF de Decks (Media)
+  ### ROTAS CRIADAS:
+  - /dashboards (GeneralDashboard atualizado com seletor)
+  - /dashboards-v2 (novos dashboards integrados)
 
 # TODOs pending
 pending_todos:
-  - "Novos templates de Deck"
-  - "Dashboard dedicado de criativos"
-  - "Views SQL para performance"
+  - "URGENTE: Resolver mapeamento GA4 <-> Contas"
+  - "Google Ads: Verificar se contas tem id_google_ads configurado"
+  - "Dashboards P2: Qualidade Trafego, Criativos, Cross-Channel"
 
 # Deployment status
 deployment:
   production_url: "https://flow.jumper.studio"
-  current_version: "v2.1.114"
-  last_deploy: "2026-01-21T13:00:00Z"
-  last_deploy_status: "AdChecker V2 promotion + cleanup"
-  database_status: "STABLE"
-  known_issues: "None"
+  current_version: "v2.1.115"
+  last_deploy: "2026-01-22T02:00:00Z"
+  last_deploy_status: "Dashboards V2 + GeneralDashboard source selector"
+  database_status: "STABLE - Views criadas"
+  known_issues: "GA4 data not mapping correctly in unified view"
