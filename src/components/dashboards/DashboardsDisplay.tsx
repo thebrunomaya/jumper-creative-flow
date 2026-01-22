@@ -20,6 +20,7 @@ interface AccountInfo {
   id: string;
   name: string;
   metaAdsId?: string;
+  id_google_ads?: string;
   objectives?: string[];
 }
 

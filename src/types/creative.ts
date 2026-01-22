@@ -75,6 +75,7 @@ export interface Client {
   name: string;
   objectives?: string[]; // Add objectives array
   metaAdsId?: string; // Add Meta Ads ID for reports
+  id_google_ads?: string; // Add Google Ads ID for reports
 }
 
 export interface Partner {

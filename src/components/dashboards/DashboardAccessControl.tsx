@@ -107,6 +107,7 @@ export function DashboardAccessControl({ children }: DashboardAccessControlProps
     id: client.id,
     name: client.name,
     metaAdsId: client.metaAdsId,
+    id_google_ads: client.id_google_ads, // Include Google Ads ID for reports
     objectives: client.objectives || [] // Include objectives for template selection
   } : null;
 

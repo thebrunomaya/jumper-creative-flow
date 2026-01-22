@@ -7,10 +7,14 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.118';
+export const APP_VERSION = 'v2.1.119';
 
 /**
  * Version history:
+ * - v2.1.119 (2026-01-22):
+ *   - FIX: GeneralDashboard now receives id_google_ads for Google Ads metrics
+ *   - Pass id_google_ads through Client type, useNotionClients, DashboardAccessControl
+ *
  * - v2.1.118 (2026-01-22):
  *   - FIX: Add refetch to useMyNotionAccounts for data reload after edits
  *   - FIX: Return all editable fields from j_hub_user_accounts
