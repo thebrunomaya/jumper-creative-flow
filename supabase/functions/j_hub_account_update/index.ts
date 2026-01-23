@@ -404,13 +404,20 @@ Deno.serve(async (req) => {
     // - Notion properties (basic fields)
     // - Notion people updates (if user IDs resolved to Notion IDs)
     // - Email updates (for Supabase only - when users don't have Notion IDs yet)
+    // - Report configuration fields (Supabase-only)
     const hasNotionPeopleUpdates = (resolvedPeople.Gestor_notion_ids?.length ?? 0) > 0 ||
                                     (resolvedPeople.Atendimento_notion_ids?.length ?? 0) > 0;
     const hasEmailUpdates = (resolvedPeople.Gestor_emails?.length ?? 0) > 0 ||
                             (resolvedPeople.Atendimento_emails?.length ?? 0) > 0;
     const hasNotionUpdates = Object.keys(notionProperties).length > 0;
+    const hasReportUpdates = updates.report_enabled !== undefined ||
+                              updates.report_roas_target !== undefined ||
+                              updates.report_cpa_max !== undefined ||
+                              updates.report_conv_min !== undefined ||
+                              updates.report_daily_target !== undefined ||
+                              updates.report_whatsapp_numbers !== undefined;
 
-    if (!hasNotionUpdates && !hasNotionPeopleUpdates && !hasEmailUpdates) {
+    if (!hasNotionUpdates && !hasNotionPeopleUpdates && !hasEmailUpdates && !hasReportUpdates) {
       return new Response(JSON.stringify({ success: false, error: 'No valid fields to update' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -419,7 +426,7 @@ Deno.serve(async (req) => {
 
     console.log(`[ACCOUNT_UPDATE] Notion properties to update:`, JSON.stringify(notionProperties));
     console.log(`[ACCOUNT_UPDATE] Account notion_id: ${account.notion_id}`);
-    console.log(`[ACCOUNT_UPDATE] Has Notion updates: ${hasNotionUpdates}, Has Notion people: ${hasNotionPeopleUpdates}, Has emails: ${hasEmailUpdates}`);
+    console.log(`[ACCOUNT_UPDATE] Has Notion updates: ${hasNotionUpdates}, Has Notion people: ${hasNotionPeopleUpdates}, Has emails: ${hasEmailUpdates}, Has report: ${hasReportUpdates}`);
 
     // Only call Notion API if we have properties to update
     if (hasNotionUpdates || hasNotionPeopleUpdates) {
