@@ -7,10 +7,18 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.125';
+export const APP_VERSION = 'v2.1.126';
 
 /**
  * Version history:
+ * - v2.1.126 (2026-01-23):
+ *   - FEAT: Daily WhatsApp report system with AI-generated insights
+ *   - NEW: j_hub_daily_report Edge Function - aggregates WooCommerce, Meta, Google, GA4 data
+ *   - NEW: Report configuration fields in Account Management (metas, WhatsApp numbers)
+ *   - NEW: Integration with Evolution API for WhatsApp delivery
+ *   - NEW: Claude AI generates contextual insights based on performance metrics
+ *   - ADD: WooCommerce backfill support (backfill_days parameter)
+ *
  * - v2.1.125 (2026-01-23):
  *   - FEAT: WooCommerce products sync - adds j_rep_woocommerce_products table
  *   - ADD: Site field to woocommerce bronze and products tables (store identification)

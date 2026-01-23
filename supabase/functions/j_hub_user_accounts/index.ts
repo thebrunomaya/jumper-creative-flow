@@ -364,6 +364,13 @@ serve(async (req) => {
         woo_site_url: account["Woo Site URL"] || null,
         woo_consumer_key: account["Woo Consumer Key"] || null,
         woo_consumer_secret: account["Woo Consumer Secret"] || null,
+        // Report configuration
+        report_enabled: account.report_enabled || false,
+        report_roas_target: account.report_roas_target || null,
+        report_cpa_max: account.report_cpa_max || null,
+        report_conv_min: account.report_conv_min || null,
+        report_daily_target: account.report_daily_target || null,
+        report_whatsapp_numbers: account.report_whatsapp_numbers || [],
       };
     });
 

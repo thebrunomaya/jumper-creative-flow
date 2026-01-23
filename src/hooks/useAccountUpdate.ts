@@ -28,6 +28,13 @@ export interface AccountUpdates {
   "Woo Site URL"?: string;
   "Woo Consumer Key"?: string;
   "Woo Consumer Secret"?: string;
+  // Report configuration
+  report_enabled?: boolean;
+  report_roas_target?: number | string;
+  report_cpa_max?: number | string;
+  report_conv_min?: number | string;
+  report_daily_target?: number | string;
+  report_whatsapp_numbers?: string[];
 }
 
 interface UpdateResult {

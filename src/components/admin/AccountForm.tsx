@@ -19,6 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 import { X, Loader2 } from "lucide-react";
 
 // Staff user for team selection
@@ -78,6 +79,13 @@ export function AccountForm({ account, onSuccess, onCancel }: AccountFormProps) 
     "Woo Site URL": account.woo_site_url || "",
     "Woo Consumer Key": account.woo_consumer_key || "",
     "Woo Consumer Secret": account.woo_consumer_secret || "",
+    // Report configuration
+    report_enabled: account.report_enabled || false,
+    report_roas_target: account.report_roas_target || "",
+    report_cpa_max: account.report_cpa_max || "",
+    report_conv_min: account.report_conv_min || "",
+    report_daily_target: account.report_daily_target || "",
+    report_whatsapp_numbers: account.report_whatsapp_numbers || [],
   });
 
   // Selected user IDs for team fields
@@ -187,12 +195,13 @@ export function AccountForm({ account, onSuccess, onCancel }: AccountFormProps) 
   return (
     <div className="space-y-6">
       <Tabs defaultValue="basico" className="w-full">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="basico">Básico</TabsTrigger>
           <TabsTrigger value="equipe">Equipe</TabsTrigger>
           <TabsTrigger value="plataformas">Plataformas</TabsTrigger>
           <TabsTrigger value="ai">AI Context</TabsTrigger>
           <TabsTrigger value="financeiro">Financeiro</TabsTrigger>
+          <TabsTrigger value="relatorios">Relatórios</TabsTrigger>
         </TabsList>
 
         {/* Aba Básico */}
@@ -504,6 +513,141 @@ export function AccountForm({ account, onSuccess, onCancel }: AccountFormProps) 
                 onChange={e => handleFieldChange("G-ADS: Verba Mensal", e.target.value)}
                 placeholder="R$ 5.000"
               />
+            </div>
+          </div>
+        </TabsContent>
+
+        {/* Aba Relatórios */}
+        <TabsContent value="relatorios" className="space-y-4 mt-4">
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label htmlFor="reportEnabled">Relatório Diário WhatsApp</Label>
+              <p className="text-xs text-muted-foreground">
+                Enviar automaticamente relatório de performance às 8h
+              </p>
+            </div>
+            <Switch
+              id="reportEnabled"
+              checked={formData.report_enabled}
+              onCheckedChange={checked => handleFieldChange("report_enabled", checked)}
+            />
+          </div>
+
+          <div className="pt-4 border-t">
+            <h4 className="text-sm font-medium mb-3">Metas de Performance</h4>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="roasTarget">ROAS Alvo</Label>
+                <Input
+                  id="roasTarget"
+                  type="number"
+                  step="0.1"
+                  min="0"
+                  value={formData.report_roas_target}
+                  onChange={e => handleFieldChange("report_roas_target", e.target.value)}
+                  placeholder="3.5"
+                />
+                <p className="text-xs text-muted-foreground">Ex: 3.5 para ROAS 3.5x</p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="cpaMax">CPA Máximo (R$)</Label>
+                <Input
+                  id="cpaMax"
+                  type="number"
+                  step="1"
+                  min="0"
+                  value={formData.report_cpa_max}
+                  onChange={e => handleFieldChange("report_cpa_max", e.target.value)}
+                  placeholder="80"
+                />
+                <p className="text-xs text-muted-foreground">Custo por aquisição máximo</p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="convMin">Conversão Mínima (%)</Label>
+                <Input
+                  id="convMin"
+                  type="number"
+                  step="0.1"
+                  min="0"
+                  value={formData.report_conv_min}
+                  onChange={e => handleFieldChange("report_conv_min", e.target.value)}
+                  placeholder="1.5"
+                />
+                <p className="text-xs text-muted-foreground">Taxa de conversão mínima</p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="dailyTarget">Meta Diária (R$)</Label>
+                <Input
+                  id="dailyTarget"
+                  type="number"
+                  step="100"
+                  min="0"
+                  value={formData.report_daily_target}
+                  onChange={e => handleFieldChange("report_daily_target", e.target.value)}
+                  placeholder="5000"
+                />
+                <p className="text-xs text-muted-foreground">Meta de vendas diária</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="pt-4 border-t">
+            <h4 className="text-sm font-medium mb-3">Números WhatsApp</h4>
+            <div className="space-y-2">
+              <div className="flex flex-wrap gap-2 mb-2">
+                {formData.report_whatsapp_numbers.map((phone, idx) => (
+                  <Badge key={idx} variant="secondary" className="gap-1">
+                    {phone}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const newNumbers = formData.report_whatsapp_numbers.filter((_, i) => i !== idx);
+                        handleFieldChange("report_whatsapp_numbers", newNumbers);
+                      }}
+                      className="ml-1 hover:text-destructive"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </Badge>
+                ))}
+              </div>
+              <div className="flex gap-2">
+                <Input
+                  id="newPhone"
+                  placeholder="5511999999999"
+                  onKeyDown={e => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      const input = e.target as HTMLInputElement;
+                      const phone = input.value.replace(/\D/g, "");
+                      if (phone && !formData.report_whatsapp_numbers.includes(phone)) {
+                        handleFieldChange("report_whatsapp_numbers", [...formData.report_whatsapp_numbers, phone]);
+                        input.value = "";
+                      }
+                    }
+                  }}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    const input = document.getElementById("newPhone") as HTMLInputElement;
+                    const phone = input.value.replace(/\D/g, "");
+                    if (phone && !formData.report_whatsapp_numbers.includes(phone)) {
+                      handleFieldChange("report_whatsapp_numbers", [...formData.report_whatsapp_numbers, phone]);
+                      input.value = "";
+                    }
+                  }}
+                >
+                  Adicionar
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Formato: código do país + DDD + número (ex: 5511999999999)
+              </p>
             </div>
           </div>
         </TabsContent>

@@ -49,6 +49,13 @@ interface AccountUpdateRequest {
     "Woo Site URL"?: string;
     "Woo Consumer Key"?: string;
     "Woo Consumer Secret"?: string;
+    // Report configuration (Supabase-only, not synced to Notion)
+    report_enabled?: boolean;
+    report_roas_target?: number | string;
+    report_cpa_max?: number | string;
+    report_conv_min?: number | string;
+    report_daily_target?: number | string;
+    report_whatsapp_numbers?: string[];
   };
 }
 
@@ -220,6 +227,26 @@ function buildSupabaseUpdate(
   }
   if (resolvedPeople?.Atendimento_emails && resolvedPeople.Atendimento_emails.length > 0) {
     supabaseUpdate["Atendimento"] = resolvedPeople.Atendimento_emails.join(", ");
+  }
+
+  // Report configuration fields (Supabase-only)
+  if (updates.report_enabled !== undefined) {
+    supabaseUpdate.report_enabled = updates.report_enabled;
+  }
+  if (updates.report_roas_target !== undefined) {
+    supabaseUpdate.report_roas_target = updates.report_roas_target === "" ? null : parseFloat(String(updates.report_roas_target));
+  }
+  if (updates.report_cpa_max !== undefined) {
+    supabaseUpdate.report_cpa_max = updates.report_cpa_max === "" ? null : parseFloat(String(updates.report_cpa_max));
+  }
+  if (updates.report_conv_min !== undefined) {
+    supabaseUpdate.report_conv_min = updates.report_conv_min === "" ? null : parseFloat(String(updates.report_conv_min));
+  }
+  if (updates.report_daily_target !== undefined) {
+    supabaseUpdate.report_daily_target = updates.report_daily_target === "" ? null : parseFloat(String(updates.report_daily_target));
+  }
+  if (updates.report_whatsapp_numbers !== undefined) {
+    supabaseUpdate.report_whatsapp_numbers = updates.report_whatsapp_numbers;
   }
 
   return supabaseUpdate;

@@ -55,6 +55,18 @@ export interface NotionAccount {
   woo_consumer_key?: string | null;
   /** WooCommerce consumer secret (API credential) */
   woo_consumer_secret?: string | null;
+  /** Daily report enabled */
+  report_enabled?: boolean;
+  /** Target ROAS for alerts */
+  report_roas_target?: number | null;
+  /** Maximum acceptable CPA */
+  report_cpa_max?: number | null;
+  /** Minimum acceptable conversion rate */
+  report_conv_min?: number | null;
+  /** Daily sales target */
+  report_daily_target?: number | null;
+  /** WhatsApp numbers for daily reports */
+  report_whatsapp_numbers?: string[];
 }
 
 /**
