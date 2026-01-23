@@ -24,6 +24,9 @@ export interface AccountUpdates {
   "Metodo de Pagamento"?: string;
   "META: Verba Mensal"?: string;
   "G-ADS: Verba Mensal"?: string;
+  "Woo Site URL"?: string;
+  "Woo Consumer Key"?: string;
+  "Woo Consumer Secret"?: string;
 }
 
 interface UpdateResult {

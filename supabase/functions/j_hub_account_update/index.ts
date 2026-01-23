@@ -45,6 +45,10 @@ interface AccountUpdateRequest {
     "Metodo de Pagamento"?: string;
     "META: Verba Mensal"?: string;
     "G-ADS: Verba Mensal"?: string;
+    // WooCommerce
+    "Woo Site URL"?: string;
+    "Woo Consumer Key"?: string;
+    "Woo Consumer Secret"?: string;
   };
 }
 
@@ -97,7 +101,10 @@ function buildNotionProperties(updates: Record<string, any>): Record<string, any
     "META: Verba Mensal": "META: Verba Mensal",
     "G-ADS: Verba Mensal": "G-ADS: Verba Mensal",
     "Gestor": "Gestor",
-    "Atendimento": "Atendimento"
+    "Atendimento": "Atendimento",
+    "Woo Site URL": "Woo Site URL",
+    "Woo Consumer Key": "Woo Consumer Key",
+    "Woo Consumer Secret": "Woo Consumer Secret"
   };
 
   for (const [inputField, notionField] of Object.entries(textFieldMap)) {
@@ -135,6 +142,9 @@ function buildSupabaseUpdate(updates: Record<string, any>): Record<string, any> 
     "Metodo de Pagamento": "Método de Pagamento",
     "META: Verba Mensal": "META: Verba Mensal",
     "G-ADS: Verba Mensal": "G-ADS: Verba Mensal",
+    "Woo Site URL": "Woo Site URL",
+    "Woo Consumer Key": "Woo Consumer Key",
+    "Woo Consumer Secret": "Woo Consumer Secret",
   };
 
   for (const [inputField, columnName] of Object.entries(fieldMap)) {

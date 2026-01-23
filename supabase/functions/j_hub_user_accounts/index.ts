@@ -358,6 +358,9 @@ serve(async (req) => {
         payment_method: account["Método de Pagamento"] || null,
         meta_verba_mensal: account["META: Verba Mensal"] || null,
         gads_verba_mensal: account["G-ADS: Verba Mensal"] || null,
+        woo_site_url: account["Woo Site URL"] || null,
+        woo_consumer_key: account["Woo Consumer Key"] || null,
+        woo_consumer_secret: account["Woo Consumer Secret"] || null,
       };
     });
 

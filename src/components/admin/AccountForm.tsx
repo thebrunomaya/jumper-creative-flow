@@ -65,6 +65,9 @@ export function AccountForm({ account, onSuccess, onCancel }: AccountFormProps) 
     "Metodo de Pagamento": account.payment_method || "",
     "META: Verba Mensal": account.meta_verba_mensal || "",
     "G-ADS: Verba Mensal": account.gads_verba_mensal || "",
+    "Woo Site URL": account.woo_site_url || "",
+    "Woo Consumer Key": account.woo_consumer_key || "",
+    "Woo Consumer Secret": account.woo_consumer_secret || "",
   });
 
   // Track which fields have changed
@@ -260,6 +263,47 @@ export function AccountForm({ account, onSuccess, onCancel }: AccountFormProps) 
               onChange={e => handleFieldChange("ID Google Analytics", e.target.value)}
               placeholder="G-XXXXXXXXXX"
             />
+          </div>
+
+          {/* WooCommerce Section */}
+          <div className="pt-4 border-t">
+            <h4 className="text-sm font-medium mb-3">WooCommerce</h4>
+
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="wooUrl">Site URL</Label>
+                <Input
+                  id="wooUrl"
+                  value={formData["Woo Site URL"]}
+                  onChange={e => handleFieldChange("Woo Site URL", e.target.value)}
+                  placeholder="https://loja.exemplo.com.br"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="wooKey">Consumer Key</Label>
+                <Input
+                  id="wooKey"
+                  value={formData["Woo Consumer Key"]}
+                  onChange={e => handleFieldChange("Woo Consumer Key", e.target.value)}
+                  placeholder="ck_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="wooSecret">Consumer Secret</Label>
+                <Input
+                  id="wooSecret"
+                  type="password"
+                  value={formData["Woo Consumer Secret"]}
+                  onChange={e => handleFieldChange("Woo Consumer Secret", e.target.value)}
+                  placeholder="cs_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Credenciais de API do WooCommerce (REST API)
+                </p>
+              </div>
+            </div>
           </div>
         </TabsContent>
 

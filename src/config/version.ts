@@ -7,10 +7,16 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.122';
+export const APP_VERSION = 'v2.1.123';
 
 /**
  * Version history:
+ * - v2.1.123 (2026-01-23):
+ *   - FEAT: WooCommerce fields in Account Management (admin/accounts)
+ *   - ADD: Woo Site URL, Consumer Key, Consumer Secret fields in Plataformas tab
+ *   - UPDATE: j_hub_user_accounts returns WooCommerce credentials
+ *   - UPDATE: j_hub_account_update allows editing WooCommerce fields
+ *
  * - v2.1.122 (2026-01-23):
  *   - FIX: WooCommerce UPSERT constraint - replaced functional index with proper UNIQUE constraint
  *   - Change line_item_id to NOT NULL with default 0 for Supabase PostgREST compatibility

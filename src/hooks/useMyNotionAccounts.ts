@@ -49,6 +49,12 @@ export interface NotionAccount {
   days_remaining?: number | null;
   /** Current balance in BRL (from Meta Ads spend data) */
   current_balance?: number | null;
+  /** WooCommerce site URL */
+  woo_site_url?: string | null;
+  /** WooCommerce consumer key (API credential) */
+  woo_consumer_key?: string | null;
+  /** WooCommerce consumer secret (API credential) */
+  woo_consumer_secret?: string | null;
 }
 
 /**
