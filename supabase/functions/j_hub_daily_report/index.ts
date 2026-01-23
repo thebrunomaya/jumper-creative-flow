@@ -69,6 +69,11 @@ interface DayMetrics {
   cost_per_session: number;
 }
 
+interface TopProduct {
+  name: string;
+  quantity: number;
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -175,18 +180,19 @@ Deno.serve(async (req) => {
       threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
       const threeMonthsAgoStr = threeMonthsAgo.toISOString().split("T")[0];
 
-      // 3. Fetch metrics for all dates
-      const [todayMetrics, dayBeforeMetrics, avgMetrics] = await Promise.all([
+      // 3. Fetch metrics for all dates + top products
+      const [todayMetrics, dayBeforeMetrics, avgMetrics, topProducts] = await Promise.all([
         fetchDayMetrics(supabase, config, yesterdayStr),
         fetchDayMetrics(supabase, config, dayBeforeStr),
         fetch3MonthAverage(supabase, config, threeMonthsAgoStr, dayBeforeStr),
+        fetchTopProducts(supabase, config.id, yesterdayStr),
       ]);
 
       // 4. Generate AI insights (uses historical data for context)
       const insights = await generateInsights(config, todayMetrics, dayBeforeMetrics, avgMetrics);
 
       // 5. Format WhatsApp messages (2 separate messages)
-      const { dataMessage, insightsMessage } = formatWhatsAppMessage(config, todayMetrics, insights);
+      const { dataMessage, insightsMessage } = formatWhatsAppMessage(config, todayMetrics, topProducts, insights);
 
       // 6. Send via Evolution API (unless test mode)
       if (!testMode && config.report_whatsapp_numbers.length > 0) {
@@ -501,6 +507,41 @@ async function fetch3MonthAverage(
   return metrics;
 }
 
+// Fetch top 3 products sold on a specific day
+async function fetchTopProducts(
+  supabase: any,
+  accountId: string,
+  date: string
+): Promise<TopProduct[]> {
+  const { data: lineItems } = await supabase
+    .from("j_rep_woocommerce_bronze")
+    .select("product_name, quantity")
+    .eq("account_id", accountId)
+    .eq("order_date", date)
+    .not("line_item_id", "is", null) // Only line items, not order records
+    .in("order_status", ["completed", "processing", "enviado", "shipped", "delivered", "entregue"]);
+
+  if (!lineItems || lineItems.length === 0) {
+    return [];
+  }
+
+  // Aggregate quantities by product name
+  const productMap = new Map<string, number>();
+  for (const item of lineItems) {
+    const name = item.product_name || "Produto desconhecido";
+    const qty = item.quantity || 1;
+    productMap.set(name, (productMap.get(name) || 0) + qty);
+  }
+
+  // Sort by quantity and get top 3
+  const sorted = Array.from(productMap.entries())
+    .map(([name, quantity]) => ({ name, quantity }))
+    .sort((a, b) => b.quantity - a.quantity)
+    .slice(0, 3);
+
+  return sorted;
+}
+
 // Generate AI insights using Claude
 async function generateInsights(
   config: AccountConfig,
@@ -575,6 +616,7 @@ Responda APENAS com os insights, sem introdução ou conclusão.`;
 function formatWhatsAppMessage(
   config: AccountConfig,
   today: DayMetrics,
+  topProducts: TopProduct[],
   insights: string
 ): { dataMessage: string; insightsMessage: string } {
   const formatMoney = (n: number) =>
@@ -583,22 +625,29 @@ function formatWhatsAppMessage(
   // === MENSAGEM 1: DADOS ===
   let msg = `🏃‍♀️ ${config.name.toUpperCase()}:\n\n`;
 
-  // Linha 1: Vendas + Meta
-  msg += `Vendas: ${formatMoney(today.woo_sales)}`;
+  // === SEÇÃO VENDAS ===
+  msg += `💰 VENDAS\n`;
+  msg += `${today.woo_orders} pedidos | Ticket: ${formatMoney(today.woo_avg_ticket)} | CPA: ${formatMoney(today.cpa)}\n`;
+  msg += `Faturamento: ${formatMoney(today.woo_sales)}`;
   if (config.report_daily_target) {
     const pct = (today.woo_sales / config.report_daily_target) * 100;
-    msg += ` | Meta: ${formatMoney(config.report_daily_target)} (${pct.toFixed(2)}% da meta)`;
+    msg += ` | Meta: ${formatMoney(config.report_daily_target)} (${pct.toFixed(0)}%)`;
   }
-  msg += `\n`;
 
-  // Linha 2: Investimento + ROAS
+  // === SEÇÃO TOP 3 PRODUTOS ===
+  if (topProducts.length > 0) {
+    msg += `\n\n🏆 TOP 3 PRODUTOS\n`;
+    topProducts.forEach((product, index) => {
+      msg += `${index + 1}. ${product.name} (${product.quantity} un)\n`;
+    });
+    // Remove trailing newline
+    msg = msg.trimEnd();
+  }
+
+  // === SEÇÃO TRÁFEGO ===
+  msg += `\n\n📊 TRÁFEGO\n`;
   msg += `Investimento: ${formatMoney(today.total_spend)} | ROAS: ${today.roas.toFixed(2)}x\n`;
-
-  // Linha 3: Conversão + Ticket
-  msg += `Taxa Conversão: ${today.conversion_rate.toFixed(2)}% | Ticket Médio: ${formatMoney(today.woo_avg_ticket)}\n`;
-
-  // Linha 4: Custo/Sessão + Sessões + CPA
-  msg += `Custo/Sessão: ${formatMoney(today.cost_per_session)} | Sessões: ${today.ga4_sessions.toLocaleString("pt-BR")} | CPA: ${formatMoney(today.cpa)}`;
+  msg += `Sessões: ${today.ga4_sessions.toLocaleString("pt-BR")} | Conv: ${today.conversion_rate.toFixed(2)}% | Custo/Sessão: ${formatMoney(today.cost_per_session)}`;
 
   // Canal breakdown: % investimento + CTR
   if (today.meta_spend > 0 || today.google_spend > 0) {
