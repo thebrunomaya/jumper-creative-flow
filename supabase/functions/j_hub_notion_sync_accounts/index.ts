@@ -220,6 +220,7 @@ function processAccountPage(page: any): any {
     "✅ Tarefas": extractTasksAsJson(props["✅ Tarefas"]),
     "Woo Consumer Secret": extractText(props["Woo Consumer Secret"]),
     "Woo Consumer Key": extractText(props["Woo Consumer Key"]),
+    "Woo Site URL": extractUrl(props["Woo Site URL"]),
     "Antecedência (Boleto)": extractText(props["Antecedência (Boleto)"]),
     "Vencimento Ideal (Boleto)": extractText(props["Vencimento Ideal (Boleto)"]),
     "Site Oficial": extractUrl(props["Site Oficial"]),

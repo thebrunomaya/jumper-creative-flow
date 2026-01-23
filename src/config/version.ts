@@ -7,10 +7,17 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.120';
+export const APP_VERSION = 'v2.1.121';
 
 /**
  * Version history:
+ * - v2.1.121 (2026-01-23):
+ *   - FEAT: WooCommerce integration - sync orders to Supabase bronze table
+ *   - NEW: j_rep_woocommerce_bronze table for orders and line items
+ *   - NEW: j_hub_woocommerce_sync Edge Function (multi-tenant, backfill 3 months)
+ *   - NEW: Daily CRON job at 4:00 BRT for automatic sync
+ *   - UPDATE: Added "Woo Site URL" field to Notion sync
+ *
  * - v2.1.120 (2026-01-22):
  *   - FIX: GeneralDashboard unified view with Meta Ads + Google Ads + GA4
  *   - FIX: Add id_google_analytics to data chain for GA4 metrics

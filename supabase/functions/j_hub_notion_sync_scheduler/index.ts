@@ -120,7 +120,8 @@ function processNotionAccount(page: any): any {
     "✅ Tarefas": extractText(props["✅ Tarefas"]),
     "Woo Consumer Secret": extractText(props["Woo Consumer Secret"]),
     "Woo Consumer Key": extractText(props["Woo Consumer Key"]),
-    
+    "Woo Site URL": extractText(props["Woo Site URL"]),
+
     // Campos de projeto/responsável
     "(Projeto) E-mail profissional do responsável pelo projeto.": extractText(props["(Projeto) E-mail profissional do responsável pelo projeto."]),
     "(Projeto) Telefone ou WhatsApp do responsável pelo projeto.": extractText(props["(Projeto) Telefone ou WhatsApp do responsável pelo projeto."]),
