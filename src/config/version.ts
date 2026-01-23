@@ -7,10 +7,15 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.2.1';
+export const APP_VERSION = 'v2.2.2';
 
 /**
  * Version history:
+ * - v2.2.2 (2026-01-23):
+ *   - FIX: Daily report labels - "vs anteontem" instead of "vs ontem"
+ *   - FIX: Comparison now uses 3-month daily average instead of single week-ago date
+ *   - ADD: fetch3MonthAverage function for accurate historical comparison
+ *
  * - v2.2.1 (2026-01-23):
  *   - FIX: Account update allowing report-only field updates (WhatsApp numbers)
  *

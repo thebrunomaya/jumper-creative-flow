@@ -170,22 +170,23 @@ Deno.serve(async (req) => {
       dayBefore.setDate(dayBefore.getDate() - 1);
       const dayBeforeStr = dayBefore.toISOString().split("T")[0];
 
-      const weekAgo = new Date(yesterday);
-      weekAgo.setDate(weekAgo.getDate() - 7);
-      const weekAgoStr = weekAgo.toISOString().split("T")[0];
+      // Calculate 3-month date range for average
+      const threeMonthsAgo = new Date(yesterday);
+      threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+      const threeMonthsAgoStr = threeMonthsAgo.toISOString().split("T")[0];
 
       // 3. Fetch metrics for all dates
-      const [todayMetrics, dayBeforeMetrics, weekAgoMetrics] = await Promise.all([
+      const [todayMetrics, dayBeforeMetrics, avgMetrics] = await Promise.all([
         fetchDayMetrics(supabase, config, yesterdayStr),
         fetchDayMetrics(supabase, config, dayBeforeStr),
-        fetchDayMetrics(supabase, config, weekAgoStr),
+        fetch3MonthAverage(supabase, config, threeMonthsAgoStr, dayBeforeStr),
       ]);
 
       // 4. Generate AI insights
-      const insights = await generateInsights(config, todayMetrics, dayBeforeMetrics, weekAgoMetrics);
+      const insights = await generateInsights(config, todayMetrics, dayBeforeMetrics, avgMetrics);
 
       // 5. Format WhatsApp message
-      const message = formatWhatsAppMessage(config, todayMetrics, dayBeforeMetrics, weekAgoMetrics, insights);
+      const message = formatWhatsAppMessage(config, todayMetrics, dayBeforeMetrics, avgMetrics, insights);
 
       // 6. Send via Evolution API (unless test mode)
       if (!testMode && config.report_whatsapp_numbers.length > 0) {
@@ -343,12 +344,164 @@ async function fetchDayMetrics(
   return metrics;
 }
 
+// Fetch 3-month average metrics
+async function fetch3MonthAverage(
+  supabase: any,
+  config: AccountConfig,
+  startDate: string,
+  endDate: string
+): Promise<DayMetrics> {
+  const metrics: DayMetrics = {
+    date: `${startDate} a ${endDate}`,
+    woo_sales: 0,
+    woo_orders: 0,
+    woo_avg_ticket: 0,
+    meta_spend: 0,
+    meta_impressions: 0,
+    meta_clicks: 0,
+    meta_purchases: 0,
+    meta_revenue: 0,
+    google_spend: 0,
+    google_impressions: 0,
+    google_clicks: 0,
+    google_conversions: 0,
+    google_revenue: 0,
+    ga4_sessions: 0,
+    ga4_engaged_sessions: 0,
+    ga4_conversions: 0,
+    total_spend: 0,
+    total_revenue: 0,
+    roas: 0,
+    cpa: 0,
+    conversion_rate: 0,
+    cost_per_session: 0,
+  };
+
+  let daysWithData = 0;
+
+  // WooCommerce - aggregate all orders in range
+  if (config.woo_site_url) {
+    const { data: wooData } = await supabase
+      .from("j_rep_woocommerce_bronze")
+      .select("order_total, order_date")
+      .eq("account_id", config.id)
+      .gte("order_date", startDate)
+      .lte("order_date", endDate)
+      .eq("line_item_id", 0)
+      .in("order_status", ["completed", "processing", "enviado", "shipped", "delivered", "entregue"]);
+
+    if (wooData && wooData.length > 0) {
+      const totalSales = wooData.reduce((sum: number, r: any) => sum + (parseFloat(r.order_total) || 0), 0);
+      const totalOrders = wooData.length;
+      const uniqueDates = new Set(wooData.map((r: any) => r.order_date));
+      daysWithData = Math.max(daysWithData, uniqueDates.size);
+
+      // Daily averages
+      metrics.woo_sales = daysWithData > 0 ? totalSales / daysWithData : 0;
+      metrics.woo_orders = daysWithData > 0 ? totalOrders / daysWithData : 0;
+      metrics.woo_avg_ticket = totalOrders > 0 ? totalSales / totalOrders : 0;
+    }
+  }
+
+  // Meta Ads - aggregate
+  if (config.meta_ads_id) {
+    const { data: metaData } = await supabase
+      .from("j_rep_metaads_bronze")
+      .select("spend, impressions, link_clicks, actions_purchase, action_values_omni_purchase, date")
+      .eq("account_id", config.meta_ads_id)
+      .gte("date", startDate)
+      .lte("date", endDate);
+
+    if (metaData && metaData.length > 0) {
+      const uniqueDates = new Set(metaData.map((r: any) => r.date));
+      const metaDays = uniqueDates.size;
+      daysWithData = Math.max(daysWithData, metaDays);
+
+      const totalSpend = metaData.reduce((sum: number, r: any) => sum + (parseFloat(r.spend) || 0), 0);
+      const totalImpressions = metaData.reduce((sum: number, r: any) => sum + (r.impressions || 0), 0);
+      const totalClicks = metaData.reduce((sum: number, r: any) => sum + (r.link_clicks || 0), 0);
+      const totalPurchases = metaData.reduce((sum: number, r: any) => sum + (r.actions_purchase || 0), 0);
+      const totalRevenue = metaData.reduce((sum: number, r: any) => sum + (parseFloat(r.action_values_omni_purchase) || 0), 0);
+
+      metrics.meta_spend = metaDays > 0 ? totalSpend / metaDays : 0;
+      metrics.meta_impressions = metaDays > 0 ? totalImpressions / metaDays : 0;
+      metrics.meta_clicks = metaDays > 0 ? totalClicks / metaDays : 0;
+      metrics.meta_purchases = metaDays > 0 ? totalPurchases / metaDays : 0;
+      metrics.meta_revenue = metaDays > 0 ? totalRevenue / metaDays : 0;
+    }
+  }
+
+  // Google Ads - aggregate
+  if (config.id_google_ads) {
+    const { data: googleData } = await supabase
+      .from("j_rep_googleads_bronze")
+      .select("spend, impressions, clicks, conversions, conversions_value, date")
+      .eq("account_id", config.id_google_ads)
+      .gte("date", startDate)
+      .lte("date", endDate);
+
+    if (googleData && googleData.length > 0) {
+      const uniqueDates = new Set(googleData.map((r: any) => r.date));
+      const googleDays = uniqueDates.size;
+      daysWithData = Math.max(daysWithData, googleDays);
+
+      const totalSpend = googleData.reduce((sum: number, r: any) => sum + (parseFloat(r.spend) || 0), 0);
+      const totalImpressions = googleData.reduce((sum: number, r: any) => sum + (r.impressions || 0), 0);
+      const totalClicks = googleData.reduce((sum: number, r: any) => sum + (r.clicks || 0), 0);
+      const totalConversions = googleData.reduce((sum: number, r: any) => sum + (r.conversions || 0), 0);
+      const totalRevenue = googleData.reduce((sum: number, r: any) => sum + (parseFloat(r.conversions_value) || 0), 0);
+
+      metrics.google_spend = googleDays > 0 ? totalSpend / googleDays : 0;
+      metrics.google_impressions = googleDays > 0 ? totalImpressions / googleDays : 0;
+      metrics.google_clicks = googleDays > 0 ? totalClicks / googleDays : 0;
+      metrics.google_conversions = googleDays > 0 ? totalConversions / googleDays : 0;
+      metrics.google_revenue = googleDays > 0 ? totalRevenue / googleDays : 0;
+    }
+  }
+
+  // GA4 - aggregate
+  if (config.id_google_analytics) {
+    const { data: ga4Data } = await supabase
+      .from("j_rep_ga4_bronze")
+      .select("sessions, engaged_sessions, conversions, date")
+      .eq("account_id", config.id_google_analytics)
+      .gte("date", startDate)
+      .lte("date", endDate);
+
+    if (ga4Data && ga4Data.length > 0) {
+      const uniqueDates = new Set(ga4Data.map((r: any) => r.date));
+      const ga4Days = uniqueDates.size;
+      daysWithData = Math.max(daysWithData, ga4Days);
+
+      const totalSessions = ga4Data.reduce((sum: number, r: any) => sum + (r.sessions || 0), 0);
+      const totalEngaged = ga4Data.reduce((sum: number, r: any) => sum + (r.engaged_sessions || 0), 0);
+      const totalConversions = ga4Data.reduce((sum: number, r: any) => sum + (r.conversions || 0), 0);
+
+      metrics.ga4_sessions = ga4Days > 0 ? totalSessions / ga4Days : 0;
+      metrics.ga4_engaged_sessions = ga4Days > 0 ? totalEngaged / ga4Days : 0;
+      metrics.ga4_conversions = ga4Days > 0 ? totalConversions / ga4Days : 0;
+    }
+  }
+
+  // Calculate totals and KPIs (using daily averages)
+  metrics.total_spend = metrics.meta_spend + metrics.google_spend;
+  metrics.total_revenue = metrics.woo_sales || metrics.meta_revenue + metrics.google_revenue;
+  metrics.roas = metrics.total_spend > 0 ? metrics.total_revenue / metrics.total_spend : 0;
+
+  const totalConversions = metrics.woo_orders || metrics.meta_purchases + metrics.google_conversions;
+  metrics.cpa = totalConversions > 0 ? metrics.total_spend / totalConversions : 0;
+  metrics.conversion_rate = metrics.ga4_sessions > 0 ? (totalConversions / metrics.ga4_sessions) * 100 : 0;
+  metrics.cost_per_session = metrics.ga4_sessions > 0 ? metrics.total_spend / metrics.ga4_sessions : 0;
+
+  return metrics;
+}
+
 // Generate AI insights using Claude
 async function generateInsights(
   config: AccountConfig,
   today: DayMetrics,
   dayBefore: DayMetrics,
-  weekAgo: DayMetrics
+  avg3Month: DayMetrics
 ): Promise<string> {
   const apiKey = Deno.env.get("ANTHROPIC_API_KEY");
   if (!apiKey) {
@@ -383,10 +536,10 @@ ANTEONTEM (${dayBefore.date}):
 - ROAS: ${dayBefore.roas.toFixed(2)}x
 - Conversão: ${dayBefore.conversion_rate.toFixed(2)}%
 
-MESMA DATA SEMANA PASSADA (${weekAgo.date}):
-- Vendas: R$ ${weekAgo.woo_sales.toFixed(2)}
-- ROAS: ${weekAgo.roas.toFixed(2)}x
-- Conversão: ${weekAgo.conversion_rate.toFixed(2)}%
+MÉDIA DIÁRIA (últimos 3 meses):
+- Vendas: R$ ${avg3Month.woo_sales.toFixed(2)}
+- ROAS: ${avg3Month.roas.toFixed(2)}x
+- Conversão: ${avg3Month.conversion_rate.toFixed(2)}%
 
 Gere insights curtos e diretos. Foque em:
 1. Anomalias ou tendências preocupantes
@@ -418,17 +571,17 @@ function formatWhatsAppMessage(
   config: AccountConfig,
   today: DayMetrics,
   dayBefore: DayMetrics,
-  weekAgo: DayMetrics,
+  avg3Month: DayMetrics,
   insights: string
 ): string {
   // Calculate variations
-  const salesVsYesterday = dayBefore.woo_sales > 0
+  const salesVsDayBefore = dayBefore.woo_sales > 0
     ? ((today.woo_sales - dayBefore.woo_sales) / dayBefore.woo_sales) * 100
     : 0;
-  const salesVsWeek = weekAgo.woo_sales > 0
-    ? ((today.woo_sales - weekAgo.woo_sales) / weekAgo.woo_sales) * 100
+  const salesVsAvg = avg3Month.woo_sales > 0
+    ? ((today.woo_sales - avg3Month.woo_sales) / avg3Month.woo_sales) * 100
     : 0;
-  const roasVsYesterday = today.roas - dayBefore.roas;
+  const roasVsDayBefore = today.roas - dayBefore.roas;
 
   // Meta progress
   const metaProgress = config.report_daily_target
@@ -457,7 +610,7 @@ function formatWhatsAppMessage(
 
   // Sales section
   msg += `💰 *VENDAS*\n`;
-  msg += `${formatMoney(today.woo_sales)} (${formatArrow(salesVsYesterday)}${Math.abs(salesVsYesterday).toFixed(0)}% vs ontem | ${formatArrow(salesVsWeek)}${Math.abs(salesVsWeek).toFixed(0)}% vs semana)\n`;
+  msg += `${formatMoney(today.woo_sales)} (${formatArrow(salesVsDayBefore)}${Math.abs(salesVsDayBefore).toFixed(0)}% vs anteontem | ${formatArrow(salesVsAvg)}${Math.abs(salesVsAvg).toFixed(0)}% vs média 3m)\n`;
   if (metaProgress !== null) {
     const emoji = metaProgress >= 100 ? "✅" : metaProgress >= 80 ? "🟡" : "🔴";
     msg += `Meta: ${formatMoney(config.report_daily_target!)} → ${metaProgress.toFixed(1)}% ${emoji}\n`;
@@ -466,7 +619,7 @@ function formatWhatsAppMessage(
 
   // Performance section
   msg += `📈 *PERFORMANCE*\n`;
-  msg += `ROAS: ${today.roas.toFixed(2)}x (${roasVsYesterday >= 0 ? "+" : ""}${roasVsYesterday.toFixed(2)} vs ontem)\n`;
+  msg += `ROAS: ${today.roas.toFixed(2)}x (${roasVsDayBefore >= 0 ? "+" : ""}${roasVsDayBefore.toFixed(2)} vs anteontem)\n`;
   msg += `CPA: ${formatMoney(today.cpa)} | Conv: ${today.conversion_rate.toFixed(2)}%\n`;
   msg += `Ticket: ${formatMoney(today.woo_avg_ticket)} | Sessões: ${today.ga4_sessions.toLocaleString("pt-BR")}\n\n`;
 
