@@ -7,10 +7,20 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.126';
+export const APP_VERSION = 'v2.2.0';
 
 /**
  * Version history:
+ * - v2.2.0 (2026-01-23):
+ *   - MINOR RELEASE: Daily WhatsApp Report System
+ *   - FEAT: Automated daily WhatsApp reports with AI-generated insights
+ *   - NEW: j_hub_daily_report Edge Function - aggregates WooCommerce, Meta, Google, GA4 data
+ *   - NEW: Report configuration in Account Management (ROAS target, CPA max, conv min, daily target)
+ *   - NEW: Integration with Evolution API for WhatsApp delivery
+ *   - NEW: Claude AI generates contextual insights comparing D-1, D-7, and targets
+ *   - NEW: CRON job for daily execution at 8:00 BRT
+ *   - ADD: WooCommerce backfill support (backfill_days parameter)
+ *
  * - v2.1.126 (2026-01-23):
  *   - FEAT: Daily WhatsApp report system with AI-generated insights
  *   - NEW: j_hub_daily_report Edge Function - aggregates WooCommerce, Meta, Google, GA4 data
