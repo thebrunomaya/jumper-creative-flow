@@ -7,10 +7,18 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.124';
+export const APP_VERSION = 'v2.1.125';
 
 /**
  * Version history:
+ * - v2.1.125 (2026-01-23):
+ *   - FEAT: WooCommerce products sync - adds j_rep_woocommerce_products table
+ *   - ADD: Site field to woocommerce bronze and products tables (store identification)
+ *   - ADD: UTM attribution fields in orders (utm_source, utm_medium, utm_campaign, etc)
+ *   - ADD: Billing/shipping info, coupon lines, refunds to bronze table
+ *   - FIX: Backfill migration for site field on existing records
+ *   - REFACTOR: Remove status filtering from WooCommerce sync (bronze = raw data)
+ *
  * - v2.1.124 (2026-01-23):
  *   - FEAT: Gestor/Atendimento user selection via dropdown in Account Management
  *   - REFACTOR: Replace notion_manager_id with notion_user_id for Notion people fields

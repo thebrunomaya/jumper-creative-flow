@@ -34,7 +34,8 @@ interface SyncResult {
   account: string;
   status: "success" | "error" | "skipped";
   orders?: number;
-  rows?: number;
+  order_rows?: number;
+  products?: number;
   error?: string;
 }
 
@@ -52,15 +53,18 @@ Deno.serve(async (req) => {
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
   );
 
-  // 1. Fetch accounts with WooCommerce configured
+  // 1. Fetch accounts with WooCommerce configured (exclude NULL and empty strings)
   const { data: accounts, error: accountsError } = await supabase
     .from("j_hub_notion_db_accounts")
     .select(
       'id, "Conta", "Woo Site URL", "Woo Consumer Key", "Woo Consumer Secret"'
     )
     .not("Woo Site URL", "is", null)
+    .neq("Woo Site URL", "")
     .not("Woo Consumer Key", "is", null)
-    .not("Woo Consumer Secret", "is", null);
+    .neq("Woo Consumer Key", "")
+    .not("Woo Consumer Secret", "is", null)
+    .neq("Woo Consumer Secret", "");
 
   if (accountsError) {
     console.error("[WooSync] Error fetching accounts:", accountsError.message);
@@ -102,30 +106,12 @@ Deno.serve(async (req) => {
         throw new Error(`Invalid site URL: ${siteUrl}`);
       }
 
-      // 3. Get last sync timestamp
-      const { data: syncStatus } = await supabase
-        .from("j_hub_woocommerce_sync_status")
-        .select("last_sync_at")
-        .eq("account_id", account.id)
-        .single();
-
-      // 4. Determine sync period
+      // 3. Determine sync period (always yesterday)
       const now = new Date();
-      let since: Date;
-
-      if (syncStatus?.last_sync_at) {
-        // Incremental: last 2 days (overlap for order updates)
-        since = new Date(syncStatus.last_sync_at);
-        since.setDate(since.getDate() - 2);
-        console.log(
-          `[WooSync] Incremental sync from ${since.toISOString()}`
-        );
-      } else {
-        // Backfill: 3 months
-        since = new Date(now);
-        since.setMonth(since.getMonth() - 3);
-        console.log(`[WooSync] Backfill sync from ${since.toISOString()}`);
-      }
+      const since = new Date(now);
+      since.setDate(since.getDate() - 1); // Yesterday
+      since.setHours(0, 0, 0, 0); // Start of day
+      console.log(`[WooSync] Syncing orders from ${since.toISOString()}`)
 
       // 5. Fetch orders from WooCommerce API
       const orders = await fetchWooOrders(account, since);
@@ -152,7 +138,7 @@ Deno.serve(async (req) => {
       }
 
       // 6. Transform to bronze format
-      const bronzeRows = transformToBronze(orders, account.id);
+      const bronzeRows = transformToBronze(orders, account.id, siteUrl);
       console.log(`[WooSync] Transformed to ${bronzeRows.length} bronze rows`);
 
       // 7. UPSERT to bronze table (in batches)
@@ -179,7 +165,36 @@ Deno.serve(async (req) => {
         );
       }
 
-      // 8. Update sync status
+      // 8. Sync products
+      console.log(`[WooSync] Syncing products...`);
+      const products = await fetchWooProducts(account);
+      console.log(`[WooSync] Fetched ${products.length} products`);
+
+      let insertedProducts = 0;
+      if (products.length > 0) {
+        const productRows = transformProducts(products, account.id, siteUrl);
+
+        // UPSERT products in batches
+        for (let i = 0; i < productRows.length; i += BATCH_SIZE) {
+          const batch = productRows.slice(i, i + BATCH_SIZE);
+          const { error: upsertError } = await supabase
+            .from("j_rep_woocommerce_products")
+            .upsert(batch, {
+              onConflict: "account_id,product_id",
+              ignoreDuplicates: false,
+            });
+
+          if (upsertError) {
+            console.error(`[WooSync] Products upsert error:`, upsertError.message);
+            // Don't fail the whole sync, just log the error
+          } else {
+            insertedProducts += batch.length;
+          }
+        }
+        console.log(`[WooSync] Upserted ${insertedProducts} products`);
+      }
+
+      // 9. Update sync status
       await supabase.from("j_hub_woocommerce_sync_status").upsert({
         account_id: account.id,
         last_sync_at: now.toISOString(),
@@ -193,11 +208,12 @@ Deno.serve(async (req) => {
         account: accountName,
         status: "success",
         orders: orders.length,
-        rows: insertedRows,
+        order_rows: insertedRows,
+        products: insertedProducts,
       });
 
       console.log(
-        `[WooSync] Account ${accountName} completed: ${orders.length} orders, ${insertedRows} rows`
+        `[WooSync] Account ${accountName} completed: ${orders.length} orders, ${insertedRows} rows, ${insertedProducts} products`
       );
     } catch (error) {
       const errorMessage =
@@ -253,16 +269,6 @@ async function fetchWooOrders(
   let page = 1;
   const maxPages = 50; // Safety limit: 5000 orders max
 
-  // Paid statuses to filter
-  const paidStatuses = [
-    "completed",
-    "processing",
-    "enviado",
-    "shipped",
-    "delivered",
-    "entregue",
-  ];
-
   while (page <= maxPages) {
     const params = new URLSearchParams({
       per_page: "100",
@@ -272,8 +278,6 @@ async function fetchWooOrders(
       order: "asc",
     });
 
-    // Note: WooCommerce API requires status to be passed individually
-    // Using comma-separated doesn't work, so we fetch all and filter
     const url = `${baseUrl}/wp-json/wc/v3/orders?${params}`;
 
     console.log(`[WooSync] Fetching page ${page}...`);
@@ -298,15 +302,10 @@ async function fetchWooOrders(
       break;
     }
 
-    // Filter by paid statuses
-    const paidOrders = orders.filter((o: any) =>
-      paidStatuses.includes(o.status)
-    );
-    allOrders.push(...paidOrders);
+    // Bronze = raw data, no filtering
+    allOrders.push(...orders);
 
-    console.log(
-      `[WooSync] Page ${page}: ${orders.length} total, ${paidOrders.length} paid`
-    );
+    console.log(`[WooSync] Page ${page}: ${orders.length} orders`);
 
     // Check if there are more pages
     const totalPages = parseInt(res.headers.get("X-WP-TotalPages") || "1", 10);
@@ -320,17 +319,43 @@ async function fetchWooOrders(
   return allOrders;
 }
 
-function transformToBronze(orders: any[], accountId: string): any[] {
+// Helper to extract site domain from URL
+function extractSite(siteUrl: string): string {
+  try {
+    const url = new URL(siteUrl);
+    return url.hostname.replace("www.", "");
+  } catch {
+    return "unknown";
+  }
+}
+
+function transformToBronze(orders: any[], accountId: string, siteUrl: string): any[] {
   const rows: any[] = [];
+  const site = extractSite(siteUrl);
+
+  // Helper to extract UTM/attribution data from order meta_data
+  const extractAttribution = (metaData: any[]) => {
+    if (!metaData) return {};
+    const attrs: Record<string, string> = {};
+    for (const m of metaData) {
+      if (m.key?.startsWith("_wc_order_attribution_")) {
+        const shortKey = m.key.replace("_wc_order_attribution_", "");
+        attrs[shortKey] = m.value;
+      }
+    }
+    return attrs;
+  };
 
   for (const order of orders) {
     const orderDate = order.date_created?.split("T")[0] || order.date_created;
+    const attribution = extractAttribution(order.meta_data);
 
     // Order record (line_item_id = 0 for order-level records)
     rows.push({
       account_id: accountId,
       order_id: order.id,
       line_item_id: 0,
+      site,
       order_date: orderDate,
       order_status: order.status,
       order_total: parseFloat(order.total) || 0,
@@ -343,12 +368,42 @@ function transformToBronze(orders: any[], accountId: string): any[] {
       quantity: null,
       item_total: null,
       meta_data: {
+        // Timestamps
+        date_created: order.date_created,
+        date_modified: order.date_modified,
+        // Currency & totals
         currency: order.currency,
         shipping_total: order.shipping_total,
         discount_total: order.discount_total,
+        tax_total: order.total_tax,
+        // Payment
         payment_method_title: order.payment_method_title,
+        transaction_id: order.transaction_id,
+        // Billing info
+        billing_first_name: order.billing?.first_name,
+        billing_last_name: order.billing?.last_name,
+        billing_phone: order.billing?.phone,
         billing_city: order.billing?.city,
         billing_state: order.billing?.state,
+        billing_country: order.billing?.country,
+        billing_postcode: order.billing?.postcode,
+        // Shipping info
+        shipping_city: order.shipping?.city,
+        shipping_state: order.shipping?.state,
+        shipping_country: order.shipping?.country,
+        // Coupons
+        coupon_lines: order.coupon_lines?.map((c: any) => ({
+          code: c.code,
+          discount: c.discount,
+        })),
+        // Refunds
+        refunds: order.refunds?.map((r: any) => ({
+          id: r.id,
+          reason: r.reason,
+          total: r.total,
+        })),
+        // UTM Attribution (critical for traffic analysis!)
+        ...attribution,
       },
     });
 
@@ -366,6 +421,7 @@ function transformToBronze(orders: any[], accountId: string): any[] {
         account_id: accountId,
         order_id: order.id,
         line_item_id: item.id,
+        site,
         order_date: orderDate,
         order_status: order.status,
         order_total: null,
@@ -389,4 +445,131 @@ function transformToBronze(orders: any[], accountId: string): any[] {
   }
 
   return rows;
+}
+
+// --- Product Sync Functions ---
+
+async function fetchWooProducts(account: WooAccount): Promise<any[]> {
+  const baseUrl = account["Woo Site URL"].trim().replace(/\/$/, "");
+  const consumerKey = account["Woo Consumer Key"];
+  const consumerSecret = account["Woo Consumer Secret"];
+
+  const auth = btoa(`${consumerKey}:${consumerSecret}`);
+
+  const allProducts: any[] = [];
+  let page = 1;
+  const maxPages = 10; // Safety limit: 1000 products max
+
+  while (page <= maxPages) {
+    const params = new URLSearchParams({
+      per_page: "100",
+      page: String(page),
+    });
+
+    const url = `${baseUrl}/wp-json/wc/v3/products?${params}`;
+
+    console.log(`[WooSync] Fetching products page ${page}...`);
+
+    const res = await fetch(url, {
+      headers: {
+        Authorization: `Basic ${auth}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!res.ok) {
+      const errorText = await res.text();
+      throw new Error(
+        `WooCommerce Products API error: ${res.status} ${res.statusText} - ${errorText}`
+      );
+    }
+
+    const products = await res.json();
+
+    if (!Array.isArray(products) || products.length === 0) {
+      break;
+    }
+
+    allProducts.push(...products);
+
+    console.log(`[WooSync] Products page ${page}: ${products.length} products`);
+
+    // Check if there are more pages
+    const totalPages = parseInt(res.headers.get("X-WP-TotalPages") || "1", 10);
+    if (page >= totalPages) {
+      break;
+    }
+
+    page++;
+  }
+
+  // Also fetch variations for variable products
+  const variableProducts = allProducts.filter((p) => p.type === "variable");
+  for (const parent of variableProducts) {
+    try {
+      const variations = await fetchProductVariations(account, parent.id);
+      allProducts.push(...variations);
+    } catch (error) {
+      console.error(
+        `[WooSync] Error fetching variations for product ${parent.id}:`,
+        error
+      );
+    }
+  }
+
+  return allProducts;
+}
+
+async function fetchProductVariations(
+  account: WooAccount,
+  productId: number
+): Promise<any[]> {
+  const baseUrl = account["Woo Site URL"].trim().replace(/\/$/, "");
+  const consumerKey = account["Woo Consumer Key"];
+  const consumerSecret = account["Woo Consumer Secret"];
+
+  const auth = btoa(`${consumerKey}:${consumerSecret}`);
+
+  const url = `${baseUrl}/wp-json/wc/v3/products/${productId}/variations?per_page=100`;
+
+  const res = await fetch(url, {
+    headers: {
+      Authorization: `Basic ${auth}`,
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!res.ok) {
+    return [];
+  }
+
+  const variations = await res.json();
+  // Add parent_id to variations
+  return variations.map((v: any) => ({ ...v, parent_id: productId }));
+}
+
+function transformProducts(products: any[], accountId: string, siteUrl: string): any[] {
+  const site = extractSite(siteUrl);
+  return products.map((p) => ({
+    account_id: accountId,
+    product_id: p.id,
+    parent_id: p.parent_id || null,
+    site,
+    name: p.name || "",
+    slug: p.slug || null,
+    sku: p.sku || null,
+    type: p.type || "simple",
+    status: p.status || "publish",
+    price: parseFloat(p.price) || null,
+    regular_price: parseFloat(p.regular_price) || null,
+    sale_price: p.sale_price ? parseFloat(p.sale_price) : null,
+    stock_status: p.stock_status || null,
+    stock_quantity: p.stock_quantity ?? null,
+    manage_stock: p.manage_stock || false,
+    categories: p.categories || [],
+    tags: p.tags || [],
+    attributes: p.attributes || [],
+    date_created: p.date_created || null,
+    date_modified: p.date_modified || null,
+  }));
 }
