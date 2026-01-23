@@ -631,14 +631,18 @@ export function AccountForm({ account, onSuccess, onCancel }: AccountFormProps) 
               <div className="flex gap-2">
                 <Input
                   id="newPhone"
-                  placeholder="5511999999999"
+                  placeholder="5511999999999 ou ID@g.us"
                   onKeyDown={e => {
                     if (e.key === "Enter") {
                       e.preventDefault();
                       const input = e.target as HTMLInputElement;
-                      const phone = input.value.replace(/\D/g, "");
-                      if (phone && !formData.report_whatsapp_numbers.includes(phone)) {
-                        handleFieldChange("report_whatsapp_numbers", [...formData.report_whatsapp_numbers, phone]);
+                      const value = input.value.trim();
+                      // Accept group IDs (ending with @g.us) or phone numbers (digits only)
+                      const recipient = value.includes("@g.us")
+                        ? value
+                        : value.replace(/\D/g, "");
+                      if (recipient && !formData.report_whatsapp_numbers.includes(recipient)) {
+                        handleFieldChange("report_whatsapp_numbers", [...formData.report_whatsapp_numbers, recipient]);
                         input.value = "";
                       }
                     }
@@ -649,9 +653,13 @@ export function AccountForm({ account, onSuccess, onCancel }: AccountFormProps) 
                   variant="outline"
                   onClick={() => {
                     const input = document.getElementById("newPhone") as HTMLInputElement;
-                    const phone = input.value.replace(/\D/g, "");
-                    if (phone && !formData.report_whatsapp_numbers.includes(phone)) {
-                      handleFieldChange("report_whatsapp_numbers", [...formData.report_whatsapp_numbers, phone]);
+                    const value = input.value.trim();
+                    // Accept group IDs (ending with @g.us) or phone numbers (digits only)
+                    const recipient = value.includes("@g.us")
+                      ? value
+                      : value.replace(/\D/g, "");
+                    if (recipient && !formData.report_whatsapp_numbers.includes(recipient)) {
+                      handleFieldChange("report_whatsapp_numbers", [...formData.report_whatsapp_numbers, recipient]);
                       input.value = "";
                     }
                   }}
@@ -660,7 +668,7 @@ export function AccountForm({ account, onSuccess, onCancel }: AccountFormProps) 
                 </Button>
               </div>
               <p className="text-xs text-muted-foreground">
-                Formato: código do país + DDD + número (ex: 5511999999999)
+                Numero: 5511999999999 | Grupo: 123456789@g.us
               </p>
             </div>
           </div>
