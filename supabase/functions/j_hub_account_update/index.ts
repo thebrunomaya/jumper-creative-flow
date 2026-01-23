@@ -373,11 +373,17 @@ Deno.serve(async (req) => {
     console.log(`[ACCOUNT_UPDATE] Raw updates:`, JSON.stringify(updates));
     const notionProperties = buildNotionProperties(updates, resolvedPeople);
 
-    // Check if we have any valid fields to update (including resolved people)
-    const hasPeopleUpdates = (resolvedPeople.Gestor_notion_ids?.length ?? 0) > 0 ||
-                             (resolvedPeople.Atendimento_notion_ids?.length ?? 0) > 0;
+    // Check if we have any valid fields to update
+    // - Notion properties (basic fields)
+    // - Notion people updates (if user IDs resolved to Notion IDs)
+    // - Email updates (for Supabase only - when users don't have Notion IDs yet)
+    const hasNotionPeopleUpdates = (resolvedPeople.Gestor_notion_ids?.length ?? 0) > 0 ||
+                                    (resolvedPeople.Atendimento_notion_ids?.length ?? 0) > 0;
+    const hasEmailUpdates = (resolvedPeople.Gestor_emails?.length ?? 0) > 0 ||
+                            (resolvedPeople.Atendimento_emails?.length ?? 0) > 0;
+    const hasNotionUpdates = Object.keys(notionProperties).length > 0;
 
-    if (Object.keys(notionProperties).length === 0 && !hasPeopleUpdates) {
+    if (!hasNotionUpdates && !hasNotionPeopleUpdates && !hasEmailUpdates) {
       return new Response(JSON.stringify({ success: false, error: 'No valid fields to update' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -386,32 +392,36 @@ Deno.serve(async (req) => {
 
     console.log(`[ACCOUNT_UPDATE] Notion properties to update:`, JSON.stringify(notionProperties));
     console.log(`[ACCOUNT_UPDATE] Account notion_id: ${account.notion_id}`);
+    console.log(`[ACCOUNT_UPDATE] Has Notion updates: ${hasNotionUpdates}, Has Notion people: ${hasNotionPeopleUpdates}, Has emails: ${hasEmailUpdates}`);
 
-    // PATCH Notion API
-    const notionResponse = await fetch(`https://api.notion.com/v1/pages/${account.notion_id}`, {
-      method: 'PATCH',
-      headers: {
-        'Authorization': `Bearer ${NOTION_API_KEY}`,
-        'Notion-Version': '2022-06-28',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ properties: notionProperties }),
-    });
-
-    if (!notionResponse.ok) {
-      const errorText = await notionResponse.text();
-      console.error(`[ACCOUNT_UPDATE] Notion API error:`, errorText);
-      return new Response(JSON.stringify({
-        success: false,
-        error: 'Failed to update Notion',
-        details: errorText
-      }), {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    // Only call Notion API if we have properties to update
+    if (hasNotionUpdates || hasNotionPeopleUpdates) {
+      const notionResponse = await fetch(`https://api.notion.com/v1/pages/${account.notion_id}`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${NOTION_API_KEY}`,
+          'Notion-Version': '2022-06-28',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ properties: notionProperties }),
       });
-    }
 
-    console.log(`[ACCOUNT_UPDATE] Notion updated successfully`);
+      if (!notionResponse.ok) {
+        const errorText = await notionResponse.text();
+        console.error(`[ACCOUNT_UPDATE] Notion API error:`, errorText);
+        return new Response(JSON.stringify({
+          success: false,
+          error: 'Failed to update Notion',
+          details: errorText
+        }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      console.log(`[ACCOUNT_UPDATE] Notion updated successfully`);
+    } else {
+      console.log(`[ACCOUNT_UPDATE] Skipping Notion update (no Notion IDs for people fields, emails will be saved to Supabase)`);
+    }
 
     // Build Supabase update (including resolved people emails)
     const supabaseUpdate = buildSupabaseUpdate(updates, resolvedPeople);
@@ -430,12 +440,20 @@ Deno.serve(async (req) => {
       console.log(`[ACCOUNT_UPDATE] Supabase updated successfully`);
     }
 
+    // Build response with detailed info
+    const response: Record<string, any> = {
+      success: true,
+      updated_fields: Object.keys(updates),
+      account_name: account.Conta,
+    };
+
+    // Add warnings if Notion people fields couldn't be updated
+    if (hasEmailUpdates && !hasNotionPeopleUpdates) {
+      response.warning = 'Team fields saved to Supabase but not synced to Notion (users missing notion_user_id). Run sync to populate Notion user IDs.';
+    }
+
     return new Response(
-      JSON.stringify({
-        success: true,
-        updated_fields: Object.keys(updates),
-        account_name: account.Conta,
-      }),
+      JSON.stringify(response),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       }

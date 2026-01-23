@@ -48,13 +48,35 @@ Deno.serve(async (req) => {
   const startTime = Date.now();
   console.log("[WooSync] Starting sync...");
 
+  // Parse request body for optional parameters
+  let backfillDays = 1; // Default: yesterday only
+  let accountFilter: string | null = null;
+
+  try {
+    if (req.method === "POST") {
+      const body = await req.json();
+      // backfill_days: number of days to sync (e.g., 90 for 3 months)
+      if (body.backfill_days && typeof body.backfill_days === "number") {
+        backfillDays = Math.min(body.backfill_days, 365); // Max 1 year
+        console.log(`[WooSync] Backfill mode: ${backfillDays} days`);
+      }
+      // account_id: optional filter to sync only one account
+      if (body.account_id) {
+        accountFilter = body.account_id;
+        console.log(`[WooSync] Filtering to account: ${accountFilter}`);
+      }
+    }
+  } catch {
+    // No body or invalid JSON, use defaults
+  }
+
   const supabase = createClient(
     Deno.env.get("SUPABASE_URL")!,
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
   );
 
   // 1. Fetch accounts with WooCommerce configured (exclude NULL and empty strings)
-  const { data: accounts, error: accountsError } = await supabase
+  let query = supabase
     .from("j_hub_notion_db_accounts")
     .select(
       'id, "Conta", "Woo Site URL", "Woo Consumer Key", "Woo Consumer Secret"'
@@ -65,6 +87,13 @@ Deno.serve(async (req) => {
     .neq("Woo Consumer Key", "")
     .not("Woo Consumer Secret", "is", null)
     .neq("Woo Consumer Secret", "");
+
+  // Optional: filter to specific account
+  if (accountFilter) {
+    query = query.eq("id", accountFilter);
+  }
+
+  const { data: accounts, error: accountsError } = await query;
 
   if (accountsError) {
     console.error("[WooSync] Error fetching accounts:", accountsError.message);
@@ -106,12 +135,12 @@ Deno.serve(async (req) => {
         throw new Error(`Invalid site URL: ${siteUrl}`);
       }
 
-      // 3. Determine sync period (always yesterday)
+      // 3. Determine sync period
       const now = new Date();
       const since = new Date(now);
-      since.setDate(since.getDate() - 1); // Yesterday
+      since.setDate(since.getDate() - backfillDays);
       since.setHours(0, 0, 0, 0); // Start of day
-      console.log(`[WooSync] Syncing orders from ${since.toISOString()}`)
+      console.log(`[WooSync] Syncing orders from ${since.toISOString()} (${backfillDays} days)`)
 
       // 5. Fetch orders from WooCommerce API
       const orders = await fetchWooOrders(account, since);

@@ -34,7 +34,7 @@ interface AccountFormProps {
   onCancel: () => void;
 }
 
-const STATUS_OPTIONS = ["Ativo", "Inativo", "Pausado"];
+const STATUS_OPTIONS = ["Ativo", "Inativo", "Offboarding", "Onboarding"];
 
 const OBJETIVOS_OPTIONS = [
   "Vendas",
