@@ -7,10 +7,13 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.2.0';
+export const APP_VERSION = 'v2.2.1';
 
 /**
  * Version history:
+ * - v2.2.1 (2026-01-23):
+ *   - FIX: Account update allowing report-only field updates (WhatsApp numbers)
+ *
  * - v2.2.0 (2026-01-23):
  *   - MINOR RELEASE: Daily WhatsApp Report System
  *   - FEAT: Automated daily WhatsApp reports with AI-generated insights
