@@ -326,11 +326,11 @@ function transformToBronze(orders: any[], accountId: string): any[] {
   for (const order of orders) {
     const orderDate = order.date_created?.split("T")[0] || order.date_created;
 
-    // Order record (line_item_id = null)
+    // Order record (line_item_id = 0 for order-level records)
     rows.push({
       account_id: accountId,
       order_id: order.id,
-      line_item_id: null,
+      line_item_id: 0,
       order_date: orderDate,
       order_status: order.status,
       order_total: parseFloat(order.total) || 0,
