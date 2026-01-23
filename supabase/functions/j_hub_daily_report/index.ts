@@ -71,7 +71,7 @@ interface DayMetrics {
 
 interface TopProduct {
   name: string;
-  quantity: number;
+  revenue: number;
 }
 
 Deno.serve(async (req) => {
@@ -90,12 +90,14 @@ Deno.serve(async (req) => {
   // Parse optional parameters
   let specificAccountId: string | null = null;
   let testMode = false;
+  let overridePhone: string | null = null;
 
   try {
     if (req.method === "POST") {
       const body = await req.json();
       specificAccountId = body.account_id || null;
       testMode = body.test_mode || false;
+      overridePhone = body.override_phone || null; // Send to specific number instead of configured ones
     }
   } catch {
     // No body or invalid JSON
@@ -195,8 +197,13 @@ Deno.serve(async (req) => {
       const { dataMessage, insightsMessage } = formatWhatsAppMessage(config, todayMetrics, topProducts, insights);
 
       // 6. Send via Evolution API (unless test mode)
-      if (!testMode && config.report_whatsapp_numbers.length > 0) {
-        for (const phone of config.report_whatsapp_numbers) {
+      // If override_phone is provided, send only to that number (useful for testing)
+      const phonesToSend = overridePhone
+        ? [overridePhone]
+        : config.report_whatsapp_numbers;
+
+      if (!testMode && phonesToSend.length > 0) {
+        for (const phone of phonesToSend) {
           // Enviar dados primeiro
           await sendWhatsAppMessage(phone, dataMessage);
           // Delay de 1s para garantir ordem
@@ -209,7 +216,8 @@ Deno.serve(async (req) => {
       results.push({
         account: config.name,
         status: "success",
-        phones_sent: testMode ? 0 : config.report_whatsapp_numbers.length,
+        phones_sent: testMode ? 0 : phonesToSend.length,
+        phones: testMode ? [] : phonesToSend,
         metrics: todayMetrics,
         message_preview: dataMessage.substring(0, 200) + "...",
       });
@@ -507,7 +515,7 @@ async function fetch3MonthAverage(
   return metrics;
 }
 
-// Fetch top 3 products sold on a specific day
+// Fetch top 3 products sold on a specific day (by revenue)
 async function fetchTopProducts(
   supabase: any,
   accountId: string,
@@ -515,28 +523,28 @@ async function fetchTopProducts(
 ): Promise<TopProduct[]> {
   const { data: lineItems } = await supabase
     .from("j_rep_woocommerce_bronze")
-    .select("product_name, quantity")
+    .select("product_name, item_total")
     .eq("account_id", accountId)
     .eq("order_date", date)
-    .not("line_item_id", "is", null) // Only line items, not order records
+    .gt("line_item_id", 0) // Only line items (>0), not order records (=0)
     .in("order_status", ["completed", "processing", "enviado", "shipped", "delivered", "entregue"]);
 
   if (!lineItems || lineItems.length === 0) {
     return [];
   }
 
-  // Aggregate quantities by product name
+  // Aggregate revenue by product name
   const productMap = new Map<string, number>();
   for (const item of lineItems) {
     const name = item.product_name || "Produto desconhecido";
-    const qty = item.quantity || 1;
-    productMap.set(name, (productMap.get(name) || 0) + qty);
+    const revenue = parseFloat(item.item_total) || 0;
+    productMap.set(name, (productMap.get(name) || 0) + revenue);
   }
 
-  // Sort by quantity and get top 3
+  // Sort by revenue and get top 3
   const sorted = Array.from(productMap.entries())
-    .map(([name, quantity]) => ({ name, quantity }))
-    .sort((a, b) => b.quantity - a.quantity)
+    .map(([name, revenue]) => ({ name, revenue }))
+    .sort((a, b) => b.revenue - a.revenue)
     .slice(0, 3);
 
   return sorted;
@@ -638,7 +646,7 @@ function formatWhatsAppMessage(
   if (topProducts.length > 0) {
     msg += `\n\n🏆 TOP 3 PRODUTOS\n`;
     topProducts.forEach((product, index) => {
-      msg += `${index + 1}. ${product.name} (${product.quantity} un)\n`;
+      msg += `${index + 1}. ${product.name} (${formatMoney(product.revenue)})\n`;
     });
     // Remove trailing newline
     msg = msg.trimEnd();

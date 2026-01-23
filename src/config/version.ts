@@ -7,10 +7,15 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.2.5';
+export const APP_VERSION = 'v2.2.6';
 
 /**
  * Version history:
+ * - v2.2.6 (2026-01-23):
+ *   - ADD: ReportDispatchControl component for manual daily report dispatch
+ *   - Features: test mode (no send), phone override, account-specific dispatch
+ *   - Integrated into AccountForm Relatórios tab
+ *
  * - v2.2.5 (2026-01-23):
  *   - ADD: Top 3 products section in daily WhatsApp report
  *   - REFACTOR: New report layout with dedicated sections (Vendas, Top Produtos, Tráfego)

@@ -79,6 +79,27 @@ Deno.serve(async (req) => {
     .eq("date", targetDate)
     .limit(5);
 
+  // Debug: Check line items (products) - this is what fetchTopProducts uses
+  const { data: lineItems, error: lineItemsError } = await supabase
+    .from("j_rep_woocommerce_bronze")
+    .select("order_id, product_name, item_total, line_item_id, order_status")
+    .eq("account_id", account.id)
+    .eq("order_date", targetDate)
+    .gt("line_item_id", 0)
+    .in("order_status", ["completed", "processing", "enviado", "shipped", "delivered", "entregue"]);
+
+  // Aggregate products by revenue like fetchTopProducts does
+  const productMap = new Map<string, number>();
+  for (const item of lineItems || []) {
+    const name = item.product_name || "Produto desconhecido";
+    const revenue = parseFloat(item.item_total) || 0;
+    productMap.set(name, (productMap.get(name) || 0) + revenue);
+  }
+  const topProducts = Array.from(productMap.entries())
+    .map(([name, revenue]) => ({ name, revenue: revenue.toFixed(2) }))
+    .sort((a, b) => parseFloat(b.revenue) - parseFloat(a.revenue))
+    .slice(0, 10); // Top 10 for debugging
+
   return new Response(
     JSON.stringify({
       account: {
@@ -112,6 +133,12 @@ Deno.serve(async (req) => {
         sample: ga4Data?.slice(0, 3),
         error: ga4Error?.message,
       },
+      line_items: {
+        count: lineItems?.length || 0,
+        sample: lineItems?.slice(0, 10),
+        error: lineItemsError?.message,
+      },
+      top_products: topProducts,
     }, null, 2),
     { headers: { ...corsHeaders, "Content-Type": "application/json" } }
   );

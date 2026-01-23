@@ -22,6 +22,7 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { X, Loader2 } from "lucide-react";
 import { WooCommerceSyncControl } from "./WooCommerceSyncControl";
+import { ReportDispatchControl } from "./ReportDispatchControl";
 
 // Staff user for team selection
 interface StaffUser {
@@ -671,6 +672,15 @@ export function AccountForm({ account, onSuccess, onCancel }: AccountFormProps) 
                 Numero: 5511999999999 | Grupo: 123456789@g.us
               </p>
             </div>
+          </div>
+
+          {/* Manual Dispatch Control */}
+          <div className="pt-4 border-t">
+            <h4 className="text-sm font-medium mb-3">Disparo Manual</h4>
+            <ReportDispatchControl
+              accountId={account.id}
+              hasReportEnabled={formData.report_enabled || account.report_enabled}
+            />
           </div>
         </TabsContent>
       </Tabs>
