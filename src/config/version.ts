@@ -7,10 +7,15 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.2.3';
+export const APP_VERSION = 'v2.2.4';
 
 /**
  * Version history:
+ * - v2.2.4 (2026-01-23):
+ *   - ADD: WooCommerce sync control in AccountForm
+ *   - ADD: Chunked backfill support (avoids timeout)
+ *   - ADD: Progress tracking for backfill operations
+ *
  * - v2.2.3 (2026-01-23):
  *   - REFACTOR: New compact WhatsApp report format
  *   - CHANGE: Split report into 2 messages (data + insights separately)

@@ -21,6 +21,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { X, Loader2 } from "lucide-react";
+import { WooCommerceSyncControl } from "./WooCommerceSyncControl";
 
 // Staff user for team selection
 interface StaffUser {
@@ -437,6 +438,19 @@ export function AccountForm({ account, onSuccess, onCancel }: AccountFormProps) 
                 <p className="text-xs text-muted-foreground">
                   Credenciais de API do WooCommerce (REST API)
                 </p>
+              </div>
+
+              {/* Sync Control */}
+              <div className="pt-4 border-t">
+                <h4 className="text-sm font-medium mb-3">Sincronizacao de Dados</h4>
+                <WooCommerceSyncControl
+                  accountId={account.id}
+                  hasWooConfig={Boolean(
+                    account.woo_site_url &&
+                    account.woo_consumer_key &&
+                    account.woo_consumer_secret
+                  )}
+                />
               </div>
             </div>
           </div>

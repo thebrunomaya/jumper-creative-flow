@@ -5,13 +5,24 @@
  *
  * Features:
  * - Multi-tenant: syncs all accounts with WooCommerce configured
- * - Backfill: 3 months on first run, then incremental (2 days overlap)
+ * - Chunked backfill: processes X days per call to avoid timeout
  * - Idempotent: uses UPSERT to avoid duplicates
  * - Stores orders + line items with metadata for future processing
  *
  * Triggered by:
- * - CRON job (daily at 4:00 BRT / 7:00 UTC)
- * - Manual POST request
+ * - CRON job (daily at 4:00 BRT / 7:00 UTC) - syncs yesterday
+ * - Manual POST request with optional backfill parameters
+ *
+ * POST body parameters:
+ * - backfill_days: total days to sync (e.g., 90 for 3 months)
+ * - chunk_days: days per chunk (default 14, to avoid timeout)
+ * - start_date: ISO date to start from (for continuation)
+ * - account_id: optional filter for single account
+ *
+ * Returns:
+ * - completed: boolean - whether all days have been processed
+ * - next_start_date: ISO date - where to continue (if not completed)
+ * - progress: { processed_days, total_days }
  */
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
@@ -50,15 +61,27 @@ Deno.serve(async (req) => {
 
   // Parse request body for optional parameters
   let backfillDays = 1; // Default: yesterday only
+  let chunkDays = 14; // Days per chunk (to avoid timeout)
+  let startDate: string | null = null; // ISO date for continuation
   let accountFilter: string | null = null;
 
   try {
     if (req.method === "POST") {
       const body = await req.json();
-      // backfill_days: number of days to sync (e.g., 90 for 3 months)
+      // backfill_days: total days to sync (e.g., 90 for 3 months)
       if (body.backfill_days && typeof body.backfill_days === "number") {
         backfillDays = Math.min(body.backfill_days, 365); // Max 1 year
-        console.log(`[WooSync] Backfill mode: ${backfillDays} days`);
+        console.log(`[WooSync] Backfill mode: ${backfillDays} days total`);
+      }
+      // chunk_days: days per API call (to avoid timeout)
+      if (body.chunk_days && typeof body.chunk_days === "number") {
+        chunkDays = Math.min(body.chunk_days, 30); // Max 30 days per chunk
+        console.log(`[WooSync] Chunk size: ${chunkDays} days`);
+      }
+      // start_date: where to start syncing from (for continuation)
+      if (body.start_date && typeof body.start_date === "string") {
+        startDate = body.start_date;
+        console.log(`[WooSync] Starting from: ${startDate}`);
       }
       // account_id: optional filter to sync only one account
       if (body.account_id) {
@@ -69,6 +92,45 @@ Deno.serve(async (req) => {
   } catch {
     // No body or invalid JSON, use defaults
   }
+
+  // Calculate the actual range to sync this chunk
+  const now = new Date();
+  const endDate = new Date(now);
+  endDate.setHours(23, 59, 59, 999);
+
+  // Target start date (full backfill)
+  const targetStart = new Date(now);
+  targetStart.setDate(targetStart.getDate() - backfillDays);
+  targetStart.setHours(0, 0, 0, 0);
+
+  // Actual start for this chunk
+  let chunkStart: Date;
+  if (startDate) {
+    chunkStart = new Date(startDate);
+  } else {
+    chunkStart = targetStart;
+  }
+
+  // Chunk end (start + chunk_days, but not beyond today)
+  const chunkEnd = new Date(chunkStart);
+  chunkEnd.setDate(chunkEnd.getDate() + chunkDays);
+  if (chunkEnd > endDate) {
+    chunkEnd.setTime(endDate.getTime());
+  }
+
+  // Calculate if there's more to process after this chunk
+  const isLastChunk = chunkEnd >= endDate;
+  const nextStartDate = isLastChunk ? null : chunkEnd.toISOString().split('T')[0];
+
+  // Calculate progress
+  const totalDays = backfillDays;
+  const processedDaysSoFar = startDate
+    ? Math.round((new Date(startDate).getTime() - targetStart.getTime()) / (1000 * 60 * 60 * 24))
+    : 0;
+  const daysInThisChunk = Math.round((chunkEnd.getTime() - chunkStart.getTime()) / (1000 * 60 * 60 * 24));
+
+  console.log(`[WooSync] Processing chunk: ${chunkStart.toISOString().split('T')[0]} to ${chunkEnd.toISOString().split('T')[0]} (${daysInThisChunk} days)`);
+  console.log(`[WooSync] Progress: ${processedDaysSoFar}/${totalDays} days done, ${isLastChunk ? 'FINAL chunk' : 'more chunks pending'}`)
 
   const supabase = createClient(
     Deno.env.get("SUPABASE_URL")!,
@@ -135,15 +197,9 @@ Deno.serve(async (req) => {
         throw new Error(`Invalid site URL: ${siteUrl}`);
       }
 
-      // 3. Determine sync period
-      const now = new Date();
-      const since = new Date(now);
-      since.setDate(since.getDate() - backfillDays);
-      since.setHours(0, 0, 0, 0); // Start of day
-      console.log(`[WooSync] Syncing orders from ${since.toISOString()} (${backfillDays} days)`)
-
-      // 5. Fetch orders from WooCommerce API
-      const orders = await fetchWooOrders(account, since);
+      // 3. Fetch orders from WooCommerce API for this chunk
+      console.log(`[WooSync] Syncing orders from ${chunkStart.toISOString()} to ${chunkEnd.toISOString()}`);
+      const orders = await fetchWooOrders(account, chunkStart, chunkEnd);
       console.log(`[WooSync] Fetched ${orders.length} orders`);
 
       if (orders.length === 0) {
@@ -161,7 +217,7 @@ Deno.serve(async (req) => {
           account: accountName,
           status: "success",
           orders: 0,
-          rows: 0,
+          order_rows: 0,
         });
         continue;
       }
@@ -270,10 +326,20 @@ Deno.serve(async (req) => {
 
   return new Response(
     JSON.stringify({
-      message: "Sync completed",
+      message: isLastChunk ? "Sync completed" : "Chunk completed, more to process",
       duration_ms: duration,
       accounts_processed: results.length,
       results,
+      // Progress tracking for chunked backfill
+      completed: isLastChunk,
+      next_start_date: nextStartDate,
+      progress: {
+        chunk_start: chunkStart.toISOString().split('T')[0],
+        chunk_end: chunkEnd.toISOString().split('T')[0],
+        days_in_chunk: daysInThisChunk,
+        processed_days: processedDaysSoFar + daysInThisChunk,
+        total_days: totalDays,
+      },
     }),
     {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -285,7 +351,8 @@ Deno.serve(async (req) => {
 
 async function fetchWooOrders(
   account: WooAccount,
-  since: Date
+  since: Date,
+  until?: Date
 ): Promise<any[]> {
   const baseUrl = account["Woo Site URL"].trim().replace(/\/$/, ""); // Remove trailing slash
   const consumerKey = account["Woo Consumer Key"];
@@ -306,6 +373,11 @@ async function fetchWooOrders(
       orderby: "date",
       order: "asc",
     });
+
+    // Add 'before' filter if we have an end date (for chunked processing)
+    if (until) {
+      params.set("before", until.toISOString());
+    }
 
     const url = `${baseUrl}/wp-json/wc/v3/orders?${params}`;
 
