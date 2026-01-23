@@ -1,7 +1,7 @@
 # Architecture - Detalhes Técnicos
 
 > Documentação técnica do Jumper Flow Platform
-> **Atualizado:** 2026-01-22 | **Versão:** v2.1.116
+> **Atualizado:** 2026-01-22 | **Versão:** v2.1.120
 
 ---
 
@@ -187,7 +187,8 @@ interface NotionAccount {
   gestor_email?: string;         // Original emails
   atendimento_email?: string;
   meta_ads_id?: string;
-  id_google_ads?: string;
+  id_google_ads?: string;        // Google Ads account ID (e.g., "701-905-2125")
+  id_google_analytics?: string;  // GA4 property ID (e.g., "291741002")
   contexto_otimizacao?: string;  // Full context for AI
   contexto_transcricao?: string; // Summary for Whisper
   payment_method?: string;       // Boleto, Cartão, etc.
@@ -453,16 +454,31 @@ CREATE TABLE j_hub_deck_versions (
 );
 ```
 
-### Reports Table
+### Reports Tables (Windsor.ai)
 
 #### j_rep_metaads_bronze
-Windsor.ai synchronized data with 40+ metrics:
+Windsor.ai synchronized Meta Ads data with 40+ metrics:
 - IDs: `account_id`, `campaign_id`, `adset_id`, `ad_id`, `creative_id`
 - Spend: `spend`, `impressions`, `reach`, `frequency`
 - Clicks: `clicks`, `link_clicks`
 - Video: `video_p25`, `video_p50`, `video_p75`, `thruplays`
 - Conversions: `purchases`, `revenue`, `leads`, `registrations`
 - Creative: `thumbnail_url`, `thumbnail_storage_url`, `image_url`, `body`, `title`
+
+#### j_rep_googleads_bronze
+Windsor.ai synchronized Google Ads data:
+- IDs: `account_id` (e.g., "701-905-2125"), `campaign_id`, `ad_group_id`
+- Spend: `cost`, `impressions`, `clicks`
+- Conversions: `conversions`, `conversion_value`
+- RLS: Authenticated users can read
+
+#### j_rep_ga4_bronze
+Windsor.ai synchronized Google Analytics 4 data:
+- IDs: `account_id` (GA4 property ID, e.g., "291741002")
+- Dimensions: `source_medium`, `campaign`, `event_name`, `date`
+- Metrics: `sessions`, `users`, `event_count`, `event_value`
+- Note: Multiple events may be marked as conversions (purchase, add_to_cart, etc.)
+- RLS: Authenticated users can read
 
 ---
 
@@ -875,5 +891,5 @@ Aggregates metrics across multiple accounts for admin/staff users.
 ---
 
 **Last Updated:** 2026-01-22
-**Version:** v2.1.116
+**Version:** v2.1.120
 **Maintained by:** Claude Code Assistant

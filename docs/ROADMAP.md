@@ -1,6 +1,6 @@
 # Roadmap - Jumper Flow Platform
 
-> **Atualizado:** 2026-01-22 | **Versão:** v2.1.116
+> **Atualizado:** 2026-01-22 | **Versão:** v2.1.120
 
 ---
 
@@ -12,7 +12,7 @@ Este roadmap consolida todos os próximos passos do Jumper Hub, organizados por 
 
 | Área | Status | Progresso |
 |------|--------|-----------|
-| 🎨 **Dashboards & Criativos** | ✅ Fase 1-3 Completas | 60% |
+| 🎨 **Dashboards & Criativos** | ✅ Fase 1-3 Completas + Multi-Platform | 65% |
 | 🎙️ **Optimization System** | ✅ Produção | 90% |
 | 📊 **Decks System** | ✅ Produção | 85% |
 | 💰 **Alertas de Saldo** | ✅ Produção | 100% |
@@ -31,6 +31,7 @@ Este roadmap consolida todos os próximos passos do Jumper Hub, organizados por 
 | **Fase 1** | Top Criativos nos 12 Dashboards | ✅ 100% |
 | **Fase 2** | Sistema de Thumbnails Permanentes | ✅ 100% |
 | **Fase 3** | Modal de Detalhes do Criativo | ✅ 100% |
+| **Fase 3.5** | Dashboard Unificado Multi-Platform (Meta + Google Ads + GA4) | ✅ 100% |
 
 ### Pendente
 
@@ -300,6 +301,22 @@ Expandir além do Meta Ads para outras plataformas.
 |-----------|----------|
 | [ARCHITECTURE.md](./ARCHITECTURE.md) | Schema, Edge Functions, Patterns |
 | [FUNCTIONS.md](./FUNCTIONS.md) | Funções operacionais do sistema |
+
+---
+
+### Fase 3.5: Dashboard Unificado Multi-Platform ✅ (Completo 2026-01-22)
+
+- GeneralDashboard agora integra dados de Meta Ads, Google Ads e GA4
+- Seletor de fonte: Unified | Meta | Google
+- IDs passados via data chain: `useNotionClients` → `DashboardAccessControl` → `DashboardsDisplay` → `GeneralDashboard`
+- RLS policies adicionadas para `j_rep_googleads_bronze` e `j_rep_ga4_bronze`
+- Métricas unificadas: Investimento Total vs Sessões Totais (todas as fontes)
+
+**Melhorias futuras documentadas:**
+- Filtrar apenas `event_name = 'purchase'` para ROAS real
+- Toggle de tráfego pago vs todas as fontes
+- Breakdown por source/medium
+- Comparativo de períodos
 
 ---
 

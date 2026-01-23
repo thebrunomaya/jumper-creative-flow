@@ -7,10 +7,16 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.119';
+export const APP_VERSION = 'v2.1.120';
 
 /**
  * Version history:
+ * - v2.1.120 (2026-01-22):
+ *   - FIX: GeneralDashboard unified view with Meta Ads + Google Ads + GA4
+ *   - FIX: Add id_google_analytics to data chain for GA4 metrics
+ *   - FIX: Add RLS policies for j_rep_googleads_bronze and j_rep_ga4_bronze tables
+ *   - FIX: GA4 fetchData now uses correct id_google_analytics instead of metaAdsId
+ *
  * - v2.1.119 (2026-01-22):
  *   - FIX: GeneralDashboard now receives id_google_ads for Google Ads metrics
  *   - Pass id_google_ads through Client type, useNotionClients, DashboardAccessControl

@@ -1,6 +1,6 @@
 # Jumper Flow - Claude Configuration
 
-> **Versão:** v2.1.116 | **Atualizado:** 2026-01-22
+> **Versão:** v2.1.120 | **Atualizado:** 2026-01-22
 
 ---
 
@@ -52,7 +52,7 @@ Arquivos temporários do usuário vão em `tmp-user/` (gitignored).
 
 **🎯 OBJETIVO PRINCIPAL:** TORNAR-SE O HUB COMPLETO de gestores de tráfego, gerentes parceiros e clientes finais da Jumper Studio para **democratizar serviços de tráfego pago**.
 
-**📍 Missão Atual:** Sistema de criativos ✅ + Sistema resiliente ✅ + 12 Dashboards ✅ + **Decks System** ✅ + **Optimization System** ✅ + **Gestão de Contas** 🚧
+**📍 Missão Atual:** Sistema de criativos ✅ + Sistema resiliente ✅ + 12 Dashboards ✅ + **Decks System** ✅ + **Optimization System** ✅ + **Dashboards Multi-Platform** ✅ + **Gestão de Contas** 🚧
 
 **🚀 Visão Futura:** Plataforma self-service que reduz trabalho operacional e permite preços mais baixos
 
