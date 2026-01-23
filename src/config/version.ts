@@ -7,10 +7,14 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.121';
+export const APP_VERSION = 'v2.1.122';
 
 /**
  * Version history:
+ * - v2.1.122 (2026-01-23):
+ *   - FIX: WooCommerce UPSERT constraint - replaced functional index with proper UNIQUE constraint
+ *   - Change line_item_id to NOT NULL with default 0 for Supabase PostgREST compatibility
+ *
  * - v2.1.121 (2026-01-23):
  *   - FEAT: WooCommerce integration - sync orders to Supabase bronze table
  *   - NEW: j_rep_woocommerce_bronze table for orders and line items
