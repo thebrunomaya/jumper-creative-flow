@@ -7,10 +7,17 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.2.2';
+export const APP_VERSION = 'v2.2.3';
 
 /**
  * Version history:
+ * - v2.2.3 (2026-01-23):
+ *   - REFACTOR: New compact WhatsApp report format
+ *   - CHANGE: Split report into 2 messages (data + insights separately)
+ *   - CHANGE: Removed per-channel ROAS (unreliable attribution)
+ *   - ADD: Per-channel spend % and CTR metrics
+ *   - CHANGE: Simplified format using | separators
+ *
  * - v2.2.2 (2026-01-23):
  *   - FIX: Daily report labels - "vs anteontem" instead of "vs ontem"
  *   - FIX: Comparison now uses 3-month daily average instead of single week-ago date

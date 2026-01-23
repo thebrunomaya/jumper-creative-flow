@@ -182,16 +182,21 @@ Deno.serve(async (req) => {
         fetch3MonthAverage(supabase, config, threeMonthsAgoStr, dayBeforeStr),
       ]);
 
-      // 4. Generate AI insights
+      // 4. Generate AI insights (uses historical data for context)
       const insights = await generateInsights(config, todayMetrics, dayBeforeMetrics, avgMetrics);
 
-      // 5. Format WhatsApp message
-      const message = formatWhatsAppMessage(config, todayMetrics, dayBeforeMetrics, avgMetrics, insights);
+      // 5. Format WhatsApp messages (2 separate messages)
+      const { dataMessage, insightsMessage } = formatWhatsAppMessage(config, todayMetrics, insights);
 
       // 6. Send via Evolution API (unless test mode)
       if (!testMode && config.report_whatsapp_numbers.length > 0) {
         for (const phone of config.report_whatsapp_numbers) {
-          await sendWhatsAppMessage(phone, message);
+          // Enviar dados primeiro
+          await sendWhatsAppMessage(phone, dataMessage);
+          // Delay de 1s para garantir ordem
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          // Enviar insights
+          await sendWhatsAppMessage(phone, insightsMessage);
         }
       }
 
@@ -200,7 +205,7 @@ Deno.serve(async (req) => {
         status: "success",
         phones_sent: testMode ? 0 : config.report_whatsapp_numbers.length,
         metrics: todayMetrics,
-        message_preview: message.substring(0, 200) + "...",
+        message_preview: dataMessage.substring(0, 200) + "...",
       });
 
       console.log(`[DailyReport] ${config.name}: Report sent to ${config.report_whatsapp_numbers.length} numbers`);
@@ -566,89 +571,71 @@ Responda APENAS com os insights, sem introdução ou conclusão.`;
   }
 }
 
-// Format WhatsApp message
+// Format WhatsApp messages (returns 2 separate messages)
 function formatWhatsAppMessage(
   config: AccountConfig,
   today: DayMetrics,
-  dayBefore: DayMetrics,
-  avg3Month: DayMetrics,
   insights: string
-): string {
-  // Calculate variations
-  const salesVsDayBefore = dayBefore.woo_sales > 0
-    ? ((today.woo_sales - dayBefore.woo_sales) / dayBefore.woo_sales) * 100
-    : 0;
-  const salesVsAvg = avg3Month.woo_sales > 0
-    ? ((today.woo_sales - avg3Month.woo_sales) / avg3Month.woo_sales) * 100
-    : 0;
-  const roasVsDayBefore = today.roas - dayBefore.roas;
+): { dataMessage: string; insightsMessage: string } {
+  const formatMoney = (n: number) =>
+    `R$ ${n.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
-  // Meta progress
-  const metaProgress = config.report_daily_target
-    ? (today.woo_sales / config.report_daily_target) * 100
-    : null;
+  // === MENSAGEM 1: DADOS ===
+  let msg = `🏃‍♀️ ${config.name.toUpperCase()}:\n\n`;
 
-  // Alerts
+  // Linha 1: Vendas + Meta
+  msg += `Vendas: ${formatMoney(today.woo_sales)}`;
+  if (config.report_daily_target) {
+    const pct = (today.woo_sales / config.report_daily_target) * 100;
+    msg += ` | Meta: ${formatMoney(config.report_daily_target)} (${pct.toFixed(2)}% da meta)`;
+  }
+  msg += `\n`;
+
+  // Linha 2: Investimento + ROAS
+  msg += `Investimento: ${formatMoney(today.total_spend)} | ROAS: ${today.roas.toFixed(2)}x\n`;
+
+  // Linha 3: Conversão + Ticket
+  msg += `Taxa Conversão: ${today.conversion_rate.toFixed(2)}% | Ticket Médio: ${formatMoney(today.woo_avg_ticket)}\n`;
+
+  // Linha 4: Custo/Sessão + Sessões + CPA
+  msg += `Custo/Sessão: ${formatMoney(today.cost_per_session)} | Sessões: ${today.ga4_sessions.toLocaleString("pt-BR")} | CPA: ${formatMoney(today.cpa)}`;
+
+  // Canal breakdown: % investimento + CTR
+  if (today.meta_spend > 0 || today.google_spend > 0) {
+    msg += `\n\n`;
+    if (today.meta_spend > 0) {
+      const metaPct = today.total_spend > 0 ? (today.meta_spend / today.total_spend) * 100 : 0;
+      const metaCtr = today.meta_impressions > 0 ? (today.meta_clicks / today.meta_impressions) * 100 : 0;
+      msg += `📊 Meta: ${formatMoney(today.meta_spend)} (${metaPct.toFixed(0)}%) | CTR: ${metaCtr.toFixed(2)}%`;
+    }
+    if (today.google_spend > 0) {
+      if (today.meta_spend > 0) msg += `\n`;
+      const googlePct = today.total_spend > 0 ? (today.google_spend / today.total_spend) * 100 : 0;
+      const googleCtr = today.google_impressions > 0 ? (today.google_clicks / today.google_impressions) * 100 : 0;
+      msg += `📊 Google: ${formatMoney(today.google_spend)} (${googlePct.toFixed(0)}%) | CTR: ${googleCtr.toFixed(2)}%`;
+    }
+  }
+
+  // Alertas
   const alerts: string[] = [];
   if (config.report_roas_target && today.roas < config.report_roas_target) {
     alerts.push(`ROAS ${today.roas.toFixed(2)}x abaixo da meta (${config.report_roas_target}x)`);
   }
   if (config.report_cpa_max && today.cpa > config.report_cpa_max) {
-    alerts.push(`CPA R$ ${today.cpa.toFixed(2)} acima do limite (R$ ${config.report_cpa_max})`);
+    alerts.push(`CPA ${formatMoney(today.cpa)} acima do limite (${formatMoney(config.report_cpa_max)})`);
   }
   if (config.report_conv_min && today.conversion_rate < config.report_conv_min) {
     alerts.push(`Conversão ${today.conversion_rate.toFixed(2)}% abaixo do mínimo (${config.report_conv_min}%)`);
   }
 
-  // Format numbers
-  const formatMoney = (n: number) => `R$ ${n.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-  const formatPercent = (n: number) => `${n >= 0 ? "+" : ""}${n.toFixed(1)}%`;
-  const formatArrow = (n: number) => n >= 0 ? "↑" : "↓";
-
-  // Build message
-  let msg = `📊 *${config.name.toUpperCase()}* | ${today.date}\n\n`;
-
-  // Sales section
-  msg += `💰 *VENDAS*\n`;
-  msg += `${formatMoney(today.woo_sales)} (${formatArrow(salesVsDayBefore)}${Math.abs(salesVsDayBefore).toFixed(0)}% vs anteontem | ${formatArrow(salesVsAvg)}${Math.abs(salesVsAvg).toFixed(0)}% vs média 3m)\n`;
-  if (metaProgress !== null) {
-    const emoji = metaProgress >= 100 ? "✅" : metaProgress >= 80 ? "🟡" : "🔴";
-    msg += `Meta: ${formatMoney(config.report_daily_target!)} → ${metaProgress.toFixed(1)}% ${emoji}\n`;
-  }
-  msg += `\n`;
-
-  // Performance section
-  msg += `📈 *PERFORMANCE*\n`;
-  msg += `ROAS: ${today.roas.toFixed(2)}x (${roasVsDayBefore >= 0 ? "+" : ""}${roasVsDayBefore.toFixed(2)} vs anteontem)\n`;
-  msg += `CPA: ${formatMoney(today.cpa)} | Conv: ${today.conversion_rate.toFixed(2)}%\n`;
-  msg += `Ticket: ${formatMoney(today.woo_avg_ticket)} | Sessões: ${today.ga4_sessions.toLocaleString("pt-BR")}\n\n`;
-
-  // Channel breakdown
-  if (today.meta_spend > 0 || today.google_spend > 0) {
-    msg += `🎯 *POR CANAL*\n`;
-    if (today.meta_spend > 0) {
-      const metaRoas = today.meta_spend > 0 ? (today.meta_revenue / today.meta_spend).toFixed(2) : "0";
-      msg += `Meta: ${formatMoney(today.meta_spend)} → ROAS ${metaRoas}x\n`;
-    }
-    if (today.google_spend > 0) {
-      const googleRoas = today.google_spend > 0 ? (today.google_revenue / today.google_spend).toFixed(2) : "0";
-      msg += `Google: ${formatMoney(today.google_spend)} → ROAS ${googleRoas}x\n`;
-    }
-    msg += `\n`;
-  }
-
-  // Alerts
   if (alerts.length > 0) {
-    msg += `⚠️ *ALERTAS*\n`;
-    alerts.forEach(a => msg += `• ${a}\n`);
-    msg += `\n`;
+    msg += `\n\n⚠️ ${alerts.join("\n⚠️ ")}`;
   }
 
-  // AI Insights
-  msg += `💡 *INSIGHTS*\n`;
-  msg += insights;
+  // === MENSAGEM 2: INSIGHTS ===
+  const insightsMsg = `💡 INSIGHTS ${config.name.toUpperCase()}:\n\n${insights}`;
 
-  return msg;
+  return { dataMessage: msg, insightsMessage: insightsMsg };
 }
 
 // Send WhatsApp message via Evolution API
