@@ -1,6 +1,6 @@
 # Jumper Flow - Claude Configuration
 
-> **Versão:** v2.1.120 | **Atualizado:** 2026-01-22
+> **Versão:** v2.2.6 | **Atualizado:** 2026-01-23
 
 ---
 
@@ -225,5 +225,5 @@ Este é um **PRODUTO ESTRATÉGICO** que vai:
 
 ---
 
-**Last Updated:** 2026-01-22
+**Last Updated:** 2026-01-23
 **Maintained by:** Claude Code Assistant

@@ -3,62 +3,66 @@
 # Tracks recent decisions and work-in-progress (last 7 days)
 # Older decisions migrate to docs/ARCHITECTURE.md
 
-last_updated: "2026-01-23T00:30:00Z"
+last_updated: "2026-01-23T22:00:00Z"
 session_computer: "MacBook Pro"
 session_user: "Bruno Maya"
 
 # Recent decisions (last 7 days)
 recent_decisions:
+  - date: "2026-01-23"
+    decision: "WooCommerce Integration + Daily Report System"
+    status: "complete"
+    details: |
+      ## SESSAO 2026-01-23: WOOCOMMERCE + DAILY REPORTS
+
+      ### WooCommerce Integration (20 commits):
+      1. Criacao das tabelas j_rep_woocommerce_bronze e j_hub_woocommerce_sync_status
+      2. Edge Function j_hub_woocommerce_sync com:
+         - Backfill em chunks (14 dias/chunk) para evitar timeout
+         - Multi-tenant support
+         - Status suportados: completed, processing, enviado, shipped, delivered, entregue
+      3. CRON job 4:00 BRT para sync diario
+      4. UI: WooCommerceSyncControl component na aba Plataformas
+      5. Campos: Woo Site URL, Consumer Key, Consumer Secret
+
+      ### Daily Report System:
+      1. Edge Function j_hub_daily_report com:
+         - Agregacao WooCommerce + Meta Ads + Google Ads + GA4
+         - Geracao de insights via Claude AI (Haiku)
+         - Envio via Evolution API (WhatsApp)
+      2. CRON job 8:00 BRT para disparo automatico
+      3. Formato: 2 mensagens separadas (dados + insights)
+      4. Top 3 produtos por faturamento
+      5. Alertas configuráveis (ROAS, CPA, Conversao)
+      6. UI: Aba "Relatorios" no AccountForm
+      7. ReportDispatchControl com modo teste e override de numero
+
+      ### Fixes durante implementacao:
+      - line_item_id = 0 para order records, > 0 para line items
+      - item_total para faturamento (nao quantity)
+      - Google Ads column names (spend, conversions_value)
+      - WooCommerce status filtering
+      - Evolution API auth
+      - Account update validation
+
+    impact: "MAJOR - Sistema completo de e-commerce + relatorios automatizados"
+    files_changed:
+      - "supabase/migrations/20260123000000_create_woocommerce_tables.sql"
+      - "supabase/functions/j_hub_woocommerce_sync/index.ts"
+      - "supabase/functions/j_hub_daily_report/index.ts"
+      - "src/components/admin/AccountForm.tsx"
+      - "src/components/admin/WooCommerceSyncControl.tsx"
+      - "src/components/admin/ReportDispatchControl.tsx"
+    deployed: true
+    deployment_status: "Frontend deployed, Edge Functions deployed"
+
   - date: "2026-01-22"
     decision: "Dashboard Unificado Multi-Platform (Meta + Google Ads + GA4)"
     status: "complete"
     details: |
-      ## SESSAO 2026-01-22: DASHBOARD UNIFICADO COM GOOGLE ADS + GA4
-
-      ### Problema Inicial:
-      - GeneralDashboard nao puxava metricas Google Ads nem GA4
-      - IDs (id_google_ads, id_google_analytics) nao passavam pelo data chain
-
-      ### Correcoes:
-      1. **Data Chain Fix**: Adicionado id_google_ads e id_google_analytics em:
-         - src/types/creative.ts (Client interface)
-         - src/hooks/useNotionData.ts (useNotionClients hook)
-         - src/components/dashboards/DashboardAccessControl.tsx
-         - src/components/dashboards/DashboardsDisplay.tsx
-
-      2. **RLS Policies**: Criada migration para tabelas Windsor.ai
-         - j_rep_googleads_bronze - SELECT para authenticated
-         - j_rep_ga4_bronze - SELECT para authenticated
-
-      3. **GA4 Query Fix**: fetchGA4Data usava metaAdsId ao inves de id_google_analytics
-
-      ### IDs da Conta Boiler (exemplo):
-      - Meta Ads: 4167919386824961
-      - Google Ads: 701-905-2125
-      - GA4 Property: 291741002
-
-      ### Auditoria GA4:
-      - GA4 registra multiplos eventos como conversao (~3.3 por sessao)
-      - event_value inflacionado (todos os eventos, nao apenas purchases)
-      - Sessoes incluem todas as fontes (pago + organico + direto)
-      - ROAS calculado incorretamente (precisa filtrar event_name='purchase')
-
-      ### Melhorias Futuras (documentadas no Notion do usuario):
-      - Filtrar apenas purchases para ROAS real
-      - Toggle trafego pago vs todas as fontes
-      - Breakdown por source/medium
-      - Comparativo de periodos
-
-    impact: "MAJOR - Dashboard unificado com dados de 3 plataformas"
-    files_changed:
-      - "src/types/creative.ts"
-      - "src/hooks/useNotionData.ts"
-      - "src/components/dashboards/DashboardAccessControl.tsx"
-      - "src/components/dashboards/DashboardsDisplay.tsx"
-      - "src/components/dashboards/GeneralDashboard.tsx"
-      - "supabase/migrations/20260122235000_add_rls_to_google_bronze_tables.sql"
+      GeneralDashboard integra dados de 3 plataformas via data chain
+    impact: "MAJOR"
     deployed: true
-    deployment_status: "Migration applied, frontend pushed"
 
   - date: "2026-01-22"
     decision: "Account & Manager Management Interfaces (Fases 1-3)"
@@ -66,16 +70,6 @@ recent_decisions:
     details: |
       Interface de gestao com sync bidirecional Notion
     impact: "MAJOR"
-    deployed: true
-
-  - date: "2026-01-21"
-    decision: "Dashboards Integrados V2 - Cross-Platform Analytics"
-    status: "complete"
-    details: |
-      Views SQL criadas para Meta + GA4
-      Dashboards V2 em /dashboards-v2
-      GeneralDashboard com seletor de fonte
-    impact: "MAJOR - Nova arquitetura de dashboards cross-platform"
     deployed: true
 
 # Current issues being worked on
@@ -89,38 +83,36 @@ work_in_progress:
 
 # Context for next session
 next_session_context: |
-  ## SESSAO ANTERIOR: DASHBOARD UNIFICADO MULTI-PLATFORM
+  ## SESSAO ANTERIOR: WOOCOMMERCE + DAILY REPORTS (2026-01-23)
 
-  ### O QUE FOI FEITO:
-  - Fix data chain para passar id_google_ads e id_google_analytics
-  - RLS policies para j_rep_googleads_bronze e j_rep_ga4_bronze
-  - Fix fetchGA4Data para usar id correto
-  - Auditoria de dados GA4 (multiplas conversoes por sessao)
+  ### O QUE FOI FEITO (20 commits):
+  - WooCommerce Integration completa (sync, backfill, UI)
+  - Daily Report System com AI insights
+  - Top 3 produtos por faturamento
+  - Disparo manual com modo teste
 
-  ### MELHORIAS DOCUMENTADAS (usuario copiou pro Notion):
-  1. Filtrar apenas event_name='purchase' para ROAS real
-  2. Toggle trafego pago vs todas as fontes
-  3. Breakdown por source/medium
-  4. Comparativo de periodos
-  5. Metricas de engajamento (bounce rate, tempo pagina)
+  ### ARQUITETURA:
+  - j_rep_woocommerce_bronze: pedidos + line items (line_item_id = 0 para pedido)
+  - j_hub_daily_report: agrega WooCommerce + Meta + Google + GA4
+  - Evolution API para WhatsApp
+  - Claude Haiku para insights
 
-  ### ARQUITETURA ATUAL:
-  GeneralDashboard recebe via props:
-  - accountInfo.metaAdsId -> j_rep_metaads_bronze
-  - accountInfo.id_google_ads -> j_rep_googleads_bronze
-  - accountInfo.id_google_analytics -> j_rep_ga4_bronze
+  ### DOCUMENTACAO ATUALIZADA:
+  - docs/ARCHITECTURE.md - Secoes WooCommerce e Daily Report
+  - docs/ROADMAP.md - Status atualizado
+  - CLAUDE.md - Versao v2.2.6
 
 # TODOs pending
 pending_todos:
-  - "Implementar filtro purchases para ROAS real"
-  - "Toggle trafego pago"
+  - "Filtrar purchases para ROAS real no GA4"
+  - "Toggle trafego pago vs todas as fontes"
   - "Fase 4: Validar Gestao de Contas com equipe"
 
 # Deployment status
 deployment:
   production_url: "https://flow.jumper.studio"
-  current_version: "v2.1.120"
-  last_deploy: "2026-01-23T00:30:00Z"
-  last_deploy_status: "Dashboard Multi-Platform fixes deployed"
+  current_version: "v2.2.6"
+  last_deploy: "2026-01-23T22:00:00Z"
+  last_deploy_status: "WooCommerce + Daily Reports deployed"
   database_status: "STABLE"
   known_issues: "GA4 ROAS inflacionado (precisa filtrar purchases)"

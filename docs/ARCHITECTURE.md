@@ -1,7 +1,7 @@
 # Architecture - Detalhes Técnicos
 
 > Documentação técnica do Jumper Flow Platform
-> **Atualizado:** 2026-01-22 | **Versão:** v2.1.120
+> **Atualizado:** 2026-01-23 | **Versão:** v2.2.6
 
 ---
 
@@ -22,6 +22,8 @@
 13. [Decks System](#-decks-system)
 14. [Top Creatives System](#-top-creatives-system)
 15. [Dashboards System](#-dashboards-system)
+16. [WooCommerce Integration](#-woocommerce-integration)
+17. [Daily Report System](#-daily-report-system)
 
 ---
 
@@ -882,6 +884,164 @@ Aggregates metrics across multiple accounts for admin/staff users.
 
 ---
 
+## 🛒 WooCommerce Integration
+
+> **Added:** 2026-01-23 | **Status:** Production
+
+### Overview
+
+Integração com WooCommerce para sincronizar dados de e-commerce (pedidos, produtos, clientes).
+
+### Tables
+
+#### j_rep_woocommerce_bronze
+```sql
+CREATE TABLE j_rep_woocommerce_bronze (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  account_id UUID NOT NULL,              -- FK to j_hub_notion_db_accounts(id)
+  order_id BIGINT NOT NULL,
+  line_item_id BIGINT NOT NULL DEFAULT 0, -- 0 = order record, >0 = line item
+  order_date DATE NOT NULL,
+  order_status TEXT NOT NULL,
+  order_total NUMERIC(12,2),
+  customer_id BIGINT,
+  customer_email TEXT,
+  payment_method TEXT,
+  product_id BIGINT,
+  product_name TEXT,
+  product_sku TEXT,
+  quantity INTEGER,
+  item_total NUMERIC(12,2),
+  meta_data JSONB DEFAULT '{}',
+  synced_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- Unique index for UPSERT
+CREATE UNIQUE INDEX idx_woo_bronze_upsert
+  ON j_rep_woocommerce_bronze(account_id, order_id, line_item_id);
+```
+
+#### j_hub_woocommerce_sync_status
+```sql
+CREATE TABLE j_hub_woocommerce_sync_status (
+  account_id UUID PRIMARY KEY REFERENCES j_hub_notion_db_accounts(id),
+  last_sync_at TIMESTAMPTZ,
+  last_sync_status TEXT,  -- 'success', 'error'
+  last_sync_orders_count INTEGER,
+  last_error_message TEXT
+);
+```
+
+### Edge Function: j_hub_woocommerce_sync
+
+Sincroniza dados do WooCommerce para o Supabase.
+
+**Parameters:**
+- `account_id` - UUID da conta (opcional, sincroniza todas se omitido)
+- `backfill_days` - Dias para backfill (default: 2)
+- `chunk_days` - Dias por chunk para evitar timeout (default: 14)
+- `start_date` - Data inicial para continuação de backfill
+
+**Supported Statuses:**
+- `completed`, `processing`, `enviado`, `shipped`, `delivered`, `entregue`
+
+### UI Component: WooCommerceSyncControl
+
+Painel de controle na aba Plataformas do AccountForm:
+- **Sync Now** - Sincroniza últimas 24h
+- **Backfill** - Sincroniza N dias com progresso em chunks
+- Status do último sync
+
+### Account Configuration
+
+Campos em `j_hub_notion_db_accounts`:
+- `Woo Site URL` - Base URL da loja (ex: https://boiler.fit)
+- `Woo Consumer Key` - Consumer Key da API REST
+- `Woo Consumer Secret` - Consumer Secret da API REST
+
+---
+
+## 📱 Daily Report System
+
+> **Added:** 2026-01-23 | **Status:** Production
+
+### Overview
+
+Sistema de relatórios diários automatizados via WhatsApp com insights de AI.
+
+### Edge Function: j_hub_daily_report
+
+**CRON:** 8:00 BRT (11:00 UTC)
+
+**Data Sources:**
+- WooCommerce (j_rep_woocommerce_bronze) - Vendas, pedidos, produtos
+- Meta Ads (j_rep_metaads_bronze) - Investimento, impressões, cliques
+- Google Ads (j_rep_googleads_bronze) - Investimento, impressões, cliques
+- GA4 (j_rep_ga4_bronze) - Sessões
+
+**Parameters:**
+- `account_id` - UUID da conta (opcional, processa todas se omitido)
+- `test_mode` - Se true, gera relatório mas não envia WhatsApp
+- `override_phone` - Número para envio de teste
+
+### Message Format
+
+**Mensagem 1 - Dados:**
+```
+🏃‍♀️ BOILER:
+
+💰 VENDAS
+6 pedidos | Ticket: R$ 271,38 | CPA: R$ 97,27
+Faturamento: R$ 1.628,26 | Meta: R$ 5.000,00 (33%)
+
+🏆 TOP 3 PRODUTOS
+1. Whey Protein (R$ 523,40)
+2. Creatina (R$ 312,00)
+3. BCAA (R$ 189,90)
+
+📊 TRÁFEGO
+Investimento: R$ 583,59 | ROAS: 2.79x
+Sessões: 694 | Conv: 0.86% | Custo/Sessão: R$ 0.84
+
+📊 Meta: R$ 173,91 (30%) | CTR: 2.73%
+📊 Google: R$ 410,21 (70%) | CTR: 1.90%
+
+⚠️ ROAS 2.79x abaixo da meta (3.5x)
+```
+
+**Mensagem 2 - Insights:**
+```
+💡 INSIGHTS BOILER:
+
+• CPA de R$ 97 está alto - considere pausar anúncios com CTR < 1%
+• Ticket médio subiu 15% - oportunidade para upsell
+• Taxa de conversão abaixo do esperado - revisar checkout
+```
+
+### Account Configuration
+
+Campos em `j_hub_notion_db_accounts`:
+- `report_enabled` - Boolean para ativar relatórios
+- `report_roas_target` - ROAS alvo (ex: 3.5)
+- `report_cpa_max` - CPA máximo (ex: 80)
+- `report_conv_min` - Conversão mínima % (ex: 1.5)
+- `report_daily_target` - Meta diária R$ (ex: 5000)
+- `report_whatsapp_numbers` - Array de números/grupos
+
+### UI Component: ReportDispatchControl
+
+Painel de controle na aba Relatórios do AccountForm:
+- **Modo Teste** - Gera relatório sem enviar
+- **Override Número** - Enviar para número diferente
+- **Disparar Agora** - Executa relatório manualmente
+
+### Dependencies
+
+- **Evolution API** - Envio de mensagens WhatsApp
+- **Anthropic API** - Geração de insights (Claude Haiku)
+
+---
+
 ## 📚 Related Documentation
 
 - **[CLAUDE.md](../CLAUDE.md)** - Project overview and setup
@@ -890,6 +1050,6 @@ Aggregates metrics across multiple accounts for admin/staff users.
 
 ---
 
-**Last Updated:** 2026-01-22
-**Version:** v2.1.120
+**Last Updated:** 2026-01-23
+**Version:** v2.2.6
 **Maintained by:** Claude Code Assistant

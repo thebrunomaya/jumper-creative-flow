@@ -1,6 +1,6 @@
 # Roadmap - Jumper Flow Platform
 
-> **Atualizado:** 2026-01-22 | **Versão:** v2.1.120
+> **Atualizado:** 2026-01-23 | **Versão:** v2.2.6
 
 ---
 
@@ -16,7 +16,9 @@ Este roadmap consolida todos os próximos passos do Jumper Hub, organizados por 
 | 🎙️ **Optimization System** | ✅ Produção | 90% |
 | 📊 **Decks System** | ✅ Produção | 85% |
 | 💰 **Alertas de Saldo** | ✅ Produção | 100% |
-| 🏢 **Gestão de Contas** | 🚧 Em Desenvolvimento | 20% |
+| 🏢 **Gestão de Contas** | ✅ Fases 0-3 Completas | 80% |
+| 🛒 **WooCommerce Integration** | ✅ Produção | 100% |
+| 📱 **Daily Report System** | ✅ Produção | 100% |
 | 🔐 **Self-Service** | 🔜 Planejamento | 0% |
 | 🌐 **Multi-Plataforma** | 🔜 Futuro | 0% |
 
@@ -134,6 +136,68 @@ GROUP BY creative_id, account_id;
 
 ---
 
+## 🛒 WooCommerce Integration ✅
+
+> **Completo:** 2026-01-23
+
+### Implementado
+
+- [x] Tabela `j_rep_woocommerce_bronze` para pedidos e line items
+- [x] Tabela `j_hub_woocommerce_sync_status` para tracking
+- [x] Edge Function `j_hub_woocommerce_sync` (multi-tenant)
+- [x] Backfill com chunks para evitar timeout
+- [x] CRON job 4:00 BRT para sync diário
+- [x] Campos WooCommerce na UI (Site URL, Consumer Key/Secret)
+- [x] WooCommerceSyncControl component com backfill visual
+
+### Arquitetura
+
+```
+WooCommerce Store → REST API → j_hub_woocommerce_sync → j_rep_woocommerce_bronze
+                                       ↓
+                               j_hub_woocommerce_sync_status
+```
+
+### Status Suportados
+
+- `completed`, `processing`, `enviado`, `shipped`, `delivered`, `entregue`
+
+---
+
+## 📱 Daily Report System ✅
+
+> **Completo:** 2026-01-23
+
+### Implementado
+
+- [x] Edge Function `j_hub_daily_report` com AI insights
+- [x] Agregação multi-plataforma (WooCommerce + Meta + Google + GA4)
+- [x] CRON job 8:00 BRT para disparo automático
+- [x] Integração Evolution API para WhatsApp
+- [x] Geração de insights via Claude (Haiku)
+- [x] Campos de configuração na conta (metas, números WhatsApp)
+- [x] Aba "Relatórios" no AccountForm
+- [x] ReportDispatchControl para disparo manual
+- [x] Modo teste e override de número
+- [x] Top 3 produtos por faturamento
+
+### Formato do Relatório
+
+**2 mensagens separadas:**
+1. **Dados** - Vendas, Top Produtos, Tráfego, Alertas
+2. **Insights** - Análise AI com recomendações
+
+### Métricas Calculadas
+
+| Métrica | Fórmula |
+|---------|---------|
+| ROAS | woo_sales / total_spend |
+| CPA | total_spend / woo_orders |
+| Conversão | (woo_orders / ga4_sessions) * 100 |
+| Custo/Sessão | total_spend / ga4_sessions |
+
+---
+
 ## 🏢 Gestão de Contas (Remover Notion)
 
 ### Visão
@@ -163,6 +227,7 @@ Criar interface de gestão de contas no Flow com sync bidirecional para o Notion
 | **Fase 1** | Edge Function `j_hub_account_update` (write-back Notion) | ✅ Completo |
 | **Fase 2** | Interface `/admin/accounts` para gestão | ✅ Completo |
 | **Fase 3** | Interface `/admin/managers` para gerentes | ✅ Completo |
+| **Fase 3.5** | Edição de Gestor/Atendimento via user dropdown | ✅ Completo |
 | **Fase 4** | Validação com equipe | 🔜 Próximo |
 | **Fase 5** | Remover sync Notion (Supabase = source of truth) | 🔜 Futuro |
 
@@ -201,15 +266,16 @@ Migração das tabelas de optimization de TEXT notion_id para UUID:
 
 **Criado:**
 - `src/pages/admin/AccountManagement.tsx` - Lista + filtros + formulário
-- `src/components/admin/AccountForm.tsx` - Formulário com 5 abas
+- `src/components/admin/AccountForm.tsx` - Formulário com 6 abas
 - `src/hooks/useAccountUpdate.ts` - Hook para PATCH
 
 **Campos editáveis:**
 - Básico: Conta, Status, Tier, Objetivos, Nicho
-- Equipe: Gestor, Atendimento
-- Plataformas: ID Meta Ads, ID Google Ads, ID TikTok Ads, ID GA4
+- Equipe: Gestor, Atendimento (via user dropdown)
+- Plataformas: ID Meta Ads, ID Google Ads, ID TikTok Ads, ID GA4, WooCommerce
 - AI Context: Contexto para Otimização, Contexto para Transcrição
 - Financeiro: Método de Pagamento, Verba Mensal Meta/Google
+- Relatórios: Metas (ROAS, CPA, Conversão), Números WhatsApp, Disparo Manual
 
 ### Fase 3: Interface de Gerentes ✅ (Completo 2026-01-22)
 
@@ -274,6 +340,8 @@ Expandir além do Meta Ads para outras plataformas.
 
 - [x] Migração UUID para optimization tables ✅
 - [x] Interface de Gestão de Contas (Fases 1-3) ✅
+- [x] WooCommerce Integration ✅
+- [x] Daily Report System ✅
 - [ ] Novos templates de Deck
 - [ ] Dashboard de Criativos
 
@@ -281,13 +349,13 @@ Expandir além do Meta Ads para outras plataformas.
 
 - [ ] Views SQL para performance
 - [ ] Export PDF de Decks
-- [ ] Integração Google Ads
 - [ ] Dashboard de Saldos
 - [ ] Validação Gestão de Contas com equipe (Fase 4)
+- [ ] Filtrar purchases para ROAS real no GA4
 
 ### Baixa Prioridade
 
-- [ ] Sistema de Insights
+- [ ] Sistema de Insights automatizados
 - [ ] Editor visual de Decks
 - [ ] RLS (Row Level Security)
 - [ ] Batch processing de áudios
@@ -320,4 +388,4 @@ Expandir além do Meta Ads para outras plataformas.
 
 ---
 
-**Última atualização:** 2026-01-22
+**Última atualização:** 2026-01-23
