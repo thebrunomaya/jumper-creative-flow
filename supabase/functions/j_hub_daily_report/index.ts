@@ -262,7 +262,9 @@ async function fetchDayMetrics(
     cost_per_session: 0,
   };
 
-  // WooCommerce sales
+  // WooCommerce sales - include all "paid/shipped" statuses
+  // Common WooCommerce statuses: completed, processing, on-hold, pending, cancelled, refunded, failed
+  // Custom statuses often used: enviado, shipped, delivered, entregue
   if (config.woo_site_url) {
     const { data: wooData } = await supabase
       .from("j_rep_woocommerce_bronze")
@@ -270,7 +272,7 @@ async function fetchDayMetrics(
       .eq("account_id", config.id)
       .eq("order_date", date)
       .eq("line_item_id", 0) // Order-level records only
-      .in("order_status", ["completed", "processing"]);
+      .in("order_status", ["completed", "processing", "enviado", "shipped", "delivered", "entregue"]);
 
     if (wooData && wooData.length > 0) {
       metrics.woo_sales = wooData.reduce((sum: number, r: any) => sum + (parseFloat(r.order_total) || 0), 0);
@@ -300,16 +302,16 @@ async function fetchDayMetrics(
   if (config.id_google_ads) {
     const { data: googleData } = await supabase
       .from("j_rep_googleads_bronze")
-      .select("cost, impressions, clicks, conversions, conversion_value")
+      .select("spend, impressions, clicks, conversions, conversions_value")
       .eq("account_id", config.id_google_ads)
       .eq("date", date);
 
     if (googleData && googleData.length > 0) {
-      metrics.google_spend = googleData.reduce((sum: number, r: any) => sum + (parseFloat(r.cost) || 0), 0);
+      metrics.google_spend = googleData.reduce((sum: number, r: any) => sum + (parseFloat(r.spend) || 0), 0);
       metrics.google_impressions = googleData.reduce((sum: number, r: any) => sum + (r.impressions || 0), 0);
       metrics.google_clicks = googleData.reduce((sum: number, r: any) => sum + (r.clicks || 0), 0);
       metrics.google_conversions = googleData.reduce((sum: number, r: any) => sum + (r.conversions || 0), 0);
-      metrics.google_revenue = googleData.reduce((sum: number, r: any) => sum + (parseFloat(r.conversion_value) || 0), 0);
+      metrics.google_revenue = googleData.reduce((sum: number, r: any) => sum + (parseFloat(r.conversions_value) || 0), 0);
     }
   }
 
