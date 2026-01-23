@@ -67,6 +67,7 @@ interface AccountInfo {
   name: string;
   metaAdsId?: string;
   id_google_ads?: string;
+  id_google_analytics?: string;
 }
 
 interface GeneralDashboardProps {
@@ -175,13 +176,13 @@ export function GeneralDashboard({ accountName = 'Account', accountInfo, selecte
   };
 
   const fetchGA4Data = async () => {
-    if (!accountInfo?.metaAdsId) return null;
+    if (!accountInfo?.id_google_analytics) return null;
 
-    // GA4 data is linked via campaign_id which maps to Meta's campaign_id
+    // GA4 data uses the Google Analytics property ID
     const { data, error } = await supabase
       .from('j_rep_ga4_bronze')
       .select('*')
-      .eq('account_id', accountInfo.metaAdsId)
+      .eq('account_id', accountInfo.id_google_analytics)
       .gte('date', queryStartDate)
       .lte('date', queryEndDate);
 

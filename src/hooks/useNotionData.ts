@@ -95,7 +95,8 @@ export const useNotionClients = () => {
             name: account.name || 'Sem nome',
             objectives,
             metaAdsId: account.id_meta_ads || account.meta_ads_id, // Include Meta Ads ID for reports
-            id_google_ads: account.id_google_ads // Include Google Ads ID for reports
+            id_google_ads: account.id_google_ads, // Include Google Ads ID for reports
+            id_google_analytics: account.id_google_analytics // Include GA4 property ID for reports
           };
         });
         
@@ -112,7 +113,7 @@ export const useNotionClients = () => {
         const fetchAllAccounts = async () => {
           const { data, error } = await supabase
             .from('j_hub_notion_db_accounts')
-            .select('notion_id, "Conta", "Objetivos", "ID Meta Ads", "ID Google Ads"');
+            .select('notion_id, "Conta", "Objetivos", "ID Meta Ads", "ID Google Ads", "ID Google Analytics"');
 
           if (error) throw error;
 
@@ -121,7 +122,8 @@ export const useNotionClients = () => {
             name: account.Conta || 'Sem nome',
             objectives: account.Objetivos ? account.Objetivos.split(', ').filter(Boolean) : [],
             metaAdsId: account["ID Meta Ads"], // Include Meta Ads ID for reports
-            id_google_ads: account["ID Google Ads"] // Include Google Ads ID for reports
+            id_google_ads: account["ID Google Ads"], // Include Google Ads ID for reports
+            id_google_analytics: account["ID Google Analytics"] // Include GA4 property ID for reports
           }));
           
           setClients(processedClients);
