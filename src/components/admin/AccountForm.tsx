@@ -5,6 +5,7 @@
 import { useState, useEffect } from "react";
 import { NotionAccount } from "@/hooks/useMyNotionAccounts";
 import { AccountUpdates, useAccountUpdate } from "@/hooks/useAccountUpdate";
+import { supabase } from "@/integrations/supabase/client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,6 +20,13 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { X, Loader2 } from "lucide-react";
+
+// Staff user for team selection
+interface StaffUser {
+  id: string;
+  email: string;
+  nome: string | null;
+}
 
 interface AccountFormProps {
   account: NotionAccount;
@@ -47,6 +55,10 @@ const PAYMENT_OPTIONS = ["Boleto", "Cartão", "Faturamento", "Misto"];
 export function AccountForm({ account, onSuccess, onCancel }: AccountFormProps) {
   const { updateAccount, isUpdating } = useAccountUpdate();
 
+  // Staff users for team selection
+  const [staffUsers, setStaffUsers] = useState<StaffUser[]>([]);
+  const [loadingStaff, setLoadingStaff] = useState(true);
+
   // Form state
   const [formData, setFormData] = useState({
     Conta: account.name || "",
@@ -54,8 +66,6 @@ export function AccountForm({ account, onSuccess, onCancel }: AccountFormProps) 
     Tier: account.tier ? parseInt(account.tier) : 3,
     Objetivos: account.objectives || [],
     Nicho: account.nicho || [],
-    Gestor: account.gestor_email || "",
-    Atendimento: account.atendimento_email || "",
     "ID Meta Ads": account.meta_ads_id || "",
     "ID Google Ads": account.id_google_ads || "",
     "ID Tiktok Ads": account.id_tiktok_ads || "",
@@ -70,8 +80,39 @@ export function AccountForm({ account, onSuccess, onCancel }: AccountFormProps) 
     "Woo Consumer Secret": account.woo_consumer_secret || "",
   });
 
+  // Selected user IDs for team fields
+  const [gestorUserIds, setGestorUserIds] = useState<string[]>([]);
+  const [atendimentoUserIds, setAtendimentoUserIds] = useState<string[]>([]);
+
   // Track which fields have changed
   const [changedFields, setChangedFields] = useState<Set<string>>(new Set());
+
+  // Fetch staff users on mount
+  useEffect(() => {
+    async function fetchStaffUsers() {
+      const { data, error } = await supabase
+        .from("j_hub_users")
+        .select("id, email, nome")
+        .in("role", ["admin", "staff"])
+        .order("nome", { ascending: true });
+
+      if (!error && data) {
+        setStaffUsers(data);
+
+        // Initialize selected users based on current account emails
+        const gestorEmails = (account.gestor_email || "").toLowerCase().split(",").map(e => e.trim()).filter(Boolean);
+        const atendimentoEmails = (account.atendimento_email || "").toLowerCase().split(",").map(e => e.trim()).filter(Boolean);
+
+        const gestorIds = data.filter(u => gestorEmails.includes(u.email.toLowerCase())).map(u => u.id);
+        const atendimentoIds = data.filter(u => atendimentoEmails.includes(u.email.toLowerCase())).map(u => u.id);
+
+        setGestorUserIds(gestorIds);
+        setAtendimentoUserIds(atendimentoIds);
+      }
+      setLoadingStaff(false);
+    }
+    fetchStaffUsers();
+  }, [account]);
 
   const handleFieldChange = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -91,12 +132,44 @@ export function AccountForm({ account, onSuccess, onCancel }: AccountFormProps) 
     );
   };
 
+  // Team handlers
+  const handleAddGestor = (userId: string) => {
+    if (!gestorUserIds.includes(userId)) {
+      setGestorUserIds(prev => [...prev, userId]);
+      setChangedFields(prev => new Set(prev).add("Gestor_user_ids"));
+    }
+  };
+
+  const handleRemoveGestor = (userId: string) => {
+    setGestorUserIds(prev => prev.filter(id => id !== userId));
+    setChangedFields(prev => new Set(prev).add("Gestor_user_ids"));
+  };
+
+  const handleAddAtendimento = (userId: string) => {
+    if (!atendimentoUserIds.includes(userId)) {
+      setAtendimentoUserIds(prev => [...prev, userId]);
+      setChangedFields(prev => new Set(prev).add("Atendimento_user_ids"));
+    }
+  };
+
+  const handleRemoveAtendimento = (userId: string) => {
+    setAtendimentoUserIds(prev => prev.filter(id => id !== userId));
+    setChangedFields(prev => new Set(prev).add("Atendimento_user_ids"));
+  };
+
   const handleSubmit = async () => {
     // Only send changed fields
     const updates: AccountUpdates = {};
 
     changedFields.forEach(field => {
-      (updates as any)[field] = (formData as any)[field];
+      // Handle team fields separately
+      if (field === "Gestor_user_ids") {
+        updates.Gestor_user_ids = gestorUserIds;
+      } else if (field === "Atendimento_user_ids") {
+        updates.Atendimento_user_ids = atendimentoUserIds;
+      } else {
+        (updates as any)[field] = (formData as any)[field];
+      }
     });
 
     if (Object.keys(updates).length === 0) {
@@ -200,27 +273,80 @@ export function AccountForm({ account, onSuccess, onCancel }: AccountFormProps) 
 
         {/* Aba Equipe */}
         <TabsContent value="equipe" className="space-y-4 mt-4">
-          <div className="space-y-2">
-            <Label htmlFor="gestor">Gestor (emails separados por vírgula)</Label>
-            <Textarea
-              id="gestor"
-              value={formData.Gestor}
-              onChange={e => handleFieldChange("Gestor", e.target.value)}
-              placeholder="gestor1@jumper.studio, gestor2@jumper.studio"
-              rows={2}
-            />
-          </div>
+          {loadingStaff ? (
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Carregando usuários...
+            </div>
+          ) : (
+            <>
+              <div className="space-y-2">
+                <Label>Gestor</Label>
+                <div className="flex flex-wrap gap-2 mb-2">
+                  {gestorUserIds.map(userId => {
+                    const user = staffUsers.find(u => u.id === userId);
+                    return (
+                      <Badge key={userId} variant="secondary" className="gap-1">
+                        {user?.nome || user?.email || userId}
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveGestor(userId)}
+                          className="ml-1 hover:text-destructive"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </Badge>
+                    );
+                  })}
+                </div>
+                <Select onValueChange={handleAddGestor}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Adicionar gestor" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {staffUsers.filter(u => !gestorUserIds.includes(u.id)).map(user => (
+                      <SelectItem key={user.id} value={user.id}>
+                        {user.nome || user.email}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="atendimento">Atendimento (emails separados por vírgula)</Label>
-            <Textarea
-              id="atendimento"
-              value={formData.Atendimento}
-              onChange={e => handleFieldChange("Atendimento", e.target.value)}
-              placeholder="atend1@jumper.studio, atend2@jumper.studio"
-              rows={2}
-            />
-          </div>
+              <div className="space-y-2">
+                <Label>Atendimento</Label>
+                <div className="flex flex-wrap gap-2 mb-2">
+                  {atendimentoUserIds.map(userId => {
+                    const user = staffUsers.find(u => u.id === userId);
+                    return (
+                      <Badge key={userId} variant="secondary" className="gap-1">
+                        {user?.nome || user?.email || userId}
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveAtendimento(userId)}
+                          className="ml-1 hover:text-destructive"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </Badge>
+                    );
+                  })}
+                </div>
+                <Select onValueChange={handleAddAtendimento}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Adicionar atendimento" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {staffUsers.filter(u => !atendimentoUserIds.includes(u.id)).map(user => (
+                      <SelectItem key={user.id} value={user.id}>
+                        {user.nome || user.email}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </>
+          )}
         </TabsContent>
 
         {/* Aba Plataformas */}

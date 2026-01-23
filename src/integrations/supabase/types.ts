@@ -1121,7 +1121,7 @@ export type Database = {
           last_login_at: string | null
           login_count: number | null
           nome: string | null
-          notion_manager_id: string | null
+          notion_user_id: string | null
           organizacao: string | null
           role: string
           telefone: string | null
@@ -1138,7 +1138,7 @@ export type Database = {
           last_login_at?: string | null
           login_count?: number | null
           nome?: string | null
-          notion_manager_id?: string | null
+          notion_user_id?: string | null
           organizacao?: string | null
           role: string
           telefone?: string | null
@@ -1155,7 +1155,7 @@ export type Database = {
           last_login_at?: string | null
           login_count?: number | null
           nome?: string | null
-          notion_manager_id?: string | null
+          notion_user_id?: string | null
           organizacao?: string | null
           role?: string
           telefone?: string | null

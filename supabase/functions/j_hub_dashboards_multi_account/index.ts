@@ -105,7 +105,7 @@ serve(async (req) => {
     // Step 1: Get user's accessible accounts (reuse permission logic from j_hub_user_accounts)
     const { data: userData, error: userError } = await service
       .from('j_hub_users')
-      .select('role, nome, notion_manager_id')
+      .select('role, nome, notion_user_id')
       .eq('id', user.id)
       .maybeSingle();
 
@@ -118,7 +118,6 @@ serve(async (req) => {
     }
 
     const userRole = userData?.role || 'client';
-    const notionManagerId = userData?.notion_manager_id;
     const isAdmin = userRole === 'admin';
     const isStaff = userRole === 'staff';
     const targetEmail = (user.email || '').toLowerCase();
@@ -166,21 +165,43 @@ serve(async (req) => {
       (atendimentoAccounts || []).forEach((acc: any) => allAccountIds.add(acc.id));
       accountIds = Array.from(allAccountIds);
     }
-    // CLIENT: Get accounts by notion_manager_id
-    else if (notionManagerId) {
-      console.log(`📝 Client - searching by notion_manager_id ${include_inactive ? '(including inactive)' : '(excluding inactive)'}`);
+    // CLIENT: Get accounts via manager email matching
+    else {
+      console.log(`📝 Client - searching by email ${include_inactive ? '(including inactive)' : '(excluding inactive)'}`);
 
-      let gerenteQuery = service
-        .from('j_hub_notion_db_accounts')
-        .select('id')
-        .ilike('"Gerente"', `%${notionManagerId}%`);
+      // Find manager by email
+      const { data: managerData } = await service
+        .from('j_hub_notion_db_managers')
+        .select('"Contas", notion_id')
+        .ilike('"E-Mail"', targetEmail)
+        .maybeSingle();
 
-      if (!include_inactive) {
-        gerenteQuery = gerenteQuery.neq('"Status"', 'Inativo');
+      if (managerData) {
+        // Get accounts from Contas field
+        const contasField = managerData["Contas"] || "";
+        const contasIds = contasField ? contasField.split(',').map((id: string) => id.trim()).filter(Boolean) : [];
+
+        // Also get accounts from Gerente field
+        if (managerData.notion_id) {
+          let gerenteQuery = service
+            .from('j_hub_notion_db_accounts')
+            .select('id')
+            .ilike('"Gerente"', `%${managerData.notion_id}%`);
+
+          if (!include_inactive) {
+            gerenteQuery = gerenteQuery.neq('"Status"', 'Inativo');
+          }
+
+          const { data: gerenteAccounts } = await gerenteQuery;
+
+          // Combine both sources
+          const allIds = new Set<string>(contasIds);
+          (gerenteAccounts || []).forEach((acc: any) => allIds.add(acc.id));
+          accountIds = Array.from(allIds);
+        } else {
+          accountIds = contasIds;
+        }
       }
-
-      const { data: gerenteAccounts } = await gerenteQuery;
-      accountIds = (gerenteAccounts || []).map((acc: any) => acc.id);
     }
 
     if (accountIds.length === 0) {

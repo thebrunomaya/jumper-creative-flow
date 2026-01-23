@@ -90,6 +90,23 @@ function extractPeople(prop: any): string {
   return extractText(prop);
 }
 
+// Extract people with both email and Notion user ID for mapping
+interface NotionUserMapping {
+  email: string;
+  notion_user_id: string;
+}
+
+function extractPeopleWithIds(prop: any): NotionUserMapping[] {
+  if (!prop || !prop.people || !Array.isArray(prop.people)) return [];
+
+  return prop.people
+    .filter((p: any) => p.person?.email && p.id) // Must have both email and ID
+    .map((p: any) => ({
+      email: p.person.email.toLowerCase(),
+      notion_user_id: p.id
+    }));
+}
+
 function extractRelation(prop: any): string {
   if (!prop) return "";
   if (prop.relation && Array.isArray(prop.relation)) {
@@ -411,6 +428,51 @@ serve(async (req) => {
       }
       upsertResult = data;
     }
+
+    // Extract Notion user IDs from people fields and update j_hub_users
+    console.log('Extracting Notion user IDs from people fields...');
+    const userMappings = new Map<string, string>(); // email -> notion_user_id
+
+    for (const page of accountPages) {
+      const props = page.properties || {};
+
+      // Extract from Gestor field
+      const gestorMappings = extractPeopleWithIds(props["Gestor"]);
+      for (const mapping of gestorMappings) {
+        if (!userMappings.has(mapping.email)) {
+          userMappings.set(mapping.email, mapping.notion_user_id);
+        }
+      }
+
+      // Extract from Atendimento field
+      const atendimentoMappings = extractPeopleWithIds(props["Atendimento"]);
+      for (const mapping of atendimentoMappings) {
+        if (!userMappings.has(mapping.email)) {
+          userMappings.set(mapping.email, mapping.notion_user_id);
+        }
+      }
+    }
+
+    console.log(`Found ${userMappings.size} unique Notion user mappings`);
+
+    // Update j_hub_users with Notion user IDs
+    let usersUpdated = 0;
+    for (const [email, notionUserId] of userMappings) {
+      const { error: updateErr, count } = await service
+        .from('j_hub_users')
+        .update({ notion_user_id: notionUserId })
+        .eq('email', email)
+        .is('notion_user_id', null); // Only update if not already set
+
+      if (updateErr) {
+        console.error(`Error updating user ${email}:`, updateErr);
+      } else if (count && count > 0) {
+        usersUpdated++;
+        console.log(`Updated notion_user_id for ${email}: ${notionUserId}`);
+      }
+    }
+
+    console.log(`Updated ${usersUpdated} users with Notion user IDs`);
 
     // DELETE accounts that no longer exist in Notion (orphan cleanup)
     // Get all notion_ids that came from Notion in this sync

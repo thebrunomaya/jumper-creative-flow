@@ -111,7 +111,7 @@ As tabelas `j_hub_optimization_recordings` e `j_hub_optimization_context` foram 
 | `telefone` | TEXT | Phone number |
 | `organizacao` | TEXT | Organization |
 | `avatar_url` | TEXT | Profile picture |
-| `notion_manager_id` | TEXT | Links to DB_Gerentes |
+| `notion_user_id` | TEXT | Notion workspace user ID for people field updates |
 | `is_active` | BOOLEAN | Account status |
 | `login_count` | INTEGER | Login counter |
 | `last_login_at` | TIMESTAMPTZ | Last login |
@@ -122,7 +122,7 @@ As tabelas `j_hub_optimization_recordings` e `j_hub_optimization_context` foram 
 |------|-------------|--------|
 | `admin` | System administrators | ALL accounts |
 | `staff` | Traffic managers (Gestores) | Accounts where assigned as Gestor/Atendimento |
-| `client` | Client managers (Gerentes) | Accounts via notion_manager_id |
+| `client` | Client managers (Gerentes) | Accounts via email matching in managers database |
 
 ### Role Checking Hook
 
@@ -317,7 +317,7 @@ CREATE TABLE j_hub_users (
   telefone TEXT,
   organizacao TEXT,
   avatar_url TEXT,
-  notion_manager_id TEXT,
+  notion_user_id TEXT,
   is_active BOOLEAN DEFAULT true,
   login_count INTEGER DEFAULT 0,
   last_login_at TIMESTAMPTZ,

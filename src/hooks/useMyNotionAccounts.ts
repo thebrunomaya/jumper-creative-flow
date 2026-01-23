@@ -66,7 +66,7 @@ export interface NotionAccount {
  * - **Permission-Based:** Automatically filters accounts based on user role:
  *   - Admin: ALL accounts
  *   - Staff: Accounts where user is Gestor or Atendimento
- *   - Client: Accounts linked via notion_manager_id in Gerente field
+ *   - Client: Accounts linked via email matching in managers database (Gerente field)
  *
  * **Usage:**
  * Use this hook on ANY page that needs to display/filter user accounts.

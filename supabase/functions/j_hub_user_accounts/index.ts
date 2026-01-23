@@ -48,10 +48,10 @@ serve(async (req) => {
 
     console.log('🔍 Finding accounts for user:', targetEmail);
 
-    // Get user data from j_hub_users (role, nome, notion_manager_id)
+    // Get user data from j_hub_users (role, nome, notion_user_id)
     const { data: userData, error: userError } = await service
       .from('j_hub_users')
-      .select('role, nome, notion_manager_id')
+      .select('role, nome, notion_user_id')
       .eq('id', user.id)
       .maybeSingle();
 
@@ -65,12 +65,12 @@ serve(async (req) => {
 
     const userRole = userData?.role || 'client';
     const userName = userData?.nome;
-    const notionManagerId = userData?.notion_manager_id;
+    const notionUserId = userData?.notion_user_id; // Workspace user ID for people field updates
     const isAdmin = userRole === 'admin';
     const isStaff = userRole === 'staff';
     const isClient = userRole === 'client';
 
-    console.log('👤 User data:', { role: userRole, nome: userName, notion_manager_id: notionManagerId });
+    console.log('👤 User data:', { role: userRole, nome: userName, notion_user_id: notionUserId });
     console.log('👑 Is Admin:', isAdmin);
 
     // Log user metadata for debugging
@@ -135,27 +135,10 @@ serve(async (req) => {
       accountIds = Array.from(allAccountIds);
       console.log(`✅ Found ${accountIds.length} unique accounts via Gestor/Atendimento`);
 
-    } else if (isClient && notionManagerId) {
-      // CLIENT PATH: Find accounts by notion_manager_id in Gerente field
-      console.log('📝 Client detected - searching by notion_manager_id:', notionManagerId);
-
-      const { data: gerenteAccounts, error: gerenteError } = await service
-        .from('j_hub_notion_db_accounts')
-        .select('notion_id, "Gerente"')
-        .ilike('"Gerente"', `%${notionManagerId}%`);
-
-      if (gerenteError) {
-        console.error('Error finding accounts by Gerente:', gerenteError);
-      }
-
-      console.log('🔍 Gerente accounts found:', gerenteAccounts?.length || 0);
-
-      accountIds = (gerenteAccounts || []).map((acc: any) => acc.notion_id);
-      console.log(`✅ Found ${accountIds.length} accounts via Gerente (notion_manager_id)`);
-
-    } else {
-      // FALLBACK: Try to find in DB_Gerentes by email (legacy clients)
-      console.log('📧 Fallback - searching in DB_Gerentes by email');
+    } else if (isClient) {
+      // CLIENT PATH: Find accounts via manager email matching
+      // Step 1: Find manager in DB_Gerentes by email
+      console.log('📝 Client detected - searching by email in DB_Gerentes');
 
       const { data: managerData, error: managerError } = await service
         .from('j_hub_notion_db_managers')
@@ -165,13 +148,33 @@ serve(async (req) => {
 
       if (!managerError && managerData) {
         console.log('✅ Manager found in DB_Gerentes:', managerData);
+
+        // Step 2: Get accounts from Contas field (relation IDs)
         const contasField = managerData["Contas"] || "";
-        accountIds = contasField
-          ? contasField.split(',').map((id: string) => id.trim()).filter(Boolean)
-          : [];
-        console.log('📋 Account IDs from manager:', accountIds);
+        if (contasField) {
+          accountIds = contasField.split(',').map((id: string) => id.trim()).filter(Boolean);
+        }
+
+        // Step 3: Also search in Gerente field by manager's notion_id
+        const managerNotionId = managerData.notion_id;
+        if (managerNotionId) {
+          const { data: gerenteAccounts, error: gerenteError } = await service
+            .from('j_hub_notion_db_accounts')
+            .select('notion_id')
+            .ilike('"Gerente"', `%${managerNotionId}%`);
+
+          if (!gerenteError && gerenteAccounts) {
+            for (const acc of gerenteAccounts) {
+              if (!accountIds.includes(acc.notion_id)) {
+                accountIds.push(acc.notion_id);
+              }
+            }
+          }
+        }
+
+        console.log(`📋 Found ${accountIds.length} accounts for client`);
       } else {
-        console.log('❌ No accounts found for user');
+        console.log('❌ No manager found for email:', targetEmail);
       }
     }
 

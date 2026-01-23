@@ -7,10 +7,18 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.1.123';
+export const APP_VERSION = 'v2.1.124';
 
 /**
  * Version history:
+ * - v2.1.124 (2026-01-23):
+ *   - FEAT: Gestor/Atendimento user selection via dropdown in Account Management
+ *   - REFACTOR: Replace notion_manager_id with notion_user_id for Notion people fields
+ *   - UPDATE: Sync extracts Notion workspace user IDs from people fields
+ *   - UPDATE: Client permissions now use email-based matching via managers table
+ *   - UPDATE: j_hub_account_update supports updating Gestor/Atendimento as people type
+ *   - UPDATE: AccountForm uses multi-select user dropdown for team fields
+ *
  * - v2.1.123 (2026-01-23):
  *   - FEAT: WooCommerce fields in Account Management (admin/accounts)
  *   - ADD: Woo Site URL, Consumer Key, Consumer Secret fields in Plataformas tab

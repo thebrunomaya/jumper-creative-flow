@@ -13,8 +13,9 @@ export interface AccountUpdates {
   Tier?: number;
   Objetivos?: string[];
   Nicho?: string[];
-  Gestor?: string;
-  Atendimento?: string;
+  // Team fields - array of user UUIDs (resolved to Notion user IDs on backend)
+  Gestor_user_ids?: string[];
+  Atendimento_user_ids?: string[];
   "ID Meta Ads"?: string;
   "ID Google Ads"?: string;
   "ID Tiktok Ads"?: string;

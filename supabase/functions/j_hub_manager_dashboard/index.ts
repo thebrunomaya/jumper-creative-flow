@@ -97,12 +97,11 @@ Deno.serve(async (req) => {
       const targetEmail = (user.email || '').toLowerCase();
       const { data: userData } = await supabase
         .from('j_hub_users')
-        .select('role, notion_manager_id')
+        .select('role, notion_user_id')
         .eq('id', user.id)
         .maybeSingle();
 
       const userRole = userData?.role || 'client';
-      const notionManagerId = userData?.notion_manager_id;
       let accountIds: string[] = [];
 
       if (isAdmin) {
@@ -127,14 +126,36 @@ Deno.serve(async (req) => {
         (gestorAccounts || []).forEach((acc: any) => allAccountIds.add(acc.notion_id));
         (atendimentoAccounts || []).forEach((acc: any) => allAccountIds.add(acc.notion_id));
         accountIds = Array.from(allAccountIds);
-      } else if (notionManagerId) {
-        // Client: Get accounts where notion_manager_id is in Gerente field
-        const { data: gerenteAccounts } = await supabase
-          .from('j_hub_notion_db_accounts')
-          .select('notion_id')
-          .ilike('"Gerente"', `%${notionManagerId}%`);
+      } else {
+        // Client: Find accounts via manager email matching
+        const { data: managerData } = await supabase
+          .from('j_hub_notion_db_managers')
+          .select('"Contas", notion_id')
+          .ilike('"E-Mail"', targetEmail)
+          .maybeSingle();
 
-        accountIds = (gerenteAccounts || []).map((acc: any) => acc.notion_id);
+        if (managerData) {
+          const contasField = managerData["Contas"] || "";
+          if (contasField) {
+            accountIds = contasField.split(',').map((id: string) => id.trim()).filter(Boolean);
+          }
+
+          // Also search in Gerente field by manager's notion_id
+          if (managerData.notion_id) {
+            const { data: gerenteAccounts } = await supabase
+              .from('j_hub_notion_db_accounts')
+              .select('notion_id')
+              .ilike('"Gerente"', `%${managerData.notion_id}%`);
+
+            if (gerenteAccounts) {
+              for (const acc of gerenteAccounts) {
+                if (!accountIds.includes(acc.notion_id)) {
+                  accountIds.push(acc.notion_id);
+                }
+              }
+            }
+          }
+        }
       }
 
       // Now fetch submissions from those accounts

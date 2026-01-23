@@ -30,9 +30,9 @@ interface AccountUpdateRequest {
     Tier?: number;
     Objetivos?: string[];
     Nicho?: string[];
-    // Team
-    Gestor?: string;
-    Atendimento?: string;
+    // Team (user UUIDs from j_hub_users - will be resolved to Notion user IDs)
+    Gestor_user_ids?: string[];
+    Atendimento_user_ids?: string[];
     // Platforms
     "ID Meta Ads"?: string;
     "ID Google Ads"?: string;
@@ -52,10 +52,21 @@ interface AccountUpdateRequest {
   };
 }
 
+// Resolved people fields with Notion user IDs
+interface ResolvedPeopleFields {
+  Gestor_notion_ids?: string[];
+  Atendimento_notion_ids?: string[];
+  Gestor_emails?: string[];
+  Atendimento_emails?: string[];
+}
+
 /**
  * Convert updates to Notion API property format
  */
-function buildNotionProperties(updates: Record<string, any>): Record<string, any> {
+function buildNotionProperties(
+  updates: Record<string, any>,
+  resolvedPeople?: ResolvedPeopleFields
+): Record<string, any> {
   const properties: Record<string, any> = {};
 
   // Title (Conta)
@@ -90,6 +101,18 @@ function buildNotionProperties(updates: Record<string, any>): Record<string, any
     };
   }
 
+  // People fields (Gestor, Atendimento) - require Notion workspace user IDs
+  if (resolvedPeople?.Gestor_notion_ids && resolvedPeople.Gestor_notion_ids.length > 0) {
+    properties["Gestor"] = {
+      people: resolvedPeople.Gestor_notion_ids.map(id => ({ id }))
+    };
+  }
+  if (resolvedPeople?.Atendimento_notion_ids && resolvedPeople.Atendimento_notion_ids.length > 0) {
+    properties["Atendimento"] = {
+      people: resolvedPeople.Atendimento_notion_ids.map(id => ({ id }))
+    };
+  }
+
   // Rich text fields (with accent mapping)
   const textFieldMap: Record<string, string> = {
     "ID Meta Ads": "ID Meta Ads",
@@ -100,8 +123,6 @@ function buildNotionProperties(updates: Record<string, any>): Record<string, any
     "Contexto para Transcricao": "Contexto para Transcrição",
     "META: Verba Mensal": "META: Verba Mensal",
     "G-ADS: Verba Mensal": "G-ADS: Verba Mensal",
-    "Gestor": "Gestor",
-    "Atendimento": "Atendimento",
     "Woo Site URL": "Woo Site URL",
     "Woo Consumer Key": "Woo Consumer Key",
     "Woo Consumer Secret": "Woo Consumer Secret"
@@ -119,9 +140,44 @@ function buildNotionProperties(updates: Record<string, any>): Record<string, any
 }
 
 /**
+ * Resolve user UUIDs to Notion user IDs
+ */
+async function resolveUserIdsToNotionIds(
+  supabase: any,
+  userIds: string[]
+): Promise<{ notionIds: string[]; emails: string[] }> {
+  if (!userIds || userIds.length === 0) {
+    return { notionIds: [], emails: [] };
+  }
+
+  const { data: users, error } = await supabase
+    .from('j_hub_users')
+    .select('notion_user_id, email')
+    .in('id', userIds);
+
+  if (error || !users) {
+    console.error('Error resolving user IDs:', error);
+    return { notionIds: [], emails: [] };
+  }
+
+  const notionIds = users
+    .map((u: any) => u.notion_user_id)
+    .filter(Boolean);
+
+  const emails = users
+    .map((u: any) => u.email)
+    .filter(Boolean);
+
+  return { notionIds, emails };
+}
+
+/**
  * Build Supabase update object from updates
  */
-function buildSupabaseUpdate(updates: Record<string, any>): Record<string, any> {
+function buildSupabaseUpdate(
+  updates: Record<string, any>,
+  resolvedPeople?: ResolvedPeopleFields
+): Record<string, any> {
   const supabaseUpdate: Record<string, any> = {};
 
   // Map input fields to Supabase column names
@@ -131,8 +187,6 @@ function buildSupabaseUpdate(updates: Record<string, any>): Record<string, any> 
     "Tier": "Tier",
     "Objetivos": "Objetivos",
     "Nicho": "Nicho",
-    "Gestor": "Gestor",
-    "Atendimento": "Atendimento",
     "ID Meta Ads": "ID Meta Ads",
     "ID Google Ads": "ID Google Ads",
     "ID Tiktok Ads": "ID Tiktok Ads",
@@ -158,6 +212,14 @@ function buildSupabaseUpdate(updates: Record<string, any>): Record<string, any> 
         supabaseUpdate[columnName] = updates[inputField];
       }
     }
+  }
+
+  // People fields (Gestor, Atendimento) - store emails in Supabase
+  if (resolvedPeople?.Gestor_emails && resolvedPeople.Gestor_emails.length > 0) {
+    supabaseUpdate["Gestor"] = resolvedPeople.Gestor_emails.join(", ");
+  }
+  if (resolvedPeople?.Atendimento_emails && resolvedPeople.Atendimento_emails.length > 0) {
+    supabaseUpdate["Atendimento"] = resolvedPeople.Atendimento_emails.join(", ");
   }
 
   return supabaseUpdate;
@@ -280,11 +342,42 @@ Deno.serve(async (req) => {
 
     console.log(`[ACCOUNT_UPDATE] Permission check passed for ${userData.email}`);
 
+    // Resolve people fields (Gestor, Atendimento) user UUIDs to Notion user IDs
+    const resolvedPeople: ResolvedPeopleFields = {};
+
+    if (updates.Gestor_user_ids && updates.Gestor_user_ids.length > 0) {
+      console.log(`[ACCOUNT_UPDATE] Resolving Gestor user IDs:`, updates.Gestor_user_ids);
+      const { notionIds, emails } = await resolveUserIdsToNotionIds(supabase, updates.Gestor_user_ids);
+      resolvedPeople.Gestor_notion_ids = notionIds;
+      resolvedPeople.Gestor_emails = emails;
+      console.log(`[ACCOUNT_UPDATE] Resolved Gestor: ${notionIds.length} Notion IDs, ${emails.length} emails`);
+
+      if (notionIds.length === 0 && updates.Gestor_user_ids.length > 0) {
+        console.warn('[ACCOUNT_UPDATE] Warning: Some users do not have notion_user_id set');
+      }
+    }
+
+    if (updates.Atendimento_user_ids && updates.Atendimento_user_ids.length > 0) {
+      console.log(`[ACCOUNT_UPDATE] Resolving Atendimento user IDs:`, updates.Atendimento_user_ids);
+      const { notionIds, emails } = await resolveUserIdsToNotionIds(supabase, updates.Atendimento_user_ids);
+      resolvedPeople.Atendimento_notion_ids = notionIds;
+      resolvedPeople.Atendimento_emails = emails;
+      console.log(`[ACCOUNT_UPDATE] Resolved Atendimento: ${notionIds.length} Notion IDs, ${emails.length} emails`);
+
+      if (notionIds.length === 0 && updates.Atendimento_user_ids.length > 0) {
+        console.warn('[ACCOUNT_UPDATE] Warning: Some users do not have notion_user_id set');
+      }
+    }
+
     // Build Notion properties
     console.log(`[ACCOUNT_UPDATE] Raw updates:`, JSON.stringify(updates));
-    const notionProperties = buildNotionProperties(updates);
+    const notionProperties = buildNotionProperties(updates, resolvedPeople);
 
-    if (Object.keys(notionProperties).length === 0) {
+    // Check if we have any valid fields to update (including resolved people)
+    const hasPeopleUpdates = (resolvedPeople.Gestor_notion_ids?.length ?? 0) > 0 ||
+                             (resolvedPeople.Atendimento_notion_ids?.length ?? 0) > 0;
+
+    if (Object.keys(notionProperties).length === 0 && !hasPeopleUpdates) {
       return new Response(JSON.stringify({ success: false, error: 'No valid fields to update' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -320,8 +413,8 @@ Deno.serve(async (req) => {
 
     console.log(`[ACCOUNT_UPDATE] Notion updated successfully`);
 
-    // Build Supabase update
-    const supabaseUpdate = buildSupabaseUpdate(updates);
+    // Build Supabase update (including resolved people emails)
+    const supabaseUpdate = buildSupabaseUpdate(updates, resolvedPeople);
 
     // UPDATE Supabase local
     const { error: updateError } = await supabase
