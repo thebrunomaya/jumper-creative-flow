@@ -34,12 +34,12 @@ CREATE TABLE IF NOT EXISTS j_rep_woocommerce_bronze (
   meta_data JSONB DEFAULT '{}',
 
   -- Sync tracking
-  synced_at TIMESTAMPTZ DEFAULT now(),
-
-  -- Unique constraint for UPSERT
-  -- Using COALESCE to handle NULL line_item_id
-  UNIQUE(account_id, order_id, COALESCE(line_item_id, 0))
+  synced_at TIMESTAMPTZ DEFAULT now()
 );
+
+-- Unique index for UPSERT (using COALESCE to handle NULL line_item_id)
+CREATE UNIQUE INDEX IF NOT EXISTS idx_woo_bronze_upsert
+  ON j_rep_woocommerce_bronze(account_id, order_id, COALESCE(line_item_id, 0));
 
 -- Indexes for common queries
 CREATE INDEX IF NOT EXISTS idx_woo_bronze_account_date
