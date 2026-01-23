@@ -63,9 +63,9 @@ function buildNotionProperties(updates: Record<string, any>): Record<string, any
     properties["Conta"] = { title: [{ text: { content: updates.Conta } }] };
   }
 
-  // Status (uses status type, not select)
+  // Status (select type)
   if (updates.Status !== undefined) {
-    properties["Status"] = { status: { name: updates.Status } };
+    properties["Status"] = { select: { name: updates.Status } };
   }
 
   // Select fields
@@ -281,6 +281,7 @@ Deno.serve(async (req) => {
     console.log(`[ACCOUNT_UPDATE] Permission check passed for ${userData.email}`);
 
     // Build Notion properties
+    console.log(`[ACCOUNT_UPDATE] Raw updates:`, JSON.stringify(updates));
     const notionProperties = buildNotionProperties(updates);
 
     if (Object.keys(notionProperties).length === 0) {
@@ -290,7 +291,8 @@ Deno.serve(async (req) => {
       });
     }
 
-    console.log(`[ACCOUNT_UPDATE] Notion properties to update:`, Object.keys(notionProperties));
+    console.log(`[ACCOUNT_UPDATE] Notion properties to update:`, JSON.stringify(notionProperties));
+    console.log(`[ACCOUNT_UPDATE] Account notion_id: ${account.notion_id}`);
 
     // PATCH Notion API
     const notionResponse = await fetch(`https://api.notion.com/v1/pages/${account.notion_id}`, {
