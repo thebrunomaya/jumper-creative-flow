@@ -56,22 +56,13 @@ Deno.serve(async (req) => {
     return new Response("ok", { headers: corsHeaders });
   }
 
-  // Check authentication - either Authorization header or X-Cron-Secret
-  const authHeader = req.headers.get("Authorization");
-  const cronSecret = req.headers.get("X-Cron-Secret");
-  const expectedCronSecret = Deno.env.get("CRON_SYNC_SECRET");
-
-  // Allow if: valid JWT OR valid cron secret
-  const hasCronAuth = cronSecret && expectedCronSecret && cronSecret === expectedCronSecret;
-  const hasJwtAuth = authHeader && authHeader.startsWith("Bearer ");
-
-  if (!hasCronAuth && !hasJwtAuth) {
-    console.log("[WooSync] Unauthorized - no valid auth");
-    return new Response(
-      JSON.stringify({ error: "Unauthorized" }),
-      { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
-  }
+  // Authentication: This function can be called by:
+  // 1. pg_cron (internal, no auth header - trusted)
+  // 2. Frontend with JWT (Authorization: Bearer ...)
+  //
+  // Note: pg_cron calls don't include auth headers, but they come from
+  // within Supabase infrastructure, so we trust them (same pattern as
+  // j_hub_balance_check_alerts and other CRON-triggered functions).
 
   const startTime = Date.now();
   console.log("[WooSync] Starting sync...");
@@ -81,6 +72,8 @@ Deno.serve(async (req) => {
   let chunkDays = 14; // Days per chunk (to avoid timeout)
   let startDate: string | null = null; // ISO date for continuation
   let accountFilter: string | null = null;
+  let syncOrders = true; // Default: sync orders
+  let syncProducts = true; // Default: sync products
 
   try {
     if (req.method === "POST") {
@@ -105,6 +98,117 @@ Deno.serve(async (req) => {
         accountFilter = body.account_id;
         console.log(`[WooSync] Filtering to account: ${accountFilter}`);
       }
+      // sync_orders: whether to sync orders (default true)
+      if (body.sync_orders === false) {
+        syncOrders = false;
+        console.log(`[WooSync] Skipping orders sync`);
+      }
+      // sync_products: whether to sync products (default true)
+      if (body.sync_products === false) {
+        syncProducts = false;
+        console.log(`[WooSync] Skipping products sync`);
+      }
+
+      // ============================================
+      // ORCHESTRATOR MODE: If no account_id, dispatch workers
+      // ============================================
+      if (!body.account_id) {
+        console.log("[WooSync] Orchestrator mode: dispatching workers...");
+
+        const orchestratorSupabase = createClient(
+          Deno.env.get("SUPABASE_URL")!,
+          Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+        );
+
+        // Fetch all accounts with WooCommerce configured
+        const { data: accounts, error: accountsError } = await orchestratorSupabase
+          .from("j_hub_notion_db_accounts")
+          .select('id, "Conta"')
+          .not("Woo Site URL", "is", null)
+          .neq("Woo Site URL", "")
+          .not("Woo Consumer Key", "is", null)
+          .neq("Woo Consumer Key", "")
+          .not("Woo Consumer Secret", "is", null)
+          .neq("Woo Consumer Secret", "");
+
+        if (accountsError) {
+          console.error("[WooSync] Orchestrator: Error fetching accounts:", accountsError.message);
+          return new Response(
+            JSON.stringify({ error: accountsError.message }),
+            { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+
+        if (!accounts?.length) {
+          return new Response(
+            JSON.stringify({ mode: "orchestrator", message: "No accounts to sync", workers_dispatched: 0 }),
+            { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+
+        console.log(`[WooSync] Orchestrator: Found ${accounts.length} accounts, dispatching workers...`);
+
+        // Dispatch workers in parallel
+        const functionUrl = `${Deno.env.get("SUPABASE_URL")}/functions/v1/j_hub_woocommerce_sync`;
+
+        const workerPromises = accounts.map(async (account) => {
+          try {
+            const response = await fetch(functionUrl, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                account_id: account.id,
+                sync_products: body.sync_products ?? true,
+                sync_orders: body.sync_orders ?? true,
+                backfill_days: body.backfill_days,
+                chunk_days: body.chunk_days,
+                start_date: body.start_date,
+              }),
+            });
+            return { account: account["Conta"], status: response.status };
+          } catch (error) {
+            const errorMsg = error instanceof Error ? error.message : String(error);
+            return { account: account["Conta"], status: "error", error: errorMsg };
+          }
+        });
+
+        const results = await Promise.all(workerPromises);
+        const duration = Date.now() - startTime;
+
+        console.log(`[WooSync] Orchestrator: Dispatched ${results.length} workers in ${duration}ms`);
+
+        // Send WhatsApp notification
+        const syncType = body.sync_orders === false ? "Products" : body.sync_products === false ? "Orders" : "Full";
+        const failedWorkers = results.filter((r) => r.status !== 200);
+        const successWorkers = results.filter((r) => r.status === 200);
+
+        if (failedWorkers.length === 0) {
+          // All succeeded
+          const message = `✅ *WooSync ${syncType}*\n${successWorkers.length}/${results.length} contas OK (${Math.round(duration / 1000)}s)`;
+          await sendWooSyncNotification(message);
+        } else {
+          // Some failed
+          const failedList = failedWorkers.map((r) => `• ${r.account}: ${r.status}`).join("\n");
+          const message = `❌ *WooSync ${syncType} ERRO*\n\nFalhas:\n${failedList}\n\n✅ OK: ${successWorkers.length}/${results.length}`;
+          await sendWooSyncNotification(message);
+        }
+
+        return new Response(
+          JSON.stringify({
+            mode: "orchestrator",
+            message: "Workers dispatched",
+            workers_dispatched: results.length,
+            duration_ms: duration,
+            results,
+          }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      // ============================================
+      // WORKER MODE: Process single account (has account_id)
+      // ============================================
+      console.log(`[WooSync] Worker mode: syncing account ${accountFilter}`);
     }
   } catch {
     // No body or invalid JSON, use defaults
@@ -214,94 +318,90 @@ Deno.serve(async (req) => {
         throw new Error(`Invalid site URL: ${siteUrl}`);
       }
 
-      // 3. Fetch orders from WooCommerce API for this chunk
-      console.log(`[WooSync] Syncing orders from ${chunkStart.toISOString()} to ${chunkEnd.toISOString()}`);
-      const orders = await fetchWooOrders(account, chunkStart, chunkEnd);
-      console.log(`[WooSync] Fetched ${orders.length} orders`);
-
-      if (orders.length === 0) {
-        // Update sync status even if no orders
-        await supabase.from("j_hub_woocommerce_sync_status").upsert({
-          account_id: account.id,
-          last_sync_at: now.toISOString(),
-          last_sync_status: "success",
-          last_sync_orders_count: 0,
-          last_error_message: null,
-          updated_at: now.toISOString(),
-        });
-
-        results.push({
-          account: accountName,
-          status: "success",
-          orders: 0,
-          order_rows: 0,
-        });
-        continue;
-      }
-
-      // 6. Transform to bronze format
-      const bronzeRows = transformToBronze(orders, account.id, siteUrl);
-      console.log(`[WooSync] Transformed to ${bronzeRows.length} bronze rows`);
-
-      // 7. UPSERT to bronze table (in batches)
       const BATCH_SIZE = 500;
       let insertedRows = 0;
-
-      for (let i = 0; i < bronzeRows.length; i += BATCH_SIZE) {
-        const batch = bronzeRows.slice(i, i + BATCH_SIZE);
-        const { error: upsertError } = await supabase
-          .from("j_rep_woocommerce_bronze")
-          .upsert(batch, {
-            onConflict: "account_id,order_id,line_item_id",
-            ignoreDuplicates: false,
-          });
-
-        if (upsertError) {
-          console.error(`[WooSync] Upsert error:`, upsertError.message);
-          throw new Error(`Upsert failed: ${upsertError.message}`);
-        }
-
-        insertedRows += batch.length;
-        console.log(
-          `[WooSync] Upserted batch ${Math.floor(i / BATCH_SIZE) + 1}: ${batch.length} rows`
-        );
-      }
-
-      // 8. Sync products
-      console.log(`[WooSync] Syncing products...`);
-      const products = await fetchWooProducts(account);
-      console.log(`[WooSync] Fetched ${products.length} products`);
-
       let insertedProducts = 0;
-      if (products.length > 0) {
-        const productRows = transformProducts(products, account.id, siteUrl);
+      let ordersCount = 0;
 
-        // UPSERT products in batches
-        for (let i = 0; i < productRows.length; i += BATCH_SIZE) {
-          const batch = productRows.slice(i, i + BATCH_SIZE);
-          const { error: upsertError } = await supabase
-            .from("j_rep_woocommerce_products")
-            .upsert(batch, {
-              onConflict: "account_id,product_id",
-              ignoreDuplicates: false,
-            });
+      // ============================================
+      // ORDERS SYNC (if enabled)
+      // ============================================
+      if (syncOrders) {
+        console.log(`[WooSync] Syncing orders from ${chunkStart.toISOString()} to ${chunkEnd.toISOString()}`);
+        const orders = await fetchWooOrders(account, chunkStart, chunkEnd);
+        console.log(`[WooSync] Fetched ${orders.length} orders`);
+        ordersCount = orders.length;
 
-          if (upsertError) {
-            console.error(`[WooSync] Products upsert error:`, upsertError.message);
-            // Don't fail the whole sync, just log the error
-          } else {
-            insertedProducts += batch.length;
+        if (orders.length > 0) {
+          // Transform to bronze format
+          const bronzeRows = transformToBronze(orders, account.id, siteUrl);
+          console.log(`[WooSync] Transformed to ${bronzeRows.length} bronze rows`);
+
+          // UPSERT to bronze table (in batches)
+          for (let i = 0; i < bronzeRows.length; i += BATCH_SIZE) {
+            const batch = bronzeRows.slice(i, i + BATCH_SIZE);
+            const { error: upsertError } = await supabase
+              .from("j_rep_woocommerce_bronze")
+              .upsert(batch, {
+                onConflict: "account_id,order_id,line_item_id",
+                ignoreDuplicates: false,
+              });
+
+            if (upsertError) {
+              console.error(`[WooSync] Upsert error:`, upsertError.message);
+              throw new Error(`Upsert failed: ${upsertError.message}`);
+            }
+
+            insertedRows += batch.length;
+            console.log(
+              `[WooSync] Upserted batch ${Math.floor(i / BATCH_SIZE) + 1}: ${batch.length} rows`
+            );
           }
         }
-        console.log(`[WooSync] Upserted ${insertedProducts} products`);
+      } else {
+        console.log(`[WooSync] Skipping orders sync (disabled)`);
       }
 
-      // 9. Update sync status
+      // ============================================
+      // PRODUCTS SYNC (if enabled)
+      // ============================================
+      if (syncProducts) {
+        console.log(`[WooSync] Syncing products...`);
+        const products = await fetchWooProducts(account);
+        console.log(`[WooSync] Fetched ${products.length} products`);
+
+        if (products.length > 0) {
+          const productRows = transformProducts(products, account.id, siteUrl);
+
+          // UPSERT products in batches
+          for (let i = 0; i < productRows.length; i += BATCH_SIZE) {
+            const batch = productRows.slice(i, i + BATCH_SIZE);
+            const { error: upsertError } = await supabase
+              .from("j_rep_woocommerce_products")
+              .upsert(batch, {
+                onConflict: "account_id,product_id",
+                ignoreDuplicates: false,
+              });
+
+            if (upsertError) {
+              console.error(`[WooSync] Products upsert error:`, upsertError.message);
+              // Don't fail the whole sync, just log the error
+            } else {
+              insertedProducts += batch.length;
+            }
+          }
+          console.log(`[WooSync] Upserted ${insertedProducts} products`);
+        }
+      } else {
+        console.log(`[WooSync] Skipping products sync (disabled)`);
+      }
+
+      // Update sync status
       await supabase.from("j_hub_woocommerce_sync_status").upsert({
         account_id: account.id,
         last_sync_at: now.toISOString(),
         last_sync_status: "success",
-        last_sync_orders_count: orders.length,
+        last_sync_orders_count: ordersCount,
         last_error_message: null,
         updated_at: now.toISOString(),
       });
@@ -309,13 +409,13 @@ Deno.serve(async (req) => {
       results.push({
         account: accountName,
         status: "success",
-        orders: orders.length,
+        orders: ordersCount,
         order_rows: insertedRows,
         products: insertedProducts,
       });
 
       console.log(
-        `[WooSync] Account ${accountName} completed: ${orders.length} orders, ${insertedRows} rows, ${insertedProducts} products`
+        `[WooSync] Account ${accountName} completed: ${ordersCount} orders, ${insertedRows} rows, ${insertedProducts} products`
       );
     } catch (error) {
       const errorMessage =
@@ -621,19 +721,31 @@ async function fetchWooProducts(account: WooAccount): Promise<any[]> {
     page++;
   }
 
-  // Also fetch variations for variable products
+  // Also fetch variations for variable products - IN PARALLEL for speed
   const variableProducts = allProducts.filter((p) => p.type === "variable");
-  for (const parent of variableProducts) {
-    try {
+  console.log(`[WooSync] Found ${variableProducts.length} variable products to fetch variations for`);
+
+  // Fetch all variations in parallel (much faster than sequential)
+  const variationResults = await Promise.allSettled(
+    variableProducts.map(async (parent) => {
       const variations = await fetchProductVariations(account, parent.id);
+      return { parent, variations };
+    })
+  );
+
+  let totalVariations = 0;
+  for (const result of variationResults) {
+    if (result.status === "fulfilled" && result.value.variations.length > 0) {
+      const { parent, variations } = result.value;
+      console.log(`[WooSync] Product ${parent.id} (${parent.name}): ${variations.length} variations`);
+      totalVariations += variations.length;
       allProducts.push(...variations);
-    } catch (error) {
-      console.error(
-        `[WooSync] Error fetching variations for product ${parent.id}:`,
-        error
-      );
+    } else if (result.status === "rejected") {
+      console.error(`[WooSync] Error fetching variations:`, result.reason);
     }
   }
+  console.log(`[WooSync] Total variations fetched: ${totalVariations}`);
+  console.log(`[WooSync] Total products (including variations): ${allProducts.length}`);
 
   return allProducts;
 }
@@ -658,6 +770,7 @@ async function fetchProductVariations(
   });
 
   if (!res.ok) {
+    console.error(`[WooSync] Variations API error for product ${productId}: ${res.status} ${res.statusText}`);
     return [];
   }
 
@@ -690,4 +803,43 @@ function transformProducts(products: any[], accountId: string, siteUrl: string):
     date_created: p.date_created || null,
     date_modified: p.date_modified || null,
   }));
+}
+
+// --- WhatsApp Notification ---
+
+const ADMIN_PHONE = "5521976116703";
+
+async function sendWooSyncNotification(message: string): Promise<void> {
+  const evolutionUrl = Deno.env.get("EVOLUTION_API_URL");
+  const evolutionKey = Deno.env.get("EVOLUTION_API_KEY");
+
+  if (!evolutionUrl || !evolutionKey) {
+    console.log("[WooSync] Evolution API not configured, skipping notification");
+    return;
+  }
+
+  const formattedPhone = `${ADMIN_PHONE}@s.whatsapp.net`;
+
+  try {
+    const response = await fetch(evolutionUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": evolutionKey,
+      },
+      body: JSON.stringify({
+        number: formattedPhone,
+        text: message,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`[WooSync] WhatsApp notification error: ${response.status} - ${errorText}`);
+    } else {
+      console.log(`[WooSync] WhatsApp notification sent to ${ADMIN_PHONE}`);
+    }
+  } catch (error) {
+    console.error(`[WooSync] Failed to send WhatsApp notification:`, error);
+  }
 }

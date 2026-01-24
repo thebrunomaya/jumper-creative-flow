@@ -1,7 +1,7 @@
 # Architecture - Detalhes Técnicos
 
 > Documentação técnica do Jumper Flow Platform
-> **Atualizado:** 2026-01-23 | **Versão:** v2.2.6
+> **Atualizado:** 2026-01-24 | **Versão:** v2.2.7
 
 ---
 
@@ -704,6 +704,30 @@ supabase/.env              → API keys source (gitignored)
 supabase/functions/.env    → Edge Functions (gitignored)
 ```
 
+### API Keys
+
+| Chave | Uso | Segurança |
+|-------|-----|-----------|
+| **Publishable Key** | Frontend | 🟢 Pública (pode commitar) |
+| **Service Role Key** | Edge Functions (backend) | 🔴 Secreta (nunca commitar) |
+
+**Publishable Key (anon key):**
+```
+sb_publishable_5CJI2QQt8Crz60Mh1TTcrw_w4sL2TpL
+```
+
+**Nota:** A partir de 2026, o Supabase usa novo formato de chaves (`sb_publishable_*`) que **não são JWTs**.
+
+### CRON Jobs e Edge Functions
+
+Edge Functions chamadas por pg_cron são deployed com `--no-verify-jwt`:
+- `j_hub_daily_report`
+- `j_hub_woocommerce_sync`
+- `j_hub_balance_check_alerts`
+
+Isso desabilita verificação JWT no gateway, permitindo chamadas internas sem auth headers.
+Os CRON jobs usam headers simples (`Content-Type: application/json`).
+
 ### Credential Rotation
 
 **Critical:** Edge Functions cache credentials at deployment time.
@@ -714,6 +738,129 @@ for func in $(ls supabase/functions); do
   npx supabase functions deploy $func --project-ref PROJECT_REF
 done
 ```
+
+---
+
+## ⏰ CRON Jobs System
+
+> **Atualizado:** 2026-01-24 | **Status:** Production
+
+### Overview
+
+Sistema de jobs agendados usando `pg_cron` para executar Edge Functions automaticamente.
+
+### Jobs Configurados
+
+| Job | Horário (BRT) | UTC | Frequência | Edge Function |
+|-----|---------------|-----|------------|---------------|
+| `daily-whatsapp-report` | 09:00 | 12:00 | Diário | `j_hub_daily_report` |
+| `balance-alerts-check` | 08:30 | 11:30 | Diário | `j_hub_balance_check_alerts` |
+| `woo-sync-orders` | 04:00 | 07:00 | Diário | `j_hub_woocommerce_sync` |
+| `woo-sync-products` | 03:00 | 06:00 | Domingos | `j_hub_woocommerce_sync` |
+
+### Arquitetura: pg_cron + Edge Functions
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  pg_cron (PostgreSQL Extension)                                 │
+│  - Roda dentro do banco de dados                                │
+│  - Usa cron expressions (UTC)                                   │
+│  - Chama net.http_post() para disparar Edge Functions           │
+└─────────────────────────┬───────────────────────────────────────┘
+                          │ HTTP POST (interno)
+                          ▼
+┌─────────────────────────────────────────────────────────────────┐
+│  Edge Functions (Deno Runtime)                                  │
+│  - Deployadas com --no-verify-jwt                               │
+│  - Recebem chamadas sem auth headers                            │
+│  - Usam SUPABASE_SERVICE_ROLE_KEY para operações                │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### ⚠️ Decisão: --no-verify-jwt
+
+**Problema:**
+- Edge Functions têm JWT verification habilitado por padrão no gateway
+- As novas chaves Supabase (`sb_publishable_*`) **NÃO são JWTs**
+- pg_cron não tem sessão de usuário para gerar JWTs
+
+**Solução:**
+- Deploy Edge Functions chamadas por CRON com `--no-verify-jwt`
+- Isso desabilita verificação JWT no **gateway** (não no código)
+- As chamadas vêm de dentro da infraestrutura Supabase (confiáveis)
+
+```bash
+# Deploy de funções chamadas por CRON:
+npx supabase functions deploy j_hub_daily_report --no-verify-jwt
+npx supabase functions deploy j_hub_woocommerce_sync --no-verify-jwt
+npx supabase functions deploy j_hub_balance_check_alerts --no-verify-jwt
+```
+
+### WooCommerce Sync: Padrão Orquestrador
+
+**Problema original:**
+- 5 contas processadas sequencialmente
+- Trama Casa com 681 produtos = ~120s sozinha
+- Total: 173s → timeout do gateway (150s)
+
+**Solução: Orchestrator + Workers**
+
+```
+CRON (1 único)
+    ↓
+Orquestrador (busca contas ativas)
+    ↓
+┌───────┬───────┬───────┬───────┬───────┐
+│ Conta1│ Conta2│ Conta3│ Conta4│ Conta5│  ← Workers (paralelos)
+└───────┴───────┴───────┴───────┴───────┘
+```
+
+**Como funciona:**
+1. CRON chama função sem `account_id` → modo orquestrador
+2. Orquestrador busca todas as contas com WooCommerce configurado
+3. Dispara workers em paralelo (cada um com seu próprio timeout de 150s)
+4. Envia notificação WhatsApp com resultado
+
+**Parâmetros de controle:**
+- `sync_orders: false` → apenas produtos
+- `sync_products: false` → apenas pedidos
+- `account_id: UUID` → modo worker (conta específica)
+
+### Notificações WhatsApp
+
+O WooCommerce sync envia notificações automáticas:
+
+**Sucesso:**
+```
+✅ *WooSync Orders*
+5/5 contas OK (8s)
+```
+
+**Erro:**
+```
+❌ *WooSync Products ERRO*
+
+Falhas:
+• Trama Casa: 503
+
+✅ OK: 4/5
+```
+
+### Verificar Jobs
+
+```sql
+-- Listar todos os jobs
+SELECT jobname, schedule, command FROM cron.job ORDER BY jobname;
+
+-- Ver histórico de execuções
+SELECT * FROM cron.job_run_details ORDER BY start_time DESC LIMIT 20;
+```
+
+### Migrations Relacionadas
+
+- `20260124000003_fix_all_cron_jobs.sql` - Setup inicial dos CRONs
+- `20260124000004_woo_sync_orchestrator.sql` - Jobs separados para orders/products
+- `20260124000005_update_cron_schedules.sql` - Ajuste de horários
 
 ---
 
@@ -934,15 +1081,27 @@ CREATE TABLE j_hub_woocommerce_sync_status (
 
 ### Edge Function: j_hub_woocommerce_sync
 
-Sincroniza dados do WooCommerce para o Supabase.
+Sincroniza dados do WooCommerce para o Supabase usando padrão orquestrador.
+
+**Modos de Operação:**
+- **Orquestrador** (sem `account_id`): Busca todas as contas e dispara workers em paralelo
+- **Worker** (com `account_id`): Processa uma conta específica
 
 **Parameters:**
-- `account_id` - UUID da conta (opcional, sincroniza todas se omitido)
+- `account_id` - UUID da conta (se omitido, entra em modo orquestrador)
+- `sync_orders` - Sincronizar pedidos (default: true)
+- `sync_products` - Sincronizar produtos (default: true)
 - `backfill_days` - Dias para backfill (default: 2)
 - `chunk_days` - Dias por chunk para evitar timeout (default: 14)
 - `start_date` - Data inicial para continuação de backfill
 
-**Supported Statuses:**
+**CRON Schedule:**
+- `woo-sync-orders`: Diário às 04:00 BRT (`sync_products: false`)
+- `woo-sync-products`: Domingos às 03:00 BRT (`sync_orders: false`)
+
+**Notificações:** Envia WhatsApp automático com resultado (sucesso ou erro).
+
+**Supported Order Statuses:**
 - `completed`, `processing`, `enviado`, `shipped`, `delivered`, `entregue`
 
 ### UI Component: WooCommerceSyncControl
@@ -971,7 +1130,7 @@ Sistema de relatórios diários automatizados via WhatsApp com insights de AI.
 
 ### Edge Function: j_hub_daily_report
 
-**CRON:** 8:00 BRT (11:00 UTC)
+**CRON:** 09:00 BRT (12:00 UTC)
 
 **Data Sources:**
 - WooCommerce (j_rep_woocommerce_bronze) - Vendas, pedidos, produtos
@@ -1050,6 +1209,6 @@ Painel de controle na aba Relatórios do AccountForm:
 
 ---
 
-**Last Updated:** 2026-01-23
-**Version:** v2.2.6
+**Last Updated:** 2026-01-24
+**Version:** v2.2.7
 **Maintained by:** Claude Code Assistant

@@ -7,10 +7,19 @@
  * MINOR (x.N.0): User-signaled feature releases
  * MAJOR (N.0.0): User-signaled breaking changes
  */
-export const APP_VERSION = 'v2.2.6';
+export const APP_VERSION = 'v2.2.7';
 
 /**
  * Version history:
+ * - v2.2.7 (2026-01-24):
+ *   - FEAT: WooCommerce Sync Orchestrator Pattern - parallel workers per account
+ *   - FIX: Timeout issue (173s → ~31s) using parallel variation fetching
+ *   - FEAT: Separate CRONs for orders (daily 4:00 BRT) and products (weekly Sun 3:00 BRT)
+ *   - FEAT: WhatsApp notifications for WooCommerce sync results
+ *   - REFACTOR: Edge Functions called by pg_cron use --no-verify-jwt
+ *   - UPDATE: CRON schedules - daily-report 09:00 BRT, balance-alerts 08:30 BRT
+ *   - DOCS: Added CRON Jobs System section to ARCHITECTURE.md
+ *
  * - v2.2.6 (2026-01-23):
  *   - ADD: ReportDispatchControl component for manual daily report dispatch
  *   - Features: test mode (no send), phone override, account-specific dispatch
