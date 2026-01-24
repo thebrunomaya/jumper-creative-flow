@@ -82,6 +82,23 @@ Deno.serve(async (req) => {
   const startTime = Date.now();
   console.log("[DailyReport] Starting report generation...");
 
+  // Check authentication - either Authorization header or X-Cron-Secret
+  const authHeader = req.headers.get("Authorization");
+  const cronSecret = req.headers.get("X-Cron-Secret");
+  const expectedCronSecret = Deno.env.get("CRON_SYNC_SECRET");
+
+  // Allow if: valid JWT OR valid cron secret
+  const hasCronAuth = cronSecret && expectedCronSecret && cronSecret === expectedCronSecret;
+  const hasJwtAuth = authHeader && authHeader.startsWith("Bearer ");
+
+  if (!hasCronAuth && !hasJwtAuth) {
+    console.log("[DailyReport] Unauthorized - no valid auth");
+    return new Response(
+      JSON.stringify({ error: "Unauthorized" }),
+      { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+
   const supabase = createClient(
     Deno.env.get("SUPABASE_URL")!,
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
